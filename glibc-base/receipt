@@ -1,14 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="glibc-base"
-VERSION="2.14.1"
+VERSION="2.24"
 CATEGORY="base-system"
 SHORT_DESC="GNU libc minimal libraries and UTF-8 support for SliTaz."
 WEB_SITE="http://www.gnu.org/software/libc/"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WANTED="glibc"
 HOST_ARCH="i486 arm x86_64"
+
+WANTED="glibc"
 
 # Locales include by default, other locales are in: locale-** and glibc-locale
 DEFAULT_LOCALE="en_US en_GB"
@@ -34,22 +35,21 @@ esac
 get_locales()
 {
 	local path=$1
-	for i in $DEFAULT_LOCALE
-	do
+	for i in $DEFAULT_LOCALE; do
 		cp $install/$path/i18n/locales/$i $fs/usr/share/i18n/locales
 	done
 }
 
 genpkg_rules()
 {
-	# Mkdir's.
-	for dir in $(cat $stuff/mkdir.list)
-	do
-		mkdir -p ${fs}$dir
-	done
-
 	case "$ARCH" in
 		arm*)
+			# Mkdir's.
+			for dir in $(cat $stuff/mkdir.list)
+			do
+				mkdir -p ${fs}$dir
+			done
+
 			# Eglibc is cross compiled by cross to have a toolchain so we can
 			# use these files instead of recooking it. ARM use Eglibc
 			echo "Using cross compiled Eglibc..."
@@ -77,6 +77,12 @@ genpkg_rules()
 			touch $fs/etc/ld.so.cache
 			get_locales "usr/share" ;;
 		x86_64)
+			# Mkdir's.
+			for dir in $(cat $stuff/mkdir.list)
+			do
+				mkdir -p ${fs}$dir
+			done
+
 			# EXPERIMENTAL: Glibc is cross compiled by cross to have a
 			# toolchain so we can use these files instead of recooking it.
 			echo "Using cross compiled Glibc..."
@@ -105,13 +111,41 @@ genpkg_rules()
 			sed -i s"|/usr/cross/$ARCH||"g $fs/lib/libc.so
 			sed -i s"|/usr/cross/$ARCH||"g $fs/lib/libpthread.so ;;
 		*)
-			# Copy all files specified in stuff/files.list. We get the files
-			# from glibc package.
-			for file in $(cat $stuff/wanted-files.list)
-			do
-				cp -a ${install}$file ${fs}$file
-			done
-			get_locales "usr/share"
+			cook_copy_files \
+				ld-*.so*            ld.so*            \
+				libanl-*.so*        libanl.so*        \
+				libc-*.so*          libc.so*          \
+				libcrypt-*.so*      libcrypt.so*      \
+				libdl-*.so*         libdl.so*         \
+				libm-*.so*          libm.so*          \
+				libnsl-*.so*        libnsl.so*        \
+				libnss_compat-*.so* libnss_compat.so* \
+				libnss_dns-*.so*    libnss_dns.so*    \
+				libnss_files-*.so*  libnss_files.so*  \
+				libpthread-*.so*    libpthread.so*    \
+				libresolv-*.so*     libresolv.so*     \
+				librt-*.so*         librt.so*         \
+				libthread_db-*.so*  libthread_db.so*  \
+				libutil-*.so*       libutil.so*       \
+				\
+				UNICODE.so gconv-modules ANSI_X3.110.so ISO8859-1.so \
+				ISO8859-15.so UTF-16.so CP1252.so IBM437.so IBM850.so \
+				\
+				i18n iso14651_t1 iso14651_t1_common translit_neutral \
+				translit_combining translit_circle translit_cjk_compat \
+				translit_compat translit_font translit_fraction translit_narrow \
+				translit_small translit_wide \
+				\
+				locale localedef locale.alias UTF-8.gz UTC rpc \
+				$DEFAULT_LOCALE
+
+#			# Copy all files specified in stuff/files.list. We get the files
+#			# from glibc package.
+#			for file in $(cat $stuff/wanted-files.list)
+#			do
+#				cp -a ${install}$file ${fs}$file
+#			done
+#			get_locales "usr/share"
 	esac
 }
 

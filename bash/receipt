@@ -1,34 +1,34 @@
 # SliTaz package receipt.
 
 PACKAGE="bash"
-VERSION="4.3.42"
+VERSION="4.3.48"
 BASEVERSION="${VERSION%.*}"
-CATEGORY="system-tools"
-SHORT_DESC="The GNU bourne SHell."
+CATEGORY="shells"
+SHORT_DESC="The GNU bourne shell"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
+WEB_SITE="https://www.gnu.org/software/bash/"
+TAGS="shell"
+
 TARBALL="$PACKAGE-$BASEVERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/bash/"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
 BASHCHECKURL="https://raw.githubusercontent.com/hannob/bashcheck/master/bashcheck"
 BASHCHECK="$(basename $BASHCHECKURL)"
 BASHPATCHES="$(for i in $(seq 1 ${VERSION##*.}); do printf "bash${BASEVERSION/./}-%03d " $i; done)"
 EXTRA_SOURCE_FILES="$BASHCHECK $BASHPATCHES"
-TAGS="shell"
 
-DEPENDS="libtinfo" # readline
-BUILD_DEPENDS="readline bison wget texinfo"
-#configure: WARNING: installed readline library is too old to be linked with bash
-#configure: WARNING: using private bash version
+DEPENDS="readline libtinfo"
+BUILD_DEPENDS="readline texinfo gettext patch"
 
 patch_bash()
 {
-	for i in $BASHPATCHES ; do
-		[ -s "$SOURCES_REPOSITORY/$i" ] || 
+	for i in $BASHPATCHES; do
+		[ -s "$SOURCES_REPOSITORY/$i" ] ||
 			wget -O "$SOURCES_REPOSITORY/$i" \
 			http://ftp.gnu.org/gnu/bash/bash-$BASEVERSION-patches/$i
-		echo "Apply $i ..."
-		patch -p0 < $SOURCES_REPOSITORY/$i
+		echo "Apply $i patch..."
+		patch -p0 -i $SOURCES_REPOSITORY/$i | awk '{print "  * " $0;}'
 	done
 }
 
@@ -45,10 +45,9 @@ cook_tmp_toolchain()
 compile_rules()
 {
 	# Patch and then build.
-	cd $src
 	patch_bash
 	# Skip tests that can not run while cross-compiling.
-	cat > config.cache << "EOF"
+	cat > config.cache <<EOF
 ac_cv_func_mmap_fixed_mapped=yes
 ac_cv_func_strcoll_works=yes
 ac_cv_func_working_mktime=yes
@@ -66,27 +65,32 @@ EOF
 		$CONFIGURE_ARGS \
 		--cache-file=config.cache \
 		--bindir=/bin \
-		--enable-history --enable-alias  \
-		--disable-nls --without-bash-malloc \
+		--enable-history \
+		--enable-alias  \
+		--disable-nls \
+		--without-bash-malloc \
 		--disable-help-builtin \
 		--with-installed-readline &&
 	make &&
 	# Bash doesn't care about DESTDIR in environnment variable.
 	make DESTDIR=$DESTDIR install
-	[ -s "$SOURCES_REPOSITORY/$BASHCHECK" ] || 
-		wget --no-check-certificate -O "$SOURCES_REPOSITORY/$BASHCHECK" $BASHCHECKURL
-	$DESTDIR/bin/bash $SOURCES_REPOSITORY/$BASHCHECK $DESTDIR/bin/bash | tee bashcheck.log
+
+	# Check bash against vulnerabilities
+	[ -s "$SOURCES_REPOSITORY/$BASHCHECK" ] ||
+		wget -O "$SOURCES_REPOSITORY/$BASHCHECK" $BASHCHECKURL
+	echo
+	$DESTDIR/bin/bash $SOURCES_REPOSITORY/$BASHCHECK $DESTDIR/bin/bash | \
+	tee bashcheck.log
+	echo
 	grep Vulnerable bashcheck.log && echo "ERROR: Vulnerable"
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/bin $fs
-	# Config files.
-	#
-	mkdir $fs/etc
-	cp $stuff/example.bashrc $fs/etc/bashrc
+	cook_copy_folders bin
+	# Config files
+	cp -a $stuff/etc $fs
 }
 
 
@@ -97,12 +101,12 @@ post_install()
 	# Exit function in non-interactive mode (when user can't answer question)
 	! tty -s && return
 
-	echo -n 'Do you want to set Bash to default (y/N) ? : '
+	echo -n 'Do you want to set /bin/bash to default (y/N) ? : '
 	read -t 30 answer
 	[ "$answer" != 'y' ] && return
 
 	echo
-	echo 'Setting bash as default shell for all users'
+	echo 'Setting /bin/bash as default shell for all users'
 	sed -i 's|:/bin/[ckz]*sh$|:/bin/bash|' "$1/etc/passwd"
 
 	echo 'Creating ~/.bashrc file for all users'
@@ -117,7 +121,7 @@ post_install()
 pre_remove()
 {
 	echo
-	echo 'Setting sh as default shell for all users'
+	echo 'Setting /bin/sh as default shell for all users'
 	sed -i 's|:/bin/bash$|:/bin/sh|' "$1/etc/passwd"
 	[ -f "$1/etc/skel/.bashrc" ] && rm "$1/etc/skel/.bashrc"
 }

@@ -2,11 +2,12 @@
 
 PACKAGE="coreutils"
 VERSION="8.25"
-CATEGORY="system-tools"
+CATEGORY="meta"
 SHORT_DESC="Utilities for using and setting the basic system."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/coreutils/coreutils.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
@@ -18,8 +19,8 @@ coreutils-file-output-full coreutils-file-output-part coreutils-file-sort \
 coreutils-file-special coreutils-file-summarize coreutils-line coreutils-\
 numeric coreutils-operations coreutils-path coreutils-print coreutils-\
 redirection"
-DEPENDS="glibc-base acl attr gmp"
-BUILD_DEPENDS="automake xz libcap-dev gmp-dev"
+DEPENDS="glibc-base acl attr gmp $SPLIT"
+BUILD_DEPENDS="automake autoconf gettext xz libcap-dev gmp-dev patch"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,6 +29,10 @@ compile_rules()
 	patch -Np1 -i $stuff/coreutils-8.25-i18n-2.patch
 	# SliTaz: show extended info touching CPU via uname
 	patch  -p1 -i $stuff/uname.u
+	# SliTaz: fix translations, especially deprecated symbol '\v'
+	patch  -p1 -i $stuff/coreutils-fix-po.patch
+	msgfmt po/nb.po -o po/nb.gmo
+	msgfmt po/sl.po -o po/sl.gmo
 
 	autoreconf -fi
 
@@ -47,38 +52,4 @@ compile_rules()
 	mv  $install/usr/share/man/man1/chroot.1 \
 		$install/usr/share/man/man8/chroot.8
 	sed -i 's|"1"|"8"|' $install/usr/share/man/man8/chroot.8
-
-	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	# A set of binaries looks intriguing, isn't it?
-	# For what is this package with exactly these binaries?
-
-	mkdir -p $fs/usr/bin $fs/bin
-
-	cd $install/usr/bin
-	cp -a base64 csplit factor fmt join od paste ptx shred shuf split users \
-		groups $fs/usr/bin
-
-	cp -a $install/bin/cp $fs/bin
-}
-
-post_install()
-{
-	# Remove Busybox applet in order to not clash with
-	# /usr/bin/base64 from this package.
-	rm "$1/bin/base64"
-}
-
-post_remove()
-{
-	ln -s      busybox "$1/bin/base64"
-	ln -s      busybox "$1/bin/cp"
-	ln -s /bin/busybox "$1/usr/bin/groups"
-	ln -s /bin/busybox "$1/usr/bin/od"
-	ln -s /bin/busybox "$1/usr/bin/split"
-	ln -s /bin/busybox "$1/usr/bin/users"
 }

@@ -1,13 +1,14 @@
 # SliTaz package receipt.
 
 PACKAGE="findutils"
-VERSION="4.4.2"
+VERSION="4.6.0"
 CATEGORY="utilities"
 SHORT_DESC="GNU utilities and tools to find/locate."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
+WEB_SITE="https://www.gnu.org/software/findutils/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/findutils/"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="glibc-base slitaz-base-files"
@@ -15,33 +16,20 @@ DEPENDS="glibc-base slitaz-base-files"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
-		--prefix=/usr \
-		--libexecdir=/usr/lib/findutils \
-		--localstatedir=/var \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
+		--localstatedir=/var/lib/locate \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	cook_copy_folders bin libexec
 }
 
-# Remove Busybox symlink before installing
-pre_install()
-{
-	rm -f "$1/usr/bin/find"
-	rm -f "$1/usr/bin/xargs"
-}
-
+# Restore Busybox symlinks after removing the package
 post_remove()
 {
 	ln -s /bin/busybox /usr/bin/find

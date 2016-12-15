@@ -1,24 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="ncurses-dev"
-VERSION="5.9"
+VERSION="6.0"
 CATEGORY="development"
-SHORT_DESC="Devel files for the ncurses library."
+SHORT_DESC="Library of functions to manage display on terminals (development files)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WANTED="ncurses"
-WEB_SITE="http://invisible-island.net/ncurses/"
+WEB_SITE="https://www.gnu.org/software/ncurses/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ncursesw-dev ncurses libtinfo"
+WANTED="ncurses"
+DEPENDS="ncurses ncurses-extra ncurses-libform ncurses-libmenu ncurses-libpanel"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib $fs/usr/bin $fs/usr/lib
-	cp -a $install/lib/*.a $fs/lib
-	# Use include file from ncursesw-dev
-	#cp -a $install/usr/include $fs/usr
-	cp $install/usr/bin/ncurses5-config $fs/usr/bin
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cook_copy_files ncursesw6-config *.h *.a *.pc
 }

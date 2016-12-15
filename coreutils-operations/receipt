@@ -14,20 +14,7 @@ DEPENDS="glibc-base acl attr"
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mandir="$fs/usr/share/man/man1"
-	mkdir -p $mandir
-
-	while read i; do
-		mkdir -p $fs$(dirname $i)
-		cp -a $install$i $fs$i
-		find $install -name "$(basename $i).*" -exec cp -a \{\} $mandir \;
-	done <<EOT
-/bin/cp
-/bin/dd
-/bin/mv
-/usr/bin/install
-/usr/bin/shred
-EOT
+	cook_copy_files cp dd mv install shred
 }
 
 post_remove()

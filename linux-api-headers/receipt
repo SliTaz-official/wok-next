@@ -1,23 +1,24 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-api-headers"
-VERSION="3.2.71"
-KBASEVER="${VERSION:0:3}"
+VERSION="4.7.2"
+#KBASEVER="${VERSION:0:3}"
 CATEGORY="development"
 SHORT_DESC="Kernel headers sanitized for use in userspace."
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 SOURCE="linux"
-TARBALL="$SOURCE-$KBASEVER.tar.xz"
-WEB_SITE="http://www.kernel.org/"
-WGET_URL="http://www.kernel.org/pub/linux/kernel/v3.0/$TARBALL"
+WEB_SITE="https://www.kernel.org/"
+
+TARBALL="$SOURCE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
+
 PROVIDE="linux-headers linux64-api-headers linux64-headers"
+BUILD_DEPENDS="bash libtinfo"
 
-BUILD_DEPENDS="bash wget"
-
-[ "$KBASEVER" != "$VERSION" ] && 
-PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz" &&
-EXTRA_SOURCE_FILES="$(basename $PATCH)"
+#[ "$KBASEVER" != "$VERSION" ] &&
+#PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz" &&
+#EXTRA_SOURCE_FILES="$(basename $PATCH)"
 
 # Rules to compile & install the temporary toolchain.
 cook_tmp_toolchain()
@@ -32,14 +33,14 @@ cook_tmp_toolchain()
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	
-	if [ "$KBASEVER" != "$VERSION" ]; then
-		[ -s $SRC/$(basename $PATCH) ] ||
-		wget --no-check-certificate $PATCH -O $SRC/$(basename $PATCH)
-		xzcat $SRC/$(basename $PATCH) | patch -Np1
-		touch done.patch-$VERSION
-	fi
+#	cd $src
+#	
+#	if [ "$KBASEVER" != "$VERSION" ]; then
+#		[ -s $SRC/$(basename $PATCH) ] ||
+#		wget --no-check-certificate $PATCH -O $SRC/$(basename $PATCH)
+#		xzcat $SRC/$(basename $PATCH) | patch -Np1
+#		touch done.patch-$VERSION
+#	fi
 
 	make mrproper &&
 	make headers_check &&

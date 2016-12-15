@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="slitaz-toolchain"
-VERSION="5.0"
+VERSION="6.0"
 CATEGORY="meta"
 SHORT_DESC="SliTaz meta package to rebuild or install current toolchain."
 MAINTAINER="pankso@slitaz.org"
@@ -76,17 +76,17 @@ EOT
 	gcc -v 2>> $tmplog
 
 	# All packages cooked got ther own log so we dont keep them.
-	separator >> $tmplog && echo "" >> $tmplog
-	mv -f $tmplog $LOGS/$PACKAGE.log 
+	separator >> $tmplog; echo "" >> $tmplog
+	mv -f $tmplog $LOGS/$PACKAGE.log
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	binutils=$(grep ^VERSION $WOK/binutils/receipt | cut -d '"' -f 2)
-	linux=$(grep ^VERSION $WOK/linux/receipt | cut -d '"' -f 2)
-	gcc=$(grep ^VERSION $WOK/gcc/receipt | cut -d '"' -f 2)
-	glibc=$(grep ^VERSION $WOK/glibc/receipt | cut -d '"' -f 2)
+	   linux=$(grep ^VERSION $WOK/linux-api-headers/receipt | cut -d '"' -f 2)
+	     gcc=$(grep ^VERSION $WOK/gcc/receipt      | cut -d '"' -f 2)
+	   glibc=$(grep ^VERSION $WOK/glibc/receipt    | cut -d '"' -f 2)
 	
 	mkdir -p $fs/usr/share/doc/slitaz
 	cat > $fs/usr/share/doc/slitaz/toolchain.txt << EOT
@@ -100,10 +100,10 @@ Host  system : $HOST_SYSTEM
 
 Packages:
 
-    * Binutils $binutils
-    * Linux API headers $linux
-    * GCC $gcc
-    * Glibc $glibc
+  * Binutils $binutils
+  * Linux API headers $linux
+  * GCC $gcc
+  * Glibc $glibc
 
 Toolchain documentation: http://doc.slitaz.org/en:cookbook:toolchain
 

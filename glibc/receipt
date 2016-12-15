@@ -1,17 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="glibc"
-VERSION="2.14.1"
+VERSION="2.24"
 CATEGORY="meta"
 SHORT_DESC="The GNU C libraries. This package is used to compile the libc."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/libc/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="glibc-base glibc-locale glibc-dev"
-BUILD_DEPENDS="linux-api-headers autoconf bash advancecomp"
+BUILD_DEPENDS="linux-api-headers autoconf bash advancecomp  \
+gawk gettext-tools bison"
 
 # Genpkg order for tazwok.
 COOK_OPT="genpkg=glibc-base:glib-locale:glibc-dev"
@@ -19,19 +21,14 @@ COOK_OPT="genpkg=glibc-base:glib-locale:glibc-dev"
 # Rules to compile & install the temporary toolchain.
 cook_tmp_toolchain()
 {
-	cd $src
-	
-	# Glibc Bug Fixes Patch from LFS
-	patch -Np1 -i $stuff/glibc-2.14.1-fixes-1.patch
-	# Glibc Bug Sort Relocatable Objects Patch
-	patch -Np1 -i $stuff/glibc-2.14.1-sort-1.patch
-	# Fix a bug that prevents Glibc from building with GCC-4.6.2
-	patch -Np1 -i $stuff/glibc-2.14.1-gcc_fix-1.patch
-	# GHOST
-	patch -Np1 -i $stuff/glibc-2.14.1-CVE-2015-0235.patch
-
-	# Build in a separate directory.
-	mkdir ../glibc-build && cd ../glibc-build
+#	# Glibc Bug Fixes Patch from LFS
+#	patch -Np1 -i $stuff/glibc-2.14.1-fixes-1.patch
+#	# Glibc Bug Sort Relocatable Objects Patch
+#	patch -Np1 -i $stuff/glibc-2.14.1-sort-1.patch
+#	# Fix a bug that prevents Glibc from building with GCC-4.6.2
+#	patch -Np1 -i $stuff/glibc-2.14.1-gcc_fix-1.patch
+#	# GHOST
+#	patch -Np1 -i $stuff/glibc-2.14.1-CVE-2015-0235.patch
 
 	# glibc no longer support i386, so use -march=i486 for better compatibility.
 	# If i686 ???
@@ -43,14 +40,22 @@ cook_tmp_toolchain()
 			echo "CFLAGS += -O2 -march=$ARCH -mtune=$ARCH" > configparms ;;
 	esac
 
-	{ $src/configure \
-		--host=$HOST_SYSTEM \
-		--build=$($src/scripts/config.guess) \
-		--disable-profile --enable-add-ons \
-		--enable-kernel=2.6.30 --with-headers=/tools/include \
-		libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes &&
-	make -j1 &&
-	make install
+	{
+		# Build in a separate directory.
+		mkdir glibc-build
+		cd    glibc-build
+
+		../configure \
+			--host=$HOST_SYSTEM \
+			--build=$($src/scripts/config.guess) \
+			--disable-profile \
+			--enable-add-ons \
+			--enable-kernel=2.6.32 \
+			--with-headers=/tools/include \
+			libc_cv_forced_unwind=yes \
+			libc_cv_c_cleanup=yes &&
+		make -j1 &&
+		make install
 	} || return 1
 
 	# Link compiler to this new glibc.
@@ -64,49 +69,50 @@ cook_tmp_toolchain()
 # Rules to configure and make the package.
 compile_rules()
 {
-	# SliTaz is a Busybox based OS, why we so small and fast. Using gawk by
-	# default to build package will not ensure package work with Busybox awk
-	# and so should NOT be use to cook.
-	if [ -x /usr/bin/cook ]; then
-		[ -d "/var/lib/tazpkg/installed/gawk" ] || tazpkg get-install gawk
-	fi
+#	# SliTaz is a Busybox based OS, why we so small and fast. Using gawk by
+#	# default to build package will not ensure package work with Busybox awk
+#	# and so should NOT be use to cook.
+#	if [ -x /usr/bin/cook ]; then
+#		[ -d "/var/lib/tazpkg/installed/gawk" ] || tazpkg get-install gawk
+#	fi
 
-	# Make 4.x support...
-	sed -i 's/3\.79/4.* | &/' configure*
-	# Fixes and patches from LFS, Redhat
-	sed -i -e 's/"db1"/& \&\& $name ne "nss_test1"/' scripts/test-installation.pl
-	sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in
+#	# Make 4.x support...
+#	sed -i 's/3\.79/4.* | &/' configure*
+#	# Fixes and patches from LFS, Redhat
+#	sed -i -e 's/"db1"/& \&\& $name ne "nss_test1"/' scripts/test-installation.pl
+#	sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in
 
-	# Glibc misc Bug Fixes
-	patch -Np1 -i $stuff/glibc-2.14.1-fixes-1.patch
-	
-	# Glibc Bug Sort Relocatable Objects Patch
-	#patch -Np1 -i $stuff/glibc-2.14.1-sort-1.patch
-	
-	# Fix a bug that prevents Glibc from building with GCC-4.6.2
-	patch -Np1 -i $stuff/glibc-2.14.1-gcc_fix-1.patch
-	
-	# Revert commit causing issues with crappy DNS servers
-	patch -Np1 -i $stuff/glibc-2.14-revert-4768ae77.patch
-	
-	# re-export RPC interface until libtirpc is ready as a replacement
-	# http://sourceware.org/git/?p=glibc.git;a=commitdiff;h=acee4873 (only fedora branch...)
-	patch -Np1 -i $stuff/glibc-2.14-reexport-rpc-interface.patch
-	# http://sourceware.org/git/?p=glibc.git;a=commitdiff;h=bdd816a3 (only fedora branch...)
-	patch -Np1 -i $stuff/glibc-2.14-reinstall-nis-rpc-headers.patch
-	# GHOST
-	patch -Np1 -i $stuff/glibc-2.14.1-CVE-2015-0235.patch
+#	# Glibc misc Bug Fixes
+#	patch -Np1 -i $stuff/glibc-2.14.1-fixes-1.patch
 
-	# Fix a stack imbalance that occurs under some conditions:
-	sed -i '195,213 s/PRIVATE_FUTEX/FUTEX_CLOCK_REALTIME/' \
-		nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timedrdlock.S \
-		nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timedwrlock.S
+#	# Glibc Bug Sort Relocatable Objects Patch
+#	#patch -Np1 -i $stuff/glibc-2.14.1-sort-1.patch
+
+#	# Fix a bug that prevents Glibc from building with GCC-4.6.2
+#	patch -Np1 -i $stuff/glibc-2.14.1-gcc_fix-1.patch
+
+#	# Revert commit causing issues with crappy DNS servers
+#	patch -Np1 -i $stuff/glibc-2.14-revert-4768ae77.patch
+
+#	# re-export RPC interface until libtirpc is ready as a replacement
+#	# http://sourceware.org/git/?p=glibc.git;a=commitdiff;h=acee4873 (only fedora branch...)
+#	patch -Np1 -i $stuff/glibc-2.14-reexport-rpc-interface.patch
+#	# http://sourceware.org/git/?p=glibc.git;a=commitdiff;h=bdd816a3 (only fedora branch...)
+#	patch -Np1 -i $stuff/glibc-2.14-reinstall-nis-rpc-headers.patch
+#	# GHOST
+#	patch -Np1 -i $stuff/glibc-2.14.1-CVE-2015-0235.patch
+
+#	# Fix a stack imbalance that occurs under some conditions:
+#	sed -i '195,213 s/PRIVATE_FUTEX/FUTEX_CLOCK_REALTIME/' \
+#		nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timedrdlock.S \
+#		nptl/sysdeps/unix/sysv/linux/x86_64/pthread_rwlock_timedwrlock.S
 
 	# Glibc needs ld.so.conf in the install destdir.
 	mkdir -p $WOK/$PACKAGE/install/etc
-	touch $WOK/$PACKAGE/install/etc/ld.so.conf
-	mkdir ../glibc-build && cd ../glibc-build
-	
+	touch    $WOK/$PACKAGE/install/etc/ld.so.conf
+
+#	mkdir ../glibc-build && cd ../glibc-build
+
 	# Read the INSTALL file in glibc. Also Glibc dont build with -Os flag.
 	# --enale-kernel use latest SliTaz Kernel version. From Glibc INSTALL:
 	# "The higher the VERSION number is, the less compatibility code is
@@ -118,16 +124,24 @@ compile_rules()
 		*)
 			echo "CFLAGS += -O2 -march=$ARCH -mtune=$ARCH" > configparms ;;
 	esac
-	{ $src/configure \
-		--disable-profile \
-		--enable-add-ons \
-		--enable-kernel=2.6.30 \
-		--libexecdir=/usr/lib/glibc \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM \
-		--target=$BUILD_SYSTEM &&
-	make -j1 && make install_root=$DESTDIR install
+
+	# Glibc FHS Patch - LFS 7.10
+	patch -p1 -i $stuff/glibc-2.24-fhs-1.patch
+
+	{
+		mkdir build
+		cd    build
+		$src/configure \
+			--disable-profile \
+			--enable-add-ons \
+			--enable-kernel=2.6.32 \
+			--libexecdir=/usr/lib/glibc \
+			--build=$HOST_SYSTEM \
+			--host=$HOST_SYSTEM \
+			--target=$BUILD_SYSTEM &&
+		make -j1 && make install_root=$DESTDIR install
 	} || return 1
+
 	for i in $DESTDIR/usr/share/i18n/charmaps/*.gz ; do
 		advdef -z4 $i
 	done
@@ -150,10 +164,10 @@ genpkg_rules()
 	LOCALE=""
 	mkdir -p $fs/var
 
-	# Remove build directory.
-	rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
-	rm -rf $WOK/$PACKAGE/$PACKAGE-build
+#	# Remove build directory.
+#	rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
+#	rm -rf $WOK/$PACKAGE/$PACKAGE-build
 
 	# check install
-	ls $install/lib/
+	ls $install/lib/ | tr '\n' ' ' | fold -s
 }

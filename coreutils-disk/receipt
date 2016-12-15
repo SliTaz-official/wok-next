@@ -14,27 +14,14 @@ DEPENDS="glibc-base"
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mandir="$fs/usr/share/man/man1"
-	mkdir -p $mandir
-
-	while read i; do
-		mkdir -p $fs$(dirname $i)
-		cp -a $install$i $fs$i
-		find $install -name "$(basename $i).*" -exec cp -a \{\} $mandir \;
-	done <<EOT
-/bin/df
-/bin/sync
-/usr/bin/du
-/usr/bin/stat
-/usr/bin/truncate
-EOT
+	cook_copy_files df sync du stat truncate
 }
 
 post_install()
 {
 	# Remove Busybox applets in order to not clash with ("/bin", "/sbin",
 	# "/usr/bin" and "/usr/sbin" conflicts with the same filename)
-	rm "$1/bin/stat"     # /usr/bin/stat
+	rm "$1/bin/stat"     # for /usr/bin/stat
 }
 
 post_remove()

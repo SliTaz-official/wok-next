@@ -12,7 +12,7 @@ WGET_URL="$GNU_MIRROR/coreutils/$TARBALL"
 
 SIBLINGS="coreutils"
 DEPENDS="glibc-base acl attr libcap gmp"
-BUILD_DEPENDS="automake xz libcap-dev gmp-dev"
+BUILD_DEPENDS="automake autoconf gettext xz libcap-dev gmp-dev patch"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,6 +21,10 @@ compile_rules()
 	patch -Np1 -i $WOK/coreutils/stuff/coreutils-8.25-i18n-2.patch
 	# SliTaz: show extended info touching CPU via uname
 	patch  -p1 -i $WOK/coreutils/stuff/uname.u
+	# SliTaz: fix translations, especially deprecated symbol '\v'
+	patch  -p1 -i $WOK/coreutils/stuff/coreutils-fix-po.patch
+	msgfmt po/nb.po -o po/nb.gmo
+	msgfmt po/sl.po -o po/sl.gmo
 
 	autoreconf -fi
 
@@ -42,29 +46,26 @@ compile_rules()
 	mv  $install/usr/share/man/man1/chroot.1 \
 		$install/usr/share/man/man8/chroot.8
 	sed -i 's|"1"|"8"|' $install/usr/share/man/man8/chroot.8
-
-	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
-	rm -r $fs/usr/share/info $fs/usr/share/locale
+	cook_copy_folders bin sbin libexec
 }
 
 post_install()
 {
 	# Remove Busybox applets in order to not clash with ("/bin", "/sbin",
 	# "/usr/bin" and "/usr/sbin" conflicts with the same filename)
-	rm "$1/bin/base64"   # /usr/bin/base64
-	rm "$1/bin/kill"     # /usr/bin/kill
-	rm "$1/bin/mktemp"   # /usr/bin/mktemp
-	rm "$1/bin/nice"     # /usr/bin/nice
-	rm "$1/bin/printenv" # /usr/bin/printenv
-	rm "$1/bin/sleep"    # /usr/bin/sleep
-	rm "$1/bin/stat"     # /usr/bin/stat
-	rm "$1/bin/touch"    # /usr/bin/touch
+	rm "$1/bin/base64"   # for /usr/bin/base64
+	rm "$1/bin/kill"     # for /usr/bin/kill
+	rm "$1/bin/mktemp"   # for /usr/bin/mktemp
+	rm "$1/bin/nice"     # for /usr/bin/nice
+	rm "$1/bin/printenv" # for /usr/bin/printenv
+	rm "$1/bin/sleep"    # for /usr/bin/sleep
+	rm "$1/bin/stat"     # for /usr/bin/stat
+	rm "$1/bin/touch"    # for /usr/bin/touch
 }
 
 post_remove()

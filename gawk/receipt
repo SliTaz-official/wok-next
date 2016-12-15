@@ -1,18 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="gawk"
-VERSION="4.0.1"
+VERSION="4.1.3"
 CATEGORY="development"
 SHORT_DESC="GNU awk to handle simple data-reformatting."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/gawk/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
+DEPENDS="readline"
+BUILD_DEPENDS="readline-dev gettext"
 
 # Rules to compile & install the temporary toolchain.
 cook_tmp_toolchain()
@@ -24,20 +25,13 @@ cook_tmp_toolchain()
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --libexecdir=/usr/lib \
-		$CONFIGURE_ARGS &&
-	make &&	make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	
-	cp -a $install/usr/share/awk $fs/usr/share
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
+	cook_copy_folders bin lib awk
 }
 
 # Pre and post install commands for Tazpkg.

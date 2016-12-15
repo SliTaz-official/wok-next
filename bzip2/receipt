@@ -6,22 +6,22 @@ CATEGORY="utilities"
 SHORT_DESC="High-quality data compressor."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.bzip.org/"
-WGET_URL="http://www.bzip.org/$VERSION/$TARBALL"
 TAGS="compression archive"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.bzip.org/$VERSION/$TARBALL"
+
 DEPENDS="bzlib"
-BUILD_DEPENDS=""
+SPLIT="bzlib bzip2-apps"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Disable the tests since they won't work on a multi-architecture build
-	cp Makefile Makefile.orig
-	sed -e "/^all:/s/ test//" Makefile.orig > Makefile
-	
+	patch -p1 -i $stuff/bzip2-1.0.6-install_docs-1.patch
+	patch -p1 -i $stuff/bzip2-1.0.6-fix_install.patch
+
 	# No configure script, we must used CC, AR and RANLIB set by cook.
 	case "$ARCH" in
 		arm*)
@@ -32,7 +32,7 @@ compile_rules()
 			make clean && make ;;
 	esac
 
-	cook_pick_manpages bzdiff.1 bzgrep.1 bzip2.1 bzmore.1
+	make install
 }
 
 # Just to be sure when cross-compiling.
@@ -44,12 +44,7 @@ testsuite()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/bzip2-shared $fs/usr/bin/bzip2
-	# Da bunzip2, bzcat and lib symlink.
-	cd $fs/usr/bin
-	ln -s bzip2 bunzip2
-	ln -s bzip2 bzcat
+	cook_copy_files bzip2 bunzip2 bzcat
 }
 
 # Restore Busybox symlinks upon removal
@@ -57,5 +52,4 @@ post_remove()
 {
 	ln -s /bin/busybox /usr/bin/bunzip2
 	ln -s /bin/busybox /usr/bin/bzcat
-	#ln -s /bin/busybox /usr/bin/bzip2
 }
