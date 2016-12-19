@@ -1,38 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="gzip-full"
-VERSION="1.6"
+VERSION="1.8"
 CATEGORY="system-tools"
 SHORT_DESC="GNU compression utilities"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.gnu.org/software/gzip/"
-WANTED="gzip"
 
+WANTED="gzip"
 DEPENDS="gzip"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-
-	cp -a $install/usr/bin $fs/usr
-	rm -f $fs/usr/bin/gzip $fs/usr/bin/gunzip
+	cook_copy_folders bin
+	cook_split_rm gzip
 }
 
-# Pre and post install commands for Tazpkg.
-# We must remove all Busybox symlink before installing.
 pre_install()
 {
-	echo -n "Removing Busybox uncompress and zcat utilities... "
+	# Removing Busybox uncompress and zcat applets
+	# as we have /usr/bin/uncompress and /usr/bin/zcat in this package
 	rm -f "$1/bin/uncompress" "$1/bin/zcat"
-	status
 }
 
 post_remove()
 {
-	echo -n "Restoring Busybox uncompress and zcat utilities... "
 	ln -s busybox "$1/bin/uncompress"
 	ln -s busybox "$1/bin/zcat"
-	status
 }
