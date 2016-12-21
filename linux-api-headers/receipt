@@ -1,8 +1,8 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-api-headers"
-VERSION="4.7.2"
-#KBASEVER="${VERSION:0:3}"
+VERSION="4.9"
+KBASEVER="$(echo $VERSION | cut -d. -f1,2)"
 CATEGORY="development"
 SHORT_DESC="Kernel headers sanitized for use in userspace."
 MAINTAINER="devel@slitaz.org"
@@ -10,37 +10,26 @@ LICENSE="GPL2"
 SOURCE="linux"
 WEB_SITE="https://www.kernel.org/"
 
-TARBALL="$SOURCE-$VERSION.tar.xz"
+TARBALL="$SOURCE-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
 PROVIDE="linux-headers linux64-api-headers linux64-headers"
-BUILD_DEPENDS="bash libtinfo"
+BUILD_DEPENDS="bash libtinfo perl"
 
-#[ "$KBASEVER" != "$VERSION" ] &&
-#PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz" &&
-#EXTRA_SOURCE_FILES="$(basename $PATCH)"
-
-# Rules to compile & install the temporary toolchain.
-cook_tmp_toolchain()
-{
-	cd $src
-	make mrproper &&
-	make headers_check &&
-	make INSTALL_HDR_PATH=dest headers_install &&
-	cp -r dest/include/* /tools/include
-}
+if [ "$KBASEVER" != "$VERSION" ]; then
+	PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz"
+	EXTRA_SOURCE_FILES="$(basename $PATCH)"
+fi
 
 # Rules to configure and make the package.
 compile_rules()
 {
-#	cd $src
-#	
-#	if [ "$KBASEVER" != "$VERSION" ]; then
-#		[ -s $SRC/$(basename $PATCH) ] ||
-#		wget --no-check-certificate $PATCH -O $SRC/$(basename $PATCH)
-#		xzcat $SRC/$(basename $PATCH) | patch -Np1
-#		touch done.patch-$VERSION
-#	fi
+	if [ "$KBASEVER" != "$VERSION" ]; then
+		[ -s $SRC/$(basename $PATCH) ] ||
+		wget --no-check-certificate $PATCH -O $SRC/$(basename $PATCH)
+		xzcat $SRC/$(basename $PATCH) | patch -Np1
+		touch done.patch-$VERSION
+	fi
 
 	make mrproper &&
 	make headers_check &&
@@ -52,12 +41,5 @@ genpkg_rules()
 {
 	mkdir -p $fs/usr
 	cp -a $install/usr/include $fs/usr
-	rm -f $(find ${fs} -name .install -or -name ..install.cmd)
-}
-
-# Post install commands for Tazpkg.
-post_install()
-{
-	# Removed old linux-headers
-	rm -rf ${1}${INSTALLED}/linux-headers 2>/dev/null
+	rm -f $(find $fs -name .install -or -name ..install.cmd)
 }
