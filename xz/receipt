@@ -1,33 +1,46 @@
 # SliTaz package receipt.
 
 PACKAGE="xz"
-VERSION="5.2.1"
+VERSION="5.2.2"
 CATEGORY="base-system"
 SHORT_DESC="General-purpose data compressor with a high compression ratio."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="PublicDomain LGPL2.1 GPL2 GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://tukaani.org/xz"
-WGET_URL="$WEB_SITE/$TARBALL"
+WEB_SITE="http://tukaani.org/xz/"
 TAGS="compression archive"
 HOST_ARCH="i486 arm x86_64"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$WEB_SITE$TARBALL"
+
 DEPENDS="liblzma"
-BUILD_DEPENDS=""
+BUILD_DEPENDS="gettext"
+SPLIT="xz-tools liblzma liblzma-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -e '/mf\.buffer = NULL/a next->coder->mf.size = 0;' \
+		-i $src/src/liblzma/lz/lz_encoder.c
+
 	./configure \
-		--enable-dynamic=yes \
+		--disable-static \
+		--docdir=/usr/share/doc/xz-$VERSION \
 		--enable-small \
 		$CONFIGURE_ARGS &&
 	make && make install
+
+	mkdir -p $install/bin $install/lib
+	for i in lzma unlzma lzcat xz unxz xzcat; do
+		mv $install/usr/bin/$i $install/bin
+	done
+	mv $install/usr/lib/liblzma.so.* $install/lib
+	ln -sf ../../lib/$(readlink $install/usr/lib/liblzma.so) \
+		$install/usr/lib/liblzma.so
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/lib
-	cp -a $install/usr/bin/xz $fs/usr/bin
+	cp -a $install/bin $install/lib $fs
 }

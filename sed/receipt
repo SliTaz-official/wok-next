@@ -3,28 +3,38 @@
 PACKAGE="sed"
 VERSION="4.2.2"
 CATEGORY="development"
-SHORT_DESC="Gnu stream editor."
+SHORT_DESC="GNU stream editor."
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/sed/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://www.gnu.org/software/sed/"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
 DEPENDS="acl"
+BUILD_DEPENDS="acl-dev gettext texinfo"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	patch -p1 -i $stuff/ru.po.patch
+	msgfmt po/ru.po -o po/ru.gmo
+
 	./configure \
+		--bindir=/bin \
+		--htmldir=/usr/share/doc/sed-$VERSION \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	make $MAKEFLAGS && make html && make install && make -C doc install-html
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_files sed
 }
 
+post_remove()
+{
+	ln -s busybox "$1/bin/sed"
+}
