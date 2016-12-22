@@ -6,13 +6,14 @@ CATEGORY="development"
 SHORT_DESC="C library for multiple-precision floating-point computations."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.mpfr.org/"
-WGET_URL="http://www.mpfr.org/mpfr-current/$TARBALL"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://www.mpfr.org/$PACKAGE-$VERSION/$TARBALL"
+
 DEPENDS="gmp"
-BUILD_DEPENDS="gmp-dev"
+BUILD_DEPENDS="gmp-dev texinfo"
 
 #--with-gmp-lib=/cross/$ARCH/sysroot/usr/lib
 #--with-gmp-include=/cross/$ARCH/sysroot/usr/include
@@ -20,23 +21,23 @@ BUILD_DEPENDS="gmp-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -Np1 -i $stuff/mpfr-3.1.2-upstream_fixes-3.patch
-	case "$ARCH" in
-	i?86)
-		./configure \
-			--enable-thread-safe \
-			$CONFIGURE_ARGS &&
-		make && make check && make install ;;
-	*)
-		./configure \
-			--enable-thread-safe \
-			$CONFIGURE_ARGS &&
-		make && make install ;;
-	esac
+#	patch -Np1 -i $stuff/mpfr-3.1.2-upstream_fixes-3.patch
+
+	./configure \
+		--disable-static \
+		--enable-thread-safe \
+		--docdir=/usr/share/doc/mpfr-$VERSION \
+		$CONFIGURE_ARGS &&
+	make && make html && make install && make install-html
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	cook_copy_files *.so*
+}
+
+testsuite()
+{
+	case "$ARCH" in i?86) make check;; esac
 }

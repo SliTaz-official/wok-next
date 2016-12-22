@@ -6,10 +6,11 @@ CATEGORY="base-system"
 SHORT_DESC="Compression library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="zlib/libpng"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://zlib.net"
-WGET_URL="$SF_MIRROR/libpng/$TARBALL"
+WEB_SITE="http://www.zlib.net/"
 HOST_ARCH="i486 arm x86_64"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$WEB_SITE$TARBALL"
 
 DEPENDS="glibc-base"
 BUILD_DEPENDS=""
@@ -17,25 +18,30 @@ BUILD_DEPENDS=""
 # Rules to configure and make the package.
 compile_rules()
 {
-	case "$ARCH" in
-		i486)
-			# work around gcc bug; see https://bugs.archlinux.org/task/20647
-			export CFLAGS="${CFLAGS/-O2/-O3} -fno-tree-vectorize -DUNALIGNED_OK" ;;
-	esac
-	./configure --prefix=/usr --shared &&
-	make &&	make install
+#	case "$ARCH" in
+#		i486)
+#			# work around gcc bug; see https://bugs.archlinux.org/task/20647
+#			export CFLAGS="${CFLAGS/-O2/-O3} -fno-tree-vectorize -DUNALIGNED_OK" ;;
+#	esac
+
+	./configure --prefix=/usr &&
+	make && make install
+
+	mkdir -p $install/lib
+	mv -v $install/usr/lib/libz.so.* $install/lib
+	ln -sf ../../lib/$(readlink $install/usr/lib/libz.so) \
+		$install/usr/lib/libz.so
 }
 
 # Important cross compiled package so run readelf.
 testsuite()
 {
 	cd $install
-	readelf -h usr/lib/*.so.$VERSION
+	readelf -h lib/*.so.$VERSION
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    mkdir -p $fs/usr/lib
-    cp -a $install/usr/lib/libz.so* $fs/usr/lib
+	cook_copy_files libz.so*
 }

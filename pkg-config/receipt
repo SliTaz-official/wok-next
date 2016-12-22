@@ -1,18 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="pkg-config"
-VERSION="0.28"
+VERSION="0.29.1"
 CATEGORY="development"
 SHORT_DESC="Free desktop packages manager."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://pkgconfig.freedesktop.org/wiki/"
-WGET_URL="http://pkgconfig.freedesktop.org/releases/$TARBALL"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/pkg-config/"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://pkg-config.freedesktop.org/releases/$TARBALL"
+
 DEPENDS="glibc-base"
-BUILD_DEPENDS="gcc libtool"
+BUILD_DEPENDS="gcc libtool perl"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -22,8 +23,9 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -p1 < $stuff/autoconf-2.66.patch
-	sed -i 's/\$(LN) pkg-config\$(EXEEXT) \$(host_tool)/echo \1/' Makefile*
+#	patch -p1 < $stuff/autoconf-2.66.patch
+#	sed -i 's/\$(LN) pkg-config\$(EXEEXT) \$(host_tool)/echo \1/' Makefile*
+
 	case "$ARCH" in
 		arm)
 			./configure \
@@ -33,21 +35,24 @@ compile_rules()
 				--cache-file=arm-linux.cache ;;
 		*)
 			./configure \
-				--program-prefix=$TOOLPREFIX \
+				--prefix=/usr \
+				--with-internal-glib \
+				--disable-compile-warnings \
+				--disable-host-tool \
+				--docdir=/usr/share/doc/pkg-config-$VERSION \
 				--build=$HOST_SYSTEM \
-				--host=$HOST_SYSTEM 2>&1 | \
-				grep -v './libtool: No such file' ;;
+				--host=$HOST_SYSTEM
+				;;
 	esac &&
 	make && make install
+
+	cd $install/usr/bin
+	mv pkg-config ${TOOLPREFIX}pkg-config
+	ln -s ${TOOLPREFIX}pkg-config pkg-config
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/aclocal $fs/usr/share
-	# This is the default pkg-config so make a symling for package that dont
-	# cross compile or search for /usr/bin/pkg-config.
-	cd $fs/usr/bin && ln -s ${TOOLPREFIX}pkg-config pkg-config
+	cook_copy_files *pkg-config *.m4
 }

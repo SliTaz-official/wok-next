@@ -6,13 +6,14 @@ CATEGORY="system-tools"
 SHORT_DESC="Commands for Manipulating Filesystem Extended Attributes."
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-WEB_SITE="http://savannah.nongnu.org/projects/attr/"
-TARBALL="$PACKAGE-$VERSION.src.tar.gz"
-WGET_URL="http://download.savannah.gnu.org/releases-noredirect/$PACKAGE/$TARBALL"
+WEB_SITE="http://savannah.nongnu.org/projects/attr"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.src.tar.gz"
+WGET_URL="http://download.savannah.gnu.org/releases/$PACKAGE/$TARBALL"
+
 DEPENDS="glibc-base"
-BUILD_DEPENDS="autoconf automake m4 libtool gettext"
+BUILD_DEPENDS="autoconf automake m4 libtool gettext coreutils-operations"
 
 # When cross compiling auto-tools, gettext and m4 build system are used.
 case "$ARCH" in
@@ -22,27 +23,26 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Need bash sh to compile
-	mv /bin/sh /bin/sh.bak
-	ln -s /bin/bash /bin/sh
-
-	# No need to use rpm
 	rm /bin/rpm
+	sed -i -e 's|/@pkg_name@|&-@pkg_version@|' include/builddefs.in
 
-	export INSTALL_USER=root INSTALL_GROUP=root
-
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--bindir=/bin \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	make &&
 	make install install-lib install-dev DIST_ROOT=$DESTDIR
-	
-	mv -f /bin/sh.bak /bin/sh
+
+	mkdir -p $install/lib
+	mv $install/usr/lib/libattr.so.* $install/lib
+	ln -sf ../../lib/$(readlink $install/usr/lib/libattr.so) \
+		$install/usr/lib/libattr.so
+	find $install -type f \( -name '*.so*' -o -name '*.la' \) \
+		-exec chmod 755 \{\} \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	find $fs -type f -name '*.so*' -exec chmod a+x \{\} \;
+	cook_copy_files attr getfattr setfattr *.so*
 }
