@@ -1,15 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="intltool"
-VERSION="0.50.2"
+VERSION="0.51.0"
 CATEGORY="development"
 SHORT_DESC="Translation tools (PO, XML)."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="https://edge.launchpad.net/intltool"
-WGET_URL="https://edge.launchpad.net/intltool/trunk/$VERSION/+download/$TARBALL"
+WEB_SITE="https://freedesktop.org/wiki/Software/intltool/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://launchpad.net/intltool/trunk/$VERSION/+download/$TARBALL"
 
 DEPENDS="perl perl-xml-parser gettext"
 BUILD_DEPENDS="perl perl-xml-parser wget"
@@ -17,20 +18,16 @@ BUILD_DEPENDS="perl perl-xml-parser wget"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	sed -i 's:\\\${:\\\$\\{:' intltool-update.in
+
+	./configure $CONFIGURE_ARGS && make && make install
+
+	docdir="$install/usr/share/doc/intltool-$VERSION"
+	mkdir -p $docdir; cp doc/I18N-HOWTO $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/aclocal $fs/usr/share
-	cp -a $install/usr/share/intltool $fs/usr/share
-	chmod +x $fs/usr/bin/*
+	cook_copy_folders bin aclocal intltool
 }

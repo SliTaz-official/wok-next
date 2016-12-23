@@ -6,22 +6,23 @@ CATEGORY="development"
 SHORT_DESC="GNU gperf is a perfect hash function generator."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/gperf/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://www.gnu.org/software/gperf/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS
+	./configure \
+		--docdir=/usr/share/doc/gperf-$VERSION \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders bin
 }
-

@@ -1,0 +1,43 @@
+# SliTaz package receipt.
+
+PACKAGE="inetutils"
+VERSION="1.9.4"
+CATEGORY="base-system"
+SHORT_DESC="Programs for basic networking"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://www.gnu.org/software/inetutils/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
+DEPENDS="readline"
+BUILD_DEPENDS=""
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--localstatedir=/var \
+		--disable-logger \
+		--disable-whois \
+		--disable-rcp \
+		--disable-rexec \
+		--disable-rlogin \
+		--disable-rsh \
+		--disable-servers \
+		$CONFIGURE_ARGS &&
+	make && make install
+
+	mkdir -p $install/bin $install/sbin
+	for i in hostname ping ping6 traceroute; do
+		mv $install/usr/bin/$i $install/bin
+	done
+	mv $install/usr/bin/ifconfig $install/sbin
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin sbin
+}
