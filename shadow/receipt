@@ -1,0 +1,36 @@
+# SliTaz package receipt.
+
+PACKAGE="shadow"
+VERSION="4.2.1"
+CATEGORY="system-tools"
+SHORT_DESC="Programs for handling passwords in a secure way"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="http://pkg-shadow.alioth.debian.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="${WEB_SITE}releases/$TARBALL"
+
+DEPENDS="acl attr"
+BUILD_DEPENDS="acl-dev attr-dev gettext"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
+		-e 's@/var/spool/mail@/var/mail@' etc/login.defs
+	sed -i 's|bash|sh|' etc/useradd
+
+	./configure \
+		--sysconfdir=/etc \
+		--with-group-name-max-length=32 &&
+	make && make install
+
+	mv $install/usr/bin/passwd $install/bin
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin sbin etc
+}

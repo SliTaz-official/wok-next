@@ -1,34 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="bison"
-VERSION="2.6.5"
+VERSION="3.0.4"
 CATEGORY="development"
 SHORT_DESC="GNU parser generator."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.gnu.org/software/bison/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://www.gnu.org/software/bison/"
 TAGS="parser language"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
 DEPENDS="m4"
-BUILD_DEPENDS="m4"
+BUILD_DEPENDS="m4 perl libxslt gettext"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS &&
-	echo '#define YYENABLE_NLS 1' >> config.h &&
+	./configure \
+		--docdir=/usr/share/doc/bison-$VERSION \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/aclocal $fs/usr/share
-	cp -a $install/usr/share/bison $fs/usr/share
+	cook_copy_folders bin lib aclocal bison
 }

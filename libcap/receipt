@@ -1,15 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="libcap"
-VERSION="2.24"
+VERSION="2.25"
 CATEGORY="system-tools"
 SHORT_DESC="Support for getting/setting POSIX.1e capabilities."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://sites.google.com/site/fullycapable/"
-WGET_URL="http://ftp.df.lth.se/pub/linux/libs/security/linux-privs/libcap2/$TARBALL"
+WEB_SITE="https://sites.google.com/site/fullycapable/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/$TARBALL"
 
 DEPENDS="attr"
 BUILD_DEPENDS="gperf pam-dev attr-dev"
@@ -23,14 +24,21 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
-	make DYNAMIC=yes ${ARCH_ARGS} &&
-	make RAISE_SETCAP=no DESTDIR=$DESTDIR install
+	sed -i '/install.*STALIBNAME/d' libcap/Makefile
+
+	make $ARCH_ARGS &&
+	make RAISE_SETFCAP=no prefix=/usr install
+
+	chmod 755 $install/usr/lib/libcap.so
+	mkdir $install/lib
+	mv $install/usr/lib/libcap.so.* $install/lib
+	ln -sf ../../lib/$(readlink $install/usr/lib/libcap.so) \
+		$install/usr/lib/libcap.so
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib
-	cp -a $install/lib/*.so* $fs/lib
-	cp -a $install/sbin $fs
+	cook_copy_folders sbin
+	cook_copy_files *.so*
 }

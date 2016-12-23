@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="psmisc"
+VERSION="22.21"
+CATEGORY="system-tools"
+SHORT_DESC="PSmisc - Small utilities that use the /proc filesystem"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://psmisc.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/psmisc/$TARBALL"
+
+DEPENDS="libtinfo"
+BUILD_DEPENDS="gettext ncurses-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS && make && make install
+
+	mkdir -p $install/bin
+	mv $install/usr/bin/fuser   $install/bin
+	mv $install/usr/bin/killall $install/bin
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin
+}

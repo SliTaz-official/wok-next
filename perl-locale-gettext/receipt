@@ -6,29 +6,25 @@ CATEGORY="development"
 SHORT_DESC="Permits access from Perl to the gettext() family of functions."
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
+WEB_SITE="http://search.cpan.org/dist/gettext/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PV/PVANDRY/gettext-$VERSION.tar.gz"
+
 DEPENDS="perl gettext-base"
 BUILD_DEPENDS="$DEPENDS"
-SOURCE="gettext"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/gettext/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PV/PVANDRY/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	patch -Np1 -i $stuff/compatibility-with-POSIX-module.patch 
-	perl Makefile.PL 
-	make 
-	make DESTDIR="$DESTDIR" install
+	perl Makefile.PL &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	find "$fs" -name perllocal.pod -delete
-	find "$fs" -name .packlist -delete
+	cook_copy_folders lib
+	rm -r $fs/usr/lib/perl5/5*
 }
-

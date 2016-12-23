@@ -6,10 +6,11 @@ CATEGORY="utilities"
 SHORT_DESC="Bc is a cmdline calculator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-WEB_SITE="http://www.gnu.org/software/bc/"
+WEB_SITE="https://www.gnu.org/software/bc/"
+TAGS="calculator"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://alpha.gnu.org/gnu/$PACKAGE/$TARBALL"
-TAGS="calculator"
 
 DEPENDS="ncurses readline"
 BUILD_DEPENDS="flex readline-dev texinfo"
@@ -17,11 +18,16 @@ BUILD_DEPENDS="flex readline-dev texinfo"
 # Rules to configure and make the package.
 compile_rules()
 {
+	patch -Np1 -i $stuff/bc-1.06.95-memory_leak-1.patch
+
 	./configure \
 		--with-readline \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
+
+	mkdir -p $install/usr/share/applications
+	cp $stuff/bc.desktop $install/usr/share/applications
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
