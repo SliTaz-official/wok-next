@@ -14,7 +14,8 @@ HOST_ARCH="i486 arm"
 
 DEPENDS=""
 BUILD_DEPENDS="flex"
-SPLIT="ncurses-libform ncurses-libmenu ncurses-libpanel ncurses-extra"
+SPLIT="ncurses-libform ncurses-libmenu ncurses-libpanel ncurses-extra \
+ncurses-dev"
 
 case "$ARCH" in
 	arm) BUILD_DEPENDS="" ;;
@@ -23,16 +24,7 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
-#	# Ncurses need an installed /usr/bin/tic witch is in ncursesw-extra. And
-#	# when cross compiling we can't use the freshly cooked binary. See cook log:
-#	#
-#	#** Building terminfo database, please wait...
-#	#Running /usr/bin/tic to install /home/slitaz/wok/ncurses/install/usr/share/terminfo
-#	#
-#	if [ ! -d "/var/lib/tazpkg/installed/ncursesw-extra" ]; then
-#		echo "Installing: ncursesw-extra"
-#		tazpkg get-install ncursesw-extra 2>/dev/null 1>/dev/null
-#	fi
+	sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in
 
 	./configure \
 		--with-shared \
@@ -44,6 +36,26 @@ compile_rules()
 		--with-pkg-config-libdir=/usr/lib/pkgconfig \
 		$CONFIGURE_ARGS &&
 	make && make install
+
+	mkdir -p $install/lib
+	mv $install/usr/lib/libncursesw.so.6* $install/lib
+	ln -sf ../../lib/$(readlink $install/usr/lib/libncursesw.so) \
+		$install/usr/lib/libncursesw.so
+
+	for i in ncurses form panel menu; do
+		rm -f                   $install/usr/lib/lib$i.so
+		echo "INPUT(-l${i}w)" > $install/usr/lib/lib$i.so
+		chmod 755               $install/usr/lib/lib$i.so
+		ln -sf ${i}w.pc         $install/usr/lib/pkgconfig/$i.pc
+	done
+
+	rm -f                      $install/usr/lib/libcursesw.so
+	echo "INPUT(-lncursesw)" > $install/usr/lib/libcursesw.so
+	chmod 755                  $install/usr/lib/libcursesw.so
+	ln -sf libncurses.so       $install/usr/lib/libcurses.so
+
+	mkdir -p    $install/usr/share/doc/ncurses-$VERSION
+	cp -a doc/* $install/usr/share/doc/ncurses-$VERSION
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
