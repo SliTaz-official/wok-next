@@ -1,18 +1,21 @@
 # SliTaz package receipt.
 
 PACKAGE="e2fsprogs"
-VERSION="1.42.12"
+VERSION="1.43.1"
 CATEGORY="base-system"
 SHORT_DESC="Filesystem utilities for use with ext2 and ext3 (without fsck*)."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://e2fsprogs.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 DEPENDS="libcomerr util-linux-blkid util-linux-uuid"
-BUILD_DEPENDS="texinfo"
+BUILD_DEPENDS="util-linux-uuid-dev util-linux-blkid-dev gettext attr-dev \
+acl-dev texinfo"
+SPLIT="libcomerr libcomerr-dev e2fsprogs-dev"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -22,48 +25,59 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i -e 's:\[\.-\]::' tests/filter.sed
 	mkdir ../build && cd ../build
+
 	$src/configure \
-		--prefix=/usr \
+		--bindir=/bin \
+		--sysconfdir=/etc \
 		--with-root-prefix="" \
 		--enable-elf-shlibs \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS
-	make && make install &&
-	make install-libs
+		--disable-libblkid \
+		--disable-libuuid \
+		--disable-uuidd \
+		--disable-fsck \
+		$CONFIGURE_ARGS &&
+	make && make install && make install-libs
+
+	for i in libcom_err libe2p libext2fs libss; do
+		chmod u+w $install/usr/lib/$i.a
+	done
+
+	# Make .info usable
+	gunzip $install/usr/share/info/libext2fs.info.gz
+	install-info --dir-file=$install/usr/share/info/dir \
+		$install/usr/share/info/libext2fs.info
+
+	# Additional documentation
+	makeinfo -o      $src/doc/com_err.info $src/lib/et/com_err.texinfo
+	install -m644 $src/doc/com_err.info $install/usr/share/info
+	install-info --dir-file=$install/usr/share/info/dir \
+		$install/usr/share/info/com_err.info
+
+	# Remove illegal symbol '\b'
+	sed -i 's|\\b||' $src/po/de.po
+	msgfmt $src/po/de.po -o $src/po/de.gmo
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/sbin $fs
-	cp -a $install/lib $fs
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so $fs/usr/lib
-	cat $stuff/*.files-list | while read file; do
-		rm -f ${fs}$file
-	done
+	cook_copy_folders bin sbin etc
+	cook_copy_files *.so*
+	# Split -> libcomerr
+	find $fs -name 'libcom_err*' -delete
 	# Remove fsck provided by Busybox.
-	rm $fs/sbin/fsck* $fs/sbin/blkid
-	# Remove blkid provided by util-linux.
-	rm $fs/lib/libblkid* $fs/usr/lib/libblkid*
-	# Remove uuid files provided by util-linux.
-	rm $fs/usr/sbin/uuidd $fs/usr/bin/uuidgen
-	rm $fs/lib/libuuid* $fs/usr/lib/libuuid*
+	rm $fs/sbin/fsck*
 }
 
 # Overlap busybox
 pre_install()
 {
-	rm -f $root/sbin/findfs
-	rm -f $root/sbin/tune2fs
+	rm -f $1/sbin/tune2fs
 }
 
 post_remove()
 {
-	ln -s /bin/busybox $root/sbin/findfs
-	ln -s /bin/busybox $root/sbin/tune2fs
+	ln -s /bin/busybox $1/sbin/tune2fs
 }
