@@ -1,19 +1,20 @@
 # SliTaz package receipt.
 
 PACKAGE="kmod"
-VERSION="16"
+VERSION="23"
 CATEGORY="base-system"
 SHORT_DESC="Linux kernel modules tools."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://www.kernel.org/pub/linux/utils/kernel/kmod/"
-WGET_URL="$WEB_SITE$TARBALL"
-PROVIDE="modules-init-tools"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$WEB_SITE$TARBALL"
+
 DEPENDS="zlib liblzma"
-BUILD_DEPENDS="wget zlib-dev liblzma-dev tar"
+BUILD_DEPENDS="zlib-dev liblzma-dev tar"
+PROVIDE="modules-init-tools"
 
 # Handle cross compilation. ARM use build host: tar
 case "$ARCH" in
@@ -24,29 +25,26 @@ esac
 compile_rules()
 {
 	./configure \
-		--bindir=/sbin \
+		--bindir=/bin \
 		--with-rootlibdir=/lib \
 		--sysconfdir=/etc \
 		--with-zlib \
 		--with-xz \
-		--disable-manpages \
 		$CONFIGURE_ARGS &&
-	make && make pkgconfigdir=/usr/lib/pkgconfig install
+	make && make install
+
+	# compatibility with module-init-tools
+	# (the package that previously handled Linux kernel modules)
+	mkdir $install/sbin
+	for tool in depmod insmod lsmod modinfo modprobe rmmod; do
+		ln -s ../bin/kmod $install/sbin/$tool
+	done
+	ln -s kmod $install/bin/lsmod
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib $fs/bin $fs/usr/lib
-	cp -a $install/sbin $fs
-	cp -a $install/lib/*.so* $fs/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	
-	cd $fs/sbin
-	# The kmod tools symlinks
-	for tool in rmmod insmod modinfo modprobe depmod
-	do
-		ln -s kmod $tool
-	done
-	cd ../bin && ln -s ../sbin/kmod lsmod
+	cook_copy_folders bin sbin
+	cook_copy_files *.so*
 }

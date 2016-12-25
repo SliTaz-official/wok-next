@@ -1,0 +1,40 @@
+# SliTaz package receipt.
+
+PACKAGE="procps-ng"
+VERSION="3.3.12"
+CATEGORY="base-system"
+SHORT_DESC="Programs for monitoring processes"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 LGPL2"
+WEB_SITE="https://gitlab.com/procps-ng/procps"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+DEPENDS="gettext-base ncurses"
+BUILD_DEPENDS="gettext ncurses-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--exec-prefix= \
+		--libdir=/usr/lib \
+		--docdir=/usr/share/doc/procps-ng-$VERSION \
+		--disable-static \
+		--disable-kill \
+		$CONFIGURE_ARGS &&
+	make && make install
+
+	mkdir -p $install/lib
+	mv $install/usr/lib/libprocps.so.* $install/lib
+	ln -sf ../../lib/$(readlink $install/usr/lib/libprocps.so) \
+		$install/usr/lib/libprocps.so
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin sbin
+	cook_copy_files *.so*
+}
