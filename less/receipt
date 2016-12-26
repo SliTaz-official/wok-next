@@ -1,12 +1,13 @@
 # SliTaz package receipt.
 
 PACKAGE="less"
-VERSION="444"
+VERSION="481"
 CATEGORY="base-system"
 SHORT_DESC="A terminal based program for viewing text files"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://www.greenwoodsoftware.com/less"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
@@ -17,19 +18,16 @@ BUILD_DEPENDS="ncurses-dev pcre-dev"
 compile_rules()
 {
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		--with-regex=pcre \
-		$CONFIGURE_ARGS && 
-	make && make prefix=$DESTDIR/usr mandir=$DESTDIR/usr/share/man install
+		$CONFIGURE_ARGS &&
+	make && make DESTDIR=$install install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders bin
 }
 
 post_remove()
