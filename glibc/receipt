@@ -74,6 +74,8 @@ compile_rules()
 
 	# Glibc FHS Patch - LFS 7.10
 	patch -p1 -i $stuff/glibc-2.24-fhs-1.patch
+	# Remove restricted '\v' from po files
+	patch -p1 -i $stuff/glibc-po.patch
 
 	{
 		mkdir build
@@ -101,7 +103,7 @@ compile_rules()
 	comp_summary "$time0" "$time1" "$size0" "$size1"
 
 	# If temporary toolchain was previously used, switch to regular toolchain.
-	if [ ! -d /tools ]; then
+	if [ -d /tools ]; then
 		mv /tools/bin/ld /tools/bin/ld-old
 		mv /tools/$(gcc -dumpmachine)/bin/ld /tools/$(gcc -dumpmachine)/bin/ld-old
 		mv /tools/bin/ld-new /tools/bin/ld
