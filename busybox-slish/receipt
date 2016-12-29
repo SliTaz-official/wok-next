@@ -7,16 +7,18 @@ CATEGORY="base-system"
 SHORT_DESC="Busybox for SlisH basic chroot."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.busybox.net/"
+
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WGET_URL="http://www.busybox.net/downloads/$TARBALL"
 
 # Rules to configure and make the package.
 #
-# I dont want to compile all BB packages just for a basic build!
+# I don't want to compile all BB packages just for a basic build!
 #
 compile_rules() {
 	cp $stuff/busybox-${VERSION%.*}.config .config
-	make oldconfig && 
+	make oldconfig &&
 	make && make install || return 1
 }
 
@@ -28,6 +30,6 @@ genpkg_rules()
 	cp ${stuff}/busybox.conf ${fs}/etc/busybox.conf
 	# Set permissions
 	chown -R 0.0 ${fs}/etc
-    chmod 0600 ${fs}/etc/busybox.conf
-    chmod 4755 ${fs}/bin/busybox
+	chmod 0600 ${fs}/etc/busybox.conf
+	chmod 4755 ${fs}/bin/busybox
 }

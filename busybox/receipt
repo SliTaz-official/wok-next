@@ -6,14 +6,17 @@ CATEGORY="base-system"
 SHORT_DESC="Busybox combines tiny versions of many common UNIX utilities."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.busybox.net/"
-WGET_URL="http://www.busybox.net/downloads/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="slitaz-base-files glibc-base ncurses-common"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://www.busybox.net/downloads/$TARBALL"
+
+DEPENDS="slitaz-base-files glibc-base ncurses"
 BUILD_DEPENDS="bzip2 pam pam-dev uclibc-cross-compiler-i486 \
-musl-libc-dev dietlibc"
+musl-libc-dev dietlibc gettext"
+SPLIT="busybox-boot busybox-pam busybox-static ssfs-busybox"
+SIBLINGS="busybox-slish"
 
 CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf \
 /etc/resolv.conf /etc/httpd.conf"
@@ -27,12 +30,12 @@ esac
 # Busybox patches
 apply_bb_patchs()
 {
-    while read file; do
-    	[ -f done.$file ] && continue
-    	echo "Apply $file..."
-    	patch -p1 < $stuff/$PACKAGE-${VERSION%.*}-$file || return 1
+	while read file; do
+		[ -f done.$file ] && continue
+		echo "Apply $file..."
+		patch -p1 < $stuff/$PACKAGE-${VERSION%.*}-$file || return 1
 	touch done.$file
-    done <<EOT
+	done <<EOT
 tar.u
 stat.u
 ris.u
@@ -48,7 +51,7 @@ ftpd.u
 dpkgxz.u
 shutdown.u
 EOT
-    cp $stuff/$PACKAGE-${VERSION%.*}.config .config
+	cp $stuff/$PACKAGE-${VERSION%.*}.config .config
 }
 
 # Rules to configure and make the package.
@@ -61,68 +64,80 @@ compile_rules()
 			cp $stuff/arm/$PACKAGE.config .config
 			make oldconfig &&
 			make && make install || return 1
-			chmod 4755 $src/_install/bin/busybox ;;
-		x86_64) echo "TODO" ;;
+			chmod 4755 $src/_install/bin/busybox
+			;;
+		x86_64)
+			echo "TODO"
+			;;
 		i?86)
+			echo 'Making busybox'
 			apply_bb_patchs &&
 			make oldconfig &&
 			make && make install || return 1
-		    strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr \
+			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr \
 				$src/_install/bin/busybox
-		    mv docs/busybox.1 docs/busybox.base.1
+			mv docs/busybox.1 docs/busybox.base.1
 
-			# prepare busybox-pam package
-		    sed -i 's/# CONFIG_PAM is not set/CONFIG_PAM=y/' .config
-		    make oldconfig && make || return 1
-		    strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr busybox
-		    mv busybox busybox-pam
-		    mv docs/busybox.1 docs/busybox.pam.1
-
-		    # prepare busybox-static package
-		    if [ -x /usr/bin/uclibc-i486-gcc ]; then
-			cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
+			echo 'Making busybox-pam'
+			sed -i 's/# CONFIG_PAM is not set/CONFIG_PAM=y/' .config
 			make oldconfig && make || return 1
-			cp busybox busybox-static
-			mv busybox busybox-uclibc
-			mv -f docs/busybox.1 docs/busybox.static.1
-		    fi
+			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr busybox
+			mv busybox busybox-pam
+			mv docs/busybox.1 docs/busybox.pam.1
 
-		    if [ -x /usr/bin/musl-gcc ]; then
-			# prepare busybox-musl package
-			cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
-			sed -i 's|uclibc-i486-||' .config
-			make oldconfig && make CC=musl-gcc || return 1
-			mv busybox busybox-musl
-			mv -f docs/busybox.1 docs/busybox.static.1
-		    fi
+			echo 'Making busybox-static'
+			if [ -x /usr/bin/uclibc-i486-gcc ]; then
+				cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
+				make oldconfig && make || return 1
+				cp busybox busybox-static
+				mv busybox busybox-uclibc
+				mv -f docs/busybox.1 docs/busybox.static.1
+			fi
 
-		    if [ -x /usr/lib/diet/bin/diet ]; then
-			# prepare busybox-diet package
-			cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
-			sed -i 's|uclibc-i486-||;s|CFLAGS="|&-D_BSD_SOURCE |;s|LDFLAGS="|&-Wl,--allow-multiple-definition |;s|LDLIBS="|&compat rpc |' .config
-			make oldconfig && make CC="/usr/lib/diet/bin/diet gcc" || return 1
-			mv busybox busybox-diet
-			mv -f docs/busybox.1 docs/busybox.static.1
-		    fi
+			echo 'Making busybox-musl'
+			if [ -x /usr/bin/musl-gcc ]; then
+				cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
+				sed -i 's|uclibc-i486-||' .config
+				make oldconfig && make CC=musl-gcc || return 1
+				mv busybox busybox-musl
+				mv -f docs/busybox.1 docs/busybox.static.1
+			fi
 
-		    # prepare ssfs-busybox package
-		    rootfs=$src/ssfs-busybox/usr/share/ssfs/rootfs
-		    mkdir -p $rootfs/etc
-		    cp $stuff/$PACKAGE-${VERSION%.*}.config-ssfs .config
-		    make oldconfig && make busybox &&
-		    make CONFIG_PREFIX=$rootfs install || return 1
-		    cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
-		    chown -R 0.0 $rootfs/etc
-		    chmod 0600 $rootfs/etc/busybox.conf
-		    chmod 4755 $rootfs/bin/busybox
+			echo 'Making busybox-diet'
+			if [ -x /usr/lib/diet/bin/diet ]; then
+				cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
+				sed -i 's|uclibc-i486-||;s|CFLAGS="|&-D_BSD_SOURCE |;s|LDFLAGS="|&-Wl,--allow-multiple-definition |;s|LDLIBS="|&compat rpc |' .config
+				make oldconfig && make CC="/usr/lib/diet/bin/diet gcc" || return 1
+				mv busybox busybox-diet
+				mv -f docs/busybox.1 docs/busybox.static.1
+			fi
 
-			# Compile translations
+			echo 'Making ssfs-busybox'
+			rootfs=$src/ssfs-busybox/usr/share/ssfs/rootfs
+			mkdir -p $rootfs/etc
+			cp $stuff/$PACKAGE-${VERSION%.*}.config-ssfs .config
+			make oldconfig && make busybox &&
+			make CONFIG_PREFIX=$rootfs install || return 1
+			cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
+			chown -R 0.0 $rootfs/etc
+			chmod 0600 $rootfs/etc/busybox.conf
+			chmod 4755 $rootfs/bin/busybox
+
+			echo 'Making translations'
 			make -C $stuff/po install
 			cp docs/busybox.base.1 docs/busybox.1
 
 			;;
 
 	esac
+
+	mkdir -p $install/usr/share/man/man1
+	cp -a $src/docs/busybox.base.1 $install/usr/share/man/man1/busybox.1
+
+	mkdir -p $install/usr/share/doc/busybox
+	cp -a $src/docs/*.txt  $install/usr/share/doc/busybox
+	cp -a $src/docs/*.htm* $install/usr/share/doc/busybox
+	cp -a $src/docs/cgi    $install/usr/share/doc/busybox
 }
 
 # Cross compilation check.
@@ -134,12 +149,7 @@ testsuite()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $install/usr/share/man/man1 $install/usr/share/doc/busybox
 	cp -a $src/_install/* $fs
-	cp -a $src/docs/busybox.base.1 $install/usr/share/man/man1/busybox.1
-	cp -a $src/docs/*.txt $install/usr/share/doc/busybox
-	cp -a $src/docs/*.htm* $install/usr/share/doc/busybox
-	cp -a $src/docs/cgi $install/usr/share/doc/busybox
 	[ -e $fs/sbin/ip ] && ln -s busybox $fs/bin/ip
 	rm -f $fs/bin/bbconfig $fs/usr/bin/ar
 	mkdir -p $fs/etc/init.d $fs/var/spool/cron/crontabs $fs/var/spool/lpd \
@@ -247,6 +257,6 @@ post_install()
 
 pre_remove()
 {
-	# We can not remove this package !
+	# We can not remove this package!
 	exit 1
 }

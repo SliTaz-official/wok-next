@@ -1,19 +1,21 @@
 # SliTaz package receipt.
 
 PACKAGE="kbd"
-VERSION="2.0.2"
+VERSION="2.0.3"
 CATEGORY="system-tools"
-SHORT_DESC="Keyboard maping definitions and tools."
+SHORT_DESC="Keyboard mapping definitions and tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://kbd-project.org/"
-WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
 TAGS="keyboard"
 HOST_ARCH="i486 arm"
 
+TARBALL="kbd-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
+
 DEPENDS="kbd-base"
-BUILD_DEPENDS="wget flex pam-dev check-dev advancecomp"
+BUILD_DEPENDS="check-dev bison flex gettext advancecomp"
+SPLIT="kbd-base kbd-busybox"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -23,63 +25,45 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
-	# standard locale placement
-	sed 's|localedir = .*|localedir = @localedir@|' -i $src/po/Makefile.in.in
-	# Handle cross compilation.
-	case "$ARCH" in
-		arm)
-			# No PAM support for ARM
-			./configure \
-				--datadir=/usr/share/kbd \
-				--localedir=/usr/share/locale \
-				--disable-vlock \
-				$CONFIGURE_ARGS ;;
-		i486)
-			./configure \
-				--datadir=/usr/share/kbd \
-				--localedir=/usr/share/locale \
-				$CONFIGURE_ARGS ;;
-	esac &&
-	make && make install &&
-	find $DESTDIR/usr/share/kbd -name '*gz' -exec advdef -z4 {} \;
-}
+	patch -Np1 -i $stuff/kbd-2.0.3-backspace-1.patch
+	sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure
+	sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
 
+	cp -a data/keymaps data/keymaps.orig
+	# Shrink keymaps
+	for i in $(find data/keymaps -type f); do
+		sed -i 's|	| |g; s|  *| |g; s|^ ||; s| $||; /^#/d; /^!/d; /^$/d' $i
+	done
+
+	./configure \
+		--datadir=/usr/share/kbd \
+		--disable-vlock \
+		$CONFIGURE_ARGS &&
+	make && make install
+
+	mv $install/usr/share/kbd/locale $install/usr/share
+
+	mkdir -p $install/usr/share/doc/kbd-$VERSION
+	cp -R docs/doc/* $install/usr/share/doc/kbd-$VERSION
+
+	if [ -n "$(which advdef)" ]; then
+		action 'Recompressing GZ files...'
+		local size0=$(find $install/usr/share/kbd -name '*.gz' -exec ls -l \{\} \; | awk '{s+=$5}END{print s}')
+		local time0=$(date +%s)
+		find $install/usr/share/kbd -name '*.gz' -exec advdef -z4q \{\} \;
+		local size1=$(find $install/usr/share/kbd -name '*.gz' -exec ls -l \{\} \; | awk '{s+=$5}END{print s}')
+		local time1=$(date +%s)
+		status
+		comp_summary "$time0" "$time1" "$size0" "$size1"
+	fi
+
+	# Cook "kbd-base" before "kbd" packaging to properly work cook_split_rm()
+	cook kbd-base >/dev/null 2>&1
+}
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-
-	# Copy all kbd files (should we split fonts?)
-	cp -a $install/usr/share/kbd $fs/usr/share
-
-	# Tools
-	cp -a $install/usr/bin $fs/usr
-
-	# Remove files provided by kbd-base and kbd-vlock.
-	for keymap in $(cat $WOK/kbd-base/stuff/keymaps-path.list); do
-		rm -f $fs/usr/share/kbd/keymaps/i386/$keymap
-	done
-	rm -rf $fs/usr/share/kbd/keymaps/include
-	rm -rf $fs/usr/share/kbd/keymaps/i386/include
-	rm -f $fs/usr/bin/loadkeys $fs/usr/bin/setfont $fs/usr/bin/vlock
-}
-
-# Overlap busybox
-pre_install()
-{
-	rm -f $root/usr/bin/deallocvt
-	rm -f $root/usr/bin/chvt
-	rm -f $root/usr/bin/setkeycodes
-	rm -f $root/usr/bin/openvt
-	rm -f $root/usr/bin/kbd_mode
-}
-
-post_remove()
-{
-	ln -s /bin/busybox $root/usr/bin/deallocvt
-	ln -s /bin/busybox $root/usr/bin/chvt
-	ln -s /bin/busybox $root/usr/bin/setkeycodes
-	ln -s /bin/busybox $root/usr/bin/openvt
-	ln -s /bin/busybox $root/usr/bin/kbd_mode
+	cook_copy_folders bin kbd
+	cook_split_rm kbd-base
 }

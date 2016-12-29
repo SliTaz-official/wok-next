@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="sysklogd"
+VERSION="1.5.1"
+CATEGORY="system-tools"
+SHORT_DESC="Kernel and system logging daemons"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://www.infodrom.org/projects/sysklogd/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="${WEB_SITE}download/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i '/Error loading kernel symbols/{n;n;d}' ksym_mod.c
+	sed -i 's/union wait/int/' syslogd.c
+	mkdir -p $install/sbin $install/usr/share/man/man5 $install/usr/share/man/man8
+
+	make && make prefix=$install BINDIR=$install/sbin install
+
+	mkdir -p $install/etc
+	cp $stuff/syslog.conf $install/etc
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders sbin etc
+}

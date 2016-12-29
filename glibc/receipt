@@ -14,7 +14,7 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 DEPENDS="glibc-base glibc-locale glibc-dev"
 BUILD_DEPENDS="linux-api-headers autoconf bash advancecomp gawk gettext bison \
 texinfo"
-SPLIT="glibc-base glibc-locale-glibc-dev"
+SPLIT="glibc-base glibc-locale glibc-dev"
 
 # Rules to compile & install the temporary toolchain.
 cook_tmp_toolchain()
@@ -83,6 +83,7 @@ compile_rules()
 		$src/configure \
 			--disable-profile \
 			--enable-add-ons \
+			--enable-obsolete-rpc \
 			--enable-kernel=2.6.32 \
 			--libexecdir=/usr/lib/glibc \
 			--build=$HOST_SYSTEM \
@@ -91,16 +92,18 @@ compile_rules()
 		make -j1 && make install_root=$DESTDIR install
 	} || return 1
 
-	action 'Recompress charmaps...'
-	local size0=$(ls -l $install/usr/share/i18n/charmaps/*.gz | awk '{s+=$5}END{print s}')
-	local time0=$(date +%s)
-	for i in $install/usr/share/i18n/charmaps/*.gz; do
-		advdef -z4q $i
-	done
-	local size1=$(ls -l $install/usr/share/i18n/charmaps/*.gz | awk '{s+=$5}END{print s}')
-	local time1=$(date +%s)
-	status
-	comp_summary "$time0" "$time1" "$size0" "$size1"
+	if [ -n "$(which advdef)" ]; then
+		action 'Recompress charmaps...'
+		local size0=$(ls -l $install/usr/share/i18n/charmaps/*.gz | awk '{s+=$5}END{print s}')
+		local time0=$(date +%s)
+		for i in $install/usr/share/i18n/charmaps/*.gz; do
+			advdef -z4q $i
+		done
+		local size1=$(ls -l $install/usr/share/i18n/charmaps/*.gz | awk '{s+=$5}END{print s}')
+		local time1=$(date +%s)
+		status
+		comp_summary "$time0" "$time1" "$size0" "$size1"
+	fi
 
 	# If temporary toolchain was previously used, switch to regular toolchain.
 	if [ -d /tools ]; then
