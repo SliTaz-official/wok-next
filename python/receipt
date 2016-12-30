@@ -6,16 +6,17 @@ CATEGORY="development"
 SHORT_DESC="The Python programming language."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="PSL"
-SOURCE="Python"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.python.org/"
-WGET_URL="https://www.python.org/ftp/python/$VERSION/$TARBALL"
 HOST_ARCH="i486 arm"
+COOKOPTS="!menus"
 
-RELATED="python-dev python-idle" # version must match
-DEPENDS="openssl bzlib readline sqlite zlib ncursesw gdbm libffi"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.bz2"
+
+DEPENDS="openssl bzlib readline sqlite zlib ncurses gdbm libffi"
 BUILD_DEPENDS="openssl-dev bzip2-dev readline-dev sqlite-dev zlib-dev \
-ncursesw-dev tcl-dev tk-dev db-dev gdbm-dev wget libffi-dev"
+ncurses-dev tcl-dev tk-dev db-dev gdbm-dev libffi-dev"
+SPLIT="python-idle"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -39,7 +40,7 @@ EOT
 			./configure CC=gcc \
 				--disable-ipv6 \
 				--build=i486-slitaz-linux \
-				--host=${BUILD_SYSTEM} && 
+				--host=${BUILD_SYSTEM} &&
 			make python Parser/pgen &&
 			mv python hostpython &&
 			mv Parser/pgen Parser/hostpgen || exit 1
@@ -68,14 +69,18 @@ EOT
 				CROSS_COMPILE_TARGET=yes \
 				HOSTARCH=${HOST_SYSTEM} \
 				BUILDARCH=${BUILD_SYSTEM} || exit 1
-			make DESTDIR=$DESTDIR install || exit 1 ;;
+			make DESTDIR=$DESTDIR install || exit 1
+			;;
 		i?86)
 			./configure \
 				--enable-shared \
 				--build=${HOST_SYSTEM} \
 				--host=${HOST_SYSTEM} &&
-				make &&	make DESTDIR=$DESTDIR install ;;
+				make && make DESTDIR=$DESTDIR install
+			;;
 	esac
+
+	cp -a $stuff/applications $install/usr/share
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
