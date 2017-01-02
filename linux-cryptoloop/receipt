@@ -1,38 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-cryptoloop"
-VERSION="3.2.71"
+VERSION="4.9.0"
 CATEGORY="base-system"
-SHORT_DESC="The Linux kernel cryptoloop modules."
+SHORT_DESC="The Linux Kernel Cryptoloop modules"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-DEPENDS="linux-crypto"
+WEB_SITE="https://www.kernel.org/"
+
 WANTED="linux"
-WEB_SITE="http://www.kernel.org/"
+DEPENDS="linux-crypto"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    local path
-    path=lib/modules/$VERSION-slitaz/kernel
-    mkdir -p $fs/$path
-    export src install
-    $wanted_stuff/list_modules.sh drivers/block/cryptoloop.ko.xz | \
-    while read module; do
-    	dir=$path/$(dirname $module)
-    	[ -d $fs/$dir ] || mkdir -p $fs/$dir
-        cp -a $install/$path/$module $fs/$dir
-    done
+	. $wanted_stuff/copy_modules.sh
+	copy_modules drivers/block/cryptoloop.ko.xz
 }
-
-# Post install/remove commands for Tazpkg.
-post_install()
-{
-	chroot "$root/" depmod -a $VERSION-slitaz
-}
-
-post_remove()
-{
-	chroot "$root/" depmod -a $VERSION-slitaz
-}
-

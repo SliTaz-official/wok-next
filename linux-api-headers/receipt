@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-api-headers"
-VERSION="4.9"
+VERSION="4.9.0"
 KBASEVER="$(echo $VERSION | cut -d. -f1,2)"
 CATEGORY="development"
 SHORT_DESC="Kernel headers sanitized for use in userspace."
@@ -16,7 +16,7 @@ WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 PROVIDE="linux-headers linux64-api-headers linux64-headers"
 BUILD_DEPENDS="bash perl"
 
-if [ "$KBASEVER" != "$VERSION" ]; then
+if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 	PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz"
 	EXTRA_SOURCE_FILES="$(basename $PATCH)"
 fi
@@ -24,7 +24,7 @@ fi
 # Rules to configure and make the package.
 compile_rules()
 {
-	if [ "$KBASEVER" != "$VERSION" ]; then
+	if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 		[ -s $SRC/$(basename $PATCH) ] ||
 		wget --no-check-certificate $PATCH -O $SRC/$(basename $PATCH)
 		xzcat $SRC/$(basename $PATCH) | patch -Np1

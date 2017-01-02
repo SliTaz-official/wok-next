@@ -1,44 +1,20 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-ocfs2"
-VERSION="3.2.71"
+VERSION="4.9.0"
 CATEGORY="base-system"
-SHORT_DESC="ocfs2 filesystem"
+SHORT_DESC="The Linux Kernel OCFS2 modules"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://kernel.org/"
+CONFIG_FILES="/etc/filesystems"
+
 WANTED="linux"
 DEPENDS="linux"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    local path
-    path=lib/modules/$VERSION-slitaz/kernel
-    mkdir -p $fs/$path
-    
-    export src install
-    
-    $wanted_stuff/list_modules.sh fs/ocfs2 | while read module; do
-    	dir=$path/$(dirname $module)
-    	[ -d $fs/$dir ] || mkdir -p $fs/$dir
-        cp -a $install/$path/$module $fs/$dir
-    done
-
-    for i in $(cat $wanted_stuff/modules.list); do
-        if [ -f $fs/$path/$i ]; then
-	    rm -f $fs/$path/$i
-	fi
-    done
-}
-
-# Post install/remove commands for Tazpkg.
-post_install()
-{
-	chroot "$root/" depmod -a $VERSION-slitaz
-}
-
-post_remove()
-{
-	chroot "$root/" depmod -a $VERSION-slitaz
+	. $wanted_stuff/copy_modules.sh
+	copy_modules fs/ocfs2
 }

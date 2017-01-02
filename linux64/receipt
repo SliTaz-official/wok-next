@@ -1,19 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="linux64"
-VERSION="3.2.71"
+VERSION="4.9.0"
 CATEGORY="base-system"
-SHORT_DESC="The Linux 64 bits kernel and modules."
+SHORT_DESC="The Linux 64 bits Kernel and modules"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.kernel.org/"
-WANTED="linux"
+WEB_SITE="https://www.kernel.org/"
 PROVIDE="linux"
+
+WANTED="linux"
+DEPENDS="depmod"
 
 # We want it regenerated on each kernel/module install
 #CONFIG_FILES="/lib/modules/$VERSION-slitaz64/modules.dep"
-
-DEPENDS="depmod"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
@@ -38,18 +38,22 @@ genpkg_rules()
 		[ -d $path/$dir ] || mkdir -p $path/$dir
 		cp -a $install/lib/modules/$VERSION-slitaz64/kernel/$module $path/$dir
 	done < $WOK/$PACKAGE/source/tmp/modules.list
+
 	# Remove unresolved links
 	rm -f $fs/lib/modules/$VERSION-slitaz64/build
 	rm -f $fs/lib/modules/$VERSION-slitaz64/source
+
 	# Cook all packages with a kernel module
 	for i in $(cd $WOK; grep -l 'cook linux64$' */receipt); do
 		echo cook ${i%/receipt}
 	done
+
 	# Fixed modules.dep to use right path
 	# saves 100kb of space too
 	sed -i "s|$install||g" $fs/lib/modules/$VERSION-slitaz64/modules.dep
 	sed -i "s|99.98.$VERSION-slitaz|$VERSION-slitaz|g" $fs/lib/modules/$VERSION-slitaz64/modules.dep
-	# Check and echo any module in kernel .config that's not added to 
+
+	# Check and echo any module in kernel .config that's not added to
 	# one of linux-* pkgs
 	$wanted_stuff/check_modules.sh 2>&1 | grep -v files.list
 }
@@ -57,7 +61,6 @@ genpkg_rules()
 # Pre and post install commands for Tazpkg.
 post_install()
 {
-	chroot "$root/" depmod -a $VERSION-slitaz64
 	# GRUB stuff.
 	if [ -f "$root/boot/grub/menu.lst" ]; then
 		root_dev=$(cat $root/boot/grub/menu.lst | grep root= | sed 's/.*root=\([^ ]*\).*/\1/' | head -n 1)

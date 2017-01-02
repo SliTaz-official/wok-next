@@ -1,31 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-zram"
-VERSION="3.2.71"
+VERSION="4.9.0"
 CATEGORY="base-system"
-SHORT_DESC="Compressed caching"
+SHORT_DESC="The Linux Kernel compressed caching support"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.kernel.org/"
+WEB_SITE="https://www.kernel.org/"
 CONFIG_FILES="/etc/compcache.conf"
-WANTED="linux"
 PROVIDE="compcache"
 
+WANTED="linux"
 DEPENDS="linux"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	local path
-	path=lib/modules/$VERSION-slitaz/kernel
-	mkdir -p $fs/$path $fs/etc/init.d
-	export src install
-	$wanted_stuff/list_modules.sh drivers/staging/zram | \
-	while read module; do
-		dir=$path/$(dirname $module)
-		[ -d $fs/$dir ] || mkdir -p $fs/$dir
-		cp -a $install/$path/$module $fs/$dir
-	done
+	. $wanted_stuff/copy_modules.sh
+	copy_modules drivers/block/zram
+
+	mkdir -p $fs/etc/init.d
 	install -o root -m 755 $stuff/compcache $fs/etc/init.d/
 	install -o root -m 644 $stuff/compcache.conf $fs/etc/
 }
@@ -33,7 +27,7 @@ genpkg_rules()
 # Post install/remove commands for Tazpkg.
 post_install()
 {
-	chroot "$root/" depmod -a $VERSION-slitaz &&
+	chroot "$1/" depmod -a $VERSION-slitaz &&
 	RAM=`cat /proc/meminfo | grep MemTotal | sed s/[^0-9]//g` &&
 	echo "SIZE_KB="$(($RAM/2)) > /etc/compcache.conf
 	cat <<EOT
@@ -43,9 +37,3 @@ You can add compressed swap according /etc/compcache.conf configuration with:
 Or add compcache in the RUN_DAEMONS list of /etc/rcS.conf.
 EOT
 }
-
-post_remove()
-{
-	chroot "$root/" depmod -a $VERSION-slitaz
-}
-

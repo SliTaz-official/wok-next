@@ -1,34 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="linux64-zram"
-VERSION="3.2.71"
+VERSION="4.9.0"
 CATEGORY="base-system"
-SHORT_DESC="Compressed caching"
+SHORT_DESC="The Linux Kernel compressed caching support"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.kernel.org/"
+WEB_SITE="https://www.kernel.org/"
 CONFIG_FILES="/etc/compcache.conf"
-WANTED="linux"
 PROVIDE="compcache:linux64 linux-zram:linux64"
 
+WANTED="linux"
 DEPENDS="linux64"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	local path
-	src=$WOK/linux64/source/tmp
-	install=$install/linux64
-	path=lib/modules/$VERSION-slitaz64/kernel
-	mkdir -p $fs/$path $fs/etc/init.d
-	export src
-	export install
-	$wanted_stuff/list_modules.sh drivers/staging/zram | \
-	while read module; do
-		dir=$path/$(dirname $module)
-		[ -d $fs/$dir ] || mkdir -p $fs/$dir
-		cp -a $install/$path/$module $fs/$dir
-	done
+	. $wanted_stuff/copy_modules.sh
+	copy_modules drivers/block/zram
+
+	mkdir -p $fs/etc/init.d
 	install -o root -m 755 $stuff/compcache $fs/etc/init.d/
 	install -o root -m 644 $stuff/compcache.conf $fs/etc/
 }
@@ -36,7 +27,6 @@ genpkg_rules()
 # Post install/remove commands for Tazpkg.
 post_install()
 {
-	chroot "$root/" depmod -a $VERSION-slitaz64
 	cat <<EOT
 
 You can add compressed swap according /etc/compcache.conf configuration with:
@@ -44,9 +34,3 @@ You can add compressed swap according /etc/compcache.conf configuration with:
 Or add compcache in the RUN_DAEMONS list of /etc/rcS.conf.
 EOT
 }
-
-post_remove()
-{
-	chroot "$root/" depmod -a $VERSION-slitaz64
-}
-

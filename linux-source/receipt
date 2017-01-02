@@ -1,23 +1,24 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-source"
-VERSION="3.2.71"
+VERSION="4.9.0"
 CATEGORY="development"
-SHORT_DESC="The Linux kernel source files."
+SHORT_DESC="The Linux Kernel source files"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.kernel.org/"
+
 WANTED="linux"
-WEB_SITE="http://www.kernel.org/"
 DEPENDS="linux slitaz-toolchain ncurses-dev perl xz lzma patch busybox-boot"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	local _AUFSVER=`grep  ^VERSION= $WOK/aufs/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
+	local _AUFSVER=$(grep  ^VERSION= $WOK/aufs/receipt | cut -d "=" -f2 | sed -e 's/"//g')
 	local AUFSDIR="aufs-${_AUFSVER}"
 	mkdir -p $fs/usr/src/kernel-patches \
-			$fs/lib/modules/$VERSION-slitaz \
-			$fs/usr/bin $fs/usr/sbin
+		$fs/lib/modules/$VERSION-slitaz \
+		$fs/usr/bin $fs/usr/sbin
 	cp -a $WOK/$WANTED/source/slitaz $fs/usr/src/kernel-patches
 	cp -a $stuff/buildtaz $fs/usr/src/kernel-patches/slitaz
 	cp -a $stuff/make-tazpkg.u $fs/usr/src/kernel-patches/slitaz
@@ -27,13 +28,15 @@ genpkg_rules()
 	ln -s rdev $fs/usr/sbin/ramsize
 	ln -s rdev $fs/usr/sbin/vidmode
 	sed -i "s|=XXX|=$VERSION|g" $fs/usr/bin/get-linux-source
-	# Copy Aufs2 source files
+
+	# Copy Aufs4 source files
 	if [ -d $WOK/$WANTED/$AUFSDIR ]; then
-		mkdir $fs/usr/src/kernel-patches/slitaz/aufs2
+		mkdir $fs/usr/src/kernel-patches/slitaz/aufs4
 		cp -a $WOK/$WANTED/$AUFSDIR/Documentation \
 			$WOK/$WANTED/$AUFSDIR/fs $WOK/$WANTED/$AUFSDIR/include \
-			$fs/usr/src/kernel-patches/slitaz/aufs2
+			$fs/usr/src/kernel-patches/slitaz/aufs4
 	fi
+
 	ln -s /usr/src/linux-$VERSION \
 		$fs/lib/modules/$VERSION-slitaz/source
 }
