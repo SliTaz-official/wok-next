@@ -1,0 +1,34 @@
+#!/bin/sh
+# aufs-patches: source this file in the receipt to get and apply aufs patches
+
+# Check for aufs and get source / patches if needed
+echo "Checking for aufs patches..."
+aufs_ver=$(. $WOK/aufs/receipt; echo $VERSION)
+aufs_dir="$WOK/aufs/source/aufs-$aufs_ver"
+if [ ! -d "$aufs_dir" ]; then
+	aufs_tarball=$(. $WOK/aufs/receipt; echo $TARBALL)
+	[ ! -f "$SRC/$aufs_tarball" ] && cook aufs --getsrc
+	mkdir -p $WOK/aufs/source
+	_ 'Extracting: %s' $aufs_tarball
+	tar -xf $SRC/$aufs_tarball -C $WOK/aufs/source/
+fi
+
+
+echo "Copying aufs files and patches..."
+cp -a $aufs_dir/Documentation $aufs_dir/fs $aufs_dir/include $src
+
+# Apply patches
+echo "Applying aufs patches..."
+while read patch_file; do
+	if [ -f done.$patch_file ]; then
+		echo "Skipping $patch_file"; continue
+	fi
+	echo -e "\nApply $patch_file"
+	patch -p1 -i "$aufs_dir/$patch_file" || exit 1
+	touch done.$patch_file
+done <<EOT
+aufs4-base.patch
+aufs4-mmap.patch
+aufs4-standalone.patch
+aufs4-loopback.patch
+EOT

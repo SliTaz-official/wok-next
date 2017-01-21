@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="linux-source"
-VERSION="4.9.0"
+VERSION="4.9.4"
 CATEGORY="development"
 SHORT_DESC="The Linux Kernel source files"
 MAINTAINER="devel@slitaz.org"
@@ -16,13 +16,31 @@ genpkg_rules()
 {
 	local _AUFSVER=$(grep  ^VERSION= $WOK/aufs/receipt | cut -d "=" -f2 | sed -e 's/"//g')
 	local AUFSDIR="aufs-${_AUFSVER}"
-	mkdir -p $fs/usr/src/kernel-patches \
+	kps=$fs/usr/src/kernel-patches/slitaz
+	mkdir -p $kps \
 		$fs/lib/modules/$VERSION-slitaz \
 		$fs/usr/bin $fs/usr/sbin
-	cp -a $WOK/$WANTED/source/slitaz $fs/usr/src/kernel-patches
-	cp -a $stuff/buildtaz $fs/usr/src/kernel-patches/slitaz
-	cp -a $stuff/make-tazpkg.u $fs/usr/src/kernel-patches/slitaz
+
+	# URL
+	echo $(. $WOK/linux/receipt; echo $WGET_URL) > $kps/url
+	# stuff
+	cp $wanted_stuff/tools/* $wanted_stuff/bootloader.sh $kps
+	# Aufs patches
+	sed '/^aufs4.*patch$/!d' $wanted_stuff/tools/aufs-patches > $kps/patches
+	while read i; do
+		cp $WOK/aufs/source/*/$i $kps
+	done < $kps/patches
+	# misc. patches
+	cat $wanted_stuff/patches/patch.order >> $kps/patches
+	cp $wanted_stuff/patches/* $kps
+	rm $kps/patch.order
+	# config
+	cp $WOK/linux/source/linux-$VERSION/.config $kps/config
+
+	cp -a $stuff/buildtaz $kps
+	cp -a $stuff/make-tazpkg.u $kps
 	cp -a $stuff/get-linux-source $fs/usr/bin
+	cp -a $stuff/list_modules.sh $kps
 	cp -a $stuff/rdev $fs/usr/sbin
 	ln -s rdev $fs/usr/sbin/rootflags
 	ln -s rdev $fs/usr/sbin/ramsize
@@ -39,4 +57,6 @@ genpkg_rules()
 
 	ln -s /usr/src/linux-$VERSION \
 		$fs/lib/modules/$VERSION-slitaz/source
+
+	chown -R root:root $fs
 }

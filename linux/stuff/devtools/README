@@ -1,0 +1,135 @@
+SliTaz Linux Kernel Readme
+==========================
+
+1. Updating the Kernel version
+------------------------------
+
+There's a tiny tool called `up-linux.sh`: just update $VERSION in the main
+"linux" receipt and then run this script. Versions in the all the related
+packages will be updated. We can do it easy because we have defined variables
+in the "linux" package receipt:
+
+  * SPLIT: list of packages that use files compiled with the "linux" package;
+  * SIBLINGS: list of packages that builds using the same sources, but with
+    the different purpose (to build man pages, API headers, config tool, etc).
+
+
+2. Updating the Kernel config
+-----------------------------
+
+You can use your old `.config` to build newer Kernels: it'll forgive you some
+inconsistency in the configuration doing it's best. Note, using old `.config`
+you'll lack the new possibilities provided by the new Kernel, while some older
+options may no longer be used.
+
+To update the configuration options you may use your old `.config` as the base
+(see `stuff/linux-slitaz.config`) with the tool provided in the "slitaz-dev"
+package (please, read it's description).
+
+Some useful links provided by Thomas Hinterberger (a.k.a. Kult-ex) where you
+can get examples of configs used in the different Linus distributions:
+
+  * Opensuse: https://github.com/openSUSE/kernel-source/blob/master/config/i386/default
+  * Fedora:   http://pkgs.fedoraproject.org/cgit/rpms/kernel.git/refs/
+  * Alpine:   https://github.com/alpinelinux/aports/blob/master/main/linux-vanilla/config-vanilla.x86
+  * Manjaro:  https://github.com/manjaro/packages-core/blob/master/linux49/config
+
+It is strongly NOT recommended to just edit `.config` as text file (unless you
+know all the consequences):
+
+    Automatically generated file; DO NOT EDIT.
+
+You may make mistakes. Geven module can't be builtin (=y) if it depends on the
+loadable module (=m). Switching some options on (=y) and off (# ... is not set)
+will add or remove a bunch of other options. Switching some option on may
+automatically switch some other option on, as described in the Kconfig* files:
+
+  * selecting CONFIG_BLOCK will auto-select CONFIG_SBITMAP too
+    (see $src/block/Kconfig);
+  * CONFIG_SND_HDA_I915 depends on CONFIG_DRM_I915 and CONFIG_SND_HDA_CORE
+    (see $src/sound/hda/Kconfig).
+
+It's (near to) impossible to track all that dependencies in mind.
+
+How do you know it's time to reconfigure your Kernel? Check cooking log for the
+"(NEW)" items. The greater their number the stronger you need to reconfigure it.
+
+
+3. Splitting the Kernel modules
+-------------------------------
+
+Yet another big task is to split Kernel modules into different "linux-*"
+packages. We need to keep the main "linux" package light, splitting rarely used
+options into another packages.
+
+We need to keep balance between number of "linux-*" packages and the number of
+the modules inside them. Package with the only one module, as well as package
+with the thousands of modules are not a good solution. User will not need the
+most of the modules in the package thanks to the great variety of sound cards,
+network cards and other hardware that performs a similar function, but which
+can not be present simultaneously in one configuration of the user equipment.
+
+Since Linux Kernel 4.9 we use special rules to find and split the modules into
+the different "linux-*" packages, as well as to find modules that should be
+inside the base "linux" package (please, see $stuff/split.rules). Rules format
+is simple: one rule on line; each rule composed from two parts separating
+spaces:
+
+  * ruleset name: we use "acpi" for "linux-acpi" package, "crypto" for
+    "linux-crypto" package, etc. We use just "linux" for the base "linux"
+    package. Note, we may use the same rules for the "linux64-*" and
+    "linux-libre-*" packages as well as for "linux-*" packages.
+  * rule itself: it's just the job for the `find` command making you free to
+    add/remove modules more frequently than changing the rules itself. It save
+    you from listing all the thousands of modules here. Three different examples
+    of the rules itself showing their simplicity, strength and flexibility:
+
+    * `drivers/net/tun.ko.xz`: find and copy given module;
+    * `net/bluetooth`: find and copy all the modules inside the given directory
+      as well as from all including sub-directories;
+    * `net/ipv4/*.ko.xz`: the same as above but only in the given directory,
+      skipping all including sub-directories.
+
+Processing rules also automatically finds all the module dependencies to copy
+all them too. So there's impossible situation with the missing dependencies.
+
+The goal is to copy each module to one or another package. Sometimes you need
+to tweak existing rules or add new one. Please, make the rule as easier as you
+can. If possible, avoid the particular module names, using directories names
+instead. You'll see in the end of the cooking log if there's unpackaged modules.
+
+Also, there's little tool called `check-split.sh`. It produces a big bold table
+containing all the modules with the information of packages where they lives now
+and description provided with the certain module. You can run this script after
+the splitting is over (after the "linux" package is done).
+
+You can open the table on the wide screen in the text editor, or convert it to
+html using command `sundown modules.split > modules.split.html` and open it in
+the web browser.
+
+Analizing the table will help you split the modules. If the certain module
+belongs to two, three or more packages, it tells us that we need to put this
+module to the base "linux" package: each "linux-*" package depends on the
+"linux" package. But note, the single module may attract the bunch of other
+modules as dependencies to the "linux" package, while this behavior may be
+undesirable. Note, in some cases you may make the module builtin (=y).
+
+If the number of the packages belongs to two packages (for example to bigger
+"linux-media" and to smaller "linux-radio") and we can easily differentiate
+them, consider to use $DEPENDS on one of the receipt (the bigger one): package
+"linux-media" is depends on "linux-radio" and all that common modules belongs
+only to "linux-radio" package.
+
+Packages receipts are mostly generic, while all the splitting job is done by
+script `$stuff/tools/copy_modules.sh` using the `$stuff/split.rules`.
+
+Steps to make split perfect:
+
+  1. Cook "linux" with all "linux-*" packages being cooking automatically too.
+  2. Run `check-split.sh` and analize the modules table. Finish if you are
+     satisfied with the result.
+  3. Change `split.rules`.
+  4. Run the command `cook linux --pack` to re-pack the "linux" and "linux-*"
+     package using new rules.
+  5. Examine the packing log: http://slitaz/cooker/cooker.cgi?log=linux-pack.log
+  6. Proceed to step 2.
