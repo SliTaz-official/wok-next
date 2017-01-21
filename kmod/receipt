@@ -14,7 +14,7 @@ WGET_URL="$WEB_SITE$TARBALL"
 
 DEPENDS="zlib liblzma"
 BUILD_DEPENDS="zlib-dev liblzma-dev tar"
-PROVIDE="modules-init-tools"
+PROVIDE="modules-init-tools depmod"
 
 # Handle cross compilation. ARM use build host: tar
 case "$ARCH" in
@@ -47,9 +47,4 @@ genpkg_rules()
 {
 	cook_copy_folders bin sbin
 	cook_copy_files *.so*
-}
-
-post_remove()
-{
-	ln -s ../bin/busybox "$1/sbin/lsmod"
 }

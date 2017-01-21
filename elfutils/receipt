@@ -1,18 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="elfutils"
-VERSION="0.161"
+VERSION="0.167"
 CATEGORY="development"
 SHORT_DESC="ELF object file access library."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://fedorahosted.org/elfutils/"
-WGET_URL="https://fedorahosted.org/releases/e/l/$PACKAGE/$VERSION/$TARBALL"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://fedorahosted.org/releases/e/l/$PACKAGE/$VERSION/$TARBALL"
+
 DEPENDS="glibc-base"
-BUILD_DEPENDS="wget bzip2-dev liblzma-dev"
+BUILD_DEPENDS="gettext-tools zlib-dev bzip2-dev liblzma-dev"
 
 # Handle multiarch compilation
 case "$ARCH" in
@@ -22,22 +23,11 @@ esac
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	CFLAGS="$CFLAGS -Wno-error"
-	./configure \
-	--enable-thread-safety \
-	$CONFIGURE_ARGS &&
-	touch src/.deps/none_ld.Po &&
-	make -s && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/bin
-	for i in elfcmp findtextrel unstrip; do
-		cp -a $install/usr/bin/$i $fs/usr/bin
-	done
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/elfutils $fs/usr/lib
+	cook_copy_files elfcmp findtextrel unstrip *.so*
 }

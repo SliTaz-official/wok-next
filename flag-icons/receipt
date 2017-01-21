@@ -2,25 +2,31 @@
 
 PACKAGE="flag-icons"
 VERSION="2.6"
+COMMIT="a81d159"
 CATEGORY="misc"
 SHORT_DESC="2600 Flag Icon Set from GoSquared"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://www.gosquared.com/resources/flag-icons"
-TARBALL="$PACKAGE-$VERSION.zip"
-WGET_URL="https://downloads.gosquared.com/pixels/flags.zip"
+WEB_SITE="https://www.gosquared.com/resources/flag-icons/"
 
-BUILD_DEPENDS="wget"
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/gosquared/flags/archive/$COMMIT.tar.gz"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	for SIZE in 16 24 32 48 64; do
+		fusih=$install/usr/share/icons/hicolor/${SIZE}x$SIZE
+		mkdir -p $fusih
+		cp -a $src/flags/flags-iso/shiny/$SIZE $fusih/intl
+	done
+
+	mkdir -p $install/usr/share/licenses
+	cp -a $src/LICENSE.txt $install/usr/share/licenses/gosquared.txt
+}
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	for SIZE in 16 24 32 48 64; do
-		fusih=$fs/usr/share/icons/hicolor/${SIZE}x$SIZE
-		mkdir -p $fusih
-		cp -a $src/flags-iso/shiny/$SIZE $fusih/intl
-	done
-
-	mkdir -p $fs/usr/share/licenses
-	cp -a $src/LICENSE.txt $fs/usr/share/licenses/gosquared.txt
+	cp -a $install/* $fs
 }

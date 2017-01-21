@@ -1,26 +1,23 @@
 # SliTaz package receipt.
 
 PACKAGE="busybox"
-VERSION="1.23.2"
+VERSION="1.26.1"
 CATEGORY="base-system"
 SHORT_DESC="Busybox combines tiny versions of many common UNIX utilities."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.busybox.net/"
+WEB_SITE="https://busybox.net/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.busybox.net/downloads/$TARBALL"
+WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
 DEPENDS="slitaz-base-files glibc-base ncurses"
-BUILD_DEPENDS="bzip2 pam pam-dev uclibc-cross-compiler-i486 \
-musl-libc-dev dietlibc gettext"
-SPLIT="busybox-boot busybox-pam busybox-static ssfs-busybox"
-SIBLINGS="busybox-slish"
+BUILD_DEPENDS="bzip2 gettext perl"
+SIBLINGS="busybox-boot busybox-pam busybox-static ssfs-busybox busybox-slish"
 
 CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf \
 /etc/resolv.conf /etc/httpd.conf"
-AUFS_NOT_RAMFS="uclibc-cross-compiler-i486 is not compatible with aufs+tmpfs 8("
 
 # Handle cross compilation
 case "$ARCH" in
@@ -33,25 +30,21 @@ apply_bb_patchs()
 	while read file; do
 		[ -f done.$file ] && continue
 		echo "Apply $file..."
-		patch -p1 < $stuff/$PACKAGE-${VERSION%.*}-$file || return 1
-	touch done.$file
+		patch -p1 < $stuff/${VERSION%.*}/$file || return 1
+		touch done.$file
 	done <<EOT
 tar.u
 stat.u
-ris.u
 zmodules.u
 printable.u
 cmdline.u
-diff.u
 diet.u
 losetup.u
 fbvnc.u
 cpio.u
-ftpd.u
-dpkgxz.u
-shutdown.u
 EOT
-	cp $stuff/$PACKAGE-${VERSION%.*}.config .config
+	# Failed: ris.u diff.u ftpd.u dpkgxz.u shutdown.u
+	cp $stuff/${VERSION%.*}/.config .
 }
 
 # Rules to configure and make the package.
@@ -76,63 +69,14 @@ compile_rules()
 			make && make install || return 1
 			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr \
 				$src/_install/bin/busybox
-			mv docs/busybox.1 docs/busybox.base.1
-
-			echo 'Making busybox-pam'
-			sed -i 's/# CONFIG_PAM is not set/CONFIG_PAM=y/' .config
-			make oldconfig && make || return 1
-			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr busybox
-			mv busybox busybox-pam
-			mv docs/busybox.1 docs/busybox.pam.1
-
-			echo 'Making busybox-static'
-			if [ -x /usr/bin/uclibc-i486-gcc ]; then
-				cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
-				make oldconfig && make || return 1
-				cp busybox busybox-static
-				mv busybox busybox-uclibc
-				mv -f docs/busybox.1 docs/busybox.static.1
-			fi
-
-			echo 'Making busybox-musl'
-			if [ -x /usr/bin/musl-gcc ]; then
-				cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
-				sed -i 's|uclibc-i486-||' .config
-				make oldconfig && make CC=musl-gcc || return 1
-				mv busybox busybox-musl
-				mv -f docs/busybox.1 docs/busybox.static.1
-			fi
-
-			echo 'Making busybox-diet'
-			if [ -x /usr/lib/diet/bin/diet ]; then
-				cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
-				sed -i 's|uclibc-i486-||;s|CFLAGS="|&-D_BSD_SOURCE |;s|LDFLAGS="|&-Wl,--allow-multiple-definition |;s|LDLIBS="|&compat rpc |' .config
-				make oldconfig && make CC="/usr/lib/diet/bin/diet gcc" || return 1
-				mv busybox busybox-diet
-				mv -f docs/busybox.1 docs/busybox.static.1
-			fi
-
-			echo 'Making ssfs-busybox'
-			rootfs=$src/ssfs-busybox/usr/share/ssfs/rootfs
-			mkdir -p $rootfs/etc
-			cp $stuff/$PACKAGE-${VERSION%.*}.config-ssfs .config
-			make oldconfig && make busybox &&
-			make CONFIG_PREFIX=$rootfs install || return 1
-			cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
-			chown -R 0.0 $rootfs/etc
-			chmod 0600 $rootfs/etc/busybox.conf
-			chmod 4755 $rootfs/bin/busybox
 
 			echo 'Making translations'
 			make -C $stuff/po install
-			cp docs/busybox.base.1 docs/busybox.1
-
 			;;
 
 	esac
 
-	mkdir -p $install/usr/share/man/man1
-	cp -a $src/docs/busybox.base.1 $install/usr/share/man/man1/busybox.1
+	cook_pick_manpages $src/docs/busybox.1
 
 	mkdir -p $install/usr/share/doc/busybox
 	cp -a $src/docs/*.txt  $install/usr/share/doc/busybox
@@ -169,7 +113,7 @@ genpkg_rules()
 	cp $stuff/daemon $fs/etc/init.d
 	DAEMON="crond dnsd ftpd httpd inetd lpd klogd ntpd syslogd telnetd tftpd udhcpd zcip"
 	for i in $DAEMON; do
-		grep -qi config_$i=y $stuff/$PACKAGE-${VERSION%.*}.config &&
+		grep -qi config_$i=y $stuff/${VERSION%.*}/.config &&
 		ln -s daemon $fs/etc/init.d/$i
 	done
 	rm $fs/linuxrc
@@ -192,15 +136,16 @@ genpkg_rules()
 	while read link; do
 		rm -f $fs$link
 	done <<EOT
-/bin/mount
-/bin/mountpoint
-/bin/umount
 /sbin/depmod
 /sbin/insmod
 /sbin/modinfo
 /sbin/modprobe
 /sbin/rmmod
 EOT
+#/bin/mount
+#/bin/mountpoint
+#/bin/umount
+	:
 }
 
 # GNU utils stuff.
@@ -210,20 +155,11 @@ pre_install()
 	[ -s $1/etc/resolv.conf ] &&
 	cp -a $1/etc/resolv.conf $1/etc/resolv.conf-busybox-install
 	answer=""
-	for i in $(cat "$1$INSTALLED/$PACKAGE/files.list"); do
+	for i in $(sed '/busybox$/d; /bin\//!d' "$1$INSTALLED/$PACKAGE/files.list"); do
 		[ -f "$1$i" ] || continue
-		case "$i" in
-			/bin/busybox) continue ;;
-			*bin/*) ;;
-			*) continue ;;
-		esac
 		if [ -z "$answer" ]; then
-			echo -n "Keep installed GNU utilities ? "
-			read -t 30 answer	# by default: keep
-			case "$answer" in
-			n*|N*) break;;
-			*) answer="Y";;
-			esac
+			confirm 'Keep installed GNU utilities?' y || break
+			answer='Y'
 		fi
 		cp -a "$1$i" "$1$i-busybox-install"
 	done
@@ -234,23 +170,27 @@ post_install()
 	local i
 	[ -f $1/etc/resolv.conf-busybox-install ] &&
 	mv -f $1/etc/resolv.conf-busybox-install $1/etc/resolv.conf
-	while read i ; do
-		[ -f "$1$i-busybox-install" ] || continue
-		mv "$1$i-busybox-install" "$1$i"
-	done < "$1$INSTALLED/$PACKAGE/files.list"
+	for i in $($1/bin/busybox --list-full); do
+		[ -f "$1/$i-busybox-install" ] || continue
+		mv "$1/$i-busybox-install" "$1/$i"
+	done
 	chmod 4755 "$1/bin/busybox"
 
-	touch $1/etc/daemons.conf
+	touch "$1/etc/daemons.conf"
 	# /etc/daemons.conf (tftp + dnsd + httpd may not be present)
-	if ! grep -q ^DNSD_OPTIONS $1/etc/daemons.conf; then
-		echo '# Domain name server options.' >> $1/etc/daemons.conf
-		echo 'DNSD_OPTIONS="-d"' >> $1/etc/daemons.conf
-		echo '' >> $1/etc/daemons.conf
+	if ! grep -q ^DNSD_OPTIONS "$1/etc/daemons.conf"; then
+		cat >> "$1/etc/daemons.conf" <<EOF
+# Domain name server options.
+DNSD_OPTIONS="-d"
+
+EOF
 	fi
 	if ! grep -q ^TFTPD_OPTIONS $1/etc/daemons.conf; then
-		echo '# Tftp daemon options.' >> $1/etc/daemons.conf
-		echo 'TFTPD_OPTIONS="-r /boot"' >> $1/etc/daemons.conf
-		echo '' >> $1/etc/daemons.conf
+		cat >> "$1/etc/daemons.conf" <<EOF
+# Tftp daemon options.
+TFTPD_OPTIONS="-r /boot"
+
+EOF
 	fi
 	sed -i "s/copy; 20../copy; $(date +%Y)/" $1/var/www/httpd/404.html
 }

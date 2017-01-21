@@ -41,18 +41,3 @@ testsuite()
 	readelf -h $install/usr/bin/loadkeys
 	readelf -h $install/usr/bin/setfont
 }
-
-# Overlap busybox
-pre_install()
-{
-	for i in deallocvt chvt setkeycodes openvt kbd_mode; do
-		rm -f $1/usr/bin/$i
-	done
-}
-
-post_remove()
-{
-	for i in deallocvt chvt setkeycodes openvt kbd_mode; do
-		ln -s /bin/busybox $1/usr/bin/$i
-	done
-}

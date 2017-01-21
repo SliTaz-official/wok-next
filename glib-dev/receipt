@@ -1,15 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="glib-dev"
-VERSION="2.43.3"
+VERSION="2.48.2"
 CATEGORY="development"
 SHORT_DESC="C routines devel files and utilities (with Python codegen)."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WANTED="glib"
 WEB_SITE="http://www.gtk.org/"
 HOST_ARCH="i486 arm"
 
+WANTED="glib"
 DEPENDS="glib perl python libffi-dev libgio libgio-dev pcre-dev pkg-config"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -35,13 +35,4 @@ genpkg_rules()
 	rm -rf $fs/usr/lib/libgio*.*a
 	rm -rf $fs/usr/include/gio-unix-2.0
 	rm $fs/usr/lib/pkgconfig/gio*.pc
-
-	# exclude from files.list (for tazpkg-find-depends)
-	cd $fs/usr/share/gdb/auto-load
-	for i in $(ls *.py);do mv -f $i ${i//./-.-};done
-}
-post_install()
-{
-	cd "$1/usr/share/gdb/auto-load"
-	for i in $(ls *.-py);do mv -f $i ${i//-.-/.};done
 }

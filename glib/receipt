@@ -1,19 +1,21 @@
 # SliTaz package receipt.
 
 PACKAGE="glib"
-VERSION="2.43.3"
+VERSION="2.48.2"
+series=$(echo $VERSION | cut -d. -f1,2)
 CATEGORY="x-window"
 SHORT_DESC="C routines."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gtk.org/"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/$series/$TARBALL"
+
 DEPENDS="pcre libffi libxml2 elfutils"
-BUILD_DEPENDS="pcre-dev libffi-dev gettext zlib-dev perl python-dev \
-elfutils-dev libxml2-dev libxml2-tools automake"
+BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
+pcre-dev gtk-doc libxslt libxml2-tools dbus-dev"
 
 # Handle cross comilation. Use host Perl, Python, etc
 case "$ARCH" in
@@ -52,7 +54,7 @@ compile_rules()
 				--enable-shared=yes \
 				--enable-static=yes \
 				--disable-rpath ;;
-	esac && 
+	esac &&
 	make && make install
 }
 
@@ -62,19 +64,17 @@ genpkg_rules()
 	mkdir -p $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	
+
 	# Split gio --> libgio
 	rm $fs/usr/lib/libgio*
-	
+
 	# Python codegen, tester, Perl mkenums --> glib-dev
-	for bin in gdbus-codegen gtester* glib-mkenums
-	do
+	for bin in gdbus-codegen gtester* glib-mkenums; do
 		rm $fs/usr/bin/$bin
 	done
-	
+
 	# Cook packages that want glib.
-	for w in libgio libgio-dev
-	do
+	for w in libgio libgio-dev; do
 		[ -x "/usr/bin/cook" ] && echo cook $w
 	done
 }

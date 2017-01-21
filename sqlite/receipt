@@ -1,17 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="sqlite"
-_realver=3081101
-VERSION="${_realver:0:1}.${_realver:2:1}.${_realver:3:2}.${_realver:6:6}"
+VERSION="3.16.1"
+version="3160100"
 CATEGORY="office"
 SHORT_DESC="Small SQL database engine."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="PublicDomain"
-TARBALL="$PACKAGE-src-${_realver}.zip"
-WEB_SITE="http://www.sqlite.org/"
-WGET_URL="http://www.sqlite.org/2015/$TARBALL"
-EXTRA_SOURCE_FILES="mysql2sqlite.sh"
+WEB_SITE="https://www.sqlite.org/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.zip"
+WGET_URL="http://www.sqlite.org/2017/sqlite-src-$version.zip"
+
+EXTRA_SOURCE_FILES="mysql2sqlite.sh"
 
 DEPENDS="libsqlite"
 BUILD_DEPENDS="tcl-dev"
@@ -22,10 +24,13 @@ compile_rules()
 	case "$ARCH" in
 		arm*) ARCH_ARGS="--with-tcl=/cross/arm/sysroot/usr/lib" ;;
 	esac
+
 	[ -s "$SOURCES_REPOSITORY/mysql2sqlite.sh" ] ||
 		wget -O "$SOURCES_REPOSITORY/mysql2sqlite.sh" \
 			https://gist.github.com/esperlu/943776/raw/dd87f4088f6d5ec7563478f7a28a37ba02cf26e2/mysql2sqlite.sh
+
 	export CFLAGS="$CFLAGS -DSQLITE_ENABLE_FTS3=1 -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY -DSQLITE_SECURE_DELETE"
+
 	./configure \
 		--prefix=/usr \
 		--disable-readline \
@@ -37,6 +42,7 @@ compile_rules()
   	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
+
 	# compile lemon here instead of in lemon
 	if [ -f $src/lemon ]; then
 		rm $src/lemon
@@ -54,10 +60,11 @@ compile_rules()
 genpkg_rules()
 {
 	mkdir -p $fs/usr/bin
-	
+
 	cp -a $install/usr/bin $fs/usr
 	cp "$SOURCES_REPOSITORY/mysql2sqlite.sh" $fs/usr/bin
 	chmod +x $fs/usr/bin/mysql2sqlite.sh
+
 	if [ -f $fs/usr/bin/lemon ]; then
 		rm -f $fs/usr/bin/lemon
 	fi
