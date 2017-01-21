@@ -6,12 +6,11 @@ CATEGORY="customization"
 SHORT_DESC="Faenza icon theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-TARBALL="${PACKAGE}_$VERSION.zip"
 WEB_SITE="http://tiheum.deviantart.com/art/Faenza-Icons-173323228"
-WGET_URL="http://dl.dropbox.com/u/9966975/$TARBALL"
 HOST_ARCH="any"
 
-DEPENDS=""
+TARBALL="${PACKAGE}_$VERSION.zip"
+WGET_URL="http://dl.dropbox.com/u/9966975/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -44,13 +43,13 @@ qtfix='/usr/share/icons/hicolor/index.theme'
 post_install()
 {
 	[ -s "$1$qtfix" ] &&
-	sed '/Inherits=/s|=.*$|=Faenza|' -i "$1$qtfix"
+	sed '/Inherits=/ s|=.*$|=Faenza|' -i "$1$qtfix"
 	:
 }
 
 pre_remove()
 {
 	[ -s "$1$qtfix" ] &&
-	sed '/Inherits=/s|=.*$|=SliTaz-Faenza|' -i "$1$qtfix"
+	sed '/Inherits=/ s|=.*$|=SliTaz-Faenza|' -i "$1$qtfix"
 	:
 }
