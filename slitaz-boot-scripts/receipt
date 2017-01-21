@@ -1,15 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="slitaz-boot-scripts"
-VERSION="434"
+VERSION="437"
 CATEGORY="base-system"
 SHORT_DESC="Provide all the initialisation scripts used at boot time."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.slitaz.org/"
-WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.gz"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
 CONFIG_FILES="
 /etc/inittab
@@ -18,12 +19,12 @@ CONFIG_FILES="
 /etc/network.conf"
 
 # Needed to fetch the keymaps and test the filesystem.
-DEPENDS="kbd-base e2fsprogs busybox"
+DEPENDS="kbd-base e2fsprogs busybox slitaz-tools"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 #
 # This package is all build by genpkg, it provide the boot scripts found
-# in /etc/init.d with the main config file : /etc/rcS.conf. It provide also
+# in /etc/init.d with the main config file /etc/rcS.conf. It provide also
 # the default inittab and the network config file used with network.sh
 #
 genpkg_rules()
@@ -45,7 +46,8 @@ genpkg_rules()
 				$fs/etc/inittab \
 				$fs/etc/init.d/rcS \
 				$fs/etc/init.d/rc.shutdown \
-				$fs/etc/init.d/system.sh ;;
+				$fs/etc/init.d/system.sh
+			;;
 	esac
 }
 

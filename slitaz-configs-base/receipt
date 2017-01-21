@@ -1,19 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="slitaz-configs-base"
-VERSION="297"
+VERSION="300"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz config files for text based systems."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
-SOURCE="slitaz-configs"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://hg.slitaz.org/slitaz-configs/archive/$VERSION.tar.gz"
 HOST_ARCH="i486 arm"
-SIBLINGS="slitaz-configs"
+
+TARBALL="slitaz-configs-$VERSION.tar.bz2"
+WGET_URL="http://hg.slitaz.org/slitaz-configs/archive/$VERSION.tar.bz2"
 
 DEPENDS="tazlito tazpkg"
+SIBLINGS="slitaz-configs"
 
 # Handle SliTaz arch
 case "$SLITAZ_ARCH" in
@@ -26,25 +26,26 @@ genpkg_rules()
 	# Copy rootfs files and set permissions.
 	case "$ARCH" in
 		arm*)
-			# Most ARM configs are in: slitaz-arm repo but Openbox, webhome
+			# Most ARM configs are in slitaz-arm repo but Openbox, webhome
 			# are common to all arch.
-			mkdir -p $fs/usr/share $fs/etc
-			cp -a $src/rootfs/usr/bin $fs/usr 
-			cp -a $src/rootfs/etc/lxpanel $fs/etc 
-			cp -a $src/rootfs/etc/skel $fs/etc
+			mkdir -p $fs/usr/share        $fs/etc
+			cp -a $src/rootfs/usr/bin     $fs/usr
+			cp -a $src/rootfs/etc/lxpanel $fs/etc
+			cp -a $src/rootfs/etc/skel    $fs/etc
 			# No dbus on ARM
-			sed "s/exec dbus.*$/exec\"/" -i $fs/etc/skel/.xinitrc ;;
+			sed "s/exec dbus.*$/exec\"/" -i $fs/etc/skel/.xinitrc
+			;;
 		*)
-			mkdir -p \
-				$fs/usr/share
+			mkdir -p $fs/usr/share
 			# XDG user directories
 			for dir in Desktop Documents Downloads Images Music Public \
 				Templates Videos; do
 				mkdir -p $fs/etc/skel/$dir
 			done
-			cp -a $src/rootfs/boot $fs/
-			cp -a $src/rootfs/etc/skel $fs/etc
-			cp -a $src/rootfs/etc/polkit-1 $fs/etc ;;
+			cp -a $src/rootfs/boot         $fs/
+			cp -a $src/rootfs/etc/skel     $fs/etc
+			cp -a $src/rootfs/etc/polkit-1 $fs/etc
+			;;
 	esac
 	
 	for i in images pixmaps themes webhome; do
@@ -59,7 +60,7 @@ genpkg_rules()
 post_install()
 {
 	[ -z "$quiet" ] && echo -en "\nUpdating ~/.xinitrc"
-	for i in $(ls -d "$1/root" "$1"/home/* 2> /dev/null); do
+	for i in $(ls -d "$1/root" "$1"/home/* 2>/dev/null); do
 		[ -d "$i" ] && cp -f "$1/etc/skel/.xinitrc" "$i"
 	done
 	sed -i 's|$HOME/.config|/etc|' "$1/root/.xinitrc"

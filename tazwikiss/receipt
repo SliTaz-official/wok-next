@@ -1,18 +1,22 @@
 # SliTaz package receipt.
 
 PACKAGE="tazwikiss"
-VERSION="258"
+VERSION="266"
 CATEGORY="office"
 SHORT_DESC="Tiny SliTaz Wiki"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-SOURCE="slitaz-dev-tools"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
 WEB_SITE="http://www.slitaz.org/"
 CONFIG_FILES="/var/www/wiki/config.sh /var/www/wiki/config-de.sh \
 /var/www/wiki/config-fr.sh"
 HOST_ARCH="any"
+
+TARBALL="slitaz-dev-tools-$VERSION.tar.bz2"
+WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
+
+DEPENDS="busybox slitaz-base-files"
+SIBLINGS="mirror-tools qemu-box slitaz-dev-tools slitaz-mercurial-style \
+tazchroot tazdev yaff"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -99,13 +103,6 @@ EOT
 			/etc/init.d/httpd start
 		fi
 	fi
-	while read line; do
-		[ -x "$1/$line" ] && continue
-		echo "WARNING: $line not found, $PACKAGE will not work!"
-	done <<EOT
-/usr/sbin/httpd
-/usr/lib/slitaz/httphelper.sh
-EOT
-	echo "The default password to edit pages is 'test'"
-	echo
+
+	[ -z "$quiet" ] && echo -e "The default password to edit pages is 'test'\n"
 }
