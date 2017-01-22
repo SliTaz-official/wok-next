@@ -41,6 +41,7 @@ install: msgfmt
 		install -m 0755 -d $(DESTDIR)$(localedir)/$$l/LC_MESSAGES; \
 		install -m 0644 $$l.mo \
 			$(DESTDIR)$(localedir)/$$l/LC_MESSAGES/daemon.mo; \
+		rm $$l.mo; \
 	done;
 
 clean:
