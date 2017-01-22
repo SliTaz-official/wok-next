@@ -14,7 +14,7 @@ DEPENDS="linux slitaz-toolchain ncurses-dev perl xz lzma patch busybox-boot"
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	local _AUFSVER=$(grep  ^VERSION= $WOK/aufs/receipt | cut -d "=" -f2 | sed -e 's/"//g')
+	local _AUFSVER=$(. $WOK/aufs/receipt; echo $VERSION)
 	local AUFSDIR="aufs-${_AUFSVER}"
 	kps=$fs/usr/src/kernel-patches/slitaz
 	mkdir -p $kps \
@@ -25,11 +25,15 @@ genpkg_rules()
 	echo $(. $WOK/linux/receipt; echo $WGET_URL) > $kps/url
 	# stuff
 	cp $wanted_stuff/tools/* $wanted_stuff/bootloader.sh $kps
+	# Kernel patch
+	xzcat $SRC/patch-$VERSION.xz > $kps/linux-$VERSION.patch
+	echo "linux-$VERSION.patch" > $kps/patches
 	# Aufs patches
-	sed '/^aufs4.*patch$/!d' $wanted_stuff/tools/aufs-patches > $kps/patches
+	sed '/^aufs4.*patch$/!d' $wanted_stuff/tools/aufs-patches | \
+	tee -a $kps/patches | \
 	while read i; do
 		cp $WOK/aufs/source/*/$i $kps
-	done < $kps/patches
+	done
 	# misc. patches
 	cat $wanted_stuff/patches/patch.order >> $kps/patches
 	cp $wanted_stuff/patches/* $kps
@@ -55,8 +59,7 @@ genpkg_rules()
 			$fs/usr/src/kernel-patches/slitaz/aufs4
 	fi
 
-	ln -s /usr/src/linux-$VERSION \
-		$fs/lib/modules/$VERSION-slitaz/source
+	ln -s ../../../usr/src/linux-$VERSION $fs/lib/modules/$VERSION-slitaz/source
 
 	chown -R root:root $fs
 }

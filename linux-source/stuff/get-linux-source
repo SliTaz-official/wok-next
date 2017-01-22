@@ -14,24 +14,19 @@ done
 mirror_src=http://mirror.slitaz.org/sources/packages-$(cat /etc/slitaz-release)
 busybox wget -s $url || url=$mirror_src/l/$(basename $url)
 
-if [ ! -d $SOURCES_REPOSITORY ]; then
-	mkdir -p $SOURCES_REPOSITORY
-fi
+mkdir -p $SOURCES_REPOSITORY
 
 cd /usr/src/
 if [ -f $SOURCE_REPOSITORY/$(basename ${url//bz2/lzma}) ]; then
-	unlzma -c $SOURCES_REPOSITORY/$(basename ${url//bz2/lzma}) | tar xf - -C $PWD
+	unlzma -c $SOURCES_REPOSITORY/$(basename ${url//bz2/lzma}) | tar -xf - -C $PWD
 elif [ -f $SOURCES_REPOSITORY/$(basename $url) ]; then
-	tar xf $SOURCES_REPOSITORY/$(basename $url)
+	tar -xf $SOURCES_REPOSITORY/$(basename $url)
 else
 	wget -O $SOURCES_REPOSITORY/$(basename $url) -c $url
-	tar xf $SOURCES_REPOSITORY/$(basename $url)
+	tar -xf $SOURCES_REPOSITORY/$(basename $url)
 fi
 
 cp -a /usr/src/kernel-patches/slitaz /usr/src/linux-$VERSION
-if [ -d /usr/src/linux-$VERSION/slitaz/aufs2 ]; then
-	cp -pa /usr/src/linux-$VERSION/slitaz/aufs2/* /usr/src/linux-$VERSION
-fi
 
 # Add tazpkg support
 if [ -d "/usr/src/linux-$VERSION/scripts/package" ]; then
@@ -45,6 +40,7 @@ while read patch_file; do
 	echo "Apply $patch_file"
 	patch -p1 < slitaz/$patch_file
 done < slitaz/patches
+
 [ ! -f System.map ] && cp slitaz/config .config &&
 make oldconfig && make modules_prepare
 ln -s /usr/src/linux-$VERSION /lib/modules/$VERSION-slitaz/build
