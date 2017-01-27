@@ -6,8 +6,9 @@ CATEGORY="base-system"
 SHORT_DESC="Kernel modules manipulation tools."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://www.kernel.org/pub/linux/utils/kernel/module-init-tools/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
 DEPENDS="glibc-base gcc-lib-base zlib lzlib depmod"
@@ -29,8 +30,11 @@ compile_rules()
 	# Don't generate manpages to avoid failure.
 	echo '.so man5/modprobe.conf.5' > modprobe.d.5
 
-	./configure --enable-zlib \
-	--sbindir=/sbin --bindir=/bin --sysconfdir=/etc \
+	./configure \
+		--enable-zlib \
+		--sbindir=/sbin \
+		--bindir=/bin \
+		--sysconfdir=/etc \
 	$CONFIGURE_ARGS &&
 	make &&	make install
 }
@@ -58,14 +62,4 @@ pre_install()
 	rm -f "$1/sbin/rmmod"
 	# BusyBox puts lsmod in /sbin, not /bin
 	rm -f "$1/sbin/lsmod"
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/sbin/insmod"
-	ln -s /bin/busybox "$1/sbin/modinfo"
-	ln -s /bin/busybox "$1/sbin/modprobe"
-	ln -s /bin/busybox "$1/sbin/rmmod"
-	# BusyBox puts lsmod in /sbin, not /bin
-	ln -s /bin/busybox "$1/sbin/lsmod"
 }

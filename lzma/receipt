@@ -6,13 +6,16 @@ CATEGORY="base-system"
 SHORT_DESC="Compressor with a high compression ratio."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="lzma$(echo $VERSION | sed 's/\.//').tar.bz2"
 WEB_SITE="http://sourceforge.net/projects/sevenzip/"
-WGET_URL="$SF_MIRROR/sevenzip/$TARBALL"
 TAGS="compression archive"
 HOST_ARCH="i486 arm"
 
+TARBALL="lzma$(echo $VERSION | sed 's/\.//').tar.bz2"
+WGET_URL="$SF_MIRROR/sevenzip/$TARBALL"
+
 DEPENDS="lzlib zlib gcc-lib-base"
+BUILD_DEPENDS="zlib-dev"
+SPLIT="lzlib lzlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -22,7 +25,7 @@ compile_rules()
 		touch done.lzlib.u
 	fi
 	cd CPP/7zip/Compress/LZMA_Alone
-	
+
 	# Handle cross compilation
 	case "$ARCH" in
 		arm)
@@ -33,11 +36,10 @@ compile_rules()
 	# Remove copyright message.
 	sed '/MY_VERSION_COPYRIGHT_DATE/d' -i LzmaAlone.cpp
 
-	make -f makefile.gcc lzma 2> /dev/null
+	make -f makefile.gcc lzma 2>/dev/null
 	make -f makefile.gcc liblz.so.1.0.0 &&
 	make -f makefile.gcc lzma
 }
-
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
@@ -48,10 +50,4 @@ genpkg_rules()
 	chmod 755 $fs/usr/bin/lzma
 	ln -s lzma $fs/usr/bin/unlzma
 	ln -s lzma $fs/usr/bin/lzcat
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/usr/bin/unlzma"
-	ln -s /bin/busybox "$1/usr/bin/lzcat"
 }

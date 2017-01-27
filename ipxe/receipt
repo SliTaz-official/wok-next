@@ -1,18 +1,18 @@
 # SliTaz package receipt.
 
 PACKAGE="ipxe"
-VERSION="1.0.0-20160119"
-GIT_TAG="3c26ffafceef176286c108fe2b01ccebd83062a0"
+VERSION="41f786c"
 CATEGORY="system-tools"
 SHORT_DESC="Open source network boot firmware."
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL2"
+LICENSE="GPL2 UBDL"
 WEB_SITE="http://ipxe.org/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://git.ipxe.org/ipxe.git/snapshot/$GIT_TAG.tar.bz2"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/ipxe/ipxe/tarball/$VERSION"
 
 DEPENDS=""
-BUILD_DEPENDS="perl wget liblzma-dev"
+BUILD_DEPENDS="perl liblzma-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,6 +25,10 @@ compile_rules()
 	    -e 's|//\(#define.*CONSOLE_CMD\)|\1|' \
 	    -e 's|//\(#define.*REBOOT_CMD\)|\1|' config/general.h
 	cp $stuff/lkrnprefix.S arch/i386/prefix
+
+	make all
+	separator
+
 	make bin/undionly.pxe bin/undionly.kpxe bin/undionly.kkpxe \
 	     bin/undionly.kkkpxe bin/ipxe.pxe bin/ipxe.kpxe bin/ipxe.kkpxe \
 	     bin/ipxe.kkkpxe bin/ipxe.nbi bin/ipxe.lkrn EMBED=$stuff/ipxe.cmd

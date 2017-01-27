@@ -1,32 +1,38 @@
 # SliTaz package receipt.
 
 PACKAGE="fuse"
-VERSION="2.9.3"
+VERSION="2.9.7"
 CATEGORY="system-tools"
 SHORT_DESC="Fuse Filsystem in user space."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://fuse.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 TAGS="filesystem"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--disable-static \
+		INIT_D_PATH=/tmp/init.d \
 		$CONFIGURE_ARGS &&
 	make && make install
+
+	mkdir -p $install/lib
+	mv $install/usr/lib/libfuse.so.* $install/lib
+	ln -sf ../../lib/libfuse.so.$VERSION $install/usr/lib/libfuse.so
+
+	mkdir -p $install/usr/share/doc/fuse-$VERSION/api
+	cp doc/html/* $install/usr/share/doc/fuse-$VERSION/api
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/dev $fs
-	cp -a $install/sbin $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_folders dev etc sbin bin
+	cook_copy_files *.so*
 }
-

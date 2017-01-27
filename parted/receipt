@@ -6,10 +6,11 @@ CATEGORY="system-tools"
 SHORT_DESC="GNU parted partition editor."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gnu.org/software/parted/index.shtml"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
+
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 
 DEPENDS="util-linux-uuid util-linux-blkid"
 BUILD_DEPENDS="e2fsprogs-dev util-linux-uuid-dev util-linux-blkid-dev"
@@ -24,6 +25,7 @@ compile_rules()
 	grep -qs 'define u8' libparted/arch/linux.c ||
 	sed -i 's|#include <scsi/scsi.h>|#define u8 __u8\n&|' \
 		libparted/arch/linux.c
+
 	./configure \
 		--disable-debug \
 		--disable-Werror \
