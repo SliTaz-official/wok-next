@@ -1,47 +1,42 @@
 # SliTaz package receipt.
 
 PACKAGE="cpio"
-VERSION="2.11"
+VERSION="2.12"
 CATEGORY="base-system"
 SHORT_DESC="GNU cpio archiver."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/cpio/"
+WEB_SITE="https://www.gnu.org/software/cpio/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="glibc-base"
-BUILD_DEPENDS="slitaz-toolchain"
+BUILD_DEPENDS="tar gettext texinfo"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr \
+	./configure \
 		--bindir=/bin \
-		--libexecdir=/usr/bin \
-		--mandir=/usr/share/man \
-		--infodir=/usr/share/info \
+		--enable-mt \
+		--with-rmt=$install/usr/libexec/rmt \
 		$CONFIGURE_ARGS  &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	makeinfo --html            -o doc/html      doc/cpio.texi &&
+	makeinfo --html --no-split -o doc/cpio.html doc/cpio.texi &&
+	makeinfo --plaintext       -o doc/cpio.txt  doc/cpio.texi &&
+	make install
+
+	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
+	install -v -m755 -d $docdir/html
+	install -v -m644    doc/html/*    $docdir/html
+	install -v -m644    doc/cpio.html $docdir
+	install -v -m644    doc/cpio.txt  $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/bin $fs
-	cp -a $install/usr/bin $fs/usr
-}
-
-# Remove Busybox symlink before installing
-pre_install()
-{
-	rm -f "$1/bin/cpio"
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/bin/cpio"
+	cook_copy_folders bin
 }
