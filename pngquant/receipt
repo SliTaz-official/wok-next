@@ -1,31 +1,38 @@
 # SliTaz package receipt.
 
 PACKAGE="pngquant"
-VERSION="2.7.0"
+VERSION="2.8.2"
 CATEGORY="graphics"
 SHORT_DESC="Command-line utility and a library for lossy compression of PNG images"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://pngquant.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/pornel/pngquant/archive/$VERSION.tar.gz"
 
-DEPENDS="lcms2 libpng"
-BUILD_DEPENDS="lcms2-dev libpng-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/pornel/pngquant/tarball/$VERSION"
+
+EXTRA_TARBALL="libimagequant-$VERSION"
+EXTRA_WGET_URL="$GITHUB/ImageOptim/libimagequant/tarball/$VERSION"
+
+DEPENDS="lcms2 libpng zlib"
+BUILD_DEPENDS="lcms2-dev libpng-dev zlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+	if [ ! -e "$SRC/$EXTRA_TARBALL" ]; then
+		wget -O $SRC/$EXTRA_TARBALL $EXTRA_WGET_URL
+	fi
+	tar -xf $SRC/$EXTRA_TARBALL -C $src
+	mv $src/ImageOptim-*/* $src/lib/
 
-	find $install -name pngquant.1 -exec gzip -9 \{\} \;
+	./configure \
+		--prefix=/usr &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	cook_copy_files pngquant
 }

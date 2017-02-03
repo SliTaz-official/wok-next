@@ -7,6 +7,7 @@ SHORT_DESC="DocBook XSL stylesheets."
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://docbook.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/docbook/$TARBALL"
 
@@ -24,7 +25,7 @@ genpkg_rules()
 	for fn in xml xsl dtd ent; do
 		install -m644 common/*.${fn} $pkgroot/common/
 	done
-	
+
 	for fn in fo highlighting html roundtrip; do
 		install -dm755 ${pkgroot}/${fn}
 		install -m644 ${fn}/*.xml ${pkgroot}/${fn}/
@@ -45,38 +46,32 @@ post_install()
 		cp /etc/resolv.conf "$1/etc/resolv.conf"
 	fi
 
+	U="http://docbook.sourceforge.net/release/xsl"
+	F="/usr/share/xml/docbook/stylesheet/$PACKAGE"
+
 	# Create a /etc/xml/catalog file
 	if [ ! -d "$1/etc/xml" ]; then install -v -m755 -d "$1/etc/xml"; fi &&
 	if [ ! -f "$1/etc/xml/catalog" ]; then
 		chroot "$1/" xmlcatalog --noout --create /etc/xml/catalog
 	fi &&
 
-	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" \
-		"http://docbook.sourceforge.net/release/xsl/$VERSION" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE" \
-	/etc/xml/catalog &&
+	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" "$U/$VERSION" \
+		"$F" /etc/xml/catalog &&
 
-	chroot "$1/" xmlcatalog --noout --add "rewriteURI" \
-		"http://docbook.sourceforge.net/release/xsl/$VERSION" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE" \
-	/etc/xml/catalog &&
+	chroot "$1/" xmlcatalog --noout --add "rewriteURI"    "$U/$VERSION" \
+		"$F" /etc/xml/catalog &&
 
-	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" \
-		"http://docbook.sourceforge.net/release/xsl/current" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE" \
-	/etc/xml/catalog &&
+	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" "$U/current" \
+		"$F" /etc/xml/catalog &&
 
-	chroot "$1/" xmlcatalog --noout --add "rewriteURI" \
-		"http://docbook.sourceforge.net/release/xsl/current" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE" \
-	/etc/xml/catalog
+	chroot "$1/" xmlcatalog --noout --add "rewriteURI"    "$U/current" \
+		"$F" /etc/xml/catalog
 
 	# link nwalsh dir
-	cd "$1/usr/share/xml/docbook/stylesheet"
-	ln -s $PACKAGE nwalsh
+	ln -s $PACKAGE "$1/usr/share/xml/docbook/stylesheet/nwalsh"
 
 	if [ -n "$1" ]; then
-		mv -f "$1/etc/resolv.conf.$$" "$1/etc/recolv.conf" 2> /dev/null
+		mv -f "$1/etc/resolv.conf.$$" "$1/etc/recolv.conf" 2>/dev/null
 	fi
 
 	:

@@ -1,28 +1,27 @@
 # SliTaz package receipt.
 
 PACKAGE="lz4"
-VERSION="131"
+VERSION="1.7.5"
 CATEGORY="base-system"
 SHORT_DESC="High speed lossless compressor."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.lz4.org/"
-TARBALL="$PACKAGE-r$VERSION.tar.gz"
-WGET_URL="https://github.com/Cyan4973/lz4/archive/r$VERSION.tar.gz"
+WEB_SITE="http://lz4.github.io/lz4/"
 TAGS="compression"
 
-BUILD_DEPENDS="wget"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/lz4/lz4/tarball/v$VERSION"
+
+SPLIT="lz4-lib lz4c"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	find -type f | xargs sed -i 's|usr/local|usr|'
-	make && make DESTDIR=$DESTDIR install
+	make && make PREFIX=/usr DESTDIR=$DESTDIR install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/lz4 $fs/usr/bin
+	cook_copy_files lz4 unlz4 lz4cat
 }

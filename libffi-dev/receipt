@@ -1,26 +1,19 @@
 # SliTaz package receipt.
 
 PACKAGE="libffi-dev"
-VERSION="3.1"
+VERSION="3.2.1"
 CATEGORY="development"
 SHORT_DESC="libffi devel files."
-WEB_SITE="http://sourceware.org/libffi/"
 MAINTAINER="rcx@zoominternet.net"
+WEB_SITE="http://sourceware.org/libffi/"
 LICENSE="MIT"
-WANTED="libffi"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libffi pkg-config"
+WANTED="libffi"
+DEPENDS="libffi"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/include
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	cp -a $install/usr/lib/$WANTED-$VERSION $fs/usr/lib
-
-	# Copy the headers to the standard location
-	cp -a $install/usr/lib/$WANTED-$VERSION/include/* \
-		$fs/usr/include
+	cook_copy_files *.h *.la *.pc
 }

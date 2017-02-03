@@ -1,26 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="libarchive"
-VERSION="3.1.2"
+VERSION="3.2.2"
 CATEGORY="system-tools"
 SHORT_DESC="C librairy and command line tool for reading archive."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.libarchive.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
-DEPENDS="acl libcrypto liblzma bzlib zlib libxml2"
-BUILD_DEPENDS="acl-dev attr-dev libcrypto-dev zlib-dev libxml2-dev"
+DEPENDS="acl attr bzlib libcrypto liblzma libxml2 lz4-lib lzo nettle zlib"
+BUILD_DEPENDS="e2fsprogs-dev zlib-dev bzip2-dev gettext lz4-dev liblzma-dev \
+lzo-dev libxml2-dev expat-dev attr-dev acl-dev nettle-dev openssl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make -j1 DESTDIR=$DESTDIR install
 }
@@ -28,8 +27,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib 
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_folders bin
+	cook_copy_files *.so*
 }
-

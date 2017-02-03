@@ -16,6 +16,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/$series/$TARBALL"
 DEPENDS="pcre libffi libxml2 elfutils"
 BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
 pcre-dev gtk-doc libxslt libxml2-tools dbus-dev"
+SPLIT="libgio libgio-dev"
 
 # Handle cross comilation. Use host Perl, Python, etc
 case "$ARCH" in
@@ -61,9 +62,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_folders bin
+	cook_copy_files *.so*
 
 	# Split gio --> libgio
 	rm $fs/usr/lib/libgio*
@@ -71,10 +71,5 @@ genpkg_rules()
 	# Python codegen, tester, Perl mkenums --> glib-dev
 	for bin in gdbus-codegen gtester* glib-mkenums; do
 		rm $fs/usr/bin/$bin
-	done
-
-	# Cook packages that want glib.
-	for w in libgio libgio-dev; do
-		[ -x "/usr/bin/cook" ] && echo cook $w
 	done
 }

@@ -1,25 +1,29 @@
 # SliTaz package receipt.
 
 PACKAGE="cmake"
-VERSION="3.1.2"
+VERSION="3.6.1"
 CATEGORY="development"
-SHORT_DESC="Cross-platform Make."
+SHORT_DESC="Cross-platform build system generator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
+WEB_SITE="https://cmake.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.cmake.org/"
 WGET_URL="http://www.cmake.org/files/v${VERSION%.*}/$TARBALL"
 
-DEPENDS="openssl libidn gcc-lib-base"
-BUILD_DEPENDS="ncurses-dev gcc-lib-base"
+DEPENDS="expat libarchive libcurl ncurses-libform zlib"
+BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev liblzma-dev libarchive-dev \
+expat-dev ncurses-dev gfortran"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./bootstrap \
 		--prefix=/usr \
-		--docdir=/share/doc/$PACKAGE \
-		--mandir=/share/man &&
+		--system-libs \
+		--mandir=/share/man \
+		--no-system-jsoncpp \
+		--docdir=/share/doc/$PACKAGE-$VERSION &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -27,6 +31,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/usr $fs
-	rm -rf $fs/usr/share/man
+	cook_copy_folders bin aclocal cmake-${VERSION%.*}
 }

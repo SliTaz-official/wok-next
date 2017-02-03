@@ -11,12 +11,13 @@ WEB_SITE="https://www.sqlite.org/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.zip"
-WGET_URL="http://www.sqlite.org/2017/sqlite-src-$version.zip"
+WGET_URL="https://www.sqlite.org/2017/sqlite-src-$version.zip"
 
 EXTRA_SOURCE_FILES="mysql2sqlite.sh"
 
 DEPENDS="libsqlite"
 BUILD_DEPENDS="tcl-dev"
+SPLIT="libsqlite libsqlite-tcl lemon"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,17 +30,19 @@ compile_rules()
 		wget -O "$SOURCES_REPOSITORY/mysql2sqlite.sh" \
 			https://gist.github.com/esperlu/943776/raw/dd87f4088f6d5ec7563478f7a28a37ba02cf26e2/mysql2sqlite.sh
 
-	export CFLAGS="$CFLAGS -DSQLITE_ENABLE_FTS3=1 -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY -DSQLITE_SECURE_DELETE"
+	export CFLAGS="$CFLAGS -DSQLITE_ENABLE_FTS3=1 \
+		-DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+		-DSQLITE_SECURE_DELETE=1 -DSQLITE_ENABLE_DBSTAT_VTAB=1"
 
 	./configure \
-		--prefix=/usr \
+		--disable-static \
 		--disable-readline \
 		--enable-load-extension \
 		LDFLAGS="$LDFLAGS -ldl" \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool &&
-  	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool &&
+	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 
@@ -59,13 +62,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
+	cook_copy_files sqlite3
 
-	cp -a $install/usr/bin $fs/usr
 	cp "$SOURCES_REPOSITORY/mysql2sqlite.sh" $fs/usr/bin
 	chmod +x $fs/usr/bin/mysql2sqlite.sh
-
-	if [ -f $fs/usr/bin/lemon ]; then
-		rm -f $fs/usr/bin/lemon
-	fi
 }
