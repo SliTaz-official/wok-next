@@ -2,33 +2,35 @@
 
 PACKAGE="libpng"
 VERSION="1.6.28"
+SERIES="libpng16"
 CATEGORY="libs"
-SHORT_DESC="PNG images library."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="PNG images library (with APNG support)"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
-WEB_SITE="http://libpng.org/pub/png/libpng.html"
+WEB_SITE="http://www.libpng.org/pub/png/libpng.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="$SF_MIRROR/libpng/$TARBALL"
+
+PATCH="$PACKAGE-$VERSION-apng.patch.gz"
+PATCH_URL="$SF_MIRROR/apng/libpng/$SERIES/$PATCH"
 
 DEPENDS="zlib"
 BUILD_DEPENDS="gawk zlib-dev"
 
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
-
 # Rules to configure and make the package.
 compile_rules()
 {
+	[ -s "$SRC/$PATCH" ] || wget -O "$SRC/$PATCH" $PATCH_URL
+	gzip -cd $SRC/$PATCH | patch -p0
+
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make install
 
+	# Misc png tools
 	cd contrib/pngminus
 	make PNGLIB="-L$DESTDIR/usr/lib -lpng" -f makefile.std png2pnm pnm2png
 	cp -a png2pnm pnm2png $DESTDIR/usr/bin
