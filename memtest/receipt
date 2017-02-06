@@ -18,10 +18,8 @@ SPLIT="memtest-serial"
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i '/scp memtest.bin/d' Makefile
-	for i in array-size io setup ; do
-		patch -p1 < $stuff/$SOURCE-$VERSION-$i.patch
-	done
+	sed -i  -e '/scp memtest.bin/d' \
+		-e 's/no-stack-protector/& -fgnu89-inline/' Makefile
 	make
 	cp $stuff/*.S $stuff/pack .
 	for i in bootloader unpack ; do
