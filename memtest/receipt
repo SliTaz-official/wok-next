@@ -20,6 +20,7 @@ compile_rules()
 {
 	sed -i  -e '/scp memtest.bin/d' \
 		-e 's/no-stack-protector/& -fgnu89-inline/' Makefile
+	patch -p1 < $stuff/$SOURCE-$VERSION-array-size.patch
 	make
 	cp $stuff/*.S $stuff/pack .
 	for i in bootloader unpack ; do
