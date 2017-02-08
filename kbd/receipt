@@ -14,8 +14,8 @@ TARBALL="kbd-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
 
 DEPENDS="kbd-base"
-BUILD_DEPENDS="check-dev bison flex gettext advancecomp"
-SPLIT="kbd-base kbd-busybox"
+BUILD_DEPENDS="check-dev bison flex gettext patch pam-dev"
+SPLIT="kbd-base kbd-busybox kbd-vlock"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -37,7 +37,6 @@ compile_rules()
 
 	./configure \
 		--datadir=/usr/share/kbd \
-		--disable-vlock \
 		$CONFIGURE_ARGS &&
 	make && make install
 
@@ -46,24 +45,14 @@ compile_rules()
 	mkdir -p $install/usr/share/doc/kbd-$VERSION
 	cp -R docs/doc/* $install/usr/share/doc/kbd-$VERSION
 
-	if [ -n "$(which advdef)" ]; then
-		action 'Recompressing GZ files...'
-		local size0=$(find $install/usr/share/kbd -name '*.gz' -exec ls -l \{\} \; | awk '{s+=$5}END{print s}')
-		local time0=$(date +%s)
-		find $install/usr/share/kbd -name '*.gz' -exec advdef -z4q \{\} \;
-		local size1=$(find $install/usr/share/kbd -name '*.gz' -exec ls -l \{\} \; | awk '{s+=$5}END{print s}')
-		local time1=$(date +%s)
-		status
-		comp_summary "$time0" "$time1" "$size0" "$size1"
-	fi
-
-	# Cook "kbd-base" before "kbd" packaging to properly work cook_split_rm()
-	cook kbd-base >/dev/null 2>&1
+	# Cook packages before "kbd" packaging to properly work cook_split_rm()
+	cook kbd-base  >/dev/null 2>&1
+	cook kbd-vlock >/dev/null 2>&1
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	cook_copy_folders bin kbd
-	cook_split_rm kbd-base
+	cook_split_rm kbd-base kbd-vlock
 }
