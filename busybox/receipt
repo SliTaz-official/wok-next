@@ -13,8 +13,10 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
 DEPENDS="slitaz-base-files glibc-base ncurses"
-BUILD_DEPENDS="bzip2 gettext perl"
-SIBLINGS="busybox-boot busybox-pam busybox-static ssfs-busybox busybox-slish"
+BUILD_DEPENDS="bzip2 gettext perl   pam pam-dev uclibc-cross-compiler-i486 \
+musl-libc-dev dietlibc"
+
+SPLIT="busybox-boot busybox-pam busybox-static ssfs-busybox busybox-slish"
 
 CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf \
 /etc/resolv.conf /etc/httpd.conf"
@@ -73,9 +75,62 @@ compile_rules()
 			make && make install || return 1
 			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr \
 				$src/_install/bin/busybox
+			mv docs/busybox.1 docs/busybox.base.1
+
+			# prepare busybox-pam package
+			echo "Making busybox-pam"
+			sed -i 's|# CONFIG_PAM is not set|CONFIG_PAM=y|' .config
+			make oldconfig && make || return 1
+			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr busybox
+			mv busybox busybox-pam
+			mv docs/busybox.1 docs/busybox.pam.1
+
+			# prepare busybox-static package
+			if [ -x /usr/bin/uclibc-i486-gcc ]; then
+				echo "Making busybox-uclibc"
+				cp $stuff/${VERSION%.*}/.config-static .config
+				sed -i 's|# CONFIG_ASH_INTERNAL_GLOB is not set|CONFIG_ASH_INTERNAL_GLOB=y|' .config
+				make oldconfig && make || return 1
+				cp busybox busybox-static
+				mv busybox busybox-uclibc
+				mv -f docs/busybox.1 docs/busybox.static.1
+			fi
+
+			if [ -x /usr/bin/musl-gcc ]; then
+				echo "Making busybox-musl"
+				# prepare busybox-musl package
+				cp $stuff/${VERSION%.*}/.config-static .config
+				sed -i 's|uclibc-i486-||' .config
+				make oldconfig && make CC=musl-gcc || return 1
+				mv busybox busybox-musl
+				mv -f docs/busybox.1 docs/busybox.static.1
+			fi
+
+			if [ -x /usr/lib/diet/bin/diet ]; then
+				echo "Making busybox-diet"
+				# prepare busybox-diet package
+				cp $stuff/${VERSION%.*}/.config-static .config
+				sed -i 's|uclibc-i486-||;s|CFLAGS="|&-D_BSD_SOURCE |;s|LDFLAGS="|&-Wl,--allow-multiple-definition |;s|LDLIBS="|&compat rpc |' .config
+				make oldconfig && make CC="/usr/lib/diet/bin/diet gcc" || return 1
+				mv busybox busybox-diet
+				mv -f docs/busybox.1 docs/busybox.static.1
+			fi
+
+			# prepare ssfs-busybox package
+			echo "Making busybox-ssfs"
+			rootfs=$src/ssfs-busybox/usr/share/ssfs/rootfs
+			mkdir -p $rootfs/etc
+			cp $stuff/${VERSION%.*}/.config-ssfs .config
+			make oldconfig && make busybox &&
+			make CONFIG_PREFIX=$rootfs install || return 1
+			cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
+			chown -R 0.0 $rootfs/etc
+			chmod 0600 $rootfs/etc/busybox.conf
+			chmod 4755 $rootfs/bin/busybox
 
 			echo 'Making translations'
 			make -C $stuff/po install
+			cp docs/busybox.base.1 docs/busybox.1
 			;;
 
 	esac
