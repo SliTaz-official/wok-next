@@ -18,6 +18,12 @@ BUILD_DEPENDS="perl liblzma-dev"
 compile_rules()
 {
 	cd $src/src
+	
+	# Fix https://git.ipxe.org/ipxe.git/commit/163f8acba0fbb6e3c44aec5286d3d076e1f44f22
+	sed -i 's/.*.section ".pages".*/.if64 ;\n&/;$a.endif' \
+		arch/x86/transitions/librm.S
+
+	#sed -i 's/^ASFLAGS.*/& -adhlns=$(<:.S=.lst)/' Makefile
 	sed -i 's/-llzma/& -lpthread/' Makefile.*
 	sed -i 's|//\(#define.*CONSOLE_FRAMEBUFFER\)|\1|' config/console.h
 	sed -i 's|//\(#define.*CONSOLE_SERIAL\)|\1|' config/console.h
