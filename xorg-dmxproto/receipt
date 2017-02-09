@@ -6,9 +6,9 @@ CATEGORY="development"
 SHORT_DESC="DMX extension headers"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://www.x.org/"
-SOURCE="dmxproto"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="dmxproto-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/proto/$TARBALL"
 
 DEPENDS="xorg-util-macros pkg-config"
@@ -17,19 +17,11 @@ BUILD_DEPENDS="xorg-util-macros"
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
-	make &&
-	make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/licenses
-	cp -a $src/COPYING $fs/usr/share/licenses/$PACKAGE.txt
-
-	cp -a $install/* $fs
+	cook_copy_files *.h *.pc
 }

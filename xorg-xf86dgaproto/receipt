@@ -6,32 +6,23 @@ CATEGORY="development"
 SHORT_DESC="XF86DGA extension headers"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://www.x.org/"
-SOURCE="xf86dgaproto"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="$XORG_MIRROR/proto/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="xorg-util-macros pkg-config"
-# /usr/include/X11/extensions/xf86dga.h:	#include <X11/extensions/Xxf86dga.h>	?
+TARBALL="xf86dgaproto-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/proto/$TARBALL"
+
+DEPENDS="xorg-util-macros pkg-config" # xorg-libXxf86dga-dev
 BUILD_DEPENDS="xorg-util-macros"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
-	make &&
-	make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/licenses
-	cp -a $src/COPYING $fs/usr/share/licenses/$PACKAGE.txt
-
-	cp -a $install/* $fs
+	cook_copy_files *.h *.pc
 }

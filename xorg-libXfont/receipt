@@ -1,16 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-libXfont"
-VERSION="1.4.5"
+VERSION="1.5.1"
 CATEGORY="x-window"
 SHORT_DESC="X font Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="other"
-SOURCE="libXfont"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
+
+TARBALL="libXfont-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 DEPENDS="bzlib freetype xorg-libfontenc"
 BUILD_DEPENDS="bzip2-dev freetype-dev zlib-dev xorg-xtrans xorg-fontsproto \
@@ -19,12 +19,13 @@ xorg-libfontenc-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's/STARTCHAR %s/STARTCHAR %99s/' src/bitmap/bdfread.c
+#	sed -i 's/STARTCHAR %s/STARTCHAR %99s/' src/bitmap/bdfread.c
+#		--disable-devel-docs \
+
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-static \
-		--disable-devel-docs \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -33,6 +34,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so
 }

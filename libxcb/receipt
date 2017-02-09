@@ -1,46 +1,53 @@
 # SliTaz package receipt.
 
 PACKAGE="libxcb"
-VERSION="1.10"
-ARM_VERSION="1.9.1"
+VERSION="1.12"
+VERSION_arm="1.9.1"
 CATEGORY="x-window"
 SHORT_DESC="A C binding to the X11 protocol"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://xcb.freedesktop.org/"
+WEB_SITE="https://xcb.freedesktop.org/"
+HOST_ARCH="i486 arm"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}dist/$TARBALL"
-HOST_ARCH="i486 arm"
+TARBALL_arm="$PACKAGE-$VERSION_arm.tar.bz2"
+WGET_URL_arm="${WEB_SITE}dist/$TARBALL_arm"
 
 DEPENDS="glibc-base xorg-libXau xorg-libXdmcp"
 BUILD_DEPENDS="libxslt-dev xcb-proto xorg-libXau-dev xorg-libXdmcp-dev \
 autoconf automake libtool"
+BUILD_DEPENDS_arm="libxslt-dev xcb-proto xorg-libXau-dev xorg-libXdmcp-dev"
 
 # Handle SliTaz arch
 case "$SLITAZ_ARCH" in
-	arm*) VERSION="$ARM_VERSION" ;;
+	arm*) VERSION="$VERSION_arm" ;;
 esac
 
 case "$ARCH" in
 	arm*)
 		# We need host xcb-proto libxslt-dev file installed
-		VERSION="$ARM_VERSION"
-		TARBALL="$PACKAGE-$VERSION.tar.bz2"
-		WGET_URL="${WEB_SITE}dist/$TARBALL"
-		BUILD_DEPENDS="libxslt-dev xcb-proto xorg-libXau-dev xorg-libXdmcp-dev" ;;
+		VERSION="$VERSION_arm"
+		TARBALL="$TARBALL_arm"
+		WGET_URL="$WGET_URL_arm"
+		BUILD_DEPENDS="$BUILD_DEPENDS_arm"
+		;;
 esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# http://www.linuxfromscratch.org/blfs/view/svn/x/libxcb.html
-	sed -i "s|pthread-stubs||" $src/configure.ac &&
+	# Package "libpthread-stubs" no more needs:
+	# our platform already supply all the necessary pthread stubs.
+	sed -i "s|pthread-stubs||" $src/configure.ac
+
 	autoreconf -fi &&
 	./configure \
 		--enable-xinput \
-		--enable-xkb \
-		--disable-build-docs \
+		--enable-xprint \
 		--disable-static \
+		--docdir='${datadir}'/doc/$PACKAGE-$VERSION \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
@@ -49,10 +56,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p \
-		$fs/usr/lib \
-		$fs/usr/share/licenses
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $src/COPYING $fs/usr/share/licenses/$PACKAGE.txt
+	cook_copy_files *.so*
 }
-

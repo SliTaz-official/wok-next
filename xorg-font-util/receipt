@@ -1,18 +1,18 @@
 # SliTaz package receipt.
 
-PACKAGE="xorg-libICE"
-VERSION="1.0.9"
+PACKAGE="xorg-font-util"
+VERSION="1.3.1"
 CATEGORY="x-window"
-SHORT_DESC="X Inter Client Exchange Library"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Font utilities dirs"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="other"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
-TARBALL="libICE-$VERSION.tar.bz2"
-WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL="font-util-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/font/$TARBALL"
 
-BUILD_DEPENDS="xorg-xproto xorg-xtrans"
+BUILD_DEPENDS="xorg-util-macros"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -20,7 +20,6 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -29,5 +28,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	cook_copy_folders bin fonts
 }

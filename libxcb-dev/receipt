@@ -1,8 +1,8 @@
 # SliTaz package receipt.
 
 PACKAGE="libxcb-dev"
-VERSION="1.10"
-ARM_VERSION="1.9.1"
+VERSION="1.12"
+VERSION_arm="1.9.1"
 CATEGORY="development"
 SHORT_DESC="Development files for libxcb"
 MAINTAINER="mallory@sweetpeople.org"
@@ -15,19 +15,17 @@ DEPENDS="xorg-libXau-dev xorg-libXdmcp-dev pkg-config"
 
 # Handle SliTaz arch
 case "$SLITAZ_ARCH" in
-	arm*) VERSION="$ARM_VERSION" ;;
+	arm*) VERSION="$VERSION_arm" ;;
 esac
 
 case "$ARCH" in
-	arm*) VERSION="$ARM_VERSION" ;;
+	arm*) VERSION="$VERSION_arm" ;;
 esac
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib/*.la $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cook_copy_files *.h *.la *.pc
+
 	sed -i 's|pthread-stubs||' $fs/usr/lib/pkgconfig/xcb.pc
 }

@@ -1,16 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xproto"
-VERSION="7.0.24"
+VERSION="7.0.29"
 CATEGORY="development"
 SHORT_DESC="Xproto headers"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://www.x.org/"
-SOURCE="xproto"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="$XORG_MIRROR/proto/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
+
+TARBALL="xproto-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/proto/$TARBALL"
 
 DEPENDS="xorg-util-macros pkg-config"
 BUILD_DEPENDS="xorg-util-macros"
@@ -18,20 +18,11 @@ BUILD_DEPENDS="xorg-util-macros"
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
-	make &&
-	make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/licenses
-	cp -a $src/COPYING $fs/usr/share/licenses/$PACKAGE.txt
-
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/doc
+	cook_copy_files *.h *.pc
 }
