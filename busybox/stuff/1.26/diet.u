@@ -1,11 +1,12 @@
---- busybox-1.25/include/platform.h
-+++ busybox-1.25/include/platform.h
-@@ -501,6 +501,20 @@
+--- busybox-1.26/include/platform.h
++++ busybox-1.26/include/platform.h
+@@ -501,6 +501,21 @@
  # undef HAVE_NET_ETHERNET_H
  #endif
  
 +#if defined(__dietlibc__)
 +# define __aligned_u64 __u64 __attribute__((aligned(8)))
++# define O_CLOEXEC 02000000
 +# define LOOP_SET_STATUS64	0x4C04
 +# define LOOP_GET_STATUS64	0x4C05
 +# define MAXSYMLINKS	20
@@ -21,8 +22,8 @@
  /*
   * Now, define prototypes for all the functions defined in platform.c
   * These must come after all the HAVE_* macros are defined (or not)
---- busybox-1.25/networking/ping.c
-+++ busybox-1.25/networking/ping.c
+--- busybox-1.26/networking/ping.c
++++ busybox-1.26/networking/ping.c
 @@ -30,6 +30,84 @@
  #include "libbb.h"
  #include "common_bufsiz.h"
