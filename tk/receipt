@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="tk"
-VERSION="8.6.3"
+VERSION="8.6.6"
 CATEGORY="development"
 SHORT_DESC="The TCL gui toolkit"
 MAINTAINER="erjo@slitaz.org"
@@ -14,7 +14,7 @@ TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/tcl/$TARBALL"
 
 DEPENDS="tcl expat fontconfig freetype xorg-libX11 xorg-libXau xorg-libXdmcp \
-xorg-libXft xorg-libXrender zlib xorg-libXss"
+xorg-libXft xorg-libXrender zlib xorg-libXScrnSaver"
 BUILD_DEPENDS="tcl-dev xorg-libX11-dev"
 
 # Rules to configure and make the package.
@@ -26,13 +26,18 @@ compile_rules()
 			export tcl_cv_strtod_buggy=1
 			export ac_cv_func_strtod=yes ;;
 	esac
+
 	cd $src/unix
 	./configure \
-		--prefix=/usr \
 		--enable-threads \
 		--enable-shared \
 		$ARCH_ARGS ${CONFIGURE_ARGS} &&
 	make &&
+
+	sed -e "s@^\(TK_SRC_DIR='\).*@\1/usr/include'@" \
+	    -e "/TK_B/s@='\(-L\)\?.*unix@='\1/usr/lib@" \
+	    -i tkConfig.sh &&
+
 	make DESTDIR=$DESTDIR install
 }
 
@@ -43,7 +48,6 @@ genpkg_rules()
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib/*.so* $fs/usr/lib
 	cp -a $install/usr/lib/tk${VERSION:0:3} $fs/usr/lib
-	
-	cd $fs/usr/bin
-	ln -s wish${VERSION:0:3} wish
+
+	ln -s wish${VERSION:0:3} $fs/usr/bin/wish
 }
