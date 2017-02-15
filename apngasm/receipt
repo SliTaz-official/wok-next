@@ -1,14 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="apngasm"
-VERSION="2.7"
+VERSION="2.91"
 CATEGORY="utilities"
 SHORT_DESC="Creates APNG animation from PNG/TGA image sequence"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
-WEB_SITE="http://sourceforge.net/projects/apngasm/"
+WEB_SITE="http://apngasm.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION-src.zip"
-WGET_URL="$SF_MIRROR/$PACKAGE/$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="libpng"
 BUILD_DEPENDS="zlib-dev libpng-dev"
@@ -17,11 +18,13 @@ BUILD_DEPENDS="zlib-dev libpng-dev"
 compile_rules()
 {
 	make
+
+	mkdir -p $install/usr/bin
+	cp -a $src/apngasm $install/usr/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/$PACKAGE $fs/usr/bin
+	cook_copy_files apngasm
 }

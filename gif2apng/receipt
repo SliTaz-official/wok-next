@@ -1,14 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="gif2apng"
-VERSION="1.7"
+VERSION="1.9"
 CATEGORY="utilities"
 SHORT_DESC="Convert GIF animations into APNG format"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://gif2apng.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION-src.zip"
-WGET_URL="$SF_MIRROR/$PACKAGE/$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="zlib"
 BUILD_DEPENDS="zlib-dev"
@@ -17,11 +18,13 @@ BUILD_DEPENDS="zlib-dev"
 compile_rules()
 {
 	make
+
+	mkdir -p $install/usr/bin
+	cp -a $src/gif2apng $install/usr/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/$PACKAGE $fs/usr/bin
+	cook_copy_files gif2apng
 }
