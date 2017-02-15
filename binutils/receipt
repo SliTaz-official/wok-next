@@ -35,6 +35,8 @@ compile_rules()
 		--enable-shared \
 		--disable-initfini-array \
 		--with-bugurl="http://bugs.slitaz.org/" \
+		--enable-gold \
+		--enable-plugins \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make tooldir=/usr &&
 	make tooldir=/usr install
@@ -46,9 +48,6 @@ compile_rules()
 		[ $i == 'strings' ] && continue # skip: Busybox intercept
 		ln -s $TOOLPREFIX$i $i
 	done
-	rm ld.bfd ${TOOLPREFIX}ld.bfd
-	ln -s ld ld.bfd
-	ln -s ${TOOLPREFIX}ld ${TOOLPREFIX}ld.bfd
 
 	# Remove prefix from manpages name
 	for i in $(find $install/usr/share/man/man1 -type f); do
