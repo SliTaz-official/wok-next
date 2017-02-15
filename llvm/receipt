@@ -1,32 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="llvm"
-VERSION="3.2"
+VERSION="3.9.1"
 CATEGORY="development"
-SHORT_DESC="Modular compiler toolchain collection."
+SHORT_DESC="LLVM (Low Level Virtual Machine): collection of modular and reusable compiler and toolchain technologies"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://llvm.org/"
-TARBALL="$PACKAGE-$VERSION.src.tar.gz"
+
+TARBALL="$PACKAGE-$VERSION.src.tar.xz"
 WGET_URL="${WEB_SITE}releases/$VERSION/$TARBALL"
 
 DEPENDS="libffi gcc-lib-base"
-BUILD_DEPENDS="libffi-dev libffi perl gcc"
+BUILD_DEPENDS="cmake zlib-dev libffi-dev python"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure CC=gcc CXX=g++ \
-		--prefix=/usr --sysconfdir=/etc \
-		--enable-libffi \
-		--enable-optimized \
-		--enable-shared \
-		--enable-targets=all \
-		--disable-assertions \
-		--disable-debug-runtime \
-		--disable-expensive-checks \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+#	export LDFLAGS="$LDFLAGS -Wl,-fuse-ld=gold"
+#	ln -f $(readlink -f $(which ld.gold)) $(readlink -f $(which ld))
+
+	mkdir build && cd build &&
+	CC=gcc CXX=g++ \
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLLVM_ENABLE_FFI=ON \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=ON \
+		-DLLVM_TARGETS_TO_BUILD="host;AMDGPU" \
+		-Wno-dev .. &&
+	make -j1 &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
