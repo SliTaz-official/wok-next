@@ -1,30 +1,35 @@
 # SliTaz package receipt.
 
 PACKAGE="libdrm"
-VERSION="2.4.68"
+VERSION="2.4.70"
 CATEGORY="x-window"
 SHORT_DESC="Freedesktop DRM Library."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://dri.freedesktop.org/"
-WGET_URL="http://dri.freedesktop.org/libdrm/$TARBALL"
+WEB_SITE="https://dri.freedesktop.org/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="glibc-base udev linux-drm xorg-libpciaccess"
-BUILD_DEPENDS="libpthread-stubs-dev gc-dev pkg-config udev-dev \
-xorg-libpciaccess-dev"
-#xorg-dev xorg-dev-proto
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://dri.freedesktop.org/libdrm/$TARBALL"
+
+DEPENDS="glibc-base eudev linux-drm xorg-libpciaccess"
+BUILD_DEPENDS="autoconf automake libtool xorg-util-macros libxslt \
+xorg-libpciaccess-dev cairo-dev eudev-dev libxslt docbook-xsl"
+SPLIT="libdrm-amdgpu libdrm-exynos libdrm-intel libdrm-nouveau libdrm-omap \
+libdrm-radeon libdrm-tegra"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i "/pthread-stubs/d" configure.ac &&
+	autoreconf -fiv &&
+
 	./configure \
-		--enable-intel \
-		--enable-radeon \
-		--enable-vmwgfx-experimental-api \
-		--enable-nouveau-experimental-api \
 		--enable-udev \
+		--enable-vmwgfx \
+		--enable-omap-experimental-api \
+		--enable-exynos-experimental-api \
+		--enable-tegra-experimental-api \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -32,7 +37,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/libdrm.so* $fs/usr/lib
-	cp -a $install/usr/lib/libkms*.so* $fs/usr/lib
+	cook_copy_files libdrm.so* libkms.so*
 }

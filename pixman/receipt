@@ -1,16 +1,17 @@
 # SliTaz package receipt.
 
 PACKAGE="pixman"
-VERSION="0.32.6"
+VERSION="0.34.0"
 CATEGORY="x-window"
 SHORT_DESC="Pixel-manipulation library for X and Cairo"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
+WEB_SITE="https://www.cairographics.org/"
+HOST_ARCH="i486 arm"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.cairographics.org/"
 #WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
-HOST_ARCH="i486 arm"
 
 DEPENDS="glibc-base"
 BUILD_DEPENDS="libpng-dev"
@@ -21,6 +22,7 @@ compile_rules()
 	./configure \
 		--enable-gtk=no \
 		--enable-libpng \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -29,6 +31,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }
