@@ -1,33 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-mkfontscale"
-VERSION="1.0.9"
+VERSION="1.1.2"
 CATEGORY="x-window"
 SHORT_DESC="Create an index of scalable font files for X."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-SOURCE="mkfontscale"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://xorg.freedesktop.org/"
-WGET_URL="$WEB_SITE/releases/individual/app/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 TAGS="utility xorg fonts"
 
-# Rules to configure and make the package.ls sr	
+TARBALL="mkfontscale-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+
+DEPENDS="freetype xorg-libfontenc zlib"
+BUILD_DEPENDS="xorg-util-macros xorg-libfontenc-dev freetype-dev xorg-xproto"
+
+# Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders bin
 }
-

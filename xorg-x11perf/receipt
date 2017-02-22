@@ -1,32 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-x11perf"
-VERSION="1.5.2"
+VERSION="1.6.0"
 CATEGORY="x-window"
 SHORT_DESC="Utility who runs one or more performance tests and reports."
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-SOURCE="x11perf"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://xorg.freedesktop.org/"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="x11perf-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libXmu xorg-libXft"
-BUILD_DEPENDS="xorg-libXmu-dev xorg-libXft-dev"
+DEPENDS="xorg-libX11 xorg-libXext xorg-libXft xorg-libXmu xorg-libXrender"
+BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-libXmu-dev xorg-xproto \
+xorg-libXrender-dev xorg-libXft-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr \
-	--mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	cook_copy_folders bin lib
 }

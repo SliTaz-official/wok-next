@@ -1,34 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xset"
-VERSION="1.2.2"
+VERSION="1.2.3"
 CATEGORY="x-window"
-SHORT_DESC="Xorg user preference utility."
+SHORT_DESC="User preference utility for X"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-SOURCE="xset"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://xorg.freedesktop.org/"
+WEB_SITE="https://www.x.org/wiki/"
+SUGGESTED="yad"
+COOKOPTS="!menus"
+
+TARBALL="xset-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libXmu"
-BUILD_DEPENDS="xorg-libXmu-dev"
-SUGGESTED="yad"
+DEPENDS="xorg-libX11 xorg-libXext xorg-libXmu"
+BUILD_DEPENDS="xorg-util-macros xorg-xproto xorg-libXmu-dev" # xxf86misc.pc xfontcache.pc?
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		$CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+	touch /root/missing
+
+	./configure $CONFIGURE_ARGS && make && make install
+
+	mkdir -p $install/usr/share/applications
+	cp $stuff/*.desktop $install/usr/share/applications
+	cp -a $stuff/xset-screensaver.sh $install/usr/bin
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $stuff/xset-screensaver.sh $fs/usr/bin
-	chmod 755 $fs/usr/bin/xset-screensaver.sh
+	cook_copy_folders bin applications
 }

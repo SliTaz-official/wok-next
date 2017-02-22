@@ -1,22 +1,22 @@
 # SliTaz package receipt.
 
 PACKAGE="mesa-dri"
-VERSION="9.1.3"
+VERSION="12.0.6"
 CATEGORY="x-window"
 SHORT_DESC="Mesa DRI drivers."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-DEPENDS="libdrm expat linux-drm linux-agp"
-WEB_SITE="http://www.mesa3d.org/"
+WEB_SITE="https://www.mesa3d.org/"
+
 WANTED="mesa"
+DEPENDS="elfutils expat libdrm libdrm-intel libdrm-nouveau libdrm-radeon \
+libgcrypt libgpg-error llvm-libs xorg-libpciaccess zlib"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/dri
-	cp $install/usr/lib/dri/swrast_dri.so $fs/usr/lib/dri
+	cook_copy_files *_dri.so
 
 	mkdir -p $fs/etc/X11/xorg.conf.d
-	cp -a $stuff/*.conf $fs/etc/X11/xorg.conf.d
+	cp $stuff/90-DRI.conf $fs/etc/X11/xorg.conf.d
 }
-

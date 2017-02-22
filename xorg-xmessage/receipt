@@ -1,34 +1,29 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xmessage"
-VERSION="1.0.3"
+VERSION="1.0.4"
 CATEGORY="x-window"
 SHORT_DESC="Display a message or query in a window."
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="MIT"
-SOURCE="xmessage"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="$XORG_MIRROR/app/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
+CONFIG_FILES="/etc/X11/app-defaults/Xmessage /etc/X11/app-defaults/Xmessage-color"
 
-DEPENDS="xorg-libXaw"
-BUILD_DEPENDS="xorg-libXaw-dev"
+TARBALL="xmessage-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+
+DEPENDS="xorg-libX11 xorg-libXaw xorg-libXt"
+BUILD_DEPENDS="xorg-util-macros xorg-libXaw-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders etc bin
 }
-

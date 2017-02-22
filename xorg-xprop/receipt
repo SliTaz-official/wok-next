@@ -1,31 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xprop"
-VERSION="1.2.1"
+VERSION="1.2.2"
 CATEGORY="x-window"
-SHORT_DESC="X xprop application."
+SHORT_DESC="Property displayer for X"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="xprop"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="$XORG_MIRROR/app/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
+TARBALL="xprop-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+
 DEPENDS="xorg-libX11"
-BUILD_DEPENDS="xorg-libX11-dev"
+BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-xproto"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders bin
 }

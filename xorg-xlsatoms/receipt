@@ -1,0 +1,27 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-xlsatoms"
+VERSION="1.1.2"
+CATEGORY="x-window"
+SHORT_DESC="List interned atoms defined on server"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="xlsatoms-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+
+DEPENDS="libxcb"
+BUILD_DEPENDS="xorg-util-macros libxcb-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin
+}

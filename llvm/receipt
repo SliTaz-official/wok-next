@@ -11,8 +11,9 @@ WEB_SITE="http://llvm.org/"
 TARBALL="$PACKAGE-$VERSION.src.tar.xz"
 WGET_URL="${WEB_SITE}releases/$VERSION/$TARBALL"
 
-DEPENDS="libffi gcc-lib-base"
+DEPENDS="libffi gcc-lib-base llvm-libs"
 BUILD_DEPENDS="cmake zlib-dev libffi-dev python"
+SPLIT="llvm-libs"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,15 +30,12 @@ compile_rules()
 		-DBUILD_SHARED_LIBS=ON \
 		-DLLVM_TARGETS_TO_BUILD="host;AMDGPU" \
 		-Wno-dev .. &&
-	make -j1 &&
+	make &&
 	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/include $fs/usr
+	cook_copy_folders bin
 }

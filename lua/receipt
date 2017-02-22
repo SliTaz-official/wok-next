@@ -1,15 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="lua"
-VERSION="5.2.1"
+VERSION="5.3.3"
 CATEGORY="development"
 SHORT_DESC="Powerful, fast, light-weight, embeddable scripting language."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.lua.org/"
-WGET_URL="http://www.lua.org/ftp/$TARBALL"
+WEB_SITE="https://www.lua.org/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://www.lua.org/ftp/$TARBALL"
 
 DEPENDS="readline ncurses"
 BUILD_DEPENDS="readline-dev"
@@ -17,20 +18,32 @@ BUILD_DEPENDS="readline-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i "s#/usr/local/#/usr/#" src/luaconf.h
+	patch -Np1 -i $stuff/lua-5.3.3-shared_library-1.patch
+	sed -i '/#define LUA_ROOT/s|/usr/local/|/usr/|' src/luaconf.h
+
 	case "$ARCH" in
 		arm)
-			make CC=${HOST_SYSTEM}-gcc posix ;;
+			make CC=${HOST_SYSTEM}-gcc posix
+			;;
 		i486)
 			sed -i s"/-O2/-Os -march=$ARCH/" src/Makefile
-			make linux ;;
+			make MYCFLAGS="-DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" linux
+			;;
 	esac &&
-	# lua.pc
-	make pc > lua.pc &&
-	sed -i "s#/local##g" lua.pc &&
-	make install \
+
+	make \
 		INSTALL_TOP=$DESTDIR/usr \
-		INSTALL_MAN=$DESTDIR/usr/share/man/man1
+		TO_LIB="liblua.so liblua.so.${VERSION%.*} liblua.so.$VERSION" \
+		INSTALL_DATA="cp -d" \
+		INSTALL_MAN=$DESTDIR/usr/share/man/man1 \
+		install &&
+
+	mkdir -p $install/usr/share/doc/lua-$VERSION
+	cp -a doc/* $install/usr/share/doc/lua-$VERSION
+	rm $install/usr/share/doc/lua-$VERSION/*.1
+
+	mkdir -p $install/usr/lib/pkgconfig
+	cp $stuff/lua.pc $install/usr/lib/pkgconfig
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
