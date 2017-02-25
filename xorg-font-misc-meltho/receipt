@@ -1,0 +1,35 @@
+# SliTaz package receipt.
+
+PACKAGE="xorg-font-misc-meltho"
+VERSION="1.0.3"
+CATEGORY="x-window"
+SHORT_DESC="Syriac fonts (OTF)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="other"
+WEB_SITE="https://www.x.org/wiki/"
+TAGS="font"
+
+TARBALL="font-misc-meltho-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/font/$TARBALL"
+
+BUILD_DEPENDS="xorg-util-macros xorg-font-util-dev xorg-mkfontdir"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files *.otf
+}
+
+post_install() { chroot "$1/" fc-cache /usr/share/fonts/X11/OTF; }
+post_remove()  { chroot "$1/" fc-cache; }
