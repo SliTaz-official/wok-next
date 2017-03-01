@@ -51,10 +51,9 @@ pre_install()
 	# was found.
 	if ! grep -qs 'messagebus' "$1/etc/passwd"; then
 		action 'Adding user: messagebus...'
-		echo 'messagebus:x:18:18:D-Bus Message Daemon User:/var/run/dbus:/bin/false' >> "$1/etc/passwd"
-		echo 'messagebus:!:14013:0:99999:7:::' >> "$1/etc/shadow"
-		echo 'messagebus:x:18:' >> "$1/etc/group"
-		echo 'messagebus:!::' >> "$1/etc/gshadow"
+		chroot "$1/" addgroup -g25 -S messagebus
+		chroot "$1/" adduser -h/var/run/dbus -S -D -u25 \
+			-g"D-Bus Message Daemon User" messagebus
 		status
 	fi
 	if ! grep -qs ^DBUS_OPTIONS "$1/etc/daemons.conf"; then
@@ -73,6 +72,7 @@ pre_remove()
 {
 	if [ -z "$1" ]; then
 		/etc/init.d/dbus stop 2>/dev/null
-		deluser messagebus
+		deluser  messagebus
+		delgroup messagebus
 	fi
 }
