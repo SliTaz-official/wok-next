@@ -1,24 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-server-Xephyr"
-VERSION="1.12.4"
+VERSION="1.18.4"
 CATEGORY="x-window"
 SHORT_DESC="The Xephyr Xorg server."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WANTED="xorg-server"
-SOURCE="xorg-server"
-WEB_SITE="http://www.x.org/"
+WEB_SITE="https://www.x.org/wiki/"
 
-DEPENDS="xorg-libXfont xorg-libXau xorg-libXdmcp zlib pixman libgcrypt \
-xorg-libXv libxcb libdrm mesa"
+WANTED="xorg-server"
+DEPENDS="bzlib expat freetype libdrm libepoxy libgcrypt libgpg-error libpng \
+libxcb mesa pixman tslib xcb-util xcb-util-image xcb-util-keysyms \
+xcb-util-renderutil xcb-util-wm xorg-libfontenc xorg-libX11 xorg-libXau \
+xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXfont \
+xorg-libxshmfence xorg-libXxf86vm zlib"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/Xephyr $fs/usr/bin
-	chmod 4711 $fs/usr/bin/Xephyr
+	cook_copy_files Xephyr
+	# chmod 4711 $fs/usr/bin/Xephyr
 }
 
 # We need /var/tmp rw to let xkbcomp builr XKB definition.

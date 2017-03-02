@@ -1,42 +1,50 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-server"
-VERSION="1.12.4"
+VERSION="1.18.4"
 CATEGORY="x-window"
 SHORT_DESC="Xorg core server."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 SUGGESTED="xorg-xf86-input-evdev xorg-xf86-video-vesa"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="http://xorg.freedesktop.org/releases/individual/xserver/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 
-# Mesa build dep make also Xorg depends on libdrm.
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/xserver/$TARBALL"
+
 DEPENDS="xorg-xkeyboard-config xorg-libpciaccess xorg-libXxf86vm \
 xorg-libXfont xorg-libXau xorg-base-fonts libgcrypt pixman udev libdrm \
 xorg-xf86-input-evdev"
-BUILD_DEPENDS="xorg-libxkbfile-dev xorg-libpciaccess-dev xorg-libXxf86vm-dev \
-xorg-libXfont-dev libgcrypt-dev pixman-dev udev-dev mesa-dev pkg-config perl \
-flex xorg-xf86driproto xorg-xcmiscproto xorg-bigreqsproto xorg-randrproto \
-xorg-dri2proto xorg-libXau-dev xorg-dev-proto libdrm-dev xorg-glproto \
-xorg-libXv-dev xorg-libXmu-dev xorg-libXrender-dev xorg-libXi-dev"
+BUILD_DEPENDS="patch xorg-util-macros  xorg-font-util-dev pixman-dev eudev-dev \
+dbus-dev xorg-dri2proto xorg-dri3proto xorg-libxshmfence-dev libdrm-dev \
+xorg-libX11-dev xorg-glproto mesa-dev libgcrypt-dev xorg-xcmiscproto \
+xorg-bigreqsproto xorg-randrproto xorg-renderproto xorg-fontsproto \
+xorg-videoproto xorg-compositeproto xorg-recordproto xorg-scrnsaverproto \
+xorg-resourceproto xorg-xf86driproto xorg-presentproto xorg-xineramaproto \
+xorg-libxkbfile-dev xorg-libXfont-dev xorg-libpciaccess-dev \
+xorg-libXxf86dga-dev libepoxy-dev xorg-libdmx-dev xorg-libXmu-dev \
+xorg-libXrender-dev xorg-libXi-dev tslib-dev xcb-util-renderutil-dev \
+xcb-util-dev xcb-util-image-dev xcb-util-wm-dev xcb-util-keysyms-dev \
+xorg-libXaw-dev xorg-libXpm-dev expat-dev"
+SPLIT="xorg-server-Xephyr xorg-server-Xfbdev xorg-server-Xnest \
+xorg-server-Xvfb xorg-server-modules-gl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	patch -Np1 -i $stuff/xorg-server-1.18.4-add_prime_support-1.patch
 
-	# Xephyr make possible to use Xorg in a chroot.
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		--localstatedir=/var \
-		--with-module-dir=/usr/lib/X11/modules \
-		--with-xkb-output=/var/lib/xkb \
-		--with-serverconfig-path=/etc/X11 \
+		--disable-static \
+		--enable-glamor \
 		--enable-install-setuid \
-		--enable-xorg \
+		--enable-suid-wrapper \
+		--disable-systemd-logind \
+		--disable-xwayland \
+		--disable-docs --disable-devel-docs \
+		--with-xkb-output=/var/lib/xkb \
 		--enable-kdrive \
 		--enable-kdrive-kbd \
 		--enable-kdrive-mouse \
@@ -44,33 +52,27 @@ compile_rules()
 		--enable-xfbdev \
 		--enable-xephyr \
 		--enable-config-udev \
-		--disable-config-dbus \
-		--disable-docs \
-		--disable-devel-docs \
 		--with-fontrootdir=/usr/share/fonts/X11 \
+		--with-module-dir=/usr/lib/X11/modules \
+		--with-serverconfig-path=/etc/X11 \
 		--with-os-name="SliTaz GNU/Linux" \
 		--with-vendor-web="http://www.slitaz.org/" \
 		--with-builder-addr=$MAINTAINER \
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
+
+	# is xorg.conf.d moved by Xorg developers to /usr/share/X11/?
+	mkdir -p $install/etc/X11/xorg.conf.d
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/var $fs/etc/X11/xorg.conf.d
-	cp -a $install/usr/lib/X11 $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/var/lib $fs/var
-	cp -a $install/etc $fs
-	# Remove static libs and split Xnest
-	rm $fs/usr/lib/X11/*/*.*a
-	rm $fs/usr/lib/X11/*/*/*.*a
-	rm $fs/usr/bin/Xnest
-	rm $fs/usr/bin/Xvfb
-	# Kdrive/tinyX --> xorg-server-Xephyr xorg-server-Xfbdev
-	rm $fs/usr/bin/Xephyr
-	rm $fs/usr/bin/Xfbdev
+	cook_copy_folders etc var bin libexec xorg.conf.d
+	cook_copy_files *.so
+	# split
+	rm $fs/usr/bin/Xephyr $fs/usr/bin/Xfbdev $fs/usr/bin/Xnest $fs/usr/bin/Xvfb
+	rm $fs/usr/lib/X11/modules/libglamoregl.so $fs/usr/lib/X11/modules/extensions/libglx.so
 }
 
 # We need /var/tmp rw to let xkbcomp builr XKB definition.
@@ -78,4 +80,3 @@ post_install()
 {
 	chmod 1777 "$1/var/tmp"
 }
-

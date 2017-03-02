@@ -1,23 +1,24 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-server-Xvfb"
-VERSION="1.12.4"
+VERSION="1.18.4"
 CATEGORY="x-window"
 SHORT_DESC="Xvfb Xorg server."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WANTED="xorg-server"
-SOURCE="xorg-server"
-WEB_SITE="http://www.x.org/"
+WEB_SITE="https://www.x.org/wiki/"
 
-DEPENDS="xorg-libXfont zlib pixman libgcrypt xorg-libXv"
+WANTED="xorg-server"
+DEPENDS="bzlib expat freetype libdrm libgcrypt libgpg-error libpng libxcb mesa \
+pixman xorg-libfontenc xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp \
+xorg-libXext xorg-libXfixes xorg-libXfont xorg-libxshmfence xorg-libXxf86vm \
+zlib"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/Xvfb $fs/usr/bin
-	chmod 4711 $fs/usr/bin/Xvfb
+	cook_copy_files Xvfb
+	# chmod 4711 $fs/usr/bin/Xvfb
 }
 
 # We need /var/tmp rw to let xkbcomp builr XKB definition.

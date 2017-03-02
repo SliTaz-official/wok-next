@@ -1,31 +1,41 @@
 # SliTaz package receipt.
 
 PACKAGE="doxygen"
-VERSION="1.7.4"
+VERSION="1.8.11"
 CATEGORY="development"
 SHORT_DESC="Source code documentation generator tool."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WEB_SITE="http://www.stack.nl/~dimitri/doxygen/"
-WGET_URL="ftp://ftp.stack.nl/pub/users/dimitri/$TARBALL"
 TAGS="language documentation"
 
-BUILD_DEPENDS="perl graphviz flex"
+TARBALL="$PACKAGE-$VERSION.src.tar.gz"
+WGET_URL="http://ftp.stack.nl/pub/doxygen/$TARBALL"
+
+BUILD_DEPENDS="cmake python" # graphviz
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's|man/man1|share/&|' Makefile*
-	./configure --shared --prefix /usr --docdir /usr/share/doc \
-		--install /usr/bin/install &&
+	mkdir build &&
+	cd    build &&
+
+	cmake -G "Unix Makefiles" \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install &&
+
+	mkdir -p $install/usr/share/man/man1 &&
+	for i in ../doc/*.1; do
+		sed "s|@VERSION@|$VERSION|g; s|@DATE@|$(date +%Y)|g" $i > \
+			$install/usr/share/man/man1
+	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders bin
 }

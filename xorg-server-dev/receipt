@@ -1,14 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-server-dev"
-VERSION="1.12.4"
+VERSION="1.18.4"
 CATEGORY="development"
 SHORT_DESC="Xorg server devel files needed to build drivers."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://www.x.org/"
+WEB_SITE="https://www.x.org/wiki"
 HOST_ARCH="i486 arm"
 
+WANTED="xorg-server"
 DEPENDS="xorg-libxkbfile-dev xorg-libpciaccess-dev xorg-libXxf86vm-dev \
 xorg-libXfont-dev libgcrypt-dev pixman-dev udev-dev mesa-dev pkg-config \
 perl flex xorg-server xorg-xf86driproto xorg-xcmiscproto xorg-bigreqsproto \
@@ -20,24 +21,13 @@ xorg-xf86bigfontproto xorg-xf86miscproto xorg-trapproto"
 
 # Use devel files from ARCH default Xserver
 case "$ARCH" in
-	i?86) 
-		WANTED="xorg-server" ;;
-	arm) 
-		WANTED="xorg-server-light" 
+	arm)
+		WANTED="xorg-server-light"
 		DEPENDS="" ;;
 esac
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	cp -a $install/usr/lib/X11 $fs/usr/lib
-	cp -a $install/usr/share/aclocal $fs/usr/share
-	cp -a $install/usr/include $fs/usr
-
-	rm $fs/usr/lib/X11/*/*.so*
-	rm $fs/usr/lib/X11/*/*/*.*so*
+	cook_copy_files *.h *.la *.pc *.m4
 }
-

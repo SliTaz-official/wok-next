@@ -1,19 +1,18 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xkeyboard-config"
-VERSION="2.2.1"
+VERSION="2.18"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server keyboard definition files."
+SHORT_DESC="Keyboard configuration database for the X Window System"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="xkeyboard-config"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="http://xorg.freedesktop.org/releases/individual/data/$SOURCE/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="xorg-xkbcomp"
-BUILD_DEPENDS="perl-xml-parser xorg-xkbcomp xorg-xproto xorg-libX11-dev intltool"
+TARBALL="xkeyboard-config-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/data/xkeyboard-config/$TARBALL"
+
+BUILD_DEPENDS="libxslt xorg-xproto xorg-libX11-dev intltool"
 
 # Handle cross compilation. Use build host: xorg-xkbcomp perl-xml-parser
 case "$ARCH" in
@@ -35,7 +34,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/share/X11 $fs/usr/share
+	cook_copy_folders X11
 }
-

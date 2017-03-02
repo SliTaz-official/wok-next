@@ -7,25 +7,27 @@ SHORT_DESC="Text based document generation"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.methods.co.nz/asciidoc/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/project/asciidoc/asciidoc/$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/asciidoc/$TARBALL"
 
 DEPENDS="python"
-BUILD_DEPENDS=""
+BUILD_DEPENDS="python"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
 		--sysconfdir=/etc \
+		--docdir=/usr/share/doc/asciidoc-$VERSION \
 		$CONFIGURE_ARGS &&
-	make install
+	make &&
+	make install &&
+	make DESTDIR=$install docs
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
+	cook_copy_folders etc bin
 }
