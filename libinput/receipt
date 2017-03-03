@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKAGE="libinput"
+VERSION="1.4.1"
+CATEGORY="x-window"
+SHORT_DESC="Library that handles input devices for display servers"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="other"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/libinput/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://www.freedesktop.org/software/libinput/$TARBALL"
+
+DEPENDS="mtdev eudev libevdev"
+BUILD_DEPENDS="mtdev-dev eudev-dev libevdev-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--disable-static \
+		--disable-libwacom \
+		--with-udev-dir=/lib/udev \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders udev bin
+	cook_copy_files *.so*
+}
