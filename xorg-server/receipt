@@ -12,9 +12,10 @@ WEB_SITE="https://www.x.org/wiki/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xserver/$TARBALL"
 
-DEPENDS="bzlib eudev freetype libdrm libgcrypt libgpg-error libpng pixman \
-xorg-libfontenc xorg-libpciaccess xorg-libXau xorg-libXdmcp xorg-libXfont \
-xorg-libxshmfence zlib"
+DEPENDS="bzlib eudev expat freetype glibc-base libdrm libepoxy libgcrypt \
+libgpg-error libpng libxcb mesa pixman xorg-libfontenc xorg-libpciaccess \
+xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp xorg-libXext \
+xorg-libXfixes xorg-libXfont xorg-libxshmfence xorg-libXxf86vm zlib"
 BUILD_DEPENDS="patch xorg-util-macros  xorg-font-util-dev pixman-dev eudev-dev \
 dbus-dev xorg-dri2proto xorg-dri3proto xorg-libxshmfence-dev libdrm-dev \
 xorg-libX11-dev xorg-glproto mesa-dev libgcrypt-dev xorg-xcmiscproto \
@@ -53,16 +54,11 @@ compile_rules()
 		--enable-xephyr \
 		--enable-config-udev \
 		--with-fontrootdir=/usr/share/fonts/X11 \
-		--with-module-dir=/usr/lib/X11/modules \
-		--with-serverconfig-path=/etc/X11 \
 		--with-os-name="SliTaz GNU/Linux" \
 		--with-vendor-web="http://www.slitaz.org/" \
-		--with-builder-addr=$MAINTAINER \
+		--with-builder-addr="devel@slitaz.org" \
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
-
-	# is xorg.conf.d moved by Xorg developers to /usr/share/X11/?
-	mkdir -p $install/etc/X11/xorg.conf.d
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -71,8 +67,9 @@ genpkg_rules()
 	cook_copy_folders etc var bin libexec xorg.conf.d
 	cook_copy_files *.so
 	# split
-	rm $fs/usr/bin/Xephyr $fs/usr/bin/Xfbdev $fs/usr/bin/Xnest $fs/usr/bin/Xvfb
-	rm $fs/usr/lib/X11/modules/libglamoregl.so $fs/usr/lib/X11/modules/extensions/libglx.so
+	for i in Xephyr Xfbdev Xnest Xvfb libglamoregl.so libglx.so; do
+		find $fs -name $i -delete
+	done
 }
 
 # We need /var/tmp rw to let xkbcomp builr XKB definition.
