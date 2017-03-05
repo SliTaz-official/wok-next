@@ -1,34 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xf86-video-intel"
-VERSION="2.21.9"
+VERSION="20160902"
 CATEGORY="x-window"
 SHORT_DESC="Xorg server Intel driver."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="xf86-video-intel"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 TAGS="xorg display"
 
-DEPENDS="xorg-server xorg-libXvMC mesa-dri-intel xcb-util libdrm libdrm-intel"
-BUILD_DEPENDS="xorg-server-dev xorg-libXvMC-dev xcb-util-dev libdrm-dev \
-libpthread-stubs-dev"
+TARBALL="xf86-video-intel-$VERSION.tar.bz2"
+WGET_URL="http://anduin.linuxfromscratch.org/BLFS/xf86-video-intel/$TARBALL"
 
-MODS='/usr/lib/X11/modules'
+DEPENDS="eudev libdrm libdrm-intel libxcb pixman xcb-util xorg-libpciaccess \
+xorg-libX11 xorg-libXau xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
+xorg-libXext xorg-libXfixes xorg-libXi xorg-libXinerama xorg-libXrandr \
+xorg-libXrender xorg-libXScrnSaver xorg-libxshmfence xorg-libXtst xorg-libXv \
+xorg-libXvMC"
+BUILD_DEPENDS="xorg-util-macros eudev-dev xorg-libX11-dev xorg-libXcomposite-dev \
+xorg-libXdamage-dev xorg-libXrender-dev xorg-libXrandr-dev cairo-dev \
+xorg-libxshmfence-dev xorg-libXxf86vm-dev libdrm-dev xorg-libXinerama-dev \
+xorg-libXcursor-dev xorg-libXtst-dev xorg-libXScrnSaver-dev xorg-server-dev \
+xorg-libXvMC-dev xcb-util-dev xorg-libXfont-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		--localstatedir=/var \
-		--with-xorg-module-dir=$MODS \
-		--enable-dri \
-		--enable-xvmc \
+		--enable-kms-only \
+		--enable-uxa \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -36,9 +38,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p ${fs}${MODS}/drivers
-	cp -a ${install}${MODS}/drivers/*.so ${fs}${MODS}/drivers
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_folders bin libexec polkit-1
+	cook_copy_files *.so*
 }
-
-

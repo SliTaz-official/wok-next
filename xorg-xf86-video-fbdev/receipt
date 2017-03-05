@@ -6,15 +6,14 @@ CATEGORY="x-window"
 SHORT_DESC="Xorg video driver for framebuffer device."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="xf86-video-fbdev"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
-WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
-# We can use xorg-server-light with evdev and fbdev driver.
-#DEPENDS="xorg-server"
-BUILD_DEPENDS="xorg-server-dev"
+TARBALL="xf86-video-fbdev-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
+xorg-libXrender-dev xorg-libXv-dev xorg-xproto xorg-fontsproto"
 
 # ARM use build system xorg-server-dev or manually install it in sysroot
 case "$ARCH" in
@@ -25,10 +24,8 @@ esac
 compile_rules()
 {
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--with-xorg-module-dir=/usr/lib/X11/modules \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -36,8 +33,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/X11/modules/drivers/
-    cp -a $install/usr/lib/X11/modules/drivers/*.so \
-    	$fs/usr/lib/X11/modules/drivers/
+	cook_copy_files *.so
 }
-
