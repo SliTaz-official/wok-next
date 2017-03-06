@@ -1,30 +1,27 @@
 # SliTaz package receipt.
 
 PACKAGE="xorg-xf86-video-vmware"
-VERSION="13.0.1"
+VERSION="13.1.0"
 CATEGORY="x-window"
-SHORT_DESC="X.org vmware video driver"
+SHORT_DESC="X.org video driver for VMware SVGA virtual video cards"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="MIT"
-SOURCE="xf86-video-vmware"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="xf86-video-vmware-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-DEPENDS="xorg-server libdrm"
-BUILD_DEPENDS="xorg-server-dev libdrm-dev"
-
-MODS='/usr/lib/X11/modules'
+DEPENDS="expat libdrm libdrm-nouveau libgcrypt libgpg-error llvm-libs mesa"
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
+xorg-libXrender-dev xorg-libXinerama-dev xorg-libXv-dev xorg-xproto \
+xorg-fontsproto libgcrypt-dev expat-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		--localstatedir=/var \
-		--with-xorg-module-dir=$MODS \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -32,8 +29,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p ${fs}${MODS}/drivers
-	cp -a ${install}${MODS}/drivers/*.so ${fs}${MODS}/drivers
+	cook_copy_files *.so
 }
-
-
