@@ -5,12 +5,16 @@
                 %crefref
                 %noincl
                 %nomacs
-                p386
+                p8086
 
         group   DGROUP  _TEXT,_DATA,_BSS
         assume  cs:DGROUP,ds:DGROUP
 
         segment _TEXT byte public use16 'CODE'
+
+	macro   cpuid
+        	db      0fh,0A2h
+	endm
 
                 org     100h
         global  _text_start:byte
@@ -24,36 +28,47 @@ clearbss:
 		mov	[byte bx],0		; clear bss + heap + sp
 		inc	bx
 		jne	clearbss
+                cld
 
 ;***************************************************************
 ; check CPU
 ;***************************************************************
 
 ; Check for oldies
-		mov	bh, 0F0h
-		pushf
-		push	bx		; < 286 : flags[12..15] are forced 1
-		popf			; = 286 : flags[12..15] are forced 0
-		pushf			; > 286 : only flags[15] is forced 0
-		pop	dx
-		popf
-		add	dh,bh		; NS=386+, NC=286
+		push	sp
+		pop	ax
+		mov	bx,offset msg_badcpu
+		sub	ax,sp
 		ifndef	NO386
-                js	no_vcpi   	;it is a 86/186/286, not a 386+
+                jnz	no_vcpi   	;it is a 86/186 not a 286+
 		else
-		js	endcpu
+		jnz	endcpu
+		endif
+                p386
+		ifdef	EXTRA
+		pushfd
+		pop	dx
+		pop	ax
+		mov	bl,al
+		xor	al,20h		; toggle CPUID feature bit 21
+		push	ax
+		push	dx
+		popfd
+		pushfd
+		pop	dx
+		pop	ax
+		xor	al,bl		; clear C
+		je	@@check_vm	; CPUID feature bit changed ?
+		mov	eax,80000001h	; Extended Processor Info and Feature Bits
+		cpuid
+		mov	[_cpu_features],edx
+@@check_vm:
 		endif
 ; Check for vm
                 smsw    ax      ;SMSW cannot be trapped! :-)
-                and     ax,1	;MSW_PE
+                and     al,1	;MSW_PE
 ; We're in vm
-                jnz     check_vcpi
-
-; It's a 386 in real mode, chk for paging (crazy but possible)
-                mov     edx,cr0
-                shl     edx,1   ;CR0_PG to CF
-		jc	no_vcpi
-		jmp	endcpu
+		jz	check_rm_paging
 
 ;***************************************************************
 ; checks for vcpi
@@ -61,24 +76,27 @@ clearbss:
 label   check_vcpi near
                 push    ds
 ; Check whether it is safe to call 67h (we trust only known EMM managers)
-                push    0
+		xor	bx,bx
+                push    bx
                 pop     ds
                 mov     ds,[word 67h*4+2]
-                cmp     [dword 10+4],'0XXX'
+                cmp     [dword bx+10+4],'0XXX'
                 jne     skip
-                mov     eax,'XMME'
-                xor     eax,[dword 10]
+		;mov	eax,'XMME'
+		;xor	eax,[dword bx+10]
         ; QMME also works (as told by <J.S.Peatfield@damtp.cambridge.ac.uk>)
-                shl     eax,8
+		;shl	eax,8
+		mov	ax,'ME'
+		xor	ax,[word bx+10]
 skip:
                 pop     ds
                 jne     no_vcpi
 
 ; Check emm manager status and version
-                mov     ah,40h          ; get status
-                int     67h
-                test    ah,ah
-                jnz     no_vcpi
+                ;mov     ah,40h          ; get status
+                ;int     67h
+                ;test    ah,ah
+                ;jnz     no_vcpi
                 mov     ah,46h          ; get version
                 int     67h
                 test    ah,ah
@@ -94,27 +112,33 @@ skip:
               ;;push    dx              ;$ save handle
                 mov     ax,0DE00h       ; check for vcpi present
                 int     67h
-                mov     al,1
                 test    ah,ah
-                jz      is386vcpi
-              ;;pop     dx              ;$ handle
-              ;;mov     ax,4500h        ; DEALLOCATE PAGES
-              ;;int     67h
-no_vcpi:
-		mov	bx,offset msg_badcpu
-                extrn   die:near
-godie:
-		jmp	near die
+		jnz	no_vcpi
 is386vcpi:
-		mov	[_vcpi],al
+		inc	[_vcpi]
                 extrn   prepare_vcpi:near
 		call	prepare_vcpi
 ;    get_vcpi_interface() || die("VCPI: low 640k: need 1:1 mapping");
                 ;extrn   _get_vcpi_interface:near
 		;call	_get_vcpi_interface
 		mov	bx,offset msg_badmapping
-		jz	godie
+		jz	endcpu
+no_vcpi:
+                p8086
+              ;;pop     dx              ;$ handle
+              ;;mov     ax,4500h        ; DEALLOCATE PAGES
+              ;;int     67h
+                extrn   die:near
+godie:
+		jmp	near die
+check_rm_paging:
+; It's a 386 in real mode, chk for paging (crazy but possible)
+                p386
+                mov     edx,cr0
+                shl     edx,1   ;CR0_PG to CF
+		jc	no_vcpi
 endcpu:
+                p8086
 
 ;***************************************************************
 ; build argv & argc
@@ -125,7 +149,6 @@ endcpu:
                 ;push	ax			; envp (already cleared)
                 ;mov	[word di],ax		; argv[0] = 0 (idem)
                 mov	si,80h
-                cld
                 lodsb
                 cmp	al,7Eh
                 jbe	alok
@@ -220,6 +243,10 @@ msg_badmapping  db      "VCPI: low 640k: need 1:1 mapping",0
         segment _BSS byte public use16 'BSS'
         global  _bss_start:byte
         label   _bss_start byte
+		ifdef	EXTRA
+        global  _cpu_features:dword
+_cpu_features	dd	?
+		endif
         ends    _BSS
 
         end     _text_start

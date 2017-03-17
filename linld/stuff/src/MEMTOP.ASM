@@ -5,7 +5,11 @@
                 %crefref
                 %noincl
                 %nomacs
+		ifdef	NO386
+                p8086
+		else
                 p386
+		endif
 
         group   DGROUP  _TEXT,_DATA,_BSS
         assume  cs:DGROUP,ds:DGROUP
@@ -38,7 +42,7 @@ saved15		dd	?
 ;***************************************************************
 ;        proc    _memtop_e801 near
 
-                push    cx bx
+                ;push    cx bx
                 xor     cx,cx           ;fix to work around buggy
                 xor     dx,dx           ;  BIOSes which dont clear/set
                 stc                     ;  carry on pass/error of
@@ -54,7 +58,7 @@ saved15		dd	?
 @@use_cxdx:     xchg    ax,cx
 @@end_kludge:                   ;now: dx=64k units above 16m
                                 ;     ax=1k units above 1m below 16m (max 3c00h)
-                pop     bx cx
+                ;pop     bx cx
                 test    dx,dx
                 jz      tokb            ;dx=0 here, ax=kbs above 1m
                 xor     ax,ax           ;ignore info on low 16M (assume full)
@@ -78,10 +82,11 @@ saved15		dd	?
                 jnc     @@ok            ;  error: cf=1 or ax=0
                 xor     ax,ax           ;
 @@ok:
-                xor     dx,dx
+;                xor     dx,dx
                 test    ax,ax           ;happens on big mem systems
                 jz      @@fail
 tokb:
+                xor     dx,dx
                 add     ah,4h           ;account for 1024 low kb
                 adc     dx,dx           ;  (optimized to death)
 		ifndef	NO386
@@ -117,7 +122,6 @@ tokb:
                 cli
                 call	rdcmos17
                 popf
-		xor     dx,dx
 		jmp	tokb
 
 rdcmos17:       mov     al,18h		; read bytes 17-18 from CMOS
@@ -169,17 +173,22 @@ _memtop:
 
 		ifndef  xmm_hook
                 mov     ax,4300h
+		ifdef	NO386
+		cwd
+		endif
                 int     2fh
-                cmp     al,80h
+                cmp     al,80h			; 80h = XMS driver installed
                 je      @@skip
 		endif
+		ifndef	NO386
 		push	0
 		pop	es
 		mov	bx,15*4
-		ifndef	NO386
 		mov	eax,[bx]
 		mov	[saved15],eax
 		else
+		mov	es,dx
+		mov	bx,15*4
 		mov	ax,[bx]
 		mov	[word saved15],ax
 		mov	ax,[bx+2]

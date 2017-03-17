@@ -24,30 +24,32 @@ inline void syntax() {
         "\tinitrd,vga,root=(void)" NL
         "\tmem=256m" NL
         "\tcl=auto" NL
+        "\t-b 1088k" NL
         "Use quotes: \"cl=...\" if you need spaces in cmdline" NL
         "Use cl=@filename to get it from a file"
 #if 1
         NL NL "Examples:" NL
-        "\tlinld initrd=rootfs4.gz,rootfs3.gz,rootfs2.gz,rootfs1.gz \"cl=rw root=/dev/null video=-32\""
+        "\tlinld -f -b 64m initrd=rootfs4.gz,rootfs3.gz,rootfs2.gz,rootfs1.gz \"cl=rw root=/dev/null video=-32\""
 	NL NL "\tlinld image=memtest"
 #endif
     );
 }
 
-static char _cmdline[256];
+static char _cmdline[128];
 int main(int argc, char *argv[]) {
+
+    (void) argc;
+
     // Believe it or not - this enables A20
     // on my box! Must be DOS in HMA...   -vda
     puts("LINLD v" VERSION_STR "+");
 
-    if(argc<2) {
-dosyntax:
-        syntax();
-    }
-
     // Parse command line
-    {for (char i=0;;) {
-	char *s=*++argv;
+    if (argv[1]) {for (char i=0;;) {
+	char *s;
+    next:
+	argv++;
+	s=*argv;
 	i++;
 	if (!s) {
 	    puts(load_kernel());
@@ -56,21 +58,27 @@ dosyntax:
 	}
         if(strhead(s,"image=") == 0) {
 	    s+=6;
+	set_kernel_name:
             kernel_name=s;
         }
         else if(strhead(s,"initrd=") == 0) {
 	    s+=7;
             initrd_name=s;
         }
-        else if((*(u16 *)s|0x2002) == 0x662F) { // -F /f
-            extern int skip_xmmalloc;
-            skip_xmmalloc++;
-        }
         else if(strhead(s,"vga=") == 0) {
 	    s+=4;
             vid_mode = strtol(s);	// support normal, extended & ask
         }
-        else if(strhead(s,"cl=") == 0) {
+        else switch (*(u16 *)s|0x2002) {
+	case 0x662F:	// -F /f
+	    skip_alloc++;
+	    goto next;
+	case 0x622F:	// -B /b
+	    argv++;
+	    base_himem = strtol(*argv);
+	    goto next;
+	default:
+        if(strhead(s,"cl=") == 0) {
             cmdline=s+=3;
             if (*s == '@') {
 		static struct image_himem image;
@@ -104,18 +112,20 @@ dosyntax:
             topmem = strtol(s);
 	    goto addincmdline;
         }
-        else if(cmdline == (const char *) _cmdline) {
+        else if(cmdline == (const char *) _cmdline + 1) {
 addincmdline:
 	    strcatb(_cmdline,*argv);
         }
 	else if(i == 1 && fileattr(s) != -1) {
-            kernel_name = s;
-	    cmdline = (const char *) _cmdline;
+	    cmdline = (const char *) _cmdline + 1;
+	    goto set_kernel_name;
         }
 	else
-	    goto dosyntax;
+	    break;
+	}
     }}
+    syntax();
 
     // Let compiler be happy
-    // return _AX;
+    return _AX;
 }

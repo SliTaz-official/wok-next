@@ -44,7 +44,6 @@
 */
 
 struct kernelparams_t {
-    u8      pad0;
     u8      setup_sects;    // 01F1 The size of the setup in sectors
                             //      boot sector is NOT included here
     u16     ro_flag;        // 01F2 If set, the root is mounted readonly
@@ -92,8 +91,9 @@ struct first1k_t {
     u16     ext_mem_size;   // 0002 extended memory size in Kb (from int 0x15 fn 0x88)
     u8      pad00[0x20-4];
                             // old-style cmdline (not used in LINLD (yet?))
-    u16     cl_magic;       // 0020 commandline magic number (=0xA33F)
-    u16     cl_ofs;         // 0022 commandline offset
+    u32     cl_magic_ofs;
+    //u16     cl_magic;       // 0020 commandline magic number (=0xA33F)
+    //u16     cl_ofs;         // 0022 commandline offset
     u8      pad10[0x80-0x24];
                             // these two set by rm setup:
     u8      hd0_disk_par[16]; // 0080 hd0-disk-parameter from intvector 0x41
@@ -101,7 +101,7 @@ struct first1k_t {
     u8      pad20[0x01e0-0xa0];
                             // this is set by rm setup:
     u32     alt_mem_size;   // 01E0 extended memory size in Kb (from int 0x15 fn 0xe801)
-    u8      pad28[0x01f0-0x1e4];
+    u8      pad28[0x01f1-0x1e4];
     struct kernelparams_t params;
 }; //__attribute((packed));
 
@@ -111,96 +111,17 @@ struct first1k_t {
 
 const u32 HdrS = 'H' + ('d'<<8) + (u32('r')<<16) + (u32('S')<<24);
 
-u8* rm_buf;
-static u16 rm_size;
-u8 pm_high;
-struct image_himem pm;
-struct image_himem initrd;
-
-static void memcpy_image(struct image_himem *m) {
-    if (m->fallback != m->buf)
-        memcpy32(
-            m->fallback,    // dst seg,ofs
-            0, m->buf,      // src seg,ofs
-            m->size         // size
-        );
-}
-
-// Called from inside kernel just before rm->pm
-// _loadds _saveregs: done by hand
-void far last_ditch() {
-    cli();  // we start doing *really* destructive things to DOS/BIOS
-            // it means: do not even try to enable ints
-            // or call BIOS services after this
-    asm {
-        push    ds
-        push    cs
-        pop     ds
-#ifndef NO386
-        pusha
-#else
-        push	ax
-        push	bx
-        push	cx
-        push	dx
-#endif
-    }
-    if(pm.fallback > _1m) pm.fallback = _1m;
-    if(vcpi==0) {
-        // Move kernel
-        memcpy_image(&pm);
-        // Move initrd
-        memcpy_image(&initrd);
-    } else { //vcpi
-        vm2rm();
-        // Move kernel
-        // 'Gathering' copy in chunks of PAGE_SIZE
-        // No risk of overlapping: kernel is copied from above to 1m mark
-        pm.size = initrd.size = PAGE_SIZE;
-        u32 *p = pm.bufv;
-        if (p) while(*p) {
-            pm.buf = *p;
-            memcpy_image(&pm);
-            p++; pm.fallback+=PAGE_SIZE;
-        }
-        // Move initrd
-        if(initrd.fallback) {
-            // This is tricky: copy initrd backwards to reduce
-            // risk of overlapping: use the fact that initrd is copied
-            // to the very top of ram
-            // (overlapping still can happen with more than 256mb ram)
-            // (generic solution for this overwrite problem, anyone?)
-            p=initrd.bufv;
-            do {
-                p++; initrd.fallback+=PAGE_SIZE;
-            } while(*p);
-            do {
-                p--; initrd.fallback-=PAGE_SIZE;
-                initrd.buf = *p;
-                memcpy_image(&initrd);
-            } while(p != initrd.bufv);
-        }
-    }
-    asm {
-#ifndef NO386
-        popa
-#else
-        pop	dx
-        pop	cx
-        pop	bx
-        pop	ax
-#endif
-        pop     ds
-    }
-}
+u16 rm_size;
+u8 pm_high;	// @ = @rm_size + 2, see JUMP.ASM
+u8* rm_buf;	// @ = @rm_size + 3, see JUMP.ASM
+u32 base_himem = _1m+_64k;
+extern struct image_himem pm, initrd;
 
 // register value to launch the kernel real mode code
 #ifdef NO386
-static u32 sssp;
 static u32 csip;
 extern "C" u16 topseg();
 #else
-const  u32 sssp=0x9000A000;
 static u32 csip=0x90200000;
 #define topseg() 0x9000
 #endif
@@ -208,49 +129,49 @@ static u32 csip=0x90200000;
 static const char kernel_file_error[] = "Can't use kernel file";
 char* load_kernel() {
 
+    struct	image_himem *m = &pm;
 #ifdef NO386
-    sssp=((u32)topseg()<<16)+0xA000;
-    csip=((u32)(topseg()+0x20)<<16);
+    *((u16 *)&csip+1)=topseg()+0x20;
 #endif
     // Open kernel, read first kb, check it
-    pm.errmsg = kernel_file_error;
-    open_image(kernel_name, &pm);
+    m->errmsg = kernel_file_error;
+    open_image(kernel_name, m);
 
     char *version_string;
   {
     struct first1k_t *first1k;
     struct kernelparams_t *kernelparams;
-    first1k = (first1k_t*) (rm_buf = malloc_or_die(_32k));
-    kernelparams = &first1k->params;
+    kernelparams = &(((first1k_t*) (rm_buf = malloc_or_die(_32k)))->params);
+#define first1k		((first1k_t*)((u8 *)kernelparams-0x1F1))
    {
     u16 rm_seek;
 
     // Do not use malloc below until heap_top adjustment (see <*>)
-    if (read(pm.fd, rm_buf, rm_seek=0x400) != 0x400) {
+    if (read(m->fd, rm_buf, rm_seek=0x400) != 0x400) {
   readfail:
         die(kernel_file_error);
     }
 
-    if(!kernelparams->setup_sects) {
+    if(kernelparams->setup_sects == 0) {
 #if 1
         if(* (int *) &first1k->pad10[0x3F-0x24] == 0x3AE8) {
-            lseek(pm.fd,rm_seek=0x200,SEEK_SET);
-            csip=((u32)topseg()<<16)+0x0042;
+            seekset(pm.fd,rm_seek=0x200);
+            csip+=0xFFE00042;
         }
         else
 #endif
         kernelparams->setup_sects=4;
     }
-    rm_size = 0x200*(kernelparams->setup_sects+1); // 0th sector is not counted there
-    if(rm_size>_32k || kernelparams->boot_flag != 0xAA55)
+    if((kernelparams->setup_sects)>=(_32k/512) || // 0th sector not counted
+	 kernelparams->boot_flag != 0xAA55)
         die("It's not a kernel");
-    heap_top = rm_buf+rm_size;  // <*>
+    heap_top = rm_buf+(rm_size=0x200*(kernelparams->setup_sects+1));  // <*>
 
     // Read remaining rm loader
 
     {
     u16 cnt = rm_size-rm_seek;
-    if (read(pm.fd, rm_buf+rm_seek, cnt) != cnt) goto readfail;
+    if (read(m->fd, rm_buf+rm_seek, cnt) != cnt) goto readfail;
     }
    }
 
@@ -275,7 +196,8 @@ char* load_kernel() {
             hook_int15_88();
 
             // * will be called just before rm -> pm
-            kernelparams->realmode_switch_ofs = ofs(last_ditch);
+	    extern void far last_ditch();
+            kernelparams->realmode_switch_ofs = ofs((void *)last_ditch);
             kernelparams->realmode_switch_seg = seg(last_ditch);
         }
         if(kernelparams->kernel_version)
@@ -295,8 +217,7 @@ char* load_kernel() {
             goto cmd_line_ok;
         }
     }
-    first1k->cl_magic = 0xA33F;
-    first1k->cl_ofs   = 0x8000;
+    first1k->cl_magic_ofs = 0x8000A33F;
   }
 
 cmd_line_ok:
@@ -307,14 +228,17 @@ cmd_line_ok:
     // Try to load kernel high, maybe even blindly storing it
     // in unallocated memory as a last resort
 
-    pm.fallback = (u32((u16(_CS)+0x1FFF)&0xF000)<<4);
-    pm.size -= rm_size;
-    pm.chunk_size -= rm_size;
-    if(pm.fallback+pm.size > (((u32)topseg())<<4) || pm_high) {
-        pm.fallback = _1m+_64k;
+  {
+    struct image_himem *m = &pm;
+    m->fallback = (u32((u16(_CS)+0x1FFF)&0xF000)<<4);
+    m->size -= rm_size;
+    m->chunk_size -= rm_size;
+    if((u16)((m->fallback+m->size)>>4) > topseg() || pm_high) {
+        m->fallback = base_himem;
     }
 
-    load_image(&pm);
+    load_image(m);
+  }
     return version_string;
 }
 
@@ -322,23 +246,19 @@ cmd_line_ok:
 
 void load_initrd() {
     struct image_himem *m = &initrd;
-    if (!initrd_name && !initrd.fd) return;
     m->errmsg = "Can't use initrd file";
-    if (!pm.errmsg) {
-noinitrd:
+    if (!initrd_name && !m->fd) return;
+
+    open_image(initrd_name, m);
+
+    if ((m->fallback=(memtop()-m->size)&(~PAGE_MASK)) < pm.fallback+pm.size) {
+        close(m->fd);
         puts(m->errmsg);
         return;
     }
-    open_image(initrd_name, m);
-
-    m->fallback = (memtop()-m->size) & (~PAGE_MASK);
-    if (m->fallback < pm.fallback + pm.size) {
-        close(m->fd);
-	goto noinitrd;
-    }
 
     load_image(m);
-    struct kernelparams_t *kernelparams = (kernelparams_t *)(rm_buf+0x1F0);
+    struct kernelparams_t *kernelparams = &(((first1k_t*) rm_buf)->params);
     if(kernelparams->header == HdrS) {
         kernelparams->initrd_buf  = m->fallback;
         kernelparams->initrd_size = m->size;
@@ -352,17 +272,11 @@ void boot_kernel() {
         u16 new_SP=u16(heap_top)+0x100;
         if(_SP>new_SP) _SP=new_SP;
     }
-    if( u16(_CS)+(u16(_SP)>>4) >= topseg() ) {
+    if( (u16(_SP)>>4)+u16(_CS) >= topseg() ) {
         // Oops! We can stomp on our toes... better stop now
         die("Loaded too close to 9000:0");
     }
 
-    cli(); // we start doing destructive things to DOS
-
-    // Move rm loader & commandline to 0x90000
-    // overkill: copy PAGE_SIZE bytes
-    rmcpy(rm_buf, rm_size);
-
-    // Jump to kernel rm code
-    set_sregs_jump_seg_ofs(csip, sssp);
+    // Move rm loader & commandline to 0x90000, Jump to kernel rm code
+    set_sregs_jump_seg_ofs(csip);
 }

@@ -3,171 +3,144 @@
 #include "iso9660.h"
 #define __ROCKRIDGE
 
-char *isofilename;
-unsigned long isofileofs, isofilesize;
-unsigned short isofilemod;
-int isofd;
-
 #define SECTORSZ 2048
 #define SECTORBITS 11
-static char buffer[SECTORSZ];
+static char buffer[SECTORSZ+512];	// RR overflow
+struct isostate isostate;
 
-static int readsector(unsigned long offset)
+static int readsector(const unsigned long *offset)
 {
-	return (lseek(isofd, offset, SEEK_SET) != -1
-		    && read(isofd, buffer, SECTORSZ) == SECTORSZ);
+	return (isolseek(offset) != -1
+		    && read(isostate.fd, buffer, sizeof(buffer)) >= SECTORSZ);
 }
 
-int isoread(char *data, unsigned size)
-{
-	int get, n;
-	
-	if (size > isofilesize)
-		size = isofilesize;
-	if (lseek(isofd, isofileofs, SEEK_SET) == -1)
-		return -1;
-	for (get = size; get; get -= n, data += n) {
-		n = read(isofd,data,get);
-		if (n < 0)
-			return n;
-		if (n == 0)
-			break;
-		isofileofs += n;
-		isofilesize -= n;
-	}
-	return size - get;
-}
-
-static unsigned long isodirofs, isodirsize;
 int isoreset(char *name)
 {
+	static const unsigned long root = 16UL * 2048;
+	struct isostate *x=&isostate;
 	if (name)
-		//isofd = open(name, O_RDONLY);
-		isofd = open(name);
-	if (!readsector(16UL * 2048) || strhead(buffer+1,"CD001")) {
-		//close(isofd);
+		//x->fd = open(name, O_RDONLY);
+		x->fd = open(name);
+	if (!readsector(&root) || strhead(buffer+1,"CD001")) {
+		//close(x->fd);
 		return -1;
 	}
-	isodirofs = * (unsigned long *) (buffer + 0x9E);
-	isodirofs <<= SECTORBITS;
-	isodirsize = * (unsigned long *) (buffer + 0xA6);
+	x->dirofs = (* (unsigned long *) (buffer + 0x9E)) << SECTORBITS;
+	x->dirsize = filesize2dirsize(* (unsigned long *) (buffer + 0xA6));
 	return 0;
 }
 
 int isoreaddir(int restart)
 {
-	static unsigned long pos, dirofs, dirsize;
 	static char dots[] = "..";
-	int size, n;
+	int size;
+	char *p;
 #ifdef __ROCKRIDGE
 	char *endname;
 #endif
+	struct isostate *x=&isostate;
 
 	if (restart) {
-		dirofs = isodirofs;
-		dirsize = isodirsize;
-		pos = SECTORSZ;
+		x->curdirsize = x->dirsize;
+		x->curdirofs = x->dirofs;
+		goto restarted;
 	}
-	if (pos >= SECTORSZ || * (short *) (buffer + pos) == 0) {
-		if (dirsize < SECTORSZ) return -1;
-		readsector(dirofs);
-		dirofs += SECTORSZ;
-		dirsize -= SECTORSZ;
-		pos = 0;
+	if (x->curpos >= SECTORSZ || * (short *) (buffer + x->curpos) == 0) {
+		if (x->curdirsize < DIRSECTORSZ) return -1;
+	restarted:
+		readsector(&x->curdirofs);
+		x->curdirofs += SECTORSZ;
+		x->curdirsize -= DIRSECTORSZ;
+		x->curpos = 0;
 	}
-	size = * (short *) (buffer + pos);
-	if (size == 0)
+	p = buffer + x->curpos;
+	if ((size = * (short *) p) == 0)
 		return -1;
-	isofileofs = (* (unsigned long *) (buffer + pos + 2)) << SECTORBITS;
-	isofilesize = * (unsigned long *) (buffer + pos + 10);
-	isofilemod = (buffer[pos + 25] & 2) ? 0040755 : 0100755;
+	x->fileofs = (* (unsigned long *) (p + 2)) << SECTORBITS;
+	x->filesize = * (unsigned long *) (p + 10);
+	x->filemod = (p[25] & 2) ? 0040755 : 0100755;
 #ifdef __ROCKRIDGE
 	endname = NULL;
-	n = (buffer[pos + 32] + pos + 34) & -2;
+	// p += 34 + (p[32] & -2); ?
+	p = buffer + 34 + ((p[32] + x->curpos) & -2);
 	do {
-		int len = buffer[n + 2];
-		switch (* (short *) (buffer + n)) {
+		int len = p[2];
+		switch (* (short *) p) {
 		case 0x4D4E: // NM
-			isofilename = buffer + n + 5;
-			endname = buffer + n + len;
+			x->filename = p + 5;
+			endname = p + len;
 			break;
 		case 0x5850: // PX
-			isofilemod = * (short *) (buffer + n + 4);
+			x->filemod = * (short *) (p + 4);
 			break;
 		}
-		n += len;
+		p += len;
 	}
-	while (n + 2 < pos + size);
+	while (buffer + x->curpos + size > p + 2);
 	if (endname)
 		*endname = 0;
 	else
 #endif
 	{
-		isofilename = buffer + pos + 33;
-		switch (* (short *) (isofilename - 1)) {
+		p = x->filename = buffer + x->curpos + 33;
+		p--;
+		switch (* (short *) p) {
 		case 0x0101:
-			isofilename = dots;
+			x->filename = dots;
 			break;
 		case 0x0001:
-			isofilename = dots + 1;
+			x->filename = dots + 1;
 			break;
 		default:
-			n = isofilename[-1];
-			if (* (short *) (isofilename + n - 2) == 0x313B)
-				n -= 2; // remove ;1
-			if (isofilename[n - 1] == '.') n--;
-			isofilename[n] = 0;
+			p += *p; p--;
+			if (* (short *) (p) != 0x313B) {
+				p++; p++; // no ;1 to remove
+			}
+			if (p[-1] == '.') p--;
+			*p = 0;
 		}
 	}
-	pos += size;
+	x->curpos += size;
 	return 0;
 }
 
-#define IS_DIR(x)( ((x) & ~0777) == 040000)
-int isoopen(char *filename)
+//#define IS_DIR(x)( ((x) & ~0777) == 040000)
+#define IS_DIR(x)( (char)((x) >> 9) == (char)040)
+int isoopen(const char *filename)
 {
 	int restart;
 	char *name, *s, c;
-	int _64bits = cpuhaslm();
+	char _64bits = cpuhaslm();
+	struct isostate *x=&isostate;
 
-retry32:
-	name = filename;
-	while (*name == '/') {
-		name++;
+  retry32:
+	for (s = (char *) filename; *s == '/' ; s++) {
 		isoreset(NULL);
 	}
-	s = name;
-	while (1) {
-		while (*s && *s != '/') s++;
-		c = *s;
-		*s = 0;
-		for (restart = 1; isoreaddir(restart) == 0; restart = 0) {
-			char *n = name, *i = isofilename;
-			if (_64bits) {
-				int len = strlen(name);
-				if (strhead(isofilename, name)) continue;
-				n = "64";
-				i += len;
-			}
-			if (strcmp(n, i)) continue;
-			if (IS_DIR(isofilemod)) {
-				isodirofs = isofileofs;
-				isodirsize = isofilesize;
-				if (c) {
-					*s++ = c;
-					name = s;
-					goto next;
-				}
-			}
-			lseek(isofd, isofileofs, SEEK_SET);
-			return 0;
-		}
+  next:
+	for (name = s; *s && *s != '/'; s++);
+	c = *s;
+	*s = 0;
+	for (restart = 1; isoreaddir(restart) == 0; restart = 0) {
+		const char *n = name, *i = x->filename;
 		if (_64bits) {
-			_64bits = 0;
-			*s = c;
-			goto retry32;
+			if (strhead(i, n)) continue;
+			n = "64";
+			i += s - name; // strlen(name);
 		}
-		return -1;
-	  next: ;
+		if (strcmp(i, n)) continue;
+		*s++ = c;
+		if (IS_DIR(x->filemod)) {
+			x->dirofs = x->fileofs;
+			x->dirsize = filesize2dirsize(x->filesize);
+			if (c) goto next;
+		}
+		isolseek(&x->fileofs);
+		return 0;
 	}
+	if (_64bits) {
+		_64bits = 0;
+		goto retry32;
+	}
+	return -1;
 }
