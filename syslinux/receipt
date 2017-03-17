@@ -14,8 +14,8 @@ CONFIG_FILES="/boot/isolinux/*.cfg /boot/isolinux/kbd"
 TAGS="boot"
 
 DEPENDS="ipxe memtest"
-BUILD_DEPENDS="wget kbd-base perl nasm dev86 lzma mingw32-gcc upx posixovl \
-util-linux-uuid-dev advancecomp libidn linld"
+BUILD_DEPENDS="kbd-base perl nasm dev86 lzma mingw32-gcc upx posixovl \
+util-linux-uuid-dev advancecomp libidn linld python"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 compile_rules()
@@ -25,6 +25,7 @@ compile_rules()
 	patch -p 0 < $stuff/extra/iso9660.u
 	patch -p 0 < $stuff/extra/readconfig.u
 	#patch -p 0 < $stuff/extra/fs.u
+	cp -f $stuff/slitaz-next/miniacc.h $src/lzo/src/ # use latest https://raw.githubusercontent.com/upx/upx/master/src/miniacc.h
 	cp $stuff/tools/isohybrid.sh .
 	cp $stuff/extra/md5sum.c com32/modules
 	grep -q md5sum.c32 com32/modules/Makefile ||
