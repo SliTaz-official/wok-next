@@ -1,16 +1,17 @@
 # SliTaz package receipt.
 
 PACKAGE="rp-pppoe"
-VERSION="3.11"
+VERSION="3.12"
 CATEGORY="network"
 SHORT_DESC="Roaring Penguin PPPoE client"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.roaringpenguin.com/products/pppoe"
-WGET_URL="http://www.roaringpenguin.com/files/download/$TARBALL"
+WEB_SITE="https://www.roaringpenguin.com/products/pppoe"
 TAGS="network PPPoE"
 HOST_ARCH="i486"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://www.roaringpenguin.com/files/download/$TARBALL"
 
 BUILD_DEPENDS="ppp"
 
@@ -18,21 +19,11 @@ BUILD_DEPENDS="ppp"
 compile_rules()
 {
 	cd $src/src
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	
-	cp -a $install/etc $fs
-	cp -a $install/usr/sbin $fs/usr	
-
-	# Fix permissions on all scripts
-	chmod -R 755 $fs/usr/sbin/*
+	cook_copy_folders etc sbin
 }

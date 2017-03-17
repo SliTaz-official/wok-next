@@ -6,12 +6,13 @@ CATEGORY="development"
 SHORT_DESC="Linux 8086 development environment."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.debath.co.uk/"
-WGET_URL="https://github.com/lkundrak/dev86/archive/v$VERSION.tar.gz"
 TAGS="compiler C assembler 8086"
 
-BUILD_DEPENDS="wget"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/lkundrak/dev86/tarball/v$VERSION"
+
+BUILD_DEPENDS="coreutils-file-output-full" # for `cat -v`
 
 # Rules to configure and make the package.
 compile_rules()
@@ -36,8 +37,9 @@ post_install()
 {
 	[ "$1" ] && return
 	register=/proc/sys/fs/binfmt_misc/register
-	[ -f $register ] || modprobe binfmt_misc
+	[ -f $register ] || modprobe binfmt_misc 2> /dev/null || true
 	[ -f $register ] && cat > $register <<EOT
 :i86-elks:M::\x01\x03\x20\x00:\xff\xff\xff\x83:/usr/bin/elksemu:
 EOT
+	true
 }

@@ -6,12 +6,13 @@ CATEGORY="system-tools"
 SHORT_DESC="FUSE file system that provides POSIX functionality"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://$PACKAGE.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://sourceforge.net/projects/posixovl/"
 TAGS="filesystem"
 
-DEPENDS="fuse attr"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+DEPENDS="fuse"
 BUILD_DEPENDS="autoconf automake fuse-dev attr-dev"
 
 # Rules to configure and make the package.
@@ -22,15 +23,13 @@ compile_rules()
 	grep -q 'else if (!S_ISREG' posixovl.c ||
 	sed -i 's/if (!S_ISREG/if (S_ISLNK(cb->ll.mode))\n\t\tcb->sb.st_size = strlen(cb->ll.target);\n\telse &/' posixovl.c
 	sed -i 's/cb->ll.size/0/' posixovl.c
+
 	sh autogen.sh
-	./configure --prefix=/usr --mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
-	make
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/sbin
-	cp $src/mount.posixovl $fs/usr/sbin 
+	cook_copy_folders sbin
 }

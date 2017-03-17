@@ -6,24 +6,25 @@ CATEGORY="network"
 SHORT_DESC="Implements the Point-to-Point Protocol (PPP)."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD GPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://ppp.samba.org/"
-WGET_URL="https://github.com/paulusmack/ppp/archive/$TARBALL"
 CONFIG_FILES="/etc/ppp/options /etc/ppp/*secrets"
 HOST_ARCH="i486 arm"
-
-BUILD_DEPENDS="wget"
 SUGGESTED="tazpanel"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/paulusmack/ppp/tarball/ppp-$VERSION"
+
+SIBLINGS="ppp-pam"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	case "$ARCH" in
-	arm*)
-		export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH
+		arm*)
+			export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH
 	esac
-	./configure --prefix=/usr \
-		$CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR/usr install
 }
@@ -34,10 +35,10 @@ genpkg_rules()
 	mkdir -p $fs/usr $fs/var/www/tazpanel/menu.d/network/VPN
 	cp -a $install/usr/sbin $fs/usr
 	[ -d "$install/usr/lib" ] && cp -a $install/usr/lib $fs/usr
-	cp -a $stuff/ppp.cgi $fs/var/www/tazpanel
-	ln -s ../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/ppp
+	cp -a   $stuff/ppp.cgi $fs/var/www/tazpanel
+	ln -s    ../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/ppp
 	ln -s ../../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/VPN/ppp
-	
+
 	# Config files.
 	mkdir -p $fs/etc/ppp/scripts $fs/etc/ppp/ip-up.d $fs/etc/ppp/ip-down.d
 	cp $stuff/README.scripts $fs/etc/ppp
@@ -48,7 +49,7 @@ genpkg_rules()
 	cp -a $src/scripts/ppp-on-dialer $fs/etc/ppp/scripts
 	sed -i 's:ppp/ppp-on-dialer:ppp/scripts/ppp-on-dialer:' \
 		$fs/etc/ppp/scripts/ppp-on
-	
+
 	cp -a $src/scripts/ppp-off $fs/etc/ppp/scripts
 	cp -a $src/scripts/callback $fs/etc/ppp/scripts
 	cp -a $src/scripts/redialer $fs/etc/ppp/scripts
@@ -90,7 +91,7 @@ EOT
 	chmod 711 $fs/etc/ppp/ip-up $fs/etc/ppp/ip-down
 
 	# insert #!/bin/sh  on top line in ip* scripts
-	sed -i '1i\#!/bin/sh' $fs/etc/ppp/ip* 2>/dev/null	
+	sed -i '1i\#!/bin/sh' $fs/etc/ppp/ip* 2>/dev/null
 	# add empty peers dir
 	mkdir -p $fs/etc/ppp/peers
 	# hide login/pass from regular users

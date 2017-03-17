@@ -7,20 +7,27 @@ SHORT_DESC="Portable lossless data compression library written in ANSI C"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.oberhumer.com/opensource/ucl/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
+
+BUILD_DEPENDS="gfortran"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --enable-shared $CONFIGURE_ARGS && 
+	while read i; do
+		patch -p1 -i $stuff/patches/$i
+	done < $stuff/patches/series
+
+	./configure \
+		--enable-shared \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }
