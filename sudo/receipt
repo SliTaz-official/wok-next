@@ -11,9 +11,15 @@ WEB_SITE="http://www.gratisoft.us/sudo/"
 WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
 CONFIG_FILES="/etc/sudoers"
 
+BUILD_DEPENDS="gettext"
+
 # Rules to configure and make the package.
 compile_rules()
 {
+	# Fix error and rebuild .mo
+	patch -p1 -i $stuff/sr.po.patch
+	msgfmt $src/plugins/sudoers/po/sr.po -o $src/plugins/sudoers/po/sr.mo
+
 	./configure --sysconfdir=/etc \
 	--without-pam \
 	--with-editor=/bin/vi \
