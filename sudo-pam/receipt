@@ -6,25 +6,32 @@ CATEGORY="security"
 SHORT_DESC="Sudo (su \"do\") allows a system administrator to delegate authority using PAM."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="ISC"
-SOURCE="sudo"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.gratisoft.us/sudo/"
-WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
+CONFIG_FILES="/etc/sudoers"
 PROVIDE="sudo:pam"
 
+TARBALL="sudo-$VERSION.tar.gz"
+WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
+
 DEPENDS="pam"
-BUILD_DEPENDS="pam-dev"
+BUILD_DEPENDS="gettext pam-dev"
+SIBLINGS="sudo"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# Fix error and rebuild .mo
+	patch -p1 -i $stuff/sr.po.patch
+	msgfmt $src/plugins/sudoers/po/sr.po -o $src/plugins/sudoers/po/sr.mo
+
 	./configure \
 		--sysconfdir=/etc \
 		--with-pam \
 		--with-editor=/bin/vi \
 		--libexecdir=/usr/lib \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -59,5 +66,5 @@ post_install()
 
 pre_remove()
 {
-	tazpkg get-install ${PACKAGE%-pam}
+	tazpkg get-install sudo
 }

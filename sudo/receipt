@@ -6,12 +6,14 @@ CATEGORY="security"
 SHORT_DESC="Sudo (su \"do\") allows a system administrator to delegate authority."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="ISC"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gratisoft.us/sudo/"
-WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
 CONFIG_FILES="/etc/sudoers"
 
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
+
 BUILD_DEPENDS="gettext"
+SIBLINGS="sudo-pam"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -20,14 +22,13 @@ compile_rules()
 	patch -p1 -i $stuff/sr.po.patch
 	msgfmt $src/plugins/sudoers/po/sr.po -o $src/plugins/sudoers/po/sr.mo
 
-	./configure --sysconfdir=/etc \
-	--without-pam \
-	--with-editor=/bin/vi \
-	--libexecdir=/usr/lib \
-	$CONFIGURE_ARGS &&
-	# Build everything
+	./configure \
+		--sysconfdir=/etc \
+		--without-pam \
+		--with-editor=/bin/vi \
+		--libexecdir=/usr/lib \
+		$CONFIGURE_ARGS &&
 	make &&
-	# Install everything
 	make install
 }
 
