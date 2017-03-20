@@ -1,20 +1,21 @@
 # SliTaz package receipt.
 
 PACKAGE="wget"
-VERSION="1.18"
+VERSION="1.19.1"
 CATEGORY="network"
-SHORT_DESC="GNU Wget - non-interactive download of files from the Web"
+SHORT_DESC="GNU Wget - the non-interactive network downloader"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.gnu.org/software/wget/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://www.gnu.org/software/wget/"
 HOST_ARCH="i486 arm"
 CONFIG_FILES="/etc/wgetrc"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
 DEPENDS="libssl libidn pcre util-linux-uuid zlib"
-BUILD_DEPENDS="openssl-dev libidn-dev flex util-linux-uuid-dev gettext \
-zlib-dev perl pcre-dev"
+BUILD_DEPENDS="openssl-dev libidn-dev util-linux-uuid-dev gettext zlib-dev \
+perl pcre-dev"
 
 # Handle cross compilation
 case "$ARCH" in
@@ -30,18 +31,10 @@ compile_rules()
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make DESTDIR=$DESTDIR install
-
-	gzip -9 $install/usr/share/man/man1/wget.1
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
-	rm -r $fs/usr/share/info $fs/usr/share/locale
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/usr/bin/wget"
+	cook_copy_files wget wgetrc
 }
