@@ -16,11 +16,11 @@ BUILD_DEPENDS="openssl-dev tcl-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr \
-	  --with-ssl-dir=/usr \
-	  --disable-symboles && \														
-	make  
+	./configure \
+		--prefix=/usr \
+		--with-ssl-dir=/usr \
+		--disable-symboles &&
+	make
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -30,6 +30,6 @@ genpkg_rules()
 	cp -a $src/libtls1.6.so $fs/usr/lib/tls1.6
 	cp -a $src/pkgIndex.tcl $fs/usr/lib/tls1.6
 	cp -a $src/tls.tcl $fs/usr/lib/tls1.6
-	
+
 	sed -i 's/dir ../dir/' $fs/usr/lib/tls1.6/pkgIndex.tcl
 }
