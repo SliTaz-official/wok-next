@@ -1,12 +1,12 @@
 # SliTaz package receipt.
 
 PACKAGE="krb5"
-VERSION="1.10.3"
+VERSION="1.15.1"
 CATEGORY="security"
 SHORT_DESC="Network authentication protocol with strong authentication."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION-signed.tar"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://web.mit.edu/Kerberos/"
 WGET_URL="${WEB_SITE}dist/$PACKAGE/${VERSION:0:4}/$TARBALL"
 CONFIG_FILES="/etc/krb5"
@@ -14,21 +14,21 @@ CFLAGS="-march=$ARCH -O2 -pipe -fomit-frame-pointer"
 CXXFLAGS="$CFLAGS"
 
 DEPENDS="libkrb5"
-BUILD_DEPENDS="perl bison"
+BUILD_DEPENDS="perl bison gettext openssl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	srcdir=$PACKAGE-$VERSION
-	[ -d $src/src ] || tar xzf $src/$srcdir.tar.gz 
-	# This is for cookutils. If more than one file was extracted it create
-	# $PACKAGE-$VERSION to move files in it. Krb5 is the only package like
-	# that so we do the trick here.
-	if [ -d "$srcdir" -a -x /usr/bin/cook ]; then
-		mv $srcdir $CACHE && cd .. && rm -rf * && mv -f $CACHE/$srcdir .
-	else
-		mv $srcdir/* .
-	fi
+#	srcdir=$PACKAGE-$VERSION
+#	[ -d $src/src ] || tar xzf $src/$srcdir.tar.gz 
+#	# This is for cookutils. If more than one file was extracted it create
+#	# $PACKAGE-$VERSION to move files in it. Krb5 is the only package like
+#	# that so we do the trick here.
+#	if [ -d "$srcdir" -a -x /usr/bin/cook ]; then
+#		mv $srcdir $CACHE && cd .. && rm -rf * && mv -f $CACHE/$srcdir .
+#	else
+#		mv $srcdir/* .
+#	fi
 	cd $src/src
 
 	# FS#25384

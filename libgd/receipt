@@ -1,51 +1,44 @@
 # SliTaz package receipt.
 
 PACKAGE="libgd"
-VERSION="2.0.35"
+VERSION="2.2.4"
 CATEGORY="graphics"
 SHORT_DESC="Library for the dynamic creation of images."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://libgd.bitbucket.org/"
-WGET_URL="hg|https://bitbucket.org/pierrejoye/gd-libgd"
-#WGET_URL="https://bitbucket.org/libgd/gd-libgd/downloads/$TARBALL"
+WEB_SITE="https://www.libgd.org/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/libgd/libgd/tarball/gd-$VERSION"
 
 DEPENDS="zlib libpng libjpeg freetype expat fontconfig xorg-libX11 \
 xorg-libXau xorg-libXdmcp xorg-libXpm"
 BUILD_DEPENDS="libpng-dev jpeg-dev expat-dev freetype-dev \
-xorg-libXau-dev xorg-libXdmcp-dev xorg-libXpm-dev automake libtool"
+xorg-libXau-dev xorg-libXdmcp-dev xorg-libXpm-dev automake libtool gettext \
+fontconfig-dev"
 
 # Cross compilation use some build host tools
 case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS cmake wget" ;;
+	i?86) BUILD_DEPENDS="$BUILD_DEPENDS cmake" ;;
 	arm) ARCH_ARGS="--with-jpeg=/cross/$ARCH/sysroot/usr/lib" ;;
 esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
-	cmake . && make && make DESTDIR=$DESTDIR install || return 1
-	
-	cd src
-	cp -a ../config ../test .
-    
-	./bootstrap.sh
+	./bootstrap.sh &&
 	./configure \
 		--prefix=/usr \
-		$CONFIGURE_ARGS
-	make -C config gdlib-config
-	cp config/gdlib-config $DESTDIR/usr/local/bin
-	chmod +x $DESTDIR/usr/local/bin/gdlib-config
-	cd ..
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/local/bin $fs/usr
-	cp -a $install/usr/local/lib/*.so* $fs/usr/lib
+	cook_copy_folders bin
+	cook_copy_files *.so*
+	# split
+	rm $fs/usr/bin/gdlib-config
 }
