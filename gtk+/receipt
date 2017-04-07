@@ -6,19 +6,20 @@ CATEGORY="x-window"
 SHORT_DESC="The GIMP Toolkit."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="cups gnutls libgcrypt libgpg-error"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.gtk.org/"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
+WEB_SITE="https://www.gtk.org/"
 HOST_ARCH="i486 arm"
 CONF_FILES="/etc/gtk-2.0/im-multipress.conf"
+SUGGESTED="cups gnutls libgcrypt libgpg-error"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
 DEPENDS="glibc-base expat libxcb xcb-util zlib glib cairo pango atk libpng \
 jpeg tiff gdk-pixbuf fontconfig freetype pixman libgio xorg-libX11 xorg-libXau \
 xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXdmcp xorg-libXext \
 xorg-libXfixes xorg-libXinerama xorg-libXrender xorg-libXrandr harfbuzz"
 BUILD_DEPENDS="faenza-icon-theme optipng glib-dev atk-dev pango-dev cairo-dev \
-gdk-pixbuf-dev cups-dev gobject-introspection-dev gtk-doc automake"
+gdk-pixbuf-dev cups-dev gobject-introspection-dev gtk-doc automake gettext"
 BUILD_DEPENDS_arm="atk-dev pango-dev gdk-pixbuf-dev dbus-dev dbus-glib-dev \
 xorg-inputproto libxcb-dev fontconfig-dev freetype-dev pixman-dev libxml2-dev \
 libpng-dev libffi-dev xorg-xextproto harfbuzz-dev faenza-icon-theme optipng \
@@ -32,26 +33,24 @@ case "$ARCH" in
 		--disable-papi --with-gdktarget=x11 --with-xinput gio_can_sniff=yes"
 		export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
 		export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include"
-		export LIBTOOL=${HOST_SYSTEM}-libtool ;;
+		export LIBTOOL=${HOST_SYSTEM}-libtool
+		;;
 esac
 
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
 	. $stuff/replace-icons; cd $src
-	patch -p0 < $stuff/undo_gen_icons.patch
-	mkdir -p /usr/share/gtk-doc/html
 
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
 		--with-html-dir=/usr/share/doc \
 		$CONFIGURE_ARGS ${ARCH_ARGS} &&
-	# https://bugzilla.gnome.org/show_bug.cgi?id=655517
-	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool &&
 	make $MAKEFLAGS $LIBTOOL &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.

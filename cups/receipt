@@ -1,80 +1,74 @@
 # SliTaz package receipt.
 
 PACKAGE="cups"
-VERSION="2.0.2"
+VERSION="2.1.4"
 CATEGORY="system-tools"
 SHORT_DESC="Common UNIX Printing System."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2"
-TARBALL="$PACKAGE-$VERSION-source.tar.bz2"
-WEB_SITE="http://www.cups.org/"
-WGET_URL="http://www.cups.org/software/$VERSION/$TARBALL"
+WEB_SITE="https://www.cups.org/"
 TAGS="printer printing"
 
-DEPENDS="libssl dbus libcomerr cups-doc libkrb5 libusb-compat poppler-apps \
-cups-filters libcups"
-BUILD_DEPENDS="libgcrypt-dev gnutls-dev dbus-dev jpeg-dev libpng-dev \
-tiff-dev zlib-dev libtasn1-dev openssl-dev libusb-compat-dev php-dev \
-acl-dev poppler-apps"
+TARBALL="$PACKAGE-$VERSION-source.tar.gz"
+WGET_URL="https://github.com/apple/cups/releases/download/release-$VERSION/$TARBALL"
+
+DEPENDS="acl dbus libcups libgnutls libusb zlib"
+BUILD_DEPENDS="automake libusb-dev zlib-dev dbus-dev gnutls-dev perl python \
+acl-dev"
+SPLIT="libcups cups-doc"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -Np1 -i $stuff/install-sh.u
+	sed -i 's:555:755:g;s:444:644:g' Makedefs.in &&
+	sed -i '/MAN.EXT/s:.gz::g' configure config-scripts/cups-manpages.m4 &&
+	sed -i '/LIBGCRYPTCONFIG/d' config-scripts/cups-ssl.m4 &&
+
+	aclocal  -I config-scripts &&
+	autoconf -I config-scripts &&
+
+	CC=gcc \
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
+		--libdir=/usr/lib \
 		--localstatedir=/var \
-		--mandir=/usr/share/man \
-		--enable-static \
-		--disable-ldap \
-		--disable-pam \
-		--disable-gssapi \
-		--disable-acl \
-		--disable-slp \
-		--enable-dbus \
-		--with-dbusdir=/etc/dbus-1 \
-		--with-cups-user=nobody \
-		--with-cups-group=nogroup \
-		--with-languages="de es fr pt_BR ru" \
-		--with-pdftops=pdftops \
+		--disable-systemd \
+		--with-rcdir=/tmp/cupsinit \
+		--with-system-groups=lpadmin \
+		--with-docdir=/usr/share/doc/cups-$VERSION \
 		$CONFIGURE_ARGS &&
-	make &&
-	make BUILDROOT=$DESTDIR install
-	cp -f $stuff/cups.desktop $install/usr/share/applications/cups.desktop
+	make
+	make BUILDROOT=$install install &&
+	rm -rf $install/tmp &&
+	ln -svnf ../doc/cups-$VERSION $install/usr/share/cups/doc-$VERSION
+	echo "ServerName /var/run/cups/cups.sock" > $install/etc/cups/client.conf &&
+
+	sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
+		$install/usr/share/cups/templates/choose-uri.tmpl &&
+	sed -i 's|htmlview|browser|' $install/usr/share/applications/cups.desktop
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc $fs/usr/lib $fs/usr/share
+	cook_copy_folders dbus-1 bin sbin cups applications icons var
+	cook_copy_files *.so*
 
-	cp -a $install/etc/cups $fs/etc
-	cp -a $install/etc/dbus* $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/cups $fs/usr/lib
-	cp -a $install/usr/share/cups $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/var $fs
-
-	# Remove files provided by cups-filters
-	rm -f $fs/usr/share/cups/banners/*
-	rm -f $fs/usr/share/cups/data/testprint
-
-	# Remove files provided by libcups
+	# -> cups-dev
+	rm -f $fs/usr/bin/cups-config
+	rm -rf $fs/usr/include
+	# -> libcups
 	rm -f $fs/usr/lib/libcups.so*
 
 	# Daemon script
 	cp -a $stuff/etc $fs
+	chown -R root:root $fs/etc/init.d
 	sed -i 's|^#Group .*|Group lp|' $fs/etc/cups/cups-files.conf
 
 	# TazPanel link
 	cp -a $stuff/var $fs
+	chown -R root:root $fs/var/www
 
-	sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
-		$fs/usr/share/cups/templates/choose-uri.tmpl
 }
 
 post_install()
@@ -83,7 +77,7 @@ post_install()
 	if [ -z "$1" -a ! -s /aufs-umount.sh ]; then
 		/etc/init.d/cupsd start || continue
 	fi
-	rm -f "$1"/var/cache/tazpanel/* 2> /dev/null
+	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null
 	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"; then
 		cat >> "$1/etc/daemons.conf" <<EOT
 # CUPS printing daemon options.
@@ -98,9 +92,4 @@ pre_remove()
 	# Stop CUPS daemon before rm.
 	[ -z "$1" -a -x /etc/init.d/cupsd ] && /etc/init.d/cupsd stop
 	:
-}
-
-post_remove()
-{
-	ln -fs /bin/busybox "$1/usr/bin/lpr"
 }
