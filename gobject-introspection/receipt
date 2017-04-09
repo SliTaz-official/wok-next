@@ -1,19 +1,20 @@
 # SliTaz package receipt.
 
 PACKAGE="gobject-introspection"
-VERSION="1.43.3"
+VERSION="1.48.0"
 CATEGORY="development"
 SHORT_DESC="Introspection system for GObject-based libraries"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2 MIT"
-WEB_SITE="http://live.gnome.org/GObjectInstrospection"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+WEB_SITE="https://wiki.gnome.org/Projects/GObjectInstrospection"
 #HOST_ARCH="i486 arm"
 
-DEPENDS="libgio dbus"
-BUILD_DEPENDS="flex bison glib-dev python-dev libgio-dev libffi-dev \
-cairo-dev dbus-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+DEPENDS="glib glibc-base libffi libgio pcre zlib  dbus"
+BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev"
+BUILD_DEPENDS_arm="glib-dev libgio-dev libffi-dev cairo-dev dbus-dev"
 
 # Handle cross compilation
 case "$ARCH" in
@@ -21,7 +22,8 @@ case "$ARCH" in
 		export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib"
 		export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
 		export PKG_CONFIG_PATH="/cross/$ARCH/sysroot/usr/pkgconfig"
-		BUILD_DEPENDS="glib-dev libgio-dev libffi-dev cairo-dev dbus-dev" ;;
+		BUILD_DEPENDS=$BUILD_SEPENDS_arm
+		;;
 esac
 
 # Rules to configure and make the package.
@@ -36,11 +38,7 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p \
-		$fs/usr/lib \
-		$fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
-	cp -a $install/usr/lib/gobject-introspection $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_folders bin girepository-1.0 gobject-introspection
+	cook_copy_files *.so*
+	find $fs -name '*.la' -delete
 }

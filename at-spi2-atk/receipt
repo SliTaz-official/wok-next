@@ -1,29 +1,27 @@
 # SliTaz package receipt.
 
 PACKAGE="at-spi2-atk"
-VERSION="2.15.4"
+VERSION="2.20.1"
 CATEGORY="libdevel"
 LICENSE="GPL3"
-SHORT_DESC="Bridges ATK to At-Spi2 D-Bus service."
+SHORT_DESC="Bridges ATK to At-Spi2 D-Bus service"
 MAINTAINER="yuripourre@gmail.com"
+WEB_SITE="https://www.gnome.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.gnome.org/"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="atk dbus util-linux-uuid at-spi2"
-BUILD_DEPENDS="at-spi2 atk-dev dbus-dev util-linux-uuid-dev"
+DEPENDS="at-spi2-core atk dbus glib libffi libxcb pcre xorg-libX11 xorg-libXau \
+xorg-libXdmcp"
+BUILD_DEPENDS="dbus-dev glib-dev atk-dev at-spi2-core-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 genpkg_rules()
 {
-	cp -a $install/usr $fs
+	cook_copy_files *.desktop *.so*
 }

@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKAGE="at-spi2-core"
+VERSION="2.20.2"
+CATEGORY="libdevel"
+LICENSE="GPL3"
+SHORT_DESC="Service Provider Interface for the Assistive Technologies"
+MAINTAINER="al.bobylev@gmail.com"
+WEB_SITE="https://www.gnome.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+DEPENDS="dbus glib libffi libgio libxcb pcre xorg-libX11 xorg-libXau \
+xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXtst zlib"
+BUILD_DEPENDS="intltool dbus-dev xorg-libX11-dev xorg-libXtst-dev \
+gobject-introspection-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules()
+{
+	cook_copy_folders etc libexec dbus-1 defaults
+	cook_copy_files *.so*
+}

@@ -1,37 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="atk"
-VERSION="2.15.4"
+VERSION="2.20.0"
 CATEGORY="x-window"
 SHORT_DESC="Accessibility toolkit."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.gnome.org/"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+WEB_SITE="https://www.gnome.org/"
 TAGS="accessibility"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 DEPENDS="glib"
-BUILD_DEPENDS="libgio-dev glib-dev"
+BUILD_DEPENDS="glib-dev gettext gobject-introspection-dev"
+BUILD_DEPENDS_arm="libgio-dev glib-dev"
 
 # Handle cross compilation
 case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS gobject-introspection-dev" ;;
+	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm ;;
 esac
+
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }
