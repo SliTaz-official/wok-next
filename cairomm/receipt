@@ -1,29 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="cairomm"
-VERSION="1.11.2"
+VERSION="1.12.0"
 CATEGORY="x-window"
-SHORT_DESC="2D graphics library (mm)."
+SHORT_DESC="C++ interface to Cairo"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
+WEB_SITE="https://www.cairographics.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.cairographics.org/"
 WGET_URL="http://cairographics.org/releases/$TARBALL"
 
-DEPENDS="pixman cairo libsigc++ xcb-util"
-BUILD_DEPENDS="pixman-dev cairo-dev libsigc++-dev xcb-util-dev libxml2-dev"
+DEPENDS="cairo freetype libpng libsigc++ xorg-libX11 xorg-libXext \
+xorg-libXrender zlib"
+BUILD_DEPENDS="cairo-dev libsigc++-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure $CONFIGURE_ARGS && 
-	make && make install
+	sed -i "/^libdocdir =/ s|\$(book_name)|cairomm-$VERSION|" docs/Makefile.in
+
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }
