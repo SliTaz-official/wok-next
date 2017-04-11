@@ -1,32 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="gsl"
-VERSION="1.15"
-CATEGORY="development"
-SHORT_DESC="Numerical library for C and C++ programmers."
+VERSION="2.3"
+CATEGORY="libdevel"
+SHORT_DESC="GNU Scientific Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
+WEB_SITE="https://www.gnu.org/software/gsl/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/gsl/"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make $MAKEFLAGS &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	rm $fs/usr/bin/*-config
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_folders bin
+	cook_copy_files *.so*
+	find $fs -name gsl-config -delete
 }

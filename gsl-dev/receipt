@@ -1,24 +1,18 @@
 # SliTaz package receipt.
 
 PACKAGE="gsl-dev"
-VERSION="1.15"
+VERSION="2.3"
 CATEGORY="development"
-SHORT_DESC="Gsl devel files (library and headers)."
+SHORT_DESC="GNU Scientific Library (development files)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WANTED="gsl"
-WEB_SITE="http://www.gnu.org/software/gsl/"
+WEB_SITE="https://www.gnu.org/software/gsl/"
 
-DEPENDS="gsl pkg-config"
+WANTED="gsl"
+DEPENDS="gsl"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/bin $fs/usr/share
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	cp -a $install/usr/share/aclocal $fs/usr/share
-	cp -a $install/usr/bin/*-config $fs/usr/bin
-	chmod +x $fs/usr/bin/*
+	cook_copy_files *.h *.a *.la *.pc *.m4 gsl-config
 }

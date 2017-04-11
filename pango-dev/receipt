@@ -1,28 +1,22 @@
 # SliTaz package receipt.
 
 PACKAGE="pango-dev"
-VERSION="1.36.8"
+VERSION="1.40.1"
 CATEGORY="development"
-SHORT_DESC="Library for layout and rendering of text devel files."
+SHORT_DESC="Layout and rendering of internationalized text (development files)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WANTED="pango"
 WEB_SITE="http://www.pango.org/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="pango cairo-dev pkg-config harfbuzz-dev"
+WANTED="pango"
+DEPENDS="pango bzip2-dev cairo-dev fontconfig-dev freetype-dev glib-dev \
+glibc-dev harfbuzz-dev libffi-dev liblzma-dev libpng-dev libxcb-dev \
+libxml2-dev pcre-dev pixman-dev xorg-libX11-dev xorg-libXau-dev \
+xorg-libXdmcp-dev xorg-libXext-dev xorg-libXft-dev xorg-libXrender-dev zlib-dev"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	[ -d "$install/usr/lib/girepository-1.0" ] && \
-		cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
-	[ -d "$install/usr/share/gir-1.0" ] && \
-		cp -a $install/usr/share/gir-1.0 $fs/usr/share
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib/pango $fs/usr/lib
-	rm -rf $fs/usr/lib/pango/1.8.0/modules/*.so
+	cook_copy_files *.h *.la *.pc *.typelib *.gir
 }

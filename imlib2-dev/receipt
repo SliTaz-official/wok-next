@@ -1,29 +1,22 @@
 # SliTaz package receipt.
 
 PACKAGE="imlib2-dev"
-VERSION="1.4.6"
+VERSION="1.4.9"
 CATEGORY="development"
-SHORT_DESC="Imlib graphic library devel files."
+SHORT_DESC="Imlib2 graphic library (development files)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL LGPL2"
-WANTED="imlib2"
-WEB_SITE="http://sourceforge.net/projects/enlightenment/"
+WEB_SITE="https://sourceforge.net/projects/enlightenment/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="imlib2 pkg-config"
+WANTED="imlib2"
+DEPENDS="imlib2 bzip2-dev freetype-dev giflib-dev glib-dev glibc-dev \
+harfbuzz-dev libid3tag-dev libjpeg-turbo-dev liblzma-dev libpng-dev libxcb-dev \
+pcre-dev tiff-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+xorg-libXext-dev zlib-dev"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin \
-		$fs/usr/lib/imlib2/filters \
-		$fs/usr/lib/imlib2/loaders
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	cp -a $install/usr/lib/imlib2/filters/*.*a \
-		$fs/usr/lib/imlib2/filters
-	cp -a $install/usr/lib/imlib2/loaders/*.*a \
-		$fs/usr/lib/imlib2/loaders
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/bin/imlib2-config $fs/usr/bin
+	cook_copy_files *.h *.la *.pc imlib2-config
 }
