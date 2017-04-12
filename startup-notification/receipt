@@ -6,27 +6,29 @@ CATEGORY="x-window"
 SHORT_DESC="Startup notification protocol"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://freedesktop.org/software/startup-notification/releases/"
-WGET_URL="${WEB_SITE}$TARBALL"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/startup-notification/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="xcb-util xorg-libSM xorg-libX11"
-BUILD_DEPENDS="util-linux-uuid-dev libxcb-dev xcb-util-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.freedesktop.org/software/startup-notification/releases/$TARBALL"
+
+DEPENDS="libxcb xcb-util xorg-libX11"
+BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev libxcb-dev xcb-util-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export lf_cv_sane_realloc=yes
 	./configure \
-		--prefix=/usr \
+		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install &&
+
+	install -v -m644 -D doc/startup-notification.txt \
+		$install/usr/share/doc/startup-notification-$VERSION/startup-notification.txt
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }

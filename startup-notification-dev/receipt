@@ -3,20 +3,18 @@
 PACKAGE="startup-notification-dev"
 VERSION="0.12"
 CATEGORY="development"
-SHORT_DESC="Startup notification protocol developpement files"
+SHORT_DESC="Startup notification protocol (development files)"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
-WANTED="startup-notification"
-WEB_SITE="http://freedesktop.org/software/startup-notification/releases/"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/startup-notification/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="startup-notification pkg-config"
+WANTED="startup-notification"
+DEPENDS="startup-notification glibc-dev libxcb-dev xcb-util-dev \
+xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	cp -a $install/usr/include $fs/usr
+	cook_copy_files *.h *.la *.pc
 }
