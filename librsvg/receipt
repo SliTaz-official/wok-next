@@ -6,29 +6,24 @@ CATEGORY="x-window"
 SHORT_DESC="SVG Rendering Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wiki.gnome.org/LibRsvg"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="bzlib cairo fontconfig freetype gdk-pixbuf glib glibc-base harfbuzz \
-libcroco libffi libgio libpng libxcb libxml2 pango pcre pixman xorg-libX11 \
-xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
-BUILD_DEPENDS="libffi-dev cairo-dev freetype-dev libxml2-dev pango-dev \
-fontconfig-dev gdk-pixbuf-dev libcroco-dev glib-dev libpng-dev expat-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
-# Handle cross compilation
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="gtk-doc perl libgsf libcroco-dev \
-	gobject-introspection-dev gtk+3-dev" ;;
-esac
+DEPENDS="bzlib cairo fontconfig freetype gdk-pixbuf glib harfbuzz libcroco \
+libffi libgio liblzma libpng libxcb libxml2 pango pcre pixman xorg-libX11 \
+xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
+BUILD_DEPENDS="glib-dev gdk-pixbuf-dev libxml2-dev pango-dev libcroco-dev \
+gtk-doc gobject-introspection-dev vala gtk+3-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--enable-vala \
 		--disable-static \
-		LIBCROCO_CFLAGS="-I/cross/$ARCH/sysroot/usr/include" \
 		$CONFIGURE_ARGS &&
 	make && make install
 }

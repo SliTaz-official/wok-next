@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="libgusb"
+VERSION="0.2.9"
+CATEGORY="libdevel"
+SHORT_DESC="GUsb is a GObject wrapper for libusb1"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/hughsie/libgusb"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://people.freedesktop.org/~hughsient/releases/$TARBALL"
+
+DEPENDS="eudev glib libffi libgio libusb pcre zlib"
+BUILD_DEPENDS="gobject-introspection-dev libxslt gtk-doc glib-dev libusb-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin
+	cook_copy_files *.so*
+}

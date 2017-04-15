@@ -2,21 +2,19 @@
 
 PACKAGE="libnotify-dev"
 VERSION="0.7.6"
-CATEGORY="utilities"
-SHORT_DESC="Notification library"
+CATEGORY="development"
+SHORT_DESC="Notification library (development files)"
 MAINTAINER="fabrice.thiroux@free.fr"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.galago-project.org/"
 HOST_ARCH="i486 arm"
 
 WANTED="libnotify"
-DEPENDS="libnotify gdk-pixbuf-dev glib-dev libgio-dev dbus-glib-dev"
+DEPENDS="libnotify gdk-pixbuf-dev glib-dev glibc-dev libffi-dev libgio-dev \
+libpng-dev pcre-dev zlib-dev"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cook_copy_files *.h *.la *.pc *.typelib *.gir
 }
