@@ -1,24 +1,18 @@
 # SliTaz package receipt.
 
 PACKAGE="apr-util-dev"
-VERSION="1.5.2"
+VERSION="1.5.4"
 CATEGORY="development"
-SHORT_DESC="APR Library Utilities"
+SHORT_DESC="APR Library Utilities (development files)"
 MAINTAINER="lehswe@gmail.com"
 LICENSE="Apache"
-WANTED="apr-util"
 WEB_SITE="http://apr.apache.org"
 
-DEPENDS="apr-util pkg-config"
+WANTED="apr-util"
+DEPENDS="apr-util apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/apr-util-1
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/apr-util-1/*.*a $fs/usr/lib/apr-util-1
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+	cook_copy_files apu-1-config *.h *.la *.pc
 }
-

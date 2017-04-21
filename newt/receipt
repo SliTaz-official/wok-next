@@ -1,42 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="newt"
-VERSION="0.52.12"
-CATEGORY="development"
-SHORT_DESC="Not Erik's Windowing Toolkit"
+VERSION="0.52.19"
+CATEGORY="libdevel"
+SHORT_DESC="Programming library for color text mode"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://fedorahosted.org/newt/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://fedorahosted.org/releases/n/e/$PACKAGE/$TARBALL"
 
-DEPENDS="slang popt tcl"
-BUILD_DEPENDS="slang-dev tcl popt-dev python-dev wget"
+DEPENDS="popt python slang tcl gpm"
+BUILD_DEPENDS="slang-dev popt-dev python-dev tcl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -e 's/^LIBNEWT =/#&/' \
+		-e '/install -m 644 $(LIBNEWT)/ s/^/#/' \
+		-e 's/$(LIBNEWT)/$(LIBNEWTSONAME)/g' \
+		-i Makefile.in &&
 
-	python=$(ls -d /usr/lib/python*/ | sed 's|/usr/lib/\(.*\)/|\1|' | head -1)
-	tcl=$(ls /usr/lib/libtcl*.so | sed 's|/usr/lib/lib\(.*\).so|\1|')
-
-	echo "Patching for $python and $tcl..."
-	sed -i -e "s/python2.4/$python/" \
-		-e "s/tcl8.4/$tcl/" \
-	     Makefile.in
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make &&
-	make instroot=$DESTDIR install
+	./configure \
+		--with-gpm-support \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/python* $fs/usr/lib
+	cook_copy_folders bin
+	cook_copy_files *.so* *.py *.mo
 }
-

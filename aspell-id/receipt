@@ -2,31 +2,26 @@
 
 PACKAGE="aspell-id"
 VERSION="1.2-0"
-CATEGORY="system-tools"
+CATEGORY="text"
 SHORT_DESC="Indonesian aspell dictionary."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-SOURCE="aspell5-id"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="ftp://ftp.gnu.org/gnu/aspell/dict/0index.html"
-WGET_URL="ftp://ftp.gnu.org/gnu/aspell/dict/id/$TARBALL"
+WEB_SITE="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
+
+TARBALL="aspell5-id-$VERSION.tar.bz2"
+WGET_URL="$GNU_MIRROR/aspell/dict/id/$TARBALL"
 
 DEPENDS="aspell"
-BUILD_DEPENDS="aspell aspell-dev"
+BUILD_DEPENDS="aspell-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure && \
-	make && make DESTDIR=$DESTDIR install
+	./configure && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/* $fs/usr/lib
+	cook_copy_folders lib
 }
-
-

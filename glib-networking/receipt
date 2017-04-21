@@ -1,30 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="glib-networking"
-VERSION="2.43.1"
+VERSION="2.48.2"
 CATEGORY="x-window"
-SHORT_DESC="TLS support for glib."
+SHORT_DESC="TLS support for glib"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gtk.org/"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="glib libgio libgnutls"
-BUILD_DEPENDS="glib-dev libgio-dev gnutls-dev "
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+DEPENDS="glib gmp libffi libgio libgnutls libtasn1 nettle p11-kit pcre zlib"
+BUILD_DEPENDS_arm="glib-dev libgio-dev gnutls-dev"
+BUILD_DEPENDS="intltool gnutls-dev gsettings-desktop-schemas"
 
 # Handle cross compilation.
 case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS intltool automake autoconf" ;;
+	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm ;;
 esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
-		--prefix=/usr \
-		--without-ca-certificates \
+		--with-ca-certificates=/etc/ssl/ca-bundle.crt \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -32,6 +34,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/gio/modules
-	cp -a $install/usr/lib/gio/modules/*.so* $fs/usr/lib/gio/modules
+	cook_copy_files *.so*
 }

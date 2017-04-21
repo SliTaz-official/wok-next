@@ -1,0 +1,34 @@
+# SliTaz package receipt.
+
+PACKAGE="libfm-extra"
+VERSION="1.2.5"
+CATEGORY="system-tools"
+SHORT_DESC="Library and other files required by menu-cache-gen"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/lxde/libfm"
+
+TARBALL="libfm-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/pcmanfm/$TARBALL"
+
+DEPENDS="glib libgio"
+BUILD_DEPENDS="intltool gtk-doc"
+SIBLINGS="libfm"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--with-extra-only \
+		--with-gtk=no \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files *.so*
+}

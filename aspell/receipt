@@ -1,35 +1,40 @@
 # SliTaz package receipt.
 
 PACKAGE="aspell"
-VERSION="0.60.6"
+VERSION="0.60.6.1"
 CATEGORY="system-tools"
 SHORT_DESC="GNU spell checker."
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://aspell.net/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://ftp.gnu.org/gnu/aspell/$TARBALL"
 TAGS="spell check"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ncursesw"
-BUILD_DEPENDS="ncursesw-dev libtinfo"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/aspell/$TARBALL"
+
+DEPENDS="ncurses"
+BUILD_DEPENDS="perl gettext ncurses-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export LDFLAGS="$LDFLAGS -ltinfo"
-	./configure $CONFIGURE_ARGS && \
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
+
+	install -v -m755 -d $install/usr/share/doc/aspell-$VERSION/aspell.html &&
+	install -v -m755 -d $install/usr/share/doc/aspell-$VERSION/aspell-dev.html &&
+	install -v -m644 manual/aspell.html/* \
+		$install/usr/share/doc/aspell-$VERSION/aspell.html &&
+	install -v -m644 manual/aspell-dev.html/* \
+		$install/usr/share/doc/aspell-$VERSION/aspell-dev.html
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/aspell* $fs/usr/lib
-	# Remove unneeded files
-	rm -f $fs/usr/lib/aspell*/*.*a
+	cook_copy_folders bin
+	find $fs -name '*-config' -delete
+	cook_copy_files *.so* *.amf *filter.info *.cmap *.cset *.kbd *.amf spell ispell
+
+	ln -svfn aspell-0.60 $fs/usr/lib/aspell
 }

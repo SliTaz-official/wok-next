@@ -1,38 +1,38 @@
 # SliTaz package receipt.
 
 PACKAGE="apr-util"
-VERSION="1.5.2"
+VERSION="1.5.4"
 CATEGORY="development"
 SHORT_DESC="APR Library Utilities"
 MAINTAINER="lehswe@gmail.com"
 LICENSE="Apache"
+WEB_SITE="http://apr.apache.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://apr.apache.org"
-WGET_URL="http://www.apache.org/dist/apr/$TARBALL"
-#WGET_URL="http://apache.crihan.fr/dist/apr/$TARBALL"
+WGET_URL="http://archive.apache.org/dist/apr/$TARBALL"
 
 DEPENDS="apr expat ncurses readline zlib"
-BUILD_DEPENDS="apr-dev unixODBC-dev sqlite-dev postgresql-dev mysql-dev libmysqlclient libpostgresqlclient util-linux-uuid-dev gawk"
- 
+BUILD_DEPENDS="apr-dev openssl-dev gdbm-dev postgresql-dev sqlite-dev \
+unixODBC-dev expat-dev mysql-dev"
+SPLIT="apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite apr-util-dev"
+
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --with-apr=$(apr-1-config --bindir) \
-		--with-pgsql=/usr \
-		--with-mysql \
+	./configure \
 		--prefix=/usr \
-		--infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+		--with-apr=/usr \
+		--with-gdbm=/usr \
+		--with-openssl=/usr \
+		--with-mysql \
+		--with-crypto \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/apr-util-1
-	
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	#cp -a $install/usr/lib/apr-util-1/*.so* $fs/usr/lib/apr-util-1
+	cook_copy_files libaprutil-1.so* aprutil.exp
 }

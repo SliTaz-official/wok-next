@@ -2,30 +2,26 @@
 
 PACKAGE="aspell-cs"
 VERSION="20040614-1"
-CATEGORY="system-tools"
+CATEGORY="text"
 SHORT_DESC="Czech aspell dictionary."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-SOURCE="aspell6-cs"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="ftp://ftp.gnu.org/gnu/aspell/dict/0index.html"
-WGET_URL="ftp://ftp.gnu.org/gnu/aspell/dict/cs/$TARBALL"
+WEB_SITE="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
+
+TARBALL="aspell6-cs-$VERSION.tar.bz2"
+WGET_URL="$GNU_MIRROR/aspell/dict/cs/$TARBALL"
 
 DEPENDS="aspell"
-BUILD_DEPENDS="aspell aspell-dev"
+BUILD_DEPENDS="aspell-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure && \
-	make && make DESTDIR=$DESTDIR install
+	./configure && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/* $fs/usr/lib
+	cook_copy_folders lib
 }
-

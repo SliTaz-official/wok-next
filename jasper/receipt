@@ -3,34 +3,38 @@
 PACKAGE="jasper"
 VERSION="1.900.1"
 CATEGORY="graphics"
-SHORT_DESC="implementation of JPEG-2000 codec"
+SHORT_DESC="Implementation of JPEG-2000 codec"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.zip"
-WEB_SITE="http://www.ece.uvic.ca/~mdadams/$PACKAGE/" 
-WGET_URL="$WEB_SITE/software/$TARBALL"
+WEB_SITE="http://www.ece.uvic.ca/~mdadams/jasper/"
 TAGS="jpeg jpg photo"
 HOST_ARCH="i486 arm"
 
-DEPENDS="xorg-libXi xorg-libXmu jpeg freeglut libglu-mesa util-linux-uuid"
-BUILD_DEPENDS="jpeg-dev xorg-libXi-dev xorg-libXmu-dev autoconf"
+TARBALL="$PACKAGE-$VERSION.zip"
+WGET_URL="${WEB_SITE}software/$TARBALL"
+
+DEPENDS=""
+BUILD_DEPENDS="gfortran xorg-libX11-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-   	cd $src
-	chmod +x configure
-	./configure --prefix=/usr --mandir=/usr/share/man --enable-shared $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
-	
+	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
+
+	./configure \
+		--enable-shared \
+		--disable-static \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	install -v -m755 -d $install/usr/share/doc/jasper-$VERSION &&
+	install -v -m644 doc/*.pdf $install/usr/share/doc/jasper-$VERSION
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*so* $fs/usr/lib	
-	
+	cook_copy_folders bin
+	cook_copy_files *.so*
 }

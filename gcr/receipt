@@ -1,0 +1,41 @@
+# SliTaz package receipt.
+
+PACKAGE="gcr"
+VERSION="3.20.0"
+CATEGORY="security"
+SHORT_DESC="Displaying certificates and accessing key stores"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://developer.gnome.org/gcr/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/gcr/${VERSION%.*}/$TARBALL"
+
+DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 harfbuzz \
+libffi libgcrypt libgio libgpg-error liblzma libpng libxcb libxml2 p11-kit pango \
+pcre pixman xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+zlib"
+BUILD_DEPENDS="intltool gtk-doc gobject-introspection-dev gtk+3-dev vala \
+p11-kit-dev"
+SPLIT="gcr-base"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i -r 's:"(/desktop):"/org/gnome\1:' schema/*.xml &&
+
+	./configure \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_folders bin libexec GConf applications dbus-1 glib-2.0 mime
+	cook_copy_files *.so* *.mo *.ui
+	cook_copy_icons
+	# split gcr-base
+	find $fs \( -name 'libgck-1.so*' -o -name 'libgcr-base-3.so*' \) -delete
+}

@@ -3,29 +3,35 @@
 PACKAGE="libunique"
 VERSION="1.1.6"
 CATEGORY="development"
-SHORT_DESC="Library for writing single instance application."
+SHORT_DESC="Library for writing single instance application"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://live.gnome.org/LibUnique"
-WGET_URL="http://ftp.gnome.org/pub/GNOME/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WEB_SITE="https://wiki.gnome.org/Attic/LibUnique"
 HOST_ARCH="i486 arm"
 
-DEPENDS="cairo gtk+"
-BUILD_DEPENDS="cairo-dev gtk+-dev glib-dev expat-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ harfbuzz \
+libffi libgio liblzma libpng libxcb libxml2 pango pcre pixman xorg-libX11 \
+xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
+BUILD_DEPENDS="automake glib-dev gettext libtool gtk+-dev xorg-libICE-dev \
+gobject-introspection-dev gtk-doc"
+BUILD_DEPENDS_arm="cairo-dev gtk+-dev glib-dev expat-dev"
 
 case "$ARCH" in
-	i?86)
-		BUILD_DEPENDS="$BUILD_DEPENDS gobject-introspection-dev perl"
-		export CFLAGS="$CFLAGS -Wno-error=unused-but-set-variable"
+	arm*) BUILD_DEPENDS="$BUILD_DEPENDS_arm";;
 esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -Np1 -i $stuff/remove_G_CONST_RETURN.patch || return 1
+	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
+
+	autoreconf -fi &&
 	./configure \
 		--disable-dbus \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -33,7 +39,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }
-

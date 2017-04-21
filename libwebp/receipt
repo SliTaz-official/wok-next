@@ -1,32 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="libwebp"
-VERSION="0.4.2"
+VERSION="0.5.1"
 CATEGORY="x-window"
 SHORT_DESC="WebP image library."
 MAINTAINER="devl547@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://webmproject.org"
-WGET_URL="http://downloads.webmproject.org/releases/webp/$TARBALL"
+WEB_SITE="https://www.webmproject.org/"
 HOST_ARCH="i486 arm"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://downloads.webmproject.org/releases/webp/$TARBALL"
+
+BUILD_DEPENDS="libpng-dev libjpeg-turbo-dev tiff-dev giflib-dev"
+SPLIT="libwebp-apps libwebp-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --disable-static \
-	$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure \
+		--enable-libwebpmux \
+		--enable-libwebpdemux \
+		--enable-libwebpdecoder \
+		--enable-libwebpextras \
+		--enable-swap-16bit-csp \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cook_copy_files *.so*
 }

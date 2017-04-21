@@ -1,16 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="aspell-es"
-VERSION="1.11"
-CATEGORY="system-tools"
+VERSION="1.11-2"
+CATEGORY="text"
 SHORT_DESC="Spanish aspell dictionary."
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-SOURCE="aspell6-es"
-TARBALL="$SOURCE-$VERSION-2.tar.bz2"
-WEB_SITE="ftp://ftp.gnu.org/gnu/aspell/dict/0index.html"
-WGET_URL="ftp://ftp.gnu.org/gnu/aspell/dict/es/$TARBALL"
+WEB_SITE="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
 HOST_ARCH="i486 arm"
+
+TARBALL="aspell6-es-$VERSION.tar.bz2"
+WGET_URL="$GNU_MIRROR/aspell/dict/es/$TARBALL"
 
 DEPENDS="aspell"
 BUILD_DEPENDS="aspell-dev"
@@ -18,13 +18,11 @@ BUILD_DEPENDS="aspell-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure &&
-	make && make install
+	./configure && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/* $fs/usr/lib
+	cook_copy_folders lib
 }

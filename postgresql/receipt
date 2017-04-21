@@ -1,80 +1,79 @@
 # SliTaz package receipt.
 
 PACKAGE="postgresql"
-VERSION="9.2.3"
+VERSION="9.5.4"
 CATEGORY="misc"
-SHORT_DESC="SQL database system."
+SHORT_DESC="Advanced object-relational database management system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.postgresql.org/"
-WGET_URL="ftp://ftp.postgresql.org/pub/source/v$VERSION/$TARBALL"
-CONFIG_FILES="/var/lib/pgsql/*.conf"
+WEB_SITE="https://www.postgresql.org/"
 DATABASE_FILES="/var/lib/pgsql"
 
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://ftp.postgresql.org/pub/source/v$VERSION/$TARBALL"
+
 DEPENDS="postgresql-client slitaz-base-files"
-BUILD_DEPENDS="zlib-dev readline-dev ncurses-dev bison flex perl libxslt \
-python-dev"
+BUILD_DEPENDS="readline-dev zlib-dev   perl python-dev"
+SPLIT="libpostgresqlclient postgresql-client postgresql-doc"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	[ -d ../postgrpsql-$VERSION ] && cp -a ../postgrpsql-$VERSION/* .
-	cp $stuff/*.files-list .
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--sysconfdir=/etc --includedir=/usr/include/postgresql --with-gnu-ld \
-	--with-includes=/usr/include/readline --enable-integer-datetimes \
-	--with-perl --with-python \
-	--enable-thread-safety --with-system-tzdata=/usr/share/zoneinfo \
-	--libdir=/usr/lib/postgresql --mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	sed -i '/DEFAULT_PGSOCKET_DIR/s@/tmp@/run/postgresql@' src/include/pg_config_manual.h &&
+
+	./configure \
+		--enable-thread-safety \
+		--docdir=/usr/share/doc/postgresql-$VERSION \
+		--with-system-tzdata=/usr/share/zoneinfo \
+		--with-perl --with-python \
+		$CONFIGURE_ARGS &&
+	make && make install && make install-docs
+
 	make -C doc/src/sgml DESTDIR=$DESTDIR install-html
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share $fs/usr/lib $fs/var/lib/pgsql \
-		 $fs/var/log/postgresql $fs/etc/pgsql.d
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/postgresql $fs/usr/lib
-	rm -f $fs/usr/lib/postgresql/*a
-	cp -a $install/usr/share/postgresql $fs/usr/share
+	cook_copy_folders bin postgresql
+	cook_copy_files *.so*
+
+	mkdir -p $fs/var/lib/pgsql $fs/var/log/postgresql $fs/etc/pgsql.d
 	cp -a $stuff/etc $fs
 	ln -s /var/lib/pgsql/postgresql.conf $fs/etc
 	chmod 700 $fs/var/lib/pgsql
-	cat $stuff/*.files-list | while read file; do
-		[ -f $fs$file ] && rm -f $fs$file
-	done
 
+	# split
+	for i in clusterdb createdb createlang createuser dropdb droplang dropuser \
+		pg_dump pg_dumpall pg_restore psql reindexdb vacuumdb libpq.so*; do
+		find $fs -name $i -delete
+	done
+	rm -r $fs/usr/include $fs/usr/lib/postgresql/pgxs
 }
 
 # Pre and post install commands for Tazpkg.
 post_install()
 {
-        # adduser postgres if needed
+	# adduser postgres if needed
 	if ! grep -q postgres: "$1/etc/passwd"; then
-		echo -n "Adding user postgres..."
+		action 'Adding user postgres...'
 		chroot "$1/" adduser postgres -D -H -u 88 -h /var/lib/pgsql
 		#[ -d "$1/var/lib/pgsql" ] && rm -f "$1/var/lib/pgsql"/.* "$1/var/lib/pgsql"/*
 		status
 	fi
 	# addgroup postgres if needed
 	if ! grep -q postgres: "$1/etc/group"; then
-		echo -n "Adding group postgres..."
+		action 'Adding group postgres...'
 		chroot "$1/" sh -c 'addgroup -g 88 postgres'
 		status
 	fi
 	[ ! -d "$1/var/lib/pgsql" ] && mkdir -p "$1/var/lib/pgsql"
 	chroot "$1/" chown -R postgres.postgres /var/lib/pgsql /var/log/postgresql
-	cat <<EOF
+	[ -n "$quiet" ] || cat <<EOF
 ----
 postgres has superuser access.
 Configure /var/lib/pgsql/*.conf files.
-To start $PACKAGE server you can run :
+To start $PACKAGE server you can run:
 
     /etc/init.d/$PACKAGE start
 

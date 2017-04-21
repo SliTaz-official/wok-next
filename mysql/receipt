@@ -6,17 +6,19 @@ CATEGORY="office"
 SHORT_DESC="SQL database system."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mysql.com/"
-WGET_URL="ftp://mirror.switch.ch/mirror/mysql/Downloads/MySQL-${VERSION%.*}/$TARBALL"
+WEB_SITE="https://www.mysql.com/"
 CONFIG_FILES="/etc/mysql"
 DATABASE_FILES="/var/lib/mysql"
 TAZPANEL_DAEMON="man|edit::/etc/mysql/my.cnf|options|web::$WEB_SITE"
 CROSS="bug: can not run test programm"
 
-DEPENDS="busybox libmysqlclient mysql-client zlib slitaz-base-files \
-gcc-lib-base openssl readline"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="ftp://mirror.switch.ch/mirror/mysql/Downloads/MySQL-${VERSION%.*}/$TARBALL"
+
+DEPENDS="libmysqlclient mysql-client slitaz-base-files \
+libcrypto libssl ncurses zlib"
 BUILD_DEPENDS="cmake openssl-dev zlib-dev ncurses-dev readline-dev"
+SPLIT="mysql-client mysql-test mysql-dev libmysqlclient"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -94,22 +96,21 @@ genpkg_rules()
 # Pre and post install commands for Tazpkg.
 post_install()
 {
-	
 	local user
 	local group
-	
+
 	user=mysql
 	group=mysql
-	
+
 	if ! grep -q $user "$1/etc/passwd"; then
-		echo -n "Adding user/group $user..."
+		action "Adding user/group $user..."
 		chroot "$1/" addgroup -S $group
 		chroot "$1/" adduser -s /bin/false -S -D -H -G $group $user
 		status
 	fi
 	# adduser mysql if needed
 	if ! grep -q ${user} "$1/etc/passwd"; then
-		echo -n "Adding user MySQL..."
+		action "Adding user MySQL..."
 		chroot "$1/" /bin/adduser -s /bin/false -h /dev/null \
 			-g "MySQL Daemon user" -u 27 -H -D -S -G ${group} ${user}
 		status
@@ -117,7 +118,7 @@ post_install()
 	#chroot "$1/" /bin/chown ${user}.${group} $(cat "$1/$INSTALLED/$PACKAGE/files.list")
 	chroot "$1/" /bin/chown -R ${user}.${group} /var/lib/mysql
 	chroot "$1/" mysql_install_db --user=${user} --basedir=/usr
-	cat <<EOF
+	[ -n "$quiet" ] || cat <<EOF
 ----
 To start $PACKAGE server you can run :
 

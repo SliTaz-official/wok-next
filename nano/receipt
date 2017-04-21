@@ -1,49 +1,53 @@
 # SliTaz package receipt.
 
 PACKAGE="nano"
-VERSION="2.6.1"
+VERSION="2.6.3"
 CATEGORY="utilities"
 SHORT_DESC="Nano Text Editor"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://nano-editor.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}dist/v${VERSION%.*}/$TARBALL"
 TAGS="text-editor"
 HOST_ARCH="i486 arm"
-
-DEPENDS="ncursesw zlib"
 SUGGESTED="gpm"
-BUILD_DEPENDS="ncursesw-dev zlib-dev groff"
-SPLIT="nano-doc"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="${WEB_SITE}dist/v${VERSION%.*}/$TARBALL"
+
+DEPENDS="ncurses zlib"
+BUILD_DEPENDS="gettext ncurses-dev zlib-dev groff"
+BUILD_DEPENDS_arm="ncursesw-dev zlib-dev"
 
 # Handle cross compilation
 case "$ARCH" in
-	arm*) BUILD_DEPENDS="ncursesw-dev zlib-dev" ;;
+	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm ;;
 esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
+
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
+		--docdir=/usr/share/doc/nano-$VERSION \
 		--disable-wrapping-as-root \
 		--enable-utf8 \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install
+	make && make install || exit 1
+
+	# Config file.
+	mkdir -p $install/etc
+	cp $src/doc/nanorc.sample $install/etc/nanorc
+
+	install -v -m644 doc/texinfo/nano.html $install/usr/share/doc/nano-$VERSION
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
-	rm -r $fs/usr/share/doc $fs/usr/share/locale $fs/usr/share/man
-
-	# Config file.
-	mkdir -p $fs/etc
-	cp $src/doc/nanorc.sample $fs/etc/nanorc
-	cd $fs; patch -p0 < $stuff/nano.patch
+	cook_copy_folders etc bin nano
 
 	# Shrink
 	for i in $fs/usr/share/nano/*.nanorc; do

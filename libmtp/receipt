@@ -1,31 +1,37 @@
 # SliTaz package receipt.
 
 PACKAGE="libmtp"
-VERSION="1.1.6"
+VERSION="1.1.13"
 CATEGORY="system-tools"
-SHORT_DESC="LGPL library implementation of the Media Transfer Protocol (MTP)"
+SHORT_DESC="Access to MTP devices: mp3 players, Android phones"
 MAINTAINER="keupont@no-log.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://libmtp.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libusb udev"
-BUILD_DEPENDS="libusb-dev"
+DEPENDS="eudev libgcrypt libgpg-error libusb"
+BUILD_DEPENDS="libusb-dev libgcrypt-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure --disable-mtpz $CONFIGURE_ARGS &&
-	make && make install
+	./configure \
+		--with-udev=/etc/udev \
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	# udev rules in /etc/udev/rules.d/; udev execs in /lib/udev/
+	mkdir -p $install/lib/udev &&
+	mv $install/etc/udev/mtp-probe $install/lib/udev &&
+	sed -i 's#/etc/udev/mtp-probe#/lib/udev/mtp-probe#' \
+		$install/etc/udev/rules.d/69-libmtp.rules
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/etc/udev
-
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/lib/udev/rules.d $fs/etc/udev
+	cook_copy_folders udev
+	cook_copy_files *.so*
 }
-

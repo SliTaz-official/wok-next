@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="oniguruma"
+VERSION="6.2.0"
+CATEGORY="libdevel"
+SHORT_DESC="Regular expression library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://github.com/kkos/oniguruma"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake libtool"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	autoreconf -vfi &&
+	./configure $CONFIGURE_ARGS && make && make install &&
+
+	docdir=$install/usr/share/doc/oniguruma-$VERSION &&
+	mkdir -p $docdir && cp doc/* $docdir && rm $docdir/*.ja
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cook_copy_files *.so*
+}

@@ -12,17 +12,28 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
 
+BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev"
+
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
-		--prefix=/usr \
+		--docdir=/usr/share/doc/pcre-$VERSION \
+		--enable-unicode-properties \
 		--enable-pcre16 \
 		--enable-pcre32 \
+		--enable-pcregrep-libz \
+		--enable-pcregrep-libbz2 \
+		--enable-pcretest-libreadline \
+		--disable-static \
 		--enable-jit \
-		--enable-unicode-properties \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install &&
+
+	mkdir -p $install/lib &&
+	mv -v $install/usr/lib/libpcre.so.* $install/lib &&
+	ln -sfv ../../lib/$(readlink $install/usr/lib/libpcre.so) \
+		$install/usr/lib/libpcre.so
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.

@@ -7,7 +7,14 @@ if [ "$PACKAGE" == "gvfs" ]; then
 
 	echo 'Files not belongs any gvfs* package:'
 	for file in $(find $install -type f | sed "s|$install||g" | sort); do
-		[ -z "$(grep $file $WOK/gvfs/stuff/list)" ] && echo "  $file"
+		case $file in
+			/usr/share/bash-completion/*) ;;
+			/usr/share/locale/*) ;;
+			/usr/share/man/*) ;;
+			*)
+				[ -z "$(grep $file $WOK/gvfs/stuff/list)" ] && echo "  $file"
+				;;
+		esac
 	done
 
 	echo 'Absent files:'

@@ -6,30 +6,35 @@ CATEGORY="development"
 SHORT_DESC="S-Lang library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.s-lang.org/index.html"
-WGET_URL="ftp://ftp.fu-berlin.de/pub/unix/misc/slang/v${VERSION%.*}/$TARBALL
- ftp://space.mit.edu/pub/davis/slang/v${VERSION%.*}/$TARBALL"
+WEB_SITE="http://www.jedsoft.org/slang/"
+CONFIG_FILES="/etc/slsh.rc"
 
-DEPENDS="pcre libpng zlib"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="ftp://space.mit.edu/pub/davis/slang/v${VERSION%.*}/$TARBALL"
+
+DEPENDS="libpng ncurses oniguruma pcre readline zlib"
+BUILD_DEPENDS="pcre-dev oniguruma-dev libpng-dev zlib-dev readline-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make -j1 && \
-	make -j1 elf && \
-	make -j1 static &&
-	make -j1 DESTDIR=$DESTDIR install install-static
+	./configure \
+		--sysconfdir=/etc \
+		--with-readline=gnu \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make install_doc_dir=/usr/share/doc/slang-$VERSION \
+		SLSH_DOC_DIR=/usr/share/doc/slang-$VERSION/slsh \
+		install-all &&
+
+	chmod -v 755 \
+		$install/usr/lib/libslang.so.$VERSION \
+		$install/usr/lib/slang/v2/modules/*.so
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/slang $fs/usr/lib
+	cook_copy_folders bin
+	cook_copy_files *.so*
 }
-

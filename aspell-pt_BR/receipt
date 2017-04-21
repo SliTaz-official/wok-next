@@ -1,16 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="aspell-pt_BR"
-VERSION="20080707-0"
+VERSION="20090702-0"
 CATEGORY="system-tools"
 SHORT_DESC="Brazilian aspell dictionary."
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2.1"
-SOURCE="aspell6-pt_BR"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="ftp://ftp.gnu.org/gnu/aspell/dict/0index.html"
-WGET_URL="ftp://ftp.gnu.org/gnu/aspell/dict/pt_BR/$TARBALL"
+WEB_SITE="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
 HOST_ARCH="i486 arm"
+
+TARBALL="aspell6-pt_BR-$VERSION.tar.bz2"
+WGET_URL="$GNU_MIRROR/aspell/dict/pt_BR/$TARBALL"
 
 DEPENDS="aspell"
 BUILD_DEPENDS="aspell-dev"
@@ -18,13 +18,11 @@ BUILD_DEPENDS="aspell-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure &&
-	make && make install
+	./configure && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/* $fs/usr/lib
+	cook_copy_folders lib
 }

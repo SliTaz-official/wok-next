@@ -2,29 +2,26 @@
 
 PACKAGE="aspell-nl"
 VERSION="0.50-2"
-CATEGORY="system-tools"
+CATEGORY="text"
 SHORT_DESC="Dutch aspell dictionary."
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
+WEB_SITE="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="ftp://ftp.gnu.org/gnu/aspell/dict/0index.html"
-WGET_URL="ftp://ftp.gnu.org/gnu/aspell/dict/nl/$TARBALL"
+WGET_URL="$GNU_MIRROR/aspell/dict/nl/$TARBALL"
 
 DEPENDS="aspell"
-BUILD_DEPENDS="aspell aspell-dev"
+BUILD_DEPENDS="aspell-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure && \
-	make && make DESTDIR=$DESTDIR install
+	./configure && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	cook_copy_folders lib
 }
-

@@ -1,16 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="apr"
-VERSION="1.4.6"
+VERSION="1.5.2"
 CATEGORY="misc"
 SHORT_DESC="Apache Portable Runtime Library"
 MAINTAINER="lehswe@gmail.com"
 LICENSE="Apache"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://apr.apache.org"
-WGET_URL="http://mir2.ovh.net/ftp.apache.org/dist/$PACKAGE/$TARBALL
- http://apache.crihan.fr/dist/$PACKAGE/$TARBALL"
+WEB_SITE="http://apr.apache.org/"
 CROSS="error: cannot check for file existence when cross compiling"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://archive.apache.org/dist/apr/$TARBALL"
 
 DEPENDS="util-linux-uuid"
 BUILD_DEPENDS="util-linux-uuid-dev"
@@ -18,22 +18,21 @@ BUILD_DEPENDS="util-linux-uuid-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
+
 	./configure \
 		--prefix=/usr \
+		--disable-static \
 		--with-installbuilddir=/usr/share/apr-1/build \
 		--enable-nonportable-atomics \
 		--with-devrandom \
 		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM 2>&1 | grep -v '/libtool:' &&
+		--host=$HOST_SYSTEM &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/*.exp $fs/usr/lib
+	cook_copy_files *.so* *.exp
 }
-
