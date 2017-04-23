@@ -11,11 +11,13 @@ WEB_SITE="http://www.coova.org/CoovaChilli"
 WGET_URL="http://ap.coova.org/chilli/$TARBALL"
 
 DEBENDS="libssl curl libidn"
-BUILD_DEPENDS="openssl-dev curl-dev"
+BUILD_DEPENDS="openssl-dev curl-dev perl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|return -1; safe_close|return -1;\n safe_close|' src/redir.c
+	sed -i 's|if (.\(safe_write.*\)) /. error ./|\1|' src/garden.c
 	./configure  --prefix=/usr --mandir=/usr/share/man \
 		--infodir=/usr/share/info \
 		--sysconfdir=/etc --localstatedir=/var --enable-largelimits \
