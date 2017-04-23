@@ -10,12 +10,12 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://udpcast.linux.lu/"
 WGET_URL="${WEB_SITE}download/$TARBALL"
 
-BUILD_DEPENDS="m4"
+BUILD_DEPENDS="m4 perl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's|#include "console.h"|#include <sys/select.h>\n&|' console.c	
 	./configure --prefix=/usr --infodir=/usr/share/info \
 	--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
