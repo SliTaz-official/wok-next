@@ -16,6 +16,7 @@ BUILD_DEPENDS="ncurses-dev readline-dev bash"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|^inline|extern &|' include/libudffs.h
 	sed -i 's/(char\*)spm += /spm = (char*)spm + /' wrudf/wrudf.c
 	sed -i 's/<stdio.h>/&\n#include <limits.h>/' \
 		cdrwtool/cdrwtool.c pktsetup/pktsetup.c
