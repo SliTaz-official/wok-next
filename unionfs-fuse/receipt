@@ -17,9 +17,7 @@ BUILD_DEPENDS="cmake fuse-dev"
 compile_rules()
 {
 	sed -i 's/extern inline/static inline/' src/hashtable_itr.h
-	sed -i	-e '/^hashtable_iterator_key/{n;s|$| */|}' \ 
-		-e '/^hashtable_iterator_value/{n;s|$| */|}' \
-		-e 's|^void *|/* &|' src/hashtable_itr.c
+	sed -i '/^void */{NNd}' src/hashtable_itr.c
 	cmake -DCMAKE_INSTALL_PREFIX=/usr . &&
 	make && make install
 }

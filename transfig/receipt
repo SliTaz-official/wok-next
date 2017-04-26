@@ -17,6 +17,7 @@ BUILD_DEPENDS="xorg-imake xorg-libXpm-dev libpng-dev zlib-dev"
 compile_rules()
 {
 	cd $src
+	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' ig2dev/dev/readpng.c
 	sed -i 's|/usr/local|/usr|' */*akefile
 	xmkmf &&
 	make Makefiles &&
