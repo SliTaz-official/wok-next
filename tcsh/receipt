@@ -18,6 +18,7 @@ BUILD_DEPENDS="ncurses-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's/(__ANDROID__)/& \&\& !defined(__GLIBC__)/' sh.proc.c
 	mkdir -p $DESTDIR/usr/bin
 	touch $DESTDIR/usr/bin/tcsh
 	./configure $CONFIGURE_ARGS && 

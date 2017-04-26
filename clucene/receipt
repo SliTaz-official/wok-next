@@ -15,7 +15,8 @@ TAGS="text indexing"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's|LuceneBase(){};|LuceneBase()\n#if __cplusplus >= 201103L\nnoexcept(false)\n#endif\n{};|' \
+		src/CLucene/debug/lucenebase.h
 	./configure \
 		--prefix=/usr \
 		--libdir=/usr/lib \
