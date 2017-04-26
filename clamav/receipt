@@ -17,7 +17,13 @@ BUILD_DEPENDS="zlib-dev gmp gmp-dev bzip2-dev ncurses-dev bash"
 # Rules to configure and make the package.
 compile_rules()
 {
-	export LDFLAGS="$LDFLAGS -ltinfo"
+	grep -rl 'alignof(' * | xargs sed -i 's|alignof(|alignof_(|'
+	grep -rl 'alignof<' * | xargs sed -i 's|alignof<|alignof_<|'
+	grep -rl '__alignof_' * | xargs sed -i 's|__alignof_|__alignof|'
+	sed -i 's|make_pair<.*>|make_pair|' libclamav/c++/llvm/lib/ExecutionEngine/JIT/JITDebugRegisterer.cpp 
+	sed -i 's|~0|~0U|g' libclamav/c++/llvm/lib/Target/X86/X86CodeEmitter.cpp \
+			libclamav/c++/llvm/lib/Target/X86/X86MCCodeEmitter.cpp
+
 	# Have to create clamav user/group to be able to compile
 	adduser -s /bin/false -H -D -u 64 clamav
 
