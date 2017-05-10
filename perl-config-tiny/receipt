@@ -1,15 +1,16 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-config-tiny"
-VERSION="2.22"
-CATEGORY="development"
-SHORT_DESC="Config::Tiny module is a Perl extension."
+VERSION="2.23"
+CATEGORY="perl"
+SHORT_DESC="Config::Tiny - Read/Write .ini style files with as little code as \
+possible"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-SOURCE="Config-Tiny"
-TARBALL="$SOURCE-$VERSION.tgz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/R/RS/RSAVAGE/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Config-Tiny"
+
+TARBALL="Config-Tiny-$VERSION.tgz"
+WGET_URL="https://cpan.metacpan.org/authors/id/R/RS/RSAVAGE/$TARBALL"
 
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
@@ -18,13 +19,13 @@ BUILD_DEPENDS="perl"
 compile_rules()
 {
 	perl Makefile.PL &&
-	make &&
-	make install DESTDIR=$DESTDIR
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }

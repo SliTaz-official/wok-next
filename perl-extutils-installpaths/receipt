@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-extutils-installpaths"
+VERSION="0.011"
+CATEGORY="perl"
+SHORT_DESC="ExtUtils::InstallPaths - Build.PL install path logic made easy"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/ExtUtils-InstallPaths"
+
+TARBALL="ExtUtils-InstallPaths-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+
+DEPENDS="perl-extutils-config"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

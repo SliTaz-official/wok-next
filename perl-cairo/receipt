@@ -1,32 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-cairo"
-SOURCE="Cairo"
-VERSION="1.103"
-CATEGORY="development"
-SHORT_DESC="Perl interface to the cairo library."
+VERSION="1.106"
+CATEGORY="perl"
+SHORT_DESC="Cairo - Perl interface to the cairo 2d vector graphics library"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="LGPL2.1"
-DEPENDS="perl cairo freetype fontconfig libpng"
-BUILD_DEPENDS="perl cairo-dev freetype-dev fontconfig-dev libpng-dev \
-perl-extutils-depends perl-extutils-pkgconfig perl-test-number-delta"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/~xaoc/Cairo-1.103/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/X/XA/XAOC/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Cairo"
+
+TARBALL="Cairo-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
+
+DEPENDS="cairo freetype perl-extutils-depends perl-extutils-pkgconfig"
+BUILD_DEPENDS="$DEPENDS cairo-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std *.h
 }
-

@@ -1,0 +1,35 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-perl-ldap"
+VERSION="0.65"
+CATEGORY="perl"
+SHORT_DESC="LDAP client library"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/perl-ldap"
+
+TARBALL="perl-ldap-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MA/MARSCHAP/$TARBALL"
+
+DEPENDS="perl-convert-asn1 perl-text-soundex perl-io-socket-inet6 \
+perl-io-socket-ssl perl-authen-sasl perl-digest-hmac perl-gssapi perl-uri \
+perl-xml-sax-writer perl-xml-sax-base perl-libwww-perl perl-lwp-mediatypes \
+perl-http-negotiate perl-http-message perl-json"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# avoid interactive questions
+	PERL_MM_USE_DEFAULT=1 \
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

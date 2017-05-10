@@ -1,30 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-net-http"
-VERSION="6.03"
-CATEGORY="development"
-SHORT_DESC="Low-level HTTP connection (client)"
+VERSION="6.14"
+CATEGORY="perl"
+SHORT_DESC="Net::HTTP - Low-level HTTP connection (client)"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-SOURCE="Net-HTTP"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/libwww-perl/"
-WGET_URL="http://www.cpan.org/authors/id/G/GA/GAAS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Net-HTTP"
 
-DEPENDS="perl perl-compress-raw-zlib perl-io-compress"
-BUILD_DEPENDS="perl $DEPENDS"
+TARBALL="Net-HTTP-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/O/OA/OALDERS/$TARBALL"
+
+DEPENDS="perl-uri"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL &&	make &&	make DESTDIR=$DESTDIR install
-	
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }

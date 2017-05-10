@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-text-soundex"
+VERSION="3.05"
+CATEGORY="perl"
+SHORT_DESC="Text::Soundex - Implementation of the soundex algorithm"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Text-Soundex"
+
+TARBALL="Text-Soundex-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

@@ -1,30 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-date-manip"
-VERSION="6.22"
-CATEGORY="development"
-SHORT_DESC="Date::Manip module is a Perl extension."
+VERSION="6.58"
+CATEGORY="perl"
+SHORT_DESC="Date::Manip - Date manipulation routines"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
-DEPENDS="perl perl-yaml-syck"
-BUILD_DEPENDS="perl perl-yaml-syck"
-SOURCE="Date-Manip"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/Date-Manip/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/S/SB/SBECK/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Date-Manip"
+
+TARBALL="Date-Manip-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/S/SB/SBECK/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }

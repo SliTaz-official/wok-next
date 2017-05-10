@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-berkeleydb"
-VERSION="0.51"
-CATEGORY="development"
-SHORT_DESC="BerkeleyDB module is a Perl extension interface to db."
+VERSION="0.55"
+CATEGORY="perl"
+SHORT_DESC="BerkeleyDB - Perl extension for Berkeley DB version 2, 3, 4 or 5"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/BerkeleyDB"
+
+TARBALL="BerkeleyDB-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/P/PM/PMQS/$TARBALL"
+
 DEPENDS="perl db"
-BUILD_DEPENDS="perl db db-dev"
-SOURCE="BerkeleyDB"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://cpan.org/authors/id/P/PM/PMQS/$TARBALL"
+BUILD_DEPENDS="$DEPENDS db-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL
-	make
-	make DESTDIR=$DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

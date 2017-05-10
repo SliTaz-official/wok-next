@@ -1,31 +1,33 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-soap-lite"
-VERSION="0.710.08"
-CATEGORY="development"
-SHORT_DESC="SOAP::Lite module is a Perl extension."
+VERSION="1.20"
+CATEGORY="perl"
+SHORT_DESC="SOAP::Lite - Perl's Web Services Toolkit"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="SOAP-Lite"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.cpan.org/modules/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/M/MK/MKUTTER/$TARBALL"
+WEB_SITE="https://metacpan.org/release/SOAP-Lite"
+
+TARBALL="SOAP-Lite-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/P/PH/PHRED/$TARBALL"
+
+DEPENDS="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
+perl-lwp-protocol-https perl-libwww-perl perl-task-weaken perl-uri \
+perl-xml-parser"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	yes '' | perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+#	yes '' | \
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

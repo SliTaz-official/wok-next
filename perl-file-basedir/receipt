@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-file-basedir"
-VERSION="0.03"
-CATEGORY="development"
-SHORT_DESC="File::BaseDir module is a Perl extension."
+VERSION="0.07"
+CATEGORY="perl"
+SHORT_DESC="File::BaseDir - Use the Freedesktop.org base directory \
+specification"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="File-BaseDir"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PA/PARDUS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/File-BaseDir"
+
+TARBALL="File-BaseDir-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/K/KI/KIMRYAN/$TARBALL"
+
+DEPENDS="perl-ipc-system-simple"
+BUILD_DEPENDS="$DEPENDS perl-module-build perl-file-which"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

@@ -2,29 +2,30 @@
 
 PACKAGE="perl-test-fatal"
 VERSION="0.014"
-CATEGORY="development"
-SHORT_DESC="Test::Fatal is a perl module"
+CATEGORY="perl"
+SHORT_DESC="Test::Fatal - incredibly simple helpers for testing code with \
+exceptions"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="GPL"
-WEB_SITE="http://search.cpan.org/dist/Test-Fatal"
-SOURCE="Test-Fatal"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://www.cpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Test-Fatal"
 
-DEPENDS="perl perl-try-tiny perl-test-simple"
+TARBALL="Test-Fatal-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+
+DEPENDS="perl-try-tiny"
 BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/usr $fs
+	copy @std
 }

@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-file-copy-recursive"
+VERSION="0.38"
+CATEGORY="perl"
+SHORT_DESC="File::Copy::Recursive - Perl extension for recursively copying \
+files and directories"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/File-Copy-Recursive"
+
+TARBALL="File-Copy-Recursive-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DM/DMUEY/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

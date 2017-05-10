@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-exception-class"
+VERSION="1.42"
+CATEGORY="perl"
+SHORT_DESC="Exception::Class - A module that allows you to declare real \
+exception classes in Perl"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Exception-Class"
+
+TARBALL="Exception-Class-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+
+DEPENDS="perl-class-data-inheritable perl-devel-stacktrace"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

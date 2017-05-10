@@ -1,30 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-test-simple"
-VERSION="1.302007_004"
-CATEGORY="development"
-SHORT_DESC="Test::Simple is a perl module"
+VERSION="1.302083"
+CATEGORY="perl"
+SHORT_DESC="Basic utilities for writing tests"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="GPL"
-WEB_SITE="http://search.cpan.org/dist/Test-Simple"
-SOURCE="Test-Simple"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://www.cpan.org/authors/id/E/EX/EXODIST/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Test-Simple"
+
+TARBALL="Test-Simple-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/E/EX/EXODIST/$TARBALL"
 
 DEPENDS="perl"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/usr $fs
+	copy @std
 }

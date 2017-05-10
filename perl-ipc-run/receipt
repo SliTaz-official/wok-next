@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-ipc-run"
-VERSION="0.92"
-CATEGORY="development"
-SHORT_DESC="IPC::Run module is a Perl extension."
+VERSION="0.95"
+CATEGORY="perl"
+SHORT_DESC="IPC::Run - system() and background procs w/ piping, redirs, ptys \
+(Unix, Win32)"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/IPC-Run"
+
+TARBALL="IPC-Run-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/T/TO/TODDR/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
-SOURCE="IPC-Run"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/T/TO/TODDR/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

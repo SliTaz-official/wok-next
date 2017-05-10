@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-sub-uplevel"
+VERSION="0.2800"
+CATEGORY="perl"
+SHORT_DESC="Sub::Uplevel - apparently run a function in a higher stack frame"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Sub-Uplevel"
+
+TARBALL="Sub-Uplevel-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

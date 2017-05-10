@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-test-warn"
+VERSION="0.32"
+CATEGORY="perl"
+SHORT_DESC="Test::Warn - Perl extension to test methods for warnings"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Test-Warn"
+
+TARBALL="Test-Warn-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/B/BI/BIGJ/$TARBALL"
+
+DEPENDS="perl-sub-uplevel"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-cgi-session"
-VERSION="3.95"
-CATEGORY="development"
-SHORT_DESC="CGI::Session module is a Perl extension."
+VERSION="4.48"
+CATEGORY="perl"
+SHORT_DESC="CGI::Session - persistent session data in CGI applications"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="CGI-Session"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://cpan.org/authors/id/S/SH/SHERZODR/$TARBALL"
+WEB_SITE="https://metacpan.org/release/CGI-Session"
+
+TARBALL="CGI-Session-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MA/MARKSTOS/$TARBALL"
+
+DEPENDS="perl-cgi"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

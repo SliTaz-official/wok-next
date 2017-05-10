@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-xml-twig"
-VERSION="3.34"
-CATEGORY="development"
-SHORT_DESC="XML::Twig module is a Perl extension."
+VERSION="3.52"
+CATEGORY="perl"
+SHORT_DESC="XML::Twig - A perl module for processing huge XML documents in \
+tree mode"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
-DEPENDS="perl perl-xml-parser"
-BUILD_DEPENDS="perl perl-xml-parser"
-SOURCE="XML-Twig"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/XML-Twig/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/M/MI/MIROD/$TARBALL"
+WEB_SITE="https://metacpan.org/release/XML-Twig"
+
+TARBALL="XML-Twig-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MIROD/$TARBALL"
+
+DEPENDS="perl-xml-parser"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL -y &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

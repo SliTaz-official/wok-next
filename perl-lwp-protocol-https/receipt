@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-lwp-protocol-https"
+VERSION="6.07"
+CATEGORY="perl"
+SHORT_DESC="LWP::Protocol::https - Provide https support for LWP::UserAgent"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/LWP-Protocol-https"
+
+TARBALL="LWP-Protocol-https-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/O/OA/OALDERS/$TARBALL"
+
+DEPENDS="perl-io-socket-ssl perl-libwww-perl perl-mozilla-ca perl-net-http"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

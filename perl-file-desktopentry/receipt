@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-file-desktopentry"
-VERSION="0.04"
-CATEGORY="development"
-SHORT_DESC="File::DesktopEntry module is a Perl extension."
+VERSION="0.22"
+CATEGORY="perl"
+SHORT_DESC="File::DesktopEntry - Object to handle .desktop files"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl perl-file-basedir"
-BUILD_DEPENDS="perl perl-file-basedir"
-SOURCE="File-DesktopEntry"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PA/PARDUS/$SOURCE/$TARBALL"
+WEB_SITE="https://metacpan.org/release/File-DesktopEntry"
+
+TARBALL="File-DesktopEntry-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/$TARBALL"
+
+DEPENDS="perl-file-basedir perl-uri"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

@@ -1,25 +1,29 @@
 # SliTaz package receipt.
 
 PACKAGE="libpcap"
-VERSION="1.4.0"
-CATEGORY="development"
-SHORT_DESC="library for tcpdump"
+VERSION="1.7.4"
+CATEGORY="libdevel"
+SHORT_DESC="functions for user-level packet capture, used in low-level network \
+monitoring"
 MAINTAINER="sdaigl@lacitec.on.ca"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.tcpdump.org/"
-WGET_URL="http://www.tcpdump.org/release/$TARBALL";
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.tcpdump.org/release/$TARBALL"
 
 DEPENDS="libnl"
 BUILD_DEPENDS="flex bison"
+BUILD_DEPENDS_arm=""
 
 # Handle cross compilation
 case "$ARCH" in
-	arm) 
-		BUILD_DEPENDS="" 
-		ARCH_ARGS="--with-pcap=linux" 
-		export ac_cv_linux_vers=2 ;;
+	arm)
+		BUILD_DEPENDS="$BUILD_DEPENDS_arm"
+		ARCH_ARGS="--with-pcap=linux"
+		export ac_cv_linux_vers=2
+		;;
 esac
 
 # Rules to configure and make the package.
@@ -33,7 +37,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	copy @std
 }
-

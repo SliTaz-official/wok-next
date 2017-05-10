@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-test2-suite"
+VERSION="0.000070"
+CATEGORY="perl"
+SHORT_DESC="Distribution with a rich set of tools built upon the Test2 \
+framework"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Test2-Suite"
+
+TARBALL="Test2-Suite-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/E/EX/EXODIST/$TARBALL"
+
+DEPENDS="perl-importer perl-sub-info perl-term-table perl-test-simple"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

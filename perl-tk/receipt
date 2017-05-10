@@ -1,33 +1,34 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-tk"
-VERSION="804.029"
-CATEGORY="development"
-SHORT_DESC="A graphical user interface toolkit for Perl"
+VERSION="804.033"
+CATEGORY="perl"
+SHORT_DESC="Tk - a graphical user interface toolkit for Perl"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="GPL"
-DEPENDS="perl fontconfig jpeg xorg-libX11 xorg-libXau xorg-libXdmcp zlib libpng tk"
-BUILD_DEPENDS="perl fontconfig-dev jpeg-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev zlib-dev libpng-dev tk-dev"
-SOURCE="Tk"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/Tk"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/S/SR/SREZIC/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Tk"
+
+TARBALL="Tk-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/S/SR/SREZIC/$TARBALL"
+
+DEPENDS="perl fontconfig libjpeg-turbo libpng xorg-libX11 xorg-libXft zlib tk"
+BUILD_DEPENDS="perl xorg-libX11-dev freetype-dev xorg-libXft-dev \
+fontconfig-dev libpng-dev zlib-dev libjpeg-turbo-dev tk-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	/bin/chmod -R u+w *
-	# The Xlib header is wrong...
+#	# The Xlib header is wrong...
 	sed -i 's/XKeycodeToKeysym\(.*\)unsigned int/XKeycodeToKeysym\1KeyCode/' pTk/Xlib.h
+
 	perl Makefile.PL &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs 
-	cp -a $install/usr $fs/
+	copy @std
 }
-

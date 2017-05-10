@@ -2,11 +2,11 @@
 
 PACKAGE="perl-test-pod"
 VERSION="1.51"
-CATEGORY="development"
-SHORT_DESC="Test::Pod module is a Perl extension."
+CATEGORY="perl"
+SHORT_DESC="Test::Pod - check for POD errors in files"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
-WEB_SITE="http://www.cpan.org/modules/"
+WEB_SITE="https://metacpan.org/release/Test-Pod"
 
 TARBALL="Test-Pod-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
@@ -18,13 +18,13 @@ BUILD_DEPENDS="perl"
 compile_rules()
 {
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }

@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-module-build-tiny"
+VERSION="0.039"
+CATEGORY="perl"
+SHORT_DESC="Module::Build::Tiny - A tiny replacement for Module::Build"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Module-Build-Tiny"
+
+TARBALL="Module-Build-Tiny-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+
+DEPENDS="perl-extutils-config perl-extutils-helpers perl-extutils-installpaths"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Build.PL &&
+	./Build && ./Build install --destdir $install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

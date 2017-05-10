@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-file-mimeinfo"
-VERSION="0.15"
-CATEGORY="development"
-SHORT_DESC="File::MimeInfo module is a Perl extension."
+VERSION="0.28"
+CATEGORY="perl"
+SHORT_DESC="File::MimeInfo - Determine file type from the file name"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl perl-file-basedir perl-file-desktopentry"
-BUILD_DEPENDS="perl perl-file-basedir perl-file-desktopentry"
-SOURCE="File-MimeInfo"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PA/PARDUS/$SOURCE/$TARBALL"
+WEB_SITE="https://metacpan.org/release/File-MimeInfo"
+
+TARBALL="File-MimeInfo-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl-file-basedir perl-file-desktopentry"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

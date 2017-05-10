@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-locale-maketext-gettext"
+VERSION="1.28"
+CATEGORY="perl"
+SHORT_DESC="Locale::Maketext::Gettext - Joins the gettext and Maketext \
+frameworks"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="GPL3"
+WEB_SITE="https://metacpan.org/release/Locale-Maketext-Gettext"
+
+TARBALL="Locale-Maketext-Gettext-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/I/IM/IMACAT/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	# strip
+	sed -i '/^=/,/^=cut/d' $fs/usr/bin/maketext
+}

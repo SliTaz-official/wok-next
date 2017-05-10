@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-io-socket-inet6"
-VERSION="2.56"
-CATEGORY="development"
-SHORT_DESC="Perl extension for INET6."
+VERSION="2.72"
+CATEGORY="perl"
+SHORT_DESC="IO::Socket::INET6 - Object interface for AF_INET/AF_INET6 domain \
+sockets"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl perl-socket6"
-SOURCE="IO-Socket-INET6"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/S/SH/SHLOMIF/$TARBALL"
+WEB_SITE="https://metacpan.org/release/IO-Socket-INET6"
+
+TARBALL="IO-Socket-INET6-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/$TARBALL"
+
+DEPENDS="perl-socket6"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL
-	make
-	make DESTDIR=$DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

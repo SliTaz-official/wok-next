@@ -1,15 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-http-date"
-VERSION="6.01"
-CATEGORY="development"
-SHORT_DESC="date conversion routines"
+VERSION="6.02"
+CATEGORY="perl"
+SHORT_DESC="HTTP::Date - date conversion routines"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
-WEB_SITE="http://search.cpan.org/dist/HTTP-Date"
-SOURCE="HTTP-Date"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/HTTP-Date"
+
+TARBALL="HTTP-Date-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
 
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
@@ -17,14 +17,14 @@ BUILD_DEPENDS="perl"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	copy @std
 }

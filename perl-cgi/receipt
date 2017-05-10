@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-cgi"
-VERSION="3.63"
-CATEGORY="development"
-SHORT_DESC="CGI module is a Perl extension."
+VERSION="4.36"
+CATEGORY="perl"
+SHORT_DESC="CGI - Handle Common Gateway Interface requests and responses"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="CGI.pm"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/M/MA/MARKSTOS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/CGI"
+
+TARBALL="CGI-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEEJO/$TARBALL"
+
+DEPENDS="perl-html-parser"
+BUILD_DEPENDS="$DEPENDS perl-test-deep perl-test-nowarnings perl-test-warn"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make install DESTDIR=$DESTDIR
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

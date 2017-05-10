@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-file-which"
+VERSION="1.21"
+CATEGORY="perl"
+SHORT_DESC="File::Which - Perl implementation of the which utility as an API"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/File-Which"
+
+TARBALL="File-Which-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/P/PL/PLICEASE/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

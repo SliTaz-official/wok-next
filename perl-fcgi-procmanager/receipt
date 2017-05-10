@@ -1,36 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-fcgi-procmanager"
-VERSION="0.25"
-CATEGORY="development"
-SHORT_DESC="Perl/CPAN Module FCGI::ProcManager"
+VERSION="0.28"
+CATEGORY="perl"
+SHORT_DESC="FCGI::ProcManager - functions for managing FastCGI applications"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/FCGI-ProcManager"
+
+TARBALL="FCGI-ProcManager-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/A/AR/ARODLAND/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
-SOURCE="FCGI-ProcManager"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/FCGI-ProcManager/"
-WGET_URL="http://www.cpan.org/authors/id/A/AR/ARODLAND/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make && 
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	# remove perllocal.pod and .packlist
-	find ${fs} -name perllocal.pod -delete
-	find ${fs} -name .packlist -delete
-
-
+	copy @std
 }
-

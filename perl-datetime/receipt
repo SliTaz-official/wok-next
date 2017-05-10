@@ -1,34 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-datetime"
-VERSION="1.20"
-CATEGORY="development"
-SHORT_DESC="DateTime module is a Perl extension."
+VERSION="1.42"
+CATEGORY="perl"
+SHORT_DESC="DateTime - A date and time object for Perl"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-SOURCE="DateTime"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/DateTime"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$TARBALL"
+WEB_SITE="https://metacpan.org/release/DateTime"
 
-DEPENDS="perl perl-params-validate perl-test-exception perl-test-warnings \
-perl-datetime-locale perl-math-round perl-datetime-timezone perl-test-fatal \
-perl-list-moreutils perl-try-tiny perl-test-simple perl-exporter-tiny \
-perl-class-singleton"
-BUILD_DEPENDS="$DEPENDS"
+TARBALL="DateTime-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+
+DEPENDS="perl-datetime-locale perl-datetime-timezone perl-dist-checkconflicts \
+perl-namespace-autoclean perl-params-validationcompiler perl-specio \
+perl-try-tiny"
+BUILD_DEPENDS="$DEPENDS perl-cpan-meta-check perl-test-warnings"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Build.PL &&
-	./Build --destdir $DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

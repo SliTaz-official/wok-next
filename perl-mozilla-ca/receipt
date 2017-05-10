@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-mozilla-ca"
+VERSION="20160104"
+CATEGORY="perl"
+SHORT_DESC="Mozilla::CA - Mozilla's CA cert bundle in PEM format"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Mozilla-CA"
+
+TARBALL="Mozilla-CA-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/A/AB/ABH/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

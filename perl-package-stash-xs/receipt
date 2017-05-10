@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-package-stash-xs"
+VERSION="0.28"
+CATEGORY="perl"
+SHORT_DESC="Package::Stash::XS - faster and more correct implementation of the \
+Package::Stash API"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Package-Stash-XS"
+
+TARBALL="Package-Stash-XS-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DO/DOY/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

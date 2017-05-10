@@ -2,29 +2,29 @@
 
 PACKAGE="perl-http-negotiate"
 VERSION="6.01"
-CATEGORY="development"
-SHORT_DESC="Choose a variant to serve"
+CATEGORY="perl"
+SHORT_DESC="HTTP::Negotiate - choose a variant to serve"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-SOURCE="HTTP-Negotiate"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/libwww-perl/"
-WGET_URL="http://www.cpan.org/authors/id/G/GA/GAAS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/HTTP-Negotiate"
 
-DEPENDS="perl perl-http-message"
-BUILD_DEPENDS="perl $DEPENDS"
+TARBALL="HTTP-Negotiate-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
+
+DEPENDS="perl-http-message"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL &&	make &&	make DESTDIR=$DESTDIR install
-	
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }

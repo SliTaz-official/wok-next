@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-email-date-format"
+VERSION="1.005"
+CATEGORY="perl"
+SHORT_DESC="Email::Date::Format - produce RFC 2822 date strings"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Email-Date-Format"
+
+TARBALL="Email-Date-Format-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

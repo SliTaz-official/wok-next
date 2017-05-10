@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-mro-compat"
+VERSION="0.13"
+CATEGORY="perl"
+SHORT_DESC="MRO::Compat - mro::* interface compatibility for Perls < 5.9.5"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/MRO-Compat"
+
+TARBALL="MRO-Compat-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/H/HA/HAARG/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-class-data-inheritable"
+VERSION="0.08"
+CATEGORY="perl"
+SHORT_DESC="Class::Data::Inheritable - Inheritable, overridable class data"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Class-Data-Inheritable"
+
+TARBALL="Class-Data-Inheritable-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/T/TM/TMTM/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-cpan-meta-check"
+VERSION="0.014"
+CATEGORY="perl"
+SHORT_DESC="CPAN::Meta::Check - Verify requirements in a CPAN::Meta object"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/CPAN-Meta-Check"
+
+TARBALL="CPAN-Meta-Check-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

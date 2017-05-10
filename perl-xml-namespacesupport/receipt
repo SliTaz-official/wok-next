@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-xml-namespacesupport"
+VERSION="1.12"
+CATEGORY="perl"
+SHORT_DESC="XML::NamespaceSupport - A simple generic namespace processor"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/XML-NamespaceSupport"
+
+TARBALL="XML-NamespaceSupport-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/P/PE/PERIGRIN/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

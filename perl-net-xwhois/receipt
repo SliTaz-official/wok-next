@@ -2,31 +2,29 @@
 
 PACKAGE="perl-net-xwhois"
 VERSION="0.90"
-CATEGORY="development"
-SHORT_DESC="Net::XWhois module is a Perl extension."
+CATEGORY="perl"
+SHORT_DESC="Net::XWhois - Whois Client Interface for Perl5"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL"
+LICENSE="unknown"
+WEB_SITE="http://www.cpan.org/modules/"
+
+TARBALL="Net-XWhois-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/V/VI/VIPUL/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
-SOURCE="Net-XWhois"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.cpan.org/modules/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/V/VI/VIPUL/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	mv $SOURCE $src 2> /dev/null
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

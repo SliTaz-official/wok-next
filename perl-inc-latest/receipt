@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-inc-latest"
+VERSION="0.500"
+CATEGORY="perl"
+SHORT_DESC="inc::latest - use modules bundled in inc/ if they are newer than \
+installed ones"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/inc-latest"
+
+TARBALL="inc-latest-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

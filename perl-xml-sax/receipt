@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-xml-sax"
+VERSION="0.99"
+CATEGORY="perl"
+SHORT_DESC="XML::SAX - Simple API for XML"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/XML-SAX"
+
+TARBALL="XML-SAX-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/G/GR/GRANTM/$TARBALL"
+
+DEPENDS="perl-xml-namespacesupport perl-xml-sax-base"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# Please keep `make -j1 install` to FS before installing to the DESTDIR
+	perl Makefile.PL &&
+	make -j1 install && make -j1 DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

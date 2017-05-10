@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-role-tiny"
+VERSION="2.000005"
+CATEGORY="perl"
+SHORT_DESC="Role::Tiny - Roles. Like a nouvelle cuisine portion size slice of \
+Moose"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Role-Tiny"
+
+TARBALL="Role-Tiny-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/H/HA/HAARG/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

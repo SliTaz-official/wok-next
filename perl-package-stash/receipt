@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-package-stash"
+VERSION="0.37"
+CATEGORY="perl"
+SHORT_DESC="Package::Stash - routines for manipulating stashes"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Package-Stash"
+
+TARBALL="Package-Stash-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DO/DOY/$TARBALL"
+
+DEPENDS="perl-dist-checkconflicts perl-module-implementation"
+BUILD_DEPENDS="$DEPENDS perl-package-stash-xs perl-test-fatal \
+perl-test-requires"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

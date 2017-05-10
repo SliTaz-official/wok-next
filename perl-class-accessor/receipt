@@ -2,14 +2,14 @@
 
 PACKAGE="perl-class-accessor"
 VERSION="0.34"
-CATEGORY="development"
-SHORT_DESC="Automated accessor generation"
+CATEGORY="perl"
+SHORT_DESC="Class::Accessor - Automated accessor generation"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
-SOURCE="Class-Accessor"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/Class-Accessor/"
-WGET_URL="http://www.cpan.org/authors/id/K/KA/KASEI/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Class-Accessor"
+
+TARBALL="Class-Accessor-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/K/KA/KASEI/$TARBALL"
 
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
@@ -17,14 +17,14 @@ BUILD_DEPENDS="perl"
 # Rules to configure and make the package.
 compile_rules()
 {
-	perl Makefile.PL && 
-	make && 
-	make DESTDIR=$DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }

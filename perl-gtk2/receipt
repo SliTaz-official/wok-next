@@ -1,34 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-gtk2"
-SOURCE="Gtk2"
-VERSION="1.247"
-CATEGORY="development"
-SHORT_DESC="Perl interface to the 2.x series of the Gimp Toolkit Library."
+VERSION="1.24992"
+CATEGORY="perl"
+SHORT_DESC="Gtk2 - Perl interface to the 2.x series of the Gimp Toolkit library"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="LGPL2.1"
-DEPENDS="perl gtk+ perl-glib perl-pango perl-cairo"
-BUILD_DEPENDS="perl gtk+-dev perl-extutils-depends perl-extutils-pkgconfig \
-perl-glib perl-pango perl-cairo xorg-dev xorg-xproto xorg-renderproto \
-xorg-kbproto"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/~xaoc/Gtk2-1.247/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/X/XA/XAOC/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Gtk2"
+
+TARBALL="Gtk2-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
+
+DEPENDS="perl-glib perl-pango atk cairo fontconfig freetype gdk-pixbuf glib \
+gtk+ libgio pango"
+BUILD_DEPENDS="perl-glib perl-pango perl-extutils-depends \
+perl-extutils-pkgconfig gtk+-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make install DESTDIR=$DESTDIR
-	rm -rf $pkgdir/installnone
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std @dev
 }
-

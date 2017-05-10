@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-datetime-format-w3cdtf"
-VERSION="0.06"
-CATEGORY="development"
-SHORT_DESC="DateTime::Format::W3CDTF module is a Perl extension."
+VERSION="0.07"
+CATEGORY="perl"
+SHORT_DESC="DateTime::Format::W3CDTF - Parse and format W3CDTF datetime strings"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="DateTime-Format-W3CDTF"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/G/GW/GWILLIAMS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/DateTime-Format-W3CDTF"
+
+TARBALL="DateTime-Format-W3CDTF-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/G/GW/GWILLIAMS/$TARBALL"
+
+DEPENDS="perl-datetime"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

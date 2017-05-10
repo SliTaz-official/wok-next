@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-datetime-timezone"
-VERSION="1.93"
-CATEGORY="development"
-SHORT_DESC="DateTime::Format::TimeZone module is a Perl extension."
+VERSION="2.11"
+CATEGORY="perl"
+SHORT_DESC="DateTime::TimeZone - Time zone object base class and factory"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="DateTime-TimeZone"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$TARBALL"
+WEB_SITE="https://metacpan.org/release/DateTime-TimeZone"
+
+TARBALL="DateTime-TimeZone-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+
+DEPENDS="perl-class-singleton perl-module-runtime perl-namespace-autoclean \
+perl-params-validationcompiler perl-specio perl-try-tiny"
+BUILD_DEPENDS="$DEPENDS perl-test-requires"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

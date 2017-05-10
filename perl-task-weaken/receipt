@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-task-weaken"
+VERSION="1.04"
+CATEGORY="perl"
+SHORT_DESC="Task::Weaken - Ensure that a platform has weaken support"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Task-Weaken"
+
+TARBALL="Task-Weaken-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/A/AD/ADAMK/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

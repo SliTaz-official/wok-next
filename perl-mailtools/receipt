@@ -1,34 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-mailtools"
-VERSION="2.12"
-CATEGORY="development"
-SHORT_DESC="MAIL module is a Perl extension."
+VERSION="2.18"
+CATEGORY="perl"
+SHORT_DESC="Various e-mail related modules"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
-SOURCE="MailTools"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/M/MA/MARKOV/$TARBALL"
-PROVIDE="perl-mail-address perl-mail-cap perl-mail-field perl-mail-filter \
-perl-mail-header perl-mail-internet perl-mail-mailer perl-mail-send \
-perl-mail-util"
+WEB_SITE="https://metacpan.org/release/MailTools"
+
+TARBALL="MailTools-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MA/MARKOV/$TARBALL"
+
+DEPENDS="perl-timedate"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make install DESTDIR=$DESTDIR
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

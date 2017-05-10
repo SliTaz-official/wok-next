@@ -2,29 +2,29 @@
 
 PACKAGE="perl-module-runtime"
 VERSION="0.014"
-CATEGORY="development"
-SHORT_DESC="Module::Runtime is a perl module"
+CATEGORY="perl"
+SHORT_DESC="Module::Runtime - runtime module handling"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="GPL"
-WEB_SITE="http://search.cpan.org/dist/Module-Runtime"
-SOURCE="Module-Runtime"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://www.cpan.org/authors/id/Z/ZE/ZEFRAM/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Module-Runtime"
+
+TARBALL="Module-Runtime-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/Z/ZE/ZEFRAM/$TARBALL"
 
 DEPENDS="perl"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-module-build"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/usr $fs
+	copy @std
 }

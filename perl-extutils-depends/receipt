@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-extutils-depends"
-SOURCE="ExtUtils-Depends"
-VERSION="0.304"
-CATEGORY="development"
-SHORT_DESC="Easily build XS extensions that depends on XS extensions."
+VERSION="0.405"
+CATEGORY="perl"
+SHORT_DESC="ExtUtils::Depends - Easily build XS extensions that depend on XS \
+extensions"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/ExtUtils-Depends"
+
+TARBALL="ExtUtils-Depends-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/~flora/ExtUtils-Depends-0.304/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/F/FL/FLORA/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

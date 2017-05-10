@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-sub-exporter-progressive"
+VERSION="0.001013"
+CATEGORY="perl"
+SHORT_DESC="Sub::Exporter::Progressive - Only use Sub::Exporter if you need it"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Sub-Exporter-Progressive"
+
+TARBALL="Sub-Exporter-Progressive-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/F/FR/FREW/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

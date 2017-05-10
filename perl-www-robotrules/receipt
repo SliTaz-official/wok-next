@@ -2,30 +2,29 @@
 
 PACKAGE="perl-www-robotrules"
 VERSION="6.02"
-CATEGORY="development"
-SHORT_DESC="Database of robots.txt-derived permissions"
+CATEGORY="perl"
+SHORT_DESC="WWW::RobotRules - database of robots.txt-derived permissions"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-SOURCE="WWW-RobotRules"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/libwww-perl/"
-WGET_URL="http://www.cpan.org/authors/id/G/GA/GAAS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/WWW-RobotRules"
 
-DEPENDS="perl perl-uri"
-BUILD_DEPENDS="perl $DEPENDS"
+TARBALL="WWW-RobotRules-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
+
+DEPENDS="perl-uri"
+BUILD_DEPENDS="$DEPENDS"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL &&	make &&	make DESTDIR=$DESTDIR install
-	
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

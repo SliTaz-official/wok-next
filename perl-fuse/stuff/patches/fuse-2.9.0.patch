@@ -1,0 +1,16 @@
+Fix missing "temp" variable declaration in _PLfuse_release,
+which only affects 32-bit systems using FUSE 2.9.0 or later.
+https://github.com/dpavlin/perl-fuse/commit/8603ed015c80a48b4e6907e46445219fe1f09d24
+
+--- a/Fuse.xs
++++ b/Fuse.xs
+@@ -755,6 +755,9 @@
+ int _PLfuse_release (const char *file, struct fuse_file_info *fi) {
+ 	int rv;
+ 	int flags = fi->flags;
++#if FUSE_VERSION >= 29 && !defined(PERL_HAS_64BITINT)
++	char *temp;
++#endif
+ 	FUSE_CONTEXT_PRE;
+ 	DEBUGf("release begin\n");
+ 	ENTER;

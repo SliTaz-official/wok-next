@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-package-deprecationmanager"
+VERSION="0.17"
+CATEGORY="perl"
+SHORT_DESC="Package::DeprecationManager - Manage deprecation warnings for your \
+distribution"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Package-DeprecationManager"
+
+TARBALL="Package-DeprecationManager-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+
+DEPENDS="perl-package-stash perl-params-util perl-sub-install perl-sub-name"
+BUILD_DEPENDS="$DEPENDS perl-test-fatal perl-test-warnings"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

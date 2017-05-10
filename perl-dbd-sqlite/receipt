@@ -1,31 +1,31 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-dbd-sqlite"
-VERSION="1.37"
-CATEGORY="development"
-SHORT_DESC="DBD::SQLite module is a Perl extension."
+VERSION="1.54"
+CATEGORY="perl"
+SHORT_DESC="DBD::SQLite - Self-contained RDBMS in a DBI Driver"
 MAINTAINER="admin@trixarian.net"
 LICENSE="GPL"
-SOURCE="DBD-SQLite"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://cpan.org/authors/id/A/AD/ADAMK/$TARBALL"
-DEPENDS="perl perl-dbi-dbd libsqlite"
-BUILD_DEPENDS="perl perl-dbi-dbd sqlite-dev"
+WEB_SITE="https://metacpan.org/release/DBD-SQLite"
+
+TARBALL="DBD-SQLite-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/$TARBALL"
+
+# FIXME: sqlite-dev and libsqlite aren't detected as (b)deps
+DEPENDS="perl-dbi libsqlite"
+BUILD_DEPENDS="$DEPENDS sqlite-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL
-	make
-	make DESTDIR=$DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std @dev
 }
-

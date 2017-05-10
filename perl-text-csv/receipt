@@ -1,35 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-text-csv"
-VERSION="1.20"
-CATEGORY="development"
-SHORT_DESC="Manipulate comma-separated value strings."
+VERSION="1.95"
+CATEGORY="perl"
+SHORT_DESC="Text::CSV - comma-separated values manipulator (using XS or \
+PurePerl)"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Text-CSV"
+SUGGESTED="perl-text-csv_xs"
+
+TARBALL="Text-CSV-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl"
-SOURCE="Text-CSV"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/dist/Text-CSV/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/M/MA/MAKAMAKA/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	PERL_MM_USE_DEFAULT=1 perl Makefile.PL
-	make
-	make DESTDIR="$DESTDIR" install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-
-	find $fs -name '.packlist' -delete
-	find $fs -name '*.pod' -delete
-
+	copy @std
 }
-

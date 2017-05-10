@@ -1,31 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-params-validate"
-VERSION="1.21"
-CATEGORY="development"
-SHORT_DESC="Params::Validate module is a Perl extension."
+VERSION="1.26"
+CATEGORY="perl"
+SHORT_DESC="Params::Validate - Validate method/function parameters"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-SOURCE="Params-Validate"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Params-Validate"
 
-DEPENDS="perl perl-test-requires perl-module-implementation perl-test-fatal perl-test-simple"
-BUILD_DEPENDS="$DEPENDS"
+TARBALL="Params-Validate-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+
+DEPENDS="perl-module-implementation"
+BUILD_DEPENDS="$DEPENDS perl-module-build perl-test-fatal perl-test-requires"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Build.PL &&
-	./Build --destdir $DESTDIR install
+	./Build --destdir $install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

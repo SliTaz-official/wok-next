@@ -2,29 +2,30 @@
 
 PACKAGE="perl-xml-parser"
 VERSION="2.44"
-CATEGORY="development"
-SHORT_DESC="XML::Parser module is a Perl extension interface to XML expat."
+CATEGORY="perl"
+SHORT_DESC="XML::Parser - A Perl module for parsing XML documents"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://github.com/chorny/XML-Parser"
+WEB_SITE="https://metacpan.org/release/XML-Parser"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-$VERSION.tar.gz"
+TARBALL="XML-Parser-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/T/TO/TODDR/$TARBALL"
 
-DEPENDS="perl expat"
-BUILD_DEPENDS="perl expat-dev"
+DEPENDS="perl-libwww-perl expat"
+BUILD_DEPENDS="$DEPENDS expat-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders lib
+	copy @std
 }

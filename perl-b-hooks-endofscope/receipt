@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-b-hooks-endofscope"
+VERSION="0.21"
+CATEGORY="perl"
+SHORT_DESC="B::Hooks::EndOfScope - Execute code after a scope finished \
+compilation"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/B-Hooks-EndOfScope"
+
+TARBALL="B-Hooks-EndOfScope-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+
+DEPENDS="perl-module-implementation perl-sub-exporter-progressive"
+BUILD_DEPENDS="$DEPENDS perl-variable-magic"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

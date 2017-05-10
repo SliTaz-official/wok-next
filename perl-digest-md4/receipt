@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-digest-md4"
+VERSION="1.9"
+CATEGORY="perl"
+SHORT_DESC="Digest::MD4 - Perl interface to the MD4 Algorithm"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Digest-MD4"
+
+TARBALL="Digest-MD4-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MIKEM/DigestMD4/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}
