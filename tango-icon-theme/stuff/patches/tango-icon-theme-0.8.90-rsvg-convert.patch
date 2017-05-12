@@ -1,0 +1,32 @@
+Based on https://build.opensuse.org/package/view_file?file=tango-icon-theme-rsvg-2_35_2.patch&package=tango-icon-theme&project=openSUSE%3A12.2&rev=faf71bf8278d5df6ec8a31726e5b8542
+
+--- a/configure
++++ b/configure
+@@ -6554,7 +6554,7 @@
+   enable_large_bitmaps=no
+ fi
+    if test "x$enable_large_bitmaps" = "xyes"; then
+-      svgconvert_prog="rsvg"
++      svgconvert_prog="rsvg-convert"
+    else
+       svgconvert_prog="ksvgtopng"
+    fi
+--- a/svg2png.sh.in
++++ b/svg2png.sh.in
+@@ -9,12 +9,14 @@
+ 
+ ICONFILE=`basename ${3}`
+ ICONNAME=`echo ${ICONFILE} | sed -e "s/.svg//"`
+-if test `basename $SVGCONVERT` = "rsvg"; then
++if test `basename $SVGCONVERT` = "rsvg-convert"; then
+     OPTIONS="-w ${1} -h ${1}"
++    OUTPUT="-o"
+ else
+     OPTIONS="${1} ${1}"
++    OUTPUT=""
+ fi
+ 
+ echo "${SVGCONVERT} ${OPTIONS} ${3} ${2}/${ICONNAME}.png"
+-${SVGCONVERT} ${OPTIONS} ${3} ${2}/${ICONNAME}.png
++${SVGCONVERT} ${OPTIONS} ${3} ${OUTPUT} ${2}/${ICONNAME}.png
+ 
