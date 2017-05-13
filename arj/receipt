@@ -3,28 +3,31 @@
 PACKAGE="arj"
 VERSION="3.10.22"
 CATEGORY="system-tools"
-SHORT_DESC="ARJ archiver."
+SHORT_DESC="ARJ archiver"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://arj.sourceforge.net/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 TAGS="compression archive"
 
-BUILD_DEPENDS="autoconf"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+BUILD_DEPENDS="automake"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	cd $src/gnu
-	autoheader
+	aclocal
 	autoconf
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS
+	rm -f config.guess config.sub
+	am="$(automake --version|head -n1|sed -r 's/.*\) (.*)/\1/')"
+	cp /usr/share/automake-"$am"/config.guess .
+	cp /usr/share/automake-"$am"/config.sub .
+
+	./configure $CONFIGURE_ARGS
 	cd ..
-	busybox patch -p0 < $stuff/fardata.u
-	# Ugly hack...
-	sed -i 's/Patch not found.*/&return(POSTPROC_ERL_SUCCESS);/' postproc.c
+	make prepare &&
 	make -j 1 &&
 	make DESTDIR=$DESTDIR install
 }
@@ -32,7 +35,5 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
