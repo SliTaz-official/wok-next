@@ -11,16 +11,12 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/xorg62/tty-clock"
 TAGS="clock"
 
-DEPENDS="ncurses"
-BUILD_DEPENDS="ncurses-dev git bzip2"
+DEPENDS="ncursesw"
+BUILD_DEPENDS="ncursesw-dev bzip2"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	for i in ncursesw5-config ncurses5-config ; do
-		bin=$(ls /usr/bin/${i/5/?} 2> /dev/null)
-		[ -n "$bin" ] && sed -i "s|$i|$(basename $bin)|" Makefile
-	done
 	make
 }
 
