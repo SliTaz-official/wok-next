@@ -1,29 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="tty-clock"
-VERSION="0.1"
+VERSION="2.3"
 CATEGORY="utilities"
 SHORT_DESC="Analog ncurses clock."
 MAINTAINER="paul@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://github.com/xorg62/tty-clock"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://github.com/xorg62/tty-clock"
 TAGS="clock"
 
-DEPENDS="ncursesw"
-BUILD_DEPENDS="ncursesw-dev bzip2"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
+
+DEPENDS="ncurses"
+BUILD_DEPENDS="ncurses-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make
+	make && make PREFIX=/usr install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/$PACKAGE $fs/usr/bin
+	copy @std
 }
-
