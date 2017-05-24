@@ -1,14 +1,14 @@
 # SliTaz package receipt.
 
 PACKAGE="trickle"
-HASH=17ed72d9f10b1be38cea333e7ed7875a3cc9fb7b
+HASH=66551ad94ad3d8af83e1e4422804676ac8762f47	# 13/1/2015
 VERSION="${HASH:0:7}"
 CATEGORY="network"
 SHORT_DESC="A portable lightweight userspace bandwidth shaper"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 TARBALL="$PACKAGE-$VERSION.zip"
-WEB_SITE="http://monkey.org/~marius/pages/?page=trickle"
+WEB_SITE="https://github.com/mariusae/trickle"
 WGET_URL="https://github.com/mariusae/trickle/archive/$HASH.zip"
 
 DEPENDS="libevent"
@@ -18,9 +18,7 @@ BUILD_DEPENDS="libevent-dev wget automake autoconf libtool"
 compile_rules()
 {
 	touch libtrickle.so
-	aclocal
-	autoconf
-	automake --add-missing
+	autoreconf -if
 	./configure --prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -30,6 +28,7 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
+	mkdir -p $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/lib/trickle $fs/usr/lib
 }
