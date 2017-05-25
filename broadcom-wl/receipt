@@ -1,14 +1,14 @@
 # SliTaz package receipt.
 
 PACKAGE="broadcom-wl"
-VERSION="5_100_82_112"
+VERSION="6_30_223_271"
 CATEGORY="network"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="other"
 SHORT_DESC="Broadcom 802.11abg Linux STA Networking Drivers"
 WEB_SITE="http://www.broadcom.com/support/802.11/linux_sta.php"
-TARBALL="hybrid-portsrc_x86_32-v${VERSION}.tar.gz"
-WGET_URL="http://www.broadcom.com/docs/linux_sta/$TARBALL"
+TARBALL="hybrid-v35-nodebug-pcoem-$VERSION.tar.gz"
+WGET_URL="https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/$TARBALL"
 TAGS="wireless wifi driver"
 
 DEPENDS="linux"
@@ -17,9 +17,8 @@ BUILD_DEPENDS="linux-module-headers xz"
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's|ndo_set_multicast_list|ndo_set_rx_mode|' src/wl/sys/wl_linux.c
-	sed -i 's|linux/autoconf.h|generated/autoconf.h|' src/include/linuxver.h
-	patch -Np1 -i $stuff/semaphore.patch
+	sed -i 's/IEEE80211_BAND_/NL80211_BAND_/g' src/wl/sys/wl_cfg80211_hybrid.c
+	sed -i 's/rdtscl(cycles)/cycles = (u32)rdtsc()/' src/shared/linux_osl.c # for kernel > 4.3.0
 	KBUILD_NOPEDANTIC=1 make -C /usr/src/linux M=`pwd`
 	xz wl.ko
 }
