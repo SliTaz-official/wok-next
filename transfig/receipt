@@ -16,9 +16,11 @@ BUILD_DEPENDS="xorg-imake xorg-libXpm-dev libpng-dev zlib-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' ig2dev/dev/readpng.c
 	sed -i 's|/usr/local|/usr|' */*akefile
+	# Update for libpng > 1.5
+	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' fig2dev/dev/readpng.c
+	sed -i 's|info_ptr->valid|png_get_valid(png_ptr,info_ptr,PNG_INFO_gAMA)|' fig2dev/dev/readpng.c
+	sed -i 's/png_ptr->gamma/png_gamma(png_ptr)/' fig2dev/dev/readpng.c
 	xmkmf &&
 	make Makefiles &&
 	make &&
