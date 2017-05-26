@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="apr-util"
 VERSION="1.5.4"
@@ -11,10 +11,10 @@ WEB_SITE="http://apr.apache.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.apache.org/dist/apr/$TARBALL"
 
-DEPENDS="apr expat ncurses readline zlib"
 BUILD_DEPENDS="apr-dev openssl-dev gdbm-dev postgresql-dev sqlite-dev \
 unixODBC-dev expat-dev mysql-dev"
-SPLIT="apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite apr-util-dev"
+SPLIT="apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite apr-crypto \
+apr-dbm-gdbm apr-util-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,5 +34,45 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files libaprutil-1.so* aprutil.exp
+	case $PACKAGE in
+		apr-util)
+			DEPENDS="apr expat ncurses readline zlib"
+			copy libaprutil-1.so* aprutil.exp
+			;;
+		apr-dbd-mysql)
+			DEPENDS="apr-util libcrypto libmysqlclient libssl zlib"
+			CAT="libdevel|MySQL DBD driver"
+			copy *mysql*.so
+			;;
+		apr-dbd-odbc)
+			DEPENDS="apr-util libunixODBC"
+			CAT="libdevel|ODBC DBD driver"
+			copy *odbc*.so
+			;;
+		apr-dbd-pgsql)
+			DEPENDS="apr-util libpostgresqlclient"
+			CAT="libdevel|PostgreSQL DBD driver"
+			copy *pgsql*.so
+			;;
+		apr-dbd-sqlite)
+			DEPENDS="apr-util libsqlite"
+			CAT="libdevel|SQLite DBD driver"
+			copy *sqlite*.so
+			;;
+		apr-crypto)
+			DEPENDS="apr-util libcrypto libssl"
+			CAT="libdevel|OpenSSL crypto plugin"
+			copy *crypto*.so
+			;;
+		apr-dbm-gdbm)
+			DEPENDS="apr-util gdbm"
+			CAT="libdevel|GDBM plugin"
+			copy *dbm*.so
+			;;
+		apr-util-dev)
+			DEPENDS="apr-util apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql \
+			apr-dbd-sqlite"
+			copy @dev
+			;;
+	esac
 }

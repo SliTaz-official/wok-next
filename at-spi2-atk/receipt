@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="at-spi2-atk"
 VERSION="2.20.1"
@@ -11,9 +11,8 @@ WEB_SITE="https://www.gnome.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="at-spi2-core atk dbus glib libffi libxcb pcre xorg-libX11 xorg-libXau \
-xorg-libXdmcp"
 BUILD_DEPENDS="dbus-dev glib-dev atk-dev at-spi2-core-dev"
+SPLIT="at-spi2-atk-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,5 +22,17 @@ compile_rules()
 
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		at-spi2-atk)
+			copy @std
+			DEPENDS="at-spi2-core atk dbus glib libffi libxcb pcre xorg-libX11 \
+			xorg-libXau xorg-libXdmcp"
+			;;
+		at-spi2-atk-dev)
+			copy @dev
+			DEPENDS="at-spi2-atk gobject-introspection-dev at-spi2-core-dev \
+			glib-dev atk-dev libffi-dev xorg-libX11-dev libxcb-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev dbus-dev pcre-dev"
+			;;
+	esac
 }

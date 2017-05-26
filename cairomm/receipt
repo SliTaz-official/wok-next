@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cairomm"
 VERSION="1.12.0"
@@ -11,9 +11,8 @@ WEB_SITE="https://www.cairographics.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://cairographics.org/releases/$TARBALL"
 
-DEPENDS="cairo freetype libpng libsigc++ xorg-libX11 xorg-libXext \
-xorg-libXrender zlib"
 BUILD_DEPENDS="cairo-dev libsigc++-dev"
+SPLIT="cairomm-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,5 +25,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		cairomm)
+			copy @std
+			DEPENDS="cairo freetype libpng libsigc++ xorg-libX11 xorg-libXext \
+			xorg-libXrender zlib"
+			;;
+		cairomm-dev)
+			copy @dev
+			DEPENDS="cairomm bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			glib-dev harfbuzz-dev liblzma-dev libpng-dev libsigc++-dev \
+			libxcb-dev libxml2-dev pcre-dev pixman-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev zlib-dev"
+			;;
+	esac
 }

@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aspell"
 VERSION="0.60.6.1"
 CATEGORY="system-tools"
-SHORT_DESC="GNU spell checker."
+SHORT_DESC="GNU spell checker"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://aspell.net/"
@@ -13,28 +13,27 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/aspell/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="perl gettext ncurses-dev"
+SPLIT="aspell-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure $CONFIGURE_ARGS && make && make install
 
-	install -v -m755 -d $install/usr/share/doc/aspell-$VERSION/aspell.html &&
-	install -v -m755 -d $install/usr/share/doc/aspell-$VERSION/aspell-dev.html &&
-	install -v -m644 manual/aspell.html/* \
-		$install/usr/share/doc/aspell-$VERSION/aspell.html &&
-	install -v -m644 manual/aspell-dev.html/* \
-		$install/usr/share/doc/aspell-$VERSION/aspell-dev.html
+	ln -svfn aspell-0.60 $install/usr/lib/aspell
+	docdir="$install/usr/share/doc/aspell-$VERSION"
+	install -v -m755 -d $docdir/aspell.html &&
+	install -v -m755 -d $docdir/aspell-dev.html &&
+	install -v -m644 manual/aspell.html/*		$docdir/aspell.html &&
+	install -v -m644 manual/aspell-dev.html/*	$docdir/aspell-dev.html
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-	find $fs -name '*-config' -delete
-	cook_copy_files *.so* *.amf *filter.info *.cmap *.cset *.kbd *.amf spell ispell
-
-	ln -svfn aspell-0.60 $fs/usr/lib/aspell
+	case $PACKAGE in
+		aspell) 	copy @std; DEPENDS="ncurses" ;;
+		aspell-dev) copy @dev ;;
+	esac
 }

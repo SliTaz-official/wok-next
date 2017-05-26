@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsigc++"
 VERSION="2.8.0"
@@ -13,6 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="m4 perl"
+SPLIT="libsigc++-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,5 +24,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		libsigc++) copy @std;;
+		libsigc++-dev) copy @dev;;
+	esac
 }

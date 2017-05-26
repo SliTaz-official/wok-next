@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="at-spi2-core"
 VERSION="2.20.2"
@@ -11,10 +11,9 @@ WEB_SITE="https://www.gnome.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="dbus glib libffi libgio libxcb pcre xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXtst zlib"
 BUILD_DEPENDS="intltool dbus-dev xorg-libX11-dev xorg-libXtst-dev \
 gobject-introspection-dev"
+SPLIT="at-spi2-core-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,6 +27,17 @@ compile_rules()
 
 genpkg_rules()
 {
-	cook_copy_folders etc libexec dbus-1 defaults
-	cook_copy_files *.so*
+	case $PACKAGE in
+		at-spi2-core)
+			copy @std
+			DEPENDS="dbus glib libffi libgio libxcb pcre xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXtst zlib"
+			;;
+		at-spi2-core-dev)
+			copy @dev
+			DEPENDS="at-spi2-core dbus-dev glib-dev gobject-introspection-dev \
+			libffi-dev xorg-libX11-dev libxcb-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev pcre-dev"
+			;;
+	esac
 }
