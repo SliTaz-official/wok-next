@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cookutils"
-VERSION="904"
+VERSION="905"
 CATEGORY="base-system"
-SHORT_DESC="SliTaz packages builder new generation."
+SHORT_DESC="SliTaz packages builder new generation"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
@@ -13,31 +13,35 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
-DEPENDS="sdft lzma bzip2 tazpkg cacerts openssl"
 SPLIT="cookutils-daemon"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	make DESTDIR=$install install
+
+	#Symlink cooker to busybox httpd server root
+	ln -s cgi-bin/cooker $install/var/www/cooker
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs
-	cp -a $install/* $fs
-
-	#Symlink cooker to busybox httpd server root
-	cd $fs/var/www
-	ln -s cgi-bin/cooker
-
-	# Daemon goes in cookutils-daemon
-	rm -rf $fs/etc/init.d
+	case $PACKAGE in
+		cookutils)
+			copy '*/'; rm -r $fs/etc/init.d
+			DEPENDS="sdft lzma bzip2 tazpkg cacerts openssl"
+			;;
+		cookutils-daemon)
+			COOKOPTS="!menus"
+			copy init.d/
+			CAT="system-tools|daemon script for build host"
+			;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
+post_install_cookutils()
 {
 	case "$(cat "$1/etc/hostname" 2>/dev/null)" in
 		tank*)
