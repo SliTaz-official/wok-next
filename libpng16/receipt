@@ -1,22 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
-PACKAGE="libpng"
+PACKAGE="libpng16"
 VERSION="1.6.28"
 CATEGORY="libs"
-SHORT_DESC="PNG images library (with APNG support)"
+SHORT_DESC="PNG images library 1.6 series with APNG support"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://www.libpng.org/pub/png/libpng.html"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
+TARBALL="libpng-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/libpng/$TARBALL"
 
-PATCH="$PACKAGE-$VERSION-apng.patch.gz"
+PATCH="libpng-$VERSION-apng.patch.gz"
 PATCH_URL="$SF_MIRROR/apng/$PATCH"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="gawk zlib-dev"
+SPLIT="libpng16-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -38,5 +38,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files png2pnm pnm2png pngfix png-fix-itxt *.so*
+	case $PACKAGE in
+		libpng16)
+			copy @std
+			DEPENDS="zlib"
+			PROVIDE="libpng"
+			;;
+		libpng16-dev)
+			copy @dev
+			PROVIDE="libpng-dev"
+			;;
+	esac
 }

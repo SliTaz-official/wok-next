@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="coreutils"
 VERSION="8.25"
 CATEGORY="meta"
-SHORT_DESC="Utilities for using and setting the basic system."
+SHORT_DESC="Utilities for using and setting the basic system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/coreutils/coreutils.html"
@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 SIBLINGS="coreutils-multicall"
+BUILD_DEPENDS="automake autoconf gettext xz libcap-dev gmp-dev patch"
 SPLIT="coreutils-character coreutils-command coreutils-conditions coreutils-\
 context-system coreutils-context-user coreutils-context-working coreutils-\
 directory coreutils-disk coreutils-file-attributes coreutils-file-format \
@@ -19,18 +20,11 @@ coreutils-file-output-full coreutils-file-output-part coreutils-file-sort \
 coreutils-file-special coreutils-file-summarize coreutils-line coreutils-\
 numeric coreutils-operations coreutils-path coreutils-print coreutils-\
 redirection"
-DEPENDS="glibc-base acl attr gmp $SPLIT"
-BUILD_DEPENDS="automake autoconf gettext xz libcap-dev gmp-dev patch"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# LFS: Coreutils Internationalization Fixes Patch
-	patch -Np1 -i $stuff/coreutils-8.25-i18n-2.patch
-	# SliTaz: show extended info touching CPU via uname
-	patch  -p1 -i $stuff/uname.u
-	# SliTaz: fix translations, especially deprecated symbol '\v'
-	patch  -p1 -i $stuff/coreutils-fix-po.patch
+	# Rebuild fixed translations
 	msgfmt po/nb.po -o po/nb.gmo
 	msgfmt po/sl.po -o po/sl.gmo
 
@@ -52,4 +46,126 @@ compile_rules()
 	mv  $install/usr/share/man/man1/chroot.1 \
 		$install/usr/share/man/man8/chroot.8
 	sed -i 's|"1"|"8"|' $install/usr/share/man/man8/chroot.8
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		coreutils)
+			DEPENDS="$SPLIT" ;;
+		coreutils-character)
+			copy expand tr unexpand
+			CAT="system-tools|operate on characters"
+			DEPENDS="glibc-base" ;;
+		coreutils-command)
+			copy env kill nice nohup sleep stdbuf timeout libstdbuf.so chroot
+			CAT="system-tools|commands"
+			DEPENDS="glibc-base" ;;
+		coreutils-conditions)
+			copy false true [ expr test
+			CAT="system-tools|conditions"
+			DEPENDS="glibc-base gmp" ;;
+		coreutils-context-system)
+			copy date uname chcon hostid nproc runcon uptime
+			CAT="system-tools|system context"
+			DEPENDS="glibc-base" ;;
+		coreutils-context-user)
+			copy groups id logname pinky users who whoami
+			CAT="system-tools|user context"
+			DEPENDS="glibc-base" ;;
+		coreutils-context-working)
+			copy pwd stty printenv tty
+			CAT="system-tools|working context"
+			DEPENDS="glibc-base" ;;
+		coreutils-directory)
+			copy ls dir dircolors vdir
+			CAT="system-tools|list directories"
+			DEPENDS="glibc-base attr libcap" ;;
+		coreutils-disk)
+			copy df sync du stat truncate
+			CAT="system-tools|work with disks"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-attributes)
+			copy chgrp chmod chown touch
+			CAT="system-tools|change file attributes"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-format)
+			copy fmt fold pr
+			CAT="system-tools|format file contents"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-output-full)
+			copy cat base32 base64 nl od tac
+			CAT="system-tools|output entire files"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-output-part)
+			copy csplit head split tail
+			CAT="system-tools|output file parts"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-sort)
+			copy comm ptx shuf sort tsort uniq
+			CAT="system-tools|operate on sorted files"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-special)
+			copy ln mkdir mknod rmdir link mkfifo mktemp readlink realpath unlink
+			CAT="system-tools|work with special file types"
+			DEPENDS="glibc-base" ;;
+		coreutils-file-summarize)
+			copy cksum md5sum sha1sum sha224sum sha256sum sha384sum sha512sum sum wc
+			CAT="system-tools|summarize files"
+			DEPENDS="glibc-base" ;;
+		coreutils-line)
+			copy cut join paste
+			CAT="system-tools|operate on fields within a line"
+			DEPENDS="glibc-base" ;;
+		coreutils-numeric)
+			copy factor seq
+			CAT="system-tools|numeric"
+			DEPENDS="glibc-base gmp" ;;
+		coreutils-operations)
+			copy cp dd mv install rm shred
+			CAT="system-tools|perform basic operations"
+			DEPENDS="glibc-base acl attr" ;;
+		coreutils-path)
+			copy basename dirname pathchk
+			CAT="system-tools|perform path manipulation"
+			DEPENDS="glibc-base" ;;
+		coreutils-print)
+			copy echo numfmt printf yes
+			CAT="system-tools|print text"
+			DEPENDS="glibc-base" ;;
+		coreutils-redirection)
+			copy tee
+			CAT="system-tools|redirection"
+			DEPENDS="glibc-base" ;;
+	esac
+}
+
+# Remove Busybox applets in order to not clash with ("/bin", "/sbin",
+# "/usr/bin" and "/usr/sbin" conflicts with the same filename)
+post_install_coreutils_command()
+{
+	rm "$1/bin/kill"     # for /usr/bin/kill
+	rm "$1/bin/nice"     # for /usr/bin/nice
+	rm "$1/bin/sleep"    # for /usr/bin/sleep
+}
+post_install_coreutils_context_working()
+{
+	rm "$1/bin/printenv" # for /usr/bin/printenv
+}
+post_install_coreutils_disk()
+{
+	rm "$1/bin/stat"     # for /usr/bin/stat
+}
+post_install_coreutils_file_attributes()
+{
+	rm "$1/bin/touch"    # for /usr/bin/touch
+}
+post_install_coreutils_file_output_full()
+{
+	rm "$1/bin/base64"   # for /usr/bin/base64
+}
+post_install_coreutils_file_special()
+{
+	rm "$1/bin/mktemp"   # for /usr/bin/mktemp
 }

@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libxml2"
 VERSION="2.9.4"
 CATEGORY="system-tools"
-SHORT_DESC="Libxml2 is the XML C parser and toolkit."
+SHORT_DESC="XML C parser and toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://xmlsoft.org/"
@@ -12,19 +12,15 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://xmlsoft.org/libxml2/$TARBALL"
 
-DEPENDS="zlib liblzma"
 BUILD_DEPENDS="zlib-dev liblzma-dev python-dev ncurses-dev readline-dev"
-# autoconf automake libtool
+BUILD_DEPENDS_arm=" "
 SPLIT="libxml2-tools libxml2-python libxml2-dev"
 
 # When cross compiling Python is installed in chroot and is used
-# by cross tools, cook dont need to install it in /usr/cross/arm
+# by cross tools, cook don't need to install it in /usr/cross/arm
 # Building with LZMA support is buggy and build fails
 case "$ARCH" in
-	arm)
-		BUILD_DEPENDS=""
-		DEPENDS="zlib"
-		ARCH_ARGS="--without-lzma" ;;
+	arm) ARCH_ARGS="--without-lzma" ;;
 esac
 
 # Rules to configure and make the package.
@@ -49,5 +45,26 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files libxml2.so*
+	case $PACKAGE in
+		libxml2)
+			copy libxml2.so*
+			DEPENDS="zlib liblzma"
+			case "$ARCH" in
+				arm) DEPENDS="zlib" ;;
+			esac
+			;;
+		libxml2-tools)
+			copy xmllint xmlcatalog
+			CAT="system-tools|xmllint tester and xmlcatalog parser utility"
+			;;
+		libxml2-python)
+			copy python2.7/; find $fs -name '*.la' -delete
+			CAT="development|adapter for the Python"
+			DEPENDS="python libxml2 libxslt"
+			;;
+		libxml2-dev)
+			copy @dev *.sh
+			DEPENDS="libxml2-tools pkg-config   zlib-dev liblzma-dev"
+			;;
+	esac
 }

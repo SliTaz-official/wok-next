@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libpng12"
 VERSION="1.2.57"
 CATEGORY="libs"
-SHORT_DESC="PNG images library (1.2 series, with APNG support)"
+SHORT_DESC="PNG images library 1.2 series with APNG support"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://www.libpng.org/pub/png/libpng.html"
@@ -15,8 +15,8 @@ WGET_URL="$SF_MIRROR/libpng/$TARBALL"
 PATCH="libpng-$VERSION-apng.patch.gz"
 PATCH_URL="$SF_MIRROR/apng/$PATCH"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="gawk zlib-dev"
+SPLIT="libpng12-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -33,5 +33,13 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		libpng12)
+			copy @std
+			DEPENDS="zlib"
+			;;
+		libpng12-dev)
+			copy @dev
+			;;
+	esac
 }
