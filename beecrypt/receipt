@@ -1,34 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="beecrypt"
 VERSION="4.2.1"
-CATEGORY="system-tools"
-SHORT_DESC="Cryptography Library"
+CATEGORY="security"
+SHORT_DESC="BeeCrypt Cryptography Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://beecrypt.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 TAGS="cryptography toolkit"
 
-DEPENDS="gcc-lib-base"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA256="286f1f56080d1a6b1d024003a5fa2158f4ff82cae0c6829d3c476a4b5898c55d"
+
 BUILD_DEPENDS="python-dev"
+SPLIT="beecrypt-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr --without-cplusplus $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure \
+		--without-cplusplus \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib $fs/usr
-	# Deleting unnecessary file
-	find $fs/ -name "*.*a" -exec rm -f {} \;
+	case $PACKAGE in
+		beecrypt) copy @std ;;
+		beecrypt-dev) copy @dev ;;
+	esac
 }
-

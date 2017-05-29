@@ -1,45 +1,79 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bind"
-VERSION="9.11.0"
+VERSION="9.11.1"
 CATEGORY="network"
-SHORT_DESC="Domain Name System daemon."
+SHORT_DESC="BIND DNS server"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="ISC"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.isc.org/products/BIND/"
-WGET_URL="http://ftp.isc.org/isc/bind9/$VERSION/$TARBALL"
-CONFIG_FILES="/etc/bind"
+LICENSE="MPL2"
+WEB_SITE="http://www.isc.org/downloads/BIND/"
 TAZPANEL_DAEMON="edit::/etc/bind/named.conf|man|options|web::$WEB_SITE"
 TAGS="DNS daemon"
 
-DEPENDS="libbind libcrypto attr openssl perl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://ftp.isc.org/isc/bind9/$VERSION/$TARBALL"
+
 BUILD_DEPENDS="libtool libcap-dev openssl-dev perl krb5-dev readline-dev"
+SPLIT="bind-client libbind bind-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	mkdir -p $DESTDIR/etc/bind
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--sysconfdir=/etc/bind --localstatedir=/var --with-libtool \
-	--mandir=/usr/share/man --with-openssl $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install && \
+	./configure \
+		--sysconfdir=/etc/bind \
+		--localstatedir=/var \
+		--enable-threads \
+		--disable-static \
+		--with-libtool \
+		--with-openssl \
+		--with-randomdev=/dev/urandom \
+		$CONFIGURE_ARGS &&
+	make && make DESTDIR=$DESTDIR install &&
+
 	LD_LIBRARY_PATH=$DESTDIR/usr/lib \
 	$DESTDIR/usr/bin/dig ns . @a.root-servers.net. > $DESTDIR/etc/bind/db.root
+
+	cp -a $stuff/etc $install
+	chown -R root:root $install/etc
+
+	docdir=$install/usr/share/doc/bind-$VERSION
+	mkdir -p $docdir/arm $docdir/misc
+	cp doc/arm/*.html $docdir/arm
+	cd doc/misc
+	cp dnssec ipv6 migrat* options rfc-compliance roadmap sdb $docdir/misc
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr $fs/var/cache/bind
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $stuff/etc $fs
+	case $PACKAGE in
+		bind)
+			CONFIG_FILES="/etc/bind/"
+			copy etc/ sbin/
+			DEPENDS="libbind libcrypto attr openssl perl"
+			;;
+		bind-client)
+			copy bin/; rm $fs/usr/bin/bind9-config
+			CAT="network|client"
+			DEPENDS="libbind libcrypto attr libpcap"
+			;;
+		libbind)
+			copy *.so*
+			CAT="libdevel|shared libraries"
+			DEPENDS="libcrypto libcap libxml2 zlib attr libkrb5"
+			;;
+		bind-dev)
+			copy @dev
+			;;
+	esac
 }
 
 # Post message when installing.
-post_install()
+post_install_bind()
 {
+	mkdir -p "$1/var/cache/bind"
+
 	localnets="192.168.0.0/16; 127.0.0.1;"
 	grep -qs allow-recursion "$1/etc/bind/named.conf.options" ||
 	sed -i "s/.*directory.*/\\tallow-recursion { $localnets };\\n&/" \

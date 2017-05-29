@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="acl"
 VERSION="2.2.52"
 CATEGORY="system-tools"
-SHORT_DESC="Commands for Manipulating POSIX Access Control Lists."
+SHORT_DESC="Commands for Manipulating POSIX Access Control Lists"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="LGPL2.1 GPL2"
 WEB_SITE="http://savannah.nongnu.org/projects/acl/"
@@ -12,13 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/$PACKAGE/$TARBALL"
 
-DEPENDS="attr"
 BUILD_DEPENDS="attr-dev bash libtool gettext"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="attr-dev" ;;
-esac
+BUILD_DEPENDS_arm="attr-dev"
+SPLIT="acl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -46,6 +42,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-	cook_copy_files *.so*
+	case $PACKAGE in
+		acl)
+			copy @std
+			DEPENDS="attr"
+			;;
+		acl-dev)
+			copy @dev
+			DEPENDS="acl attr-dev"
+			;;
+	esac
 }

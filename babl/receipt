@@ -1,30 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="babl"
-VERSION="0.1.10"
+VERSION="0.1.26"
 CATEGORY="system-tools"
-SHORT_DESC="pixel format translation library."
+SHORT_DESC="Pixel format translation library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://gegl.org/babl/"
-WGET_URL="ftp://ftp.gimp.org/pub/$PACKAGE/${VERSION:0:3}/$TARBALL"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://download.gimp.org/pub/babl/${VERSION%.*}/$TARBALL"
+
+SPLIT="babl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
-		$CONFIGURE_ARGS && \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/babl-* $fs/usr/lib
-	rm $fs/usr/lib/babl-*/*.*a
+	case $PACKAGE in
+		babl) copy @std ;;
+		babl-dev) copy @dev ;;
+	esac
 }
-

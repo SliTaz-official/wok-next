@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bzip2"
 VERSION="1.0.6"
 CATEGORY="utilities"
-SHORT_DESC="High-quality data compressor."
+SHORT_DESC="A program and library for data compression"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.bzip.org/"
@@ -13,15 +13,11 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.bzip.org/$VERSION/$TARBALL"
 
-DEPENDS="bzlib"
-SPLIT="bzlib bzip2-apps"
+SPLIT="bzlib bzip2-apps bzip2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -p1 -i $stuff/bzip2-1.0.6-install_docs-1.patch
-	patch -p1 -i $stuff/bzip2-1.0.6-fix_install.patch
-
 	# No configure script, we must used CC, AR and RANLIB set by cook.
 	case "$ARCH" in
 		arm*)
@@ -44,12 +40,23 @@ testsuite()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files bzip2 bunzip2 bzcat
-}
-
-# Restore Busybox symlinks upon removal
-post_remove()
-{
-	ln -s /bin/busybox /usr/bin/bunzip2
-	ln -s /bin/busybox /usr/bin/bzcat
+	case $PACKAGE in
+		bzip2)
+			copy bzip2 bunzip2 bzcat
+			DEPENDS="bzlib"
+			;;
+		bzlib)
+			copy *.so*
+			CAT="libs|library"
+			;;
+		bzip2-apps)
+			copy bin/
+			find $fs \( -name bzip2 -o -name bunzip2 -o -name bzcat \) -delete
+			DEPENDS="bzlib"
+			CAT="utilities|apps"
+			;;
+		bzip2-dev)
+			copy @dev
+			;;
+	esac
 }
