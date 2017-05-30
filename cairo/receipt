@@ -1,23 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cairo"
-VERSION="1.14.4"
+VERSION="1.14.8"
 CATEGORY="x-window"
 SHORT_DESC="2D graphics library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MPL LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://www.cairographics.org/"
-WGET_URL="${WEB_SITE}releases/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="bzlib fontconfig freetype glib glibc-base harfbuzz libffi libpng \
-libxcb libxml2 pcre pixman xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-xorg-libXrender zlib"
-BUILD_DEPENDS="pkg-config glib-dev libpng-dev zlib-dev fontconfig-dev \
-freetype-dev xorg-libX11-dev pixman-dev xorg-libXau-dev xorg-libXdmcp-dev \
-xorg-libXrender-dev xcb-util-dev libxcb-dev expat-dev libxml2-dev"
-SPLIT="cairo-tools"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="${WEB_SITE}releases/$TARBALL"
+
+BUILD_DEPENDS="pkg-config glib-dev libpng16-dev zlib-dev fontconfig-dev \
+freetype-dev xorg-libX11-dev xorg-libXext-dev pixman-dev xorg-libXau-dev \
+xorg-libXdmcp-dev xorg-libXrender-dev xcb-util-dev libxcb-dev expat-dev \
+libxml2-dev"
+SPLIT="cairo-tools cairo-dev"
 SIBLINGS="cairo-gl"
 
 # Handle cross compilation
@@ -29,7 +28,6 @@ esac
 compile_rules()
 {
 	./configure \
-		--prefix=/usr \
 		--enable-xcb \
 		--enable-xlib-xcb \
 		--enable-tee \
@@ -42,6 +40,24 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		cairo)
+			copy libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*
+			DEPENDS="bzlib fontconfig freetype glib glibc-base harfbuzz libffi \
+			libpng16 libxcb libxml2 pcre pixman xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
+			;;
+		cairo-tools)
+			copy bin/ cairo-fdr.so* cairo-sphinx.so* libcairo-trace.so*
+			CAT="development|development tools"
+			DEPENDS="cairo libbfd"
+			;;
+		cairo-dev)
+			copy @dev
+			DEPENDS="cairo cairo-tools bzip2 fontconfig-dev freetype-dev \
+			glib-dev harfbuzz-dev libffi-dev libpng16-dev libxcb-dev \
+			libxml2-dev pcre-dev pixman-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev"
+			;;
+	esac
 }

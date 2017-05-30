@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="check"
-VERSION="0.10.0"
+VERSION="0.11.0"
 CATEGORY="system-tools"
 SHORT_DESC="A unit testing framework for C"
 MAINTAINER="erjo@slitaz.org"
@@ -10,16 +10,24 @@ WEB_SITE="https://libcheck.github.io/check/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://github.com/libcheck/check/releases/download/$VERSION/$TARBALL"
+
+SPLIT="check-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		check) copy *.so* ;;
+		check-dev) copy @dev checkmk ;;
+	esac
 }

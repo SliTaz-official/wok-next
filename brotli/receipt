@@ -1,29 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="brotli"
-VERSION="0.5.2"
+VERSION="0.6.0"
 CATEGORY="base-system"
-SHORT_DESC="A generic-purpose lossless compression algorithm."
+SHORT_DESC="A generic-purpose lossless compression algorithm"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/google/brotli"
-WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 TAGS="compression"
 
-DEPENDS="gcc-lib-base"
-BUILD_DEPENDS="python-dev setuptools cmake"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="cmake"
+SPLIT="brotli-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cmake .
-	make bro
+	mkdir build && cd build &&
+	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
+	make &&
+	make install
+
+	cd $src/docs
+	docdir=$install/usr/share/doc/brotli-$VERSION
+	mkdir -p $docdir
+	cp ./*.pdf $docdir
+	cook_pick_manpages decode.h.3 encode.h.3 types.h.3
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/bro $fs/usr/bin/
+	case $PACKAGE in
+		brotli) copy @std ;;
+		brotli-dev) copy @dev ;;
+	esac
 }
