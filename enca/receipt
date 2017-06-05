@@ -1,25 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="enca"
-VERSION="1.13"
+VERSION="1.19"
 CATEGORY="x-window"
-SHORT_DESC="Enca is an Extremely Naive Charset Analyser."
+SHORT_DESC="Enca is an Extremely Naive Charset Analyser"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://gitorious.org/enca"
-WGET_URL="http://dl.cihar.com/enca/$TARBALL"
+WEB_SITE="https://cihar.com/software/enca/"
 #HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://dl.cihar.com/enca/$TARBALL"
+
+SPLIT="enca-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	#sed -e "s#./make_hash#./native_make_hash#" -i tools/Makefile.am || exit 1
 	./configure \
-    	--prefix=/usr \
-    	--libexecdir=/usr/lib \
-    	--disable-static \
-    	$CONFIGURE_ARGS &&
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -27,8 +28,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/enca $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+		enca) copy @std ;;
+		enca-dev) copy @dev ;;
+	esac
 }

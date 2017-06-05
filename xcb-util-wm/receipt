@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xcb-util-wm"
 VERSION="0.4.1"
@@ -12,8 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://xcb.freedesktop.org/dist/$TARBALL"
 
-DEPENDS="libxcb"
 BUILD_DEPENDS="libxcb-dev xorg-util-macros"
+SPLIT="xcb-util-wm-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,5 +27,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		xcb-util-wm)
+			copy @std
+			DEPENDS="libxcb"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

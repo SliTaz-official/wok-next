@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eudev"
-VERSION="3.2"
+VERSION="3.2.2"
 CATEGORY="base-system"
 SHORT_DESC="Programs for dynamic creation of device nodes"
 MAINTAINER="tcg.thegamer@gmail.com"
@@ -11,18 +11,20 @@ PROVIDE="udev"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
+TARBALL_MD5="41e19b70462692fefd072a3f38818b6e"
 
-DEPENDS="dbus util-linux-blkid pciids usbids acl kmod"
 BUILD_DEPENDS="gobject-introspection-dev util-linux-blkid-dev gperf"
+SPLIT="eudev-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	sed -r -i 's|/usr(/bin/test)|\1|' test/udev-test.pl
+	sed -i '/keyboard_lookup_key/d' src/udev/udev-builtin-keyboard.c
 	cat > config.cache <<"EOF"
 HAVE_BLKID=1
 BLKID_LIBS="-lblkid"
-BLKID_CFLAGS="-I/tools/include"
+BLKID_CFLAGS="-I/include"
 EOF
 
 	./configure \
@@ -39,53 +41,51 @@ EOF
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
+
+	mkdir -p $install/etc/udev
+	cp $stuff/udev.conf $install/etc/udev
+	cp $stuff/*.rules $install/etc/udev/rules.d
+
+	# https://docs.oracle.com/cd/E37670_01/E41138/html/ch07s03.html
+	# /lib/udev/rules.d : default rules files. Do not edit these files.
+	# /etc/udev/rules.d : customized rules files. You can modify these files
+	# Rules files in /etc/udev/rules.d override files of the same name
+	# in /lib/udev/rules.d.
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib/firmware $fs/usr/lib
+	case $PACKAGE in
+		eudev)
+			copy @std
+			DEPENDS="dbus util-linux-blkid util-linux-uuid pciids usbids acl kmod"
+			;;
+		eudev-dev)
+			copy @dev
+			;;
+	esac
+}
 
-	cp -a $install/sbin $fs
-	cp -a $install/etc $fs
-	cp -a $install/lib/libudev.so* $fs/lib
-	cp -a $install/lib/udev $fs/lib
-	cp -a $install/usr/lib/libudev.so $fs/usr/lib
-
-	# Copy rules files to udev conf dir
-	mv -f $fs/lib/udev/rules.d $fs/etc/udev
-	cp $stuff/udev.conf $fs/etc/udev
-	cp $stuff/*.rules $fs/etc/udev/rules.d
+post_install_eudev()
+{
+	mkdir -p "$1/lib/firmware"
 
 	# Create some devices and directories that Udev cannot handle
 	# due to them being required very early in the boot process
-	mkdir -p $fs/lib/udev/devices/pts
-	mkdir -p $fs/lib/udev/devices/shm
-	mknod -m 0666 $fs/lib/udev/devices/null c 1 3
+	mkdir -p "$1/lib/udev/devices/pts"
+	mkdir -p "$1/lib/udev/devices/shm"
+	[ -e "$1/lib/udev/devices/null" ] || mknod -m 0666 "$1/lib/udev/devices/null" c 1 3
 
-	# Fix permissions
-	chmod +x $fs/lib/udev/*
-	chown -R root.root $fs
-
-}
-
-list_udev_group()
-{
-	object=$2
-	[ -n "$object" ] || object=GROUP
-	grep $object "$1"/etc/udev/rules.d/* | \
-		sed 's/.*GROUP="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq
-}
-
-post_install()
-{
 	# Sanity check for udev+ldap boot
-	list_udev_group "$1" GROUP | \
+	grep GROUP "$1"/etc/udev/rules.d/* | \
+	sed 's/.*GROUP="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq | \
 	while read x ; do
 		grep -q ^$x: "$1/etc/group" || chroot "$1/" addgroup -S $x
 	done
 
-	list_udev_group "$1" OWNER | \
+	grep OWNER "$1"/etc/udev/rules.d/* | \
+	sed 's/.*OWNER="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq | \
 	while read x ; do
 		grep -q ^$x: "$1/etc/passwd" || chroot "$1/" adduser -S -D -H $x
 	done

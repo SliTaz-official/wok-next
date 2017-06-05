@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libssh2"
 VERSION="1.8.0"
@@ -11,8 +11,8 @@ WEB_SITE="https://www.libssh2.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$TARBALL"
 
-DEPENDS="libssl libcrypto zlib"
 BUILD_DEPENDS="openssl-dev zlib-dev"
+SPLIT="libssh2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,5 +23,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		libssh2)
+			copy @std
+			DEPENDS="libssl libcrypto zlib"
+			;;
+		libssh2-dev)
+			copy @dev
+			DEPENDS="libssh2 openssl-dev libcrypto-dev zlib-dev"
+			;;
+	esac
 }

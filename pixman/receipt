@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pixman"
 VERSION="0.34.0"
@@ -10,11 +10,11 @@ WEB_SITE="https://www.cairographics.org/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-#WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
+TARBALL_MD5="e80ebae4da01e77f68744319f01d52a3"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="libpng-dev"
+SPLIT="pixman-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -31,5 +31,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		pixman) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

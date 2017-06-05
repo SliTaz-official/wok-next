@@ -1,0 +1,96 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sqlite3"
+VERSION="3.19.2"
+version="3190200"
+CATEGORY="database"
+SHORT_DESC="Small SQL database engine"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="PublicDomain"
+WEB_SITE="https://www.sqlite.org/"
+HOST_ARCH="i486 arm"
+
+TARBALL="sqlite-$VERSION.zip"
+WGET_URL="https://www.sqlite.org/2017/sqlite-src-$version.zip"
+
+EXTRA_SOURCE_FILES="mysql2sqlite.sh"
+
+BUILD_DEPENDS="tcl-dev"
+SPLIT="libsqlite3 libsqlite3-tcl lemon sqlite3-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	case "$ARCH" in
+		arm*) ARCH_ARGS="--with-tcl=/cross/arm/sysroot/usr/lib" ;;
+	esac
+
+	[ -s "$SOURCES_REPOSITORY/mysql2sqlite.sh" ] ||
+		wget -O "$SOURCES_REPOSITORY/mysql2sqlite.sh" \
+			https://gist.github.com/esperlu/943776/raw/dd87f4088f6d5ec7563478f7a28a37ba02cf26e2/mysql2sqlite.sh
+
+	export CFLAGS="$CFLAGS -DSQLITE_ENABLE_FTS3=1 \
+		-DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+		-DSQLITE_SECURE_DELETE=1 -DSQLITE_ENABLE_DBSTAT_VTAB=1"
+
+	./configure \
+		--disable-static \
+		--disable-readline \
+		--enable-load-extension \
+		LDFLAGS="$LDFLAGS -ldl" \
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool &&
+	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
+
+	# compiling lemon
+	if [ -f $src/lemon ]; then
+		rm $src/lemon
+	fi
+	cp $src/tool/lemon.c .
+	sed -i -e 's!lempar.c!/usr/share/lemon/lempar.c!' lemon.c
+	echo -n "Compiling lemon..."
+	gcc -o lemon lemon.c && status
+	mkdir -p $install/usr/share/lemon
+	cp -a $src/lemon $install/usr/bin
+	cp -a $src/lempar.c $install/usr/share/lemon
+
+	cp "$SOURCES_REPOSITORY/mysql2sqlite.sh" $install/usr/bin
+	chmod +x $install/usr/bin/mysql2sqlite.sh
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		sqlite3)
+			copy sqlite3 mysql2sqlite.sh
+			DEPENDS="libsqlite3"
+			PROVIDE="sqlite"
+			;;
+		libsqlite3)
+			copy libsqlite3.so*
+			CAT="database|library"
+			DEPENDS=" "
+			PROVIDE="libsqlite"
+			;;
+		libsqlite3-tcl)
+			copy tcl8.6/
+			CAT="database|TCL library"
+			DEPENDS="libsqlite3 tcl"
+			PROVIDE="libsqlite-tcl"
+			;;
+		lemon)
+			copy lemon lempar.c
+			CAT="system-tools|The LEMON Parser Generator"
+			DEPENDS=" "
+			;;
+		sqlite3-dev)
+			copy @dev
+			DEPENDS="sqlite3 libsqlite3 libsqlite3-tcl lemon"
+			PROVIDE="sqlite-dev"
+			;;
+	esac
+}

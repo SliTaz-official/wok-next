@@ -1,39 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="shared-mime-info"
-VERSION="1.6"
+VERSION="1.7"
 CATEGORY="system-tools"
-SHORT_DESC="Core database of common types and the *update-mime-database*."
+SHORT_DESC="Core database of common types"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://freedesktop.org/wiki/Software/shared-mime-info"
-WGET_URL="http://freedesktop.org/~hadess/$TARBALL"
+WEB_SITE="https://freedesktop.org/wiki/Software/shared-mime-info/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="glib"
-BUILD_DEPENDS="intltool"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://freedesktop.org/~hadess/$TARBALL"
 
-# Handle cross compilation. Host perl/intltool are used
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="glib-dev libxml2-dev" ;;
-esac
+BUILD_DEPENDS="intltool"
+BUILD_DEPENDS_arm="glib-dev libxml2-dev"
+SPLIT="shared-mime-info-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	#patch -Np1 -i $stuff/pbm.patch
-	./configure $CONFIGURE_ARGS &&
+	# Remove unsupported locales
+	for i in $(grep '^-[a-z]' $stuff/patches/slitaz-locales.patch); do
+		rm $src/po/${i#-}.po
+	done
+
+	./configure \
+		--disable-update-mimedb \
+		$CONFIGURE_ARGS &&
 	make -j1 && make -j1 DESTDIR=$DESTDIR install
+
+	# Additional MIME-types supported by SliTaz
+	cp $stuff/*.xml $install/usr/share/mime/packages
+
+	# strip a bit
+	sed -i 's|^ *||' "$install/usr/share/mime/packages/freedesktop.org.xml"
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/mime
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/mime/packages $fs/usr/share/mime
-
-	# Additional MIME-types supported by SliTaz
-	cp $stuff/*.xml $fs/usr/share/mime/packages
+	case $PACKAGE in
+		shared-mime-info)
+			copy bin/ packages/
+			DEPENDS="glib"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

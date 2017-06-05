@@ -1,34 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libssh"
-VERSION="0.7.3"
+VERSION="0.7.5"
 CATEGORY="network"
-SHORT_DESC="Library for accessing ssh client services through C libraries"
+SHORT_DESC="Library for accessing SSH client services through C libraries"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.libssh.org/"
-WGET_URL="https://red.libssh.org/attachments/download/195/$TARBALL"
 TAGS="ssh"
 
-DEPENDS="libssl"
-BUILD_DEPENDS="cmake openssl-dev wget"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://red.libssh.org/attachments/download/218/$TARBALL"
+TARBALL_MD5="d3fc864208bf607ad87cdee836894feb"
+
+BUILD_DEPENDS="cmake zlib-dev openssl-dev"
+SPLIT="libssh-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	mkdir build
 	cd build
-	cmake ../ \
+	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=Release
-	make
-	make DESTDIR=$DESTDIR install
+		-DCMAKE_BUILD_TYPE=Release \
+		.. &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libssh)
+			copy @std
+			DEPENDS="libcrypto zlib"
+			;;
+		libssh-dev)
+			copy @dev
+			;;
+	esac
 }

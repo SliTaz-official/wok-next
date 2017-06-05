@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xcb-util-image"
 VERSION="0.4.0"
@@ -11,8 +11,8 @@ WEB_SITE="https://xcb.freedesktop.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://xcb.freedesktop.org/dist/$TARBALL"
 
-DEPENDS="libxcb xcb-util"
 BUILD_DEPENDS="libxcb-dev xcb-util-dev xorg-util-macros"
+SPLIT="xcb-util-image-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,5 +26,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		xcb-util-image)
+			copy @std
+			DEPENDS="libxcb xcb-util"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

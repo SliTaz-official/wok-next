@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="expat"
 VERSION="2.2.0"
@@ -6,11 +6,13 @@ CATEGORY="x-window"
 SHORT_DESC="XML parsing C library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://expat.sourceforge.net/"
+WEB_SITE="https://libexpat.github.io/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+SPLIT="expat-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,5 +29,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files xmlwf *.so*
+	case $PACKAGE in
+		expat) copy @std ;;
+		expat-dev) copy @dev ;;
+	esac
 }

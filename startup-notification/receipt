@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="startup-notification"
 VERSION="0.12"
@@ -12,8 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.freedesktop.org/software/startup-notification/releases/$TARBALL"
 
-DEPENDS="libxcb xcb-util xorg-libX11"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev libxcb-dev xcb-util-dev"
+SPLIT="startup-notification-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,5 +30,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		startup-notification)
+			copy @std
+			DEPENDS="libxcb xcb-util xorg-libX11"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="startup-notification glibc-dev libxcb-dev xcb-util-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev"
+			;;
+	esac
 }

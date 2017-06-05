@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pygtk"
 VERSION="2.24.0"
@@ -6,22 +6,18 @@ CATEGORY="development"
 SHORT_DESC="GTK+ for Python"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.pygtk.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="python pycairo pygobject expat gtk+ libglade libxml2 xorg-libX11 \
-xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext \
-xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender \
-xorg-libXdamage libffi python-numpy"
 BUILD_DEPENDS="python-dev pycairo-dev pygobject-dev expat-dev gtk+-dev \
 libglade-dev libxml2-dev libffi-dev python-numpy"
+SPLIT="pygtk-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	#https://bugzilla.gnome.org/show_bug.cgi?id=623965
-	patch -Np1 -i $stuff/python27.patch
 	./configure --disable-docs $CONFIGURE_ARGS &&
 	make $MAKEFLAGS && make install
 }
@@ -29,7 +25,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/$PYTHON_LIB $fs/usr/lib
+	case $PACKAGE in
+		pygtk)
+			copy @std
+			DEPENDS="python pycairo pygobject expat gtk+ libglade libxml2 \
+			xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXcursor \
+			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
+			xorg-libXrandr xorg-libXrender xorg-libXdamage libffi python-numpy"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pygtk gtk+-dev pygobject-dev pycairo-dev"
+			;;
+	esac
 }

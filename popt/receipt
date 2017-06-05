@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="popt"
 VERSION="1.16"
@@ -13,6 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://rpm5.org/files/popt/$TARBALL"
 
 BUILD_DEPENDS="gettext"
+SPLIT="popt-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,5 +27,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		popt) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

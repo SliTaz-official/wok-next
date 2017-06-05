@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="zlib"
-VERSION="1.2.8"
+VERSION="1.2.11"
 CATEGORY="base-system"
 SHORT_DESC="Compression library"
 MAINTAINER="pankso@slitaz.org"
@@ -12,8 +12,7 @@ HOST_ARCH="i486 arm x86_64"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
-DEPENDS="glibc-base"
-BUILD_DEPENDS=""
+SPLIT="zlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -24,7 +23,8 @@ compile_rules()
 #			export CFLAGS="${CFLAGS/-O2/-O3} -fno-tree-vectorize -DUNALIGNED_OK" ;;
 #	esac
 
-	./configure --prefix=/usr &&
+	./configure \
+		--prefix=/usr &&
 	make && make install
 
 	mkdir -p $install/lib
@@ -43,5 +43,8 @@ testsuite()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files libz.so*
+	case $PACKAGE in
+		zlib) copy @std ;;
+		zlib-dev) copy @dev ;;
+	esac
 }

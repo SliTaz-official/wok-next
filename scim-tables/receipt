@@ -1,33 +1,74 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="scim-tables"
-VERSION="0.5.9"
+VERSION="0.5.14.1"
 CATEGORY="meta"
-SHORT_DESC="SCIM Generic Table Input Method module meta package."
+SHORT_DESC="SCIM Tables"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.scim-im.org/"
-WGET_URL="$SF_MIRROR/scim/$TARBALL"
-LOCALE=""
+WEB_SITE="https://github.com/scim-im/scim-tables"
 
-DEPENDS="scim scim-tables-base scim-tables-ja scim-tables-ko scim-tables-zh scim-tables-additional"
-BUILD_DEPENDS="scim-dev expat-dev gtk+-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/$TARBALL"
+
+BUILD_DEPENDS="automake libtool intltool gettext scim-dev"
+SPLIT="scim-tables-base scim-tables-ja scim-tables-ko scim-tables-zh \
+scim-tables-dev scim-tables-additional"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-    cd $src
-    ./configure --prefix=/usr \
-        --mandir=/usr/share/man \
-        --disable-static \
-        $CONFIGURE_ARGS &&
-    make &&
-    make DESTDIR=$DESTDIR install
+	./bootstrap &&
+
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    mkdir -p $fs/var
+	case $PACKAGE in
+		scim-tables)
+			DEPENDS="scim $SPLIT"
+			;;
+		*-base)
+			copy *.so*
+			CAT="x-window|base module"
+			DEPENDS="scim"
+			;;
+		*-ja)
+			copy HIRAGANA.* KATAKANA.* Nippon.*
+			CAT="x-window|Japanese data"
+			DEPENDS="scim-tables-base"
+			;;
+		*-ko)
+			copy Hangul.* HangulRomaja.* Hanja.*
+			CAT="x-window|Korean data"
+			DEPENDS="scim-tables-base"
+			;;
+		*-zh)
+			copy Array30.* CangJie5.* CangJie.* CangJie3.* Cantonese.* \
+				CantonHK.* CNS11643.* Dayi3.* Erbi.* Erbi-QS.* EZ-Big.* \
+				Jyutping.* Quick.* Simplex.* Stroke5.* Wu.* Wubi.* Ziranma.* \
+				ZhuYin.* ZhuYin-Big.*
+			CAT="x-window|Chinese data"
+			DEPENDS="scim-tables-base wqy-bitmapfont"
+			;;
+		*-dev)
+			copy @dev scim-make-table
+			;;
+		*-additional)
+			copy scim/
+			for i in $taz/*/files.list; do
+				while read j; do
+					[ -e "$fs$j" ] && rm $fs$j
+				done < $i
+			done
+			CAT="x-window|miscellaneous data"
+			DEPENDS="scim-tables-base"
+			;;
+	esac
 }

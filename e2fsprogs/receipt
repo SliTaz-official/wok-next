@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="e2fsprogs"
-VERSION="1.43.1"
+VERSION="1.43.4"
 CATEGORY="base-system"
-SHORT_DESC="Filesystem utilities for use with ext2 and ext3 (without fsck*)."
+SHORT_DESC="Filesystem utilities for use with ext2 and ext3"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://e2fsprogs.sourceforge.net/"
@@ -12,15 +12,10 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libcomerr util-linux-blkid util-linux-uuid"
 BUILD_DEPENDS="util-linux-uuid-dev util-linux-blkid-dev gettext attr-dev \
 acl-dev texinfo"
-SPLIT="libcomerr libcomerr-dev e2fsprogs-dev"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
+BUILD_DEPENDS_arm=" "
+SPLIT="libcomerr libcomerr-dev e2fsprogs-dev e2fsprogs-fsck"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -63,16 +58,40 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin sbin etc
-	cook_copy_files *.so*
-	# Split -> libcomerr
-	find $fs -name 'libcom_err*' -delete
-	# Remove fsck provided by Busybox.
-	rm $fs/sbin/fsck*
+	case $PACKAGE in
+		e2fsprogs)
+			copy bin/ sbin/ etc/ *.so*
+			find $fs -name '*com_err*' -delete
+			# Remove fsck provided by Busybox.
+			rm $fs/sbin/fsck*
+			DEPENDS="libcomerr util-linux-blkid util-linux-uuid"
+			;;
+		e2fsprogs-dev)
+			copy @dev *.awk *.sed
+			find $fs \( -name com_err.h -o -name libcom_err.a -o -name com_err.pc \) -delete
+			DEPENDS="libcomerr-dev pkg-config"
+			;;
+		libcomerr)
+			copy libcom_err.so*
+			CAT="base-system|libcomerr library"
+			DEPENDS=" "
+			;;
+		libcomerr-dev)
+			copy libcom_err.a com_err.h com_err.pc
+			CAT="development|libcomerr development files"
+			DEPENDS="pkg-config"
+			;;
+		e2fsprogs-fsck)
+			copy fsck.*
+			rm -r $fs/usr
+			CAT="system-tools|fsck tools"
+			DEPENDS="e2fsprogs libcomerr util-linux-blkid util-linux-uuid"
+			;;
+	esac
 }
 
 # Overlap busybox
-pre_install()
+pre_install_e2fsprogs()
 {
 	rm -f $1/sbin/tune2fs
 }

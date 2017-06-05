@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slang"
 VERSION="2.2.4"
@@ -7,13 +7,12 @@ SHORT_DESC="S-Lang library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.jedsoft.org/slang/"
-CONFIG_FILES="/etc/slsh.rc"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://space.mit.edu/pub/davis/slang/v${VERSION%.*}/$TARBALL"
 
-DEPENDS="libpng ncurses oniguruma pcre readline zlib"
 BUILD_DEPENDS="pcre-dev oniguruma-dev libpng-dev zlib-dev readline-dev"
+SPLIT="slang-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -35,6 +34,12 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-	cook_copy_files *.so*
+	case $PACKAGE in
+		slang)
+			copy @std
+			DEPENDS="libpng ncurses oniguruma pcre readline zlib"
+			CONFIG_FILES="/etc/slsh.rc"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

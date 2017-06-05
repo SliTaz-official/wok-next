@@ -1,35 +1,34 @@
 # SliTaz package receipt.
 
 PACKAGE="st"
-VERSION="0.5"
+VERSION="0.7"
 CATEGORY="x-window"
-SHORT_DESC="St is a simple terminal implementation for X."
+SHORT_DESC="Simple terminal implementation for X"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://st.suckless.org/"
-WGET_URL="http://dl.suckless.org/st/$TARBALL"
 #HOST_ARCH="i486 arm"
 
-DEPENDS="xorg-libX11 xorg-libXft fontconfig freetype ncursesw-extra"
-BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev fontconfig-dev \
-freetype-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://dl.suckless.org/st/$TARBALL"
+
+DEPENDS="fontconfig freetype xorg-libX11 xorg-libXft"
+BUILD_DEPENDS="fontconfig-dev freetype-dev xorg-xproto xorg-libX11-dev \
+xorg-libXft-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make CC=${HOST_SYSTEM}-gcc
+	# fix PREFIX
+	sed -i "s|/usr/local|/usr|" config.mk
+	# install terminfo files into DESTDIR
+	sed -i "s|st.info|& -o$install/usr/share/terminfo|" Makefile
+
+	make CC=$HOST_SYSTEM-gcc && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/share/${PACKAGE}
-	cp -a ${src}/${PACKAGE} $fs/usr/bin
-	cp ${src}/st.info $fs/usr/share/${PACKAGE}
-}
-
-post_install()
-{
-	chroot "$1/" tic -s /usr/share/${PACKAGE}/st.info
+	copy @std
 }

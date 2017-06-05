@@ -1,35 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="x264"
-VERSION="20160517-2245"
+VERSION="20170601-2245"
 CATEGORY="multimedia"
+SHORT_DESC="Free H.264/AVC encoder"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="free library for encoding H264/AVC video streams"
 WEB_SITE="http://www.videolan.org/developers/x264.html"
-SOURCE="$PACKAGE-snapshot"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="http://ftp.videolan.org/pub/videolan/x264/snapshots/$TARBALL"
 #HOST_ARCH="i486 arm"
 
-DEPENDS="glibc-base"
+TARBALL="x264-snapshot-$VERSION-stable.tar.bz2"
+WGET_URL="http://ftp.videolan.org/pub/videolan/x264/snapshots/$TARBALL"
+
 BUILD_DEPENDS="yasm"
+SPLIT="x264-dev"
 
 # Rules to configure and make the package.
 compile_rules() {
 	./configure \
-		--enable-shared $CONFIGURE_ARGS &&
-	make && make \
-		DESTDIR=$DESTDIR \
-		bindir=/usr/bin \
-		libdir=/usr/lib \
-		includedir=/usr/include install
+		--prefix=/usr \
+		--enable-shared \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*so* $fs/usr/lib/
+	case $PACKAGE in
+		x264) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

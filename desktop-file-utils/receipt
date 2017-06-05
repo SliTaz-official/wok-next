@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="desktop-file-utils"
 VERSION="0.23"
 CATEGORY="system-tools"
-SHORT_DESC="Utilities for .desktop files (update-desktop-database)"
+SHORT_DESC="Utilities for .desktop files"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/desktop-file-utils/"
@@ -11,7 +11,6 @@ WEB_SITE="https://www.freedesktop.org/wiki/Software/desktop-file-utils/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.freedesktop.org/software/desktop-file-utils/releases/$TARBALL"
 
-DEPENDS="glib glibc-base pcre"
 BUILD_DEPENDS="pkg-config glib-dev"
 SPLIT="desktop-file-utils-extra"
 
@@ -24,5 +23,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files update-desktop-database
+	case $PACKAGE in
+		desktop-file-utils)
+			copy update-desktop-database
+			DEPENDS="glib glibc-base pcre"
+			;;
+		desktop-file-utils-extra)
+			copy desktop-file-edit desktop-file-install desktop-file-validate
+			DEPENDS="glib glibc-base pcre"
+			CAT="system-tools|extra desktop file utils"
+			;;
+	esac
 }

@@ -1,84 +1,56 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="squirrelmail-locales"
 VERSION="1.4.13-20071220"
 CATEGORY="meta"
-SHORT_DESC="ALL locales for Web mail."
+SHORT_DESC="Squirrelmail locales"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-SOURCE="all_locales"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.squirrelmail.org/"
-WGET_URL="$SF_MIRROR/squirrelmail/$TARBALL"
 HOST_ARCH="any"
 
-DEPENDS="squirrelmail-ar \
-squirrelmail-bg_BG \
-squirrelmail-bn_IN \
-squirrelmail-ca_ES \
-squirrelmail-cs_CZ \
-squirrelmail-cy_GB \
-squirrelmail-da_DK \
-squirrelmail-de_DE \
-squirrelmail-el_GR \
-squirrelmail-en_GB \
-squirrelmail-es_ES \
-squirrelmail-et_EE \
-squirrelmail-eu_ES \
-squirrelmail-fa_IR \
-squirrelmail-fi_FI \
-squirrelmail-fo_FO \
-squirrelmail-fr_FR \
-squirrelmail-fy \
-squirrelmail-he_IL \
-squirrelmail-hr_HR \
-squirrelmail-hu_HU \
-squirrelmail-id_ID \
-squirrelmail-is_IS \
-squirrelmail-it_IT \
-squirrelmail-ja_JP \
-squirrelmail-ka \
-squirrelmail-ko_KR \
-squirrelmail-lt_LT \
-squirrelmail-ms_MY \
-squirrelmail-nb_NO \
-squirrelmail-nl_NL \
-squirrelmail-nn_NO \
-squirrelmail-pl_PL \
-squirrelmail-pt_BR \
-squirrelmail-pt_PT \
-squirrelmail-ro_RO \
-squirrelmail-ru_RU \
-squirrelmail-sk_SK \
-squirrelmail-sl_SI \
-squirrelmail-sr_YU \
-squirrelmail-sv_SE \
-squirrelmail-tr_TR \
-squirrelmail-ug \
-squirrelmail-uk_UA \
-squirrelmail-zh_CN \
-squirrelmail-zh_TW \
-"
+TARBALL="all_locales-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/squirrelmail/$TARBALL"
+
+S='squirrelmail'
+SPLIT="\
+$S-ar    $S-bg_BG $S-bn_IN $S-ca_ES $S-cs_CZ $S-cy_GB $S-da_DK $S-de_DE \
+$S-el_GR $S-en_GB $S-es_ES $S-et_EE $S-eu_ES $S-fa_IR $S-fi_FI $S-fo_FO \
+$S-fr_FR $S-fy    $S-he_IL $S-hr_HR $S-hu_HU $S-id_ID $S-is_IS $S-it_IT \
+$S-ja_JP $S-ka    $S-ko_KR $S-lt_LT $S-ms_MY $S-nb_NO $S-nl_NL $S-nn_NO \
+$S-pl_PL $S-pt_BR $S-pt_PT $S-ro_RO $S-ru_RU $S-sk_SK $S-sl_SI $S-sr_YU \
+$S-sv_SE $S-tr_TR $S-ug    $S-uk_UA $S-zh_CN $S-zh_TW"
 
 compile_rules()
 {
-	[ -d $src ] || mkdir $src
-	for i in *; do
-		case "$i" in
-		receipt|taz|process.log|$(basename $src));;
-		*) mv -f $i $src;;
-		esac
-	done
-	[ -e $PACKAGE-$VERSION ] || ln -s $(basename $src) $PACKAGE-$VERSION
+	mkdir -p $install/usr/share/squirrelmail
+	cp -a locale help images $install/usr/share/squirrelmail
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/squirrelmail/locale
+	case $PACKAGE in
+		squirrelmail-locales)
+			DEPENDS="$SPLIT"
+			;;
+		*)
+			locale=${PACKAGE#*-}
+			copy /$locale/ sec_remove_$locale.png
+			name=$(grep "($locale)" $src/ReleaseNotes.locales | sed 's| (.*||; s| Bokm.*| Bokmål|')
+			CAT="localization|$name locale"
+			DEPENDS="squirrelmail"
+			;;
+	esac
 }
 
-clean_wok()
+post_install()
 {
-	rm -f $PACKAGE-$VERSION
+	case $PACKAGE in
+		squirrelmail-locales);;
+		*)
+			sed -i "/^\$squirrelmail_default_language/s|=.*|= '${PACKAGE#*-}';|" \
+			"$1/etc/squirrelmail/config.php";;
+	esac
 }

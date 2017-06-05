@@ -17,8 +17,6 @@ SPLIT="aalib-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -Np0 -i $stuff/aclocal-fixes.patch
-
 	./configure $CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
 }
@@ -31,10 +29,6 @@ genpkg_rules()
 			copy @std
 			DEPENDS="ncurses xorg-libXt xorg-libX11"
 			;;
-		aalib-dev)
-			copy @dev
-			DEPENDS="aalib"
-			;;
+		*-dev) copy @dev;;
 	esac
 }
-

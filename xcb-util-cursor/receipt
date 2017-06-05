@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xcb-util-cursor"
 VERSION="0.1.3"
@@ -12,9 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://xcb.freedesktop.org/dist/$TARBALL"
 
-DEPENDS="libxcb xcb-util-renderutil xcb-util-image"
 BUILD_DEPENDS="libxcb-dev xcb-util-dev xcb-util-renderutil-dev \
 xcb-util-image-dev"
+SPLIT="xcb-util-cursor-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,5 +28,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		xcb-util-cursor)
+			copy @std
+			DEPENDS="libxcb xcb-util-renderutil xcb-util-image"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

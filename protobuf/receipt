@@ -1,29 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="protobuf"
-VERSION="2.4.1"
+VERSION="3.3.0"
 CATEGORY="network"
-SHORT_DESC="Encode structured data in an efficient yet extensible format."
+SHORT_DESC="Protocol Buffers - Google's data interchange format"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://code.google.com/p/protobuf/"
-WGET_URL="http://protobuf.googlecode.com/files/$TARBALL"
+WEB_SITE="https://developers.google.com/protocol-buffers/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/google/protobuf/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="curl automake libtool zlib-dev python-dev setuptools"
+SPLIT="protobuf-python protobuf-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS && make && make install || exit 1
+
+	cd $src/python
+	python setup.py install --prefix=/usr --root $DESTDIR
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		protobuf)
+			copy bin/ *.so*
+			DEPENDS="zlib"
+			;;
+		protobuf-python)
+			copy python2.7/
+			CAT="network|Python bindings"
+			DEPENDS="python protobuf"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

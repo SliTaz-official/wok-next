@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xcb-util"
 VERSION="0.4.0"
@@ -12,13 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}dist/$TARBALL"
 
-DEPENDS="libxcb"
 BUILD_DEPENDS="libxcb-dev gperf"
-
-# Handle cross compilation
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="libxcb-dev xorg-libXdmcp-dev" ;;
-esac
+BUILD_DEPENDS_arm="libxcb-dev xorg-libXdmcp-dev"
+SPLIT="xcb-util-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,5 +30,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		xcb-util)
+			copy @std
+			DEPENDS="libxcb"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

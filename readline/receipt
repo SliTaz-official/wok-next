@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="readline"
-VERSION="6.3"
+VERSION="7.0"
 CATEGORY="system-tools"
-SHORT_DESC="GNU readline."
+SHORT_DESC="GNU readline"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html"
@@ -12,8 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev flex"
+SPLIT="readline-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -22,20 +22,35 @@ compile_rules()
 		arm*) export bash_cv_wcwidth_broken=true ;;
 	esac
 
-	patch -Np1 -i $stuff/readline-6.3-upstream_fixes-3.patch
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
 
 	./configure \
 		--disable-static \
+		--libdir=/lib \
 		--docdir=/usr/share/doc/readline-$VERSION \
 		$CONFIGURE_ARGS &&
 	make SHLIB_LIBS=-lncurses &&
 	make DESTDIR=$install install
+
+	# *.so.* -> /lib
+	# *.so   -> /usr/lib
+	mkdir -p $install/usr/lib
+	ln -sfv ../../lib/$(readlink $install/lib/libreadline.so) \
+		$install/usr/lib/libreadline.so
+	ln -sfv ../../lib/$(readlink $install/lib/libhistory.so ) \
+		$install/usr/lib/libhistory.so
+	rm $install/lib/*.so
+
+	# install the documentation
+	cp doc/*.pdf doc/*.html $install/usr/share/doc/readline-7.0
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		readline) copy @std; DEPENDS="ncurses";;
+		*-dev) copy @dev;;
+	esac
 }

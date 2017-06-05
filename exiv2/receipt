@@ -1,34 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="exiv2"
-VERSION="0.21"
+VERSION="0.26"
 CATEGORY="graphics"
-SHORT_DESC="Exif and Iptc metadata manipulation library and tools"
+SHORT_DESC="EXIF and IPTC metadata manipulation library and tools"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.exiv2.org/"
-WGET_URL="$WEB_SITE/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="expat zlib gcc-lib-base"
-BUILD_DEPENDS="gcc-lib-base expat-dev zlib-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.exiv2.org/builds/exiv2-$VERSION-trunk.tar.gz"
+TARBALL_MD5="f936d2ca5cbe1e18c71ca2baa5e84fb4"
+
+BUILD_DEPENDS="gettext zlib-dev expat-dev curl-dev libssh-dev"
+SPLIT="exiv2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-   	cd $src
 	./configure \
-		--prefix=/usr \
+		--enable-video \
+		--enable-webready \
 		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		exiv2)
+			copy @std
+			DEPENDS="expat libcurl libssh zlib"
+			;;
+		exiv2-dev)
+			copy @dev
+			DEPENDS="curl-dev expat-dev libcrypto-dev libssh-dev openssl-dev \
+			zlib-dev"
+			;;
+	esac
 }

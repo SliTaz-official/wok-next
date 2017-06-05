@@ -1,28 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xz"
-VERSION="5.2.2"
+VERSION="5.2.3"
 CATEGORY="base-system"
-SHORT_DESC="General-purpose data compressor with a high compression ratio."
+SHORT_DESC="XZ Utils"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="PublicDomain LGPL2.1 GPL2 GPL3"
-WEB_SITE="http://tukaani.org/xz/"
+WEB_SITE="https://tukaani.org/xz/"
 TAGS="compression archive"
 HOST_ARCH="i486 arm x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
-DEPENDS="liblzma"
 BUILD_DEPENDS="gettext"
-SPLIT="xz-tools liblzma liblzma-dev"
+SPLIT="xz-tools liblzma liblzma-dev xz-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -e '/mf\.buffer = NULL/a next->coder->mf.size = 0;' \
-		-i $src/src/liblzma/lz/lz_encoder.c
-
 	./configure \
 		--disable-static \
 		--docdir=/usr/share/doc/xz-$VERSION \
@@ -42,5 +38,31 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/bin $fs
+	case $PACKAGE in
+		xz)
+			copy ^/bin/
+			DEPENDS="liblzma"
+			;;
+		xz-tools)
+			copy /usr/bin/
+			CAT="utilities|misc commandline utilities"
+			DEPENDS="liblzma"
+			;;
+		liblzma)
+			copy liblzma.so*
+			CAT="libs|library"
+			DEPENDS=" "
+			;;
+		liblzma-dev)
+			copy liblzma.la liblzma.pc
+			CAT="development|library development files"
+			DEPENDS="liblzma"
+			;;
+		xz-dev)
+			copy @dev
+			find $fs -name 'liblzma.*' -delete
+			DEPENDS="xz xz-tools liblzma liblzma-dev"
+			PROVIDE="liblzma-dev"
+			;;
+	esac
 }

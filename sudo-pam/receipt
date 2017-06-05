@@ -1,70 +1,61 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sudo-pam"
-VERSION="1.8.10p2"
+VERSION="1.8.20p2"
 CATEGORY="security"
-SHORT_DESC="Sudo (su \"do\") allows a system administrator to delegate authority using PAM."
+SHORT_DESC="Execute a command as another user, with PAM support"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="ISC"
-WEB_SITE="http://www.gratisoft.us/sudo/"
-CONFIG_FILES="/etc/sudoers"
-PROVIDE="sudo:pam"
+WEB_SITE="https://www.sudo.ws/"
 
 TARBALL="sudo-$VERSION.tar.gz"
-WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
+WGET_URL="${WEB_SITE}dist/$TARBALL"
 
-DEPENDS="pam"
-BUILD_DEPENDS="gettext pam-dev"
-SIBLINGS="sudo"
+BUILD_DEPENDS="gettext groff pam-dev"
+SPLIT="sudo-pam-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Fix error and rebuild .mo
-	patch -p1 -i $stuff/sr.po.patch
-	msgfmt $src/plugins/sudoers/po/sr.po -o $src/plugins/sudoers/po/sr.mo
-
 	./configure \
 		--sysconfdir=/etc \
-		--with-pam \
-		--with-editor=/bin/vi \
 		--libexecdir=/usr/lib \
+		--with-secure-path \
+		--with-all-insults \
+		--with-env-editor \
+		--docdir=/usr/share/doc/sudo-$VERSION \
+		--with-passprompt="[sudo] password for %p" \
+		--with-pam \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install &&
+
+	ln -sfv libsudo_util.so.0.0.0 $install/usr/lib/sudo/libsudo_util.so.0 &&
+
+	mkdir -p $install/etc/pam.d &&
+	cp $stuff/sudo $install/etc/pam.d/
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	mkdir -p $fs/etc/pam.d
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/etc/sudoers $fs/etc/
-	cp -a $stuff/sudo $fs/etc/pam.d/
-	cp -a $install/usr/lib $fs/usr
+	case $PACKAGE in
+		sudo-pam)
+			copy @std
+			DEPENDS="pam zlib"
+			PROVIDE="sudo:pam"
+			CONFIG_FILES="/etc/sudoers /etc/pam.d/sudo"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pam-dev zlib-dev"
+			PROVIDE="sudo-dev:pam"
+			;;
+	esac
 }
 
-pre_install()
+# FIXME: you will not be able to remove 'sudo-pam' until you remove 'pam'...
+pre_remove_sudo_pam()
 {
-	if [ -f "$1/etc/sudoers" ]; then
-		cp "$1/etc/sudoers" "$1/etc/sudoers.bak"
-	fi
-}
-
-post_install()
-{
-	if [ -f "$1/etc/sudoers.bak" ]; then
-		rm -f "$1/etc/sudoers"
-		mv "$1/etc/sudoers.bak" "$1/etc/sudoers"
-	else
-		chown root.root "$1/etc/sudoers"
-		chmod 0440 "$1/etc/sudoers"
-	fi
-}
-
-pre_remove()
-{
-	tazpkg get-install sudo
+	tazpkg -gi sudo
 }

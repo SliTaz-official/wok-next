@@ -1,19 +1,18 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pycairo"
 VERSION="1.10.0"
 CATEGORY="development"
-SHORT_DESC="Python bindings for the cairo graphics library."
+SHORT_DESC="Python bindings for the cairo graphics library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MPL LGPL2.1"
-SOURCE="py2cairo"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.cairographics.org/pycairo/"
+
+TARBALL="py2cairo-$VERSION.tar.bz2"
 WGET_URL="http://www.cairographics.org/releases/$TARBALL"
 
-DEPENDS="cairo expat fontconfig freetype xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXrender xcb-util"
 BUILD_DEPENDS="pkg-config cairo cairo-dev xorg-xproto python-dev"
+SPLIT="pycairo-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,7 +25,12 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/$PYTHON_LIB $fs/usr/lib
+	case $PACKAGE in
+		pycairo)
+			copy @std
+			DEPENDS="cairo expat fontconfig freetype xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXrender xcb-util"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

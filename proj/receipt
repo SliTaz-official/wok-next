@@ -1,17 +1,18 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="proj"
-VERSION="4.7.0"
+VERSION="4.9.3"
 CATEGORY="misc"
-SHORT_DESC="Cartographic Projections Library."
+SHORT_DESC="Cartographic Projections Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://trac.osgeo.org/proj/"
+WEB_SITE="http://proj4.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.osgeo.org/proj/$TARBALL"
+TARBALL_MD5="d598336ca834742735137c5674b214a1"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+SPLIT="proj-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,10 +24,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/proj $fs/usr/share
-	
+	case $PACKAGE in
+		proj) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

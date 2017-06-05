@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pygobject"
 VERSION="2.28.6"
@@ -6,13 +6,14 @@ CATEGORY="development"
 SHORT_DESC="Python bindings for the GObject library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.pygtk.org/docs/pygobject/index.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="python pycairo glib libffi libgio"
 BUILD_DEPENDS="python python-dev pkg-config glib-dev libgio-dev pycairo-dev \
 cairo-dev libffi-dev"
+SPLIT="pygobject-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -24,8 +25,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/$PYTHON_LIB $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		pygobject)
+			copy @std
+			DEPENDS="python pycairo glib libffi libgio"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pygobject libffi-dev"
+			;;
+	esac
 }

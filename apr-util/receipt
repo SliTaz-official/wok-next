@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.apache.org/dist/apr/$TARBALL"
 
 BUILD_DEPENDS="apr-dev openssl-dev gdbm-dev postgresql-dev sqlite-dev \
-unixODBC-dev expat-dev mysql-dev"
+unixODBC-dev expat-dev mysql-dev openldap-dev"
 SPLIT="apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite apr-crypto \
 apr-dbm-gdbm apr-util-dev"
 
@@ -26,6 +26,7 @@ compile_rules()
 		--with-openssl=/usr \
 		--with-mysql \
 		--with-crypto \
+		--with-ldap \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -69,10 +70,6 @@ genpkg_rules()
 			CAT="libdevel|GDBM plugin"
 			copy *dbm*.so
 			;;
-		apr-util-dev)
-			DEPENDS="apr-util apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql \
-			apr-dbd-sqlite"
-			copy @dev
-			;;
+		*-dev) copy @dev;;
 	esac
 }

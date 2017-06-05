@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fontconfig"
 VERSION="2.12.1"
@@ -12,8 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.freedesktop.org/software/fontconfig/release/$TARBALL"
 
-DEPENDS="bzlib freetype liblzma liblzma libpng libxml2 zlib"
-BUILD_DEPENDS="libxml2-dev freetype-dev"
+BUILD_DEPENDS="libxml2-dev freetype-without-harfbuzz-dev"
+SPLIT="fontconfig-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,17 +29,11 @@ compile_rules()
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
-}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cook_copy_folders etc bin share var
-	cook_copy_files *.so*
 
-	# Which the app uses the next?
-	# There are 10-hinting-{full,medium,none,slight}.conf already exists...
-	cd $fs/usr/share/fontconfig/conf.avail
+	# FIXME: Which the app uses the next?
+	# FIXME: There are 10-hinting-{full,medium,none,slight}.conf already exists...
+	cd $install/usr/share/fontconfig/conf.avail
 	for h in hintslight hintmedium hintfull; do
 		cat > 10-hintstyle-$h.conf <<EOT
 <match target="font">
@@ -51,11 +45,27 @@ EOT
 	done
 
 	ln -s /usr/share/fontconfig/conf.avail/11-lcdfilter-default.conf \
-		$fs/etc/fonts/conf.d
+		$install/etc/fonts/conf.d
 
 	# Fontconfig warning: "/etc/fonts/conf.d/50-user.conf", line 14: reading
 	# configurations from ~/.fonts.conf is deprecated.
-	sed -i '/~\/\.fonts\.conf</d' $fs/usr/share/fontconfig/conf.avail/50-user.conf
+	sed -i '/~\/\.fonts\.conf</d' \
+		$install/usr/share/fontconfig/conf.avail/50-user.conf
 
-#	chown -R root.root $fs
+	# chown -R root.root $fs
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		fontconfig)
+			copy @std
+			DEPENDS="bzlib freetype liblzma liblzma libpng libxml2 zlib"
+			;;
+		fontconfig-dev)
+			copy @dev
+			DEPENDS="fontconfig freetype-dev libpng-dev libxml2-dev"
+			;;
+	esac
 }

@@ -1,61 +1,50 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sudo"
-VERSION="1.8.10p2"
+VERSION="1.8.20p2"
 CATEGORY="security"
-SHORT_DESC="Sudo (su \"do\") allows a system administrator to delegate authority."
+SHORT_DESC="Execute a command as another user"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="ISC"
-WEB_SITE="http://www.gratisoft.us/sudo/"
-CONFIG_FILES="/etc/sudoers"
+WEB_SITE="https://www.sudo.ws/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.gratisoft.us/sudo/dist/$TARBALL"
+WGET_URL="${WEB_SITE}dist/$TARBALL"
 
-BUILD_DEPENDS="gettext"
-SIBLINGS="sudo-pam"
+BUILD_DEPENDS="gettext groff"
+SPLIT="sudo-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Fix error and rebuild .mo
-	patch -p1 -i $stuff/sr.po.patch
-	msgfmt $src/plugins/sudoers/po/sr.po -o $src/plugins/sudoers/po/sr.mo
-
 	./configure \
 		--sysconfdir=/etc \
-		--without-pam \
-		--with-editor=/bin/vi \
 		--libexecdir=/usr/lib \
+		--with-secure-path \
+		--with-all-insults \
+		--with-env-editor \
+		--docdir=/usr/share/doc/sudo-$VERSION \
+		--with-passprompt="[sudo] password for %p" \
+		--without-pam \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install &&
+
+	ln -sfv libsudo_util.so.0.0.0 $install/usr/lib/sudo/libsudo_util.so.0
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/ $fs/usr
-	cp -a $install/etc  $fs/
-}
-
-pre_install()
-{
-	if [ -f "$1/etc/sudoers" ]; then
-		cp "$1/etc/sudoers" "$1/etc/sudoers.bak"
-	fi
-}
-
-post_install()
-{
-	if [ -f "$1/etc/sudoers.bak" ]; then
-		mv "$1/etc/sudoers" "$1/etc/sudoers-dist"
-		mv "$1/etc/sudoers.bak" "$1/etc/sudoers"
-	else
-		chown root.root "$1/etc/sudoers"
-		chmod 0440 "$1/etc/sudoers"
-	fi
+	case $PACKAGE in
+		sudo)
+			copy @std
+			DEPENDS="zlib"
+			CONFIG_FILES="/etc/sudoers"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="zlib-dev"
+			;;
+	esac
 }

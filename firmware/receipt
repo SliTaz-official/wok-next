@@ -1,29 +1,89 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="firmware"
-SOURCE="linux-firmware"
-VERSION="20141201"
-REVISION="38e5405"
+VERSION="20170530"
+COMMIT="2c9407690352b29206036b4502bcefc74f01063d"
 CATEGORY="meta"
 SHORT_DESC="Firmware files for Linux"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="other"
-TARBALL="$SOURCE-$VERSION.$REVISION-1-any.pkg.tar.xz"
-WEB_SITE="http://git.kernel.org/cgit/linux/kernel/git/firmware/linux-firmware.git"
-WGET_URL="http://archlinux.mirrors.ovh.net/archlinux/core/os/i686/$TARBALL"
+WEB_SITE="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+
+TARBALL="linux-firmware-$COMMIT.tar.gz"
+WGET_URL="$WEB_SITE/snapshot/$TARBALL"
+
+SPLIT="firmware-atheros firmware-iwlwifi-100 firmware-iwlwifi-105 \
+firmware-iwlwifi-135 firmware-iwlwifi-1000 firmware-iwlwifi-2000 \
+firmware-iwlwifi-2030 firmware-iwlwifi-3160 firmware-iwlwifi-3168 \
+firmware-iwlwifi-3945 firmware-iwlwifi-4965 firmware-iwlwifi-5000 \
+firmware-iwlwifi-5150 firmware-iwlwifi-6000 firmware-iwlwifi-6000g2a \
+firmware-iwlwifi-6000g2b firmware-iwlwifi-6050 firmware-iwlwifi-7260 \
+firmware-iwlwifi-7265 firmware-iwlwifi-8000C firmware-iwlwifi-8265 \
+firmware-nvidia firmware-radeon firmware-rtlnic firmware-rtlwifi firmware-misc"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	mkdir -p $DESTDIR/lib $DESTDIR/share
-	mv $src/share/licenses/linux-firmware/* $src/share/licenses
-	rm -fr $src/share/licenses/linux-firmware $src/lib/tmpfiles.d
-	cp -a $src/* $DESTDIR
+	make install
+	mkdir -p $install/usr/share/licenses
+	cp $src/LICENSE.* $src/LICENCE.* $install/usr/share/licenses
+	mv $install/lib/firmware/GPL* $install/usr/share/licenses
+	rm $install/lib/firmware/Makefile
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib/firmware
+	case ${PACKAGE#*-} in
+		atheros)
+			copy ar*.fw ar*.bin ath3*.fw htc_*.fw LICENCE.atheros_firmware
+			CAT="non-free|atheros modules"
+			DEPENDS="linux-wireless"
+			;;
+		iwlwifi*)
+			num=${PACKAGE##*-}
+			copy iwlwifi-$num-*.ucode LICENCE.iwlwifi_firmware
+			[ $num == '7265' ] && copy iwlwifi-7265D*.ucode
+			CAT="non-free|iwlwifi $num"
+			DEPENDS="linux-wireless"
+			PROVIDE="iwlwifi-$num"
+			;;
+		nvidia)
+			copy nvidia/ LICENCE.nvidia
+			CAT="non-free|NVIDIA"
+			DEPENDS=" "
+			;;
+		radeon)
+			copy radeon/ r128/ amdgpu/ LICENSE.radeon LICENSE.amdgpu
+			CAT="non-free|radeon"
+			DEPENDS="linux-drm"
+			;;
+		rt2x00)
+			copy rt*.bin LICENCE.ralink*
+			CAT="non-free|rt2x00 modules"
+			DEPENDS="linux-wireless"
+			PROVIDE="firmware-rt73 firmware-rt2561 firmware-rt2661 \
+			firmware-rt2860 firmware-rt2870 firmware-rt3070 firmware-rt3071 \
+			firmware-rt3090"
+			;;
+		rtlnic)
+			copy rtl_nic/ LICENCE.rtlwifi_firmware.txt
+			CAT="non-free|Realtek ethernet"
+			DEPENDS=" "
+			;;
+		rtlwifi)
+			copy rtlwifi/ LICENCE.rtlwifi_firmware.txt
+			CAT="non-free|rtlwifi modules"
+			DEPENDS="linux-wireless"
+			;;
+		misc)
+			cp -a $install/* $fs
+			for i in $taz/*/files.list; do
+				while read j; do
+					rm $fs$j; rmdir $fs$(basename $j)
+				done < $i
+			done 2>/dev/null
+			CAT="non-free|misc blobs"
+			;;
+	esac
 }
-
