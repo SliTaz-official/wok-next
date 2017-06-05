@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="afpfs-ng"
 VERSION="0.8.1"
@@ -10,8 +10,8 @@ WEB_SITE="http://alexthepuffin.googlepages.com/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="fuse libgcrypt readline gmp"
 BUILD_DEPENDS="libgcrypt-dev readline-dev gmp-dev fuse-dev automake"
+SPLIT="afpfs-ng"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,7 +23,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		afpfs-ng)
+			copy @std
+			DEPENDS="fuse libgcrypt readline gmp"
+			;;
+		afpfs-ng-dev)
+			copy @dev
+			DEPENDS="afpfs-ng"
+			;;
+	esac
 }

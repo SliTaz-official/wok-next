@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aiksaurus"
 VERSION="1.2.1"
@@ -10,8 +10,8 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://aiksaurus.sourceforge.net/"
 WGET_URL="http://downloads.sourceforge.net/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk+ expat xorg-libXau glib"
 BUILD_DEPENDS="gtk+-dev patch expat-dev xorg-libXau-dev glib-dev"
+SPLIT="aiksaurus-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,8 +25,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		aiksaurus)
+			copy @std
+			DEPENDS="gtk+ expat xorg-libXau glib"
+			;;
+		aiksaurus-dev)
+			copy @dev
+			DEPENDS="aiksaurus pkg-config"
+			;;
+	esac
 }
 
