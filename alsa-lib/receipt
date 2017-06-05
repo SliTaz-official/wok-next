@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="alsa-lib"
 VERSION="1.0.27.2"
@@ -11,7 +11,7 @@ WEB_SITE="http://www.alsa-project.org/"
 WGET_URL="ftp://ftp.alsa-project.org/pub/lib/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="linux"
+SPLIT="alsa-lib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,13 +25,15 @@ compile_rules()
 genpkg_rules()
 {
 	# Enable software mixing for multiple audio streams
-	mkdir -p $fs/etc
-	cp $stuff/asound.conf $fs/etc
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/alsa-lib $fs/usr/lib
-	cp -a $install/usr/share/alsa $fs/usr/share
-	rm $fs/usr/lib/alsa-lib/smixer/*.*a
+	case $PACKAGE in
+		alsa-lib)
+			copy @std
+			mkdir -p $fs/etc
+			cp $stuff/asound.conf $fs/etc
+			DEPENDS="linux"
+			;;
+		alsa-lib-dev)
+			copy @dev ;;
+	esac
 }
 

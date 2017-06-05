@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="alsaplayer"
 VERSION="0.99.81"
@@ -13,8 +13,9 @@ TAGS="music audio player mp3 ogg flac"
 HOST_ARCH="i486 arm"
 
 SUGGESTED="alsaplayer-scopes libid3tag flac"
-DEPENDS="gtk+ alsa-lib libmad libogg libvorbis xorg-libXdamage"
+
 BUILD_DEPENDS="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev"
+SPLIT="alsaplayer-dev alsaplayer-scopes"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -43,13 +44,21 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/alsaplayer $fs/usr/lib
-
-	# Remove devel files and scopes.
-	rm $fs/usr/lib/alsaplayer/*/*.*a
-	rm -rf $fs/usr/lib/alsaplayer/scopes2
+	case $PACKAGE in
+		alsaplayer)
+			copy @std
+			# Remove devel files and scopes.
+			rm $fs/usr/lib/alsaplayer/*/*.*a
+			rm -rf $fs/usr/lib/alsaplayer/scopes2
+			DEPENDS="gtk+ alsa-lib libmad libogg libvorbis xorg-libXdamage"
+			;;
+		alsaplayer-dev)
+			copy @dev
+			;;
+		alsaplayer-scopes)
+			mkdir -p $fs/usr/lib/alsaplayer
+			cp -a $install/usr/lib/alsaplayer/scopes2 \
+				$fs/usr/lib/alsaplayer
+			;;
+	esac
 }
