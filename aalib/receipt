@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aalib"
 VERSION="1.4rc5"
@@ -11,8 +11,8 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/aa-project/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ncurses xorg-libXt xorg-libX11"
 BUILD_DEPENDS="ncurses-dev xorg-libXt-dev xorg-libX11-dev"
+SPLIT="aalib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,7 +26,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		aalib)
+			copy @std
+			DEPENDS="ncurses xorg-libXt xorg-libX11"
+			;;
+		aalib-dev)
+			copy @dev
+			DEPENDS="aalib"
+			;;
+	esac
 }
+
