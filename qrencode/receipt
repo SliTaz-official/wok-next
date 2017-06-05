@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qrencode"
 VERSION="3.1.1"
@@ -10,8 +10,8 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://megaui.net/fukuchi/works/qrencode/index.en.html"
 WGET_URL="http://megaui.net/fukuchi/works/qrencode/$TARBALL"
 
-DEPENDS="libpng"
 BUILD_DEPENDS="libpng-dev"
+SPLIT="qrencode-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,7 +27,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/lib*so* $fs/usr/lib
+	case $PACKAGE in
+		qrencode)
+			copy @std
+			DEPENDS="libpng"
+			;;
+		qrencode-dev)
+			copy @dev
+			DEPENDS="qrencode pkg-config"
+			;;
+	esac
 }

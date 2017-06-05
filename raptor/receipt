@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="raptor"
 VERSION="2.0.8"
@@ -11,8 +11,8 @@ SOURCE="raptor2"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="http://librdf.org/dist/source/$TARBALL"
 
-DEPENDS="libxml2 curl zlib openssl libxslt"
 BUILD_DEPENDS="libxml2-dev curl-dev zlib-dev openssl-dev libxslt-dev libidn-dev"
+SPLIT="raptor-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -24,8 +24,16 @@ compile_rules()
 	
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/bin
-	cp -a $install/usr/bin/rapper $fs/usr/bin
-	cp -a $install/usr/lib/*so* $fs/usr/lib/	
+{	
+	case $PACKAGE in
+		raptor)
+			copy @std
+			DEPENDS="libxml2 curl zlib openssl libxslt"
+			;;
+		raptor-dev)
+			copy @dev
+			ln -s raptor2/raptor2.h $fs/usr/include/raptor.h
+			DEPENDS="raptor curl-dev libxslt-dev pkg-config"
+			;;
+	esac
 }

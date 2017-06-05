@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="quesoglc"
 VERSION="0.7.2"
@@ -10,10 +10,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://quesoglc.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="freetype fontconfig freeglut fribidi mesa libglu-mesa expat \
-xorg-libXxf86vm libxcb"
-BUILD_DEPENDS="$DEPENDS freetype-dev fontconfig-dev freeglut-dev fribidi-dev \
+BUILD_DEPENDS="freetype-dev fontconfig-dev freeglut-dev fribidi-dev \
 mesa-dev expat-dev xorg-libXxf86vm-dev util-linux-uuid-dev libxcb-dev libxml2-dev"
+SPLIT="quesoglc-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,6 +29,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		quesoglc)
+			copy @std
+			DEPENDS="freetype fontconfig freeglut fribidi mesa libglu-mesa expat xorg-libXxf86vm libxcb"
+			;;
+		quesoglc-dev)
+			copy @dev
+			DEPENDS="quesoglc pkg-config"
+			;;
+	esac
 }

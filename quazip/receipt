@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="quazip"
 VERSION="0.6.1"
@@ -10,8 +10,8 @@ TARBALL="$PACKAGE-$VERSION.zip"
 WEB_SITE="http://quazip.sourceforge.net/"
 WGET_URL="$SF_MIRROR/project/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="zlib-dev Qt4-dev qmake"
+SPLIT="quazip-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,6 +29,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		quazip)
+			copy @std
+			DEPENDS="zlib"
+			;;
+		quazip-dev)
+			copy @dev
+			DEPENDS="zlib-dev Qt4-dev"
+			;;
+	esac
 }

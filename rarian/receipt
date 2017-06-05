@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rarian"
 VERSION="0.8.1"
@@ -10,8 +10,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://rarian.freedesktop.org/"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxslt"
 BUILD_DEPENDS="libxslt-dev"
+SPLIT="rarian-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,11 +32,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/librarian
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/librarian/rarian-sk-cl.xml $fs/usr/share/librarian
-	cp -a $install/usr/share/librarian/Templates $fs/usr/share/librarian
-	cp -a $install/var $fs/
+	case $PACKAGE in
+		rarian)
+			copy @std
+			DEPENDS="libxslt"
+			;;
+		rarian-dev)
+			copy @dev
+			DEPENDS="rarian pkg-config"
+			;;
+	esac
 }
-
