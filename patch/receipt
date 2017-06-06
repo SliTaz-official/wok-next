@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="patch"
 VERSION="2.7.5"
 CATEGORY="utilities"
-SHORT_DESC="Utilitie to patch file with diff file."
+SHORT_DESC="Utility to patch file with diff file"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://savannah.gnu.org/projects/patch/"
@@ -12,7 +12,6 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="attr"
 BUILD_DEPENDS="attr-dev"
 
 # Rules to configure and make the package.
@@ -24,17 +23,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/patch $fs/usr/bin
+	copy patch
+	DEPENDS="attr"
 }
 
-# Prevent erasing busybox...
-pre_install()
-{
-	rm -f "$1/usr/bin/patch"
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/usr/bin/patch"
-}
+## Prevent erasing busybox...
+#pre_install()
+#{
+#	rm -f "$1/usr/bin/patch"
+#}
+#
+#post_remove()
+#{
+#	ln -s /bin/busybox "$1/usr/bin/patch"
+#}

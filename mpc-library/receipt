@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mpc-library"
 VERSION="1.0.3"
 CATEGORY="development"
-SHORT_DESC="MPC is a C library for the arithmetic of complex numbers."
+SHORT_DESC="MPC library: complex numbers arithmetic"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.multiprecision.org/"
@@ -12,13 +12,11 @@ HOST_ARCH="i486 arm"
 TARBALL="mpc-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}mpc/download/$TARBALL"
 
-DEPENDS="mpfr gmp"
 BUILD_DEPENDS="mpfr-dev gmp-dev texinfo"
+SPLIT="mpc-library-dev"
 
 compile_rules()
 {
-	#patch -Np1 -i $stuff/libmpc-0.9-configure_cflags_egrep_issue.patch
-
 	./configure \
 		--disable-static \
 		--docdir=/usr/share/doc/mpc-$VERSION \
@@ -29,5 +27,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		mpc-library)
+			copy @std
+			DEPENDS="mpfr gmp"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mpc-library mpfr-dev gmp-dev"
+			;;
+	esac
 }

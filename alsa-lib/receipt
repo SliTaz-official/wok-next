@@ -3,22 +3,27 @@
 PACKAGE="alsa-lib"
 VERSION="1.0.27.2"
 CATEGORY="multimedia"
-SHORT_DESC="Alsa sound libraries."
+SHORT_DESC="ALSA sound libraries"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.alsa-project.org/"
-WGET_URL="ftp://ftp.alsa-project.org/pub/lib/$TARBALL"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="ftp://ftp.alsa-project.org/pub/lib/$TARBALL"
 
 SPLIT="alsa-lib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure --disable-python \
+	./configure \
+		--disable-python \
 		$CONFIGURE_ARGS &&
 	make &&	make -j1 install
+
+	mkdir -p $install/etc
+	cp $stuff/asound.conf $install/etc
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -28,12 +33,8 @@ genpkg_rules()
 	case $PACKAGE in
 		alsa-lib)
 			copy @std
-			mkdir -p $fs/etc
-			cp $stuff/asound.conf $fs/etc
 			DEPENDS="linux"
 			;;
-		alsa-lib-dev)
-			copy @dev ;;
+		*-dev) copy @dev;;
 	esac
 }
-

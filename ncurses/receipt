@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ncurses"
 VERSION="6.0"
 CATEGORY="base-system"
-SHORT_DESC="Library of functions to manage display on terminals."
+SHORT_DESC="Manage display on terminals"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.gnu.org/software/ncurses/"
@@ -13,12 +13,9 @@ WGET_URL="http://ftp.gnu.org/gnu/ncurses/$TARBALL"
 HOST_ARCH="i486 arm"
 
 BUILD_DEPENDS="flex"
+BUILD_DEPENDS_arm=""
 SPLIT="ncurses-libform ncurses-libmenu ncurses-libpanel ncurses-extra \
 ncurses-dev"
-
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
 
 # Rules to configure and make the package.
 compile_rules()
@@ -60,20 +57,35 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	# binaries and library
-	cook_copy_files clear tset reset libncursesw.so*
-
-	# tabset
-	cook_copy_folders tabset
-
-	# terminfo
-	cook_copy_files ansi linux rxvt vt100 vt102* xterm xterm-256color \
-		xterm-color xterm-new xterm-vt220
-}
-
-post_remove()
-{
-	# restore Busybox applet links
-	ln -s /bin/busybox $root/usr/bin/clear
-	ln -s /bin/busybox $root/usr/bin/reset
+	case $PACKAGE in
+		ncurses)
+			copy clear tset reset libncursesw.so* tabset/ \
+			ansi linux rxvt vt100 vt102* xterm xterm-256color xterm-color \
+			xterm-new xterm-vt220
+			;;
+		ncurses-libform)
+			copy libformw.so*
+			CAT="libs|forms extension"
+			DEPENDS="ncurses"
+			;;
+		ncurses-libmenu)
+			copy libmenuw.so*
+			CAT="libs|menus extension"
+			DEPENDS="ncurses"
+			;;
+		ncurses-libpanel)
+			copy libpanelw.so*
+			CATEGORY="libs|panel stack extension"
+			DEPENDS="ncurses"
+			;;
+		ncurses-extra)
+			copy @std
+			remove_already_packed
+			CAT="base-system|extra files"
+			DEPENDS="ncurses"
+			;;
+		ncurses-dev)
+			copy @dev
+			;;
+	esac
 }

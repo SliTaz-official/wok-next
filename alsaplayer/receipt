@@ -3,24 +3,18 @@
 PACKAGE="alsaplayer"
 VERSION="0.99.81"
 CATEGORY="multimedia"
-SHORT_DESC="Alsa GTK+ PCM audio player."
+SHORT_DESC="ALSA GTK+ PCM audio player"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://alsaplayer.sourceforge.net/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}$TARBALL"
-TAGS="music audio player mp3 ogg flac"
 HOST_ARCH="i486 arm"
 
-SUGGESTED="alsaplayer-scopes libid3tag flac"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="${WEB_SITE}$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev"
-SPLIT="alsaplayer-dev alsaplayer-scopes"
-
-# Handle cross compilation.
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS flac-dev" ;;
-esac
+BUILD_DEPENDS="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev flac-dev"
+BUILD_DEPENDS_arm="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev"
+SPLIT="alsaplayer-scopes alsaplayer-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -47,18 +41,17 @@ genpkg_rules()
 	case $PACKAGE in
 		alsaplayer)
 			copy @std
-			# Remove devel files and scopes.
-			rm $fs/usr/lib/alsaplayer/*/*.*a
+			# Remove scopes
 			rm -rf $fs/usr/lib/alsaplayer/scopes2
 			DEPENDS="gtk+ alsa-lib libmad libogg libvorbis xorg-libXdamage"
-			;;
-		alsaplayer-dev)
-			copy @dev
+			TAGS="music audio player mp3 ogg flac"
+			SUGGESTED="alsaplayer-scopes libid3tag flac"
 			;;
 		alsaplayer-scopes)
-			mkdir -p $fs/usr/lib/alsaplayer
-			cp -a $install/usr/lib/alsaplayer/scopes2 \
-				$fs/usr/lib/alsaplayer
+			copy scopes2/
+			CAT="multimedia|visualisations"
+			DEPENDS="alsaplayer"
 			;;
+		*-dev) copy @dev;;
 	esac
 }

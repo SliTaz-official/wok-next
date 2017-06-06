@@ -1,17 +1,15 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="findutils"
 VERSION="4.6.0"
 CATEGORY="utilities"
-SHORT_DESC="GNU utilities and tools to find/locate."
+SHORT_DESC="GNU utilities and tools to find/locate"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/findutils/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-
-DEPENDS="glibc-base slitaz-base-files"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,12 +24,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin libexec
-}
-
-# Restore Busybox symlinks after removing the package
-post_remove()
-{
-	ln -s /bin/busybox /usr/bin/find
-	ln -s /bin/busybox /usr/bin/xargs
+	copy @std
+	DEPENDS="glibc-base slitaz-base-files"
 }

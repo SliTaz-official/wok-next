@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bash"
-VERSION="4.3.48"
+VERSION="4.4.12"
 BASEVERSION="${VERSION%.*}"
 CATEGORY="shells"
 SHORT_DESC="The GNU bourne shell"
@@ -18,8 +18,8 @@ BASHCHECK="$(basename $BASHCHECKURL)"
 BASHPATCHES="$(for i in $(seq 1 ${VERSION##*.}); do printf "bash${BASEVERSION/./}-%03d " $i; done)"
 EXTRA_SOURCE_FILES="$BASHCHECK $BASHPATCHES"
 
-DEPENDS="ncurses readline"
 BUILD_DEPENDS="ncurses-dev readline-dev texinfo gettext patch"
+SPLIT="bash-dev"
 
 patch_bash()
 {
@@ -75,6 +75,10 @@ EOF
 	# Bash doesn't care about DESTDIR in environnment variable.
 	make DESTDIR=$DESTDIR install
 
+	# Config files
+	cp -a $stuff/etc $install
+	chown -R root:root $install
+
 	# Check bash against vulnerabilities
 	[ -s "$SOURCES_REPOSITORY/$BASHCHECK" ] ||
 		wget -O "$SOURCES_REPOSITORY/$BASHCHECK" $BASHCHECKURL
@@ -88,13 +92,17 @@ EOF
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-	# Config files
-	cp -a $stuff/etc $fs
+	case $PACKAGE in
+		bash)
+			copy @std
+			DEPENDS="ncurses readline"
+			;;
+		*-dev) copy @dev;;
+	esac
 }
 
 
-post_install()
+post_install_bash()
 {
 	mkdir -p "$1/etc/skel"; cp -a "$1/etc/bashrc" "$1/etc/skel/.bashrc"
 
@@ -118,7 +126,7 @@ post_install()
 }
 
 
-pre_remove()
+pre_remove_bash()
 {
 	echo
 	echo 'Setting /bin/sh as default shell for all users'

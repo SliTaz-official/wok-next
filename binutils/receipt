@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="binutils"
 VERSION="2.27"
 CATEGORY="development"
-SHORT_DESC="GNU assembler, linker and binary utilities."
+SHORT_DESC="GNU assembler, linker and binary utilities"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2 GPL3 LGPL3"
 WEB_SITE="http://www.gnu.org/software/binutils/"
@@ -13,14 +13,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-PROVIDE="libbfd"
-DEPENDS="glibc zlib flex"
 BUILD_DEPENDS="glibc-dev zlib-dev texinfo bison flex gettext-tools"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
+BUILD_DEPENDS_arm=""
+SPLIT="libbfd"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -61,6 +56,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin lib include
-	find $fs -name '*.la' -delete
+	case $PACKAGE in
+		binutils)
+			copy @std @dev
+			DEPENDS="glibc zlib flex libbfd"
+			;;
+		libbfd)
+			copy libbfd*.so
+			CAT="system-tools|Binary File Descriptor library"
+			DEPENDS="zlib"
+			;;
+	esac
 }

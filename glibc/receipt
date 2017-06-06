@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="glibc"
-VERSION="2.24"
+VERSION="2.25"
 CATEGORY="meta"
-SHORT_DESC="The GNU C libraries. This package is used to compile the libc."
+SHORT_DESC="The GNU C libraries"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/libc/"
@@ -12,20 +12,30 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="glibc-base glibc-locale glibc-dev"
-BUILD_DEPENDS="linux-api-headers autoconf bash advancecomp gawk gettext bison \
+BUILD_DEPENDS="linux-api-headers autoconf bash gawk gettext bison \
 texinfo"
-SPLIT="glibc-base glibc-locale glibc-dev"
+# slitaz-i18n should present in wok
+SPLIT="glibc-base glibc-locale nscd glibc-dev"
+
+# Locales include to glibc-base package by default, other locales are in: locale-** and glibc-locale
+DEFAULT_LOCALE="en_US en_GB"
+
+# Handle multiarch compilation.
+case "$ARCH" in
+	arm*|x86_64) VERSION="2.13";;
+esac
+
+# Handle multiarch installation.
+case "$SLITAZ_ARCH" in
+	arm*|x86_64) VERSION="2.13";;
+esac
+
 
 # Rules to compile & install the temporary toolchain.
 cook_tmp_toolchain()
 {
 	unset CFLAGS CXXFLAGS
-	case $ARCH in
-		i386|i486)
-			echo "CFLAGS += -O2 -march=i486 -mtune=i486" > configparms ;;
-		*)
-			echo "CFLAGS += -O2 -march=$ARCH -mtune=$ARCH" > configparms ;;
-	esac
+	echo "CFLAGS += -O2 -march=${ARCH/i386/i486} -mtune=${ARCH/i386/i486}" > configparms ;;
 
 	{
 		# Build in a separate directory.
@@ -57,25 +67,15 @@ cook_tmp_toolchain()
 compile_rules()
 {
 	# Glibc needs ld.so.conf in the install destdir.
-	mkdir -p $WOK/$PACKAGE/install/etc
-	touch    $WOK/$PACKAGE/install/etc/ld.so.conf
+	mkdir -p $install/etc
+	touch    $install/etc/ld.so.conf
 
-	# Read the INSTALL file in glibc. Also Glibc dont build with -Os flag.
+	# Read the INSTALL file in glibc. Also Glibc don't build with -Os flag.
 	# --enale-kernel use latest SliTaz Kernel version. From Glibc INSTALL:
 	# "The higher the VERSION number is, the less compatibility code is
 	# added, and the faster the code gets."
 	unset CFLAGS CXXFLAGS
-	case "$ARCH" in
-		i386|i486)
-			echo "CFLAGS += -O2 -march=i486 -mtune=i486" > configparms ;;
-		*)
-			echo "CFLAGS += -O2 -march=$ARCH -mtune=$ARCH" > configparms ;;
-	esac
-
-	# Glibc FHS Patch - LFS 7.10
-	patch -p1 -i $stuff/glibc-2.24-fhs-1.patch
-	# Remove restricted '\v' from po files
-	patch -p1 -i $stuff/glibc-po.patch
+	echo "CFLAGS += -O2 -march=${ARCH/i386/i486} -mtune=${ARCH/i386/i486}" > configparms ;;
 
 	{
 		mkdir build
@@ -92,18 +92,13 @@ compile_rules()
 		make -j1 && make install_root=$DESTDIR install
 	} || return 1
 
-	if [ -n "$(which advdef)" ]; then
-		action 'Recompress charmaps...'
-		local size0=$(ls -l $install/usr/share/i18n/charmaps/*.gz | awk '{s+=$5}END{print s}')
-		local time0=$(date +%s)
-		for i in $install/usr/share/i18n/charmaps/*.gz; do
-			advdef -z4q $i
-		done
-		local size1=$(ls -l $install/usr/share/i18n/charmaps/*.gz | awk '{s+=$5}END{print s}')
-		local time1=$(date +%s)
-		status
-		comp_summary "$time0" "$time1" "$size0" "$size1"
-	fi
+	# nscd
+	mkdir -p $install/etc/init.d $install/var/db
+	cp $stuff/nscd $install/etc/init.d
+	chmod +x $fs/etc/init.d/nscd
+
+	# nsswitch.conf
+	cp $stuff/nsswitch.conf $install/etc
 
 	# If temporary toolchain was previously used, switch to regular toolchain.
 	if [ -d /tools ]; then
@@ -118,13 +113,117 @@ compile_rules()
 	fi
 }
 
+# i18n
+get_locales()
+{
+	local path=$1
+	for i in $DEFAULT_LOCALE; do
+		cp $install/$path/i18n/locales/$i $fs/usr/share/i18n/locales
+	done
+}
+
+mk_dirs()
+{
+	mkdir -p \
+		$fs/etc \
+		$fs/lib \
+		$fs/usr/bin \
+		$fs/usr/lib/gconv \
+		$fs/usr/lib/locale \
+		$fs/usr/share/zoneinfo/America \
+		$fs/usr/share/zoneinfo/Europe \
+		$fs/usr/share/i18n/locales \
+		$fs/usr/share/i18n/charmaps \
+		$fs/usr/share/locale
+}
+
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	LOCALE=""
-	mkdir -p $fs/var
+	case $PACKAGE in
+		glibc)
+			LOCALE=""
+			;;
+		glibc-base)
+			case "$ARCH" in
+				arm*)
+					# Eglibc is cross compiled by cross to have a toolchain so we can
+					# use these files instead of recooking it. ARM use Eglibc
+					echo "Using cross compiled Eglibc..."
+					install="/cross/$ARCH/sysroot"
+					copy libc_nonshared.a libpthread_nonshared.a
+					;;
+				x86_64)
+					# EXPERIMENTAL: Glibc is cross compiled by cross to have a
+					# toolchain so we can use these files instead of recooking it.
+					echo "Using cross compiled Glibc..."
+					install="/usr/cross/$ARCH"
+					copy libc_nonshared.a libpthread_nonshared.a
+					;;
+			esac
+			copy \
+				ld-*.so*            ld.so*            \
+				libanl-*.so*        libanl.so*        \
+				libc-*.so*          libc.so*          \
+				libcrypt-*.so*      libcrypt.so*      \
+				libdl-*.so*         libdl.so*         \
+				libm-*.so*          libm.so*          \
+				libnsl-*.so*        libnsl.so*        \
+				libnss_compat-*.so* libnss_compat.so* \
+				libnss_dns-*.so*    libnss_dns.so*    \
+				libnss_files-*.so*  libnss_files.so*  \
+				libpthread-*.so*    libpthread.so*    \
+				libresolv-*.so*     libresolv.so*     \
+				librt-*.so*         librt.so*         \
+				libthread_db-*.so*  libthread_db.so*  \
+				libutil-*.so*       libutil.so*       \
+				\
+				UNICODE.so gconv-modules ANSI_X3.110.so ISO8859-1.so \
+				ISO8859-15.so UTF-16.so CP1252.so IBM437.so IBM850.so \
+				\
+				i18n iso14651_t1 iso14651_t1_common \
+				translit_neutral    translit_combining translit_circle \
+				translit_cjk_compat translit_compat    translit_font \
+				translit_fraction   translit_narrow    translit_small \
+				translit_wide \
+				\
+				locale localedef locale.alias UTF-8.gz UTC rpc \
+				nsswitch.conf \
+				$DEFAULT_LOCALE
 
-	# check install
-	ls $install/lib/ | tr '\n' ' ' | fold -s
-	echo
+			case "$ARCH" in
+				x86_64)
+					# Fix libraries search path
+					sed -i "s|/usr/cross/$ARCH||g" $fs/lib/libc.so
+					sed -i "s|/usr/cross/$ARCH||g" $fs/lib/libpthread.so
+					;;
+			esac
+			CAT="base-system|minimal libraries and UTF-8 support for SliTaz"
+			;;
+		glibc-locale)
+			copy gconv/ locale/ i18n/ iconv tzselect
+			# Remove glibc-base files
+			remove_already_packed
+
+			# Remove files provided by locale-pack.
+			. $WOK/slitaz-i18n/stuff/locale-pack.conf
+			echo -n "Removing locale: "
+			for i in $LOCALE_PACK; do
+				echo -n "$i "
+				rm -rf $fs/usr/share/locale/$i
+			done
+			status
+			CAT="system-tools|locale files and utilities"
+			DEPENDS="glibc-base"
+			;;
+		nscd)
+			copy /var/db/ nscd getent nscd.conf
+			CAT="base-system|name-server caching daemon"
+			;;
+		glibc-dev)
+			cp -a $install/* $fs
+			remove_already_packed
+			DEPENDS="glibc-base"
+			;;
+	esac
 }

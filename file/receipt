@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="file"
-VERSION="5.28"
+VERSION="5.31"
 CATEGORY="system-tools"
 SHORT_DESC="Determines file type using 'magic' numbers"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.darwinsys.com/file/"
+WEB_SITE="https://github.com/file/file"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://ftp.astron.com/pub/file/$TARBALL"
+WGET_URL="https://github.com/file/file/archive/FILE${VERSION/./_}.tar.gz"
 
-DEPENDS="zlib libmagic"
-BUILD_DEPENDS="zlib-dev python setuptools"
+BUILD_DEPENDS="automake libtool zlib-dev python setuptools"
+BUILD_DEPENDS_arm=""
 SPLIT="libmagic libmagic-dev python-magic"
-
-# Handle cross compilation. python is installed in a ARM cook env.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	autoreconf -f -i &&
 	./configure $CONFIGURE_ARGS && make && make install
 
 	cd python
@@ -31,14 +27,33 @@ compile_rules()
 	python setup.py install --root=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cook_copy_files file magic.mgc
-}
-
 # Be sure it as cross compile.
 testsuite()
 {
 	readelf -h $install/usr/bin/file
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		file)
+			copy file magic.mgc
+			DEPENDS="zlib libmagic"
+			;;
+		libmagic)
+			copy *.so*
+			CAT="libs|library"
+			DEPENDS="zlib"
+			;;
+		libmagic-dev)
+			copy @dev
+			DEPENDS="libmagic"
+			;;
+		python-magic)
+			copy python*/
+			CAT="development|Python bindings"
+			DEPENDS="file python"
+			;;
+	esac
 }

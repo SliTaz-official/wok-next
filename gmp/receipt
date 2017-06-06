@@ -1,9 +1,9 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="gmp"
-VERSION="6.1.1"
-CATEGORY="development"
-SHORT_DESC="GNU Multiple Precision Arithmetic Library."
+VERSION="6.1.2"
+CATEGORY="libdevel"
+SHORT_DESC="GNU Multiple Precision Arithmetic Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://gmplib.org/"
@@ -13,6 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="binutils m4 ncurses-dev readline-dev texinfo"
+SPLIT="gmp-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,12 +27,6 @@ compile_rules()
 	make && make html && make install && make install-html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cook_copy_files *.so*
-}
-
 testsuite()
 {
 	checklog=$(mktemp)
@@ -39,4 +34,13 @@ testsuite()
 	pass=$(awk '/# PASS:/{total+=$3} ; END{print total}' $checklog)
 	echo "$pass / 190 tests passed"
 	rm $checklog
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		gmp)   copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

@@ -1,22 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gcc"
-VERSION="6.2.0"
+VERSION="6.3.0"
 CATEGORY="development"
-SHORT_DESC="The GNU Compiler Collection."
+SHORT_DESC="The GNU Compiler Collection"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gcc.gnu.org/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://gcc.gnu.org/pub/gcc/releases/gcc-$VERSION/$TARBALL"
-TAGS="compiler C"
 #HOST_ARCH="i486 arm"
 
-# We need gawk since busybox awk is not sufficient. We have BUILD_DEPENDS
-# for cookutils that are not used by tazwok/cook-toolchain since it installs
-# and uses its own copy.
-DEPENDS="binutils libgomp libobjc gcc-lib-base mpc-library elfutils"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="ftp://gcc.gnu.org/pub/gcc/releases/gcc-$VERSION/$TARBALL"
+
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
+SPLIT="gcc-lib-base gcc-lib-math gfortran libgfortran libgomp libobjc"
 
 # Handle cross compilation (native i486/ARM gcc)
 case "$ARCH" in
@@ -64,8 +61,8 @@ compile_rules()
 				--enable-clocale=gnu \
 				--enable-threads=posix \
 				--disable-bootstrap \
-				${CONFIGURE_ARGS} &&
-			make && make install ;;
+				${CONFIGURE_ARGS}
+				;;
 		*)
 			# Used by default to produce a full featured X86 GCC compiler.
 			echo "cook: configure GCC for: final/full build"
@@ -82,44 +79,81 @@ compile_rules()
 				--enable-threads=posix \
 				--disable-bootstrap \
 				--with-pkgversion="$pkgversion" \
-				${CONFIGURE_ARGS} ${ARCH_ARGS} &&
-			make && make install ;;
+				${CONFIGURE_ARGS} ${ARCH_ARGS}
+				;;
+	esac &&
+	make && make install
+
+	# ARM packages use another libs...
+	case "$ARCH" in
+		arm)
+			libdir="$CROSS_TREE/tools/arm-slitaz-linux-gnueabi/lib"
+			cp -af $libdir/libgcc_s.so*    $install/usr/lib # for gcc-lib-base
+			cp -af $libdir/libstdc++.so*   $install/usr/lib
+			cp -af $libdir/libquadmath.so* $install/usr/lib # for gcc-lib-math
+			;;
 	esac
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p  $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+		gcc)
+			copy bin/ lib/ include/
+			rm -f \
+				$fs/usr/lib/libgcc_s.so* \
+				$fs/usr/lib/libstdc++.so* \
+				$fs/usr/lib/libquadmath.so* \
+				$fs/usr/lib/libgfortran.* \
+				$fs/usr/lib/libgomp.so* \
+				$fs/usr/lib/libobjc.so*
+				$fs/usr/bin/*gfortran \
+				$fs/usr/lib/gcc/$HOST_SYSTEM/$VERSION/f951
+			rm -rf \
+				$fs/usr/lib/gcc/$HOST_SYSTEM/$VERSION/finclude
 
-	# Copy all libs. Remove libgcc_s.so and libstdc++.so they goes in
-	# the gcc-lib-base package.
-	cp -a $install/usr/lib $fs/usr
-	rm -f $fs/usr/lib/libgcc_s.so*
-	rm -f $fs/usr/lib/libstdc++.so*
-	rm -f $fs/usr/lib/libgomp.so*
-	rm -f $fs/usr/lib/libobjc.so*
-
-	# Include files.
-	cp -a $install/usr/include $fs/usr
-
-	# Gfortran goes in gfortran package.
-	rm -f $fs/usr/bin/*gfortran
-	rm -f $fs/usr/lib/libgfortran*
-	rm -f $fs/usr/lib/gcc/*/$VERSION/libgfortran*
-	rm -rf $fs/usr/lib/gcc/*/$VERSION/f*
-
-	# Remove build directory.
-	rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
-	rm -rf $WOK/$PACKAGE/$PACKAGE-build
+			# Remove build directory.
+			rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
+			rm -rf $WOK/$PACKAGE/$PACKAGE-build
+			DEPENDS="binutils libgomp libobjc gcc-lib-base mpc-library elfutils"
+			TAGS="compiler C"
+			;;
+		gcc-lib-base)
+			copy libgcc_s.so* libstdc++.so*
+			rm $fs/usr/lib/*.py
+			CAT="development|base libraries"
+			;;
+		gcc-lib-math)
+			copy libquadmath.so*
+			CAT="development|math libraries"
+			;;
+		gfortran)
+			copy *gfortran libgfortran.* f951 finclude/
+			rm $fs/usr/lib/libgfortran.so*
+			CAT="development|fortran extension"
+			TAGS="compiler fortran"
+			DEPENDS="gcc libgfortran"
+			;;
+		libgfortran)
+			copy libgfortran.so*
+			CAT="libdevel|fortran runtime"
+			;;
+		libgomp)
+			copy libgomp.so*
+			CAT="development|API specification for parallel programming"
+			;;
+		libobjc)
+			copy libobjc.so*
+			CATEGORY="libdevel|API for gcc object"
+			DEPENDS="gcc-lib-base"
+			;;
+	esac
 }
 
 # Post install commands for Tazpkg.
-post_install()
+post_install_gcc()
 {
-	[ -f "$1/lib/cpp" ] ||
-		ln -s ../usr/bin/cpp "$1/lib"
-	[ -f "$1/usr/bin/cc" ] ||
-		ln -s gcc "$1/usr/bin/cc"
+	[ -f "$1/lib/cpp" ]    || ln -s ../usr/bin/cpp "$1/lib"
+	[ -f "$1/usr/bin/cc" ] || ln -s gcc "$1/usr/bin/cc"
 }
