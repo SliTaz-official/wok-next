@@ -1,19 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tar"
 VERSION="1.29"
 CATEGORY="utilities"
-SHORT_DESC="GNU tar archiving tools."
+SHORT_DESC="GNU tar archiving tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/tar/"
-TAGS="archive compression"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="acl attr"
 BUILD_DEPENDS="acl-dev gettext texinfo"
 
 # Rules to configure and make the package.
@@ -24,16 +22,13 @@ compile_rules()
 		--bindir=/bin \
 		$CONFIGURE_ARGS &&
 	make && make install &&
-	make -C doc install-html docdir=/usr/share/doc/tar-1.29
+	make -C doc install-html docdir=/usr/share/doc/tar-$VERSION
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin libexec
-}
-
-post_remove()
-{
-	ln -s busybox "$1/bin/tar"
+	copy @std
+	DEPENDS="acl attr"
+	TAGS="archive compression"
 }

@@ -1,31 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="kbd"
-VERSION="2.0.3"
+VERSION="2.0.4"
 CATEGORY="system-tools"
 SHORT_DESC="Keyboard mapping definitions and tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://kbd-project.org/"
-TAGS="keyboard"
 HOST_ARCH="i486 arm"
 
 TARBALL="kbd-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
 
-DEPENDS="kbd-base"
-BUILD_DEPENDS="check-dev bison flex gettext patch pam-dev"
-SPLIT="kbd-base kbd-busybox kbd-vlock"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="flex check-dev" ;;
-esac
+BUILD_DEPENDS="check-dev bison flex gettext patch pam-dev busybox"
+BUILD_DEPENDS_arm="flex check-dev"
+SPLIT="kbd-base kbd-vlock kbd-busybox kbd"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -Np1 -i $stuff/kbd-2.0.3-backspace-1.patch
 	sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure
 	sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
 
@@ -45,14 +38,66 @@ compile_rules()
 	mkdir -p $install/usr/share/doc/kbd-$VERSION
 	cp -R docs/doc/* $install/usr/share/doc/kbd-$VERSION
 
-	# Cook packages before "kbd" packaging to properly work cook_split_rm()
-	cook kbd-base  >/dev/null 2>&1
-	cook kbd-vlock >/dev/null 2>&1
+	# X11 keyboard aliases
+	ln -s croat.map.gz $install/usr/share/kbd/keymaps/i386/qwertz/hr.map.gz
+
+	# .kmap files for busybox
+	mkdir -p $install/usr/share/kmap
+	for i in $(find $install/usr/share/kbd/keymaps/i386 -name '*.map.gz' | grep -v 'include'); do
+		j=$(basename $i .map.gz)
+		echo $j
+		$install/usr/bin/loadkeys -ub $i > $install/usr/share/kmap/$j.kmap
+	done
+}
+
+# Make sure it will run on host or no keyboard support...
+testsuite()
+{
+	readelf -h $install/usr/bin/loadkeys
+	readelf -h $install/usr/bin/setfont
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin kbd
-	cook_split_rm kbd-base kbd-vlock
+	case $PACKAGE in
+		kbd-base)
+			copy loadkeys setfont \
+			\
+			be-latin1.map*    fr-latin1.map*  dvorak.map*       dvorak-r.map*  \
+			dvorak-l.map*     br-abnt2.map*   cf.map*           cz-lat2.map*   \
+			dk-latin1.map*    es.map*         fi.map*           gr.map*        \
+			gr-pc.map*        it.map*         is-latin1.map*    jp106.map*     \
+			nl2.map*          no-latin1.map*  pl2.map*          pt-latin1.map* \
+			ru.map*           se-lat6.map*    tr_q-latin5.map*  trq.map*       \
+			uk.map*           us-acentos.map* us.map*           croat.map*     \
+			de_CH-latin1.map* de-latin1.map*  fr_CH-latin1.map* hu.map*        \
+			sg-latin1.map*    slovene.map*    hr.map* \
+			\
+			azerty-layout.inc compose.inc euro1.inc euro1.map.gz euro2.map.gz \
+			linux-keys-bare.inc linux-with-alt-and-altgr.inc \
+			linux-with-two-alt-keys.inc qwerty-layout.inc qwertz-layout.inc \
+			compose.latin1
+			rm -rf $fs/usr/share/kbd/keymaps/i386/olpc
+			DEPENDS=" "
+			CAT="base-system|loadkeys and setfont utilities"
+			;;
+		kbd-vlock)
+			copy vlock
+			CAT="system-tools|vlock - Virtual Console lock program"
+			DEPENDS="pam"
+			TAGS="console"
+			;;
+		kbd-busybox)
+			copy *.kmap
+			DEPENDS="busybox"
+			CAT="base-system|mappings for busybox"
+			;;
+		kbd)
+			copy bin/ kbd/
+			remove_already_packed
+			DEPENDS="kbd-base"
+			TAGS="keyboard"
+			;;
+	esac
 }

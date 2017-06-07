@@ -1,29 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="texinfo"
-VERSION="6.1"
+VERSION="6.3"
 CATEGORY="development"
-SHORT_DESC="GNU documentation tools."
+SHORT_DESC="GNU documentation tools"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/texinfo/"
-TAGS="documentation"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="perl"
-BUILD_DEPENDS="perl ncurses-dev gettext"
+BUILD_DEPENDS="perl-dev ncurses-dev gettext"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin texinfo
-	find $fs/usr/lib -name '*a' -delete
+	copy @std
+	DEPENDS="perl"
+	TAGS="documentation"
 }

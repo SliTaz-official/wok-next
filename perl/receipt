@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl"
-VERSION="5.24.0"
+VERSION="5.24.1"
 CATEGORY="development"
-SHORT_DESC="Full Perl interpreter and modules."
+SHORT_DESC="Perl interpreter and modules"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://www.perl.org/"
@@ -11,9 +11,8 @@ WEB_SITE="https://www.perl.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.cpan.org/src/5.0/$TARBALL"
 
-DEPENDS="zlib bzlib gdbm"
 BUILD_DEPENDS="zlib-dev bzip2-dev less gdbm-dev"
-PROVIDE="microperl"
+SPLIT="perl-core perl-dev"
 SIBLINGS="microperl"
 
 # Rules to compile & install the temporary toolchain.
@@ -49,17 +48,24 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin lib
-
-	# Save space for duplicates
-	rm $fs/usr/bin/perl
-	ln -s perl$VERSION $fs/usr/bin/perl
+	case $PACKAGE in
+		perl)
+			copy @std
+			find $fs \( -name perl -o -name perl$VERSION -o -name libperl.so \) -delete
+			DEPENDS="bzlib gdbm zlib perl-core"
+			PROVIDE="microperl"
+			;;
+		perl-core)
+			# perl binary depends on libperl.so
+			copy perl perl$VERSION libperl.so
+			DEPENDS="glibc-base"
+			CAT="development|minimal interpreter"
+			;;
+		*-dev) copy @dev;;
+	esac
 }
 
-# Pre install commands for Tazpkg.
 # Remove perl link to microperl if any.
-#
-pre_install()
-{
+pre_install_perl_core() {
 	rm -f "$1/usr/bin/perl"
 }

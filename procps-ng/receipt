@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="procps-ng"
 VERSION="3.3.12"
@@ -11,8 +11,8 @@ WEB_SITE="https://gitlab.com/procps-ng/procps"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gettext-base ncurses"
 BUILD_DEPENDS="gettext ncurses-dev"
+SPLIT="procps-ng-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -35,6 +35,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin sbin
-	cook_copy_files *.so*
+	case $PACKAGE in
+		procps-ng)
+			copy @std
+			DEPENDS="gettext-base ncurses"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

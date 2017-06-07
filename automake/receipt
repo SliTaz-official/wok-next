@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="automake"
 VERSION="1.15"
@@ -11,7 +11,6 @@ WEB_SITE="https://www.gnu.org/software/automake/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="autoconf"
 BUILD_DEPENDS="autoconf bison flex gfortran"
 
 # Rules to configure and make the package.
@@ -24,16 +23,11 @@ compile_rules()
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
-
-	# Save space by symlinking duplicates
-	cd $install/usr/bin
-	rm aclocal;  find . -name 'aclocal-*'  -exec ln -s \{\} aclocal  \;
-	rm automake; find . -name 'automake-*' -exec ln -s \{\} automake \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/doc $fs/usr/share/info $fs/usr/share/man
+	copy @std @dev
+	DEPENDS="autoconf"
 }

@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gzip"
 VERSION="1.8"
 CATEGORY="system-tools"
-SHORT_DESC="GNU compression utilities (gzip and gunzip)"
+SHORT_DESC="GNU compression utilities"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gzip/"
@@ -11,7 +11,6 @@ WEB_SITE="https://www.gnu.org/software/gzip/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="glibc-dev"
 SPLIT="gzip-full"
 
@@ -19,23 +18,37 @@ SPLIT="gzip-full"
 compile_rules()
 {
 	./configure $CONFIGURE_ARGS && make && make install
+
+	mkdir -p $install/bin
+	mv -v $install/usr/bin/gzip $install/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files gzip gunzip zgrep
+	case $PACKAGE in
+		gzip)
+			copy gzip gunzip zgrep
+			;;
+		gzip-full)
+			copy bin/
+			remove_already_packed
+			CAT="system-tools|full set"
+			DEPENDS="gzip"
+			;;
+	esac
 }
 
-pre_install()
+# Removing Busybox gunzip applet
+# as we have /usr/bin/gunzip in this package
+pre_install_gzip()
 {
-	# Removing Busybox gzip and gunzip applets
-	# as we have /usr/bin/gzip and /usr/bin/gunzip in this package
 	rm -f "$1/bin/gzip" "$1/bin/gunzip"
 }
 
-post_remove()
+# Removing Busybox uncompress and zcat applets
+# as we have /usr/bin/uncompress and /usr/bin/zcat in this package
+pre_install_gzip_full()
 {
-	ln -s busybox "$1/bin/gzip"
-	ln -s busybox "$1/bin/gunzip"
+	rm -f "$1/bin/uncompress" "$1/bin/zcat"
 }

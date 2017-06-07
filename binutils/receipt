@@ -14,7 +14,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="glibc-dev zlib-dev texinfo bison flex gettext-tools"
-BUILD_DEPENDS_arm=""
+BUILD_DEPENDS_arm=" "
 SPLIT="libbfd"
 
 # Rules to configure and make the package.
@@ -27,11 +27,11 @@ compile_rules()
 	mkdir build; cd build
 
 	$src/configure \
-		--enable-shared \
-		--disable-initfini-array \
-		--with-bugurl="http://bugs.slitaz.org/" \
 		--enable-gold \
+		--enable-ld=default \
 		--enable-plugins \
+		--enable-shared \
+		--with-system-zlib \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make tooldir=/usr &&
 	make tooldir=/usr install

@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pkg-config"
 VERSION="0.29.1"
 CATEGORY="development"
-SHORT_DESC="Free desktop packages manager."
+SHORT_DESC="Free desktop packages manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/pkg-config/"
@@ -12,20 +12,12 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://pkg-config.freedesktop.org/releases/$TARBALL"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="gcc libtool perl"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
+BUILD_DEPENDS_arm=" "
 
 # Rules to configure and make the package.
 compile_rules()
 {
-#	patch -p1 < $stuff/autoconf-2.66.patch
-#	sed -i 's/\$(LN) pkg-config\$(EXEEXT) \$(host_tool)/echo \1/' Makefile*
-
 	case "$ARCH" in
 		arm)
 			./configure \
@@ -54,5 +46,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *pkg-config *.m4
+	copy @std @dev
+	DEPENDS="glibc-base"
 }

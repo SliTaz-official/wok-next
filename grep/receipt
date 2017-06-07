@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="grep"
-VERSION="2.25"
+VERSION="3.0"
 CATEGORY="development"
-SHORT_DESC="GNU Global Regular Expression Print."
+SHORT_DESC="GNU Global Regular Expression Print"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/grep/"
@@ -11,25 +11,20 @@ WEB_SITE="https://www.gnu.org/software/grep/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="pcre"
 BUILD_DEPENDS="pcre-dev perl gettext"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--bindir=/bin \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-}
-
-post_remove()
-{
-	for i in grep egrep fgrep; do
-		ln -sf busybox "$1/bin/$i"
-	done
+	copy @std
+	DEPENDS="pcre"
 }

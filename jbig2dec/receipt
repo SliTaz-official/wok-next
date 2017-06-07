@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jbig2dec"
 VERSION="0.11"
@@ -6,25 +6,26 @@ CATEGORY="development"
 SHORT_DESC="Decoder implementation of the JBIG2 image compressiong format"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://jbig2dec.sourceforge.net/"
-WGET_URL="http://ghostscript.com/~giles/jbig2/$PACKAGE/$TARBALL"
+WEB_SITE="https://sourceforge.net/projects/jbig2dec/"
 HOST_ARCH="i486 arm"
 
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="libpng-dev"
+SPLIT="jbig2dec-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		jbig2dec) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

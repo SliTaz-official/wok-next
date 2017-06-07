@@ -1,25 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="flex"
-VERSION="2.6.1"
+VERSION="2.6.4"
 CATEGORY="development"
-SHORT_DESC="Flex is a fast lexical analyser generator."
+SHORT_DESC="Flex is a fast lexical analyser generator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://github.com/westes/flex"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="bison"
 BUILD_DEPENDS="bison gettext help2man indent"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -p1 -i $stuff/flex.patch
-
 	case "$ARCH" in
 		arm*)
 			export ac_cv_func_malloc_0_nonnull=yes
@@ -37,5 +34,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin lib include
+	copy @std @dev
+	DEPENDS="bison"
 }
