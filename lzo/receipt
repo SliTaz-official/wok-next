@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lzo"
-VERSION="2.09"
+VERSION="2.10"
 CATEGORY="system-tools"
 SHORT_DESC="Data compression library"
 MAINTAINER="erjo@slitaz.org"
@@ -11,6 +11,8 @@ HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$TARBALL"
+
+SPLIT="lzo-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,5 +28,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		lzo) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

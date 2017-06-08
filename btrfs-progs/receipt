@@ -1,38 +1,55 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="btrfs-progs"
-VERSION="4.1.2"
+VERSION="4.9.1"
 CATEGORY="system-tools"
-SHORT_DESC="Btrfs Filesystem user space tools."
+SHORT_DESC="Btrfs Filesystem"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://btrfs.wiki.kernel.org/"
-WGET_URL="git|git://git.kernel.org/pub/scm/linux/kernel/git/mason/btrfs-progs.git"
-TAGS="filesystem fault-tolerance"
-PROVIDE="btrfs-tools"
+WEB_SITE="https://btrfs.wiki.kernel.org/index.php/Main_Page"
 
-DEPENDS="util-linux-uuid zlib acl util-linux-blkid lzo btrfs-mkfs"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git/snapshot/$TARBALL"
+
 BUILD_DEPENDS="util-linux-uuid-dev e2fsprogs e2fsprogs-dev zlib-dev acl-dev \
-git util-linux-blkid-dev lzo-dev autoconf automake"
+util-linux-blkid-dev lzo-dev autoconf automake"
+SPLIT="btrfs-libs btrfs-mkfs btrfs-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./autogen.sh
-	./configure --prefix=/usr \
+	./configure \
+		--prefix=/usr \
 		--sysconfdir=/etc \
 		--disable-documentation \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR prefix=/usr -j 1 install
+	make DESTDIR=$DESTDIR prefix=/usr -j1 install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	# Split mkfs --> btrfs-mkfs
-	rm $fs/usr/bin/mkfs.btrfs
+	case $PACKAGE in
+		btrfs-progs)
+			copy bin/
+			rm $fs/usr/bin/mkfs.btrfs
+			TAGS="filesystem fault-tolerance"
+			PROVIDE="btrfs-tools"
+			DEPENDS="e2fsprogs libcomerr lzo util-linux-blkid util-linux-uuid \
+			zlib    acl btrfs-mkfs"
+			;;
+		btrfs-libs)
+			copy *.so*
+			CATEGORY="system-tools|library"
+			DEPENDS="lzo util-linux-blkid util-linux-uuid zlib"
+			;;
+		btrfs-mkfs)
+			copy mkfs.btrfs
+			CAT="system-tools|creation tool"
+			DEPENDS="lzo util-linux-blkid util-linux-uuid zlib"
+			;;
+		*-dev) copy @dev;;
+	esac
 }
