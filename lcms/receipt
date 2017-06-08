@@ -1,18 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lcms"
 VERSION="1.19"
 CATEGORY="graphics"
-SHORT_DESC="A free color management engine in 100K (library)."
+SHORT_DESC="A free color management engine in 100K"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-${VERSION}.tar.gz"
 WEB_SITE="http://www.littlecms.com/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
 
-RELATED="lcms-dev lcms-apps"
-BUILD_DEPENDS="tiff-dev jpeg-dev zlib-dev gfortran  liblzma-dev" #xz-dev?
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+BUILD_DEPENDS="tiff-dev jpeg-dev zlib-dev gfortran xz-dev"
+SPLIT="lcms-dev lcms-apps"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,7 +26,16 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		lcms)
+			copy *.so
+			;;
+		lcms-apps)
+			copy bin/
+			CAT="development|applications"
+			DEPENDS="lcms jpeg tiff zlib"
+			;;
+		*-dev) copy @dev;;
+	esac
 }
 

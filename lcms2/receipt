@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lcms2"
 VERSION="2.8"
 CATEGORY="graphics"
-SHORT_DESC="Open source color management engine (library)"
+SHORT_DESC="Open source color management engine"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://www.littlecms.com/"
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/lcms/$TARBALL"
 
 BUILD_DEPENDS="libjpeg-turbo-dev zlib-dev tiff-dev"
-SPLIT="lcms2-apps"
+SPLIT="lcms2-apps lcms2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,5 +26,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		lcms2)
+			copy *.so*
+			;;
+		lcms2-apps)
+			copy bin/
+			CAT="graphics|applications"
+			DEPENDS="lcms2 libjpeg-turbo tiff zlib"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

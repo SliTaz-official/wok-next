@@ -1,40 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jasper"
-VERSION="1.900.1"
+VERSION="2.0.12"
 CATEGORY="graphics"
 SHORT_DESC="Implementation of JPEG-2000 codec"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://www.ece.uvic.ca/~mdadams/jasper/"
-TAGS="jpeg jpg photo"
+WEB_SITE="http://www.ece.uvic.ca/~frodo/jasper/"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.zip"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}software/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="gfortran xorg-libX11-dev"
+BUILD_DEPENDS="cmake libjpeg-turbo-dev"
+SPLIT="jasper-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
-
-	./configure \
-		--enable-shared \
-		--disable-static \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make install &&
-
-	install -v -m755 -d $install/usr/share/doc/jasper-$VERSION &&
-	install -v -m644 doc/*.pdf $install/usr/share/doc/jasper-$VERSION
+	mkdir -p build
+	cmake -G "Unix Makefiles" -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/usr
+	cd build
+	make clean all &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-	cook_copy_files *.so*
+	case $PACKAGE in
+		jasper)
+			copy @std
+			DEPENDS="libjpeg-turbo"
+			TAGS="jpeg jpg photo"
+			;;
+		*-dev) copy @dev;;
+	esac
 }
