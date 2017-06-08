@@ -1,0 +1,24 @@
+Translation file 'zh_CN.cp936.mo' produces an error in the SliTaz Cook
+compressor:
+  read-mo.c:249: incomplete multibyte sequence
+
+Besides, $src/src/po/Makefile tells us:
+  # Note: ja.sjis, *.cp1250 and zh_CN.cp936 are only for MS-Windows, they are
+  # not installed on Unix
+
+TODO: remove some other encoding translations because SliTaz uses only UTF-8.
+
+--- a/src/po/Makefile
++++ b/src/po/Makefile
+@@ -155,9 +155,9 @@
+ 
+ check: $(CHECKFILES)
+ 
+-install: $(MOFILES) $(MOCONVERTED)
++install: $(MOFILES)
+ 	@$(MAKE) prefixcheck
+-	for lang in $(LANGUAGES) $(CONVERTED); do \
++	for lang in $(LANGUAGES); do \
+ 	  dir=$(LOCALEDIR)/$$lang/; \
+ 	  if test ! -x "$$dir"; then \
+ 	    mkdir $$dir; chmod 755 $$dir; \

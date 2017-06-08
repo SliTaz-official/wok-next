@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libpipeline"
 VERSION="1.4.1"
@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="check-dev"
+SPLIT="libpipeline-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -22,5 +23,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		libpipeline) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

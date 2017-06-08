@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="man-db"
-VERSION="2.7.5"
+VERSION="2.7.6.1"
 CATEGORY="system-tools"
 SHORT_DESC="The on-line manual database"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,9 +11,9 @@ WEB_SITE="http://www.nongnu.org/man-db/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://download.savannah.gnu.org/releases/man-db/$TARBALL"
 
-DEPENDS="gdbm libpipeline zlib"
 BUILD_DEPENDS="groff bzip2-dev xz-dev gettext libpipeline-dev gdbm-dev \
 zlib-dev"
+SPLIT="man-db-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,6 +34,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin libexec sbin
-	cook_copy_files *.conf *.so*
+	case $PACKAGE in
+		man-db)
+			copy @std
+			DEPENDS="gdbm libpipeline zlib"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

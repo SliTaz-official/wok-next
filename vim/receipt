@@ -1,19 +1,16 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vim"
-VERSION="7.4"
+VERSION="8.0.069"
 CATEGORY="editors"
 SHORT_DESC="Advanced text editor"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="other"
 WEB_SITE="http://www.vim.org/"
-CONFIG_FILES="/etc/vim/vimrc"
-TAGS="text-editor"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.vim.org/pub/vim/unix/$TARBALL"
 
-DEPENDS="ncurses acl attr diffutils"
 # python may be removed after "ncursesw problem" solved
 BUILD_DEPENDS="python ncurses-dev acl-dev diffutils gettext"
 SIBLINGS="vim-tiny"
@@ -31,7 +28,7 @@ compile_rules()
 	make && make install
 
 	mkdir -p $install/etc/vim
-	cp -a $src/runtime/vimrc_example.vim $install/etc/vim/vimrc
+	cp $src/runtime/vimrc_example.vim $install/etc/vim/vimrc
 
 	mkdir -p $install/usr/share/doc
 	ln -s ../vim/vim*/doc $install/usr/share/doc/vim-$VERSION
@@ -40,10 +37,13 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders etc bin vim
+	copy @std
+	CONFIG_FILES="/etc/vim/vimrc"
+	TAGS="text-editor"
+	DEPENDS="ncurses acl attr diffutils"
 }
 
-post_install()
+post_install_vim()
 {
 	cmd=$(readlink "$1/bin/vi")
 	if [ "$cmd" != '/usr/bin/vim' ]; then
@@ -61,9 +61,4 @@ post_install()
 			echo "Leaving /bin/vi to : $cmd"
 		fi
 	fi
-}
-
-post_remove()
-{
-	ln -sf /bin/busybox "$1/bin/vi"
 }
