@@ -14,7 +14,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
 BUILD_DEPENDS="gettext"
-SPLIT="xz-tools liblzma liblzma-dev xz-dev"
+SPLIT="xz-tools xz liblzma liblzma-dev xz-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -39,13 +39,14 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
-		xz)
-			copy ^/bin/
-			DEPENDS="liblzma"
-			;;
 		xz-tools)
 			copy /usr/bin/
 			CAT="utilities|misc commandline utilities"
+			DEPENDS="liblzma"
+			;;
+		xz)
+			copy bin/
+			remove_already_packed
 			DEPENDS="liblzma"
 			;;
 		liblzma)
