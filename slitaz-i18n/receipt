@@ -1,49 +1,36 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-i18n"
-VERSION="161124"
+VERSION="6.0"
 CATEGORY="meta"
-SHORT_DESC="SliTaz internationalization meta package to build locale pack."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz internationalization"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 HOST_ARCH="i486 arm"
 
-# Bdeps ensure packages are built so we can get generated po files.
-BUILD_DEPENDS="acl alsaplayer alsa-utils asunder atk attr dialog e2fsprogs \
-elfutils epdfview galculator gdk-pixbuf glib glibc-base glib-networking \
-gparted gpicview gtk+ gvfs kbd-base leafpad libfm libgnutls libgpg-error \
-libidn liblzma libwebkit lxappearance lxinput lxpanel lxrandr lxsession \
-lxsession-edit lxtask mhwaveedit midori mtpaint nano obconf openbox parted \
-pcmanfm polkit popt sakura shared-mime-info udisks2 util-linux-blkid \
-vorbis-tools vte xorg-xkeyboard-config yad tzdata"
-
-# Handle slitaz arch: /etc/slitaz/slitaz.conf
-case "$SLITAZ_ARCH" in
-	arm*) BUILD_DEPENDS="" ;;
-esac
+BUILD_DEPENDS_arm=" "
+SPLIT="locale-ar locale-ca locale-cs locale-da locale-de locale-el locale-en \
+locale-es locale-fi locale-fr locale-hr locale-hu locale-id locale-is \
+locale-it locale-ja locale-nb locale-nl locale-nn locale-pl locale-pt \
+locale-pt_BR locale-ro locale-ru locale-sl locale-sv locale-tr locale-uk \
+locale-zh_CN locale-zh_TW slitaz-i18n"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	# Allow to build the packages who want me...
-	sed -i "/^$PACKAGE\$/d" $CACHE/broken 2>/dev/null || true
-
-	mkdir -p $fs/usr/share/doc/slitaz
+	. $stuff/locale-pack.functions
 	. $stuff/locale-pack.conf
-	for p in $CORE_PKGS; do
-		[ ! -d "$WOK/$p/install" ] && cook $p
-	done
+	case $PACKAGE in
+		*-i18n)
+			# Allow to build the packages who want me...
+			sed -i "/^$PACKAGE\$/d" $CACHE/broken 2>/dev/null || true
 
-	# Cook all locale-* packages
-	for i in $LOCALE_PACK; do
-		[ -d "$WOK/locale-$i" ] && cook locale-$i
-	done
+			# Recook tzdata package: we move files from tzdata to locale-* packages
+			cook tzdata
 
-	# Recook tzdata package: we move files from tzdata to locale-* packages
-	cook tzdata
-
-	cat > $fs/usr/share/doc/slitaz/i18n.txt <<EOT
+			mkdir -p $fs/usr/share/doc/slitaz
+			cat > $fs/usr/share/doc/slitaz/i18n.txt <<EOT
 SliTaz i18n information
 ================================================================================
 
@@ -64,4 +51,159 @@ SliTaz i18n project coordination is done on the SCN and doc is on the website:
 
 ================================================================================
 EOT
+			;;
+		*-ar) C="Arabic"
+			get_locale "ar" "" "" \
+			"" "SA:ara US:us" \
+			"ISO8859-6 IBM864 CP1256";;
+		*-ca) C="Catalan"
+			# it_IT for ca_IT
+			get_locale "ca" "it_IT" "" \
+			"" "AD:ad" \
+			"CP1252 ISO8859-1 ISO8859-3 ISO8859-9 ISO8859-9E ISO8859-15";;
+		*-cs) C="Czech"
+			get_locale "cs" "" "" \
+			"cz-lat2" "CZ:cz" \
+			"ISO8859-2 IBM852 CP1250";;
+		*-da) C="Danish"
+			get_locale "da" "" "" \
+			"dk-latin1" "DK:dk" \
+			"IBM865 ISO8859-1 ISO8859-15";;
+		*-de) C="German"
+			# fr_BE for de_BE
+			get_locale "de" "fr_BE" "" \
+			"de-latin1 de_CH-latin1 sg-latin1" "DE:de AT:at CH:ch" \
+			"ISO8859-1 ISO8859-15";;
+		*-el) C="Greek"
+			get_locale "el" "" "" \
+			"gr" "GR:gr US:us" \
+			"ISO8859-7 IBM869 CP1253 ISO8859-15";;
+		*-en) C="English"
+			get_locale "en" "" "" \
+			"uk us us-acentos dvorak dvorak-l dvorak-r" "CM:cm GH:gh NG:ng ZA:za GB:gb US:us" \
+			"ISO8859-1 ISO8859-15";;
+		*-es) C="Spanish"
+			get_locale "es" "" "" \
+			"es" "ES:es ES:latam" \
+			"ISO8859-1 ISO8859-15";;
+		*-fi) C="Finnish"
+			get_locale "fi" "" "" \
+			"fi" "FI:fi" \
+			"ISO8859-1 ISO8859-15";;
+		*-fr) C="French"
+			# en_CA for fr_CA; de_CH for fr_CH
+			get_locale "fr" "en_CA de_CH" "" \
+			"fr-latin1 be-latin1 cf fr_CH-latin1" "FR:fr CA:ca CD:cd GN:gn" \
+			"ISO8859-1 ISO8859-15";;
+		*-hr) C="Croatian"
+			get_locale "hr" "" "" \
+			"croat" "HR:hr" \
+			"ISO8859-2";;
+		*-hu) C="Hungarian"
+			get_locale "hu" "" "" \
+			"hu" "HU:hu" \
+			"ISO8859-2 IBM852 CP1250";;
+		*-id) C="Indonesian"
+			get_locale "id" "" "" \
+			"" "" \
+			"ISO8859-1 ISO8859-15";;
+		*-is) C="Icelandic"
+			get_locale "is" "" "" \
+			"is-latin1" "IS:is" \
+			"ISO8859-1 ISO8859-15";;
+		*-it) C="Italian"
+			# de_CH for it_CH
+			get_locale "it" "de_CH" "" \
+			"it" "IT:it" \
+			"ISO8859-1 ISO8859-15";;
+		*-ja) C="Japanese"
+			get_locale "ja" "translit_cjk_variants" "" \
+			"jp106" "JP:jp US:us" \
+			"EUC-JP EUC-JP-MS SJIS   libJIS";;
+		*-nb) C="Norwegian (Bokmål)"
+			get_locale "nb" "" "" \
+			"no-latin1" "NO:no" \
+			"ISO8859-1 ISO8859-15";;
+		*-nl) C="Dutch"
+			get_locale "nl" "" "" \
+			"nl2" "NL:nl" \
+			"ISO8859-1 ISO8859-15";;
+		*-nn) C="Norwegian (Nynorsk)"
+			get_locale "nn" "" "" \
+			"no-latin1" "NO:no" \
+			"ISO8859-1 ISO8859-15";;
+		*-pl) C="Polish"
+			get_locale "pl" "" "" \
+			"pl2" "PL:pl" \
+			"ISO8859-2 IBM852 CP1250";;
+		*-pt) C="Portuguese"
+			get_locale "pt" "" "pt_PT pt_PT@euro" \
+			"pt-latin1" "PT:pt" \
+			"ISO8859-1 ISO8859-15";;
+		*-pt_BR) C="Portuguese/Brazilian"
+			# pt_PT for pt_BR
+			get_locale "pt_BR" "pt_PT" "" \
+			"br-abnt2 us-acentos" "BR:br" \
+			"ISO8859-1 ISO8859-15";;
+		*-ro) C="Romanian"
+			get_locale "ro" "" "" \
+			"ro ro_std ro_win" "RO:ro" \
+			"IBM852 CP1250 ISO8859-2 ISO8859-16";;
+		*-ru) C="Russian"
+			get_locale "ru" "" "" \
+			"ru" "US:us RU:ru UA:ua" \
+			"ISO8859-5 KOI8-R KOI8-U IBM866 CP1251";;
+		*-sl) C="Slovenian"
+			get_locale "sl" "" "" \
+			"slovene" "SI:si" \
+			"ISO8859-2 IBM852 CP1250";;
+		*-sv) C="Swedish"
+			# fi_FI for sv_FI; fi_FI@euro for sv_FI@euro
+			get_locale "sv" "fi_FI fi_FI@euro" "" \
+			"se-lat6" "SE:se" \
+			"ISO8859-1 ISO8859-15";;
+		*-tr) C="Turkish"
+			get_locale "tr" "" "" \
+			"trq tr_q-latin5" "TR:tr" \
+			"ISO8859-9";;
+		*-uk) C="Ukrainian"
+			get_locale "uk" "" "" \
+			"ua" "US:us RU:ru UA:ua" \
+			"ISO8859-5 KOI8-R KOI8-U IBM866 CP1251";;
+		*-zh_CN) C="Chinese Simplified"
+			get_locale "zh_CN" "iso14651_t1_pinyin" "" \
+			"" "CN:cn" \
+			"EUC-CN GBK GB18030   libGB";;
+		*-zh_TW) C="Chinese Traditional"
+			get_locale "zh_TW" "zh_CN" "" \
+			"" "TW:tw" \
+			"BIG5 EUC-TW   libCNS";;
+	esac
+
+	case $PACKAGE in
+		*-i18n)   DEPENDS="";;
+		*-zh_CN)  DEPENDS="glibc-base wqy-microhei";;
+		*-zh_TW)  DEPENDS="glibc-base pcf-uming";;
+		*)        DEPENDS="glibc-base";;
+	esac
+
+	case $PACKAGE in
+		locale-*) CAT="localization|$C locale pack";;
+	esac
+}
+
+# Back to C if it's the last used locale.
+post_remove() {
+	[ "$PACKAGE" == 'slitaz-i18n' ] ||
+	echo -e "LANG=C\nLC_ALL=C" > "$1/etc/locale.conf"
+}
+
+post_install_locale_zh_CN() {
+	if [ -z "$1" ]; then
+		echo LANG=zh_CN.UTF-8 > /etc/locale.conf
+		echo Asia/Shanghai > /etc/TZ
+		export TZ=Asia/Shanghai
+		[ -e /dev/misc/rtc ] && hwclock --hctosys
+	fi
+	:
 }

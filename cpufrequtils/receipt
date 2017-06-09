@@ -1,30 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cpufrequtils"
 VERSION="008"
 CATEGORY="system-tools"
-SHORT_DESC="Userspace tools for the kernel cpufreq subsystem."
+SHORT_DESC="Userspace tools for the kernel cpufreq subsystem"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.kernel.org/pub/linux/utils/kernel/cpufreq/cpufrequtils.html" 
-WGET_URL="http://www.kernel.org/pub/linux/utils/kernel/cpufreq/$TARBALL"
+WEB_SITE="http://www.kernel.org/pub/linux/utils/kernel/cpufreq/cpufrequtils.html"
 
-DEPENDS="sysfsutils linux-cpufreq"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://www.kernel.org/pub/linux/utils/kernel/cpufreq/$TARBALL"
+TARBALL_SHA256="a2149db551f83112209b1a8e79bd50d386979bbf64edbc69126f4e0b4f0a4cab"
+
 BUILD_DEPENDS="libtool gettext sed"
+SPLIT="cpufrequtils-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	make LIBTOOL_OPT="--silent --tag=CC" &&
-	make DESTDIR=$DESTDIR mandir=/usr/share/man install	
+	make DESTDIR=$DESTDIR mandir=/usr/share/man install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/locale $fs/usr/share
+	case $PACKAGE in
+		cpufrequtils)
+			copy @std *.mo
+			DEPENDS="sysfsutils linux-cpufreq"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

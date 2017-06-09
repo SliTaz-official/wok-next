@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ucl"
 VERSION="1.03"
@@ -12,22 +12,26 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
 
 BUILD_DEPENDS="gfortran"
+SPLIT="ucl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	while read i; do
-		patch -p1 -i $stuff/patches/$i
-	done < $stuff/patches/series
-
 	./configure \
 		--enable-shared \
 		$CONFIGURE_ARGS &&
 	make && make install
+
+	docdir=$install/usr/share/doc/ucl-$VERSION
+	mkdir -p $docdir
+	cp AUTHORS NEWS README THANKS TODO $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		ucl) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }
