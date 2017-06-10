@@ -1,28 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="glib"
-VERSION="2.48.2"
-series=$(echo $VERSION | cut -d. -f1,2)
+VERSION="2.50.3"
 CATEGORY="x-window"
-SHORT_DESC="C routines."
+SHORT_DESC="C routines"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gtk.org/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/$series/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="pcre libffi libxml2 elfutils"
 BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
-pcre-dev gtk-doc libxslt libxml2-tools dbus-dev"
-SPLIT="libgio libgio-dev"
-
-# Handle cross comilation. Use host Perl, Python, etc
-case "$ARCH" in
-	arm*)
-		BUILD_DEPENDS="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev" ;;
-esac
+pcre-dev gtk-doc libxslt libxml2-tools dbus-dev util-linux-mount-dev"
+BUILD_DEPENDS_arm="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev"
+SPLIT="libgio libgio-dev glib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -63,14 +56,34 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin
-	cook_copy_files *.so*
-
-	# Split gio --> libgio
-	rm $fs/usr/lib/libgio*
-
-	# Python codegen, tester, Perl mkenums --> glib-dev
-	for bin in gdbus-codegen gtester* glib-mkenums; do
-		rm $fs/usr/bin/$bin
-	done
+	case $PACKAGE in
+		glib)
+			copy bin/ *.so*
+			# Split gio --> libgio
+			rm $fs/usr/lib/libgio*
+			# Python codegen, tester, Perl mkenums --> glib-dev
+			cd $fs/usr/bin; rm gdbus-codegen gtester* glib-mkenums
+			DEPENDS="pcre libffi libxml2 elfutils"
+			;;
+		libgio)
+			copy libgio*.so*
+			CAT="libs|libgio shared library"
+			;;
+		libgio-dev)
+			copy gio/ libgio*.*a gio*.pc
+			rm -rf $fs/usr/share
+			CAT="development|libgio development files"
+			DEPENDS="libgio"
+			;;
+		glib-dev)
+			# Python codegen, tester, compile, Perl mkenums
+			copy @dev gdbus-codegen gtester* glib-mkenums
+			# Remove libgio-dev
+			rm -rf $fs/usr/lib/libgio*.*a
+			rm -rf $fs/usr/include/gio-unix-2.0
+			rm $fs/usr/lib/pkgconfig/gio*.pc
+			DEPENDS="glib perl python libffi-dev libgio libgio-dev pcre-dev \
+			pkg-config"
+			;;
+	esac
 }
