@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="kmod"
 VERSION="23"
 CATEGORY="base-system"
-SHORT_DESC="Linux kernel modules tools."
+SHORT_DESC="Linux kernel modules tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.kernel.org/pub/linux/utils/kernel/kmod/"
@@ -12,14 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
-DEPENDS="zlib liblzma"
-BUILD_DEPENDS="zlib-dev liblzma-dev tar"
-PROVIDE="modules-init-tools depmod"
-
-# Handle cross compilation. ARM use build host: tar
-case "$ARCH" in
-	arm) BUILD_DEPENDS="wget zlib-dev liblzma-dev" ;;
-esac
+BUILD_DEPENDS="zlib-dev xz-dev tar"
+BUILD_DEPENDS_arm="zlib-dev xz-dev"
+SPLIT="kmod-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -45,6 +40,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin sbin
-	cook_copy_files *.so*
+	case $PACKAGE in
+		kmod)
+			copy @std
+			PROVIDE="modules-init-tools depmod"
+			DEPENDS="zlib liblzma"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="kmod xz-dev pkg-config"
+			;;
+	esac
 }

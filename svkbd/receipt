@@ -1,36 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="svkbd"
-GITHASH="a5b40479e354ce11a1b009492da65ea562070cba"
+GITHASH="fc267005ced2251de9e05e62e8a2b42a2712236a"
 VERSION="${GITHASH:0:7}"
 CATEGORY="x-window"
-SHORT_DESC="Simple virtual keyboard that suck less (EN Layout)."
+SHORT_DESC="Simple virtual keyboard that suck less"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://tools.suckless.org/svkbd"
-WGET_URL="http://git.suckless.org/svkbd/snapshot/svkbd-$GITHASH.tar.bz2"
+WEB_SITE="http://tools.suckless.org/x/svkbd"
 HOST_ARCH="i486 arm"
+COOKOPTS="!menus"
 
-DEPENDS="xorg-libX11 xorg-libXtst"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://git.suckless.org/svkbd/snapshot/svkbd-$GITHASH.tar.bz2"
+
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXtst-dev"
+SPLIT="svkbd-de svkbd-fr svkbd-ru"
 
 # Rules to configure and make the package.
 compile_rules()
-{ 
-	cp -d ${stuff}/*.h .
-	for layout in de en ru fr
-	do
-		make svkbd-${layout} CC=${HOST_SYSTEM}-gcc || return 1
+{
+	cp -d $stuff/*.h .
+	for layout in de en ru fr; do
+		make svkbd-$layout CC=$HOST_SYSTEM-gcc || return 1
 	done
 	# We may need to sed config.def.h to set correct font for RU ???
 	#make svkbd-ru CC=${HOST_SYSTEM}-gcc
-	make install DESTDIR=${DESTDIR} PREFIX="/usr"
+	make install DESTDIR=$DESTDIR PREFIX="/usr"
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a ${install}/usr/bin/${PACKAGE}-en $fs/usr/bin
+	case $PACKAGE in
+		svkbd)    copy svkbd-en*;;
+		svkbd-de) copy svkbd-de*; CAT="x-window|DE Layout";;
+		svkbd-fr) copy svkbd-fr*; CAT="x-window|FR Layout";;
+		svkbd-ru) copy svkbd-ru*; CAT="x-window|RU Layout";;
+	esac
+	DEPENDS="xorg-libX11 xorg-libXtst"
 }
