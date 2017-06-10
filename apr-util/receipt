@@ -37,7 +37,7 @@ genpkg_rules()
 {
 	case $PACKAGE in
 		apr-util)
-			DEPENDS="apr expat ncurses readline zlib"
+			DEPENDS="apr expat util-linux-uuid"
 			copy libaprutil-1.so* aprutil.exp
 			;;
 		apr-dbd-mysql)
@@ -70,6 +70,11 @@ genpkg_rules()
 			CAT="libdevel|GDBM plugin"
 			copy *dbm*.so
 			;;
-		*-dev) copy @dev;;
+		*-dev)
+			copy @dev
+			DEPENDS="apr-dev expat-dev gdbm-dev libcrypto-dev mysql-dev \
+			openldap-dev openssl-dev postgresql-dev sqlite-dev unixODBC-dev \
+			util-linux-uuid-dev zlib-dev"
+			;;
 	esac
 }

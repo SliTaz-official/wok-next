@@ -15,7 +15,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
 pcre-dev gtk-doc libxslt libxml2-tools dbus-dev util-linux-mount-dev"
 BUILD_DEPENDS_arm="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev"
-SPLIT="libgio libgio-dev glib-dev"
+SPLIT="libgio glib libgio-dev glib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,15 +23,15 @@ compile_rules()
 	case "$ARCH" in
 		i?86)
 			./configure \
-				--sysconfdir=/etc \
-				--with-pcre=system \
-				$CONFIGURE_ARGS ;;
+			--sysconfdir=/etc \
+			--with-pcre=system \
+			$CONFIGURE_ARGS ;;
 		arm*)
 			# Native ARM build --> if ARCH != SLITAZ_ARCH ?
 			export LD_LIBRARY_PATH=/cross/$ARCH/sysroot/usr/lib:/usr/lib:/lib
 			export PKG_CONFIG_PATH=/cross/$ARCH/sysroot/usr/lib/pkgconfig
 			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib -Wl,-rpath=/cross/$ARCH/sysroot/usr/lib"
-			
+
 			# Glib
 			export glib_cv_stack_grows=${glib_cv_stack_grows=no}
 			export glib_cv_uscore=${glib_cv_uscore=no}
@@ -50,38 +50,38 @@ compile_rules()
 				--disable-rpath ;;
 	esac &&
 	make &&
-	make install
+	make DESTDIR=/ install &&
+	make DESTDIR=$DESTDIR install
+
+	# we need `make DESTDIR=/ install` first because at the some stage (usual)
+	# `make install` need file glib-2.0.pc installed in the FS.
+	# `cook` is sure than this error is fatal.
+	# Installing into / is safe since we working in the Aufs layer...
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	case $PACKAGE in
-		glib)
-			copy bin/ *.so*
-			# Split gio --> libgio
-			rm $fs/usr/lib/libgio*
-			# Python codegen, tester, Perl mkenums --> glib-dev
-			cd $fs/usr/bin; rm gdbus-codegen gtester* glib-mkenums
-			DEPENDS="pcre libffi libxml2 elfutils"
-			;;
 		libgio)
 			copy libgio*.so*
 			CAT="libs|libgio shared library"
 			;;
+		glib)
+			copy bin/ *.so*
+			remove_already_packed
+			# Python codegen, tester, Perl mkenums --> glib-dev
+			cd $fs/usr/bin; rm gdbus-codegen gtester* glib-mkenums
+			DEPENDS="pcre libffi libxml2 elfutils"
+			;;
 		libgio-dev)
-			copy gio/ libgio*.*a gio*.pc
-			rm -rf $fs/usr/share
+			copy *-2.0/gio/ libgio*.*a gio*.pc
 			CAT="development|libgio development files"
 			DEPENDS="libgio"
 			;;
 		glib-dev)
-			# Python codegen, tester, compile, Perl mkenums
-			copy @dev gdbus-codegen gtester* glib-mkenums
-			# Remove libgio-dev
-			rm -rf $fs/usr/lib/libgio*.*a
-			rm -rf $fs/usr/include/gio-unix-2.0
-			rm $fs/usr/lib/pkgconfig/gio*.pc
+			copy @std @dev
+			remove_already_packed
 			DEPENDS="glib perl python libffi-dev libgio libgio-dev pcre-dev \
 			pkg-config"
 			;;
