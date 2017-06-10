@@ -1,22 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python"
-VERSION="2.7.5"
+VERSION="2.7.13"
 CATEGORY="development"
-SHORT_DESC="The Python programming language."
+SHORT_DESC="The Python programming language"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="PSL"
-WEB_SITE="http://www.python.org/"
+WEB_SITE="https://www.python.org/"
 HOST_ARCH="i486 arm"
 COOKOPTS="!menus"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.xz"
 
-DEPENDS="openssl bzlib readline sqlite zlib ncurses gdbm libffi"
 BUILD_DEPENDS="openssl-dev bzip2-dev readline-dev sqlite-dev zlib-dev \
-ncurses-dev tcl-dev tk-dev db-dev gdbm-dev libffi-dev"
-SPLIT="python-idle"
+ncurses-dev tcl-dev tk-dev db-dev gdbm-dev libffi-dev expat-dev"
+SPLIT="python-idle python-tcltk python python-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -48,7 +47,6 @@ EOT
 			rm -f $CONFIG_SITE
 			# Second pass for host tools
 			. /etc/slitaz/cook.conf
-			#patch -p1 < $stuff/python-2.7.3-xcompile.patch || exit 1
 			cp -f $CONFIG_SITE .
 			CONFIG_SITE="$(pwd)/cook.site"
 			cat >> $CONFIG_SITE << EOT
@@ -73,28 +71,44 @@ EOT
 			;;
 		i?86)
 			./configure \
+				--prefix=/usr \
 				--enable-shared \
-				--build=${HOST_SYSTEM} \
-				--host=${HOST_SYSTEM} &&
-				make && make DESTDIR=$DESTDIR install
+				--with-system-expat \
+				--with-system-ffi \
+				--with-ensurepip=yes \
+				--enable-unicode=ucs4 \
+				--build=$HOST_SYSTEM \
+				--host=$HOST_SYSTEM &&
+				make && make DESTDIR=$DESTDIR install &&
+				chmod -v 755 $install/usr/lib/libpython2.7.so.1.0
 			;;
 	esac
-
-	cp -a $stuff/applications $install/usr/share
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	python_version=${VERSION:0:3}
-	mkdir -p $fs/usr/include/${PACKAGE}$python_version
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	# needed for mercurial to work now
-	cp -a $install/usr/include/${PACKAGE}$python_version/pyconfig.h \
-		$fs/usr/include/${PACKAGE}$python_version
-	rm -f $fs/usr/bin/*-config
-	# Split IDLE with TK dep
-	rm -f $fs/usr/bin/idle
-	rm -rf $fs/usr/lib/python2.7/idlelib
+	case $PACKAGE in
+		*-idle)
+			copy idle idlelib/ python-idle.desktop
+			CAT="development|GUI IDE using TK Toolkit"
+			DEPENDS="python-tcltk tcl tk"
+			;;
+		*-tcltk)
+			copy _tkinter.so lib-tk/
+			CAT="development|Tcl/Tk files"
+			DEPENDS="python tcl tk xorg-libX11"
+			;;
+		python)
+			# pyconfig.h needed for mercurial to work now
+			copy @std pyconfig.h
+			remove_already_packed
+			DEPENDS="bzlib expat gdbm libcrypto libffi libsqlite libssl \
+			ncurses ncurses-libpanel readline zlib"
+			;;
+		*-dev)
+			copy @dev
+			remove_already_packed
+			;;
+	esac
 }

@@ -1,26 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-pygments"
-VERSION="2.0.2"
+VERSION="2.2.0"
 CATEGORY="development"
 SHORT_DESC="Generic syntax highlighter"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://pygments.org/"
-WGET_URL="https://bitbucket.org/birkenfeld/pygments-main/get/$VERSION.tar.bz2"
+WEB_SITE="https://pypi.python.org/pypi/Pygments"
 
-DEPENDS="python setuptools"
-BUILD_DEPENDS="setuptools wget"
+BUILD_DEPENDS="python"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	python setup.py install --no-compile --root=$install
+	pip install --no-compile --root=$DESTDIR Pygments
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	copy @std
+	DEPENDS="python"
 }

@@ -1,27 +1,24 @@
+# SliTaz package receipt v2.
+
 PACKAGE="python-babel"
-VERSION="0.9.6"
+VERSION="2.4.0"
 CATEGORY="development"
-SHORT_DESC="A collection of tools for internationalizing Python applications."
+SHORT_DESC="A collection of tools for internationalizing Python applications"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-SOURCE="Babel"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://babel.edgewall.org/"
-WGET_URL="http://ftp.edgewall.com/pub/babel/$TARBALL"
+WEB_SITE="https://pypi.python.org/pypi/Babel"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev setuptools"
+BUILD_DEPENDS="python-pytz"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+	pip install --no-compile --root=$DESTDIR Babel
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs
-	cp -a $install/usr $fs
+	copy @std
+	DEPENDS="python-pytz"
 }

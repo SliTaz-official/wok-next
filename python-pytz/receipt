@@ -1,36 +1,24 @@
 # SliTaz package receipt.
 
 PACKAGE="python-pytz"
-SOURCE="pytz"
-VERSION="2011g"
+VERSION="2017.2"
 CATEGORY="development"
-SHORT_DESC="World Timezone Definitions for Python."
+SHORT_DESC="World Timezone Definitions for Python"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://pytz.sourceforge.net/"
-WGET_URL="http://pypi.python.org/packages/source/${SOURCE:0:1}/$SOURCE/$TARBALL"
+WEB_SITE="https://pypi.python.org/pypi/pytz"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev python"
+BUILD_DEPENDS="python"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+	pip install --no-compile --root=$DESTDIR pytz
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs
-	cp -a $install/usr $fs
-}
-
-# Remove old package.
-post_install()
-{
-	[ ! -d "$1/var/lib/tazpkg/installed/pytz" ] ||
-	rm -rf "$1/var/lib/tazpkg/installed/pytz"
+	copy @std
+	DEPENDS="python"
 }

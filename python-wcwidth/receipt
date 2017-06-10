@@ -1,28 +1,24 @@
 # SliTaz package receipt.
 
 PACKAGE="python-wcwidth"
-SOURCE="wcwidth"
-VERSION="0.1.6"
+VERSION="0.1.7"
 CATEGORY="development"
-SHORT_DESC="Measures number of Terminal column cells of wide-character codes."
+SHORT_DESC="Measures number of Terminal column cells of wide-character codes"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="https://github.com/jquast/wcwidth"
-WGET_URL="https://pypi.python.org/packages/source/w/$SOURCE/$TARBALL"
+WEB_SITE="https://pypi.python.org/pypi/wcwidth"
 
-DEPENDS="python"
-BUILD_DEPENDS="wget setuptools python-dev"
+BUILD_DEPENDS="python"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	python setup.py install --root=$DESTDIR
+	pip install --no-compile --root=$DESTDIR wcwidth
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/usr $fs
+	copy @std
+	DEPENDS="python"
 }
-

@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libffi"
 VERSION="3.2.1"
 CATEGORY="development"
-SHORT_DESC="A portable foreign function interface library."
+SHORT_DESC="A portable foreign function interface library"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="MIT"
 WEB_SITE="https://sourceware.org/libffi/"
@@ -12,7 +12,7 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://sourceware.org/pub/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base"
+SPLIT="libffi-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,5 +32,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		libffi) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

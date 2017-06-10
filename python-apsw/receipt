@@ -1,23 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-apsw"
-SOURCE="apsw"
-VERSION="3.7.16.2-r1"
+VERSION="3.18.0-r1"
 CATEGORY="development"
-SHORT_DESC="Python wrapper for SQLite."
+SHORT_DESC="Python wrapper for SQLite"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="zlib/libpng"
-TARBALL="$SOURCE-$VERSION.zip"
-WEB_SITE="http://code.google.com/p/$PACKAGE/"
-WGET_URL="http://$SOURCE.googlecode.com/files/$TARBALL"
+WEB_SITE="https://github.com/rogerbinns/apsw"
 
-DEPENDS="sqlite"
+TARBALL="apsw-$VERSION.zip"
+WGET_URL="$WEB_SITE/releases/download/$VERSION/$TARBALL"
+
 BUILD_DEPENDS="python-dev sqlite-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	python setup.py build &&
 	python setup.py install --root=$DESTDIR
 }
@@ -25,5 +23,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/usr $fs
+	copy @std
+	DEPENDS="python libsqlite"
 }

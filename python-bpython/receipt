@@ -1,36 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-bpython"
 SOURCE="bpython"
-VERSION="0.9.7.1"
+VERSION="0.16"
 CATEGORY="development"
-SHORT_DESC="A fancy interface to the Python interpreter."
+SHORT_DESC="A fancy interface to the Python interpreter"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.bpython-interpreter.org"
-WGET_URL="$WEB_SITE/releases/$TARBALL"
+WEB_SITE="https://pypi.python.org/pypi/bpython"
 
-DEPENDS="python python-pygments setuptools"
-BUILD_DEPENDS="$DEPENDS python-dev"
+BUILD_DEPENDS="python-dev python-pygments python-greenlet python-requests \
+python-curtsies python-six python-urllib3 python-idna python-certifi \
+python-chardet python-wcwidth python-blessings"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	python setup.py install --root=$DESTDIR
+	pip install --no-compile --root=$DESTDIR bpython
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	for file in `find $install | grep 'pyc$'`; do
-		rm $file
-	done
-	rm -rf $install/usr/share/applications
-	mkdir -p $fs/usr $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $stuff/* $fs/usr/share/applications
+	copy @std
+	DEPENDS="${BUILD_DEPENDS/python-dev/}"
 }
-

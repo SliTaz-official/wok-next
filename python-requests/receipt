@@ -1,26 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-requests"
-VERSION="2.3.0"
+VERSION="2.17.3"
 CATEGORY="network"
 SHORT_DESC="Python HTTP Requests for Humans"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="Apache"
-WEB_SITE="http://python-requests.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/kennethreitz/requests/archive/v$VERSION.tar.gz"
+WEB_SITE="https://pypi.python.org/pypi/requests"
 
-DEPENDS="python"
-BUILD_DEPENDS="python wget"
+BUILD_DEPENDS="python-urllib3 python-idna python-certifi python-chardet"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	python setup.py install --no-compile --root=$install
+	pip install --no-compile --root=$DESTDIR requests
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	copy @std
+	DEPENDS="$BUILD_DEPENDS"
 }
