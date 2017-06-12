@@ -1,66 +1,135 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="krb5"
 VERSION="1.15.1"
 CATEGORY="security"
-SHORT_DESC="Network authentication protocol with strong authentication."
+SHORT_DESC="Network authentication protocol"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://web.mit.edu/Kerberos/"
-WGET_URL="${WEB_SITE}dist/$PACKAGE/${VERSION:0:4}/$TARBALL"
-CONFIG_FILES="/etc/krb5"
-CFLAGS="-march=$ARCH -O2 -pipe -fomit-frame-pointer"
-CXXFLAGS="$CFLAGS"
 
-DEPENDS="libkrb5"
-BUILD_DEPENDS="perl bison gettext openssl-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://web.mit.edu/kerberos/dist/krb5/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="automake perl gettext openssl-dev"
+SPLIT="krb5-plugins krb5-clients krb5-user libcomerr3 libkrb5 libkrb5support \
+krb5 krb5-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-#	srcdir=$PACKAGE-$VERSION
-#	[ -d $src/src ] || tar xzf $src/$srcdir.tar.gz 
-#	# This is for cookutils. If more than one file was extracted it create
-#	# $PACKAGE-$VERSION to move files in it. Krb5 is the only package like
-#	# that so we do the trick here.
-#	if [ -d "$srcdir" -a -x /usr/bin/cook ]; then
-#		mv $srcdir $CACHE && cd .. && rm -rf * && mv -f $CACHE/$srcdir .
-#	else
-#		mv $srcdir/* .
-#	fi
-	cd $src/src
+	CFLAGS="-march=$ARCH -O2 -pipe -fomit-frame-pointer"
+	CXXFLAGS="$CFLAGS"
 
-	# FS#25384
-	sed -i "/KRB5ROOT=/s/\/local//" util/ac_check_krb5.m4
+	cd src &&
 
-	./configure --localstatedir=/var $CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	sed -e "s@python2.5/Python.h@& python2.7/Python.h@g" \
+		-e "s@-lpython2.5]@&,\n  AC_CHECK_LIB(python2.7,main,[PYTHON_LIB=-lpython2.7])@g" \
+		-i configure.in &&
+
+	sed -e 's@\^u}@^u cols 300}@' \
+		-i tests/dejagnu/config/default.exp &&
+
+	sed -e '/eq 0/{N;s/12 //}' \
+		-i plugins/kdb/db2/libdb2/test/run.test &&
+
+	autoconf &&
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var/lib \
+		--with-system-et=no \
+		--with-system-ss=no \
+		--with-system-verto=no \
+		--enable-dns-for-realm \
+		$CONFIGURE_ARGS &&
+	make $MAKEFLAGS &&
+	make install &&
+
+	for f in gssapi_krb5 gssrpc k5crypto kadm5clnt kadm5srv \
+		kdb5 kdb_ldap krad krb5 krb5support verto; do
+		find $install/usr/lib -type f -name "lib$f*.so*" -exec chmod -v 755 '{}' \;
+	done &&
+
+	mkdir -p $install/lib &&
+	mv -v $install/usr/lib/libkrb5.so.3*        $install/lib &&
+	mv -v $install/usr/lib/libk5crypto.so.3*    $install/lib &&
+	mv -v $install/usr/lib/libkrb5support.so.0* $install/lib &&
+
+	ln -v -sf ../../lib/libkrb5.so.3.3        $install/usr/lib/libkrb5.so &&
+	ln -v -sf ../../lib/libk5crypto.so.3.1    $install/usr/lib/libk5crypto.so &&
+	ln -v -sf ../../lib/libkrb5support.so.0.1 $install/usr/lib/libkrb5support.so &&
+
+	mkdir -p $install/bin &&
+	mv -v $install/usr/bin/ksu $install/bin &&
+	chmod -v 755 $install/bin/ksu &&
+
+	chmod -v 755 $install/usr/lib/libcom_err.so.3.0 &&
+	find $install/usr/lib/krb5/plugins -name '*.so' -exec chmod 755 '{}' \; &&
+
+	mkdir -p $install/etc &&
+	touch    $install/etc/krb5.conf &&
+
+	install -v -dm755 $install/usr/share/doc/krb5-$VERSION &&
+	cp -vfr ../doc/*  $install/usr/share/doc/krb5-$VERSION
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr $fs/etc
-	cp -a $install/usr/share/examples/krb5 $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cat $stuff/*.files-list | while read file; do
-		rm -rf ${fs}$file
-	done
+	case $PACKAGE in
+		krb5-plugins)
+			copy plugins/
+			CAT="security|plugins"
+			DEPENDS="krb5 libcomerr3 libkrb5support libcrypto libkrb5 libssl"
+			;;
+		krb5-clients)
+			copy gss-client sclient sim_client uuclient
+			CAT="security|misc clients"
+			DEPENDS="libcomerr3 libkrb5support libkrb5"
+			;;
+		krb5-user)
+			copy k5srvutil kadmin kdestroy kinit klist kpasswd ksu kvno
+			CAT="security|basic programs to authenticate"
+			DEPENDS="krb5 libcomerr3 libkrb5support libkrb5"
+			;;
+		libcomerr3)
+			copy libcom_err.so*
+			CAT="security|the libcomerr v3 library"
+			PROVIDE="libcomerr"
+			DEPENDS="libkrb5support"
+			;;
+		libkrb5)
+			copy libgssrpc.so* libk5crypto.so* libkrb5.so* libgssapi_krb5.so* \
+			libkdb5.so*
+			CAT="security|libraries"
+			DEPENDS="libcomerr3 libkrb5support"
+			;;
+		libkrb5support)
+			copy libkrb5support.so*
+			CAT="security|support libraries"
+			DEPENDS=" "
+			;;
+		krb5)
+			copy @std
+			remove_already_packed
+			DEPENDS="libcomerr3 libkrb5support libkrb5"
+			CONFIG_FILES="/etc/krb5.conf"
+			;;
+		krb5-dev)
+			copy @dev
+			;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
-{
-	[ -z "$quiet" ] && cat <<EOF
+post_install_krb5() {
+	[ -n "$quiet" ] || cat <<EOF
 ----
-To start $PACKAGE server you can run:
+To start krb5 server you can run:
 
-    /etc/init.d/$PACKAGE start
+    /etc/init.d/krb5 start
 
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
+Or add krb5 to RUN_DAEMONS in /etc/rcS.conf
 ----
 EOF
 }
