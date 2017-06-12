@@ -1,31 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="stuntman"
-VERSION="1.2.6"
+VERSION="1.2.13"
 CATEGORY="network"
-SHORT_DESC="STUN protocol (Session Traversal Utilities for NAT)."
+SHORT_DESC="STUN protocol (Session Traversal Utilities for NAT)"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
-SOURCE="stunserver"
-TARBALL="$SOURCE-$VERSION.tgz"
 WEB_SITE="http://www.stunprotocol.org/"
-WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="gcc-lib-base libcrypto zlib"
+TARBALL="stunserver-$VERSION.tgz"
+WGET_URL="${WEB_SITE}$TARBALL"
+
 BUILD_DEPENDS="libboost-dev openssl-dev zlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	make
+
+	mkdir -p $install/usr/bin
+	cp -a stunserver stunclient stuntestcode $install/usr/bin
+	cook_pick_manpages resources/stunclient.1 resources/stunserver.1
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp $src/stunserver $fs/usr/bin
-	cp $src/stunclient $fs/usr/bin
-	cp $src/stuntestcode $fs/usr/bin
+	copy @std
+	DEPENDS="libcrypto zlib"
 }
 

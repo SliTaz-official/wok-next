@@ -1,39 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="icu"
-VERSION="54.1"
+VERSION="58.2"
 CATEGORY="system-tools"
-SHORT_DESC="C/C++ and Java libraries providing Unicode and Globalization."
+SHORT_DESC="International Components for Unicode"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="icu4c"
-TARBALL="$SOURCE-${VERSION//./_}-src.tgz"
-WEB_SITE="http://www.icu-project.org/"
-WGET_URL="http://download.icu-project.org/files/$SOURCE/$VERSION/$TARBALL"
-#WGET_URL="http://www.sfr-fresh.com/unix/misc/$TARBALL"
+WEB_SITE="http://site.icu-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.icu-project.org/files/icu4c/$VERSION/icu4c-${VERSION//./_}-src.tgz"
+TARBALL_MD5="fac212b32b7ec7ab007a12dff1f3aea1"
+
+SPLIT="icu-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	cd $src/source
-	#sed -i 's/dirname -- /dirname/' configure
-	#{
-	./configure \
-		--disable-tests \
-		--disable-samples \
-		--enable-auto-cleanup \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
-	#} 2>&1 | sed -e 's|\(./config.*\)No such file|\1no such file|'
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/sbin $fs/usr/
-	cp -a $install/usr/share/icu $fs/usr/share
+	case $PACKAGE in
+		icu)
+			copy bin/ sbin/ *.so*
+			;;
+		*-dev)
+			copy @std @dev
+			remove_already_packed
+			;;
+	esac
 }

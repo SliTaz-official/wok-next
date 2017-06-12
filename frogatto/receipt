@@ -10,19 +10,19 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.frogatto.com"
 WGET_URL="$WEB_SITE/files/$TARBALL"
 
-DEPENDS="xorg-server mesa glew libsdl libsdl-image libsdl-ttf libsdl-mixer libpng \
-libboost-regex libboost-system libboost-date-time libboost-thread libboost-iostreams \
-frogatto-data"
-BUILD_DEPENDS="${DEPENDS/frogatto-data/} ccache xorg-server-dev mesa-dev libsdl-dev libsdl-image-dev \
-libsdl-ttf-dev libsdl-mixer-dev libpng-dev libboost-regex-dev libboost-system-dev \
-libboost-date-time-dev libboost-thread-dev libboost-iostreams-dev glew-dev"
+DEPENDS="xorg-server mesa glew libsdl libsdl-image libsdl-ttf libsdl-mixer \
+libpng libboost-regex libboost-system libboost-date-time libboost-thread \
+libboost-iostreams frogatto-data"
+BUILD_DEPENDS="${DEPENDS/frogatto-data/} ccache xorg-server-dev mesa-dev \
+libsdl-dev libsdl-image-dev libsdl-ttf-dev libsdl-mixer-dev libpng-dev \
+libboost-dev glew-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	cd $src
 
-	# Frogatto look for multithread libbost (*-mt.so) but we don't use
+	# Frogatto look for multithread libboost (*-mt.so) but we don't use
 	# them in SliTaz, let's lure it.
 	for lib in $(ls /usr/lib/libboost*); do
 		link=$(echo $lib | sed 's/\./-mt./')
