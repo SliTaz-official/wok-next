@@ -1,25 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsecret"
 VERSION="0.18.5"
-SERIES="0.18"
-SHORT_DESC="GObject based library for accessing the Secret Service API"
+CATEGORY="security"
+SHORT_DESC="GObject bindings for Secret Service API"
 MAINTAINER="devl547@gmail.com"
 LICENSE="LGPL2.1"
-CATEGORY="security"
-WEB_SITE="http://gnome.org/"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/$SERIES/$TARBALL"
+WEB_SITE="https://wiki.gnome.org/Projects/Libsecret"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libgio libgpg-error"
-BUILD_DEPENDS="libgcrypt-dev gobject-introspection-dev vala"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="libtool intltool libxslt docbook-xsl libgcrypt-dev \
+gobject-introspection-dev vala util-linux-mount-dev"
+SPLIT="libsecret-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
-		--disable-manpages \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -27,7 +28,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libsecret)
+			copy @std
+			DEPENDS="glib libffi libgcrypt libgio libgpg-error pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="glib-dev libffi-dev libgcrypt-dev libgio-dev \
+			libgpg-error-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }

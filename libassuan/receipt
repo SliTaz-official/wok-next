@@ -1,30 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libassuan"
-VERSION="2.4.2"
+VERSION="2.4.3"
 CATEGORY="security"
-SHORT_DESC="IPC library used by some of the other GnuPG related packages."
+SHORT_DESC="IPC library used by some of the other GnuPG related packages"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnupg.org/related_software/libassuan/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/libassuan/$TARBALL"
+# https://www.gnupg.org/download/integrity_check.html
+TARBALL_SHA1="27391cf4a820b5350ea789c30661830c9a271518"
 
-DEPENDS="libgpg-error"
 BUILD_DEPENDS="libgpg-error-dev"
+SPLIT="libassuan-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Integrity check: https://www.gnupg.org/download/integrity_check.html
-	echo "ac1047f9764fd4a4db7dafe47640643164394db9  $SRC/$TARBALL" | sha1sum -c || exit 1
-
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libassuan)
+			copy @std
+			DEPENDS="libgpg-error"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libassuan libgpg-error-dev"
+			;;
+	esac
 }

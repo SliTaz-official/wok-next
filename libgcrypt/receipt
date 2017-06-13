@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgcrypt"
-VERSION="1.7.6"
+VERSION="1.7.7"
 CATEGORY="security"
 SHORT_DESC="Cryptographic library based on GnuPG"
 MAINTAINER="erjo@slitaz.org"
@@ -11,16 +11,15 @@ HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/libgcrypt/$TARBALL"
+# https://www.gnupg.org/download/integrity_check.html
+TARBALL_SHA1="ea4ae1a4dba51f15095319419d7b42a0bf160384"
 
-DEPENDS="libgpg-error"
 BUILD_DEPENDS="libgpg-error-dev"
+SPLIT="libgcrypt-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Integrity check: https://www.gnupg.org/download/integrity_check.html
-	echo "d2b9e0f413064cfc67188f80d3cbda887c755a62  $SRC/$TARBALL" | sha1sum -c || exit 1
-
 	case "$ARCH" in
 		arm)
 			#LIBS="-L/cross/arm/sysroot/usr/lib -lgpg-error"
@@ -28,7 +27,6 @@ compile_rules()
 				--build=i486-slitaz-linux \
 				--host=arm-slitaz-linux-gnueabi ;;
 		*)
-			#export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lgpg-error"
 			./configure \
 				--build=$HOST_SYSTEM \
 				--host=$HOST_SYSTEM ;;
@@ -39,5 +37,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files dumpsexp hmac256 *.so*
+	case $PACKAGE in
+		libgcrypt) copy @std; DEPENDS="libgpg-error";;
+		*-dev)     copy @dev; DEPENDS="libgcrypt libgpg-error-dev";;
+	esac
 }

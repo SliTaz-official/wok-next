@@ -1,28 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gobject-introspection"
-VERSION="1.48.0"
+VERSION="1.50.0"
 CATEGORY="development"
 SHORT_DESC="Introspection system for GObject-based libraries"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2 MIT"
-WEB_SITE="https://wiki.gnome.org/Projects/GObjectInstrospection"
+WEB_SITE="https://wiki.gnome.org/Projects/GObjectIntrospection"
 #HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib glibc-base libffi libgio pcre zlib  dbus"
-BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev"
+BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev util-linux-mount-dev"
 BUILD_DEPENDS_arm="glib-dev libgio-dev libffi-dev cairo-dev dbus-dev"
+SPLIT="gobject-introspection-dev"
 
 # Handle cross compilation
 case "$ARCH" in
 	arm*)
-		export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib"
+		export   CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib"
 		export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-		export PKG_CONFIG_PATH="/cross/$ARCH/sysroot/usr/pkgconfig"
-		BUILD_DEPENDS=$BUILD_SEPENDS_arm
+		export    PKG_CONFIG_PATH="/cross/$ARCH/sysroot/usr/pkgconfig"
 		;;
 esac
 
@@ -38,7 +37,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders bin girepository-1.0 gobject-introspection
-	cook_copy_files *.so*
-	find $fs -name '*.la' -delete
+	case $PACKAGE in
+		gobject-introspection)
+			copy @std *.typelib
+			rm -r $fs/usr/share
+			DEPENDS="glib libffi libgio pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @std @dev
+			remove_already_packed
+			DEPENDS="gobject-introspection glib-dev libffi-dev libgio-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }

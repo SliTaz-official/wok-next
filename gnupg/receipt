@@ -1,35 +1,50 @@
 # SliTaz package receipt.
 
 PACKAGE="gnupg"
-VERSION="2.0.30"
+VERSION="2.1.21"
 CATEGORY="security"
-SHORT_DESC="Free implementation of the OpenPGP."
+SHORT_DESC="Free implementation of the OpenPGP"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnupg.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gnupg/$TARBALL"
+# https://www.gnupg.org/download/integrity_check.html
+TARBALL_SHA1="1852c066bc21893bc52026ead78edf50fdf15e13"
 
-DEPENDS="bzlib libassuan libcurl libgcrypt libksba libusb-compat ncurses pth \
-readline pinentry"
 BUILD_DEPENDS="libgpg-error-dev libassuan-dev libgcrypt-dev libksba-dev \
-pth-dev curl-dev zlib-dev libusb-compat-dev readline-dev"
+npth-dev perl libusb-dev sqlite3-dev gettext zlib-dev readline-dev texinfo"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Integrity check: https://www.gnupg.org/download/integrity_check.html
-	echo "a9f024588c356a55e2fd413574bfb55b2e18794a  $SRC/$TARBALL" | sha1sum -c || exit 1
+	./configure \
+		--enable-symcryptrun \
+		--enable-maintainer-mode \
+		--docdir=/usr/share/doc/gnupg-$VERSION \
+		$CONFIGURE_ARGS &&
+	make && make install &&
 
-	./configure $CONFIGURE_ARGS && make && make install
+	makeinfo --html --no-split -o doc/gnupg_nochunks.html doc/gnupg.texi &&
+	makeinfo --plaintext       -o doc/gnupg.txt           doc/gnupg.texi &&
 
-	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
+	docdir="$install/usr/share/doc/gnupg-$VERSION" &&
+	install -v -m755 -d $docdir/html &&
+	install -v -m644    doc/gnupg_nochunks.html  $docdir/html/gnupg.html &&
+	install -v -m644    doc/*.texi doc/gnupg.txt $docdir &&
+
+	for f in gpg gpgv; do
+		ln -svf ${f}2.1 $install/usr/share/man/man1/$f.1 &&
+		ln -svf ${f}2   $install/usr/bin/$f
+	done
+	unset f
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
-	ln -sf gpg2 $fs/usr/bin/gpg
-	rm -r $fs/usr/share/doc $fs/usr/share/info $fs/usr/share/locale
+	copy @std
+	DEPENDS="libassuan libgcrypt libgpg-error libksba libsqlite libusb ncurses \
+	npth readline zlib   bzlib pinentry"
 }
