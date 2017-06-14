@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-pod-coverage"
+VERSION="0.23"
+CATEGORY="perl"
+SHORT_DESC="Pod::Coverage - Checks if the documentation of a module is \
+comprehensive"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Pod-Coverage"
+
+TARBALL="Pod-Coverage-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/R/RC/RCLAMP/$TARBALL"
+
+DEPENDS="perl-devel-symdump"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

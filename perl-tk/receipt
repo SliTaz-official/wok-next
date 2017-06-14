@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-tk"
 VERSION="804.033"
@@ -11,15 +11,16 @@ WEB_SITE="https://metacpan.org/release/Tk"
 TARBALL="Tk-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/S/SR/SREZIC/$TARBALL"
 
-DEPENDS="perl fontconfig libjpeg-turbo libpng xorg-libX11 xorg-libXft zlib tk"
 BUILD_DEPENDS="perl-dev xorg-libX11-dev freetype-dev xorg-libXft-dev \
 fontconfig-dev libpng-dev zlib-dev libjpeg-turbo-dev tk-dev"
+SPLIT="perl-tk-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-#	# The Xlib header is wrong...
-	sed -i 's/XKeycodeToKeysym\(.*\)unsigned int/XKeycodeToKeysym\1KeyCode/' pTk/Xlib.h
+	# The Xlib header is wrong...
+	sed -i 's/XKeycodeToKeysym\(.*\)unsigned int/XKeycodeToKeysym\1KeyCode/' \
+		pTk/Xlib.h
 
 	perl Makefile.PL &&
 	make DESTDIR=$install install &&
@@ -30,5 +31,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		perl-tk)
+			copy @std
+			DEPENDS="perl fontconfig libjpeg-turbo libpng xorg-libX11 \
+			xorg-libXft zlib tk"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

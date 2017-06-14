@@ -1,24 +1,27 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-thread"
-SOURCE="perl"
-VERSION="5.12.3"
+VERSION="5.24.1"
 CATEGORY="development"
-SHORT_DESC="Full Perl interpreter and modules."
+SHORT_DESC="Full Perl interpreter and modules"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
+WEB_SITE="https://www.perl.org/"
+
+TARBALL="perl-$VERSION.tar.bz2"
+WGET_URL="http://www.cpan.org/src/5.0/$TARBALL"
+
 DEPENDS="libdb gdbm zlib"
 BUILD_DEPENDS="db gdbm zlib less"
-WEB_SITE="http://www.perl.org/"
-WGET_URL="http://ftp.funet.fi/pub/CPAN/src/$TARBALL"
+SIBLINGS="microperl perl-thread"
 
 # Rules to configure and make the package.
 #
 compile_rules()
 {
-	cd $src
-	./configure.gnu --prefix=/usr -Dusethreads &&
+	./configure.gnu \
+		--prefix=/usr \
+		-Dusethreads &&
 	make &&
 	make install
 }
@@ -26,15 +29,12 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy bin/ lib/
 }
 
 # Pre install commands for Tazpkg.
 # Remove perl link to microperl if any.
 #
-pre_install()
-{
-	rm -f "$1/usr/bin/perl"
+pre_install() {
+	[ ! -e "$1/usr/bin/perl" ] || rm -f "$1/usr/bin/perl"
 }

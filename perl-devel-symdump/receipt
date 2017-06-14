@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-devel-symdump"
+VERSION="2.18"
+CATEGORY="perl"
+SHORT_DESC="Devel::Symdump - dump symbol names or the symbol table"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Devel-Symdump"
+
+TARBALL="Devel-Symdump-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/A/AN/ANDK/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

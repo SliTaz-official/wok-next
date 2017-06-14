@@ -2,30 +2,29 @@
 
 PACKAGE="perl-crypt-blowfish"
 VERSION="2.14"
-CATEGORY="development"
-SHORT_DESC="Crypt::Blowfish module is a Perl extension."
+CATEGORY="perl"
+SHORT_DESC="Crypt::Blowfish - Perl Blowfish encryption module"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/Crypt-Blowfish"
+
+TARBALL="Crypt-Blowfish-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DP/DPARIS/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl-dev"
-SOURCE="Crypt-Blowfish"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://cpan.org/authors/id/D/DP/DPARIS/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	perl Makefile.PL
-	make
-	make DESTDIR=$DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

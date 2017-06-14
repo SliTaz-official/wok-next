@@ -1,32 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-crypt-ssleay"
-VERSION="0.58"
-CATEGORY="development"
-SHORT_DESC="Crypt::SSLeay module is a Perl extension."
+VERSION="0.72"
+CATEGORY="perl"
+SHORT_DESC="Crypt::SSLeay - OpenSSL support for LWP"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-SOURCE="Crypt-SSLeay"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://cpan.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/N/NA/NANIS/$TARBALL"
+WEB_SITE="https://metacpan.org/release/Crypt-SSLeay"
 
-DEPENDS="perl openssl"
-BUILD_DEPENDS="perl-dev openssl-dev"
+TARBALL="Crypt-SSLeay-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/N/NA/NANIS/$TARBALL"
+
+DEPENDS="perl openssl perl-lwp-protocol-https"
+BUILD_DEPENDS="$DEPENDS perl-dev openssl-dev perl-path-class"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	yes '' | perl Makefile.PL --default &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
-

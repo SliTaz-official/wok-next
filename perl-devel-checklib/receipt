@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-devel-checklib"
+VERSION="1.11"
+CATEGORY="perl"
+SHORT_DESC="Devel::CheckLib - check that a library is available"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Devel-CheckLib"
+
+TARBALL="Devel-CheckLib-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/M/MA/MATTN/$TARBALL"
+
+DEPENDS="perl-io-captureoutput perl-mock-config"
+BUILD_DEPENDS="$DEPENDS"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

@@ -1,30 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="perl-term-readkey"
-VERSION="2.30.01"
-CATEGORY="development"
-SHORT_DESC="Term::ReadKey module is a Perl extension."
+VERSION="2.37"
+CATEGORY="perl"
+SHORT_DESC="Term::ReadKey - A perl module for simple terminal control"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/TermReadKey"
+
+TARBALL="TermReadKey-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/J/JS/JSTOWE/$TARBALL"
+
 DEPENDS="perl"
 BUILD_DEPENDS="perl-dev"
-SOURCE="TermReadKey"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://search.cpan.org/~stsi/TermReadKey/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/S/ST/STSI/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	copy @std
 }
