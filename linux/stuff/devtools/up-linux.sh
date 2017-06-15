@@ -7,7 +7,7 @@ WOK=$(cd $(dirname $0) && pwd | sed 's/wok.*/wok/')
 . $WOK/linux/receipt
 
 action 'Update packages version to %s...' "$VERSION"
-for i in $SPLIT $SIBLINGS; do
+for i in $SIBLINGS; do
 	sed -i "s|^VERSION=.*$|VERSION=\"$VERSION\"|" $WOK/$i/receipt
 done
 status

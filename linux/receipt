@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="linux"
-VERSION="4.9.4"
+VERSION="4.9.30"
 KBASEVER="4.9"
 CATEGORY="base-system"
-SHORT_DESC="The Linux Kernel and modules"
+SHORT_DESC="The Linux Kernel"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.kernel.org/"
@@ -13,7 +13,6 @@ HOST_ARCH="i486 arm x86_64"
 TARBALL="$PACKAGE-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
-DEPENDS="kmod"
 BUILD_DEPENDS="slitaz-toolchain perl git xz lzma patch kmod bc"
 SPLIT="lguest linux-acpi linux-agp linux-aoe linux-appletalk linux-arcnet \
 linux-autofs linux-bluetooth linux-bridge linux-btrfs linux-cifs linux-coda \
@@ -173,46 +172,231 @@ compile_rules()
 
 	ln System.map System.map-modules
 	ln Module.symvers Module.symvers-modules
+
+	# for linux-zram package
+	mkdir -p $install/etc/init.d
+	install -o root -m 755 $stuff/compcache $install/etc/init.d/
+	install -o root -m 644 $stuff/compcache.conf $install/etc/
+
+	# for lguest package
+	mkdir -p $install/usr/sbin
+	cp -a $src/tools/lguest/lguest $install/usr/sbin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	case "$ARCH" in
-		arm)
-			echo "Packing: ARM Kernel"
-			cp -a $install/* $fs
-			rm -f $fs/lib/modules/*/build $fs/lib/modules/*/source
-			return 0 ;;
-		x86_64)
-			echo "TODO: use default or custom x86_64 packing"
-			return 0 ;;
+	DEPENDS="linux"				# default, may be subject to change later
+
+	case $PACKAGE in
+		*-acpi)					c="ACPI modules";;
+		*-agp)					c="AGP modules";;
+		*-aoe)					c="AoE (ATA over Ethernet) modules";;
+		*-appletalk)			c="Appletalk modules";;
+		*-arcnet)				c="ARCnet modules";;
+		*-autofs)				c="Automounter module";;
+		*-bluetooth)			c="Bluetooth modules";;
+		*-bridge)				c="Bridge modules";;
+		*-btrfs)				c="Btrfs module"; DEPENDS="linux-crypto";;
+		*-cifs)					c="CIFS module";;
+		*-coda)					c="Coda module";;
+		*-cpufreq)				c="Cpufreq modules";;
+		*-cramfs)				c="CramFs module";;
+		*-crypto)				c="Crypto modules";;
+		*-cryptoloop)			c="Cryptoloop modules"; DEPENDS="linux-crypto";;
+		*-dialup)				c="Dial-up modules";;
+		*-dlm)					c="DLMFS module";;
+		*-drm)					c="DRM module"; DEPENDS="linux-agp";;
+		*-ecryptfs)				c="eCrypt FS module";;
+		*-efi)					c="EFI modules";;
+		*-ethernet)				c="Ethernet drivers";;
+		*-exofs)				c="OSD based FS module"; DEPENDS="linux-crypto";;
+		*-firewire)				c="Firewire modules";;
+		*-gfs2)					c="GFS2 module";;
+		*-hfs)					c="HFS module";;
+		*-hfsplus)				c="HFSplus module";;
+		*-hid)					c="HID (human interface device) modules";;
+		*-hwmon)				c="Hwmon modules";;
+		*-ide)					c="IDE modules";;
+		*-input-misc)			c="misc. input drivers";;
+		*-input-tablet)			c="tablet input drivers";;
+		*-input-touchscreen)	c="touchscreen input drivers";;
+		*-ipv6)					c="IPv6 modules"; DEPENDS="linux-netfilter";;
+		*-irda)					c="IRDA modules";;
+		*-isdn)					c="ISDN modules";;
+		*-jfs)					c="JFS module";;
+		*-joystick)				c="joystick modules";;
+		*-kvm)					c="KVM and Virtio modules";;
+		*-logfs)				c="Logfs module";;
+		*-md)					c="MD modules"; DEPENDS="linux-crypto";;
+		*-media)				c="media modules"; DEPENDS="linux-radio";;
+		*-memstick)				c="Sony memory stick modules";;
+		*-minix)				c="Minix module";;
+		*-mmc)					c="MMC modules - card reader";;
+		*-mwave)				c="ACP Modem driver module - for IBM Thinkpad";;
+		*-nbd)					c="NBD (network block device) modules";;
+		*-ncpfs)				c="NCPFS module";;
+		*-netfilter)			c="Netfilter modules";;
+		*-nfc)					c="NFC modules";;
+		*-nfs)					c="NFS modules"; DEPENDS="linux-crypto";;
+		*-nfsd)					c="NFS server module"; DEPENDS="linux-nfs";;
+		*-ocfs2)				c="OCFS2 modules"; DEPENDS="linux-dlm";;
+		*-orangefs)				c="OrangeFS module";;
+		*-radio)				c="radio modules";;
+		*-reiserfs)				c="ReiserFS module";;
+		*-romfs)				c="ROMFS module";;
+		*-sched)				c="Sched modules";;
+		*-scsi)					c="SCSI modules";;
+		*-sound)				c="sound modules"
+			copy firmware/ess/ firmware/korg/ firmware/sun/ firmware/yamaha/
+			;;
+		*-speakup)				c="Speakup modules";;
+		*-squashfs)				c="Squashfs module"; PROVIDE="squashfs-module";;
+		*-staging)				c="staging kernel modules";;
+		*-toshiba)				c="Toshiba module";;
+		*-usb-gadget)			c="USB gadget modules";;
+		*-usb-misc)				c="misc. USB drivers";;
+		*-usbdsl)				c="USB DSL modem modules";;
+		*-usbip)				c="Usbip module"; PROVIDE="usbip-module";;
+		*-uwb)					c="UWB modules";;
+		*-video)				c="video modules";;
+		*-wan)					c="Wide Area Networks (WANs) modules"; DEPENDS="linux-wireless";;
+		*-watchdog)				c="watchdog drivers";;
+		*-wimax)				c="Wimax modules";;
+		*-wireless)				c="wireless modules"; DEPENDS="linux-crypto wireless_tools";;
+		*-zram)					c="compressed caching support"; PROVIDE="compcache"
+			copy compcache compcache.conf
+			;;
 	esac
 
-	# Copy the Kernel
-	cp -a $install/boot $fs
+	case $PACKAGE in
+		linux)
+			case "$ARCH" in
+				arm)
+					echo "Packing: ARM Kernel"
+					cp -a $install/* $fs
+					rm -f $fs/lib/modules/*/build $fs/lib/modules/*/source
+					return 0 ;;
+				x86_64)
+					echo "TODO: use default or custom x86_64 packing"
+					return 0 ;;
+			esac
 
-	# Copy base modules
-	. $stuff/tools/copy_modules.sh
+			# Copy the Kernel
+			cp -a $install/boot $fs
 
-	# We only need module.{order,builtin} because other map files are
-	# generated by depmod in post_install
-	cook_copy_files modules.order modules.builtin
-	rm -rf $fs/usr
+			# Copy base modules
+			. $stuff/tools/copy_modules.sh
 
-	# Pack all packages with a Kernel modules
-	[ ! -d "$install/lib/modules/$VERSION-slitaz" ] && return 1
-	for i in $SPLIT; do
-		cook $i
-	done
+			# We only need module.{order,builtin} because other map files are
+			# generated by depmod in post_install
+			copy modules.order modules.builtin
+			rm -rf $fs/usr
 
-	# Checking for Linux Kernel modules that don't belong to any of the packages
-	$stuff/tools/check_modules.sh
+			# Pack all packages with a Kernel modules
+			[ ! -d "$install/lib/modules/$VERSION-slitaz" ] && return 1
+
+			# Checking for Linux Kernel modules that don't belong to any of the packages
+			# $stuff/tools/check_modules.sh
+			DEPENDS="kmod"
+			;;
+		*-firmware)
+			mkdir -p $fs/lib
+			cp -a $install/lib/firmware $fs/lib
+			# remove linux-sound firmware files
+			for i in ess korg sun yamaha; do
+				rm -rf $fs/lib/firmware/$i
+			done
+			CAT="non-free|firmware thats compiled from Linux source code"
+			PROVIDE="linux64-firmware"
+			;;
+		*-module-headers)
+			CAT="development|header files and scripts for building modules for Linux Kernel"
+			KVERSION="$VERSION-slitaz"
+			DEPENDS="slitaz-toolchain"
+			mkdir -p $fs/lib/modules/$KVERSION $fs/usr
+			cp -a $install/usr/src $fs/usr
+			;;
+		*-source)
+			CAT="development|source files"
+			DEPENDS="linux slitaz-toolchain ncurses-dev perl xz lzma patch busybox-boot"
+
+			local _AUFSVER=$(. $WOK/aufs/receipt; echo $VERSION)
+			local AUFSDIR="aufs-${_AUFSVER}"
+			kps=$fs/usr/src/kernel-patches/slitaz
+			mkdir -p $kps \
+				$fs/lib/modules/$VERSION-slitaz \
+				$fs/usr/bin $fs/usr/sbin
+
+			# URL
+			echo $(. $WOK/linux/receipt; echo $WGET_URL) > $kps/url
+			# stuff
+			cp $stuff/tools/* $stuff/bootloader.sh $kps
+			# Kernel patch
+			xzcat $SRC/patch-$VERSION.xz > $kps/linux-$VERSION.patch
+			echo "linux-$VERSION.patch" > $kps/patches
+			# Aufs patches
+			sed '/^aufs4.*patch$/!d' $stuff/tools/aufs-patches | \
+			tee -a $kps/patches | \
+			while read i; do
+				cp $WOK/aufs/source/*/$i $kps
+			done
+			# misc. patches
+			cat $stuff/patches/patch.order >> $kps/patches
+			cp $stuff/patches/* $kps
+			rm $kps/patch.order
+			# config
+			cp $WOK/linux/source/linux-$VERSION/.config $kps/config
+
+			cp -a $stuff/linux-source/buildtaz         $kps
+			cp -a $stuff/linux-source/make-tazpkg.u    $kps
+			cp -a $stuff/linux-source/get-linux-source $fs/usr/bin
+			cp -a $stuff/linux-source/list_modules.sh  $kps
+			cp -a $stuff/linux-source/rdev             $fs/usr/sbin
+			ln -s rdev $fs/usr/sbin/rootflags
+			ln -s rdev $fs/usr/sbin/ramsize
+			ln -s rdev $fs/usr/sbin/vidmode
+			sed -i "s|=XXX|=$VERSION|g" $fs/usr/bin/get-linux-source
+
+			# Copy Aufs4 source files
+			if [ -d $WOK/$WANTED/$AUFSDIR ]; then
+				mkdir $fs/usr/src/kernel-patches/slitaz/aufs4
+				cp -a $WOK/$WANTED/$AUFSDIR/Documentation \
+					$WOK/$WANTED/$AUFSDIR/fs $WOK/$WANTED/$AUFSDIR/include \
+					$fs/usr/src/kernel-patches/slitaz/aufs4
+			fi
+
+			ln -s ../../../usr/src/linux-$VERSION $fs/lib/modules/$VERSION-slitaz/source
+
+			chown -R root:root $fs
+			;;
+		*-without-modules)
+			CAT="base-system|without module support"
+			PROVIDE="linux"
+			mkdir -p $fs/boot
+			cp -a $install/bzImage $fs/boot/vmlinuz-$VERSION-slitaz-without-modules
+			;;
+		lguest)
+			CAT="base-system|paravirtualization tool"
+			DEPENDS=" "
+			copy lguest
+			;;
+		*)
+			. $stuff/tools/copy_modules.sh
+			CAT="base-system|$c"
+			;;
+	esac
+
+	case $PACKAGE in
+		*fs|*fs2|*-coda|*-dlm|*-hfsplus|*-minix|*-nfsd)
+			CONFIG_FILES="/etc/filesystems";;
+		*-zram)
+			CONFIG_FILES="/etc/compcache.conf";;
+	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+
+post_install_linux() {
 	# Handle multiarch installation
 	case "$SLITAZ_ARCH" in
 		arm)
@@ -262,4 +446,30 @@ kernel /boot/vmlinuz-$VERSION-slitaz root=$root_dev
 EOT
 	fi
 	:
+}
+
+pre_remove_linux_module_headers() {
+	if [ -e "$1/usr/src/linux" ]; then
+		rm -rf "$1/usr/src/linux"
+	fi
+}
+
+# Added soft link to make it easier to point to kernel folder
+post_install_linux_module_headers() {
+	KVERSION="$VERSION-slitaz"
+	[ -L "$1/usr/src/linux" ] && rm -f "$1/usr/src/linux"
+	ln -sf /usr/src/linux-$KVERSION "$1/usr/src/linux"
+	ln -sf /usr/src/linux-$KVERSION "$1/lib/modules/$KVERSION/build"
+}
+
+post_install_linux_zram() {
+	chroot "$1/" depmod -a $VERSION-slitaz &&
+	RAM=$(cat /proc/meminfo | grep MemTotal | sed s/[^0-9]//g) &&
+	echo "SIZE_KB="$(($RAM/2)) > "$1/etc/compcache.conf"
+	[ -n "$quiet" ] || cat <<EOT
+
+You can add compressed swap according /etc/compcache.conf configuration with:
+# /etc/init.d/compcache start
+Or add compcache to the RUN_DAEMONS list of /etc/rcS.conf.
+EOT
 }

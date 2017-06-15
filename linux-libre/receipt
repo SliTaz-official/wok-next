@@ -1,19 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="linux-libre"
 VERSION="2.6.37-gnu"
 CATEGORY="base-system"
-SHORT_DESC="The Linux Libre kernel and modules."
+SHORT_DESC="The Linux Libre kernel"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
-PROVIDE="linux"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.fsfla.org/svnwiki/selibre/linux-libre/"
 WGET_URL="http://www.fsfla.org/svnwiki/selibre/linux-libre/download/releases/$VERSION/$TARBALL"
-CONFIG_FILES="/lib/modules/$VERSION-slitaz/modules.dep"
 
-DEPENDS="depmod"
 BUILD_DEPENDS="slitaz-toolchain perl git lzma patch"
+SPLIT="linux-libre-acpi linux-libre-agp linux-libre-aoe linux-libre-appletalk \
+linux-libre-autofs linux-libre-bluetooth linux-libre-bridge linux-libre-btrfs \
+linux-libre-cifs linux-libre-coda linux-libre-configfs linux-libre-cpufreq \
+linux-libre-cramfs linux-libre-crypto linux-libre-cryptoloop \
+linux-libre-dialup linux-libre-dlm linux-libre-drm linux-libre-firewire \
+linux-libre-gfs2 linux-libre-hfs linux-libre-hfsplus linux-libre-hwmon \
+linux-libre-input-misc linux-libre-input-tablet linux-libre-input-touchscreen \
+linux-libre-ipv6 linux-libre-irda linux-libre-isdn linux-libre-jfs \
+linux-libre-joystick linux-libre-kvm linux-libre-logfs linux-libre-md \
+linux-libre-memstick linux-libre-minix linux-libre-mmc \
+linux-libre-module-headers linux-libre-mwave linux-libre-nbd linux-libre-ncpfs \
+linux-libre-netfilter linux-libre-nfsd linux-libre-reiserfs linux-libre-sched \
+linux-libre-scsi linux-libre-sound linux-libre-source linux-libre-speakup \
+linux-libre-squashfs linux-libre-toshiba linux-libre-udf linux-libre-usbdsl \
+linux-libre-usbip linux-libre-usb-misc linux-libre-uwb linux-libre-video \
+linux-libre-wimax linux-libre-wireless linux-libre-without-modules"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -129,43 +142,1204 @@ EOT
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	local path
-	cp -a $install/boot $fs
-	# Compress all modules.
-	#$stuff/gztazmod.sh $install/lib/modules/$VERSION-slitaz
-	path=$fs/lib/modules/$VERSION-slitaz/kernel
-	mkdir -p $path
-	cp -a $install/lib/modules/$VERSION-slitaz/mo* \
-		$fs/lib/modules/$VERSION-slitaz
-	# Get the base modules
-	export src
-	export _pkg
-	mkdir $WOK/$PACKAGE/tmp
-	$stuff/list_modules.sh \
-	$(cat stuff/modules-$VERSION.list) > $WOK/$PACKAGE/tmp/modules.list
-	while read module; do
-		dir=$(dirname $module)
-		[ -d $path/$dir ] || mkdir -p $path/$dir
-		cp -a $install/lib/modules/$VERSION-slitaz/kernel/$module $path/$dir
-	done < $WOK/$PACKAGE/tmp/modules.list
-	# Remove unresolved links
-	rm -f $fs/lib/modules/$VERSION-slitaz/build
-	rm -f $fs/lib/modules/$VERSION-slitaz/source
+	case $PACKAGE in
+		linux-libre)
+			local path
+			cp -a $install/boot $fs
+			# Compress all modules.
+			#$stuff/gztazmod.sh $install/lib/modules/$VERSION-slitaz
+			path=$fs/lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $path
+			cp -a $install/lib/modules/$VERSION-slitaz/mo* \
+				$fs/lib/modules/$VERSION-slitaz
+			# Get the base modules
+			export src
+			export _pkg
+			mkdir $WOK/$PACKAGE/tmp
+			$stuff/list_modules.sh \
+			$(cat stuff/modules-$VERSION.list) > $WOK/$PACKAGE/tmp/modules.list
+			while read module; do
+				dir=$(dirname $module)
+				[ -d $path/$dir ] || mkdir -p $path/$dir
+				cp -a $install/lib/modules/$VERSION-slitaz/kernel/$module $path/$dir
+			done < $WOK/$PACKAGE/tmp/modules.list
+			# Remove unresolved links
+			rm -f $fs/lib/modules/$VERSION-slitaz/build
+			rm -f $fs/lib/modules/$VERSION-slitaz/source
 
-	# Pack all packages with a kernel module
-	for i in $(cd $WOK; grep -l '^WANTED="linux-libre"' */receipt); do
-		[ ! -d "$install/lib/modules/$VERSION-slitaz" ] && return 1
-		cook ${i%/receipt}
-	done
+			# Pack all packages with a kernel module
+			for i in $(cd $WOK; grep -l '^WANTED="linux-libre"' */receipt); do
+				[ ! -d "$install/lib/modules/$VERSION-slitaz" ] && return 1
+				cook ${i%/receipt}
+			done
 
-	# Check and echo any module in kernel .config that's not added to
-	# one of linux-* pkgs
-	export PACKAGE
-	$stuff/check_modules.sh
+			# Check and echo any module in kernel .config that's not added to
+			# one of linux-* pkgs
+			export PACKAGE
+			$stuff/check_modules.sh
+			PROVIDE="linux"
+			CONFIG_FILES="/lib/modules/$VERSION-slitaz/modules.dep"
+			DEPENDS="depmod"
+			;;
+		linux-libre-acpi)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/acpi drivers/platform/x86/thinkpad_acpi.ko.gz \
+			drivers/platform/x86/asus-laptop.ko.gz drivers/platform/x86/eeepc-wmi.ko.gz \
+			drivers/platform/x86/msi-laptop.ko.gz drivers/platform/x86/panasonic-laptop.ko.gz \
+			drivers/platform/x86/sony-laptop.ko.gz drivers/platform/x86/acer-wmi.ko.gz \
+			drivers/platform/x86/hp-wmi.ko.gz drivers/platform/x86/wmi.ko.gz \
+			drivers/platform/x86/classmate-laptop.ko.gz drivers/platform/x86/topstar-laptop.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|acpi modules"
+			PROVIDE="linux-acpi"
+			;;
+		linux-libre-agp)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/char/agp | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|AGP modules"
+			PROVIDE="linux-agp"
+			;;
+		linux-libre-aoe)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/block/aoe/aoe.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|ATA over Ethernet modules"
+			PROVIDE="linux-aoe"
+			;;
+		linux-libre-appletalk)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/net/appletalk net/appletalk \
+			net/802/p8022.ko.gz | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|appletalk modules"
+			PROVIDE="linux-appletalk"
+			;;
+		linux-libre-autofs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/autofs4 | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|automounter module"
+			PROVIDE="linux-autofs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-bluetooth)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/bluetooth net/bluetooth | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|bluetooth modules"
+			PROVIDE="linux-bluetooth"
+			;;
+		linux-libre-bridge)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh net/bridge | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|bridge modules"
+			PROVIDE="linux-bridge"
+			;;
+		linux-libre-btrfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/${PACKAGE##*-} | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|btrfs module"
+			PROVIDE="linux-btrfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-cifs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/cifs | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|cifs module"
+			PROVIDE="linux-cifs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-coda)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/coda | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|coda module"
+			PROVIDE="linux-coda"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-configfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/${PACKAGE##*-} | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|configfs module"
+			PROVIDE="linux-configfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-cpufreq)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh arch/x86/kernel/cpu/cpufreq drivers/cpufreq | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|cpufreq modules"
+			PROVIDE="linux-cpufreq"
+			;;
+		linux-libre-cramfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/cramfs | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|cramfs module"
+			PROVIDE="linux-cramfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-crypto)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh arch/x86/crypto crypto drivers/crypto | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|crypto modules"
+			PROVIDE="linux-crypto"
+			;;
+		linux-libre-cryptoloop)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/block/cryptoloop.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|cryptoloop modules"
+			PROVIDE="linux-cryptoloop"
+			DEPENDS="linux-libre-crypto"
+			;;
+		linux-libre-dialup)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/serial/serial_cs.ko.gz drivers/char/nozomi.ko.gz \
+			drivers/usb/serial/option.ko.gz drivers/net/usb/hso.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|dial-up modules"
+			PROVIDE="linux-dialup"
+			;;
+		linux-libre-dlm)
+			# Modules paths and list
+			MOD_PATH="lib/modules/$VERSION-slitaz/kernel"
+			MODULES="fs/dlm/dlm.ko.gz"
+			mkdir -p ${fs}${MOD_PATH} $fs/etc
+			for module in $MODULES; do
+				dir=$MOD_PATH/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$MOD_PATH/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|dlmfs module"
+			PROVIDE="linux-dlm"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-drm)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/gpu/drm | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			# remove drivers/char/agp kernel modules cause there in linux-agp package
+			if [ -d $fs/lib/modules/$VERSION-slitaz/kernel/drivers/char/agp ]; then
+				rm -rf $fs/lib/modules/$VERSION-slitaz/kernel/drivers/char/agp
+			fi
+			CAT="base-system|drm module"
+			PROVIDE="linux-drm"
+			DEPENDS="linux-libre-agp"
+			;;
+		linux-libre-firewire)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/firewire | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|firewire modules"
+			PROVIDE="linux-firewire"
+			;;
+		linux-libre-gfs2)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/gfs2 | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|gfs2 module"
+			PROVIDE="linux-gfs2"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-hfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/${PACKAGE##*-} | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|hfs module"
+			PROVIDE="linux-hfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-hfsplus)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/hfsplus | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|hfsplus module"
+			PROVIDE="linux-hfsplus"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-hwmon)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/hwmon | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|hwmon modules"
+			PROVIDE="linux-hwmon"
+			;;
+		linux-libre-input-misc)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/input/misc | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|misc. input drivers, including the ATI RemoteWonders"
+			PROVIDE="linux-input-misc"
+			;;
+		linux-libre-input-tablet)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/input/tablet | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|tablet input drivers"
+			PROVIDE="linux-input-tablet"
+			;;
+		linux-libre-input-touchscreen)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/input/touchscreen | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|touchscreen input drivers"
+			PROVIDE="linux-input-touchscreen"
+			;;
+		linux-libre-ipv6)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh net/ipv6 | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|ipv6 modules"
+			PROVIDE="linux-ipv6"
+			;;
+		linux-libre-irda)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/net/irda net/irda | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|irda modules"
+			PROVIDE="linux-irda"
+			;;
+		linux-libre-isdn)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/isdn | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|isdn modules"
+			PROVIDE="linux-isdn"
+			;;
+		linux-libre-jfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/jfs | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|jfs module"
+			PROVIDE="linux-jfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-joystick)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/input/joystick drivers/input/gameport \
+			drivers/input/input-polldev.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|joystick modules"
+			PROVIDE="linux-joystick"
+			;;
+		linux-libre-kvm)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh arch/x86/kvm drivers/virtio drivers/lguest \
+			drivers/char/hw_random/virtio-rng.ko.gz \
+			drivers/net/virtio_net.ko.gz drivers/block/virtio_blk.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|kvm and virtio modules"
+			PROVIDE="linux-kvm"
+			;;
+		linux-libre-logfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/${PACKAGE##*-} | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|logfs module"
+			PROVIDE="linux-logfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-md)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/md | while read module; do
+				case "$module" in
+					crypto/*) continue;;
+				esac
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|md modules"
+			PROVIDE="linux-md"
+			DEPENDS="linux-libre-crypto"
+			;;
+		linux-libre-memstick)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/memstick | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|sony memory stick modules"
+			PROVIDE="linux-memstick"
+			;;
+		linux-libre-minix)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/${PACKAGE##*-} | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|minix module"
+			PROVIDE="linux-minix"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-mmc)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/mmc drivers/misc/tifm_7xx1.ko.gz drivers/misc/iwmc3200top/iwmc3200top.ko.gz| \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|mmc modules - card reader"
+			PROVIDE="linux-mmc"
+			;;
+		linux-libre-module-headers)
+			CAT="development|header files and scripts for building modules for Linux Libre kernel"
+			PROVIDE="linux-module-headers"
+			DEPENDS="slitaz-toolchain"
+			KVERSION=$VERSION-slitaz
+
+			local path
+			_AUFSVER=`grep  ^VERSION= $WOK/aufs/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
+			AUFSDIR="$WOK/$WANTED/aufs-${_AUFSVER}"
+			path=usr/src/linux-$KVERSION
+			mkdir -p $fs/lib/modules/$KVERSION
+			ln -sf /$path $fs/lib/modules/$KVERSION/build
+			install -D -m644 $src/Makefile \
+				$fs/$path/Makefile
+			install -D -m644 $src/kernel/Makefile \
+				$fs/$path/kernel/Makefile
+			install -D -m644 $src/.config \
+				$fs/$path/.config
+			mkdir -p $fs/$path/include
+
+			for i in acpi asm-generic config generated linux math-emu media net pcmcia scsi sound trace video xen; do
+				cp -a $src/include/$i $fs/$path/include/
+			done
+
+			# copy arch includes for external modules
+			mkdir -p $fs/$path/arch/x86
+			cp -a $src/arch/x86/include $fs/$path/arch/x86/
+
+			# copy files necessary for later builds, like nvidia and vmware
+			cp -a $src/Module.symvers-modules $fs/$path/Module.symvers
+			cp -a $src/scripts $fs/$path
+			# fix permissions on scripts dir
+			chmod og-w -R $fs/$path/scripts
+			mkdir -p $fs/$path/.tmp_versions
+
+			mkdir -p $fs/$path/arch/x86/kernel
+			cp -a $src/arch/x86/Makefile $fs/$path/arch/x86/
+			cp -a $src/arch/x86/Makefile_32.cpu $fs/$path/arch/x86/
+			cp -a $src/arch/x86/kernel/asm-offsets.s $fs/$path/arch/x86/kernel/
+
+			# add headers for lirc package
+			mkdir -p $fs/$path/drivers/media/video
+			cp -a $src/drivers/media/video/*.h  $fs/$path/drivers/media/video/
+
+			for i in bt8xx cpia2 cx25840 cx88 em28xx et61x251 pwc saa7134 sn9c102 usbvideo ; do
+				mkdir -p $fs/$path/drivers/media/video/$i
+				cp -a $src/drivers/media/video/$i/*.h $fs/$path/drivers/media/video/$i
+			done
+
+			# add docbook makefile
+			install -D -m644 $src/Documentation/DocBook/Makefile \
+				$fs/$path/Documentation/DocBook/Makefile
+
+			# add dm headers
+			mkdir -p $fs/$path/drivers/md
+			cp -a $src/drivers/md/*.h  $fs/$path/drivers/md
+
+			# add inotify.h
+			mkdir -p $fs/$path/include/linux
+			cp -a $src/include/linux/inotify.h $fs/$path/include/linux/
+
+			# add wireless headers
+			mkdir -p $fs/$path/net/mac80211/
+			cp -a $src/net/mac80211/*.h $fs/$path/net/mac80211/
+
+			# add dvb headers for external modules
+			# in reference to:
+			# http://bugs.archlinux.org/task/9912
+			mkdir -p $fs/$path/drivers/media/dvb/dvb-core
+			cp -a $src/drivers/media/dvb/dvb-core/*.h $fs/$path/drivers/media/dvb/dvb-core/
+
+			# add dvb headers for external modules
+			# in reference to:
+			# http://bugs.archlinux.org/task/11194
+			if [ -d $src/include/config/dvb/ ]; then
+				mkdir -p $fs/$path/include/config/dvb/
+				cp $src/include/config/dvb/*.h $fs/$path/include/config/dvb/
+			fi
+
+			# add dvb headers for http://mcentral.de/hg/~mrec/em28xx-new
+			# in reference to:
+			# http://bugs.archlinux.org/task/13146
+			mkdir -p $fs/$path/drivers/media/dvb/frontends/
+			cp -a $src/drivers/media/dvb/frontends/lgdt330x.h $fs/$path/drivers/media/dvb/frontends/
+			cp -a $src/drivers/media/video/msp3400-driver.h $fs/$path/drivers/media/dvb/frontends/
+
+			# add dvb headers  
+			# in reference to:
+			# http://bugs.archlinux.org/task/20402
+			mkdir -p $fs/$path/drivers/media/dvb/dvb-usb
+			cp -a $src/drivers/media/dvb/dvb-usb/*.h $fs/$path/drivers/media/dvb/dvb-usb/
+			mkdir -p $fs/$path/drivers/media/dvb/frontends
+			cp -a $src/drivers/media/dvb/frontends/*.h $fs/$path/drivers/media/dvb/frontends/
+			mkdir -p $fs/$path/drivers/media/common/tuners
+			cp -a $src/drivers/media/common/tuners/*.h $fs/$path/drivers/media/common/tuners/
+
+			# add xfs and shmem for aufs building
+			mkdir -p $fs/$path/fs/xfs
+			mkdir -p $fs/$path/mm
+			cp -a $src/fs/xfs/xfs_sb.h $fs/$path/fs/xfs/xfs_sb.h
+
+			# add headers vor virtualbox
+			# in reference to:
+			# http://bugs.archlinux.org/task/14568
+			cp -a $src/include/drm $fs/$path/include/
+
+			# add headers for broadcom wl
+			# in reference to:
+			# http://bugs.archlinux.org/task/14568
+			cp -a $src/include/trace $fs/$path/include/
+			# add headers for crypto modules
+			# in reference to:
+			# http://bugs.archlinux.org/task/22081
+			cp -a $src/include/crypto $fs/$path/include/
+			# copy in Kconfig files
+			for i in $(find . -name "Kconfig*"); do 
+				mkdir -p $fs/$path/$(echo $i | sed 's|/Kconfig.*||')
+				cp -a $src/$i $fs/$path/$i
+			done
+
+			chown -R root.root $fs/$path
+			find $fs/$path -type d -exec chmod 755 {} \;
+			# remove unneeded architectures
+			rm -rf $fs/$path/arch/{alpha,arm,arm26,avr32,blackfin,cris,frv,h8300,ia64,m32r,m68k,m68knommu,mips,microblaze,mn10300,parisc,powerpc,ppc,s390,sh,sh64,sparc,sparc64,um,v850,xtensa}
+			;;
+		linux-libre-mwave)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/char/mwave | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|ACP Modem driver module - for IBM Thinkpad"
+			PROVIDE="linux-mwave"
+			;;
+		linux-libre-nbd)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/block/nbd.ko.gz | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|network block device modules"
+			PROVIDE="linux-nbd"
+			;;
+		linux-libre-ncpfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/ncpfs | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|ncpfs module"
+			PROVIDE="linux-ncpfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-netfilter)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh net/netfilter net/ipv4/netfilter net/8021q | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			rm -r $fs/$path/net/ipv6
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|netfilter modules"
+			PROVIDE="linux-netfilter"
+			;;
+		linux-libre-nfsd)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/nfsd | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|NFS server module"
+			PROVIDE="linux-nfsd"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-reiserfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/reiserfs | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|reiserfs module"
+			PROVIDE="linux-reiserfs"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-sched)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh net/sched | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|sched modules"
+			PROVIDE="linux-sched"
+			;;
+		linux-libre-scsi)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/scsi | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|scsi modules"
+			PROVIDE="linux-scsi"
+			;;
+		linux-libre-sound)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh sound | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			mkdir $fs/lib/firmware
+			# non-free firmware ?
+			#for i in ess korg sun yamaha; do
+			#	cp -a $install/lib/firmware/$i $fs/lib/firmware
+			#done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|sound modules"
+			PROVIDE="linux-sound"
+			;;
+		linux-libre-source)
+			local _AUFSVER=`grep  ^VERSION= $WOK/aufs/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
+			local AUFSDIR="aufs-${_AUFSVER}"
+			mkdir -p $fs/usr/src/kernel-patches \
+				$fs/lib/modules/$VERSION-slitaz \
+				$fs/usr/bin
+			cp -a $WOK/$WANTED/slitaz $fs/usr/src/kernel-patches
+			cp -a $stuff/source/buildtaz $fs/usr/src/kernel-patches/slitaz
+			cp -a $stuff/source/make-tazpkg.u $fs/usr/src/kernel-patches/slitaz
+			cp -a $stuff/source/get-linux-source $fs/usr/bin
+			sed -i "s|=XXX|=$VERSION|g" $fs/usr/bin/get-linux-source
+			# Copy Aufs2 source files
+			if [ -d $WOK/$WANTED/$AUFSDIR ]; then
+				mkdir $fs/usr/src/kernel-patches/slitaz/aufs2
+				cp -a $WOK/$WANTED/$AUFSDIR/Documentation \
+					$WOK/$WANTED/$AUFSDIR/fs $WOK/$WANTED/$AUFSDIR/include \
+					$fs/usr/src/kernel-patches/slitaz/aufs2
+			fi
+			ln -s /usr/src/linux-$VERSION \
+				$fs/lib/modules/$VERSION-slitaz/source
+			CAT="development|source files"
+			PROVIDE="linux-source"
+			DEPENDS="linux-libre slitaz-toolchain ncurses-dev perl"
+			;;
+		linux-libre-speakup)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/staging/speakup | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|Speakup modules"
+			PROVIDE="linux-speakup"
+			;;
+		linux-libre-squashfs)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/squashfs | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			CAT="base-system|squashfs module"
+			PROVIDE="linux-squashfs squashfs-module"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-toshiba)
+			# Modules paths and list
+			MOD_PATH="lib/modules/$VERSION-slitaz/kernel"
+			MODULES="drivers/char/toshiba.ko.gz"
+			mkdir -p ${fs}${MOD_PATH}
+			for module in $MODULES; do
+				dir=$MOD_PATH/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$MOD_PATH/$module $fs/$dir
+			done
+			CAT="base-system|toshiba module"
+			PROVIDE="linux-toshiba"
+			;;
+		linux-libre-udf)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path $fs/etc
+			export src
+			export _pkg
+			$stuff/list_modules.sh fs/udf | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			touch $fs/etc/filesystems
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|udf module"
+			PROVIDE="linux-udf"
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		linux-libre-usbdsl)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/usb/atm net/atm | \
+			while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|usb dsl modem modules"
+			PROVIDE="linux-usbdsl"
+			;;
+		linux-libre-usbip)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/staging/usbip | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|usbip module"
+			PROVIDE="linux-usbip usbip-module"
+			;;
+		linux-libre-usb-misc)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/usb/misc | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|misc. USB drivers, including the Lego USB tower"
+			PROVIDE="linux-usb-misc"
+			;;
+		linux-libre-uwb)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/uwb drivers/usb/wusbcore \
+			drivers/usb/host/whci | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			CAT="base-system|uwb modules"
+			PROVIDE="linux-uwb"
+			;;
+		linux-libre-video)
+			# Modules paths and list
+			MOD_PATH="lib/modules/$VERSION-slitaz/kernel"
+			MODULES="drivers/video/backlight/lcd.ko.gz
+			drivers/video/backlight/generic_bl.ko.gz
+			drivers/gpio/bt8xxgpio.ko.gz"
+			mkdir -p ${fs}${MOD_PATH}
+			for module in $MODULES; do
+				dir=$MOD_PATH/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$MOD_PATH/$module $fs/$dir
+			done
+			CAT="base-system|video modules"
+			PROVIDE="linux-video"
+			;;
+		linux-libre-wimax)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/net/wimax net/wimax | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|wimax modules"
+			PROVIDE="linux-wimax"
+			;;
+		linux-libre-wireless)
+			local path
+			path=lib/modules/$VERSION-slitaz/kernel
+			mkdir -p $fs/$path
+			export src
+			export _pkg
+			$stuff/list_modules.sh drivers/net/wireless drivers/staging/wlan-ng \
+			drivers/staging/rt2860 drivers/staging/rt2870 drivers/staging/echo \
+			drivers/leds net/wireless net/mac80211 drivers/staging/rtl8192e/r8192e_pci.ko.gz \
+			drivers/staging/rtl8187se/r8187se.ko.gz \
+			drivers/staging/rtl8192u/r8192u_usb.ko.gz drivers/staging/crystalhd/crystalhd.ko.gz \
+			drivers/staging/sm7xx/sm7xx.ko.gz | while read module; do
+				dir=$path/$(dirname $module)
+				[ -d $fs/$dir ] || mkdir -p $fs/$dir
+				cp -a $install/$path/$module $fs/$dir
+			done
+			for i in $(cat $stuff/modules-$VERSION.list); do
+				if [ $fs/lib/modules/$VERSION-slitaz/kernel/$i ]; then
+					rm -f $fs/lib/modules/$VERSION-slitaz/kernel/$i
+				fi
+			done
+			CAT="base-system|wireless modules"
+			PROVIDE="linux-wireless"
+			DEPENDS="linux-libre-crypto wireless_tools"
+			;;
+		linux-libre-without-modules)
+			mkdir -p $fs/boot
+			cp -a $install/bzImage $fs/boot/vmlinuz-$VERSION-slitaz-without-modules
+			CAT="base-system|without module support"
+			PROVIDE="linux-without-modules"
+			;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
+post_install_linux_libre()
 {
 	chroot "$1/" depmod -a $VERSION-slitaz
 	# GRUB stuff.
@@ -193,4 +1367,415 @@ kernel /boot/vmlinuz-$VERSION-slitaz root=$root_dev
 EOT
 	fi
 	true
+}
+
+post_install_linux_libre_acpi() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_acpi() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_agp() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_agp() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_aoe() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_aoe() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_appletalk() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_appletalk() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_autofs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_autofs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_bluetooth() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_bluetooth() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_bridge() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_bridge() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_btrfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_btrfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_cifs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_cifs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_coda() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_coda() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_configfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_configfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_cpufreq() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_cpufreq() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_cramfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_cramfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_crypto() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_crypto() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_cryptoloop() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_cryptoloop() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_dialup() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_dialup() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_dlm() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_dlm() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_drm() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_drm() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_firewire() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_firewire() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_gfs2() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_gfs2() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_hfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_hfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_hfsplus() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_hfsplus() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_hwmon() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_hwmon() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_input_misc() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_input_misc() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_input_tablet() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_input_tablet() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_input_touchscreen() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_input_touchscreen() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_ipv6() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_ipv6() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_irda() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_irda() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_isdn() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_isdn() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_jfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_jfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_joystick() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_joystick() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_kvm() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_kvm() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_logfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_logfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_md() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_md() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_memstick() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_memstick() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_minix() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_minix() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_mmc() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_mmc() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+pre_remove_linux_libre_module_headers() {
+	if [ -e "$1/usr/src/linux" ]; then
+		rm -rf "$1/usr/src/linux"
+	fi
+}
+post_install_linux_libre_module_headers() {
+	KVERSION=$VERSION-slitaz
+	# Added soft link to make it easier to point to kernel folder
+	[ -L "$1/usr/src/linux" ] && rm -f "$1/usr/src/linux"
+	ln -sf /usr/src/linux-$KVERSION "$1/usr/src/linux"
+}
+post_install_linux_libre_mwave() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_mwave() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_nbd() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_nbd() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_ncpfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_ncpfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_netfilter() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_netfilter() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_nfsd() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_nfsd() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_reiserfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_reiserfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_sched() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_sched() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_scsi() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_scsi() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_sound() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_sound() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_speakup() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_speakup() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_squashfs() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_squashfs() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_toshiba() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_toshiba() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_udf() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_udf() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_usbdsl() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_usbdsl() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_usbip() {
+	grep -qs ^${PACKAGE##*-}$ "$1/etc/filesystems" || \
+		echo "${PACKAGE##*-}" >> "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_usbip() {
+	sed -i "/^${PACKAGE##*-}\$/d" "$1/etc/filesystems"
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_usb_misc() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_usb_misc() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_uwb() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_uwb() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_video() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_video() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_wimax() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_wimax() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_install_linux_libre_wireless() {
+	chroot "$1/" depmod -a $VERSION-slitaz
+}
+post_remove_linux_libre_wireless() {
+	chroot "$1/" depmod -a $VERSION-slitaz
 }
