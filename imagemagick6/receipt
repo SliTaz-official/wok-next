@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="imagemagick6"
 VERSION="6.9.8-4"
@@ -7,21 +7,16 @@ SHORT_DESC="ImageMagick (v.6) - convert, edit, and compose images"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="Apache"
 WEB_SITE="http://www.imagemagick.org/"
-TAGS="image photo toolkit"
 
 TARBALL="ImageMagick-$VERSION.tar.xz"
 WGET_URL="https://www.imagemagick.org/download/releases/$TARBALL"
 
-DEPENDS="bzlib cairo fftw fontconfig freetype gdk-pixbuf glib harfbuzz lcms2 \
-libcroco libffi libgio libgomp libjpeg-turbo libltdl liblzma libpng librsvg \
-libxcb libxml2 pango pcre pixman tiff util-linux-uuid xorg-libICE xorg-libSM \
-xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libXt \
-zlib"
 BUILD_DEPENDS="bzip2-dev xorg-libX11-dev xorg-libICE-dev xorg-libXext-dev \
 xorg-libXt-dev zlib-dev libtool fftw-dev fontconfig-dev freetype-dev \
 libjpeg-turbo-dev lcms2-dev liblzma-dev pango-dev libpng-dev tiff-dev \
 libxml2-dev librsvg-dev perl util-linux-uuid-dev"
 # jasper-dev ilmbase-dev openexr-dev graphviz-dev libgsf-dev
+SPLIT="imagemagick6-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -44,10 +39,12 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		imagemagick6)
+			copy @std
 
-	# CVE-2016-3714 work around v5
-	sed -i '/<policymap>/r/dev/stdin' $fs/etc/ImageMagick-6/policy.xml <<EOT
+			# CVE-2016-3714 work around v5
+			sed -i '/<policymap>/r/dev/stdin' $fs/etc/ImageMagick-6/policy.xml <<EOT
   <policy domain="coder" rights="none" pattern="EPHEMERAL" />
   <policy domain="coder" rights="none" pattern="URL" />
   <policy domain="coder" rights="none" pattern="HTTPS" />
@@ -58,4 +55,24 @@ genpkg_rules()
   <policy domain="coder" rights="none" pattern="WIN" />
   <policy domain="coder" rights="none" pattern="PLT" />
 EOT
+			DEPENDS="bzlib cairo fftw fontconfig freetype gdk-pixbuf glib \
+			harfbuzz lcms2 libcroco libffi libgio libgomp libjpeg-turbo \
+			libltdl liblzma libpng librsvg libxcb libxml2 pango pcre pixman \
+			tiff util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libXt \
+			zlib"
+			TAGS="image photo toolkit"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="imagemagick6 bzip2-dev cairo-dev fftw-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev harfbuzz-dev \
+			lcms2-dev libcroco-dev libffi-dev libgio-dev libjpeg-turbo-dev \
+			liblzma-dev libpng-dev librsvg-dev libtool libxcb-dev libxml2-dev \
+			pango-dev pcre-dev pixman-dev tiff-dev util-linux-uuid-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libXt-dev zlib-dev"
+			;;
+	esac
 }
