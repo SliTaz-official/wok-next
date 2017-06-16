@@ -15,7 +15,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
 pcre-dev gtk-doc libxslt libxml2-tools dbus-dev util-linux-mount-dev"
 BUILD_DEPENDS_arm="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev"
-SPLIT="libgio glib libgio-dev glib-dev"
+SPLIT="glib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -63,27 +63,19 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
-		libgio)
-			copy libgio*.so*
-			CAT="libs|libgio shared library"
-			;;
 		glib)
-			copy bin/ *.so*
-			remove_already_packed
+			copy @std
 			# Python codegen, tester, Perl mkenums --> glib-dev
 			cd $fs/usr/bin; rm gdbus-codegen gtester* glib-mkenums
-			DEPENDS="pcre libffi libxml2 elfutils"
-			;;
-		libgio-dev)
-			copy *-2.0/gio/ libgio*.*a gio*.pc
-			CAT="development|libgio development files"
-			DEPENDS="libgio"
+			rm -r $fs/usr/share
+			DEPENDS="elfutils libffi pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid zlib"
 			;;
 		glib-dev)
 			copy @std @dev
 			remove_already_packed
-			DEPENDS="glib perl python libffi-dev libgio libgio-dev pcre-dev \
-			pkg-config"
+			DEPENDS="glib glibc-dev libffi-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev perl python"
 			;;
 	esac
 }
