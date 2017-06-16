@@ -12,22 +12,21 @@ HOST_ARCH="i486 arm"
 TARBALL="libpng-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/libpng/$TARBALL"
 
-PATCH="libpng-$VERSION-apng.patch.gz"
-PATCH_URL="$SF_MIRROR/apng/$PATCH"
-
 BUILD_DEPENDS="gawk zlib-dev"
 SPLIT="libpng16-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	[ -s "$SRC/$PATCH" ] || wget -O "$SRC/$PATCH" $PATCH_URL
-	gzip -cd $SRC/$PATCH | patch -p0
-
+	LIBS=-lpthread \
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install &&
+
+	docdir=$install/usr/share/doc/libpng-$VERSION &&
+	mkdir -p $docdir &&
+	cp -v README libpng-manual.txt $docdir
 
 	# Misc png tools
 	cd contrib/pngminus
