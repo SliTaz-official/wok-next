@@ -58,21 +58,29 @@ case $PACKAGE in
 		while read rule_name rule_value; do
 			[ "$rule_name" != 'linux' ] && continue
 			list_modules $rule_value >> "$modlist" 2>/dev/null
-		done < "${wanted_stuff:-$stuff}/split.rules"
+		done < "$stuff/split.rules"
 		;;
 esac
 
-# A.3. If package depends on other package - make these modules "restricted" (excluded) too
-if [ "$DEPENDS" != "$WANTED" ]; then
+# A.3. Simulate deprecated (for receipts v2) variable $WANTED
+case $PACKAGE in
+	linux-libre|linux64|linux) wanted='';;
+	linux-libre-*) wanted='linux-libre';;
+	linux64-*)     wanted='linux64';;
+	linux-*)       wanted='linux';;
+esac
+
+# A.4. If package depends on other package - make these modules "restricted" (excluded) too
+if [ "$DEPENDS" != "$wanted" ]; then
 	for i in $DEPENDS; do
-		if [ "$i" != "$WANTED" ]; then
+		if [ "$i" != "$wanted" ]; then
 			pkg_subname=${i#linux-libre-}
 			pkg_subname=${pkg_subname#linux*-}
 
 			while read rule_name rule_value; do
 				[ "$pkg_subname" != "$rule_name" ] && continue
 				list_modules $rule_value >> "$modlist" 2>/dev/null
-			done < "${wanted_stuff:-$stuff}/split.rules"
+			done < "$stuff/split.rules"
 		fi
 	done
 fi
@@ -99,7 +107,7 @@ while read rule_name rule_value; do
 		mkdir -p $fs/$dir
 		cp -a $modroot/$module $fs/$dir
 	done
-done < "${wanted_stuff:-$stuff}/split.rules"
+done < "$stuff/split.rules"
 
 # B.3. Clean
 rm "$modlist"

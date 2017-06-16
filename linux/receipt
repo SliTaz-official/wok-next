@@ -13,7 +13,7 @@ HOST_ARCH="i486 arm x86_64"
 TARBALL="$PACKAGE-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
-BUILD_DEPENDS="slitaz-toolchain perl git xz lzma patch kmod bc"
+BUILD_DEPENDS="slitaz-toolchain perl xz lzma patch kmod bc" # git
 SPLIT="lguest linux-acpi linux-agp linux-aoe linux-appletalk linux-arcnet \
 linux-autofs linux-bluetooth linux-bridge linux-btrfs linux-cifs linux-coda \
 linux-cpufreq linux-cramfs linux-crypto linux-cryptoloop linux-dialup \
@@ -209,7 +209,7 @@ genpkg_rules()
 		*-drm)					c="DRM module"; DEPENDS="linux-agp";;
 		*-ecryptfs)				c="eCrypt FS module";;
 		*-efi)					c="EFI modules";;
-		*-ethernet)				c="Ethernet drivers";;
+		*-ethernet)				c="Ethernet drivers"; DEPENDS="linux-crypto";;
 		*-exofs)				c="OSD based FS module"; DEPENDS="linux-crypto";;
 		*-firewire)				c="Firewire modules";;
 		*-gfs2)					c="GFS2 module";;
@@ -242,7 +242,7 @@ genpkg_rules()
 		*-nfsd)					c="NFS server module"; DEPENDS="linux-nfs";;
 		*-ocfs2)				c="OCFS2 modules"; DEPENDS="linux-dlm";;
 		*-orangefs)				c="OrangeFS module";;
-		*-radio)				c="radio modules";;
+		*-radio)				c="radio modules"; DEPENDS="linux-sound";;
 		*-reiserfs)				c="ReiserFS module";;
 		*-romfs)				c="ROMFS module";;
 		*-sched)				c="Sched modules";;
@@ -271,6 +271,7 @@ genpkg_rules()
 
 	case $PACKAGE in
 		linux)
+			DEPENDS="kmod"
 			case "$ARCH" in
 				arm)
 					echo "Packing: ARM Kernel"
@@ -298,7 +299,7 @@ genpkg_rules()
 
 			# Checking for Linux Kernel modules that don't belong to any of the packages
 			# $stuff/tools/check_modules.sh
-			DEPENDS="kmod"
+			# please, see web interface instead
 			;;
 		*-firmware)
 			mkdir -p $fs/lib
@@ -464,7 +465,7 @@ post_install_linux_module_headers() {
 
 post_install_linux_zram() {
 	chroot "$1/" depmod -a $VERSION-slitaz &&
-	RAM=$(cat /proc/meminfo | grep MemTotal | sed s/[^0-9]//g) &&
+	RAM=$(grep MemTotal /proc/meminfo | tr -dc 0-9) &&
 	echo "SIZE_KB="$(($RAM/2)) > "$1/etc/compcache.conf"
 	[ -n "$quiet" ] || cat <<EOT
 
