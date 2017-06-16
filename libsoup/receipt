@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsoup"
-VERSION="2.54.1"
+VERSION="2.56.0"
 CATEGORY="network"
 SHORT_DESC="HTTP client/server library for GNOME"
 MAINTAINER="pankso@slitaz.org"
@@ -12,18 +12,11 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib glibc-base libffi libxml2 pcre zlib"
-BUILD_DEPENDS_arm="glib-networking-dev glib-dev \
-libxml2-dev libgcrypt-dev libtasn1-dev gnutls-dev zlib-dev \
-libgnome-keyring-dev sqlite-dev dbus-dev"
-BUILD_DEPENDS="glib-dev libxml2-dev sqlite-dev intltool gtk-doc \
+BUILD_DEPENDS="glib-dev libxml2-dev sqlite3-dev intltool gtk-doc \
 gobject-introspection-dev vala glib-networking-dev"
+BUILD_DEPENDS_arm="glib-networking-dev glib-dev libxml2-dev libgcrypt-dev \
+libtasn1-dev gnutls-dev zlib-dev libgnome-keyring-dev sqlite3-dev dbus-dev"
 SPLIT="libsoup-gnome libsoup-dev"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS=$BUILD_DEPENDS_arm ;;
-esac
 
 # Rules to configure and make the package.
 compile_rules()
@@ -37,5 +30,23 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files libsoup-2*.so*
+	case $PACKAGE in
+		libsoup)
+			copy libsoup-2*.so*
+			DEPENDS="glib glibc-base libffi liblzma libsqlite3 libxml2 pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			;;
+		libsoup-gnome)
+			copy libsoup-gnome*.so*
+			CAT="x-window|GNOME specific library"
+			DEPENDS="libsoup glib libffi liblzma libsqlite3 libxml2 pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsoup libsoup-gnome glib-dev glibc-dev libffi-dev \
+			liblzma-dev libxml2-dev pcre-dev sqlite3-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }

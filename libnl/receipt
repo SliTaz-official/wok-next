@@ -1,34 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnl"
-VERSION="3.2.24"
+VERSION="3.2.29"
 CATEGORY="network"
-SHORT_DESC="netlink library."
+SHORT_DESC="Netlink protocol library suite"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://people.suug.ch/~tgr/libnl"
-WGET_URL="$WEB_SITE/files/$TARBALL"
+WEB_SITE="http://www.infradead.org/~tgr/libnl/"
 HOST_ARCH="i486 arm"
 
-# Cross compile needs host flex
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/thom311/libnl/releases/download/libnl${VERSION//./_}/$TARBALL"
+
 BUILD_DEPENDS="flex"
+SPLIT="libnl-tools libnl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
 		--sysconfdir=/etc \
-		$CONFIGURE_ARGS && 
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/libnl $fs/usr/lib
-	find $fs/usr/lib -type f -name "*.*a" -exec rm -f {} \;
+	case $PACKAGE in
+		libnl)
+			copy etc/ *.so*
+			CONFIG_FILES="/etc/libnl/classid /etc/libnl/pktloc"
+			;;
+		libnl-tools)
+			copy @std
+			remove_already_packed
+			CAT="network|tiny tools"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

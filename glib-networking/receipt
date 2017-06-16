@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="glib-networking"
-VERSION="2.48.2"
+VERSION="2.50.0"
 CATEGORY="x-window"
 SHORT_DESC="TLS support for glib"
 MAINTAINER="pankso@slitaz.org"
@@ -12,14 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib gmp libffi libgnutls libtasn1 nettle p11-kit pcre zlib"
-BUILD_DEPENDS_arm="glib-dev gnutls-dev"
 BUILD_DEPENDS="intltool gnutls-dev gsettings-desktop-schemas"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm ;;
-esac
+BUILD_DEPENDS_arm="glib-dev gnutls-dev"
+SPLIT="glib-networking-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,5 +29,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files *.so*
+	case $PACKAGE in
+		glib-networking)
+			copy @std
+			DEPENDS="glib gmp libffi libgnutls libtasn1 nettle p11-kit pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="glib-networking glib-dev glibc-dev gmp-dev gnutls-dev \
+			libffi-dev libtasn1-dev nettle-dev p11-kit-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			zlib-dev"
+			;;
+	esac
 }

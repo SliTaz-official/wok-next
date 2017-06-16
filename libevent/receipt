@@ -1,23 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libevent"
-VERSION="2.0.22"
+VERSION="2.1.8"
 CATEGORY="system-tools"
-SHORT_DESC="An event notification library."
+SHORT_DESC="An event notification library"
 MAINTAINER="0dddba11@googlemail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION-stable.tar.gz"
-WEB_SITE="http://libevent.org"
-WGET_URL="http://downloads.sourceforge.net/levent/$TARBALL"
+WEB_SITE="http://libevent.org/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="openssl"
+TARBALL="$PACKAGE-$VERSION-stable.tar.gz"
+WGET_URL="https://github.com/libevent/libevent/releases/download/release-$VERSION-stable/$TARBALL"
+
 BUILD_DEPENDS="openssl-dev zlib-dev"
+SPLIT="libevent-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -25,7 +27,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libevent)
+			copy *.so*
+			DEPENDS="libcrypto libssl"
+			;;
+		*-dev)
+			copy @std @dev
+			remove_already_packed
+			DEPENDS="libcrypto-dev openssl-dev"
+			;;
+	esac
 }

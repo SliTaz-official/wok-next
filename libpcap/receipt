@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libpcap"
-VERSION="1.7.4"
+VERSION="1.8.1"
 CATEGORY="libdevel"
-SHORT_DESC="functions for user-level packet capture, used in low-level network \
+SHORT_DESC="Functions for user-level packet capture, used in low-level network \
 monitoring"
 MAINTAINER="sdaigl@lacitec.on.ca"
 LICENSE="BSD"
@@ -13,14 +13,13 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.tcpdump.org/release/$TARBALL"
 
-DEPENDS="libnl"
-BUILD_DEPENDS="flex bison"
-BUILD_DEPENDS_arm=""
+BUILD_DEPENDS="flex bison libnl-dev"
+BUILD_DEPENDS_arm=" "
+SPLIT="libpcap-dev"
 
 # Handle cross compilation
 case "$ARCH" in
 	arm)
-		BUILD_DEPENDS="$BUILD_DEPENDS_arm"
 		ARCH_ARGS="--with-pcap=linux"
 		export ac_cv_linux_vers=2
 		;;
@@ -37,5 +36,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+		libpcap) copy @std; DEPENDS="libnl";;
+		*-dev) copy @dev;;
+	esac
 }
