@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pngquant"
-VERSION="2.8.2"
+VERSION="2.9.1"
 CATEGORY="graphics"
-SHORT_DESC="Command-line utility and a library for lossy compression of PNG images"
+SHORT_DESC="Lossy compression of PNG images"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://pngquant.org/"
@@ -14,8 +14,8 @@ WGET_URL="$GITHUB/pornel/pngquant/tarball/$VERSION"
 EXTRA_TARBALL="libimagequant-$VERSION"
 EXTRA_WGET_URL="$GITHUB/ImageOptim/libimagequant/tarball/$VERSION"
 
-DEPENDS="lcms2 libpng zlib"
-BUILD_DEPENDS="lcms2-dev libpng-dev zlib-dev"
+BUILD_DEPENDS="lcms2-dev libpng16-dev zlib-dev"
+SPLIT="pngquant-static"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,6 +26,14 @@ compile_rules()
 	tar -xf $SRC/$EXTRA_TARBALL -C $src
 	mv $src/ImageOptim-*/* $src/lib/
 
+	# make statically linked binary
+	LDFLAGS='-static -pthread' \
+	./configure \
+		--prefix=/usr &&
+	make && make install &&
+	mv -v $install/usr/bin/pngquant $install/usr/bin/pngquant-static &&
+
+	# make dynamically linked binary
 	./configure \
 		--prefix=/usr &&
 	make && make install
@@ -34,5 +42,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files pngquant
+	case $PACKAGE in
+		pngquant)
+			copy pngquant
+			DEPENDS="lcms2 libpng16 zlib"
+			;;
+		pngquant-static)
+			copy pngquant-static
+			ln -s pngquant-static $fs/usr/bin/pngquant
+			CAT="graphics|statically linked"
+			PROVIDE="pngquant"
+			DEPENDS=" "
+			;;
+	esac
 }

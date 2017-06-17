@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="optipng"
 VERSION="0.7.6"
 CATEGORY="utilities"
-SHORT_DESC="A command line tool to compress and optimize PNG images."
+SHORT_DESC="Compress and optimize PNG images"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="zlib/libpng"
 WEB_SITE="http://optipng.sourceforge.net/"
@@ -12,23 +12,44 @@ TAGS="image compression"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libpng"
-BUILD_DEPENDS="libpng-dev zlib-dev"
+BUILD_DEPENDS="libpng16-dev zlib-dev"
+SPLIT="optipng-static"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	sed -i 's|prefix)/man|prefix)/share/man|' configure
 
+	# make statically linked binary
+	LDFLAGS='-static' \
 	./configure \
 		-prefix=/usr \
 		-with-system-libpng &&
-	make &&
-	make install
+	make && make install &&
+	mv -v $install/usr/bin/optipng $install/usr/bin/optipng-static &&
+
+	# make dynamically linked binary
+	make clean &&
+	./configure \
+		-prefix=/usr \
+		-with-system-libpng &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_files optipng
+	case $PACKAGE in
+		optipng)
+			copy optipng
+			DEPENDS="libpng16 zlib"
+			;;
+		optipng-static)
+			copy optipng-static
+			ln -s optipng-static $fs/usr/bin/optipng
+			CAT="graphics|statically linked"
+			PROVIDE="optipng"
+			DEPENDS=" "
+			;;
+	esac
 }

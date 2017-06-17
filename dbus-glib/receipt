@@ -1,31 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dbus-glib"
-VERSION="0.102"
+VERSION="0.108"
 CATEGORY="x-window"
-SHORT_DESC="D-Bus glib binding."
+SHORT_DESC="GLib interfaces to the D-Bus API"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://freedesktop.org/wiki/Software/DBusBindings"
-WGET_URL="http://dbus.freedesktop.org/releases/dbus-glib/$TARBALL"
+WEB_SITE="https://freedesktop.org/wiki/Software/DBusBindings/#dbus-glibobsoleteunmaintained"
 HOST_ARCH="i486 arm"
 
-DEPENDS="dbus glib expat"
-BUILD_DEPENDS="dbus-dev glib-dev expat-dev pkg-config gettext \
-gtk-doc"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://dbus.freedesktop.org/releases/dbus-glib/$TARBALL"
+
+BUILD_DEPENDS="dbus-dev glib-dev expat-dev gettext gtk-doc"
+BUILD_DEPENDS_arm="dbus-dev glib-dev expat-dev"
+SPLIT="dbus-glib-dev"
 
 # Handle cross compilation. Host pkg-config/gettext are used
 case "$ARCH" in
-	arm*) 
-		BUILD_DEPENDS="dbus-dev glib-dev expat-dev"
+	arm*)
 		export ac_cv_have_abstract_sockets=${ac_cv_have_abstract_sockets=yes} ;;
 esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--sysconfdir=/etc \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	case "$ARCH" in
 		arm)
 			patch -p1 < $stuff/dbus-glib.patch &&
@@ -37,7 +40,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		dbus-glib)
+			copy bin/ *.so* # exclude bash completion
+			DEPENDS="dbus glib expat"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="dbus-glib dbus-dev glib-dev"
+			;;
+	esac
 }

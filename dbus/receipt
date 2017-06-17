@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dbus"
 VERSION="1.10.14"
@@ -12,9 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://dbus.freedesktop.org/releases/dbus/$TARBALL"
 
-DEPENDS="expat xorg-libX11 slitaz-base-files"
 BUILD_DEPENDS="expat-dev xorg-libX11-dev"
-SPLIT="dbus-helper"
+SPLIT="dbus-helper dbus dbus-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,23 +29,32 @@ compile_rules()
 		--with-console-auth-dir=/run/console/ \
 		--docdir=/usr/share/doc/dbus-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make -j 1 install
+	make && make -j1 install
+
+	# Init script
+	cp -a $stuff/etc $install
+	chown -R root.root $install/etc
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cook_copy_folders var bin dbus-1
-	cook_copy_files *.so*
-
-	# Init script
-	cp -a $stuff/etc $fs
-
-	chown -R root.root $fs
+	case $PACKAGE in
+		dbus-helper)
+			copy dbus-daemon-launch-helper
+			CAT="x-window|dbus-daemon-launch-helper"
+			;;
+		dbus)
+			copy @std
+			remove_already_packed
+			DEPENDS="expat xorg-libX11 slitaz-base-files"
+			CONFIG_FILES="/etc/dbus-1/session.conf /etc/dbus-1/system.conf /etc/dbus-1/system.d/"
+			;;
+		*-dev) copy @dev;;
+	esac
 }
 
-pre_install()
-{
+pre_install_dbus() {
 	# Go for echoing on configuration files if any messagebus user
 	# was found.
 	if ! grep -qs 'messagebus' "$1/etc/passwd"; then
@@ -68,11 +76,20 @@ EOT
 	[ -d "$1/var/run" ] || mkdir -p "$1/var/run"
 }
 
-pre_remove()
-{
+post_install_dbus() {
+	dbus-uuidgen --ensure
+}
+
+pre_remove_dbus() {
 	if [ -z "$1" ]; then
 		/etc/init.d/dbus stop
-		deluser  messagebus
-		delgroup messagebus
-	fi 2> /dev/null
+	fi 2>/dev/null
+	chroot "$1/" deluser  messagebus
+	chroot "$1/" delgroup messagebus
+}
+
+post_install_dbus_helper() {
+	local i="$1/usr/libexec/dbus-daemon-launch-helper"
+	chown root:messagebus $i
+	chmod 4750 $i
 }
