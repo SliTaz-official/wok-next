@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="advancecomp"
 VERSION="2.0"
@@ -13,19 +13,38 @@ TAGS="compression archive"
 TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.gz"
 WGET_URL="$GITHUB/amadvance/advancecomp/tarball/${COMMIT:-v$VERSION}"
 
-DEPENDS="gcc-lib-base zlib"
 BUILD_DEPENDS="automake zlib-dev"
+SPLIT="advancecomp-static"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./autogen.sh &&
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+
+	# make statically linked tools
+	./configure \
+		LDFLAGS='-static' \
+		--bindir=/usr/sbin \
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	# make dynamically linked tools
+	make clean &&
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	case $PACKAGE in
+		advancecomp)
+			copy bin/
+			DEPENDS="zlib"
+			;;
+		*-static)
+			copy sbin/
+			CAT="system-tools|static binary"
+			DEPENDS=" "
+			;;
+	esac
 }
