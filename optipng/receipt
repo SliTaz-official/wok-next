@@ -24,9 +24,9 @@ compile_rules()
 	LDFLAGS='-static' \
 	./configure \
 		-prefix=/usr \
+		-bindir=/usr/sbin \
 		-with-system-libpng &&
 	make && make install &&
-	mv -v $install/usr/bin/optipng $install/usr/bin/optipng-static &&
 
 	# make dynamically linked binary
 	make clean &&
@@ -41,13 +41,12 @@ genpkg_rules()
 {
 	case $PACKAGE in
 		optipng)
-			copy optipng
+			copy bin/optipng
 			DEPENDS="libpng16 zlib"
 			;;
 		optipng-static)
-			copy optipng-static
-			ln -s optipng-static $fs/usr/bin/optipng
-			CAT="graphics|statically linked"
+			copy sbin/optipng
+			CAT="graphics|static binary"
 			PROVIDE="optipng"
 			DEPENDS=" "
 			;;

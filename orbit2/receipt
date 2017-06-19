@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="orbit2"
+VERSION="2.14.19"
+CATEGORY="development"
+SHORT_DESC="A CORBA 2.4-compliant Object Request Broker (ORB) - deprecated"
+MAINTAINER="rcx@zoominternet.net"
+LICENSE="GPL2"
+WEB_SITE="https://projects.gnome.org/ORBit2/"
+CROSS="bug: Could not check for borked linking while cross-compiling"
+
+TARBALL="ORBit2-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/ORBit2/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev dbus-dev dbus-glib-dev libidl pkg-config"
+SPLIT="orbit2-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i 's/-DG_DISABLE_DEPRECATED//' linc2/src/Makefile*
+
+	./configure \
+		--prefix=/usr \
+		--build=$HOST_SYSTEM \
+		--host=$HOST_SYSTEM &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		orbit2)
+			copy @std
+			rm -r $fs/usr/share
+			DEPENDS="glib libffi libidl pcre   dbus dbus-glib"
+			PROVIDE="ORBit2"
+			;;
+		*-dev)
+			copy @dev *.idl
+			DEPENDS="orbit2 glib-dev libffi-dev pcre-dev"
+			PROVIDE="ORBit2-dev"
+			;;
+	esac
+}

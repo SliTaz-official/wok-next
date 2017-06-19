@@ -1,38 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nspr"
-VERSION="4.10.8"
+VERSION="4.13.1"
 CATEGORY="utilities"
 SHORT_DESC="Netscape Portable Runtime"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="MPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSPR"
-WGET_URL="http://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${VERSION}/src/${TARBALL}"
 
-DEPENDS="glibc-base"
+TARBALL="nspr-$VERSION.tar.gz"
+WGET_URL="https://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v$VERSION/src/$TARBALL"
+
 BUILD_DEPENDS="perl"
+SPLIT="nspr-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src/nspr
+	cd nspr &&
+	sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in &&
+	sed -i 's#$(LIBRARY) ##' config/rules.mk &&
+
 	./configure \
-		--prefix=/usr \
-		--libdir=/usr/lib \
-		--includedir=/usr/include/nspr \
-		--enable-optimize \
-		--disable-debug \
 		--with-mozilla \
 		--with-pthreads \
 		$([ $(uname -m) = x86_64 ] && echo --enable-64bit) \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    mkdir -p $fs/usr/lib
-    cp -a $install/usr/lib/*so* $fs/usr/lib
+	case $PACKAGE in
+		nspr)  copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

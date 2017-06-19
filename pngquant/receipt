@@ -27,11 +27,11 @@ compile_rules()
 	mv $src/ImageOptim-*/* $src/lib/
 
 	# make statically linked binary
-	LDFLAGS='-static -pthread' \
 	./configure \
-		--prefix=/usr &&
-	make && make install &&
-	mv -v $install/usr/bin/pngquant $install/usr/bin/pngquant-static &&
+		LDFLAGS='-static -pthread' \
+		--prefix=/usr \
+		--with-openmp=static &&
+	make && make BINPREFIX=$install/usr/sbin install &&
 
 	# make dynamically linked binary
 	./configure \
@@ -44,13 +44,12 @@ genpkg_rules()
 {
 	case $PACKAGE in
 		pngquant)
-			copy pngquant
+			copy bin/pngquant
 			DEPENDS="lcms2 libpng16 zlib"
 			;;
 		pngquant-static)
-			copy pngquant-static
-			ln -s pngquant-static $fs/usr/bin/pngquant
-			CAT="graphics|statically linked"
+			copy sbin/pngquant
+			CAT="graphics|static binary"
 			PROVIDE="pngquant"
 			DEPENDS=" "
 			;;

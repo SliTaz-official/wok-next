@@ -12,26 +12,39 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.freedesktop.org/software/desktop-file-utils/releases/$TARBALL"
 
 BUILD_DEPENDS="pkg-config glib-dev"
-SPLIT="desktop-file-utils-extra"
+SPLIT="desktop-file-validate-static desktop-file-utils-extra"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS && make && make install &&
+
+	make clean &&
+	./configure \
+		LDFLAGS='-static -pthread' \
+		--bindir=/usr/sbin \
+		$CONFIGURE_ARGS &&
+	make && make bin_PROGRAMS=desktop-file-validate LN_S=echo install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
+	val='desktop-file-validate'
 	case $PACKAGE in
 		desktop-file-utils)
-			copy update-desktop-database
-			DEPENDS="glib glibc-base pcre"
+			copy bin/update-desktop-database
+			DEPENDS="glib"
 			;;
-		desktop-file-utils-extra)
-			copy desktop-file-edit desktop-file-install desktop-file-validate
-			DEPENDS="glib glibc-base pcre"
-			CAT="system-tools|extra desktop file utils"
+		*-static)
+			copy sbin/
+			CAT="system tools|static desktop-file-validate"
+			DEPENDS=" "
+			;;
+		*-extra)
+			copy @std; remove_already_packed
+			CAT="system-tools|extra utils"
+			DEPENDS="glib"
 			;;
 	esac
 }
