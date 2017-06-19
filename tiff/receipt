@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tiff"
-VERSION="4.0.6"
-CATEGORY="x-window"
-SHORT_DESC="TIFF images libs. (Check tiff-apps for utilities)."
+VERSION="4.0.7"
+CATEGORY="graphics"
+SHORT_DESC="TIFF images"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.libtiff.org/"
@@ -12,9 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.osgeo.org/libtiff/$TARBALL"
 
-DEPENDS="jpeg-turbo zlib"
-BUILD_DEPENDS="cmake libjpeg-turbo-dev zlib-dev"
-SPLIT="tiff-apps"
+BUILD_DEPENDS="libjpeg-turbo-dev zlib-dev"
+SPLIT="tiff-apps tiff-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,5 +27,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		tiff)
+			copy *.so*
+			CAT="graphics|libraries"
+			DEPENDS="jpeg-turbo zlib"
+			;;
+		tiff-apps)
+			copy bin/
+			CAT="graphics|CLI applications"
+			DEPENDS="libjpeg-turbo zlib tiff"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="tiff tiff-apps libjpeg-turbo-dev zlib-dev"
+			;;
+	esac
 }

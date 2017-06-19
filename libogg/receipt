@@ -1,22 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libogg"
-VERSION="1.3.1"
+VERSION="1.3.2"
 CATEGORY="multimedia"
-SHORT_DESC="OGG library from Xiph.org project."
+SHORT_DESC="OGG library from Xiph.org project"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.xiph.org/"
-WGET_URL="http://downloads.xiph.org/releases/ogg/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="glibc-base"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://downloads.xiph.org/releases/ogg/$TARBALL"
+
+SPLIT="libogg-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--docdir=/usr/share/doc/libogg-$VERSION \
+		$CONFIGURE_ARGS &&
 	make &&
 	make -j1 DESTDIR=$DESTDIR install
 }
@@ -24,7 +27,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libogg) copy @std;;
+		*-dev)  copy @dev;;
+	esac
 }
-

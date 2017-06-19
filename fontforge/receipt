@@ -1,53 +1,53 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fontforge"
-VERSION="20150330"
+VERSION="20161005"
 CATEGORY="development"
 SHORT_DESC="An outline font editor"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD GPL3"
 WEB_SITE="http://fontforge.github.io/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/fontforge/fontforge/releases/download/$VERSION/$TARBALL"
-TAGS="editor font"
 
-DEPENDS="gtk+ libuninameslist python libspiro libltdl"
-BUILD_DEPENDS="libtool git perl-dev tar autoconf automake bash coreutils-line \
-xorg-libX11-dev zlib-dev freetype-dev libjpeg-turbo-dev libpng-dev \
-readline-dev cairo-dev pango-dev xorg-libXft-dev gtk+-dev python-dev \
-libuninameslist-dev libspiro-dev util-linux-uuid-dev"
+BUILD_DEPENDS="libtool perl-dev tar autoconf automake bash coreutils-line \
+xorg-libX11-dev xorg-libICE-dev zlib-dev freetype-dev libjpeg-turbo-dev \
+libpng16-dev tiff-dev readline-dev cairo-dev pango-dev xorg-libXft-dev \
+gtk+-dev python-dev libuninameslist-dev libspiro-dev util-linux-uuid-dev \
+xorg-libSM-dev gettext"
+SPLIT="fontforge-fonts fontforge-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./bootstrap --skip-git --gnulib-srcdir $src/gnulib
+	rm -r $src/.git
 
 	./configure \
-	--enable-gtk2-use \
-	$CONFIGURE_ARGS &&
+		--enable-gtk2-use \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
+	make DESTDIR=$install install &&
+
+	make -C desktop DESTDIR=$install install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/python2.7/site-packages $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/python2.7/site-packages/*.so $fs/usr/lib/python2.7/site-packages
-	cp -a $install/usr/share/fontforge $fs/usr/share
-
-	# Desktop integration not auto-installed
-	mkdir -p \
-		$fs/usr/share/applications \
-		$fs/usr/share/mime/packages \
-		$fs/usr/share/icons/hicolor
-	cp -a $src/desktop/fontforge.desktop $fs/usr/share/applications
-	cp -a $src/desktop/fontforge.xml $fs/usr/share/mime/packages
-	cp -a $src/desktop/icons/16x16 $src/desktop/icons/48x48 \
-		$fs/usr/share/icons/hicolor
-
-	# Remove included fonts
-	rm -r $fs/usr/share/fontforge/pixmaps/*.ttf
+	case $PACKAGE in
+		fontforge)
+			copy @std *.mo
+			rm $fs/usr/share/fontforge/pixmaps/*.ttf
+			DEPENDS="gtk+ libuninameslist python libspiro libltdl"
+			TAGS="editor font"
+			;;
+		*-fonts)
+			copy *.ttf
+			CAT="fonts|fonts"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

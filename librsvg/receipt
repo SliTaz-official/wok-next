@@ -1,20 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="librsvg"
 VERSION="2.40.16"
-CATEGORY="x-window"
-SHORT_DESC="SVG Rendering Library"
+CATEGORY="graphics"
+SHORT_DESC="Rendering SVG"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://wiki.gnome.org/LibRsvg"
+WEB_SITE="https://wiki.gnome.org/Projects/LibRsvg"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="bzlib cairo fontconfig freetype gdk-pixbuf glib harfbuzz libcroco \
-libffi liblzma libpng libxcb libxml2 pango pcre pixman xorg-libX11 \
-xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
 BUILD_DEPENDS="glib-dev gdk-pixbuf-dev libxml2-dev pango-dev libcroco-dev \
 gtk-doc gobject-introspection-dev vala gtk+3-dev"
 SPLIT="librsvg-apps librsvg-dev"
@@ -24,7 +21,6 @@ compile_rules()
 {
 	./configure \
 		--enable-vala \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -32,12 +28,35 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		librsvg)
+			copy *.so*
+			CAT="graphics|library"
+			DEPENDS="bzlib cairo fontconfig freetype gdk-pixbuf glib harfbuzz \
+			libcroco libffi liblzma libpng16 libxcb libxml2 pango pcre pixman \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			zlib"
+			;;
+		librsvg-apps)
+			copy bin/
+			CAT="graphics|tiny libRSVG utilities"
+			DEPENDS="librsvg atk gtk+3"
+			;;
+		librsvg-dev)
+			copy @dev
+			DEPENDS="librsvg librsvg-apps bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev harfbuzz-dev \
+			libcroco-dev libffi-dev liblzma-dev libpng16-dev libxcb-dev \
+			libxml2-dev pango-dev pcre-dev pixman-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev zlib-dev"
+			;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install_librsvg() {
+	[ -n "$cookmode" ] && return 0
 	[ -z "$quiet" ] && echo -en "\nUpdating gdk pixbuf loaders cache file..."
 	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders --update-cache
 	status

@@ -1,29 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libpaper"
-VERSION="1.1.24"
+VERSION="1.1.24+nmu5"
 CATEGORY="system-tools"
-SHORT_DESC="Library for handling paper characteristics."
+SHORT_DESC="Library for handling paper characteristics"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_$VERSION+nmu1.tar.gz"
-WEB_SITE="http://packages.debian.org/unstable/source/libpaper"
-WGET_URL="http://ftp.de.debian.org/debian/pool/main/libp/libpaper/$TARBALL"
+WEB_SITE="https://packages.debian.org/unstable/source/libpaper"
 HOST_ARCH="i486 arm"
+
+TARBALL="libpaper_$VERSION.tar.gz"
+WGET_URL="http://ftp.debian.org/debian/pool/main/libp/libpaper/$TARBALL"
+
+BUILD_DEPENDS="automake libtool"
+SPLIT="libpaper-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+	autoreconf -fi &&
+
+	./configure \
+		--sysconfdir=/etc \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	install -m755 $stuff/run-parts $install/usr/bin &&
+	mkdir -p $install/etc &&
+	echo 'a4' > $install/etc/papersize
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libpaper)
+			copy @std
+			CONFIG_FILES="/etc/papersize"
+			;;
+		*-dev) copy @dev;;
+	esac
+}
+
+post_install_libpaper() {
+	mkdir -p "$1/etc/libpaper.d"
 }

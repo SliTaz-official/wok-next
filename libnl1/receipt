@@ -1,28 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnl1"
 VERSION="1.1.4"
-SOURCE="libnl"
 CATEGORY="network"
-SHORT_DESC="netlink library."
+SHORT_DESC="Netlink protocol library suite - v.1"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://people.suug.ch/~tgr/libnl"
-WGET_URL="$WEB_SITE/files/$TARBALL"
+WEB_SITE="http://www.infradead.org/~tgr/libnl/"
+
+TARBALL="libnl-$VERSION.tar.gz"
+WGET_URL="http://www.infradead.org/~tgr/libnl/files/$TARBALL"
 
 BUILD_DEPENDS="flex"
+SPLIT="libnl1-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	case $PACKAGE in
+		libnl1) copy @std;;
+		*-dev)  copy @dev;;
+	esac
 }
