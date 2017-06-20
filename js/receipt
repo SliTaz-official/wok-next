@@ -1,0 +1,45 @@
+# SliTaz package receipt v2.
+
+PACKAGE="js"
+VERSION="17.0.0"
+CATEGORY="libdevel"
+SHORT_DESC="Mozilla's JavaScript engine written in C/C++"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey"
+
+TARBALL="mozjs$VERSION.tar.gz"
+WGET_URL="http://ftp.mozilla.org/pub/mozilla.org/js/$TARBALL"
+
+BUILD_DEPENDS="perl python nspr-dev zlib-dev"
+SPLIT="js-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd js/src &&
+
+	sed -i 's/(defined\((@TEMPLATE_FILE)\))/\1/' config/milestone.pl &&
+
+	./configure \
+		--enable-readline \
+		--enable-threadsafe \
+		--with-system-ffi \
+		--with-system-nspr \
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	find $install/usr/include/js-${VERSION%.*}/ \
+		 $install/usr/lib/libmozjs-${VERSION%.*}.a \
+		 $install/usr/lib/pkgconfig/mozjs-${VERSION%.*}.pc \
+		-type f -exec chmod -v 644 '{}' \;
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		js)     copy @std; DEPENDS="ncurses nspr readline zlib";;
+		js-dev) copy @dev; DEPENDS="js nspr-dev";;
+	esac
+}

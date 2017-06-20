@@ -1,45 +1,67 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="polkit"
-VERSION="0.104"
+VERSION="0.113"
 CATEGORY="base-system"
-SHORT_DESC="Application development toolkit for controlling system-wide privileges."
+SHORT_DESC="Authorization manager"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.freedesktop.org/wiki/Software/PolicyKit"
-WGET_URL="http://hal.freedesktop.org/releases/$TARBALL"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/polkit/"
 CROSS="error: cannot check for file existence when cross compiling"
 
-DEPENDS="glib dbus dbus-glib expat util-linux-eject"
-BUILD_DEPENDS="glib-dev gobject-introspection-dev dbus-dev \
-dbus-glib-dev expat-dev intltool"
+TARBALL="polkit-$VERSION.tar.gz"
+WGET_URL="http://www.freedesktop.org/software/polkit/releases/$TARBALL"
+
+BUILD_DEPENDS="glib-dev js-dev expat-dev intltool \
+gobject-introspection-dev gtk-doc"
+SPLIT="polkit-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	addgroup -g 27 polkitd &&
+	adduser -g "PolicyKit Daemon Owner" -h /etc/polkit-1 -u 27 \
+		-G polkitd -s /bin/false -D polkitd &&
+
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--libexecdir=/usr/lib/polkit-1 \
-		--disable-man-pages \
-		--disable-gtk-doc \
+		--enable-libsystemd-login=no \
 		--with-authfw=shadow \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install &&
+
+	# for access file in web interface, will be changed back in post-install to 700
+	chmod 755 "$install/etc/polkit-1/rules.d/"
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/polkit-1 $fs/usr/lib
-	rm $fs/usr/lib/polkit-1/extensions/*.*a
-	cp -a $install/usr/share/dbus-1 $fs/usr/share
-	cp -a $install/usr/share/polkit-1 $fs/usr/share
-	cp -a $install/var $fs
+	case $PACKAGE in
+		polkit)
+			copy @std
+			DEPENDS="expat glib js"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="polkit expat-dev glib-dev js-dev"
+			;;
+	esac
+}
+
+post_install_polkit() {
+	chroot "$1/" /usr/sbin/addgroup -g 27 polkitd &&
+	chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
+		-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+
+	mkdir -p "$1/var"
+
+	chmod  4755 "$1/usr/lib/polkit-1/polkit-agent-helper-1"
+	chmod  4755 "$1/usr/bin/pkexec"
+
+	chmod   700 "$1/etc/polkit-1/rules.d/"
+	chown 27:27 "$1/etc/polkit-1/rules.d/"
+
+	install -dm700 -o27 -g27 "$1/usr/share/polkit-1/rules.d"
 }
