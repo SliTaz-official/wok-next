@@ -1,0 +1,34 @@
+# SliTaz package receipt.
+
+PACKAGE="perl-sgmlspm"
+VERSION="1.1"
+CATEGORY="perl"
+SHORT_DESC="SGMLSpm - parsing the output from James Clark's SGMLS and NSGMLS \
+parsers"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="http://www.linuxfromscratch.org/blfs/view/stable/general/perl-modules.html#perl-sgmlspm"
+
+TARBALL="SGMLSpm-$VERSION.tar.gz"
+WGET_URL="http://anduin.linuxfromscratch.org/BLFS/perl-modules/$TARBALL"
+
+DEPENDS="perl"
+BUILD_DEPENDS="perl"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	chmod 644 MYMETA.yml
+
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	ln -sv sgmlspl.pl $install/usr/bin/sgmlspl
+	chmod -R u+w $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

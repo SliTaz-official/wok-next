@@ -1,0 +1,69 @@
+# SliTaz package receipt v2.
+
+PACKAGE="docbook-sgml3"
+VERSION="3.1"
+CATEGORY="development"
+SHORT_DESC="Legacy docbook-sgml"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://docbook.org/sgml/"
+HOST_ARCH="any"
+
+TARBALL="docbk31.zip"
+WGET_URL="http://www.docbook.org/sgml/3.1/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i -e '/ISO 8879/d' \
+		-e 's|DTDDECL "-//OASIS//DTD DocBook V3.1//EN"|SGMLDECL|g' \
+		docbook.cat
+
+	local dtd="$install/usr/share/sgml/docbook/sgml-dtd-$VERSION"
+
+	mkdir -p $dtd
+	cp docbook.cat $dtd/catalog
+	cp *.dtd *.mod *.dcl $dtd
+
+	cat >> $dtd/catalog << "EOF"
+  -- Begin Single Major Version catalog changes --
+
+PUBLIC "-//Davenport//DTD DocBook V3.0//EN" "docbook.dtd"
+
+  -- End Single Major Version catalog changes --
+EOF
+
+	mkdir -p $install/etc/sgml
+	touch $install/etc/sgml/catalog
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="sgml-common"
+	CONFIG_FILES="/etc/sgml/catalog"
+}
+
+pre_remove() {
+	local p1="/etc/sgml/sgml-docbook-dtd-$VERSION.cat"
+	local p2="/usr/share/sgml/docbook/sgml-dtd-$VERSION/catalog"
+	local p3="/etc/sgml/sgml-docbook.cat"
+
+	touch  "$1/etc/sgml/catalog"
+	chroot "$1/" install-catalog --remove $p1 $p2 >/dev/null
+	chroot "$1/" install-catalog --remove $p1 $p3 >/dev/null
+}
+
+post_install() {
+	local p1="/etc/sgml/sgml-docbook-dtd-$VERSION.cat"
+	local p2="/usr/share/sgml/docbook/sgml-dtd-$VERSION/catalog"
+	local p3="/etc/sgml/sgml-docbook.cat"
+
+	# Remove the catalog items prior to upgrading
+	[ -e "$1$p1" ] && pre_remove
+
+	touch "$1/etc/sgml/catalog" "$1/$p1"
+	chroot "$1/" install-catalog --add $p1 $p2 >/dev/null
+	chroot "$1/" install-catalog --add $p1 $p3 >/dev/null
+}

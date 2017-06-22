@@ -1,0 +1,58 @@
+# SliTaz package receipt v2.
+
+PACKAGE="docbook-dsssl"
+VERSION="1.79"
+CATEGORY="development"
+SHORT_DESC="DSSSL stylesheets for DocBook"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="custom"
+WEB_SITE="http://docbook.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/docbook/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	mkdir -p \
+		$install/usr/bin \
+		$install/usr/share/man/man1 \
+		$install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+
+	install -m755 bin/collateindex.pl   $install/usr/bin &&
+	install -m644 bin/collateindex.pl.1 $install/usr/share/man/man1 &&
+	cp -R * $install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy bin/ *.dcl *.dtd *.gml *.dsl *.ent *.sgm *.mod *.css *.js \
+	frames/*.htm *.gif catalog VERSION
+	DEPENDS="sgml-common"
+}
+
+pre_remove() {
+	local p1="/etc/sgml/dsssl-docbook-stylesheets.cat"
+	local p2="/etc/sgml/sgml-docbook.cat"
+	local p3="/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION"
+
+	touch  "$1/etc/sgml/catalog"
+	chroot "$1/" install-catalog --remove $p1 $p3/catalog >/dev/null
+	chroot "$1/" install-catalog --remove $p1 $p3/common/catalog >/dev/null
+	chroot "$1/" install-catalog --remove $p2 $p1 >/dev/null
+}
+
+post_install() {
+	local p1="/etc/sgml/dsssl-docbook-stylesheets.cat"
+	local p2="/etc/sgml/sgml-docbook.cat"
+	local p3="/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION"
+
+	# Remove the catalog items prior to upgrading
+	[ -e "$1$p1" -a -e "$1$p2" ] && pre_remove
+
+	touch "$1/etc/sgml/catalog" "$1$p1" "$1$p2"
+	chroot "$1/" install-catalog --add $p1 $p3/catalog >/dev/null
+	chroot "$1/" install-catalog --add $p1 $p3/common/catalog >/dev/null
+	chroot "$1/" install-catalog --add $p2 $p1 >/dev/null
+}

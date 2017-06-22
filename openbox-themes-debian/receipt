@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="openbox-themes-debian"
+VERSION="40b8915"
+CATEGORY="customization"
+SHORT_DESC="Openbox themes from Debian"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mati75/openbox-debian"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	mkdir -p $install/usr/share
+	cp -a debian/themes $install/usr/share
+
+	# just in case
+	find $install -type d -exec chmod 755 '{}' \;
+	find $install -type f -exec chmod 644 '{}' \;
+	chown -R root:root $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="openbox"
+}

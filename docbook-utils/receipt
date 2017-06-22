@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="docbook-utils"
+VERSION="0.6.14"
+CATEGORY="development"
+SHORT_DESC="Shell scripts to manage DocBook documents"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://www.sourceware.org/docbook-tools/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://www.sourceware.org/pub/docbook-tools/new-trials/SOURCES/$TARBALL"
+
+BUILD_DEPENDS="openjade docbook-dsssl docbook-sgml3"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i 's:/html::' doc/HTML/Makefile.in
+
+	./configure \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make &&
+	make docdir=/usr/share/doc install &&
+
+	for i in html ps dvi man pdf rtf tex texi txt; do
+		ln -svf docbook2$i $install/usr/bin/db2$i
+		ln -svf docbook2$i $install/usr/bin/docbook-to-$i
+	done
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="perl openjade docbook-dsssl docbook-sgml docbook-sgml3 perl-sgmlspm"
+}

@@ -1,0 +1,72 @@
+# SliTaz package receipt v2.
+
+PACKAGE="docbook-sgml"
+VERSION="4.5"
+CATEGORY="development"
+SHORT_DESC="Document type definitions for verification of SGML data files against the DocBook rule set"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://docbook.org/sgml/"
+HOST_ARCH="any"
+
+TARBALL="docbook-$VERSION.zip"
+WGET_URL="http://www.docbook.org/sgml/$VERSION/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i -e '/ISO 8879/d' \
+		-e '/gml/d' docbook.cat
+
+	local dtd="$install/usr/share/sgml/docbook/sgml-dtd-$VERSION"
+
+	mkdir -p $dtd
+	cp docbook.cat $dtd/catalog
+	cp *.dtd *.mod *.dcl $dtd
+
+	cat >> $dtd/catalog << "EOF"
+  -- Begin Single Major Version catalog changes --
+
+PUBLIC "-//OASIS//DTD DocBook V4.4//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.3//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.2//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.1//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.0//EN" "docbook.dtd"
+
+  -- End Single Major Version catalog changes --
+EOF
+
+	mkdir -p $install/etc/sgml
+	touch $install/etc/sgml/catalog
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="sgml-common"
+	CONFIG_FILES="/etc/sgml/catalog"
+}
+
+pre_remove() {
+	local p1="/etc/sgml/sgml-docbook-dtd-$VERSION.cat"
+	local p2="/usr/share/sgml/docbook/sgml-dtd-$VERSION/catalog"
+	local p3="/etc/sgml/sgml-docbook.cat"
+
+	touch  "$1/etc/sgml/catalog"
+	chroot "$1/" install-catalog --remove $p1 $p2 > /dev/null
+	chroot "$1/" install-catalog --remove $p1 $p3 > /dev/null
+}
+
+post_install() {
+	local p1="/etc/sgml/sgml-docbook-dtd-$VERSION.cat"
+	local p2="/usr/share/sgml/docbook/sgml-dtd-$VERSION/catalog"
+	local p3="/etc/sgml/sgml-docbook.cat"
+
+	# Remove the catalog items prior to upgrading
+	[ -e "$1$p1" ] && pre_remove
+
+	touch "$1/etc/sgml/catalog" "$1$p1"
+	chroot "$1/" install-catalog --add $p1 $p2 > /dev/null
+	chroot "$1/" install-catalog --add $p1 $p3 > /dev/null
+}

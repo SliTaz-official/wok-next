@@ -11,7 +11,6 @@ WEB_SITE="http://www.gnu.org/software/libc/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base glibc-locale glibc-dev"
 BUILD_DEPENDS="linux-api-headers autoconf bash gawk gettext bison \
 texinfo"
 # slitaz-i18n should present in wok
@@ -143,6 +142,8 @@ genpkg_rules()
 	case $PACKAGE in
 		glibc)
 			LOCALE=""
+			CAT="meta|meta-package"
+			DEPENDS="glibc-base glibc-locale glibc-dev"
 			;;
 		glibc-base)
 			case "$ARCH" in
@@ -199,6 +200,7 @@ genpkg_rules()
 					;;
 			esac
 			CAT="base-system|minimal libraries and UTF-8 support for SliTaz"
+			DEPENDS=" "
 			;;
 		glibc-locale)
 			copy gconv/ locale/ i18n/ iconv tzselect
@@ -213,12 +215,13 @@ genpkg_rules()
 				rm -rf $fs/usr/share/locale/$i
 			done
 			status
-			CAT="system-tools|locale files and utilities"
+			CAT="system-tools|misc. locale files and utilities"
 			DEPENDS="glibc-base"
 			;;
 		nscd)
 			copy /var/db/ nscd getent nscd.conf
 			CAT="base-system|name-server caching daemon"
+			DEPENDS=" "
 			;;
 		glibc-dev)
 			copy @std @dev

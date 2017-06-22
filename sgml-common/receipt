@@ -1,0 +1,57 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sgml-common"
+VERSION="0.6.3"
+CATEGORY="development"
+SHORT_DESC="Tools for maintaining centralized SGML catalogs"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="http://docbook.org/xml/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
+WGET_URL="https://www.sourceware.org/pub/docbook-tools/new-trials/SOURCES/$TARBALL"
+
+BUILD_DEPENDS="automake"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	autoreconf -fi &&
+
+	./configure \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS &&
+	make &&
+	make docdir=/usr/share/doc install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	CONFIG_FILES="/etc/sgml/sgml.conf"
+}
+
+pre_remove() {
+	local p1='/etc/sgml/sgml-ent.cat'
+	local p2='/etc/sgml/sgml-docbook.cat'
+	local p3='/usr/share/sgml/sgml-iso-entities-8879.1986/catalog'
+
+	touch  "$1/etc/sgml/catalog"
+	chroot "$1/" install-catalog --remove $p1 $p3 >/dev/null
+	chroot "$1/" install-catalog --remove $p2 $p1 >/dev/null
+}
+
+post_install() {
+	touch  "$1/etc/sgml/catalog"
+	local p1='/etc/sgml/sgml-ent.cat'
+	local p2='/etc/sgml/sgml-docbook.cat'
+	local p3='/usr/share/sgml/sgml-iso-entities-8879.1986/catalog'
+
+	# Remove the catalog items prior to upgrading
+	[ -e "$1$p1" -a -e "$1$p2" ] && pre_remove
+
+	touch  "$1/etc/sgml/catalog" "$1$p1" "$1$p2"
+	chroot "$1/" install-catalog --add $p1 $p3 >/dev/null
+	chroot "$1/" install-catalog --add $p2 $p1 >/dev/null
+}
