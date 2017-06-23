@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ijs"
 VERSION="0.35"
@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.openprinting.org/download/ijs/download/$TARBALL"
 
 BUILD_DEPENDS="gfortran"
+SPLIT="ijs-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,6 +27,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ *.so*
-	rm $fs/usr/bin/ijs-config
+	case $PACKAGE in
+		ijs)   copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

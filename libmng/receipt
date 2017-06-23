@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmng"
 VERSION="2.0.3"
@@ -11,8 +11,8 @@ WEB_SITE="http://libmng.com/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="lcms2 libjpeg-turbo zlib"
 BUILD_DEPENDS="zlib-dev libjpeg-turbo-dev lcms2-dev"
+SPLIT="libmng-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,5 +30,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		libmng) copy @std; DEPENDS="lcms2 libjpeg-turbo zlib";;
+		*-dev)  copy @dev; DEPENDS="libmng lcms2-dev libjpeg-turbo-dev zlib-dev";;
+	esac
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libexif"
 VERSION="0.6.21"
@@ -13,6 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gettext"
+SPLIT="libexif-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,5 +28,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		libexif) copy @std;;
+		*-dev)   copy @dev;;
+	esac
 }
