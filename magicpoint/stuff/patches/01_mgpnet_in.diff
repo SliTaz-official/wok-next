@@ -1,0 +1,117 @@
+Index: magicpoint-1.13a/contrib/mgpnet.in
+===================================================================
+--- magicpoint-1.13a.orig/contrib/mgpnet.in	2008-12-24 10:52:03.000000000 -0500
++++ magicpoint-1.13a/contrib/mgpnet.in	2008-12-24 11:00:47.000000000 -0500
+@@ -32,7 +32,7 @@
+ 
+ # configurations
+ $tmpdir = '/tmp';
+-$httpdatestr = "date '+\%a, \%d \%b \%Y \%H:\%M:\%S \%Z'";
++$httpdatestr = "env LC_ALL=C date '+\%a, \%d \%b \%Y \%H:\%M:\%S \%Z'";
+ $seltimeout = 1;
+ $refreshtimeout = 10;
+ $debug = 0;
+@@ -53,6 +53,7 @@
+ 		} while ($hostname =~ /^127\./);
+ 		close(IN);
+ 	};
++	$hostname =~ s/^addr://; # for GNU/Linux, by ukai
+ 	print "http://$hostname:$port/\n";
+ 	exit 0;
+ }
+@@ -214,7 +215,7 @@
+ 		$imgtmp = &tmpname;
+ 		$errout = ($debug ? '' : '2>&-');
+ 		system "xwintoppm -silent -name MagicPoint | ".
+-			"ppmquant 256 $errout | ppmtogif $errout > $imgtmp";
++			"ppmquant 256 $errout | ppmtopng $errout > $imgtmp";
+ 		if (-z $imgtmp) {
+ 			unlink $imgtmp;
+ 			$checkcontent = '';
+@@ -245,10 +246,10 @@
+ 	local($httpreq, $httpmethod, $httppath, $httpver, $httphost);
+ 	local($httpagent);
+ 	local($imgplace, $imgwidth, $imgheight, $buf, $imglen);
+-	local($cthtml, $ctgif);
++	local($cthtml, $ctpng);
+ 
+ 	$cthtml = ($usecharset ? 'text/html; charset=us-ascii' : 'text/html');
+-	$ctgif = 'image/gif';
++	$ctgif = 'image/png';
+ 
+ 	$httpreq = <NS>;
+ 	print STDERR 'HTTP in> ' . $httpreq if ($debug);
+@@ -256,7 +257,7 @@
+ 	$httpmethod = $httppath = $httpver = '';
+ 	($httpmethod, $httppath, $httpver) = split(/\s+/, $httpreq);
+ 	$httppath =~ s/http:\/\/[^:\/]+(:\d+)\//\//;
+-	if ($httpver eq '' || $httpver eq 'HTTP/1.0') {
++	if ($httpver eq '' || $httpver =~ m'HTTP/1.0') {
+ 		;	# ok
+ 	} else {
+ 		&httpheader(501, $cthtml) if ($httpver);
+@@ -318,7 +319,7 @@
+ 		print <<EOF;
+ <HEAD><TITLE>MagicPoint Netserver</TITLE></HEAD>
+ <BODY>
+-<IMG SRC=\"/presentation.gif\" ALT=\"presentation image\"
++<IMG SRC=\"/presentation.png\" ALT=\"presentation image\"
+ $imgplace ALIGN=left><BR>
+ <TABLE border=0>
+ <TR><TD NOWRAP><A HREF=/index.html>normal</A>
+@@ -340,7 +341,7 @@
+ </TABLE>
+ </BODY></HTML>
+ EOF
+-	} elsif ($httppath eq '/presentation.gif') {
++	} elsif ($httppath eq '/presentation.png') {
+ 		open(IMG, "< $imagefile") || do {
+ 			$checkcontent = '';	# invalidate
+ 			&httpheader(404, $cthtml) if ($httpver);
+@@ -350,13 +351,13 @@
+ <HEAD><TITLE>File Not found</TITLE></HEAD>
+ <BODY><H1>File Not found</H1>
+ The requested URL $httppath was not found on this server.<P>
+-Looks like a mitake in configuration.
++Looks like a mistake in configuration.
+ Contact the administrator.<P>
+ </BODY>
+ EOF
+ 			return;
+ 		};
+-		&httpheader(200, $ctgif) if ($httpver);
++		&httpheader(200, $ctpng) if ($httpver);
+ 		return if ($httpmethod ne 'GET');
+ 
+ 		while (0 < ($imglen = sysread(IMG, $buf, 4096))) {
+@@ -415,7 +416,7 @@
+ 'XXX4', 'SO_REUSEPORT',	'XXX5', 'SOCK_STREAM',	'XXX6', 'WNOHANG',
+ );
+ 	$tmpnam = &tmpname;
+-	open(CPP, "| @CPP@ >$tmpnam") || return;
++	open(CPP, "| @CPP@ - >$tmpnam") || return;
+ 	print CPP "#include <sys/socket.h>\n";
+ 	print CPP "#include <sys/wait.h>\n";
+ 	foreach $tmp (keys %varnames) {
+@@ -439,12 +440,19 @@
+ 		$havesinlen = 0; $sockaddr = 'S n a4 x8';
+ 	}
+ 
++	use Socket;
+ 	foreach $i (keys %varnames) {
+ 		if (@tmp2 = grep($_ =~ /^$i/, @tmp1)) {
+ 			$tmp = (split(/\s+/, @tmp2[0]))[1];
+ 			$tmp = oct($tmp) if ($tmp =~ /^0/);
+-			next if ($tmp !~ /^[0-9]+$/);
+-			eval "\$$varnames{$i} = \$tmp;";
++			if ($tmp =~ /^[0-9]+$/) {
++			    eval "\$$varnames{$i} = \$tmp;";
++			} else {
++			    # some constant defined by enum, so we can not
++			    # always use cpp as above. I believe use Socket
++			    # is more reliable in these days.
++			    eval "\$$varnames{$i} = &$varnames{$i};";
++			}
+ 		}
+ 	}
+ }

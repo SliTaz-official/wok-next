@@ -1,18 +1,18 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="giflib"
 VERSION="5.1.4"
 CATEGORY="graphics"
-SHORT_DESC="A library for processing GIFs."
+SHORT_DESC="A library and utilities for processing GIFs"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="MIT"
 WEB_SITE="https://sourceforge.net/projects/giflib/"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL="giflib-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/giflib/$TARBALL"
 
-DEPENDS="glibc-base"
+SPLIT="giflib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,5 +26,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ *.so*
+	case $PACKAGE in
+		giflib) copy @std;;
+		*-dev)  copy @dev;;
+	esac
 }

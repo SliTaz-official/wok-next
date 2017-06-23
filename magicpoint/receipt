@@ -1,43 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="magicpoint"
-VERSION="1.13a"
+VERSION="1.13a+upstream20090219"
 CATEGORY="x-window"
-SHORT_DESC="An X11-based presentation tool."
+SHORT_DESC="An X11-based presentation tool"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://member.wide.ad.jp/wg/mgp/"
-WGET_URL="ftp://sh.wide.ad.jp/WIDE/free-ware/mgp/$TARBALL"
 
-DEPENDS="glibc-base expat zlib util-linux-uuid fontconfig freetype1 freetype \
-giflib jpeg libpng tiff imlib xorg-libICE xorg-libSM xorg-libX11 \
-xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXft xorg-libXmu \
-xorg-libXrender xorg-libXt"
-BUILD_DEPENDS="bison flex m4 gettext fontconfig-dev \
-freetype1 freetype1-dev freetype-dev giflib-dev imlib-dev xorg-imake \
-xorg-cf-files xorg-libX11-dev xorg-libXft-dev xorg-libXmu-dev \
-xorg-libXrender-dev xorg-xproto xorg-xextproto"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+#WGET_URL="ftp://sh.wide.ad.jp/WIDE/free-ware/mgp/$TARBALL"
+# use Debian patches with Debian sources
+WGET_URL="http://http.debian.net/debian/pool/main/m/mgp/mgp_$VERSION.orig.tar.gz"
+
+BUILD_DEPENDS="perl xorg-libX11-dev xorg-libXft-dev fontconfig-dev xorg-imake \
+xorg-cf-files imlib2-dev xorg-libXmu-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	xmkmf &&
 	make -j1 Makefiles &&
 	make -j1 &&
-	make -j1 DESTDIR=$DESTDIR install
+	make -j1 DESTDIR=$DESTDIR install &&
+
+	chmod -R u+w $install/usr/lib/X11/mgp
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/X11/mgp
-	cp -f $install/usr/lib/X11/mgp/default.mgp $fs/usr/lib/X11/mgp
-	
-	cp -a $install/usr/bin $fs/usr
+	copy @std
+	DEPENDS="giflib imlib2 libpng16 xorg-libSM xorg-libX11 xorg-libXext \
+	xorg-libXft xorg-libXmu xorg-libXt"
 }
