@@ -1,25 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cups"
-VERSION="2.1.4"
+VERSION="2.2.2"
 CATEGORY="system-tools"
-SHORT_DESC="Common UNIX Printing System."
+SHORT_DESC="Common UNIX Printing System"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2"
 WEB_SITE="https://www.cups.org/"
-TAGS="printer printing"
 
-TARBALL="$PACKAGE-$VERSION-source.tar.gz"
-WGET_URL="https://github.com/apple/cups/releases/download/release-$VERSION/$TARBALL"
+TARBALL="cups-$VERSION-source.tar.gz"
+WGET_URL="https://github.com/apple/cups/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="acl dbus libcups libgnutls libusb zlib"
-BUILD_DEPENDS="automake libusb-dev zlib-dev dbus-dev gnutls-dev perl python \
-acl-dev"
-SPLIT="libcups cups-doc"
+BUILD_DEPENDS="automake libusb-dev zlib-dev acl-dev dbus-dev gnutls-dev perl \
+python"
+SPLIT="libcups cups cups-doc cups-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# gid 19 suggested by the BLFS is in use in SliTaz (by cdrom group),
+	# using 23 instead
+	addgroup -g 23 lpadmin &&
+
 	sed -i 's:555:755:g;s:444:644:g' Makedefs.in &&
 	sed -i '/MAN.EXT/s:.gz::g' configure config-scripts/cups-manpages.m4 &&
 	sed -i '/LIBGCRYPTCONFIG/d' config-scripts/cups-ssl.m4 &&
@@ -37,46 +39,84 @@ compile_rules()
 		--with-system-groups=lpadmin \
 		--with-docdir=/usr/share/doc/cups-$VERSION \
 		$CONFIGURE_ARGS &&
-	make
+	make &&
 	make BUILDROOT=$install install &&
+
 	rm -rf $install/tmp &&
+
 	ln -svnf ../doc/cups-$VERSION $install/usr/share/cups/doc-$VERSION
+
 	echo "ServerName /var/run/cups/cups.sock" > $install/etc/cups/client.conf &&
 
 	sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
 		$install/usr/share/cups/templates/choose-uri.tmpl &&
-	sed -i 's|htmlview|browser|' $install/usr/share/applications/cups.desktop
+	sed -i 's|htmlview|browser|' $install/usr/share/applications/cups.desktop &&
+	sed -i 's|^#Group .*|Group lp|' $install/etc/cups/cups-files.conf &&
+
+	# Daemon script
+	cp -a $stuff/etc $install &&
+	chown -R root:root $install/etc &&
+	# TazPanel link
+	cp -a $stuff/var $install &&
+	chown -R root:root $install/var &&
+
+	# Install ssl directory where to store the certs, solves some samba issues
+	install -dm700 -g lp $install/etc/cups/ssl &&
+
+	# Install some more configuration files that will get filled by cupsd
+	touch $install/etc/cups/printers.conf &&
+	touch $install/etc/cups/classes.conf &&
+	touch $install/etc/cups/subscriptions.conf &&
+	chgrp -R lp $install/etc/cups &&
+
+	# Comment out unnecessary PageLogFormat entry
+	sed -i -e 's:PageLogFormat:#PageLogFormat:' $install/etc/cups/cupsd.conf* &&
+
+	# Change files permissions to be accessible via web interface - will be
+	# fixed in post_install
+	chmod -c o+r $install/etc/cups/* $install/usr/sbin/cupsd \
+	$install/usr/lib/cups/backend/ipp $install/usr/lib/cups/backend/lpd
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy dbus-1/ bin/ sbin/ cups/ applications/ icons/ var/ *.so*
-
-	# -> cups-dev
-	rm -f $fs/usr/bin/cups-config
-	rm -rf $fs/usr/include
-	# -> libcups
-	rm -f $fs/usr/lib/libcups.so*
-
-	# Daemon script
-	cp -a $stuff/etc $fs
-	chown -R root:root $fs/etc/init.d
-	sed -i 's|^#Group .*|Group lp|' $fs/etc/cups/cups-files.conf
-
-	# TazPanel link
-	cp -a $stuff/var $fs
-	chown -R root:root $fs/var/www
-
+	case $PACKAGE in
+		libcups)
+			copy libcups.so*
+			CAT="system-tools|common libraries"
+			TAGS="printer printing"
+			DEPENDS="libgnutls zlib"
+			;;
+		cups)
+			copy @std var/ # copy empty dirs in var/
+			remove_already_packed
+			DEPENDS="acl dbus libcups libgnutls libusb zlib"
+			CONFIG_FILES="/etc/cups/"
+			TAGS="printer printing"
+			;;
+		cups-doc)
+			# We need the doc for CSS, images and help in the web interface.
+			copy doc/
+			CAT="docs|documentation"
+			DEPENDS="cups"
+			;;
+		cups-dev)
+			copy @dev
+			;;
+	esac
 }
 
-post_install()
-{
-	# Start CUPS daemon and edit daemons.conf
+post_install_cups() {
+	# Start CUPS daemon
 	if [ -z "$1" -a ! -s /aufs-umount.sh ]; then
 		/etc/init.d/cupsd start || continue
 	fi
+
+	# Clean TazPanel menu cache
 	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null
+
+	# Edit daemons.conf
 	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"; then
 		cat >> "$1/etc/daemons.conf" <<EOT
 # CUPS printing daemon options.
@@ -84,10 +124,17 @@ CUPSD_OPTIONS=""
 
 EOT
 	fi
+
+	# Add lpadmin group
+	addgroup -g 23 lpadmin
+
+	# Return permissions to previous state
+	chmod 640 $1/etc/cups/*
+	chmod 700 $1/usr/lib/cups/backend/ipp $1/usr/lib/cups/backend/lpd
+	chmod 500 $1/usr/sbin/cupsd
 }
 
-pre_remove()
-{
+pre_remove_cups() {
 	# Stop CUPS daemon before rm.
 	[ -z "$1" -a -x /etc/init.d/cupsd ] && /etc/init.d/cupsd stop
 	:
