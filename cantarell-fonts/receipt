@@ -1,24 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cantarell-fonts"
-VERSION="0.0.24"
+VERSION="0.0.25"
 CATEGORY="fonts"
 SHORT_DESC="Sans serif font family designed for on-screen readability"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="SIL_OFL"
-WEB_SITE="https://wiki.gnome.org/CantarellFonts"
-TAGS="font"
+WEB_SITE="https://wiki.gnome.org/Projects/CantarellFonts"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/GNOME/cantarell-fonts/archive/$VERSION.tar.gz"
-
-DEPENDS="fontconfig"
-BUILD_DEPENDS="automake"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/cantarell-fonts/${VERSION%.*}/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	autoreconf --force --install
 	./configure \
 		--with-configdir=/etc/fonts/conf.avail \
 		--with-fontdir=/usr/share/fonts/truetype/cantarell \
@@ -30,5 +25,7 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	copy @std
+	DEPENDS="fontconfig"
+	TAGS="font"
 }

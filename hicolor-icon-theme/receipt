@@ -1,28 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="hicolor-icon-theme"
-VERSION="0.12"
+VERSION="0.15"
 CATEGORY="misc"
-SHORT_DESC="Icon theme that all icon themes automatically inherit from."
+SHORT_DESC="Icon theme that all icon themes automatically inherit from"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://icon-theme.freedesktop.org/wiki/HicolorTheme"
-WGET_URL="http://icon-theme.freedesktop.org/releases/$TARBALL"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/icon-theme/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://icon-theme.freedesktop.org/releases/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/icons/hicolor
-	cp $install/usr/share/icons/hicolor/index.theme $fs/usr/share/icons/hicolor
-	cp -a $install/usr/share/icons/hicolor/24x24 $fs/usr/share/icons/hicolor
-	sed -i 5i\ 'Inherits=SliTaz' $fs/usr/share/icons/hicolor/index.theme
+	copy index.theme 16x16/
 }

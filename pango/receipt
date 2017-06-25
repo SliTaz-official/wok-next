@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pango"
-VERSION="1.40.1"
+VERSION="1.40.3"
 CATEGORY="x-window"
 SHORT_DESC="Layout and rendering of internationalized text"
 MAINTAINER="pankso@slitaz.org"
@@ -10,25 +10,22 @@ WEB_SITE="http://www.pango.org/"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="bzlib cairo fontconfig freetype glib harfbuzz libffi liblzma libpng \
-libxcb libxml2 pcre pixman xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-xorg-libXft xorg-libXrender zlib"
 BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev gobject-introspection-dev"
 BUILD_DEPENDS_arm="cairo-dev libxml2-dev xorg-libXft-dev"
-
-# Handle cross compilation
-case "$ARCH" in
-	arm*)
-		BUILD_DEPENDS=$BUILD_DEPENDS_arm
-		export LIBTOOL=${HOST_SYSTEM}-libtool
-		ARCH_ARGS="--enable-introspection=no" ;;
-esac
+SPLIT="pango-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# Handle cross compilation
+	case "$ARCH" in
+		arm*)
+			export LIBTOOL=${HOST_SYSTEM}-libtool
+			ARCH_ARGS="--enable-introspection=no" ;;
+	esac
+
 	./configure \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
@@ -38,5 +35,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ *.so*
+	case $PACKAGE in
+		pango)
+			copy bin/ *.so*
+			DEPENDS="bzlib cairo fontconfig freetype glib harfbuzz libffi \
+			liblzma libpng libxcb libxml2 pcre pixman xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXft xorg-libXrender zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pango bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			glib-dev glibc-dev harfbuzz-dev libffi-dev liblzma-dev libpng-dev \
+			libxcb-dev libxml2-dev pcre-dev pixman-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXft-dev \
+			xorg-libXrender-dev zlib-dev"
+			;;
+	esac
 }

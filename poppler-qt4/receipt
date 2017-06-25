@@ -1,19 +1,60 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="poppler-qt4"
-VERSION="0.49.0"
+VERSION="0.51.0"
 CATEGORY="office"
-SHORT_DESC="Poppler compiled with Qt4 library."
+SHORT_DESC="Poppler compiled with Qt4 library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WANTED="poppler"
-WEB_SITE="http://poppler.freedesktop.org/"
+WEB_SITE="https://poppler.freedesktop.org/"
 
-DEPENDS="poppler libQtCore libQtXml libQtGui"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://poppler.freedesktop.org/$TARBALL"
+
+BUILD_DEPENDS="xorg-libXdamage expat-dev pkg-config jpeg-dev tiff-dev \
+freetype-dev fontconfig-dev glib-dev lcms-dev zlib-dev cairo-dev \
+automake bzip2-dev libpng-dev libtool Qt4-dev libxml2-dev"
+SPLIT="poppler-qt4-apps poppler-qt4-dev"
+
+# FIXME: after Qt will be available, to merge this receipt with the poppler receipt.
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	autoreconf -fi
+	./configure \
+		--enable-zlib \
+		--enable-cairo-output \
+		--enable-poppler-qt4 \
+		--disable-libopenjpeg \
+		$CONFIGURE_ARGS &&
+	make &&	make install
+}
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*qt4.so* $fs/usr/lib
+	case $PACKAGE in
+		poppler-qt4)
+			copy /usr/lib/*qt4.so*
+			DEPENDS="poppler libQtCore libQtXml libQtGui"
+			;;
+		*-apps)
+			copy /usr/bin/
+			if [ -f $fs/usr/bin/poppler-glib-demo ]; then
+				rm -rf $fs/usr/bin/poppler-glib-demo
+			fi
+			CAT="office|utilities to manipulate PDF file"
+			DEPENDS="fontconfig poppler-qt4 cairo zlib libpng gcc-lib-base \
+			libQtCore libQtXml libQtGui"
+			PROVIDE="poppler-apps"
+			;;
+		*-dev)
+			copy \
+				/usr/lib/*qt4.*a \
+				/usr/include/poppler/qt4/ \
+				/usr/lib/pkgconfig/poppler-qt4.pc
+			DEPENDS="poppler-dev"
+			;;
+	esac
 }

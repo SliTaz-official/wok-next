@@ -1,45 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnutls"
-VERSION="3.5.3"
+VERSION="3.5.9"
 CATEGORY="security"
 SHORT_DESC="GNU Transport Layer Security Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://gnutls.org/"
 HOST_ARCH="i486 arm"
-SUGGESTED="cacerts"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.gnutls.org/gcrypt/gnutls/v${VERSION%.*}/$TARBALL"
+TARBALL_MD5="0ab25eb6a1509345dd085bc21a387951"
 
-DEPENDS="gmp libffi libtasn1 nettle p11-kit zlib"
-BUILD_DEPENDS="nettle-dev libtasn1-dev gtk-doc gettext p11-kit-dev"
-
-DEPENDS_arm="nettle libgpg-error ncurses readline zlib gcc-lib-base \
-libgnutls libcrypto libtasn1"
+BUILD_DEPENDS="nettle-dev libtasn1-dev libunistring-dev gettext libcrypto-dev \
+libidn-dev unbound-dev p11-kit-dev"
 BUILD_DEPENDS_arm="libtasn1-dev ncurses-dev readline-dev nettle-dev \
 libgpg-error-dev libgcrypt-dev libcrypto-dev gmp-dev lzip"
-
 SPLIT="libgnutls gnutls-dev"
-
-# Handle SliTaz arch.
-case "$SLITAZ_ARCH" in
-	arm*) DEPENDS=$DEPENDS_arm ;;
-esac
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm*)
-		BUILD_DEPENDS=$BUILD_DEPENDS_arm
-		ARCH_ARGS="--with-libgcrypt-prefix=/cross/$ARCH/sysroot/usr \
-		--without-p11-kit --disable-rpath --with-libgcrypt --disable-guile \
-		--with-zlib" ;;
-esac
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# Handle cross compilation.
+	case "$ARCH" in
+		arm*)
+			ARCH_ARGS="--with-libgcrypt-prefix=/cross/$ARCH/sysroot/usr \
+			--without-p11-kit --disable-rpath --with-libgcrypt --disable-guile \
+			--with-zlib" ;;
+	esac
+
 	./configure \
 		--with-default-trust-store-file="/etc/ssl/ca-bundle.crt" \
 		$CONFIGURE_ARGS ${ARCH_ARGS} &&
@@ -50,5 +40,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	case $PACKAGE in
+		gnutls)
+			copy bin/
+			DEPENDS="cacerts gmp libffi libgnutls libidn libtasn1 libunistring \
+			nettle p11-kit zlib"
+			DEPENDS_arm="nettle libgpg-error ncurses readline zlib \
+			gcc-lib-base libgnutls libcrypto libtasn1"
+			case $ARCH in
+				arm*) DEPENDS=$DEPENDS_arm;;
+			esac
+			;;
+		libgnutls)
+			copy *.so*
+			CAT="security|shared libraries"
+			DEPENDS="cacerts gmp libidn libtasn1 libunistring nettle p11-kit \
+			unbound zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gnutls libgnutls gmp-dev libcrypto-dev libffi-dev \
+			libidn-dev libtasn1-dev libunistring-dev nettle-dev p11-kit-dev \
+			unbound-dev zlib-dev"
+			;;
+	esac
 }

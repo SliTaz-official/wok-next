@@ -1,37 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clucene"
-VERSION="0.9.21b"
+VERSION="2.3.3.4"
 CATEGORY="system-tools"
-SHORT_DESC="C++ port of Lucene, a high-performance, full-featured text search engine"
+SHORT_DESC="CLucene - a C++ search engine"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="LGPL Apache"
-SOURCE="clucene-core"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://sourceforge.net/projects/clucene/"
+WEB_SITE="https://sourceforge.net/projects/clucene/"
+
+TARBALL="clucene-core-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="text indexing"
+
+BUILD_DEPENDS="cmake zlib-dev"
+SPLIT="clucene-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's|LuceneBase(){};|LuceneBase()\n#if __cplusplus >= 201103L\nnoexcept(false)\n#endif\n{};|' \
-		src/CLucene/debug/lucenebase.h
-	./configure \
-		--prefix=/usr \
-		--libdir=/usr/lib \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--disable-static \
-		$CONFIGURE_ARGS
-	make
+	mkdir build &&
+	cd    build &&
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_CONTRIBS_LIB=ON .. &&
+	make &&
 	make -j1 install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		clucene) copy @std; TAGS="text indexing";;
+		*-dev)   copy @dev;;
+	esac
 }
-

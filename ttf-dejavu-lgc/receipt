@@ -1,19 +1,19 @@
 # SliTaz package receipt v2.
 
-PACKAGE="ttf-dejavu"
+PACKAGE="ttf-dejavu-lgc"
 VERSION="2.37"
 CATEGORY="fonts"
-SHORT_DESC="DejaVu TrueType fonts"
+SHORT_DESC="DejaVu LGC (Latin, Greek, Cyrillic) TrueType fonts"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="other"
 WEB_SITE="https://dejavu-fonts.github.io/"
 HOST_ARCH="i486 arm"
 
-TARBALL="dejavu-fonts-ttf-$VERSION.tar.bz2"
+TARBALL="dejavu-lgc-fonts-ttf-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/dejavu/$TARBALL"
 
 BUILD_DEPENDS="shared-mime-info fontforge"
-SPLIT="ttf-dejavu-extra"
+SPLIT="ttf-dejavu-lgc-extra"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -71,16 +71,18 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
-		ttf-dejavu)
-			copy DejaVuSans.ttf DejaVuSans-Bold.ttf DejaVuSansMono.ttf \
+		ttf-dejavu-lgc)
+			copy DejaVuLGCSans.ttf DejaVuLGCSans-Bold.ttf DejaVuLGCSansMono.ttf \
 			*sans.conf *mono.conf
 			TAGS="font"
+			PROVIDE="ttf-dejavu"
 			;;
-		ttf-dejavu-extra)
+		ttf-dejavu-lgc-extra)
 			copy @std
 			remove_already_packed
 			CAT="fonts|extra font styles"
 			TAGS="font"
+			PROVIDE="ttf-dejavu-extra"
 			;;
 	esac
 }

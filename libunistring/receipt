@@ -1,16 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libunistring"
-VERSION="0.9.6"
+VERSION="0.9.7"
 CATEGORY="libdevel"
 SHORT_DESC="Unicode string library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3 LGPL3 FDL"
 WEB_SITE="https://www.gnu.org/software/libunistring/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base"
+SPLIT="libunistring-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,5 +22,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		libunistring) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

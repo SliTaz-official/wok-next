@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cacerts"
-VERSION="20170301"
+VERSION="20170620"
 CATEGORY="security"
 SHORT_DESC="Certificate Authority Certificates"
 MAINTAINER="al.bobylev@gmail.com"
@@ -13,7 +13,6 @@ TARBALL="$PACKAGE-$VERSION.txt"
 #WGET_URL="https://hg.mozilla.org/releases/mozilla-release/file/default/security/nss/lib/ckfw/builtins/certdata.txt"
 WGET_URL="http://anduin.linuxfromscratch.org/BLFS/other/certdata.txt"
 
-DEPENDS="openssl"
 BUILD_DEPENDS="perl openssl locale-en"
 
 # Rules to configure and make the package.
@@ -22,28 +21,29 @@ compile_rules()
 	mv -f *.txt certdata.txt
 	act_version=$(sed -n '/\$Revision:/s|.*Revision: \([0-9]*\).*$|\1|p' certdata.txt)
 	echo -e "\nActual version: $act_version\n"
-	[ "$VERSION" != "$act_version" ] &&
-		echo -e "Please update receipt!\n"
+	[ "$VERSION" == "$act_version" ] || echo -e "Warning: Please update receipt!\n"
 
 	cp -a $stuff/* $src
 	./make-ca.sh &&
 	./remove-expired-certs.sh $src/certs
+
+	mkdir -p $install/etc/ssl/certs
+	cp -a $src/certs/*.pem   $install/etc/ssl/certs
+	cp -a $src/ca-bundle.crt $install/etc/ssl
+	ln -s ../ca-bundle.crt   $install/etc/ssl/certs/ca-certificates.crt
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc/ssl/certs
-	cp -a $src/certs/*.pem $fs/etc/ssl/certs
-	cp -a $src/ca-bundle.crt $fs/etc/ssl
-	ln -s ../ca-bundle.crt $fs/etc/ssl/certs/ca-certificates.crt
+	copy @std
+	DEPENDS="openssl"
 }
 
-post_install()
-{
-	# Rehash certificates.
-	# Use simplified plain shell equivalent to the Perl `c_rehash`
-	# (see openssl package). Normal no output here.
+# Rehash certificates.
+# Use simplified plain shell equivalent to the Perl `c_rehash`
+# (see openssl package). Normal no output here.
+post_install() {
 	cd "$1/etc/ssl/certs"
 	find . -type l -delete
 	for i in $(ls *.pem); do
@@ -52,8 +52,7 @@ post_install()
 	done
 }
 
-post_remove()
-{
-	# Remove broken symlinks
+# Remove broken symlinks
+post_remove() {
 	find "$1/etc/ssl/certs" -type l ! -exec test -e \{\} \; -delete
 }
