@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.icu-project.org/files/icu4c/$VERSION/icu4c-${VERSION//./_}-src.tgz"
 TARBALL_MD5="fac212b32b7ec7ab007a12dff1f3aea1"
 
-SPLIT="icu-dev"
+SPLIT="libicu icu icu-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,8 +25,16 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
+		libicu)
+			copy libicuuc.so* libicudata.so*
+			CAT="libs|core libraries"
+			DEPENDS=" "
+			;;
 		icu)
 			copy bin/ sbin/ *.so*
+			rm $fs/usr/bin/icu-config
+			remove_already_packed
+			DEPENDS="libicu"
 			;;
 		*-dev)
 			copy @std @dev
