@@ -1,49 +1,72 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ruby"
-VERSION="1.9.2-p180"
+VERSION="2.4.0"
 CATEGORY="development"
-SHORT_DESC="Dynamic programming language focused on simplicity and productivity."
+SHORT_DESC="Dynamic programming language focused on simplicity and productivity"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.ruby-lang.org/"
-WGET_URL="ftp://ftp.ruby-lang.org/pub/ruby/${VERSION%.*}/$TARBALL"
-TAGS="ruby language programming"
 HOST_ARCH="i486 arm"
 
-SUGGESTED="tk"
-RELATED="libruby libruby-extras ruby-dev"
-DEPENDS="libruby libdb ncurses openssl readline zlib gdbm"
-BUILD_DEPENDS="zlib-dev tcl-dev openssl-dev db-dev readline-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://cache.ruby-lang.org/pub/ruby/${VERSION%.*}/$TARBALL"
 
-# Handle cross compilation.
-case "$ARCH" in
-	i?86) 
-		BUILD_DEPENDS="$BUILD_DEPENDS coreutils-file-output-full tk-dev " ;;
-	arm*)
-		# executable host ruby is required. use --with-baseruby option.
-		# --with-arch=arm 
-		export ac_cv_func_getpgrp_void=yes
-		export ac_cv_func_setpgrp_void=yes 
-		ARCH_ARGS="--with-baseruby=/usr/bin/ruby" ;;
-esac
+BUILD_DEPENDS="gmp-dev db-dev libffi-dev openssl-dev tcl-dev tk-dev zlib-dev \
+gdbm-dev readline-dev"
+BUILD_DEPENDS_arm="zlib-dev tcl-dev openssl-dev db-dev readline-dev"
+SPLIT="libruby libruby-extras ruby-doc ruby-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# Handle cross compilation.
+	case "$ARCH" in
+		arm*)
+			# executable host ruby is required. use --with-baseruby option.
+			# --with-arch=arm 
+			export ac_cv_func_getpgrp_void=yes
+			export ac_cv_func_setpgrp_void=yes 
+			ARCH_ARGS="--with-baseruby=/usr/bin/ruby" ;;
+	esac
+
 	#patch -Np1 < $stuff/openssl-1.0.patch
 	./configure \
-		--prefix=/usr \
 		--enable-shared \
-		$CONFIGURE_ARGS ${ARCH_ARGS} &&
+		--docdir=/usr/share/doc/ruby-$VERSION \
+		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+		ruby)
+			copy /usr/bin/
+			TAGS="ruby language programming"
+			SUGGESTED="tk"
+			DEPENDS="gmp libruby"
+			;;
+		libruby)
+			copy libruby.so*
+			CAT="libdevel|shared libraries"
+			DEPENDS="gmp"
+			;;
+		libruby-extras)
+			copy /usr/lib/ruby/
+			CAT="libdevel|native libraries"
+			DEPENDS="ruby gdbm gmp libcrypto libdb libffi libssl ncurses \
+			readline zlib"
+			;;
+		ruby-doc)
+			CAT="development|ri documentation"
+			copy /usr/share/ri/
+			;;
+		ruby-dev)
+			copy @dev
+			DEPENDS="ruby libruby libruby-extras"
+			;;
+	esac
 }
