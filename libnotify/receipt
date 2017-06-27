@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnotify"
-VERSION="0.7.6"
+VERSION="0.7.7"
 CATEGORY="utilities"
 SHORT_DESC="Notification library"
 MAINTAINER="fabrice.thiroux@free.fr"
@@ -12,33 +12,33 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gdk-pixbuf glib libffi libpng pcre zlib"
 BUILD_DEPENDS="gdk-pixbuf-dev glib-dev gtk+-dev gobject-introspection-dev \
 gtk-doc xmlto"
 BUILD_DEPENDS_arm="dbus-dev gtk+-dev dbus-glib dbus-glib-dev expat-dev"
-
-# Handle cross compilation
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="$BUILD_DEPENDS_arm"
-esac
+SPLIT="libnotify-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
-
 	sed -e 's/REQ_GTK_VERSION=2.90/REQ_GTK_VERSION=2.24/' \
 	-e 's/tests_modules="gtk+-3.0 >= $REQ_GTK_VERSION"/tests_modules="gtk+-2.0 >= $REQ_GTK_VERSION"/' \
 	-i configure
 
-	./configure \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy notify-send *.so*
+	case $PACKAGE in
+		libnotify)
+			copy @std #notify-send *.so*
+			DEPENDS="gdk-pixbuf glib libffi libpng pcre zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libnotify gdk-pixbuf-dev glib-dev glibc-dev libffi-dev \
+			libgio-dev libpng-dev pcre-dev zlib-dev"
+			;;
+	esac
 }

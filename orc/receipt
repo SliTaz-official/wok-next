@@ -1,30 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="orc"
-VERSION="0.4.18"
+VERSION="0.4.26"
 CATEGORY="multimedia"
-SHORT_DESC="The Oil Runtime Compiler"
+SHORT_DESC="Optimized inner loop Runtime Compiler"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://code.entropywave.com/"
-WGET_URL="$WEB_SITE/download/$PACKAGE/$TARBALL"
+WEB_SITE="https://gstreamer.freedesktop.org/data/doc/orc/"
 HOST_ARCH="i486 arm"
+
+TARBALL="orc-$VERSION.tar.xz"
+WGET_URL="https://gstreamer.freedesktop.org/src/orc/$TARBALL"
+
+BUILD_DEPENDS="valgrind-dev"
+SPLIT="orc-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--libexecdir=/usr/lib \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	./configure $CONFIGURE_ARGS && make $MAKEFLAGS && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		orc)   copy @std;;
+		*-dev) copy @dev;;
+	esac
 }
