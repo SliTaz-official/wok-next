@@ -1,18 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libinput"
-VERSION="1.4.1"
+VERSION="1.8.0"
 CATEGORY="x-window"
 SHORT_DESC="Library that handles input devices for display servers"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/libinput/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.freedesktop.org/software/libinput/$TARBALL"
 
-DEPENDS="mtdev eudev libevdev"
-BUILD_DEPENDS="mtdev-dev eudev-dev libevdev-dev"
+BUILD_DEPENDS="mtdev-dev eudev-dev libevdev-dev cairo-dev gtk+3-dev check-dev"
+SPLIT="libinput-debug-gui libinput libinput-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,6 +22,8 @@ compile_rules()
 		--disable-static \
 		--disable-libwacom \
 		--with-udev-dir=/lib/udev \
+		--disable-documentation \
+		--without-libunwind \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -28,5 +31,24 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy udev/ bin/ *.so*
+	case $PACKAGE in
+		*-gui)
+			copy libinput-debug-gui
+			CAT="x-window|debug GUI"
+			DEPENDS="atk bzlib cairo eudev fontconfig freetype gdk-pixbuf glib \
+			gtk+3 libevdev libffi libharfbuzz libinput liblzma libpng16 \
+			libxml2 mtdev pango pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		libinput)
+			copy @std
+			remove_already_packed
+			DEPENDS="eudev libevdev mtdev"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libinput eudev-dev libevdev-dev mtdev-dev"
+			;;
+	esac
 }

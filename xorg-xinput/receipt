@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xinput"
 VERSION="1.6.2"
 CATEGORY="x-window"
-SHORT_DESC="X input utility (MPX support)."
+SHORT_DESC="Utility to configure and test X input devices"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -12,18 +12,25 @@ HOST_ARCH="i486 arm"
 TARBALL="xinput-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libX11 xorg-libXext xorg-libXi xorg-libXinerama xorg-libXrandr"
 BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-libXext-dev \
 xorg-libXi-dev xorg-inputproto xorg-libXrandr-dev xorg-libXinerama-dev"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	copy @std
+	DEPENDS="xorg-libX11 xorg-libXext xorg-libXi xorg-libXinerama \
+	xorg-libXrandr"
 }

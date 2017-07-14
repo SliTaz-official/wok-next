@@ -1,16 +1,16 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-video-fbturbo"
 VERSION="0.2.0"
 CATEGORY="x-window"
-SHORT_DESC="Xorg DDX driver for ARM devices (Allwinner, RPi and others)."
+SHORT_DESC="Xorg DDX driver for ARM devices (Allwinner, RPi and others)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="xf86-video-fbturbo"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/ssvb/xf86-video-fbturbo"
-WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 HOST_ARCH="i486 arm"
+
+TARBALL="xf86-video-fbturbo-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
 # 0.4.0 ---> fatal error: dri2.h: No such file or directory
 #
@@ -19,21 +19,32 @@ HOST_ARCH="i486 arm"
 # ported yet.
 
 BUILD_DEPENDS="xorg-server-dev"
+SPLIT="xorg-xf86-video-fbturbo-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	autoreconf -vi
 	./configure \
-		--with-xorg-module-dir=/usr/lib/X11/modules \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/X11/modules/drivers/
-    cp -a $install/usr/lib/X11/modules/drivers/*.so \
-    	$fs/usr/lib/X11/modules/drivers/
+	case $PACKAGE in
+		*-fbturbo)
+			copy @std
+			DEPENDS="xorg-server"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-video-fbturbo xorg-server-dev"
+			;;
+	esac
 }

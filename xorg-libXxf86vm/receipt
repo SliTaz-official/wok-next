@@ -1,19 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXxf86vm"
 VERSION="1.1.4"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server module."
+SHORT_DESC="XFree86-VidMode extension library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://www.x.org/wiki"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libXxf86vm-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libX11 xorg-libXext"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXext-dev xorg-xf86vidmodeproto"
+SPLIT="xorg-libXxf86vm-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,13 +22,25 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXxf86vm)
+			copy @std
+			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXxf86vm xorg-libxcb-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-xf86vidmodeproto"
+			;;
+	esac
 }

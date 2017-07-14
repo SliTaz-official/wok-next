@@ -1,0 +1,47 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorg-xcb-util-wm"
+VERSION="0.4.1"
+CATEGORY="x-window"
+SHORT_DESC="Utility libraries for XC Binding - client and window-manager \
+helpers for ICCCM"
+MAINTAINER="slaxemulator@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://xcb.freedesktop.org/"
+HOST_ARCH="i486 arm"
+
+TARBALL="xcb-util-wm-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
+
+BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros"
+SPLIT="xorg-xcb-util-wm-dev"
+PKG_RULE="std-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		*-wm)
+			copy @std
+			DEPENDS="xorg-libxcb"
+			PROVIDE="xcb-util-wm"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xcb-util-wm xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libxcb-dev"
+			PROVIDE="xcb-util-wm-dev"
+			;;
+	esac
+}

@@ -1,40 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-server"
-VERSION="1.18.4"
+VERSION="1.19.3"
 CATEGORY="x-window"
-SHORT_DESC="Xorg core server."
+SHORT_DESC="X server"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SUGGESTED="xorg-xf86-input-evdev xorg-xf86-video-vesa"
 WEB_SITE="https://www.x.org/wiki/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xserver/$TARBALL"
 
-DEPENDS="bzlib eudev expat freetype glibc-base libdrm libepoxy libgcrypt \
-libgpg-error libpng libxcb mesa pixman xorg-libfontenc xorg-libpciaccess \
-xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp xorg-libXext \
-xorg-libXfixes xorg-libXfont xorg-libxshmfence xorg-libXxf86vm zlib"
-BUILD_DEPENDS="patch xorg-util-macros  xorg-font-util-dev pixman-dev eudev-dev \
-dbus-dev xorg-dri2proto xorg-dri3proto xorg-libxshmfence-dev libdrm-dev \
-xorg-libX11-dev xorg-glproto mesa-dev libgcrypt-dev xorg-xcmiscproto \
+BUILD_DEPENDS="patch xorg-util-macros xorg-pixman-dev eudev-dev dbus-dev \
+xorg-dri2proto xorg-dri3proto xorg-libxshmfence-dev libdrm-dev xorg-libX11-dev \
+xorg-glproto mesa-dev xorg-libXdmcp-dev libgcrypt-dev xorg-xcmiscproto \
 xorg-bigreqsproto xorg-randrproto xorg-renderproto xorg-fontsproto \
 xorg-videoproto xorg-compositeproto xorg-recordproto xorg-scrnsaverproto \
 xorg-resourceproto xorg-xf86driproto xorg-presentproto xorg-xineramaproto \
-xorg-libxkbfile-dev xorg-libXfont-dev xorg-libpciaccess-dev \
-xorg-libXxf86dga-dev libepoxy-dev xorg-libdmx-dev xorg-libXmu-dev \
-xorg-libXrender-dev xorg-libXi-dev tslib-dev xcb-util-renderutil-dev \
-xcb-util-dev xcb-util-image-dev xcb-util-wm-dev xcb-util-keysyms-dev \
-xorg-libXaw-dev xorg-libXpm-dev expat-dev"
-SPLIT="xorg-server-Xephyr xorg-server-Xfbdev xorg-server-Xnest \
-xorg-server-Xvfb xorg-server-modules-gl"
+xorg-libxkbfile-dev xorg-libXfont2-dev xorg-libpciaccess-dev \
+xorg-libXxf86dga-dev xorg-libdmx-dev xorg-libXaw-dev xorg-libXpm-dev \
+xorg-libXtst-dev xorg-libXres-dev \
+xorg-libXmu-dev xorg-libXext-dev xorg-libXrender-dev \
+xorg-libXfixes-dev xorg-libXi-dev xorg-dmxproto xorg-libXau-dev \
+xorg-libXdmcp-dev libepoxy-dev tslib-dev xorg-xcb-util-renderutil-dev \
+xorg-xcb-util-dev xorg-xcb-util-image-dev xorg-xcb-util-wm-dev \
+xorg-xcb-util-keysyms-dev expat-dev"
+SPLIT="xorg-server-Xdmx xorg-server-Xephyr xorg-server-Xfbdev \
+xorg-server-Xnest xorg-server-Xvfb xorg-server-module-glamor xorg-server-dev \
+xorg-server"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -Np1 -i $stuff/xorg-server-1.18.4-add_prime_support-1.patch
-
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -46,6 +43,8 @@ compile_rules()
 		--disable-xwayland \
 		--disable-docs --disable-devel-docs \
 		--with-xkb-output=/var/lib/xkb \
+		--enable-tslib \
+		--enable-dmx \
 		--enable-kdrive \
 		--enable-kdrive-kbd \
 		--enable-kdrive-mouse \
@@ -58,21 +57,119 @@ compile_rules()
 		--with-vendor-web="http://www.slitaz.org/" \
 		--with-builder-addr="devel@slitaz.org" \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$install install &&
+
+	mkdir -pv $install/etc/X11/xorg.conf.d
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ var/ bin/ libexec/ xorg.conf.d/ *.so
-	# split
-	for i in Xephyr Xfbdev Xnest Xvfb libglamoregl.so libglx.so; do
-		find $fs -name $i -delete
-	done
+	case $PACKAGE in
+		*-Xdmx)
+			copy Xdmx
+			# chmod 4711 $fs/usr/bin/Xdmx
+			CAT="x-window|DMX X server"
+			DEPENDS="bzlib freetype glib libgcrypt libgpg-error libharfbuzz \
+			libpng16 pcre xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXfixes xorg-libXfont2 xorg-libXi xorg-libXmu \
+			xorg-libXrender xorg-libfontenc xorg-libxcb xorg-libxshmfence \
+			xorg-pixman zlib"
+			;;
+		*-Xephyr)
+			copy Xephyr
+			# chmod 4711 $fs/usr/bin/Xephyr
+			CAT="x-window|Xephyr X server"
+			DEPENDS="bzlib eudev expat freetype glib libdrm libepoxy libgcrypt \
+			libgpg-error libharfbuzz libpng16 mesa pcre tslib xorg-libX11 \
+			xorg-libXau xorg-libXdamage xorg-libXdmcp xorg-libXext \
+			xorg-libXfixes xorg-libXfont2 xorg-libXxf86vm xorg-libfontenc \
+			xorg-libxcb xorg-libxshmfence xorg-pixman xorg-xcb-util \
+			xorg-xcb-util-image xorg-xcb-util-keysyms xorg-xcb-util-renderutil \
+			xorg-xcb-util-wm zlib"
+			;;
+		*-Xfbdev)
+			copy Xfbdev
+			# chmod 4711 $fs/usr/bin/Xfbdev
+			CAT="x-window|Xfbdev framebuffer X server"
+			DEPENDS="bzlib eudev expat freetype glib libdrm libgcrypt \
+			libgpg-error libharfbuzz libpng16 mesa pcre tslib xorg-libX11 \
+			xorg-libXau xorg-libXdamage xorg-libXdmcp xorg-libXext \
+			xorg-libXfixes xorg-libXfont2 xorg-libXxf86vm xorg-libfontenc \
+			xorg-libxcb xorg-libxshmfence xorg-pixman zlib"
+			;;
+		*-Xnest)
+			copy Xnest
+			# chmod 4711 $fs/usr/bin/Xnest
+			CAT="x-window|Xnest X server"
+			DEPENDS="bzlib expat freetype glib libdrm libgcrypt libgpg-error \
+			libharfbuzz libpng16 mesa pcre xorg-libX11 xorg-libXau \
+			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+			xorg-libXfont2 xorg-libXxf86vm xorg-libfontenc xorg-libxcb \
+			xorg-libxshmfence xorg-pixman zlib"
+			;;
+		*-Xvfb)
+			copy Xvfb
+			# chmod 4711 $fs/usr/bin/Xvfb
+			CAT="x-window|Xvfb X server"
+			DEPENDS="bzlib expat freetype glib libdrm libgcrypt libgpg-error \
+			libharfbuzz libpng16 mesa pcre xorg-libX11 xorg-libXau \
+			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+			xorg-libXfont2 xorg-libXxf86vm xorg-libfontenc xorg-libxcb \
+			xorg-libxshmfence xorg-pixman zlib"
+			;;
+		*-module-glamor)
+			copy libglamoregl.so libglx.so
+			CAT="x-window|Glamor DIX (Device Independent X) module"
+			DEPENDS="expat libdrm libepoxy mesa xorg-libX11 xorg-libXau \
+			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+			xorg-libXxf86vm xorg-libxcb xorg-libxshmfence"
+			;;
+		*-dev)
+			copy @dev protocol.txt
+			DEPENDS="xorg-server xorg-server-Xdmx xorg-server-Xephyr \
+			xorg-server-Xfbdev xorg-server-Xnest xorg-server-Xvfb \
+			xorg-server-module-glamor \
+			eudev-dev expat-dev libdrm-dev libepoxy-dev mesa-dev \
+			xorg-dri2proto xorg-dri3proto xorg-fontsproto xorg-glproto \
+			xorg-inputproto xorg-kbproto xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdamage-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXfixes-dev xorg-libXxf86vm-dev xorg-libpciaccess-dev \
+			xorg-libxcb-dev xorg-libxshmfence-dev xorg-pixman-dev \
+			xorg-presentproto xorg-randrproto xorg-renderproto \
+			xorg-resourceproto xorg-scrnsaverproto xorg-videoproto \
+			xorg-xextproto xorg-xf86driproto xorg-xineramaproto xorg-xproto"
+			;;
+		*-server)
+			copy @std var/log/ xorg.conf.d/
+			remove_already_packed
+			CAT="x-window|core X server"
+			DEPENDS="bzlib eudev freetype glib libdrm libgcrypt libgpg-error \
+			libharfbuzz libpng16 pcre util-linux-uuid xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXaw xorg-libXdmcp xorg-libXext \
+			xorg-libXfont2 xorg-libXmu xorg-libXpm xorg-libXt xorg-libdmx \
+			xorg-libfontenc xorg-libpciaccess xorg-libxcb xorg-libxshmfence \
+			xorg-pixman zlib"
+			SUGGESTED="xorg-xf86-input-evdev xorg-xf86-video-vesa"
+			;;
+	esac
 }
 
-# We need /var/tmp rw to let xkbcomp builr XKB definition.
-post_install()
-{
-	chmod 1777 "$1/var/tmp"
+post_install_xorg_server() {
+	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
+}
+post_install_xorg_server_Xdmx() {
+	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
+}
+post_install_xorg_server_Xephyr() {
+	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
+}
+post_install_xorg_server_Xfbdev() {
+	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
+}
+post_install_xorg_server_Xnest() {
+	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
+}
+post_install_xorg_server_Xvfb() {
+	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
 }

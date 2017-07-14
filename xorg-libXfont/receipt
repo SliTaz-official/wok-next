@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXfont"
 VERSION="1.5.1"
 CATEGORY="x-window"
-SHORT_DESC="X font Library"
+SHORT_DESC="X font handling library for server & utilities"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libXfont-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="bzlib freetype xorg-libfontenc"
 BUILD_DEPENDS="bzip2-dev freetype-dev zlib-dev xorg-xtrans xorg-fontsproto \
 xorg-libfontenc-dev"
+SPLIT="xorg-libXfont-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-#	sed -i 's/STARTCHAR %s/STARTCHAR %99s/' src/bitmap/bdfread.c
-#		--disable-devel-docs \
-
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -34,5 +31,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXfont)
+			copy @std
+			DEPENDS="bzlib freetype glib libharfbuzz libpng16 pcre \
+			xorg-libfontenc zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXfont bzip2-dev freetype-dev glib-dev \
+			harfbuzz-dev libpng16-dev pcre-dev xorg-fontsproto \
+			xorg-libfontenc-dev xorg-xproto zlib"
+			;;
+	esac
 }

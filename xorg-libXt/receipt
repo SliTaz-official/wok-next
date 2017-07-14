@@ -1,32 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXt"
 VERSION="1.1.5"
 CATEGORY="x-window"
-SHORT_DESC="X Toolkit Library"
+SHORT_DESC="X Toolkit Intrinsics library"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libXt-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libSM xorg-libX11"
 BUILD_DEPENDS="xorg-libSM-dev xorg-libX11-dev glib-dev util-linux-uuid-dev"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm) unset CFLAGS ;;
-esac
+SPLIT="xorg-libXt-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# Handle cross compilation.
+	case "$ARCH" in
+		arm) unset CFLAGS ;;
+	esac
+
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		--with-appdefaultdir=/etc/X11/app-defaults \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -36,5 +36,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXt)
+			copy @std
+			DEPENDS="xorg-libxcb util-linux-uuid xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXdmcp"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXt xorg-libxcb-dev util-linux-uuid-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-xproto"
+			;;
+	esac
 }

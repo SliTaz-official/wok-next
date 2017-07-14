@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorg-xfs"
+VERSION="1.1.4"
+CATEGORY="x-window"
+SHORT_DESC="X Font Server"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="xfs-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+
+BUILD_DEPENDS="xorg-util-macros xorg-font-util-dev xorg-xproto \
+xorg-libXfont-dev xorg-xtrans"
+PKG_RULE="std"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	touch /root/missing
+
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="xorg-libXfont"
+	CONFIG_FILES="/etc/X11/fs/config"
+}

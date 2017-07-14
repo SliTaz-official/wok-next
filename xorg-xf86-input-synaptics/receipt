@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-input-synaptics"
-VERSION="1.8.3"
+VERSION="1.9.0"
 CATEGORY="x-window"
-SHORT_DESC="Xorg synaptics driver."
+SHORT_DESC="Xorg input driver for touchpads"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -11,23 +11,34 @@ WEB_SITE="https://www.x.org/wiki/"
 TARBALL="xf86-input-synaptics-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-DEPENDS="libevdev libxcb xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-xorg-libXi xorg-libXtst"
-BUILD_DEPENDS="xorg-util-macros xorg-randrproto xorg-inputproto \
-xorg-server-dev xorg-xproto xorg-inputproto libevdev-dev xorg-libXi-dev \
-xorg-libXtst-dev"
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-inputproto xorg-xproto \
+libevdev-dev xorg-libXi-dev xorg-libXtst-dev"
+SPLIT="xorg-xf86-input-synaptics-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ xorg.conf.d/ *.so
+	case $PACKAGE in
+		*-synaptics)
+			copy @std
+			DEPENDS="libevdev xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXi xorg-libXtst xorg-libxcb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-input-synaptics libevdev-dev"
+			;;
+	esac
 }

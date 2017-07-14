@@ -1,29 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xbacklight"
 VERSION="1.2.1"
 CATEGORY="x-window"
-SHORT_DESC="utility for x-server to set the backlight level using the RandR"
+SHORT_DESC="Adjust backlight brightness using RandR extension"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-TAGS="utility xorg power backlight"
 
 TARBALL="xbacklight-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="libxcb xcb-util"
-BUILD_DEPENDS="xorg-util-macros libxcb-dev xcb-util-dev"
-#xorg-libXrandr-dev"
+BUILD_DEPENDS="xorg-util-macros xorg-libxcb-dev xorg-xcb-util-dev \
+xorg-libXrandr-dev"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	copy @std
+	DEPENDS="xorg-libxcb xorg-xcb-util"
+	TAGS="utility xorg power backlight"
 }

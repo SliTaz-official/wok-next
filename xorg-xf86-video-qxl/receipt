@@ -1,0 +1,44 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorg-xf86-video-qxl"
+VERSION="0.1.5"
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for QXL virtual GPU"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="xf86-video-qxl-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+
+BUILD_DEPENDS="xorg-server-dev xorg-libXfont-dev xorg-xf86dgaproto \
+spice-protocol"
+SPLIT="xorg-xf86-video-qxl-dev"
+PKG_RULE="std-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		*-qxl)
+			copy @std
+			DEPENDS="xorg-server eudev"
+			TAGS="xorg display"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-video-qxl xorg-server-dev eudev-dev"
+			;;
+	esac
+}

@@ -1,40 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-input-void"
-VERSION="1.4.0"
+VERSION="1.4.1"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server protocol."
+SHORT_DESC="Dummy/null Xorg input driver"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-SOURCE="xf86-input-void"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.x.org/"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="xf86-input-void-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-DEPENDS="xorg-server"
-BUILD_DEPENDS="xorg-server-dev"
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev"
+SPLIT="xorg-xf86-input-void-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-    cd $src
-    ./configure \
-    	--prefix=/usr \
-    	--sysconfdir=/etc \
-    	--mandir=/usr/share/man \
-    	--localstatedir=/var \
-    	--with-xorg-module-dir=/usr/lib/X11/modules \
-	--enable-evcalibrate \
-    	$CONFIGURE_ARGS &&
-    make &&
-    make DESTDIR=$DESTDIR install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/X11/modules/input/
-    cp -a $install/usr/lib/X11/modules/input/*.so \
-    	$fs/usr/lib/X11/modules/input/
+	case $PACKAGE in
+		*-void)
+			copy @std
+			DEPENDS="xorg-server"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-input-void xorg-server-dev"
+			;;
+	esac
 }
-

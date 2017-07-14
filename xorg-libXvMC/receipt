@@ -1,19 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXvMC"
 VERSION="1.0.9"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server module."
+SHORT_DESC="Xorg server module"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://www.x.org/wiki"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libXvMC-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libXv"
 BUILD_DEPENDS="xorg-libXv-dev"
+SPLIT="xorg-libXvMC-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,13 +22,25 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXvMC)
+			copy @std
+			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXv"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXvMC xorg-libxcb-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXv-dev \
+			xorg-videoproto xorg-xproto"
+			;;
+	esac
 }

@@ -1,28 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xextproto"
 VERSION="7.3.0"
 CATEGORY="development"
 SHORT_DESC="XExt extension headers"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="xextproto-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/proto/$TARBALL"
 
-DEPENDS="xorg-util-macros pkg-config"
 BUILD_DEPENDS="xorg-util-macros coreutils-file-special" # for mkdir
+PKG_RULE="dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.h *.pc
+	copy @dev
+	DEPENDS="xorg-util-macros"
 }

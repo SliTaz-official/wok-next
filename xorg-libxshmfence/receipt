@@ -1,18 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libxshmfence"
 VERSION="1.2"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server Shared Memory Fence library."
+SHORT_DESC="Xorg server Shared Memory Fence library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://www.x.org/wiki"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libxshmfence-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-xproto"
+SPLIT="xorg-libxshmfence-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -20,14 +22,16 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libxshmfence) copy @std;;
+		*-dev)          copy @dev;;
+	esac
 }

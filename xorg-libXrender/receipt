@@ -1,19 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXrender"
 VERSION="0.9.9"
 CATEGORY="x-window"
-SHORT_DESC="X Render Library"
+SHORT_DESC="RENDER extension library"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libXrender-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libX11"
 BUILD_DEPENDS="xorg-libX11-dev xorg-renderproto"
+SPLIT="xorg-libXrender-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,13 +22,23 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXrender)
+			copy @std
+			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXrender xorg-libxcb-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-renderproto xorg-xproto"
+			;;
+	esac
 }

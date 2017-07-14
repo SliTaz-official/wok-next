@@ -1,18 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXScrnSaver"
 VERSION="1.2.2"
 CATEGORY="x-window"
-SHORT_DESC="The XScrnSaver Library"
+SHORT_DESC="MIT-SCREEN-SAVER extension"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 
 TARBALL="libXScrnSaver-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libXext"
 BUILD_DEPENDS="xorg-libXext-dev xorg-scrnsaverproto"
+SPLIT="xorg-libXScrnSaver-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -20,7 +21,6 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -29,5 +29,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXScrnSaver)
+			copy @std
+			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext"
+			PROVIDE="xorg-libXss"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXScrnSaver xorg-libxcb-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-scrnsaverproto"
+			PROVIDE="xorg-libXss-dev"
+			;;
+	esac
 }

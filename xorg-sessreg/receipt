@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-sessreg"
 VERSION="1.1.0"
 CATEGORY="x-window"
-SHORT_DESC="Manage utmpx/wtmpx entries for non-init clients"
+SHORT_DESC="Register X sessions in system utmp/utmpx databases"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -12,17 +12,23 @@ TARBALL="sessreg-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-xproto"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	sed -e 's/\$(CPP) \$(DEFS)/$(CPP) -P $(DEFS)/' -i man/Makefile.in
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	copy @std
 }

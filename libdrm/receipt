@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdrm"
-VERSION="2.4.70"
+VERSION="2.4.75"
 CATEGORY="x-window"
-SHORT_DESC="Freedesktop DRM Library."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Freedesktop DRM Library"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://dri.freedesktop.org/"
 HOST_ARCH="i486 arm"
@@ -12,11 +12,10 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://dri.freedesktop.org/libdrm/$TARBALL"
 
-DEPENDS="glibc-base eudev linux-drm xorg-libpciaccess"
 BUILD_DEPENDS="autoconf automake libtool xorg-util-macros libxslt \
-xorg-libpciaccess-dev cairo-dev eudev-dev libxslt docbook-xsl"
-SPLIT="libdrm-amdgpu libdrm-exynos libdrm-intel libdrm-nouveau libdrm-omap \
-libdrm-radeon libdrm-tegra"
+xorg-libpciaccess-dev cairo-dev eudev-dev libxslt docbook-xsl valgrind-dev"
+SPLIT="libdrm-amdgpu libdrm-etnaviv libdrm-exynos libdrm-intel libdrm-nouveau \
+libdrm-omap libdrm-radeon libdrm-tegra libdrm-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,6 +29,7 @@ compile_rules()
 		--enable-omap-experimental-api \
 		--enable-exynos-experimental-api \
 		--enable-tegra-experimental-api \
+		--enable-etnaviv-experimental-api \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -37,5 +37,47 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy libdrm.so* libkms.so*
+
+	case $PACKAGE in
+		libdrm)
+			copy libdrm.so* libkms.so*
+			DEPENDS="glibc-base eudev linux-drm xorg-libpciaccess"
+			;;
+		*-amdgpu)
+			copy libdrm_amdgpu.so*
+			CAT="x-window|AMDGPU API"
+			;;
+		*-etnaviv)
+			copy libdrm_etnaviv.so*
+			CAT="x-window|Etnaviv API"
+			;;
+		*-exynos)
+			copy libdrm_exynos.so*
+			CAT="x-window|EXYNOS API"
+			;;
+		*-intel)
+			copy libdrm_intel.so*
+			CAT="x-window|Intel API"
+			DEPENDS="libdrm xorg-libpciaccess"
+			;;
+		*-nouveau)
+			copy libdrm_nouveau.so*
+			CAT="x-window|Nouveau API"
+			;;
+		*-omap)
+			copy libdrm_omap.so*
+			CAT="x-window|OMAP API"
+			;;
+		*-radeon)
+			copy libdrm_radeon.so*
+			CAT="x-window|Radeon API"
+			;;
+		*-tegra)
+			copy libdrm_tegra.so*
+			CAT="x-window|Tegra API"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

@@ -1,19 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libxkbfile"
 VERSION="1.0.9"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server keyboard library."
+SHORT_DESC="XKB file handling routines"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://www.x.org/wiki"
+WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libxkbfile-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libX11 libxcb xorg-libXau xorg-libXdmcp"
 BUILD_DEPENDS="xorg-libX11-dev libxcb-dev xorg-libXau-dev xorg-libXdmcp-dev"
+SPLIT="xorg-libxkbfile-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,14 +21,23 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libxkbfile)
+			copy @std
+			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libxkbfile xorg-libxcb-dev xorg-kbproto \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev"
+			;;
+	esac
 }

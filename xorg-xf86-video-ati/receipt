@@ -1,20 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-video-ati"
-VERSION="7.7.0"
+VERSION="7.9.0"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server ATI driver."
+SHORT_DESC="Xorg wrapper driver for ATI video cards"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://www.x.org/wiki/"
-TAGS="xorg display"
+WEB_SITE="https://www.x.org/wiki/ati/"
 
 TARBALL="xf86-video-ati-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-DEPENDS="eudev libdrm-radeon xorg-libpciaccess"
 BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
 xorg-libXrender-dev xorg-libXv-dev libdrm-dev eudev-dev"
+SPLIT="xorg-xf86-video-ati-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,11 +23,23 @@ compile_rules()
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so
+	case $PACKAGE in
+		*-ati)
+			copy @std
+			DEPENDS="eudev libdrm-radeon xorg-libpciaccess"
+			TAGS="xorg display"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-video-ati eudev-dev libdrm-dev \
+			xorg-libpciaccess-dev"
+			;;
+	esac
 }

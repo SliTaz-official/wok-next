@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorg-liblbxutil"
+VERSION="1.1.0"
+CATEGORY="x-window"
+SHORT_DESC="LBX utility routines"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="liblbxutil-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+
+BUILD_DEPENDS="gfortran xorg-xextproto xorg-xproto zlib-dev"
+SPLIT="xorg-liblbxutil-dev"
+PKG_RULE="std-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		*-liblbxutil)
+			copy @std
+			DEPENDS="zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-liblbxutil zlib-dev"
+			;;
+	esac
+}

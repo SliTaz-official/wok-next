@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-input-evdev"
 VERSION="2.10.3"
 CATEGORY="x-window"
-SHORT_DESC="Xorg input evdev driver."
+SHORT_DESC="Generic Linux input driver"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -12,14 +12,12 @@ HOST_ARCH="i486 arm"
 TARBALL="xf86-input-evdev-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-DEPENDS="eudev libevdev mtdev"
 BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-xproto xorg-inputproto \
 xorg-dri3proto eudev-dev libevdev-dev mtdev-dev"
-
 # ARM use build system xorg-server-dev or manually install it in sysroot
-case "$ARCH" in
-	arm) BUILD_DEPENDS="udev-dev" ;;
-esac
+BUILD_DEPENDS_arm="udev-dev"
+SPLIT="xorg-xf86-input-evdev-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,11 +26,21 @@ compile_rules()
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so *.conf
+	case $PACKAGE in
+		*-evdev)
+			copy @std
+			DEPENDS="eudev libevdev mtdev"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-input-evdev eudev-dev libevdev-dev mtdev-dev"
+			;;
+	esac
 }

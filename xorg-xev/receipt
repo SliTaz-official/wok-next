@@ -1,28 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xev"
 VERSION="1.2.2"
 CATEGORY="x-window"
-SHORT_DESC="Print contents of x-server events"
+SHORT_DESC="Print contents of X events"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-TAGS="utility xorg debug"
 
 TARBALL="xev-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libX11 xorg-libXrandr"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXrandr-dev"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	copy @std
+	DEPENDS="xorg-libX11 xorg-libXrandr"
+	TAGS="utility xorg debug"
 }

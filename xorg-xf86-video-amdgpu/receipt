@@ -1,0 +1,44 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorg-xf86-video-amdgpu"
+VERSION="1.3.0"
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for AMD RADEON-based video cards"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+TAGS="xorg display"
+
+TARBALL="xf86-video-amdgpu-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev libdrm-dev"
+SPLIT="xorg-xf86-video-amdgpu-dev"
+PKG_RULE="std-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		*-amdgpu)
+			copy @std
+			DEPENDS="eudev libdrm-amdgpu mesa"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-video-amdgpu eudev-dev expat-dev libdrm-dev \
+			mesa-dev"
+			;;
+	esac
+}

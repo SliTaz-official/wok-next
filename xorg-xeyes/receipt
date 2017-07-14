@@ -1,35 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xeyes"
 VERSION="1.1.1"
 CATEGORY="x-window"
-SHORT_DESC="A follow the mouse X demo."
+SHORT_DESC="Follow the mouse/SHAPE extension X demo"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-SOURCE="xeyes"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://xorg.freedesktop.org/"
-WGET_URL="$WEB_SITE/releases/individual/app/$TARBALL"
+WEB_SITE="https://www.x.org/wiki/"
 
-DEPENDS="xorg-libX11 xorg-libXt xorg-libXext xorg-libXmu xorg-libXrender"
+TARBALL="xeyes-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+
+BUILD_DEPENDS="xorg-util-macros  xorg-libX11-dev xorg-libXt-dev \
+xorg-libXext-dev xorg-libXmu-dev xorg-libXrender-dev"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	chmod +x $fs/usr/bin/*
+	copy @std
+	DEPENDS="xorg-libX11 xorg-libXext xorg-libXmu xorg-libXrender xorg-libXt"
 }
-

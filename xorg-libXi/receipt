@@ -1,19 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXi"
 VERSION="1.7.6"
 CATEGORY="x-window"
-SHORT_DESC="X Input Extension Library"
+SHORT_DESC="X Input Extension library"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
 TARBALL="libXi-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="xorg-libXext"
 BUILD_DEPENDS="xorg-libXext-dev xorg-libXfixes-dev"
+SPLIT="xorg-libXi-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,7 +22,6 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -30,5 +30,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXi)
+			copy @std
+			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXi xorg-libxcb-dev xorg-inputproto \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXfixes-dev"
+			;;
+	esac
 }

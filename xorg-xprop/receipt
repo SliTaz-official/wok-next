@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xprop"
 VERSION="1.2.2"
@@ -12,17 +12,23 @@ HOST_ARCH="i486 arm"
 TARBALL="xprop-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libX11"
 BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-xproto"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	copy @std
+	DEPENDS="xorg-libX11"
 }

@@ -1,27 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-video-intel"
-VERSION="20160902"
+VERSION="20170216"
 CATEGORY="x-window"
-SHORT_DESC="Xorg server Intel driver."
+SHORT_DESC="Xorg driver for Intel integrated graphics chipsets"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://www.x.org/wiki/"
-TAGS="xorg display"
+WEB_SITE="https://www.x.org/wiki/intel/"
 
-TARBALL="xf86-video-intel-$VERSION.tar.bz2"
+TARBALL="xf86-video-intel-$VERSION.tar.xz"
 WGET_URL="http://anduin.linuxfromscratch.org/BLFS/xf86-video-intel/$TARBALL"
 
-DEPENDS="eudev libdrm libdrm-intel libxcb pixman xcb-util xorg-libpciaccess \
-xorg-libX11 xorg-libXau xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
-xorg-libXext xorg-libXfixes xorg-libXi xorg-libXinerama xorg-libXrandr \
-xorg-libXrender xorg-libXScrnSaver xorg-libxshmfence xorg-libXtst xorg-libXv \
-xorg-libXvMC"
-BUILD_DEPENDS="xorg-util-macros eudev-dev xorg-libX11-dev xorg-libXcomposite-dev \
-xorg-libXdamage-dev xorg-libXrender-dev xorg-libXrandr-dev cairo-dev \
-xorg-libxshmfence-dev xorg-libXxf86vm-dev libdrm-dev xorg-libXinerama-dev \
-xorg-libXcursor-dev xorg-libXtst-dev xorg-libXScrnSaver-dev xorg-server-dev \
-xorg-libXvMC-dev xcb-util-dev xorg-libXfont-dev"
+BUILD_DEPENDS="xorg-util-macros eudev-dev xorg-libX11-dev \
+xorg-libXcomposite-dev xorg-libXdamage-dev xorg-libXrender-dev \
+xorg-libXrandr-dev cairo-dev xorg-libxshmfence-dev xorg-libXxf86vm-dev \
+libdrm-dev xorg-libXinerama-dev xorg-libXcursor-dev xorg-libXtst-dev \
+xorg-libXScrnSaver-dev xorg-server-dev xorg-libXvMC-dev xcb-util-dev \
+xorg-libXfont-dev"
+SPLIT="xorg-xf86-video-intel-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,11 +29,30 @@ compile_rules()
 		--enable-kms-only \
 		--enable-uxa \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ libexec/ polkit-1/ *.so*
+	case $PACKAGE in
+		*-intel)
+			copy @std
+			DEPENDS="eudev libdrm libdrm-intel xorg-libX11 xorg-libXScrnSaver \
+			xorg-libXau xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
+			xorg-libXext xorg-libXfixes xorg-libXi xorg-libXinerama \
+			xorg-libXrandr xorg-libXrender xorg-libXtst xorg-libXv \
+			xorg-libXvMC xorg-libpciaccess xorg-libxcb xorg-libxshmfence \
+			xorg-pixman xorg-xcb-util"
+			TAGS="xorg display"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xf86-video-intel eudev-dev libdrm-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXv-dev xorg-libXvMC-dev xorg-libpciaccess-dev \
+			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev"
+			;;
+	esac
 }

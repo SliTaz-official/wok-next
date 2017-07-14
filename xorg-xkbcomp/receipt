@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-xkbcomp"
-VERSION="1.3.1"
+VERSION="1.4.0"
 CATEGORY="x-window"
-SHORT_DESC="XKB keymap compiler"
+SHORT_DESC="Compile XKB keyboard description"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -12,18 +12,33 @@ HOST_ARCH="i486 arm"
 TARBALL="xkbcomp-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libX11 xorg-libxkbfile"
-# xkbcomp.pc requires xorg-libX11-dev xorg-libxkbfile-dev xorg-xproto
 BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-libxkbfile-dev xorg-xproto"
+SPLIT="xorg-xkbcomp-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ lib/
+	case $PACKAGE in
+		*-xkbcomp)
+			copy @std
+			DEPENDS="xorg-libX11 xorg-libxkbfile"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-xkbcomp xorg-libX11-dev xorg-libxkbfile-dev \
+			xorg-xproto"
+			;;
+	esac
 }

@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-luit"
 VERSION="1.1.1"
 CATEGORY="x-window"
-SHORT_DESC="Locale and ISO 2022 support for Unicode terminals"
+SHORT_DESC="Convert terminal i/o from legacy encodings to UTF-8"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -11,8 +11,8 @@ WEB_SITE="https://www.x.org/wiki/"
 TARBALL="luit-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
-DEPENDS="xorg-libfontenc"
 BUILD_DEPENDS="xorg-util-macros xorg-libfontenc-dev xorg-libX11-dev"
+PKG_RULE="std"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -24,11 +24,17 @@ compile_rules()
 	sed -i -e "s@#ifdef HAVE_CONFIG_H@$line1\n$line2\n$line3\n$line4\n\n&@" sys.c
 	unset line1 line2 line3 line4
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	copy @std
+	DEPENDS="xorg-libfontenc"
 }

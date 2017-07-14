@@ -1,0 +1,65 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorg-libxcb"
+VERSION="1.12"
+CATEGORY="x-window"
+SHORT_DESC="A C binding to the X11 protocol"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://xcb.freedesktop.org/"
+HOST_ARCH="i486 arm"
+
+TARBALL="libxcb-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
+
+BUILD_DEPENDS="libxslt-dev xorg-xcb-proto xorg-libXau-dev xorg-libXdmcp-dev \
+autoconf automake libtool"
+SPLIT="xorg-libxcb-dev"
+PKG_RULE="std-dev"
+
+# Handle SliTaz arch
+case "$SLITAZ_ARCH" in
+	arm*) VERSION="1.9.1";;
+esac
+case "$ARCH" in
+	arm*) # We need host xcb-proto libxslt-dev file installed
+		VERSION="1.9.1"
+		TARBALL="libxcb-$VERSION.tar.bz2"
+		WGET_URL="https://xcb.freedesktop.org/dist/$TARBALL"
+		BUILD_DEPENDS="libxslt-dev xorg-xcb-proto xorg-libXau-dev xorg-libXdmcp-dev"
+		;;
+esac
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# Package "libpthread-stubs" no more needed:
+	# our platform already supply all the necessary pthread stubs.
+	sed -i "s|pthread-stubs||" $src/configure.ac
+
+	autoreconf -fi &&
+	./configure \
+		--enable-xinput \
+		--enable-xprint \
+		--docdir='${datadir}'/doc/$PACKAGE-$VERSION \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		*-libxcb)
+			copy @std
+			DEPENDS="xorg-libXau xorg-libXdmcp"
+			PROVIDE="libxcb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libxcb xorg-libXau-dev xorg-libXdmcp-dev"
+			PROVIDE="libxcb-dev"
+			;;
+	esac
+}

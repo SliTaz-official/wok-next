@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libXdmcp"
 VERSION="1.1.2"
 CATEGORY="x-window"
-SHORT_DESC="X Display Manager Control Protocol library"
+SHORT_DESC="X Display Manager Control Protocol routines"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
@@ -12,8 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="libXdmcp-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="xorg-xproto"
+SPLIT="xorg-libXdmcp-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -21,7 +22,6 @@ compile_rules()
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -30,5 +30,13 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-libXdmcp)
+			copy @std
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xorg-libXdmcp xorg-xproto"
+			;;
+	esac
 }

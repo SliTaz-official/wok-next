@@ -1,11 +1,11 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-font-util"
 VERSION="1.3.1"
 CATEGORY="x-window"
 SHORT_DESC="Font utilities dirs"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 HOST_ARCH="i486 arm"
 
@@ -13,6 +13,8 @@ TARBALL="font-util-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/font/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros"
+SPLIT="xorg-font-util-dev"
+PKG_RULE="std-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,5 +30,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ fonts/
+	case $PACKAGE in
+		*-font-util) copy @std;;
+		*-dev)       copy @dev;;
+	esac
 }
