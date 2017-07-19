@@ -1,32 +1,63 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-i18n-extra"
-VERSION="4.2"
+VERSION="6.0"
 CATEGORY="meta"
-SHORT_DESC="SliTaz internationalization meta package to build extra locale pack."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz internationalization"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 
 # Bdeps ensure packages are built so we can get generated po files.
-BUILD_DEPENDS="gimp mplayer xine-ui abiword gnumeric sylpheed gftp geany"
+#BUILD_DEPENDS="gimp mplayer xine-ui abiword gnumeric sylpheed gftp geany"
+
+SPLIT="locale-ar-extra locale-ca-extra locale-cs-extra locale-da-extra \
+locale-de-extra locale-el-extra locale-es-extra locale-fr-extra \
+locale-hu-extra locale-id-extra locale-it-extra locale-pl-extra \
+locale-pt-extra locale-pt_BR-extra locale-ru-extra locale-sl-extra \
+locale-sv-extra locale-zh_CN-extra locale-zh_TW-extra"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	. $stuff/locale-pack.conf
-	for p in $EXTRA_PKGS
-	do
-		[ ! -d "$WOK/$p/install" ] && echo "Missing in wok: $p"
-	done
-	# Cook all extra locale pack.
-	for i in $LOCALE_PACK
-	do
-		if [ -x /usr/bin/cook ]; then
-			cook locale-$i-extra
-		elif [ -x /usr/bin/tazwok ]; then
-			tazwok cook locale-$i-extra
-		fi
-	done
-	mkdir -p $fs/usr
+	case $PACKAGE in
+		slitaz-i18n-extra)
+			. $stuff/locale-pack.conf
+			for p in $EXTRA_PKGS; do
+				[ -d "$WOK/$p/install" ] || echo "Missing in wok: $p"
+			done
+			CAT="meta|meta package to build extra locale pack"
+			;;
+		*)
+			lang_code="$(echo $PACKAGE | cut -d- -f2)"
+			case $lang_code in
+				ar) l="Arabic";;
+				ca) l="Catalan";;
+				cs) l="Czech";;
+				da) l="Danish";;
+				de) l="German";;
+				el) l="Greek";;
+				es) l="Spanish";;
+				fr) l="French";;
+				hu) l="Hungarian";;
+				id) l="Indonesian";;
+				it) l="Italian";;
+				pl) l="Polish";;
+				pt) l="Portuguese";;
+				pt_BR) l="Brazilian Portuguese";;
+				ru) l="Russian";;
+				sl) l="Slovenian";;
+				sv) l="Swedish";;
+				zh_CN) l="Simplified Chinese";;
+				zh_TW) l="Traditional Chinese";;
+			esac
+			CAT="localization|extra $l locale pack"
+			DEPENDS="locale-$lang_code"
+			LOCALE="$lang_code"
+			. $stuff/locale-pack.functions
+			. $stuff/locale-pack.conf
+			mk_locale_dir
+			get_extra_messages
+			;;
+	esac
 }

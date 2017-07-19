@@ -1,30 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libcss"
-VERSION="0.1.2"
+VERSION="0.6.1"
 CATEGORY="system-tools"
-SHORT_DESC="CSS Parser"
+SHORT_DESC="CSS parser and selection engine"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.netsurf-browser.org/projects/libcss/"
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
 #HOST_ARCH="i486 arm"
 
-DEPENDS="libparserutils libwapcaplet"
-BUILD_DEPENDS="libwapcaplet-dev libparserutils-dev"
+TARBALL="$PACKAGE-$VERSION-src.tar.gz"
+WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+
+BUILD_DEPENDS="netsurf-buildsystem libwapcaplet-dev libparserutils-dev"
+SPLIT="libcss-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make COMPONENT_TYPE=lib-shared && 
-	make PREFIX=/usr DESTDIR=$DESTDIR install
+	sed 's:_BSD_SOURCE:_DEFAULT_SOURCE:' -i Makefile &&
+	export CFLAGS="-Wno-error=unused-but-set-variable" &&
+
+	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" &&
+	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" \
+		DESTDIR="$install" install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $src/*-lib-shared/*.so*  $fs/usr/lib
+	case $PACKAGE in
+		libcss)
+			copy @std
+			DEPENDS="libparserutils libwapcaplet"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libcss libparserutils-dev libwapcaplet-dev"
+			;;
+	esac
 }
-

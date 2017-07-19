@@ -1,26 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libparserutils"
-VERSION="0.1.1"
+VERSION="0.2.3"
 CATEGORY="system-tools"
-SHORT_DESC="Various pieces of functionality that are useful for parsers."
+SHORT_DESC="Library for building efficient parsers"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.netsurf-browser.org/projects/libparserutils/"
+HOST_ARCH="i486 arm"
+
 TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
-HOST_ARCH="i486 arm"
+
+BUILD_DEPENDS="netsurf-buildsystem"
+SPLIT="libparserutils-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make install DESTDIR=$DESTDIR PREFIX=/usr &&
-	make install COMPONENT_TYPE=lib-shared DESTDIR=$DESTDIR PREFIX=/usr 
+	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile &&
+	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" &&
+	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" \
+		DESTDIR="$install" install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libparserutils) copy @std;;
+		*-dev)          copy @dev;;
+	esac
 }

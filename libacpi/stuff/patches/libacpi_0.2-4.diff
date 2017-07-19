@@ -1,0 +1,458 @@
+--- libacpi-0.2.orig/libacpi.h
++++ libacpi-0.2/libacpi.h
+@@ -12,6 +12,8 @@
+ #define __LIBACPI_H__
+ 
+ #define PROC_ACPI "/proc/acpi/"
++#define SYS_POWER "/sys/class/power_supply"
++
+ #define LINE_MAX 256
+ #define MAX_NAME 512
+ #define MAX_BUF 1024
+@@ -177,6 +179,7 @@
+ 	int fan_count;                /**< number of found fans */
+ 	int temperature;              /**< system temperature if we only have on thermal zone */
+ 	adapter_t adapt;              /**< ac adapter */
++	int sysstyle;
+ } global_t;
+ 
+ /**
+@@ -239,6 +242,7 @@
+  * Looks up if the ac adapter is plugged in or not
+  * and sets the values in a struct
+  * @param globals pointer to the global acpi structure
++ * @param sysstyle whether or not to use the /sys interface
+  */
+ void read_acpi_acstate(global_t *globals);
+ /**
+--- libacpi-0.2.orig/libacpi.c
++++ libacpi-0.2/libacpi.c
+@@ -14,8 +14,9 @@
+ #include "libacpi.h"
+ #include "list.h"
+ 
+-static int read_acpi_battinfo(const int num);
+-static int read_acpi_battalarm(const int num);
++
++static int read_acpi_battinfo(const int num, const int sysstyle);
++static int read_acpi_battalarm(const int num, const int sysstyle);
+ static int read_acpi_battstate(const int num);
+ static void read_acpi_thermalzones(global_t *globals);
+ 
+@@ -144,8 +145,15 @@
+ 	int i = 0;
+ 
+ 	globals->batt_count = 0;
++	globals->sysstyle = 0;
+ 	if((lst = dir_list(PROC_ACPI "battery")) == NULL || !lst->top)
+-		return NOT_SUPPORTED;
++	{
++		/* check for new Linux 2.6.24+ layout */
++		if((lst = dir_list(SYS_POWER)) == NULL || !lst->top)
++			return NOT_SUPPORTED;
++		else
++			globals->sysstyle = 1;
++	}
+ 	for(node = lst->top; node; node=node->next){
+ 		if((names[globals->batt_count] = strdup(node->name)) == NULL){
+ 			delete_list(lst);
+@@ -174,11 +182,20 @@
+ 	for (i=0; i < globals->batt_count && i < MAX_ITEMS; i++){
+ 		binfo = &batteries[i];
+ 		snprintf(binfo->name, MAX_NAME, "%s", names[i]);
+-		snprintf(binfo->state_file, MAX_NAME, PROC_ACPI "battery/%s/state", names[i]);
+-		snprintf(binfo->info_file, MAX_NAME, PROC_ACPI "battery/%s/info", names[i]);
+-		snprintf(binfo->alarm_file, MAX_NAME, PROC_ACPI "battery/%s/alarm", names[i]);
+-		read_acpi_battinfo(i);
+-		read_acpi_battalarm(i);
++		if(globals->sysstyle)
++		{
++			snprintf(binfo->state_file, MAX_NAME, "/%s/present", names[i]);
++			snprintf(binfo->info_file, MAX_NAME, SYS_POWER "/%s", names[i]);
++			snprintf(binfo->alarm_file, MAX_NAME, SYS_POWER "/%s/alarm", names[i]);
++		}
++		else
++		{
++			snprintf(binfo->state_file, MAX_NAME, PROC_ACPI "battery/%s/state", names[i]);
++			snprintf(binfo->info_file, MAX_NAME, PROC_ACPI "battery/%s/info", names[i]);
++			snprintf(binfo->alarm_file, MAX_NAME, PROC_ACPI "battery/%s/alarm", names[i]);
++		}
++		read_acpi_battinfo(i, globals->sysstyle);
++		read_acpi_battalarm(i, globals->sysstyle);
+ 		free(names[i]);
+ 	}
+ 	delete_list(lst);
+@@ -196,11 +213,22 @@
+ 		ac->ac_state = P_ERR;
+ 		return;
+ 	}
+-	if((tmp = scan_acpi_value(buf, "state:")) && !strncmp(tmp, "on-line", 7))
+-		ac->ac_state = P_AC;
+-	else if(tmp && !strncmp(tmp, "off-line", 8))
+-		ac->ac_state = P_BATT;
+-	else ac->ac_state = P_ERR;
++	if(globals->sysstyle)
++	{
++		if(!strcmp(buf, "1"))
++			ac->ac_state = P_AC;
++		else if(!strcmp(buf, "0"))
++			ac->ac_state = P_BATT;
++		else ac->ac_state = P_ERR;
++	}
++	else
++	{
++		if((tmp = scan_acpi_value(buf, "state:")) && !strncmp(tmp, "on-line", 7))
++			ac->ac_state = P_AC;
++		else if(tmp && !strncmp(tmp, "off-line", 8))
++			ac->ac_state = P_BATT;
++		else ac->ac_state = P_ERR;
++	}
+ 	free(buf);
+ 	free(tmp);
+ }
+@@ -212,14 +240,22 @@
+ 	list_t *lst = NULL;
+ 	adapter_t *ac = &globals->adapt;
+ 
++	globals->sysstyle = 0;
+ 	if((lst = dir_list(PROC_ACPI "ac_adapter")) == NULL || !lst->top)
+-		return NOT_SUPPORTED;
+-
++	{
++		if((lst = dir_list(SYS_POWER "/AC")) == NULL || !lst->top)
++			return NOT_SUPPORTED;
++		else
++			globals->sysstyle = 1;
++	}
+ 	if((!lst->top->name || ((ac->name = strdup(lst->top->name)) == NULL))){
+ 		delete_list(lst);
+ 		return ALLOC_ERR;
+ 	}
+-	snprintf(ac->state_file, MAX_NAME, PROC_ACPI "ac_adapter/%s/state", ac->name);
++	if(globals->sysstyle)
++		snprintf(ac->state_file, MAX_NAME, SYS_POWER "/AC/online");
++	else
++		snprintf(ac->state_file, MAX_NAME, PROC_ACPI "ac_adapter/%s/state", ac->name);
+ 	delete_list(lst);
+ 	read_acpi_acstate(globals);
+ 	return SUCCESS;
+@@ -450,7 +486,7 @@
+ 
+ /* read alarm capacity, return 0 on success, negative values on error */
+ static int
+-read_acpi_battalarm(const int num){
++read_acpi_battalarm(const int num, const int sysstyle){
+ 	char *buf = NULL;
+ 	char *tmp = NULL;
+ 	battery_t *info = &batteries[num];
+@@ -458,10 +494,22 @@
+ 	if((buf = get_acpi_content(info->alarm_file)) == NULL)
+ 		return NOT_SUPPORTED;
+ 
+-	if((tmp = scan_acpi_value(buf, "alarm:")) && tmp[0] != 'u')
+-		info->alarm = strtol(tmp, NULL, 10);
++	if(sysstyle)
++	{
++		if(!strcmp(buf, "0"))
++			info->alarm = 0;
++		else if(!strcmp(buf, "1"))
++			info->alarm = 1;
++		else
++			info->alarm = NOT_SUPPORTED;
++	}
+ 	else
+-		info->alarm = NOT_SUPPORTED;
++	{
++		if((tmp = scan_acpi_value(buf, "alarm:")) && tmp[0] != 'u')
++			info->alarm = strtol(tmp, NULL, 10);
++		else
++			info->alarm = NOT_SUPPORTED;
++	}
+ 	free(buf);
+ 	free(tmp);
+ 	return SUCCESS;
+@@ -469,11 +517,58 @@
+ 
+ /* reads static values for a battery (info file), returns SUCCESS */
+ static int
+-read_acpi_battinfo(const int num){
++read_acpi_battinfo(const int num, const int sysstyle){
+ 	char *buf = NULL;
+ 	char *tmp = NULL;
+ 	battery_t *info = &batteries[num];
+ 	int i = 0;
++	char sysfile[MAX_NAME];
++
++	if(sysstyle)
++	{
++		snprintf(sysfile, MAX_NAME, "%s/present", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		if(!strcmp(buf, "1")) {
++			info->present = 1;
++		} else {
++			info->present = 0;
++			return NOT_PRESENT;
++		}
++
++		snprintf(sysfile, MAX_NAME, "%s/charge_full_design", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		info->design_cap = strtol(buf, NULL, 10);
++
++		snprintf(sysfile, MAX_NAME, "%s/charge_full", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		info->last_full_cap = strtol(buf, NULL, 10);
++
++		snprintf(sysfile, MAX_NAME, "%s/charge_now", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		info->remaining_cap = strtol(buf, NULL, 10);
++
++		snprintf(sysfile, MAX_NAME, "%s/voltage_min_design", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		info->design_voltage = strtol(buf, NULL, 10);
++
++		snprintf(sysfile, MAX_NAME, "%s/voltage_now", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		info->present_voltage = strtol(buf, NULL, 10);
++
++		/* FIXME: is rate == current here? */
++		snprintf(sysfile, MAX_NAME, "%s/current_now", info->info_file);
++		if((buf = get_acpi_content(sysfile)) == NULL)
++			return NOT_SUPPORTED;
++		info->present_rate = strtol(buf, NULL, 10);
++
++		return SUCCESS;
++	}
+ 
+ 	if((buf = get_acpi_content(info->info_file)) == NULL)
+ 		return NOT_SUPPORTED;
+@@ -608,7 +703,7 @@
+ read_acpi_batt(const int num){
+ 	if(num > MAX_ITEMS) return ITEM_EXCEED;
+ 	read_acpi_battstate(num);
+-	read_acpi_battalarm(num);
++	read_acpi_battalarm(num, 0);
+ 	calc_remain_perc(num);
+ 	calc_remain_chargetime(num);
+ 	calc_remain_time(num);
+--- libacpi-0.2.orig/test-libacpi.c
++++ libacpi-0.2/test-libacpi.c
+@@ -46,6 +46,7 @@
+ 			read_acpi_batt(i);
+ 
+ 			if(binfo->present)
++			{
+ 				printf("\n%s:\tpresent: %d\n"
+ 						"\tdesign capacity: %d\n"
+ 						"\tlast full capacity: %d\n"
+@@ -65,6 +66,9 @@
+ 						binfo->batt_state, binfo->percentage, 
+ 						binfo->charge_time / 60, binfo->charge_time % 60,
+ 						binfo->remaining_time / 60, binfo->remaining_time % 60);
++				if(binfo->alarm)
++					printf("%s: Alarm!\n", binfo->name);
++			}
+ 		}
+ 	} else printf("Battery information:\tnot supported\n");
+ 	
+--- libacpi-0.2.orig/debian/control
++++ libacpi-0.2/debian/control
+@@ -0,0 +1,30 @@
++Source: libacpi
++Priority: optional
++Maintainer: Nico Golde <nion@debian.org>
++Build-Depends: debhelper (>= 5)
++Standards-Version: 3.7.3
++Section: libs
++Homepage: http://www.ngolde.de/libacpi.html
++
++Package: libacpi-dev
++Section: libdevel
++Architecture: i386 ia64 amd64
++Depends: libacpi0 (= ${binary:Version})
++Description: development files for libacpi
++ libacpi is a general purpose shared library for programs gathering
++ ACPI data on Linux. It implements thermal zones, battery information,
++ fan information and AC states.
++ .
++ This package contains the header files and static libraries needed to
++ compile applications or shared objects that use libacpi.
++
++Package: libacpi0
++Section: libs
++Architecture: i386 ia64 amd64
++Depends: ${shlibs:Depends}, ${misc:Depends}
++Description: general purpose library for ACPI
++ libacpi is a general purpose shared library for programs gathering
++ ACPI data on Linux. It implements thermal zones, battery information,
++ fan information and AC states.
++ .
++ This package contains the shared library for libacpi.
+--- libacpi-0.2.orig/debian/libacpi-dev.install
++++ libacpi-0.2/debian/libacpi-dev.install
+@@ -0,0 +1,4 @@
++usr/include/*
++usr/lib/lib*.a
++usr/lib/lib*.so
++usr/share/man/man3/libacpi.3
+--- libacpi-0.2.orig/debian/compat
++++ libacpi-0.2/debian/compat
+@@ -0,0 +1 @@
++5
+--- libacpi-0.2.orig/debian/docs
++++ libacpi-0.2/debian/docs
+@@ -0,0 +1 @@
++README
+--- libacpi-0.2.orig/debian/changelog
++++ libacpi-0.2/debian/changelog
+@@ -0,0 +1,44 @@
++libacpi (0.2-4) unstable; urgency=low
++
++  * Fix interface incompatibilities introduced by last patch (Closes: #464276).
++
++ -- Nico Golde <nion@debian.org>  Wed, 06 Feb 2008 11:31:13 +0100
++
++libacpi (0.2-3) unstable; urgency=low
++
++  * Temporary patch libacpi to make battery and ac status work with
++    kernels >= 2.6.24. There will be a fixed upstream version
++    which uses sysfs and procfs as fallback soon. Many thanks
++    to Joseph Spillner for the patch! (Closes: #463986, #463982).
++
++ -- Nico Golde <nion@debian.org>  Mon, 04 Feb 2008 22:35:35 +0100
++
++libacpi (0.2-2) unstable; urgency=low
++
++  * Bumped Standards Version, no changes needed.
++  * Switched from Homepage tag to Homepage control field.
++
++ -- Nico Golde <nion@debian.org>  Wed, 02 Jan 2008 14:42:01 +0100
++
++libacpi (0.2-1) unstable; urgency=low
++
++  * New upstream release.
++    Fixed double header inclusion (Closes: #433399).
++
++ -- Nico Golde <nion@debian.org>  Sun, 29 Jul 2007 14:13:59 +0200
++
++libacpi (0.1-2) unstable; urgency=low
++
++  * Just build this package for amd64,i386 and ia64 since
++    the other archs have on ACPI support (Closes: #432432).
++  * Switched from Source-Version to binary:Version.
++  * Do not suppress make clean output any longer.
++
++ -- Nico Golde <nion@debian.org>  Tue, 10 Jul 2007 18:18:08 +0200
++
++libacpi (0.1-1) unstable; urgency=low
++
++  * Initial release (Closes: #429573).
++
++ -- Nico Golde <nion@debian.org>  Mon, 18 Jun 2007 22:11:10 +0200
++
+--- libacpi-0.2.orig/debian/libacpi0.install
++++ libacpi-0.2/debian/libacpi0.install
+@@ -0,0 +1 @@
++usr/lib/lib*.so.*
+--- libacpi-0.2.orig/debian/copyright
++++ libacpi-0.2/debian/copyright
+@@ -0,0 +1,34 @@
++This package was debianized by Nico Golde <nion@debian.org> on
++Mon, 18 Jun 2007 22:11:10 +0200.
++
++It was downloaded from http://www.ngolde.de/libacpi.html
++
++Upstream Author: Nico Golde <nico@ngolde.de>
++
++Copyright: 2007 Nico Golde
++
++License:
++
++   Copyright (C) 2007 Nico Golde <nico@ngolde.de>
++
++   Permission is hereby granted, free of charge, to any person obtaining a
++   copy of this software and associated documentation files (the
++   "Software"), to deal in the Software without restriction, including
++   without limitation the rights to use, copy, modify, merge, publish,
++   distribute, sublicense, and/or sell copies of the Software, and to
++   permit persons to whom the Software is furnished to do so, subject to
++   the following conditions:
++
++   The above copyright notice and this permission notice shall be included
++   in all copies or substantial portions of the Software.
++
++   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
++   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
++   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++
++The Debian packaging is (C) 2007, Nico Golde <nion@debian.org> and
++is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+--- libacpi-0.2.orig/debian/rules
++++ libacpi-0.2/debian/rules
+@@ -0,0 +1,57 @@
++#!/usr/bin/make -f
++#export DH_VERBOSE=1
++
++CFLAGS = -Wall -g
++
++ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
++	CFLAGS += -O0
++else
++	CFLAGS += -O2
++endif
++
++build: build-stamp
++build-stamp:
++	dh_testdir
++	$(MAKE)
++
++	touch $@
++
++clean:
++	dh_testdir
++	dh_testroot
++	rm -f build-stamp
++
++	$(MAKE) clean
++	dh_clean 
++
++install: build
++	dh_testdir
++	dh_testroot
++	dh_clean -k 
++	dh_installdirs
++
++	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr install
++
++binary-indep: build install
++
++binary-arch: build install
++	dh_testdir
++	dh_testroot
++	dh_installchangelogs CHANGES
++	dh_installdocs doc/
++	dh_installexamples test-libacpi.c
++	dh_install --sourcedir=debian/tmp --list-missing
++	dh_link
++	dh_strip
++	dh_compress
++	dh_fixperms
++	dh_makeshlibs 
++	dh_makeshlibs
++	dh_installdeb
++	dh_shlibdeps
++	dh_gencontrol
++	dh_md5sums
++	dh_builddeb
++
++binary: binary-indep binary-arch
++.PHONY: build clean binary-indep binary-arch binary install

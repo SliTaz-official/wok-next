@@ -1,27 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libwapcaplet"
-VERSION="0.1.1"
+VERSION="0.4.0"
 CATEGORY="system-tools"
-SHORT_DESC="String internment library"
+SHORT_DESC="String internment library with rapid string comparison"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WEB_SITE="http://www.netsurf-browser.org/projects/libwapcaplet/"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION-src.tar.gz"
+WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+
+BUILD_DEPENDS="netsurf-buildsystem"
+SPLIT="libwapcaplet-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make COMPONENT_TYPE=lib-shared && 
-	make PREFIX=/usr DESTDIR=$DESTDIR install
+	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile &&
+
+	make \
+		PREFIX=/usr \
+		COMPONENT_TYPE="lib-shared" &&
+	make install \
+		INCLUDEDIR=include \
+		LIBDIR=lib \
+		PREFIX=/usr \
+		DESTDIR="$install" \
+		COMPONENT_TYPE="lib-shared"
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $src/*-lib-shared/*.so*  $fs/usr/lib
+	case $PACKAGE in
+		libwapcaplet) copy @std;;
+		*-dev)        copy @dev;;
+	esac
 }
-

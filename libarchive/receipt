@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libarchive"
 VERSION="3.2.2"
 CATEGORY="system-tools"
-SHORT_DESC="C librairy and command line tool for reading archive."
+SHORT_DESC="C librairy and command line tool for reading archive"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.libarchive.org/"
@@ -11,13 +11,14 @@ WEB_SITE="http://www.libarchive.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
-DEPENDS="acl attr bzlib libcrypto liblzma libxml2 lz4-lib lzo nettle zlib"
-BUILD_DEPENDS="e2fsprogs-dev zlib-dev bzip2-dev gettext lz4-dev liblzma-dev \
+BUILD_DEPENDS="e2fsprogs-dev zlib-dev bzip2-dev gettext lz4-dev xz-dev \
 lzo-dev libxml2-dev expat-dev attr-dev acl-dev nettle-dev openssl-dev"
+SPLIT="libarchive-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/libarchive.html
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
@@ -27,5 +28,16 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ *.so*
+	case $PACKAGE in
+		libarchive)
+			copy @std
+			DEPENDS="acl attr bzlib libcrypto liblzma libxml2 lz4-lib lzo \
+			nettle zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libarchive acl-dev attr-dev bzip2-dev libcrypto-dev \
+			libxml2-dev lz4-dev lzo-dev nettle-dev xz-dev zlib-dev"
+			;;
+	esac
 }

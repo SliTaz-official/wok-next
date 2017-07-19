@@ -8,33 +8,46 @@ MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://btrfs.wiki.kernel.org/index.php/Main_Page"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git/snapshot/$TARBALL"
+TARBALL="$PACKAGE-v$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/$TARBALL"
 
 BUILD_DEPENDS="util-linux-uuid-dev e2fsprogs e2fsprogs-dev zlib-dev acl-dev \
-util-linux-blkid-dev lzo-dev autoconf automake"
-SPLIT="btrfs-libs btrfs-mkfs btrfs-dev"
+util-linux-blkid-dev lzo-dev" #autoconf automake"
+SPLIT="btrfs-mkfs btrfs-progs btrfs-libs btrfs-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./autogen.sh
+	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/btrfs-progs.html
+	sed -i '1,106 s/\.gz//g' Documentation/Makefile.in &&
+
 	./configure \
 		--prefix=/usr \
-		--sysconfdir=/etc \
+		--bindir=/bin \
+		--libdir=/lib \
 		--disable-documentation \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR prefix=/usr -j1 install
+	make install &&
+
+	mkdir -p $install/usr/lib/ &&
+	ln -sfv ../../lib/$(readlink $install/lib/libbtrfs.so) \
+		$install/usr/lib/libbtrfs.so &&
+	rm -v $install/lib/libbtrfs.a $install/lib/libbtrfs.so
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	case $PACKAGE in
+		btrfs-mkfs)
+			copy mkfs.btrfs
+			CAT="system-tools|creation tool"
+			DEPENDS="lzo util-linux-blkid util-linux-uuid zlib"
+			;;
 		btrfs-progs)
 			copy bin/
-			rm $fs/usr/bin/mkfs.btrfs
+			remove_already_packed
 			TAGS="filesystem fault-tolerance"
 			PROVIDE="btrfs-tools"
 			DEPENDS="e2fsprogs libcomerr lzo util-linux-blkid util-linux-uuid \
@@ -43,11 +56,6 @@ genpkg_rules()
 		btrfs-libs)
 			copy *.so*
 			CAT="system-tools|library"
-			DEPENDS="lzo util-linux-blkid util-linux-uuid zlib"
-			;;
-		btrfs-mkfs)
-			copy mkfs.btrfs
-			CAT="system-tools|creation tool"
 			DEPENDS="lzo util-linux-blkid util-linux-uuid zlib"
 			;;
 		*-dev) copy @dev;;

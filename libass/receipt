@@ -1,31 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libass"
-VERSION="0.10.0"
+VERSION="0.13.6"
 CATEGORY="multimedia"
 SHORT_DESC="A portable library for SSA/ASS subtitles rendering"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://code.google.com/p/libass/"
-WGET_URL="http://libass.googlecode.com/files/$TARBALL"
+WEB_SITE="https://github.com/libass/libass"
 
-DEPENDS="enca fontconfig libpng fribidi"
-BUILD_DEPENDS="enca-dev freetype-dev fontconfig-dev libpng-dev \
-expat-dev fribidi-dev pkg-config libxml2-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/libass/libass/releases/download/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="yasm-dev freetype-dev fribidi-dev fontconfig-dev"
+SPLIT="libass-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libass.html
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libass)
+			copy @std
+			DEPENDS="bzlib fontconfig freetype fribidi glib libharfbuzz \
+			liblzma libpng16 libxml2 pcre zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libass bzip2-dev fontconfig-dev freetype-dev fribidi-dev \
+			glib-dev harfbuzz-dev libpng16-dev libxml2-dev pcre-dev xz-dev \
+			zlib-dev"
+			;;
+	esac
 }
-

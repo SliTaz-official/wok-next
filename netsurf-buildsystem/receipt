@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="netsurf-buildsystem"
+VERSION="1.5"
+CATEGORY="development"
+SHORT_DESC="The Netsurf buildsystem"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://source.netsurf-browser.org/buildsystem.git/"
+HOST_ARCH="i486 arm"
+
+TARBALL="buildsystem-$VERSION.tar.gz"
+WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i 's|-Werror||' Makefile &&
+	make         PREFIX=/usr COMPONENT_TYPE='lib-shared' &&
+	make         PREFIX=/usr COMPONENT_TYPE='lib-static' &&
+	make install PREFIX=/usr COMPONENT_TYPE='lib-shared' DESTDIR="$install" &&
+	make install PREFIX=/usr COMPONENT_TYPE='lib-static' DESTDIR="$install"
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std @dev
+	DEPENDS="perl"
+}
