@@ -1,58 +1,57 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="c_icap"
 VERSION="0.1.7"
 CATEGORY="network"
-SHORT_DESC="Implementation of an ICAP server."
+SHORT_DESC="Implementation of an ICAP server"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://c-icap.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/c-icap/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="zlib-dev"
+SPLIT="c_icap-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure  --sysconfdir=/etc/c-icap \
+	./configure \
+		--sysconfdir=/etc/c-icap \
 		--enable-large-files \
-		$CONFIGURE_ARGS && make && make install
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	mkdir -p $install/etc/init.d/ $install/var/log/c-icap/ &&
+	install -m755 $stuff/c-icapd $install/etc/init.d &&
+
+	# Fix config file
+	sed -i -e "s|YourServerName|localhost|;
+		s|/usr/var/log|/var/log/c-icap/|;
+		s|/usr/var/run/|/var/run/c-icap|;
+		s|/usr/etc|/etc/c-icap|" $install/etc/c-icap/c-icap.conf &&
+	chmod -x $install/etc/c-icap/*
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/$PACKAGE \
-		$fs/etc/init.d \
-		$fs/var/log/c-icap
-						
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/$PACKAGE/*.so* $fs/usr/lib/$PACKAGE
-	
-	cp -pa $install/etc $fs/
-	cp -pa $stuff/c-icapd $fs/etc/init.d
-	
-	# Cleanup
-	rm -f $fs/usr/bin/c-icap-config
-	
-	# Fix config file
-	sed -i -e "s|YourServerName|localhost|" \
-		-e "s|/usr/var/log|/var/log/c-icap/|" \
-		-e "s|/usr/var/run/|/var/run/c-icap|" \
-		-e "s|/usr/etc|/etc/c-icap|" $fs/etc/c-icap/c-icap.conf
-	chmod -x $fs/etc/c-icap/*
-		
+	case $PACKAGE in
+		c_icap)
+			copy @std var/log/c-icap/
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_c_icap() {
 	[ -z "$1" -a ! -s /aufs-umount.sh ] && /etc/init.d/c-icapd start
-			
-	cat <<EOF
-	
+
+	[ -n "$quiet" ] || cat <<EOF
+
 ----
 To start $PACKAGE server you can run :
 
@@ -63,16 +62,14 @@ Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
 EOF
 }
 
-pre_remove(){
-		
-		echo "Stopping daemon..."
-		if (ps | grep -q c-icap); then
-			chroot "$1/" /etc/init.d/c-icapd stop
-		fi
+pre_remove_c_icap() {
+	echo "Stopping daemon..."
+	if (ps | grep -q c-icap); then
+		chroot "$1/" /etc/init.d/c-icapd stop
+	fi
 }
-post_remove()
-{
+post_remove_c_icap() {
 	echo "Removing stalled files..."
-	test -d "$1/var/log/c-icap" && rm -rf "$1/var/log/c-icap"
-	test -d "$1/usr/run/c-icap" && rm -rf "$1/usr/run/c-icap"
+	[ -d "$1/var/log/c-icap" ] && rm -rf "$1/var/log/c-icap"
+	[ -d "$1/usr/run/c-icap" ] && rm -rf "$1/usr/run/c-icap"
 }

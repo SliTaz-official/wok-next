@@ -14,7 +14,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
 BUILD_DEPENDS="gettext"
-SPLIT="xz-tools xz liblzma liblzma-dev xz-dev"
+SPLIT="xz-tools xz liblzma xz-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -54,15 +54,9 @@ genpkg_rules()
 			CAT="libs|library"
 			DEPENDS=" "
 			;;
-		liblzma-dev)
-			copy liblzma.la liblzma.pc
-			CAT="development|library development files"
-			DEPENDS="liblzma"
-			;;
 		xz-dev)
 			copy @dev
-			find $fs -name 'liblzma.*' -delete
-			DEPENDS="xz xz-tools liblzma liblzma-dev"
+			rm -r $fs/usr/share/
 			PROVIDE="liblzma-dev"
 			;;
 	esac

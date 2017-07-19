@@ -1,36 +1,60 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="audit"
 VERSION="2.2.1"
 CATEGORY="misc"
-SHORT_DESC="System call auditing."
+SHORT_DESC="System call auditing"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://people.redhat.com/sgrubb/audit/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="openldap-dev"
+BUILD_DEPENDS="python-dev openldap-dev coreutils-file-format swig"
+SPLIT="audit-python audit-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure --prefix=/usr --sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		--localstatedir=/var --sbindir=/sbin \
-	$CONFIGURE_ARGS &&
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--sbindir=/sbin \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install &&
+
+	# make files readable for the web interface; fix permissions later in post_install
+	chmod 755 $install/etc/audisp/plugins.d/
+	find $install/etc/audisp/ $install/etc/libaudit.conf \
+	$install/etc/sysconfig/auditd $install/sbin/audispd \
+	-type f -exec chmod o+r '{}' \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/sbin $fs/
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/etc $fs/
-	chown -R root.root $fs/etc
+	case $PACKAGE in
+		audit)
+			copy @std
+			rm -r $fs/usr/lib/python*
+			DEPENDS="libcrypto libldap libssl"
+			;;
+		audit-python)
+			copy *.py site-packages/*.so
+			CAT="misc|Python bindings"
+			DEPENDS="audit python"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
+
+post_install_audit() {
+	chmod 750 "$1/etc/audisp/plugins.d/"
+	find "$1/etc/audisp/" "$1/etc/libaudit.conf" "$1/etc/sysconfig/auditd" \
+	"$1/sbin/audispd" -type f -exec chmod o-r '{}' \;
 }
