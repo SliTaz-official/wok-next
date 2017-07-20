@@ -16,12 +16,16 @@ WGET_URL="http://git.lxde.org/gitweb/?p=lxde/pcmanfm.git;a=snapshot;h=$VERSION;s
 BUILD_DEPENDS_arm="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
 libxcb-dev xcb-util-dev libfm-dev menu-cache-dev expat-dev libfm-gtk gtk-doc \
 libtool"
-BUILD_DEPENDS="intltool xorg-libX11-dev pango-dev libfm-dev gtk+-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev pango-dev libfm-dev gtk+-dev automake"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/pcmanfm.html
+
+	# tarball from git.lxde.org requires this step
+	[ -e "$src/configure" ] || ./autogen.sh
+
 	./configure \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
