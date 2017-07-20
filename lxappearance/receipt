@@ -1,25 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxappearance"
-VERSION="0.5.5"
+VERSION="0.6.3"
 CATEGORY="x-window"
 SHORT_DESC="LXDE GTK+ theme switcher"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://lxde.sourceforge.net/"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
-TAGS="LXDE"
 HOST_ARCH="i486 arm"
 
-DEPENDS="gtk+"
-BUILD_DEPENDS="xorg-libX11-dev gtk+-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
+BUILD_DEPENDS="intltool xorg-libX11-dev gtk+-dev dbus-dev dbus-glib-dev"
+SPLIT="lxappearance-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxappearance.html
+
+	# remove keywords from desktop file
+	sed -i '/^_Keywords/d' $src/data/lxappearance.desktop.in
+
 	./configure \
 		--sysconfdir=/etc \
+		--enable-dbus \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -27,8 +33,16 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/lxappearance $fs/usr/share
+	TAGS="LXDE"
+	case $PACKAGE in
+		lxappearance)
+			copy @std
+			DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
+			glib gtk+ pango xorg-libX11"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="lxappearance glib-dev gtk+-dev"
+			;;
+	esac
 }

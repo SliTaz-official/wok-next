@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libfm"
 VERSION="1.2.5"
@@ -8,46 +8,70 @@ MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://pcmanfm.sourceforge.net"
 HOST_ARCH="i486 arm"
-CONFIG_FILES="/etc/xdg/libfm/libfm.conf"
-GENERIC_MENUS="no"
-SUGGESTED="gvfs"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pcmanfm/files/$TARBALL"
 
-DEPENDS="glib libexif libffi libfm-extra menu-cache pcre zlib"
 BUILD_DEPENDS="vala intltool gtk+-dev menu-cache-dev libexif-dev gtk-doc"
 BUILD_DEPENDS_arm="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
-libxcb-dev xcb-util-dev menu-cache-dev expat-dev glib-dev \
+xorg-libxcb-dev xcb-util-dev menu-cache-dev expat-dev glib-dev \
 shared-mime-info-dev"
 SIBLINGS="libfm-extra"
 SPLIT="libfm-gtk libfm-dev"
 
-case "$ARCH" in
-	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm;;
-esac
-
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm.html
 	./configure \
 		--sysconfdir=/etc \
 		--disable-static \
 		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install &&
+
+	# remove useless file
+	rm -r $install/usr/share/mime/ &&
+	# remove libfm-extra package files
+	find $install \( -name 'libfm-extra*' -o -name 'fm-extra.h' -o \
+		-name 'fm-version.h' -o -name 'fm-xml-file.h' \) -delete
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ libfm.so* vfs*.so *.list
+	case $PACKAGE in
+		libfm)
+			copy etc/ libfm.so* vfs*.so *.list
+			# define terminal
+			sed -i 2i\ 'terminal=terminal' $fs/etc/xdg/libfm/libfm.conf
+			# set small & pane icon size to 16
+			sed -i 's|\(\(small\|pane\)_icon_size=\).*|\116|' \
+				$fs/etc/xdg/libfm/libfm.conf
 
-	# extend xarchiver mime_types
-	sed "s|application/deb;$|&application/x-xz-compressed-tar;|" -i \
-		$fs/usr/share/libfm/archivers.list
-	# define terminal
-	sed -i 2i\ 'terminal=terminal' $fs/etc/xdg/libfm/libfm.conf
-	# set small & pane icon size to 16
-	sed -i 's|\(\(small\|pane\)_icon_size=\).*|\116|' $fs/etc/xdg/libfm/libfm.conf
+			CAT="system-tools|core library"
+			DEPENDS="glib libexif libffi libfm-extra menu-cache pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			GENERIC_MENUS="no"
+			SUGGESTED="gvfs"
+			CONFIG_FILES="/etc/xdg/libfm/libfm.conf"
+			;;
+		libfm-gtk)
+			copy bin/ applications/ images/ ui/ libfm-gtk.so* gtk*.so
+			CAT="system-tools|GTK+2 GUI library"
+			DEPENDS="libfm atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			menu-cache pango"
+			;;
+		libfm-dev)
+			copy @dev
+			DEPENDS="libfm libfm-gtk libfm-extra-dev \
+			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libexif-dev \
+			libffi-dev libpng16-dev libxml2-dev menu-cache-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

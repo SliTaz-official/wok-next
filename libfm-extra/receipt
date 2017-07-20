@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libfm-extra"
 VERSION="1.2.5"
@@ -11,13 +11,14 @@ WEB_SITE="https://github.com/lxde/libfm"
 TARBALL="libfm-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pcmanfm/$TARBALL"
 
-DEPENDS="glib"
 BUILD_DEPENDS="intltool gtk-doc"
+SPLIT="libfm-extra-dev"
 SIBLINGS="libfm"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm-extra.html
 	./configure \
 		--sysconfdir=/etc \
 		--with-extra-only \
@@ -30,5 +31,16 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		*-extra)
+			copy @std
+			DEPENDS="glib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libfm-extra glib-dev libffi-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			zlib-dev"
+			;;
+	esac
 }

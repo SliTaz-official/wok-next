@@ -1,57 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pcmanfm"
 VERSION="1.2.5"
 CATEGORY="system-tools"
-SHORT_DESC="Light and easy to use file manager."
+SHORT_DESC="Light and easy to use file manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://pcmanfm.sourceforge.net/"
-#WGET_URL="$SF_MIRROR/$PACKAGE/files/$TARBALL"
-WGET_URL="http://git.lxde.org/gitweb/?p=lxde/pcmanfm.git;a=snapshot;h=$VERSION;sf=txz"
-TAGS="file-manager"
 HOST_ARCH="i486 arm"
 
-SUGGESTED="gvfs"
-DEPENDS="glibc-base glib util-linux-uuid libxcb xcb-util expat \
-zlib fontconfig freetype gtk+ startup-notification dbus dbus-glib libfm-gtk"
-BUILD_DEPENDS="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
-libxcb-dev xcb-util-dev libfm-dev menu-cache-dev expat-dev libfm-gtk gtk-doc libtool"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+#WGET_URL="$SF_MIRROR/$PACKAGE/files/$TARBALL"
+WGET_URL="http://git.lxde.org/gitweb/?p=lxde/pcmanfm.git;a=snapshot;h=$VERSION;sf=txz"
 
-# Handle cross compilation.
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS shared-mime-info intltool gvfs-dev" ;;
-esac
+BUILD_DEPENDS_arm="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
+libxcb-dev xcb-util-dev libfm-dev menu-cache-dev expat-dev libfm-gtk gtk-doc \
+libtool"
+BUILD_DEPENDS="intltool xorg-libX11-dev pango-dev libfm-dev gtk+-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -p1 -R -i $stuff/fix_desktop_menus.patch
-	patch -p1 -i $stuff/pcmanfm-network-icon.patch
-	patch -p1 -i $stuff/pcmanfm-handlers.patch
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/pcmanfm.html
+	./configure \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS &&
+	make && make install &&
 
-	./autogen.sh
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+	mkdir -p $install/etc/xdg/pcmanfm/ &&
+	# default settings
+	cp -r $stuff/default/ $install/etc/xdg/pcmanfm/ &&
+	# XDG autostart desktop file (lxsession will use it automatically)
+	cp -r $stuff/autostart/ $install/etc/xdg/ &&
+	# add custom actions
+	mkdir -p $install/usr/share/file-manager &&
+	cp -r $stuff/actions/ $install/usr/share/file-manager &&
+	install -m755 $stuff/gvfs-mount-archive.sh $install/usr/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share $fs/etc/xdg/pcmanfm
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/pcmanfm $fs/usr/share
-	cp -a $stuff/default $fs/etc/xdg/pcmanfm
-
-	# XDG autostart desktop file (lxsession will use it automatically)
-	cp -a $stuff/autostart $fs/etc/xdg
-
-	cp -a $install/usr/share/applications $fs/usr/share
-
-	# Add custom actions
-	mkdir -p $fs/usr/share/file-manager
-	cp -a $stuff/actions $fs/usr/share/file-manager
-	cp -a $stuff/gvfs-mount-archive.sh $fs/usr/bin
-	chmod +x $fs/usr/bin/gvfs-mount-archive.sh
+	copy @std
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libfm \
+	libfm-gtk pango xorg-libX11"
+	SUGGESTED="gvfs"
+	TAGS="file-manager"
 }

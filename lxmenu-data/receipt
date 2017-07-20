@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxmenu-data"
 VERSION="0.1.5"
@@ -7,23 +7,18 @@ SHORT_DESC="LXDE freedesktop.org menu specification"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
 WEB_SITE="http://lxde.org/"
-CONFIG_FILES="/etc/xdg/menus/lxde-applications.menu"
-TAGS="LXDE"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
 BUILD_DEPENDS="gettext intltool"
-BUILD_DEPENDS_arm=""
-
-case $ARCH in
-	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm;;
-esac
+BUILD_DEPENDS_arm=" "
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxmenu-data.html
 	./configure \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
@@ -33,5 +28,7 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ usr/
+	copy @std
+	CONFIG_FILES="/etc/xdg/menus/lxde-applications.menu"
+	TAGS="LXDE"
 }
