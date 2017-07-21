@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pcre"
-VERSION="8.39"
+VERSION="8.40"
 CATEGORY="system-tools"
-SHORT_DESC="Perl 5 Compatible Regular Expression, library"
+SHORT_DESC="Perl 5 Compatible Regular Expression"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.pcre.org/"
@@ -12,11 +12,13 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev"
+BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev valgrind-dev"
+SPLIT="pcre-apps pcre-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/pcre.html
 	./configure \
 		--docdir=/usr/share/doc/pcre-$VERSION \
 		--enable-unicode-properties \
@@ -27,6 +29,7 @@ compile_rules()
 		--enable-pcretest-libreadline \
 		--disable-static \
 		--enable-jit \
+		--enable-valgrind \
 		$CONFIGURE_ARGS &&
 	make && make install &&
 
@@ -39,5 +42,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		pcre)
+			copy *.so*
+			CAT="system-tools|library"
+			;;
+		*-apps)
+			copy @std
+			remove_already_packed
+			DEPENDS="pcre bzlib ncurses readline zlib"
+			CAT="development|applications"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

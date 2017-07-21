@@ -1,23 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gpicview"
-VERSION="0.2.4"
+VERSION="0.2.5"
 CATEGORY="graphics"
 SHORT_DESC="Lightweight image viewer"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://lxde.sourceforge.net/gpicview/"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
-TAGS="LXDE"
 HOST_ARCH="i486 arm"
 
-DEPENDS="gtk+ expat glib libpng jpeg zlib"
-BUILD_DEPENDS="gtk+-dev expat-dev glib-dev libpng-dev jpeg-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
+BUILD_DEPENDS="intltool gtk+-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/gpicview.html
+	sed -i 's|Utility;||' gpicview.desktop.in
+
 	./configure \
 		$CONFIGURE_ARGS &&
 	make && make install
@@ -26,7 +28,9 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
+	# skip pixmaps and icons (found in the icon theme)
+	copy bin/ *.desktop *.ui
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libjpeg-turbo \
+	pango xorg-libX11"
+	TAGS="LXDE"
 }

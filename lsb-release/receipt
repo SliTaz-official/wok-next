@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lsb-release"
+VERSION="1.4"
+CATEGORY="base-system"
+SHORT_DESC="Linux Standards Base (LSB) status of the distribution"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="OSI"
+WEB_SITE="https://sourceforge.net/projects/lsb/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/lsb/$TARBALL"
+
+BUILD_DEPENDS="help2man"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/lsb-release.html
+	sed -i "s|n/a|unavailable|" lsb_release
+	./help2man -N \
+		--include ./lsb_release.examples \
+		--alt_version_key=program_version \
+		./lsb_release > lsb_release.1
+
+	mkdir -p $install/usr/share/man/man1/
+	install -v -m644 lsb_release.1 $install/usr/share/man/man1/
+
+	mkdir -p $install/usr/bin/
+	install -v -m755 lsb_release   $install/usr/bin/
+
+	mkdir -p $install/etc/
+	cp $stuff/lsb-release $install/etc/
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+}

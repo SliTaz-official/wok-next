@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libunique"
 VERSION="1.1.6"
@@ -12,26 +12,20 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ harfbuzz \
-libffi liblzma libpng libxcb libxml2 pango pcre pixman xorg-libX11 \
-xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
-BUILD_DEPENDS="automake glib-dev gettext libtool gtk+-dev xorg-libICE-dev \
-gobject-introspection-dev gtk-doc"
 BUILD_DEPENDS_arm="cairo-dev gtk+-dev glib-dev expat-dev"
-
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="$BUILD_DEPENDS_arm";;
-esac
+BUILD_DEPENDS="patch automake glib-dev gettext libtool gtk+-dev \
+xorg-libICE-dev gobject-introspection-dev gtk-doc"
+SPLIT="libunique-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
-
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/libunique.html
 	autoreconf -fi &&
 	./configure \
 		--disable-dbus \
 		--disable-static \
+		--disable-debug \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -39,5 +33,23 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		libunique)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libunique atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

@@ -1,40 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tcc"
-GITHASH="307b7b183d4ee56e74090b0e525d6a587840e31f" # 15/5/2017
-VERSION=20170515
+GITHASH="0cc24d0e8487eaf53bb2849fef7e438a8e8fc94d" # 21/7/2017
+VERSION="20170721"
 CATEGORY="development"
-SHORT_DESC="Fast Tiny C Compiler."
+SHORT_DESC="Fast Tiny C Compiler"
 MAINTAINER="pascal.bellard@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 LICENSE="LGPL2.1 MIT"
 WEB_SITE="http://bellard.org/tcc/"
-WGET_URL="http://repo.or.cz/tinycc.git/snapshot/$GITHASH.tar.gz"
-TAGS="compiler C assembler"
 #HOST_ARCH="i486 arm"
 
-DEPENDS="tcc-common"
-BUILD_DEPENDS="perl texinfo diffutils"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://repo.or.cz/tinycc.git/snapshot/$GITHASH.tar.gz"
 
-# Perl is installed in a cross env.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
+BUILD_DEPENDS_arm=" " # Perl is installed in a cross env.
+BUILD_DEPENDS="perl texinfo diffutils"
+SPLIT="tcc-arm tcc-c67 tcc-i386 tcc-x86_64 tcc-win tcc-osx"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	case "$ARCH" in
-		arm)
-			./configure \
-				--prefix=/usr \
-				--cross-prefix=arm-slitaz-linux-gnueabi- \
-				--cpu=armv4l ;;
-		*)
-			./configure \
-				--prefix=/usr \
-				--enable-cross ;;
-	esac &&
+		arm) ARCH_ARGS="--cross-prefix=arm-slitaz-linux-gnueabi- --cpu=armv4l";;
+		*)   ARCH_ARGS="--enable-cross";;
+	esac
+
+	./configure \
+		--prefix=/usr \
+		$ARCH_ARGS &&
 	make && make test &&
 	make DESTDIR=$DESTDIR install
 }
@@ -42,7 +35,41 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/tcc $fs/usr/bin
+	case $PACKAGE in
+		tcc)
+			copy tcc libtcc.a libtcc1.a libtcc.h /usr/lib/tcc/include/
+			TAGS="compiler C assembler"
+			;;
+		tcc-arm)
+			copy arm-tcc arm64-tcc libtcc1-arm.a libtcc1-arm64.a
+			CAT="development|to ARM Hard Float Linux, AArch64 Linux targets"
+			TAGS="compiler C arm"
+			;;
+		tcc-c67)
+			copy c67-tcc
+			CAT="development|to C67 Linux target"
+			TAGS="compiler C c67"
+			;;
+		tcc-win)
+			copy i386-win32-tcc x86_64-win32-tcc arm-wince-tcc win32/
+			CAT="development|to i386 Windows, x86_64 Windows, ARM Hard Float Windows targets"
+			SUGGESTED="mingw32-w32api"
+			TAGS="compiler C"
+			;;
+		tcc-i386)
+			copy i386-tcc libtcc1-i386.a
+			CAT="development|to i386 Linux target"
+			TAGS="compiler C"
+			;;
+		tcc-x86_64)
+			copy x86_64-tcc libtcc1-x86_64.a
+			CAT="development|to x86_64 Linux target"
+			TAGS="compiler C"
+			;;
+		tcc-osx)
+			copy x86_64-osx-tcc libtcc1-x86_64-osx.a
+			CAT="development|to x86_64 Darwin target"
+			TAGS="compiler C"
+			;;
+	esac
 }
-

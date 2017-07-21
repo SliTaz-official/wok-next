@@ -1,34 +1,57 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxsession"
-VERSION="0.4.6.1"
+VERSION="0.5.3"
 CATEGORY="x-window"
-SHORT_DESC="LXDE X session manager."
+SHORT_DESC="LXDE X session manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://wiki.lxde.org/en/LXSession"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="gtk+ dbus"
-BUILD_DEPENDS="gtk+-dev dbus-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
+BUILD_DEPENDS="intltool xorg-libX11-dev libunique-dev polkit-dev vala libxslt \
+docbook-xsl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxsession.html
+	# Additional keys: --enable-buildin-clipboard, --enable-buildin-polkit
 	./configure \
 		--sysconfdir=/etc \
+		--enable-buildin-clipboard \
+		--enable-buildin-polkit \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install &&
+
+	# customize desktop.conf for SliTaz
+	mkdir -p $install/etc/xdg/lxsession/LXDE/ &&
+	cp $src/data/desktop.conf.example $install/etc/xdg/lxsession/LXDE/desktop.conf &&
+	sed -i '
+		s|^\(terminal_manager/command\).*|\1=terminal|;
+		s|^\(launcher_manager/command\).*|\1=lxpanelctl|;
+		s|^\(window_manager\).*|\1=openbox|;
+		s|^#*\(iXft/Hinting\)|\1=1|;
+		s|^\(sNet/ThemeName\).*|\1=Clearlooks Human|;
+		s|^\(sNet/IconThemeName\).*|\1=SliTaz-Faenza-Dark|;
+		s|^\(sGtk/FontName\).*|\1=DejaVu Sans 10|;
+		s|^#*\(iGtk/ToolbarIconSize\).*|\1=2|;
+		s|^#*\(sGtk/CursorThemeName\).*|\1=slitaz-polar|;
+		' $install/etc/xdg/lxsession/LXDE/desktop.conf &&
+
+	# change icon
+	sed -i 's|^Icon=.*$|Icon=session-properties|' \
+		$install/usr/share/applications/lxsession-edit.desktop
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share $fs/etc/xdg/lxsession/LXDE
-	cp -a $install/usr/bin $fs/usr
-	# Use SliTaz Icon them for lxsession-logout
-	cp -a $stuff/desktop.conf $fs/etc/xdg/lxsession/LXDE
-	chown -R 0.0 $fs
+	copy @std
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libunique \
+	pango polkit xorg-libX11   dbus-glib lsb-release"
+	PROVIDE="lxsession-edit"
 }

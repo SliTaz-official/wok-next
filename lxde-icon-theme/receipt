@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxde-icon-theme"
 VERSION="0.5.1"
@@ -7,21 +7,33 @@ SHORT_DESC="LXDE standard icon theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL3"
 WEB_SITE="http://www.lxde.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
-TAGS="LXDE"
 
-DEPENDS=""
-BUILD_DEPENDS="coreutils"
+BUILD_DEPENDS="coreutils-operations"
+SPLIT="lxde-icon-theme-base lxde-icon-theme"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/x/lxde-icon-theme.html
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	TAGS="LXDE"
+	case $PACKAGE in
+		*-base)
+			copy 16x16/ 48x48/ icon.theme
+			CAT="customization|16 and 48 sizes only"
+			;;
+		*-theme)
+			copy @std
+			remove_already_packed
+			DEPENDS="lxde-icon-theme-base"
+			;;
+	esac
 }

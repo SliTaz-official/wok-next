@@ -1,37 +1,61 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pcre2"
-VERSION="10.21"
+VERSION="10.23"
 CATEGORY="system-tools"
-SHORT_DESC="Perl 5 Compatible Regular Expression 2, library"
+SHORT_DESC="Perl 5 Compatible Regular Expression 2"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.pcre.org/"
-WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev valgrind-dev"
+SPLIT="pcre2-apps pcre2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/pcre2.html
 	./configure \
-		--prefix=/usr \
+		--docdir=/usr/share/doc/pcre2-$VERSION \
+		--enable-unicode \
 		--enable-pcre2-16 \
 		--enable-pcre2-32 \
+		--enable-pcre2grep-libz \
+		--enable-pcre2grep-libbz2 \
+		--enable-pcre2test-libreadline \
+		--disable-static \
 		--enable-jit \
+		--enable-valgrind \
 		$CONFIGURE_ARGS &&
 	make && make install
 
-	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
-	for i in $(find $install/usr/share/man -type l); do
-		dest=$(readlink $i)
-		rm $i; ln -s $dest.gz $i.gz
-	done
+#	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
+#	for i in $(find $install/usr/share/man -type l); do
+#		dest=$(readlink $i)
+#		rm $i; ln -s $dest.gz $i.gz
+#	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		pcre2)
+			copy *.so*
+			CAT="system-tools|library"
+			;;
+		*-apps)
+			copy @std
+			remove_already_packed
+			DEPENDS="pcre2 bzlib ncurses readline zlib"
+			CAT="development|applications"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
