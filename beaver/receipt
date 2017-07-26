@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="beaver"
 VERSION="0.4.1"
@@ -7,33 +7,43 @@ SHORT_DESC="Simple and very light advanced text editor"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://beaver-editor.sourceforge.net/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE-editor/$TARBALL"
-TAGS="text-editor"
 HOST_ARCH="i486 arm"
-GENERIC_PIXMAPS="no"
 
-DEPENDS="gtk+ xorg-libXdamage"
-BUILD_DEPENDS="gtk+-dev xorg-xproto expat-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/beaver-editor/$TARBALL"
+
+BUILD_DEPENDS="intltool gtk+-dev"
 SPLIT="beaver-plugins"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	sed -i 's|dir/po/\*\.po|& 2>/dev/null|' configure
-	patch -p1 -i $stuff/icon.patch
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS && make && make install &&
+
+	# Custom default configuration
+	cp $stuff/beaver.conf.default $install/usr/share/beaver/resource/
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy beaver
-	cook_copy_icons
-	mkdir -p $fs/usr/share/beaver
-	cp -a $install/usr/share/beaver/resource $fs/usr/share/beaver
-
-	# Custom default configuration
-	cp -a $stuff/beaver.conf.default $fs/usr/share/beaver/resource
+	case $PACKAGE in
+		beaver)
+			copy beaver resource/
+			GENERIC_PIXMAPS="no"
+			cook_copy_icons
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			TAGS="text-editor"
+			;;
+		*-plugins)
+			copy *.so
+			CAT="text|plugins"
+			;;
+	esac
 }

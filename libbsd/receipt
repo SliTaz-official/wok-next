@@ -1,15 +1,18 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libbsd"
-VERSION="0.6.0"
+VERSION="0.8.6"
 CATEGORY="development"
-SHORT_DESC="Provides useful functions commonly found on BSD systems."
+SHORT_DESC="Provides useful functions commonly found on BSD systems"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="BSD MIT"
-WEB_SITE="http://libbsd.freedesktop.org/wiki/"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://libbsd.freedesktop.org/releases/$TARBALL"
+WEB_SITE="https://libbsd.freedesktop.org/wiki/"
 HOST_ARCH="i486 arm"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://libbsd.freedesktop.org/releases/$TARBALL"
+
+SPLIT="libbsd-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -20,6 +23,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libbsd) copy @std;;
+		*-dev)  copy @dev;;
+	esac
 }

@@ -1,0 +1,47 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libwnck2"
+VERSION="2.30.7"
+CATEGORY="x-window"
+SHORT_DESC="Window Navigator Construction Kit"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="LGPL2"
+WEB_SITE="https://developer.gnome.org/libwnck/"
+
+TARBALL="libwnck-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/libwnck/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool startup-notification-dev xorg-libX11-dev gtk+-dev \
+gobject-introspection-dev"
+SPLIT="libwnck2-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		libwnck2)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libwnck2 atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+}

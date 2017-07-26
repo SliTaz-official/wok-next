@@ -1,47 +1,79 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lvm2"
-SOURCE="LVM2"
-VERSION="2.02.98"
+VERSION="2.02.173"
 CATEGORY="system-tools"
-SHORT_DESC="Linux Logical Volume Manager."
+SHORT_DESC="Linux Logical Volume Manager"
 MAINTAINER="guillaume.michon@laposte.net"
 LICENSE="GPL2"
-TARBALL="$SOURCE.$VERSION.tgz"
 WEB_SITE="http://sourceware.org/lvm2/"
+
+TARBALL="LVM2.$VERSION.tgz"
 WGET_URL="ftp://sources.redhat.com/pub/lvm2/$TARBALL"
 
-DEPENDS="readline linux-md libdevmapper ncurses"
-BUILD_DEPENDS="readline-dev udev-dev ncurses-dev"
+BUILD_DEPENDS="readline-dev eudev-dev ncurses-dev coreutils-file-format"
+SPLIT="dmsetup libdevmapper libdevmapper-dev lvm2 lvm2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/lvm2.html
+
 	./configure \
-		--enable-cmdlib \
-		--enable-dmeventd \
-		--with-udevdir=/lib/udev/rules.d \
-		--enable-udev_sync \
-		--enable-udev_rules \
-		--enable-cmdlib \
+		--exec-prefix= \
 		--enable-applib \
-		--enable-readline \
+		--enable-cmdlib \
 		--enable-pkgconfig \
+		--enable-udev_sync \
+		--enable-dmeventd \
+		--enable-udev_rules \
+		--enable-readline \
+		--with-thin-check=   --with-thin-dump=     --with-thin-repair= \
+		--with-thin-restore= --with-cache-check=   --with-cache-dump= \
+		--with-cache-repair= --with-cache-restore= \
+		MKDIR_P='mkdir -p' \
 		$CONFIGURE_ARGS &&
-	make && make install
-	cd $src/udev
+	title "make" &&
+	make &&
+	make -C tools install_dmsetup_dynamic &&
+	make -C udev  install &&
+	make -C libdm install &&
 	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/* $fs/usr/lib
-	# split libdevmapper
-	rm -f $fs/usr/lib/libdevmapper*.so*
-	rm -f $fs/usr/sbin/dmsetup
+	case $PACKAGE in
+		dmsetup)
+			copy dmsetup dmstats
+			DEPENDS="libdevmapper"
+			CAT="system-tools|Linux device mapper setup tool"
+			;;
+		libdevmapper)
+			# to satisfy package ldd-dependencies: add liblvm2cmd.so*
+			copy *.rules libdevmapper*.so* liblvm2cmd.so*
+			DEPENDS="eudev"
+			CAT="system-tools|Linux device mapper library"
+			;;
+		libdevmapper-dev)
+			# ... and add lvm2cmd.h because liblvm2cmd.so in libdevmapper package
+			copy libdevmapper*.h devmapper*.pc lvm2cmd.h
+			CAT="system-tools|Linux device mapper development files"
+			DEPENDS="libdevmapper eudev-dev"
+			;;
+		lvm2)
+			copy @std
+			remove_already_packed
+			DEPENDS="eudev libdevmapper ncurses readline   linux-md"
+			;;
+		lvm2-dev)
+			copy lvm2app.h lvm2app.pc
+			DEPENDS="lvm2 libdevmapper-dev"
+			;;
+	esac
+}
+
+post_install_libdevmapper() {
+	tazpkg reconfigure eudev --root="$1"
 }

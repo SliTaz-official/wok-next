@@ -1,36 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nilfs-utils"
-VERSION="2.2.3"
+VERSION="2.2.6"
 CATEGORY="system-tools"
-SHORT_DESC="NILFS Filesystem user space tools."
+SHORT_DESC="NILFS Filesystem user space tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="https://github.com/nilfs-dev/nilfs-utils"
-WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
+WEB_SITE="http://nilfs.sourceforge.net/"
+#WGET_URL="https://github.com/nilfs-dev/nilfs-utils/"
 
-DEPENDS="util-linux-mount util-linux-blkid util-linux-uuid"
-BUILD_DEPENDS="wget autoconf automake libtool util-linux-mount-dev \
-util-linux-blkid-dev util-linux-uuid-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://nilfs.sourceforge.net/download/$TARBALL" # note, no $SF_MIRROR
+
+BUILD_DEPENDS="automake libtool util-linux-uuid-dev util-linux-mount-dev"
+SPLIT="nilfs-utils-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./autogen.sh
-	./configure --prefix=/usr \
+	./autogen.sh &&
+	./configure \
+		--with-libmount \
 		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs/
-	cp -a $install/sbin $fs/
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/sbin $fs/usr/
-	cp -a $install/usr/lib/*.so* $fs/usr/lib/
+	case $PACKAGE in
+		*-utils)
+			copy @std
+			DEPENDS="util-linux-blkid util-linux-mount util-linux-uuid"
+			CONFIG_FILES="/etc/nilfs_cleanerd.conf"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="nilfs-utils util-linux-uuid-dev"
+			;;
+	esac
 }

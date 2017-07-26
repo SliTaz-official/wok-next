@@ -1,33 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gparted"
-VERSION="0.27.0"
+VERSION="0.28.1"
 CATEGORY="system-tools"
 SHORT_DESC="A partition editor to graphically manage disk partitions"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="e2fsprogs dosfstools mtools ntfs-3g ntfsprogs jfsutils xfsprogs \
-reiserfsprogs reiser4progs"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gparted.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 CROSS="error: cannot run test program while cross compiling"
 
-DEPENDS="gtk+ libsigc++ glibmm gtkmm pangomm parted util-linux-uuid \
-xorg-libXdamage libgiomm cairomm"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev libsigc++-dev glibmm-dev gtkmm-dev parted-dev \
 cairomm-dev pangomm-dev libgiomm-dev intltool util-linux-uuid-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	find . -name '*.h' -o -name '*.c*' | xargs sed -i 's|glibmm/i18n|glib/gi18n|'
-	# Remove the "-v" option from the swapon/off commands.  This will allow
-	# gparted to play nicely with busybox.
-	sed -i 's/swapoff -v/swapoff/' src/Win_GParted.cc
-	sed -i 's/swapon -v/swapon/' src/Win_GParted.cc
+	# http://www.linuxfromscratch.org/blfs/view/stable/xsoft/gparted.html
+
+	# Remove the "-v" option from the swapon/off commands.
+	# This will allow gparted to play nicely with busybox.
+	sed -i 's/swapoff -v/swapoff/; s/swapon -v/swapon/' src/Win_GParted.cc
 	# Process test busybox compatible
 	sed -i 's/ps -e | grep/pgrep/' gparted.in
+	# Remove keywords from desktop file and apply SliTaz graphical SU method
+	sed -i '/^_Keywords=/d; s|@gksuprog@|tazbox su|' gparted.desktop.in.in
+
 	./configure \
 		--prefix=/usr \
 		--disable-scrollkeeper \
@@ -35,13 +35,15 @@ compile_rules()
 		--build=$HOST_SYSTEM \
 		--host=$HOST_SYSTEM &&
 	make && make install
-
-	cp -f $stuff/*.desktop $install/usr/share/applications/
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	copy gparted gpartedbin
-	cook_copy_icons
+	DEPENDS="atk atkmm cairo cairomm fontconfig freetype gdk-pixbuf glib \
+	glibmm gtk+ gtkmm libgiomm libsigc++ pango pangomm parted util-linux-uuid"
+	SUGGESTED="e2fsprogs dosfstools mtools ntfs-3g ntfsprogs jfsutils xfsprogs \
+	reiserfsprogs reiser4progs btrfs-progs f2fs-tools hfsutils hfsprogs \
+	util-linux-mkfs util-linux-misc lvm2 cryptsetup dmsetup nilfs-utils xfsdump"
 }

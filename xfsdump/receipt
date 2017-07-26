@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xfsdump"
+VERSION="3.1.6"
+CATEGORY="system-tools"
+SHORT_DESC="XFS commands and utilities"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://oss.sgi.com/projects/xfs/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="ftp://oss.sgi.com/projects/xfs/cmd_tars/$TARBALL"
+
+BUILD_DEPENDS="libtool gettext util-linux-uuid-dev xfsprogs-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	rm /bin/rpm # busybox rpm is useless here
+
+	./configure \
+		CFLAGS=-D_FILE_OFFSET_BITS=64 \
+		$CONFIGURE_ARGS &&
+	make && make install
+
+	# change absolute symlinks to relative ones
+	ln -sf ../../sbin/xfsdump    $install/usr/sbin/xfsdump
+	ln -sf ../../sbin/xfsrestore $install/usr/sbin/xfsrestore
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="attr ncurses util-linux-uuid xfsprogs"
+}

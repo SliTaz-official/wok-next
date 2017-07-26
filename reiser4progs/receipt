@@ -1,26 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="reiser4progs"
-VERSION="1.0.7"
+VERSION="1.1.0"
 CATEGORY="system-tools"
-SHORT_DESC="Utilities for manipulating reiser4 file-system."
+SHORT_DESC="Utilities for manipulating reiser4 file-system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.kernel.org/"
-WGET_URL="http://piotrkosoft.net/pub/unix/linux/utils/fs/reiser4/$PACKAGE/$TARBALL"
-TAGS="filesystem reiserfs"
+WEB_SITE="https://sourceforge.net/projects/reiser4/"
 
-BUILD_DEPENDS="libaal libaal-dev util-linux-uuid-dev ncurses-dev readline-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/reiser4/$TARBALL"
+
+BUILD_DEPENDS="util-linux-uuid-dev readline-dev libaal-dev"
 SPLIT="reiser4progs-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -29,11 +26,12 @@ genpkg_rules()
 	case $PACKAGE in
 		reiser4progs)
 			copy @std
-			DEPENDS="libaal util-linux-uuid ncurses readline"
+			DEPENDS="libaal ncurses readline util-linux-uuid"
+			TAGS="filesystem reiserfs"
 			;;
-		reiser4progs-dev)
+		*-dev)
 			copy @dev
-			DEPENDS="libaal-dev"
+			DEPENDS="reiser4progs libaal-dev"
 			;;
 	esac
 }

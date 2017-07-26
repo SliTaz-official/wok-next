@@ -1,26 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gcolor2"
 VERSION="0.4"
 CATEGORY="graphics"
-SHORT_DESC="Light and simple color selector."
+SHORT_DESC="Light and simple color selector"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gcolor2.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-GENERIC_PIXMAPS="no"
 
-DEPENDS="gtk+"
-SUGGESTED="xorg-rgb"
-BUILD_DEPENDS="gtk+-dev file"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+BUILD_DEPENDS="gfortran intltool perl-xml-parser gtk+-dev file"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -p1 -i $stuff/gcolor2.patch
 	cp $stuff/*.po* $src/po
-	sed -i 's|@CATALOGS@|ru.gmo|' $src/po/Makefile.in.in
+	sed -i 's|@CATALOGS@|ru.gmo|' po/Makefile.in.in
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
@@ -30,7 +27,11 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	copy bin/
+	GENERIC_PIXMAPS="no"
+	DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ libffi \
+	libharfbuzz liblzma libpng16 libxml2 pango pcre util-linux-blkid \
+	util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp \
+	xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
+	SUGGESTED="xorg-rgb"
 }
-

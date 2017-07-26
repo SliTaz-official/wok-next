@@ -1,36 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="hfsprogs"
 VERSION="332.25"
 CATEGORY="system-tools"
-SHORT_DESC="HFS+ Filesystem user space tools."
+SHORT_DESC="HFS+ Filesystem user space tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="APLS"
-TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
-WEB_SITE="http://www.opensource.apple.com/darwinsource/10.4/"
-WGET_URL="http://http.debian.net/debian/pool/main/h/hfsprogs/$TARBALL"
-EXTRA_SOURCE_FILES="${PACKAGE}_$VERSION-11.debian.tar.gz"
+WEB_SITE="https://www.opensource.apple.com/"
 
-DEPENDS="libbsd libcrypto"
+TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
+TARBALL2="${PACKAGE}_$VERSION-11.debian.tar.gz"
+WGET_URL="http://http.debian.net/debian/pool/main/h/hfsprogs/$TARBALL"
+
 BUILD_DEPENDS="libbsd-dev openssl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	[ -s $SOURCES_REPOSITORY/$EXTRA_SOURCE_FILES ] ||
-	  wget -P $SOURCES_REPOSITORY $(dirname $WGET_URL)/$EXTRA_SOURCE_FILES
-	tar xzf $SOURCES_REPOSITORY/$EXTRA_SOURCE_FILES
+	[ -s "$SOURCES_REPOSITORY/$TARBALL2" ] ||
+	wget -P $SOURCES_REPOSITORY $(dirname $WGET_URL)/$TARBALL2
+	tar -xzf $SOURCES_REPOSITORY/$TARBALL2
 	for i in $(cat debian/patches/series); do
 		patch -p1 -i debian/patches/$i
 	done
-	make -f Makefile.lnx LDFLAGS="$LDFLAGS -Wl,--as-needed" \
+
+	make -f Makefile.lnx \
+		LDFLAGS="$LDFLAGS -Wl,--as-needed" \
 		CFLAGS="$CFLAGS -DDEBUG_BUILD=0 -D_FILE_OFFSET_BITS=64 -D LINUX=1 -D BSD=1 -I$src/include"
+
+	mkdir -p $install/sbin/ $install/usr/share/hfsprogs/
+	install -m755 $src/newfs_hfs.tproj/newfs_hfs $install/sbin/mkfs.hfsplus
+	install -m755 $src/fsck_hfs.tproj/fsck_hfs   $install/sbin/fsck.hfsplus
+	install -m644 $src/newfs_hfs.tproj/hfsbootdata.img \
+		$install/usr/share/hfsprogs/hfsbootdata
+	cook_pick_manpages newfs_hfs.tproj/newfs_hfs.8 fsck_hfs.tproj/fsck_hfs.8
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/sbin
-	install -m 755 $src/newfs_hfs.tproj/newfs_hfs $fs/sbin/mkfs.hfsplus
-	install -m 755 $src/fsck_hfs.tproj/fsck_hfs $fs/sbin/fsck.hfsplus
+	copy @std
+	DEPENDS="libbsd libcrypto"
 }

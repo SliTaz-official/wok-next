@@ -1,29 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dosfstools"
-VERSION="3.0.28"
+VERSION="4.1"
 CATEGORY="system-tools"
-SHORT_DESC="Tools to create and check dos filesystems."
+SHORT_DESC="Tools to create and check DOS filesystems"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.daniel-baumann.ch/software/dosfstools"
-WGET_URL="https://github.com/$PACKAGE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
+WEB_SITE="https://github.com/dosfstools/dosfstools/"
 HOST_ARCH="i486 arm"
 
-BUILD_DEPENDS="wget"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="${WEB_SITE}releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="eudev-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/sbin
-	cp -a $src/mkfs.fat $fs/sbin
-	cp -a $src/fsck.fat $fs/sbin
-	cp -a $src/fatlabel $fs/sbin
+	copy @std
+	DEPENDS="eudev"
 }

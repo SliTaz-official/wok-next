@@ -1,55 +1,70 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ntfs-3g"
-VERSION="2014.2.15"
+VERSION="2017.3.23"
 CATEGORY="system-tools"
-SHORT_DESC="Read/write NTFS driver for FUSE"
+SHORT_DESC="Read/write NTFS driver"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="GPL2"
-SOURCE="ntfs-3g_ntfsprogs"
-TARBALL="$SOURCE-$VERSION.tgz"
-WEB_SITE="http://tuxera.com/opensource"
-WGET_URL="$WEB_SITE/$TARBALL"
-CONFIG_FILES="/etc/filesystems"
-TAGS="windows"
+LICENSE="GPL2 LGPL2"
+WEB_SITE="https://www.tuxera.com/community/open-source-ntfs-3g/"
 
-DEPENDS="fuse attr"
-BUILD_DEPENDS="fuse-dev attr-dev"
+TARBALL="ntfs-3g_ntfsprogs-$VERSION.tgz"
+WGET_URL="https://tuxera.com/opensource/$TARBALL"
+
+BUILD_DEPENDS="util-linux-uuid-dev libtool"
+SPLIT="ntfsprogs ntfsprogs-extra ntfs-3g ntfs-3g-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure --prefix=/usr \
-	--disable-static \
-	--with-fuse=internal \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/ntfs-3g.html
+
+	touch $src/libtoolT
+
+	./configure \
+		--enable-extras \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	mkdir -p $install/lib &&
+	make install &&
+
+	mkdir -p $install/etc && touch $install/etc/filesystems &&
+	#this link allow udisks2 to use ntfs-3g
+	ln -s mount.ntfs-3g $install/sbin/mount.ntfs
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib $fs/usr/lib $fs/etc $fs/sbin $fs/usr/bin
-	cp -a $install/bin $fs/
-	cp -a $install/sbin/*-3g $fs/sbin
-	cp -a $install/lib/*-3g.so* $fs/lib
-	cp -a $install/usr/lib/*-3g.so* $fs/usr/lib
-	cp -a $install/usr/bin/*-3g* $fs/usr/bin
-	touch $fs/etc/filesystems
-	#this link allow udisks2 to use ntfs-3g
-	cd $fs/sbin
-	ln -s mount.ntfs-3g mount.ntfs
+	TAGS="windows"
+	case $PACKAGE in
+		ntfsprogs)
+			copy mkfs.ntfs mkntfs ntfscat ntfsclone ntfscluster ntfscmp ntfscp \
+			ntfsfix ntfsinfo ntfslabel ntfsls ntfsresize ntfsundelete
+			CAT="system-tools|ntfsprogs utilities"
+			DEPENDS="ntfs-3g util-linux-uuid"
+			;;
+		*-extra)
+			copy ntfsrecover ntfssecaudit ntfstruncate ntfsusermap ntfswipe
+			CAT="system-tools|extra ntfsprogs utilities"
+			DEPENDS="ntfs-3g"
+			;;
+		ntfs-3g)
+			copy @std
+			remove_already_packed
+			CONFIG_FILES="/etc/filesystems"
+			;;
+		*-dev)
+			copy @dev
+			PROVIDE="ntfsprogs-dev"
+			;;
+	esac
 }
 
-# Pre remove and post install commands for Tazpkg.
-pre_remove()
-{
-	sed -i '/^$PACKAGE$/d' "$1/etc/filesystems"
-}
-
-post_install()
-{
+post_install_ntfs_3g() {
 	grep -qs ^$PACKAGE$ "$1/etc/filesystems" || \
-		echo "$PACKAGE" >> "$1/etc/filesystems"
+	echo  "$PACKAGE" >> "$1/etc/filesystems"
+}
+pre_remove_ntfs_3g() {
+	sed -i '/^$PACKAGE$/d' "$1/etc/filesystems"
 }

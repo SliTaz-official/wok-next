@@ -1,8 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="firmware"
-VERSION="20170530"
-COMMIT="2c9407690352b29206036b4502bcefc74f01063d"
+VERSION="20170622"
+COMMIT="7d2c913dcd1be083350d97a8cb1eba24cfacbc8a"
 CATEGORY="meta"
 SHORT_DESC="Firmware files for Linux"
 MAINTAINER="devel@slitaz.org"
@@ -12,14 +12,15 @@ WEB_SITE="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmwar
 TARBALL="linux-firmware-$COMMIT.tar.gz"
 WGET_URL="$WEB_SITE/snapshot/$TARBALL"
 
-SPLIT="firmware-atheros firmware-iwlwifi-100 firmware-iwlwifi-105 \
-firmware-iwlwifi-135 firmware-iwlwifi-1000 firmware-iwlwifi-2000 \
-firmware-iwlwifi-2030 firmware-iwlwifi-3160 firmware-iwlwifi-3168 \
-firmware-iwlwifi-3945 firmware-iwlwifi-4965 firmware-iwlwifi-5000 \
-firmware-iwlwifi-5150 firmware-iwlwifi-6000 firmware-iwlwifi-6000g2a \
-firmware-iwlwifi-6000g2b firmware-iwlwifi-6050 firmware-iwlwifi-7260 \
-firmware-iwlwifi-7265 firmware-iwlwifi-8000C firmware-iwlwifi-8265 \
-firmware-nvidia firmware-radeon firmware-rtlnic firmware-rtlwifi firmware-misc"
+SPLIT="firmware-atheros  firmware-iwlwifi-100   firmware-iwlwifi-105 \
+firmware-iwlwifi-135     firmware-iwlwifi-1000  firmware-iwlwifi-2000 \
+firmware-iwlwifi-2030    firmware-iwlwifi-3160  firmware-iwlwifi-3168 \
+firmware-iwlwifi-3945    firmware-iwlwifi-4965  firmware-iwlwifi-5000 \
+firmware-iwlwifi-5150    firmware-iwlwifi-6000  firmware-iwlwifi-6000g2a \
+firmware-iwlwifi-6000g2b firmware-iwlwifi-6050  firmware-iwlwifi-7260 \
+firmware-iwlwifi-7265    firmware-iwlwifi-8000C firmware-iwlwifi-8265 \
+firmware-nvidia          firmware-radeon        firmware-rt2x00 \
+firmware-rtlnic          firmware-rtlwifi       firmware-misc"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -77,12 +78,8 @@ genpkg_rules()
 			DEPENDS="linux-wireless"
 			;;
 		misc)
-			cp -a $install/* $fs
-			for i in $taz/*/files.list; do
-				while read j; do
-					rm $fs$j; rmdir $fs$(basename $j)
-				done < $i
-			done 2>/dev/null
+			copy @std
+			remove_already_packed
 			CAT="non-free|misc blobs"
 			;;
 	esac

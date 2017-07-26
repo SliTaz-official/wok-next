@@ -1,34 +1,65 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libcanberra"
 VERSION="0.30"
-CATEGORY="development"
-SHORT_DESC="Portable Sound Event Library"
+CATEGORY="sound"
+SHORT_DESC="Portable sound event library"
 MAINTAINER="devl547@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://0pointer.de/lennart/projects/libcanberra/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="libvorbis libogg gstreamer alsa-lib gtk+"
-BUILD_DEPENDS="libvorbis-dev libogg-dev gstreamer-dev alsa-lib-dev \
-libtool gtk+-dev"
+BUILD_DEPENDS="libtool gtk+-dev libvorbis-dev alsa-lib-dev eudev-dev \
+gstreamer1-dev"
+SPLIT="libcanberra-gnome libcanberra-gstreamer1 libcanberra libcanberra-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcanberra.html
 	./configure \
 		--enable-gtk \
+		--disable-oss \
 		$CONFIGURE_ARGS &&
 	make &&
-	make -j 1 install
+	make -j1 docdir=/usr/share/doc/libcanberra-$VERSION install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/$PACKAGE-$VERSION
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	# We could split package in libcanberra-modules to avoid gstreamer dep.
-	cp -a $install/usr/lib/$PACKAGE-$VERSION/*.so $fs/usr/lib/$PACKAGE-$VERSION
+	case $PACKAGE in
+		*-gnome)
+			copy gnome-settings-daemon-3.0/ gdm/ gnome/ canberra-boot
+			CAT="gnome|GNOME integration"
+			;;
+		*-gstreamer1)
+			copy libcanberra-gstreamer.so
+			CAT="sound|Gstreamer bindings"
+			DEPENDS="libcanberra glib gstreamer1 libffi libltdl libogg \
+			libvorbis pcre"
+			;;
+		libcanberra)
+			copy @std
+			remove_already_packed
+			DEPENDS="alsa-lib atk bzlib cairo fontconfig freetype gdk-pixbuf \
+			glib gtk+ libffi libharfbuzz libltdl liblzma libogg libpng16 \
+			libvorbis libxml2 pango pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libcanberra libcanberra-gnome libcanberra-gstreamer1 \
+			alsa-lib-dev atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gstreamer1-dev gtk+-dev \
+			harfbuzz-dev libffi-dev libogg-dev libpng16-dev libtool \
+			libvorbis-dev libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
