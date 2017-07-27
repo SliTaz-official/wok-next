@@ -1,30 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sip"
-VERSION="4.16.6"
+VERSION="4.19.3"
 CATEGORY="development"
 SHORT_DESC="C/C++ Bindings Generator for Python v2 and v3"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2 GPL3"
 WEB_SITE="http://www.riverbankcomputing.com/software/sip/intro"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/pyqt/$TARBALL"
 
-DEPENDS="python gcc-lib-base"
 BUILD_DEPENDS="python-dev"
+SPLIT="sip-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	python configure.py
-	make &&
-	make DESTDIR=$DESTDIR install
+	python configure.py &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	case $PACKAGE in
+		sip)   copy @std; DEPENDS="python";;
+		*-dev) copy @dev;;
+	esac
 }

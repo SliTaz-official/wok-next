@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmtp"
 VERSION="1.1.13"
@@ -11,8 +11,8 @@ WEB_SITE="http://libmtp.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="eudev libgcrypt libgpg-error libusb"
 BUILD_DEPENDS="libusb-dev libgcrypt-dev"
+SPLIT="mtp-tools libmtp-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,5 +32,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy udev/ *.so*
+	case $PACKAGE in
+		libmtp)
+			copy udev/ *.so*
+			DEPENDS="eudev libgcrypt libgpg-error libusb"
+			CAT="system-tools|library"
+			;;
+		*-tools)
+			copy bin/
+			CAT="system-tools|utilities"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libmtp mtp-tools \
+			eudev-dev libgcrypt-dev libgpg-error-dev libusb-dev"
+			;;
+	esac
 }

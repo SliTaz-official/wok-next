@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="schroedinger"
 VERSION="1.0.11"
@@ -6,12 +6,13 @@ CATEGORY="multimedia"
 SHORT_DESC="Dirac video compression library"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="MPL LGPL GPL MIT"
-WEB_SITE="http://diracvideo.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/download/$PACKAGE/$TARBALL"
+WEB_SITE="https://launchpad.net/schroedinger"
 
-DEPENDS="orc"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://launchpad.net/$PACKAGE/trunk/$VERSION/+download/$TARBALL"
+
 BUILD_DEPENDS="orc-dev"
+SPLIT="schroedinger-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,6 +26,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	mv $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		schroedinger)
+			copy @std
+			DEPENDS="orc"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="schroedinger orc-dev"
+			;;
+	esac
 }
