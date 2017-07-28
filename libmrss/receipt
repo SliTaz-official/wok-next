@@ -1,17 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmrss"
 VERSION="0.19.2"
 CATEGORY="libs"
-SHORT_DESC="mRss is a C library for parsing, writing and creating RSS/ATOM files or streams."
+SHORT_DESC="mRss is a C library for parsing, writing and creating RSS/ATOM \
+files or streams"
 MAINTAINER="tcg.thegamer@gmail.com"
-LICENSE="GPL"
-WEB_SITE="http://www.autistici.org/bakunin"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}/${PACKAGE}/${TARBALL}"
+LICENSE="LGPL2"
+WEB_SITE="https://www.autistici.org/bakunin/libmrss/doc/"
 
-DEPENDS="libnxml"
-BUILD_DEPENDS="libnxml libnxml-dev libcurl curl-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://www.autistici.org/bakunin/libmrss/$TARBALL"
+
+BUILD_DEPENDS="libnxml-dev curl-dev"
+SPLIT="libmrss-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -22,6 +24,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*so* $fs/usr/lib
+	case $PACKAGE in
+		libmrss)
+			copy @std
+			DEPENDS="libcurl libnxml"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libmrss curl-dev libnxml-dev openssl-dev zlib-dev"
+			;;
+	esac
 }

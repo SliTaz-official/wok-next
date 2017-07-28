@@ -1,34 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmpeg2"
 VERSION="0.5.1"
 CATEGORY="multimedia"
-SHORT_DESC="library for decoding MPEG-1 and MPEG-2 video streams"
+SHORT_DESC="Decoding MPEG-1 and MPEG-2 video streams"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://libmpeg2.sourceforge.net/"
-WGET_URL="$WEB_SITE/files/$TARBALL"
-TAGS="mpeg-1 mpeg-2 decoder"
 
-DEPENDS="libsdl xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXext xorg-libXv"
-BUILD_DEPENDS="glibc-base xorg-libXv-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://libmpeg2.sourceforge.net/files/$TARBALL" # no $SF_MIRROR
+
+BUILD_DEPENDS="gfortran xorg-libX11-dev xorg-libICE-dev xorg-libXext-dev \
+xorg-libSM-dev xorg-libXv-dev"
+SPLIT="libmpeg2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr --enable-shared --disable-static \
+	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libmpeg2.html
+	sed -i 's/static const/static/' libmpeg2/idct_mmx.c &&
+
+	./configure \
+		--enable-shared \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install &&
+
+	docdir=$install/usr/share/doc/mpeg2dec-$VERSION &&
+	mkdir -p $docdir &&
+	install -v -m644 README doc/libmpeg2.txt $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib/
+	case $PACKAGE in
+		libmpeg2)
+			copy @std
+			DEPENDS="xorg-libICE xorg-libSM xorg-libX11 xorg-libXext xorg-libXv"
+			TAGS="mpeg-1 mpeg-2 decoder"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
