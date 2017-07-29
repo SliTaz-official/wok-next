@@ -3,7 +3,7 @@
 PACKAGE="gstreamer0"
 VERSION="0.10.36"
 CATEGORY="multimedia"
-SHORT_DESC="GStreamer Multimedia Framework"
+SHORT_DESC="GStreamer-0.10 Multimedia Framework"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://gstreamer.freedesktop.org/"
@@ -12,7 +12,6 @@ HOST_ARCH="i486 arm"
 TARBALL="gstreamer-$VERSION.tar.xz"
 WGET_URL="https://gstreamer.freedesktop.org/src/gstreamer/$TARBALL"
 
-LOCALES="da de es fr id it pt_BR ru zh_CN"
 BUILD_DEPENDS_arm="glib-dev libxml2-dev"
 BUILD_DEPENDS="glib-dev libxml2-dev gobject-introspection-dev python-dev bison \
 flex m4 valgrind gettext"
@@ -27,9 +26,6 @@ compile_rules()
 		arm*) origin="http://arm.slitaz.org";;
 	esac
 
-	# Change priv_gst_parse_yylex to fit new bison version
-	sed -i s/'void \* yylval_param , //' gst/parse/grammar.y
-
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -38,7 +34,7 @@ compile_rules()
 		--disable-static \
 		--disable-examples \
 		--disable-debug \
-		--with-package-name="GStreamer (0.10)" \
+		--with-package-name="GStreamer-0.10" \
 		--with-package-origin="$origin" \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS && make install
@@ -50,11 +46,12 @@ genpkg_rules()
 	case $PACKAGE in
 		gstreamer0)
 			copy @std
-			DEPENDS="glib libxml2"
+			DEPENDS="glib libffi libxml2 pcre"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="gstreamer0 glib-dev libxml2-dev"
+			DEPENDS="gstreamer0 glib-dev libffi-dev libxml2-dev pcre-dev \
+			xz-dev zlib-dev"
 			;;
 	esac
 }
