@@ -1,7 +1,8 @@
 # SliTaz package receipt v2.
 
+# This receipt will follow actual version on each recook
 PACKAGE="cacerts"
-VERSION="20170620"
+VERSION="20170725"
 CATEGORY="security"
 SHORT_DESC="Certificate Authority Certificates"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,19 +10,26 @@ LICENSE="MPL2"
 WEB_SITE="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/cacerts.html"
 HOST_ARCH="any"
 
-TARBALL="$PACKAGE-$VERSION.txt"
 #WGET_URL="https://hg.mozilla.org/releases/mozilla-release/file/default/security/nss/lib/ckfw/builtins/certdata.txt"
-WGET_URL="http://anduin.linuxfromscratch.org/BLFS/other/certdata.txt"
+wget_url="http://anduin.linuxfromscratch.org/BLFS/other/certdata.txt"
 
 BUILD_DEPENDS="perl openssl locale-en"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	mv -f *.txt certdata.txt
-	act_version=$(sed -n '/\$Revision:/s|.*Revision: \([0-9]*\).*$|\1|p' certdata.txt)
-	echo -e "\nActual version: $act_version\n"
-	[ "$VERSION" == "$act_version" ] || echo -e "Warning: Please update receipt!\n"
+	wget -P/tmp $wget_url
+	VERSION=$(sed -n '/\$Revision:/s|.*Revision: \([0-9]*\).*$|\1|p' /tmp/certdata.txt)
+	echo -e "\nActual version: $VERSION\n"
+	sed -i "s|^VERSION=.*|VERSION=\"$VERSION\"|" $WOK/cacerts/receipt
+
+	src="$WOK/cacerts/source/cacerts-$VERSION"
+	mkdir -p $src
+	mv /tmp/certdata.txt $src
+	cd $src
+
+	TARBALL="$PACKAGE-$VERSION.txt"
+	[ -e "$SRC/$TARBALL" ] || cp $src/certdata.txt $SRC/$TARBALL
 
 	cp -a $stuff/* $src
 	./make-ca.sh &&

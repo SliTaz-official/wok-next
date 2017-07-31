@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tumbler"
-VERSION="0.1.27"
+VERSION="0.1.32"
 CATEGORY="system-tools"
-SHORT_DESC="A D-Bus thumbnailing service based on the thumbnail management D-Bus specification"
+SHORT_DESC="A D-Bus thumbnailing service"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 LGPL2.1"
-WEB_SITE="http://www.ohloh.net/p/tumbler-xfce"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-HI_VERSION=$(echo $VERSION | cut -d. -f1,2)
-WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/$HI_VERSION/$TARBALL"
-CONFIG_FILES="/etc/xdg/tumbler/tumbler.rc"
+WEB_SITE="https://www.openhub.net/p/tumbler"
 
-DEPENDS="dbus-glib ffmpegthumbnailer libcurl libgsf poppler"
-BUILD_DEPENDS="dbus-glib-dev curl-dev glib-dev gdk-pixbuf-dev \
-freetype-dev jpeg-dev ffmpegthumbnailer-dev gst0-plugins-base-dev \
-libgsf-dev poppler-dev libpng-dev lcms-dev tiff-dev" # gstreamer1-dev
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool dbus-glib-dev curl-dev glib-dev gdk-pixbuf-dev \
+freetype-dev libjpeg-turbo-dev ffmpegthumbnailer-dev gst1-plugins-base-dev \
+libgsf-dev poppler-dev libpng16-dev lcms2-dev tiff-dev gtk-doc"
+SPLIT="tumbler-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -31,21 +30,24 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p \
-		$fs/usr/lib \
-		$fs/usr/share/locale
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/tumbler* $fs/usr/lib
-	find $fs/usr/lib -name '*.la' -delete
-	cp -a $install/usr/share/dbus* $fs/usr/share
-
-	# SliTaz locale settings
-	. $WOK/slitaz-i18n/stuff/locale-pack.conf
-	for lang in $LOCALE_PACK; do
-		langd=$install/usr/share/locale/$lang
-		[ -d $langd ] && cp -a $langd $fs/usr/share/locale
-	done
-	true
+	case $PACKAGE in
+		tumbler)
+			copy @std
+			DEPENDS="cairo dbus dbus-glib ffmpegthumbnailer freetype \
+			gdk-pixbuf glib gst1-plugins-base gstreamer1 libcurl libgsf \
+			libjpeg-turbo libpng16 libxml2 poppler"
+			CONFIG_FILES="/etc/xdg/tumbler/tumbler.rc"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="tumbler bzip2-dev cairo-dev curl-dev \
+			ffmpegthumbnailer-dev fontconfig-dev freetype-dev gdk-pixbuf-dev \
+			glib-dev gst1-plugins-base-dev gstreamer1-dev harfbuzz-dev \
+			libjpeg-turbo-dev lcms2-dev libffi-dev libgsf-dev libpng16-dev \
+			libxml2-dev openssl-dev pcre-dev poppler-dev tiff-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
-

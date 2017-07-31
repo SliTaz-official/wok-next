@@ -1,35 +1,53 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ffmpegthumbnailer"
-VERSION="2.0.8"
+VERSION="2.2.0"
 CATEGORY="system-tools"
-SHORT_DESC="Lightweight video thumbnailer that can be used by file managers"
+SHORT_DESC="Fast and lightweight video thumbnailer"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://code.google.com/p/ffmpegthumbnailer/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ffmpegthumbnailer.googlecode.com/files/$TARBALL"
+WEB_SITE="https://github.com/dirkvdb/ffmpegthumbnailer"
 
-DEPENDS="ffmpeg gcc-lib-base libjpeg libpng"
-BUILD_DEPENDS="ffmpeg-dev libpng-dev jpeg-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://github.com/dirkvdb/ffmpegthumbnailer/releases/download/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake libjpeg-turbo-dev zlib-dev libpng16-dev ffmpeg-dev"
+SPLIT="ffmpegthumbnailer-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--enable-png \
-		--enable-jpeg \
-		--enable-gio \
-		$CONFIGURE_ARGS &&
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_GIO=ON \
+		-DENABLE_THUMBNAILER=ON \
+		.. &&
 	make &&
-	make install
+	make install &&
+
+	addtypes="video/x-ms-asx;video/x-ms-wmx;video/x-ms-wvx;application/mxf;\vid\
+eo/3gp;video/3gpp;video/dv;video/divx;video/fli;video/flv;video/mp2t;video/mp4v\
+-es;video/msvideo;video/ogg;video/vivo;video/vnd.divx;video/vnd.mpegurl;video/v\
+nd.rn-realvideo;video/vnd.vivo;video/webm;video/x-anim;video/x-avi;video/x-flc;\
+video/x-fli;video/x-flic;video/x-m4v;video/x-mpeg;video/x-mpeg2;video/x-nsv;vid\
+eo/x-ogm+ogg;video/x-theora+ogg;" &&
+	sed -i "/MimeType=/ s|\$|$addtypes|" \
+		$install/usr/share/thumbnailers/ffmpegthumbnailer.thumbnailer
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/thumbnailers
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $stuff/* $fs/usr/share/thumbnailers
+	case $PACKAGE in
+		ffmpegthumbnailer)
+			copy @std
+			DEPENDS="ffmpeg libjpeg-turbo libpng16 zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="ffmpegthumbnailer ffmpeg-dev"
+			;;
+	esac
 }

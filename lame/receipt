@@ -1,40 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lame"
-VERSION="3.99.4"
+VERSION="3.99.5"
 CATEGORY="multimedia"
-SHORT_DESC="MPEG Audio Layer III (MP3) encoder."
+SHORT_DESC="MPEG Audio Layer III (MP3) encoder"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://lame.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ncurses"
-BUILD_DEPENDS="gtk+-dev ncurses-dev libtinfo"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-case "$ARCH" in
-	arm) BUILD_DEPENDS="ncurses-dev libtinfo" ;;
-esac
+BUILD_DEPENDS_arm="ncurses-dev libtinfo"
+BUILD_DEPENDS="ncurses-dev nasm"
+SPLIT="lame-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export CFLAGS="$CFLAGS -msse"
+	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/lame.html
+	case $(uname -m) in
+		i?86) sed -i -e '/xmmintrin\.h/d' configure ;;
+	esac
+
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
+		--enable-nasm \
+		--enable-mp3rtp \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make pkghtmldir=/usr/share/doc/lame-$VERSION install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+		lame)
+			copy @std
+			DEPENDS="ncurses"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

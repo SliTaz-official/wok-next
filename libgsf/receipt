@@ -1,27 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgsf"
-VERSION="1.14.40"
+VERSION="1.14.41"
 CATEGORY="libs"
 SHORT_DESC="GNOME Structured File Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://developer.gnome.org/gsf/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="bzlib gdk-pixbuf glib glibc-base libffi libpng libxml2 pcre zlib"
-BUILD_DEPENDS="gtk-doc glib-dev libxml2-dev zlib-dev gdk-pixbuf-dev"
+BUILD_DEPENDS="intltool gtk-doc glib-dev libxml2-dev zlib-dev bzip2-dev \
+gdk-pixbuf-dev gobject-introspection-dev"
+SPLIT="libgsf-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/libgsf.html
+	./configure \
+		--enable-introspection \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy gsf *.so* gsf-vba* gsf-office*
-	rm -r $fs/usr/share/man
+	case $PACKAGE in
+		libgsf)
+			copy @std
+			DEPENDS="bzlib gdk-pixbuf glib libxml2 zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgsf bzip2-dev glib-dev libffi-dev libxml2-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xz-dev zlib-dev"
+			;;
+	esac
 }
