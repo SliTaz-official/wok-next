@@ -1,36 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="compton"
-VERSION="0.1_beta2"
+VERSION="0.1_beta2+87" # 87 commits to master since release 0.1_beta2
+COMMIT="316eac0"
 CATEGORY="x-window"
-SHORT_DESC="Light X Compositor new generation"
+SHORT_DESC="A compositor for X"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/chjj/compton"
-WGET_URL="https://github.com/chjj/$PACKAGE/archive/v${VERSION}.tar.gz"
 HOST_ARCH="i486 arm"
 
-DEPENDS="xorg-libXcomposite xorg-libXrandr libdrm xorg-xwininfo xorg-xprop"
-BUILD_DEPENDS="xorg-libXcomposite-dev xorg-libXrandr-dev libdrm-dev \
-xorg-libXfixes-dev xorg-libXdamage-dev xorg-libXinerama-dev pcre-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/chjj/compton/archive/${COMMIT:-v$VERSION}.tar.gz"
+
+BUILD_DEPENDS="pcre-dev xorg-libX11-dev xorg-libXcomposite-dev \
+xorg-libXfixes-dev xorg-libXdamage-dev xorg-libXrender-dev xorg-libXext-dev \
+xorg-libXrandr-dev xorg-libXinerama-dev libconfig-dev dbus-dev libdrm-dev \
+mesa-dev asciidoc libxml2-tools docbook-xsl"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i "s:\(COMPTON_VERSION ?= \)git.*:\1v${VERSION}:" Makefile
 	make \
-		NO_LIBCONFIG="true" \
-		NO_VSYNC_OPENGL="true" \
-		NO_DBUS="true"
+		COMPTON_VERSION=v$VERSION \
+		PREFIX=/usr \
+		compton docs &&
+	make install
+	mkdir -p $install/etc/xdg/compton
+	cp $src/compton.sample.conf $install/etc/xdg/compton/compton.conf
+	cp -r $stuff/autostart $install/etc/xdg/
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc/xdg/compton $fs/usr/bin
-	cp $src/compton $fs/usr/bin
-	cp $src/compton.sample.conf $fs/etc/xdg/compton/compton.conf
-	cp -r $stuff/autostart $fs/etc/xdg
+	copy etc/ bin/	# skip icons
+	DEPENDS="dbus libconfig mesa pcre xorg-libX11 xorg-libXcomposite \
+	xorg-libXdamage xorg-libXext xorg-libXfixes xorg-libXinerama \
+	xorg-libXrandr xorg-libXrender   xorg-xwininfo xorg-xprop"
+	CONFIG_FILES="/etc/xdg/compton/compton.conf"
 }
-

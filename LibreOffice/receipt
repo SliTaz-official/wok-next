@@ -1,0 +1,159 @@
+# SliTaz package receipt v2.
+
+PACKAGE="LibreOffice"
+VERSION="5.4.0"
+CATEGORY="office"
+SHORT_DESC="Powerful office suite"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="https://www.libreoffice.org/"
+HOST_ARCH="i486 x86_64"
+
+case $ARCH in
+	i486)   lo_arch="x86"   ; lo_arch2="x86"   ;;
+	x86_64) lo_arch="x86_64"; lo_arch2="x86-64";;
+esac
+
+TARBALL="LibreOffice_${VERSION}_Linux_${lo_arch2}_deb.tar.gz"
+WGET_URL="http://download.documentfoundation.org/libreoffice/stable/$VERSION/deb/$lo_arch/$TARBALL"
+
+SPLIT="LibreOffice-langpack-de LibreOffice-langpack-es LibreOffice-langpack-fr \
+LibreOffice-langpack-it LibreOffice-langpack-pt-BR LibreOffice-langpack-ru \
+LibreOffice LibreOffice-extra"
+
+sizes() { du -chs ${1:-$fs} | awk 'END{print $1}'; }
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	echo 'Checking language packages...'
+	for i in de es fr it pt-BR ru; do
+		TARBALL="LibreOffice_${VERSION}_Linux_${lo_arch2}_deb_langpack_$i.tar.gz"
+		WGET_URL="$(dirname $WGET_URL)/$TARBALL"
+		[ -e "$SRC/$TARBALL" ] || wget -O $SRC/$TARBALL $WGET_URL
+		tar -xzf $SRC/$TARBALL
+	done
+	action 'Extracting LibreOffice...'
+	# extract all deb's filesystem into $install
+	find . -name '*.deb' -exec dpkg-deb -x '{}' $install \;
+	sizes $install
+
+	# substitute desktop files symlinks by actual files (to be processed by cook)
+	find $install/usr/share/applications/ -type l -delete # no way to remove 'broken' symlinks by `rm`
+	find $install/opt/libreoffice${VERSION%.*}/share/xdg/ -type f | \
+	while read i; do
+		mv $i $install/usr/share/applications/libreoffice${VERSION%.*}-$(basename $i)
+	done
+	# remove useless (after processing by sdft) lines from desktop files
+	sed -i '/^#/d; /^Actions=/d; s|X-Red-Hat-Base;||;
+		s|X-MandrivaLinux-[^;]*;||' $install/usr/share/applications/*.desktop
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		LibreOffice-langpack-*)
+			lang=${PACKAGE#*langpack-}
+			copy *$lang.res $lang/ $lang.zip dict-$lang/ *-$lang.xcd *_$lang.xcd
+
+			action 'Removing unwanted files...'
+			find $fs -name '*.properties' | \
+			while read i; do
+				j=$(basename $i .properties)
+				case $j in
+					*de|*en_US|*es|*fr|*it|*pt_BR|*ru) ;;
+					*) rm $i;;
+				esac
+			done
+			sizes
+
+			case $lang in
+				de) L='German';;
+				es) L='Spanish';;
+				fr) L='French';;
+				it) L='Italian';;
+				pt-BR) L='Portuguese Brazilian';;
+				ru) L='Russian';;
+			esac
+			CAT="localization|$L langpack"
+			DEPENDS="LibreOffice"
+			;;
+		LibreOffice)
+			copy @std *.inc
+			remove_already_packed
+			DEPENDS="gtk+ dbus-glib libcomerr libkrb5 xorg-libSM \
+			xorg-libXinerama xorg-libXrandr"
+			SUGGESTED="gst1-plugins-base mesa"
+
+			action 'Info: current size is...'; sizes
+
+			action 'Removing Java support...'
+			# remove Java support
+			find $fs -name '*.jar' -delete
+			rm $fs/opt/libreoffice${VERSION%.*}/program/libofficebean.so
+			sizes
+
+			action 'Removing unwanted files...'
+			# remove kde & qt support
+			rm $fs/opt/libreoffice${VERSION%.*}/program/libkde4be1lo.so
+			rm $fs/opt/libreoffice${VERSION%.*}/program/libvclplug_kde4lo.so
+
+			# remove gstreamer0 support (libavmediagst_0_10.so)
+			# leave  gstreamer1 support (libavmediagst.so)
+			rm $fs/opt/libreoffice${VERSION%.*}/program/libavmediagst_0_10.so
+
+			# remove multilingual files
+			find $fs -name '*.properties' | \
+			while read i; do
+				j=$(basename $i .properties)
+				case $j in
+					*de|*en_US|*es|*fr|*it|*pt_BR|*ru) ;;
+					*) rm $i;;
+				esac
+			done
+
+			# remove icon themes; leave only default tango theme (-11MB)
+			for i in $fs/opt/libreoffice${VERSION%.*}/share/config/images*.zip; do
+				case $(basename $i .zip) in
+					*tango) ;;
+					*) rm $i;;
+				esac
+			done
+
+			# remove wiki-publisher extension
+			rm -r $fs/opt/libreoffice${VERSION%.*}/share/extensions/wiki-publisher
+
+			# remove unneded desktop integration
+			rm -r $fs/usr/lib/
+			cd $fs/usr/share/
+			rm -r mimelnk/ mime-info/ application-registry/ appdata/
+			rm -r icons/locolor/ icons/gnome/
+			cd icons/hicolor/
+			rm -r scalable/ 512x512/ 256x256/ 128x128/ 32x32/
+
+			# remove other files
+			rm -r $fs/opt/libreoffice${VERSION%.*}/readmes/
+
+			sizes
+
+			#	action 'Compressing xml files...'
+			#	# compress xml-based files
+			#	t="$(mktemp)"
+			#	find $fs -type f \( -name '*.xml' -o -name 'xsl' \) | \
+			#	while read i; do
+			#		xmlstarlet c14n --without-comments "$i" | \
+			#		xmlstarlet --no-doc-namespace sel -B -t -c '*' > $t
+			#		cat "$t" > "$i"
+			#	done
+			#	sizes
+			;;
+
+		LibreOffice-extra)
+			# all the rest...
+			copy @std *.inc
+			remove_already_packed
+			CAT="office|extra files"
+			;;
+	esac
+}
