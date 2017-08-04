@@ -1,0 +1,52 @@
+# SliTaz package receipt v2.
+
+PACKAGE="jack"
+VERSION="0.125.0"
+CATEGORY="multimedia"
+SHORT_DESC="Low-latency audio server"
+MAINTAINER="allan316@gmail.com"
+LICENSE="GPL LGPL"
+WEB_SITE="http://jackaudio.org/"
+HOST_ARCH="i486 arm"
+
+TARBALL="jack-audio-connection-kit-$VERSION.tar.gz"
+WGET_URL="http://jackaudio.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="automake libtool \
+db-dev libsndfile-dev libsamplerate-dev alsa-lib-dev readline-dev doxygen"
+SPLIT="jack-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	autoreconf -fi &&
+	sed -i 's|md5 -q|md5sum|' jackd/Makefile.in
+
+	./configure \
+		--docdir=/usr/share/doc/$PACKAGE-$VERSION \
+		--enable-optimization-by-compiler \
+		--enable-optimize \
+		--disable-coreaudio --disable-oss --disable-sun --disable-sndio \
+			--disable-freebob --disable-firewire \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		jack)
+			copy @std
+			DEPENDS="alsa-lib flac libdb libogg libsamplerate libsndfile \
+			libvorbis ncurses readline"
+			PROVIDE="jack-audio-connection-kit"
+			TAGS="audio server"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="jack alsa-lib-dev db-dev libsamplerate-dev"
+			PROVIDE="jack-audio-connection-kit-dev"
+			;;
+	esac
+}

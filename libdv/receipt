@@ -1,35 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdv"
 VERSION="1.0.0"
 CATEGORY="multimedia"
-SHORT_DESC="Software codec for DV video."
+SHORT_DESC="Software codec for DV video"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://libdv.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="popt xorg-libXv"
-BUILD_DEPENDS="gtk+-dev popt-dev xorg-libXv-dev"
+# With no effect on final binaries: xorg-libX11-dev xorg-libXt-dev libsdl-dev
+BUILD_DEPENDS="gfortran"
+SPLIT="libdv-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libdv.html
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS
-	make
-	make DESTDIR=$DESTDIR install
+		--disable-xv \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make && make install &&
+
+	docdir="$install/usr/share/doc/libdv-$VERSION" &&
+	mkdir -p $docdir &&
+	cp README* $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libdv) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }
-

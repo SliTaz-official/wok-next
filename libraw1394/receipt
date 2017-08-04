@@ -1,35 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libraw1394"
-VERSION="2.0.7"
+VERSION="2.1.2"
 CATEGORY="system-tools"
-SHORT_DESC="IEEE 1394 is a standard defining a high speed serial bus."
+SHORT_DESC="IEEE 1394 is a standard defining a high speed serial bus"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.linux1394.org/"
-WGET_URL="http://www.kernel.org/pub/linux/libs/ieee1394/$TARBALL"
+WEB_SITE="https://ieee1394.wiki.kernel.org/index.php/Main_Page"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/linux/libs/ieee1394/$TARBALL"
+
+SPLIT="libraw1394-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/dev
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	# Dev node
-	mknod -m 0666 $fs/dev/raw1394 c 171 0
-	chown root.root $fs/dev/raw1394 
+	case $PACKAGE in
+		libraw1394) copy @std;;
+		*-dev)      copy @dev;;
+	esac
 }
 
+# Make device node
+post_install_libraw1394() {
+	mkdir -p $1/dev
+	mknod -m 0666 $1/dev/raw1394 c 171 0
+	chown root:root $1/dev/raw1394
+}

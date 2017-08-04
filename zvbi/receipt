@@ -1,38 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="zvbi"
-VERSION="0.2.33"
+VERSION="0.2.35"
 CATEGORY="multimedia"
-SHORT_DESC="VBI capture and decoding library."
+SHORT_DESC="VBI capture and decoding library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://zapping.sourceforge.net/ZVBI/index.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://zapping.sourceforge.net/cgi-bin/view/ZVBI/WebHome"
 WGET_URL="$SF_MIRROR/zapping/$TARBALL"
 
-DEPENDS="libpng xorg-libX11"
-BUILD_DEPENDS="libpng-dev xorg-libX11-dev zlib-dev"
+BUILD_DEPENDS="libpng16-dev xorg-libX11-dev gettext doxygen"
+SPLIT="zvbi-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	patch -Np1 -i $stuff/fix-includes.patch
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install &&
+
+	docdir="$install/usr/share/doc/zvbi-$VERSION" &&
+	mkdir -p $docdir &&
+	cp -r doc/html $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		zvbi)
+			copy @std
+			DEPENDS="libpng16 xorg-libX11 zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="zvbi libpng16-dev zlib-dev"
+			;;
+	esac
 }
-

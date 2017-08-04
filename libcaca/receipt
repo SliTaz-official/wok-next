@@ -1,42 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libcaca"
 VERSION="0.99.beta19"
 CATEGORY="graphics"
-SHORT_DESC="Text mode graphics utilities."
+SHORT_DESC="Text mode graphics utilities"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://caca.zoy.org/wiki/libcaca"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://caca.zoy.org/files/libcaca/$TARBALL"
 
-DEPENDS="ncurses imlib2"
-BUILD_DEPENDS="ncurses-dev imlib2-dev xorg-libX11-dev"
+BUILD_DEPENDS="zlib-dev xorg-libX11-dev mesa-dev ncurses-dev python imlib2-dev \
+pango-dev doxygen cppunit-dev"
+SPLIT="python-caca libcaca-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make
-	make DESTDIR=$DESTDIR install
-
-	# hack for missing iso8859-1 folder
-	cook xorg-libX11
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/X11/locale
-	cp -a $install/usr/bin $fs/usr	
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	#cp -a $install/usr/lib/jni $fs/usr/lib
-	cp -a $install/usr/share $fs/usr
-	rm -rf $fs/usr/share/man
-	# hack for missing iso8859-1 folder
-	cp -a $WOK/xorg-libX11/install/usr/share/X11/locale/iso8859-1 \
-	$fs/usr/share/X11/locale
+	case $PACKAGE in
+		libcaca)
+			copy @std
+			rm -rf $fs/usr/lib/python2.7/
+			DEPENDS="imlib2 ncurses xorg-libX11 zlib"
+			;;
+		python-caca)
+			copy *.py
+			DEPENDS="libcaca python"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libcaca python-caca ncurses-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev zlib-dev"
+			;;
+	esac
 }
-

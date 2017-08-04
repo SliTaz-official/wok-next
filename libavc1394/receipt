@@ -1,35 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libavc1394"
 VERSION="0.5.4"
 CATEGORY="system-tools"
-SHORT_DESC="Interface for the 1394 Trade Association AV/C Digital Interface."
+SHORT_DESC="Interface for the 1394 Trade Association AV/C Digital Interface"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
+WEB_SITE="https://sourceforge.net/projects/libavc1394/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://sourceforge.net/projects/libavc1394/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libraw1394"
 BUILD_DEPENDS="libraw1394-dev"
+SPLIT="libavc1394-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS
-	make
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libavc1394)
+			copy @std
+			DEPENDS="libraw1394"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libavc1394 libraw1394-dev"
+			;;
+	esac
 }
-

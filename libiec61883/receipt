@@ -1,37 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libiec61883"
 VERSION="1.2.0"
 CATEGORY="system-tools"
-SHORT_DESC="libiec61883 is a standard defining a high speed serial bus."
+SHORT_DESC="libiec61883 is a standard defining a high speed serial bus"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-#TARBALL="$PACKAGE-$VERSION.tar.gz"
-TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
-WEB_SITE="http://www.linux1394.org/"
-#WGET_URL="http://www.linux1394.org/dl/$TARBALL"
-WGET_URL="http://ftp.debian.org/pool/main/libi/$PACKAGE/$TARBALL"
+WEB_SITE="https://ieee1394.wiki.kernel.org/index.php/Main_Page"
 
-DEPENDS="libraw1394"
-BUILD_DEPENDS="libraw1394 libraw1394-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/linux/libs/ieee1394/$TARBALL"
+
+BUILD_DEPENDS="libraw1394-dev"
+SPLIT="libiec61883-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/dev
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libiec61883)
+			copy @std
+			DEPENDS="libraw1394"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libiec61883 libraw1394-dev"
+			;;
+	esac
 }
-

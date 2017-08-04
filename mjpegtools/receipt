@@ -1,38 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mjpegtools"
-VERSION="2.0.0"
+VERSION="2.1.0"
 CATEGORY="multimedia"
-SHORT_DESC="MPEG manipulation tools."
-TAGS="mpeg mjpeg video"
+SHORT_DESC="MPEG manipulation tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mjpeg.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/mjpeg/$TARBALL"
 
-DEPENDS="libdv expat gtk+ jpeg libsdl libsdl-gfx xorg-libX11 xorg-libXau \
+BUILD_DEPENDS="libdv expat gtk+ jpeg libsdl libsdl-gfx xorg-libX11 xorg-libXau \
 xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes \
-xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libXdamage gcc-lib-base"
-BUILD_DEPENDS="$DEPENDS libdv-dev libsdl-gfx-dev jpeg-dev"
+xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libXdamage gcc-lib-base \
+libdv-dev libsdl-gfx-dev jpeg-dev"
+SPLIT="mjpegtools-dev"
+
+BUILD_DEPENDS="libjpeg-turbo-dev libpng16-dev libdv-dev xorg-libX11-dev \
+xorg-libICE-dev xorg-libXxf86dga-dev gtk+-dev libsdl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		mjpegtools)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libdv libffi libharfbuzz libjpeg-turbo liblzma libpng16 libsdl \
+			libxml2 pango pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			TAGS="mpeg mjpeg video"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mjpegtools \
+			libdv-dev libjpeg-turbo-dev libsdl-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libxcb-dev xorg-libXdmcp-dev"
+			;;
+	esac
 }
-
