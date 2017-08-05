@@ -1,0 +1,32 @@
+# SliTaz package receipt.
+
+PACKAGE="exa"
+VERSION="0.7.0"
+CATEGORY="system-tools"
+SHORT_DESC="Replacement for 'ls' written in Rust"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://the.exa.website/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/ogham/exa/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="rust-cargo libgit2-dev cmake"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# save caches here
+	export CARGO_HOME=/home/cargo
+
+	sed -i 's|/usr/local|/usr|' Makefile
+
+	make && make DESTDIR=$install install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="zlib"
+}
