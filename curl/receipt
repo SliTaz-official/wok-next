@@ -12,7 +12,7 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.lzma"
 WGET_URL="https://curl.haxx.se/download/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev openssl-dev libidn-dev"
+BUILD_DEPENDS="zlib-dev openssl-dev libssh2-dev libidn2-dev"
 SPLIT="libcurl curl-dev"
 
 # Rules to configure and make the package.
@@ -31,16 +31,16 @@ genpkg_rules()
 	case $PACKAGE in
 		curl)
 			copy curl
-			DEPENDS="libssl libcurl libcrypto zlib"
+			DEPENDS="libcrypto libcurl libssl zlib"
 			;;
 		libcurl)
 			copy *.so*
-			DEPENDS="libidn libssl zlib libcrypto"
+			DEPENDS="libcrypto libidn2 libssh2 libssl zlib"
 			CAT="network|library"
 			;;
 		curl-dev)
 			copy @dev
-			DEPENDS="curl libidn-dev openssl-dev libcrypto-dev zlib-dev"
+			DEPENDS="curl libidn2-dev libssh2-dev openssl-dev zlib-dev"
 			;;
 	esac
 }
