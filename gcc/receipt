@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://gcc.gnu.org/pub/gcc/releases/gcc-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
-SPLIT="gcc-lib-base gcc-lib-math gfortran libgfortran libgomp libobjc"
+SPLIT="gcc-lib-base gcc-lib-math libgfortran gfortran libgomp libobjc gcc"
 
 # Handle cross compilation (native i486/ARM gcc)
 case "$ARCH" in
@@ -93,60 +93,56 @@ compile_rules()
 			cp -af $libdir/libquadmath.so* $install/usr/lib # for gcc-lib-math
 			;;
 	esac
+
+	# Remove build directory.
+	rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
+	rm -rf $WOK/$PACKAGE/$PACKAGE-build
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	case $PACKAGE in
-		gcc)
-			copy bin/ lib/ include/ *.py
-			rm -f \
-				$fs/usr/lib/libgcc_s.so* \
-				$fs/usr/lib/libstdc++.so* \
-				$fs/usr/lib/libquadmath.so* \
-				$fs/usr/lib/libgfortran.* \
-				$fs/usr/lib/libgomp.so* \
-				$fs/usr/lib/libobjc.so* \
-				$fs/usr/bin/*gfortran \
-				$fs/usr/lib/gcc/$HOST_SYSTEM/$VERSION/f951
-			rm -rf \
-				$fs/usr/lib/gcc/$HOST_SYSTEM/$VERSION/finclude
-
-			# Remove build directory.
-			rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
-			rm -rf $WOK/$PACKAGE/$PACKAGE-build
-			DEPENDS="binutils libgomp libobjc gcc-lib-base mpc-library elfutils"
-			TAGS="compiler C"
-			;;
 		gcc-lib-base)
 			copy libgcc_s.so* libstdc++.so*
 			rm $fs/usr/lib/*.py
 			CAT="development|base libraries"
+			DEPENDS="glibc-base"
 			;;
 		gcc-lib-math)
 			copy libquadmath.so*
 			CAT="development|math libraries"
-			;;
-		gfortran)
-			copy *gfortran libgfortran.* f951 finclude/
-			rm $fs/usr/lib/libgfortran.so*
-			CAT="development|fortran extension"
-			TAGS="compiler fortran"
-			DEPENDS="gcc libgfortran"
+			DEPENDS="glibc-base"
 			;;
 		libgfortran)
 			copy libgfortran.so*
 			CAT="libdevel|fortran runtime"
+			DEPENDS="gcc-lib-base gcc-lib-math glibc-base"
+			;;
+		gfortran)
+			copy *gfortran libgfortran.* f951 finclude/
+			remove_already_packed
+			CAT="development|fortran extension"
+			TAGS="compiler fortran"
+			DEPENDS="libgfortran gcc glibc-base gmp mpc-library mpfr zlib"
 			;;
 		libgomp)
 			copy libgomp.so*
 			CAT="development|API specification for parallel programming"
+			DEPENDS="glibc-base"
 			;;
 		libobjc)
 			copy libobjc.so*
 			CAT="libdevel|API for gcc object"
-			DEPENDS="gcc-lib-base"
+			DEPENDS="gcc-lib-base glibc-base"
+			;;
+		gcc)
+			copy bin/ lib/ include/ *.py
+			remove_already_packed
+			DEPENDS="gcc-lib-base libgomp libobjc \
+			glibc-base gmp mpc-library mpfr zlib   binutils elfutils"
+			SUGGESTED="python"
+			TAGS="compiler C"
 			;;
 	esac
 }

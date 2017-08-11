@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="rust"
-VERSION="1.17.0"
+VERSION="1.19.0"
 CATEGORY="development"
 SHORT_DESC="The Rust programming language"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,39 +11,18 @@ WEB_SITE="https://www.rust-lang.org/"
 TARBALL="rust-$VERSION-i686-unknown-linux-gnu.tar.gz"
 WGET_URL="https://static.rust-lang.org/dist/$TARBALL"
 
-SIBLINGS="rust-doc rust-cargo"
-SPLIT="rust-cargo rust-doc"
-
 # Rules to configure and make the package.
 compile_rules()
 {
 	./install.sh \
 		--prefix=$install/usr \
-		--mandir=$install/usr/share/man
-
-	# Fix /etc path (v.1.17.0)
-	mv $install/usr/etc $install
-
-	# Fix permissions (v.1.17.0)
-	find $install/usr/share/doc -type f -exec chmod a-x '{}' \;
-	find $install -name '*.so*' -exec chmod a+x '{}' \;
+		--sysconfdir=$install/etc \
+		--mandir=$install/usr/share/man \
+		--without=rust-docs
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	case $PACKAGE in
-		rust)
-			copy rust-gdb rust-lldb rustc rustdoc /usr/lib/
-			;;
-		rust-cargo)
-			copy /usr/bin/cargo
-			CAT="development|package manager"
-			DEPENDS="rust"
-			;;
-		rust-doc)
-			copy /usr/share/doc/
-			CAT="doc|documentation"
-			;;
-	esac
+	copy @std
 }

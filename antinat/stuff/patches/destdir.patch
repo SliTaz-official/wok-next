@@ -1,0 +1,145 @@
+--- a/client/Makefile.in
++++ b/client/Makefile.in
+@@ -40,20 +40,20 @@
+ 	rm -f Makefile antinat-config
+ 
+ install:
+-	$(INSTALL) -d "$(libdir)"
+-	$(INSTALL) -d "$(bindir)"
+-	$(INSTALL) -d "$(includedir)"
+-	$(INSTALL) -m 0644 antinat.h "$(includedir)/antinat.h"
+-	$(INSTALL) -m 0755 antinat-config "$(bindir)/antinat-config"
++	$(INSTALL) -d "$(DESTDIR)$(libdir)"
++	$(INSTALL) -d "$(DESTDIR)$(bindir)"
++	$(INSTALL) -d "$(DESTDIR)$(includedir)"
++	$(INSTALL) -m 0644 antinat.h "$(DESTDIR)$(includedir)/antinat.h"
++	$(INSTALL) -m 0755 antinat-config "$(DESTDIR)$(bindir)/antinat-config"
+ 
+-	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 "$(TARGET)" "$(libdir)/$(TARGET)"
+-	$(LIBTOOL) --mode=finish "$(libdir)"
++	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 "$(TARGET)" "$(DESTDIR)$(libdir)/$(TARGET)"
++	$(LIBTOOL) --mode=finish "$(DESTDIR)$(libdir)"
+ 
+ dll: $(TARGET_OBJS) 
+-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(TARGET_OBJS) $(LDFLAGS) -version-info 0 -rpath $(libdir) -no-undefined -o $(TARGET)
++	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(TARGET_OBJS) $(LDFLAGS) -version-info 0 -rpath $(DESTDIR)$(libdir) -no-undefined -o $(TARGET)
+ 
+ $(TARGET): $(TARGET_OBJS) 
+-	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(TARGET_OBJS) $(LDFLAGS) -version-info 0 -rpath $(libdir) -o $@
++	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(TARGET_OBJS) $(LDFLAGS) -version-info 0 -rpath $(DESTDIR)$(libdir) -o $@
+ 
+ %.lo: %.c ../config.h
+ 	$(LIBTOOL) --mode=compile $(CC) $(CFLAGS) -I. -c $< -o $@ 
+
+--- a/etc/Makefile.in
++++ b/etc/Makefile.in
+@@ -25,10 +25,10 @@
+ 	rm -f Makefile
+ 
+ install: all $(PAMTARGET)
+-	$(INSTALL) -d "$(sysconfdir)"
+-	$(INSTALL) -d "$(LOGDIR)"
+-	$(INSTALL) -m 0600 antinat.xml "$(sysconfdir)"
++	$(INSTALL) -d "$(DESTDIR)$(sysconfdir)"
++	$(INSTALL) -d "$(DESTDIR)$(LOGDIR)"
++	$(INSTALL) -m 0600 antinat.xml "$(DESTDIR)$(sysconfdir)"
+ 
+ install.pam:
+-	$(INSTALL) -d "$(sysconfdir)/pam.d"
+-	$(INSTALL) -m 0600 antinat.pam "$(sysconfdir)/pam.d/antinat"
++	$(INSTALL) -d "$(DESTDIR)$(sysconfdir)/pam.d"
++	$(INSTALL) -m 0600 antinat.pam "$(DESTDIR)$(sysconfdir)/pam.d/antinat"
+
+--- a/man/Makefile.in
++++ b/man/Makefile.in
+@@ -14,40 +14,40 @@
+ 	rm -f Makefile
+ 
+ install: all
+-	$(INSTALL) -d "$(mandir)/man1"
+-	$(INSTALL) -d "$(mandir)/man3"
+-	$(INSTALL) -d "$(mandir)/man4"
+-	$(INSTALL) -c -m 0644 antinat.1 "$(mandir)/man1/antinat.1"
+-	$(INSTALL) -c -m 0644 antinat.xml.4 "$(mandir)/man4/antinat.xml.4"
+-	$(INSTALL) -c -m 0644 an_accept.3 "$(mandir)/man3/an_accept.3"
+-	$(INSTALL) -c -m 0644 an_bind_tohostname.3 "$(mandir)/man3/an_bind_tohostname.3"
+-	$(INSTALL) -c -m 0644 an_bind_tosockaddr.3 "$(mandir)/man3/an_bind_tosockaddr.3"
+-	$(INSTALL) -c -m 0644 an_clear_authschemes.3 "$(mandir)/man3/an_clear_authschemes.3"
+-	$(INSTALL) -c -m 0644 an_close.3 "$(mandir)/man3/an_close.3"
+-	$(INSTALL) -c -m 0644 an_connect_tohostname.3 "$(mandir)/man3/an_connect_tohostname.3"
+-	$(INSTALL) -c -m 0644 an_connect_tosockaddr.3 "$(mandir)/man3/an_connect_tosockaddr.3"
+-	$(INSTALL) -c -m 0644 an_destroy.3 "$(mandir)/man3/an_destroy.3"
+-	$(INSTALL) -c -m 0644 an_direct_setorigin.3 "$(mandir)/man3/an_direct_setorigin.3"
+-	$(INSTALL) -c -m 0644 AN_FD_CLR.3 "$(mandir)/man3/AN_FD_CLR.3"
+-	$(INSTALL) -c -m 0644 AN_FD_ISSET.3 "$(mandir)/man3/AN_FD_ISSET.3"
+-	$(INSTALL) -c -m 0644 AN_FD_SET.3 "$(mandir)/man3/AN_FD_SET.3"
+-	$(INSTALL) -c -m 0644 an_geterror.3 "$(mandir)/man3/an_geterror.3"
+-	$(INSTALL) -c -m 0644 an_gethostbyname.3 "$(mandir)/man3/an_gethostbyname.3"
+-	$(INSTALL) -c -m 0644 an_getpeername.3 "$(mandir)/man3/an_getpeername.3"
+-	$(INSTALL) -c -m 0644 an_getproxytype.3 "$(mandir)/man3/an_getproxytype.3"
+-	$(INSTALL) -c -m 0644 an_getsockname.3 "$(mandir)/man3/an_getsockname.3"
+-	$(INSTALL) -c -m 0644 an_getversion.3 "$(mandir)/man3/an_getversion.3"
+-	$(INSTALL) -c -m 0644 an_listen.3 "$(mandir)/man3/an_listen.3"
+-	$(INSTALL) -c -m 0644 an_new_connection.3 "$(mandir)/man3/an_new_connection.3"
+-	$(INSTALL) -c -m 0644 an_recv.3 "$(mandir)/man3/an_recv.3"
+-	$(INSTALL) -c -m 0644 an_send.3 "$(mandir)/man3/an_send.3"
+-	$(INSTALL) -c -m 0644 an_set_authscheme.3 "$(mandir)/man3/an_set_authscheme.3"
+-	$(INSTALL) -c -m 0644 an_set_blocking.3 "$(mandir)/man3/an_set_blocking.3"
+-	$(INSTALL) -c -m 0644 an_set_credentials.3 "$(mandir)/man3/an_set_credentials.3"
+-	$(INSTALL) -c -m 0644 an_set_proxy.3 "$(mandir)/man3/an_set_proxy.3"
+-	$(INSTALL) -c -m 0644 an_set_proxy_url.3 "$(mandir)/man3/an_set_proxy_url.3"
+-	$(INSTALL) -c -m 0644 an_socks4_enablesocks4a.3 "$(mandir)/man3/an_socks4_enablesocks4a.3"
+-	$(INSTALL) -c -m 0644 an_unset_proxy.3 "$(mandir)/man3/an_unset_proxy.3"
++	$(INSTALL) -d "$(DESTDIR)$(mandir)/man1"
++	$(INSTALL) -d "$(DESTDIR)$(mandir)/man3"
++	$(INSTALL) -d "$(DESTDIR)$(mandir)/man4"
++	$(INSTALL) -c -m 0644 antinat.1 "$(DESTDIR)$(mandir)/man1/antinat.1"
++	$(INSTALL) -c -m 0644 antinat.xml.4 "$(DESTDIR)$(mandir)/man4/antinat.xml.4"
++	$(INSTALL) -c -m 0644 an_accept.3 "$(DESTDIR)$(mandir)/man3/an_accept.3"
++	$(INSTALL) -c -m 0644 an_bind_tohostname.3 "$(DESTDIR)$(mandir)/man3/an_bind_tohostname.3"
++	$(INSTALL) -c -m 0644 an_bind_tosockaddr.3 "$(DESTDIR)$(mandir)/man3/an_bind_tosockaddr.3"
++	$(INSTALL) -c -m 0644 an_clear_authschemes.3 "$(DESTDIR)$(mandir)/man3/an_clear_authschemes.3"
++	$(INSTALL) -c -m 0644 an_close.3 "$(DESTDIR)$(mandir)/man3/an_close.3"
++	$(INSTALL) -c -m 0644 an_connect_tohostname.3 "$(DESTDIR)$(mandir)/man3/an_connect_tohostname.3"
++	$(INSTALL) -c -m 0644 an_connect_tosockaddr.3 "$(DESTDIR)$(mandir)/man3/an_connect_tosockaddr.3"
++	$(INSTALL) -c -m 0644 an_destroy.3 "$(DESTDIR)$(mandir)/man3/an_destroy.3"
++	$(INSTALL) -c -m 0644 an_direct_setorigin.3 "$(DESTDIR)$(mandir)/man3/an_direct_setorigin.3"
++	$(INSTALL) -c -m 0644 AN_FD_CLR.3 "$(DESTDIR)$(mandir)/man3/AN_FD_CLR.3"
++	$(INSTALL) -c -m 0644 AN_FD_ISSET.3 "$(DESTDIR)$(mandir)/man3/AN_FD_ISSET.3"
++	$(INSTALL) -c -m 0644 AN_FD_SET.3 "$(DESTDIR)$(mandir)/man3/AN_FD_SET.3"
++	$(INSTALL) -c -m 0644 an_geterror.3 "$(DESTDIR)$(mandir)/man3/an_geterror.3"
++	$(INSTALL) -c -m 0644 an_gethostbyname.3 "$(DESTDIR)$(mandir)/man3/an_gethostbyname.3"
++	$(INSTALL) -c -m 0644 an_getpeername.3 "$(DESTDIR)$(mandir)/man3/an_getpeername.3"
++	$(INSTALL) -c -m 0644 an_getproxytype.3 "$(DESTDIR)$(mandir)/man3/an_getproxytype.3"
++	$(INSTALL) -c -m 0644 an_getsockname.3 "$(DESTDIR)$(mandir)/man3/an_getsockname.3"
++	$(INSTALL) -c -m 0644 an_getversion.3 "$(DESTDIR)$(mandir)/man3/an_getversion.3"
++	$(INSTALL) -c -m 0644 an_listen.3 "$(DESTDIR)$(mandir)/man3/an_listen.3"
++	$(INSTALL) -c -m 0644 an_new_connection.3 "$(DESTDIR)$(mandir)/man3/an_new_connection.3"
++	$(INSTALL) -c -m 0644 an_recv.3 "$(DESTDIR)$(mandir)/man3/an_recv.3"
++	$(INSTALL) -c -m 0644 an_send.3 "$(DESTDIR)$(mandir)/man3/an_send.3"
++	$(INSTALL) -c -m 0644 an_set_authscheme.3 "$(DESTDIR)$(mandir)/man3/an_set_authscheme.3"
++	$(INSTALL) -c -m 0644 an_set_blocking.3 "$(DESTDIR)$(mandir)/man3/an_set_blocking.3"
++	$(INSTALL) -c -m 0644 an_set_credentials.3 "$(DESTDIR)$(mandir)/man3/an_set_credentials.3"
++	$(INSTALL) -c -m 0644 an_set_proxy.3 "$(DESTDIR)$(mandir)/man3/an_set_proxy.3"
++	$(INSTALL) -c -m 0644 an_set_proxy_url.3 "$(DESTDIR)$(mandir)/man3/an_set_proxy_url.3"
++	$(INSTALL) -c -m 0644 an_socks4_enablesocks4a.3 "$(DESTDIR)$(mandir)/man3/an_socks4_enablesocks4a.3"
++	$(INSTALL) -c -m 0644 an_unset_proxy.3 "$(DESTDIR)$(mandir)/man3/an_unset_proxy.3"
+ 
+ html:
+ 	for i in *.[1345]; do \
+
+--- a/server/Makefile.in
++++ b/server/Makefile.in
+@@ -58,9 +58,9 @@
+ 	rm -f Makefile
+ 
+ install: $(TARGET)
+-	$(INSTALL) -d "$(bindir)"
+-	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 $(TARGET) $(bindir)/$(TARGET)
+-	$(LIBTOOL) --mode=finish $(bindir)
++	$(INSTALL) -d "$(DESTDIR)$(bindir)"
++	$(LIBTOOL) --mode=install $(INSTALL) -m 0755 $(TARGET) $(DESTDIR)$(bindir)/$(TARGET)
++	$(LIBTOOL) --mode=finish $(DESTDIR)$(bindir)
+ 	
+ 
+ $(TARGET): $(SERV_OBJS) 

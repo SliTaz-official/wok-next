@@ -1,51 +1,63 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lapack"
-VERSION="3.4.0"
-CATEGORY="misc"
+VERSION="3.7.1"
+CATEGORY="libs"
 SHORT_DESC="Linear Algebra PACKage"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://www.netlib.org/lapack"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="gcc-lib-base blas"
-BUILD_DEPENDS="gfortran blas"
+BUILD_DEPENDS="cmake gfortran gcc-lib-math python"
+SPLIT="blas blas-dev lapack lapack-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	cp -f $src/INSTALL/make.inc.gfortran make.inc
-	cp -f "$stuff/Makefile.lapack" $src/SRC/Makefile
-	
-	export FC=gfortran
+	mkdir build; cd build
+	cmake .. \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_SKIP_RPATH=ON \
+		-DBUILD_SHARED_LIBS=ON \
+		-DBUILD_TESTING=OFF \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_Fortran_COMPILER=gfortran \
+		-DLAPACKE_WITH_TMG=ON \
+		-DCBLAS=ON \
+		-DBUILD_DEPRECATED=ON &&
+	make &&
+	make DESTDIR=$DESTDIR install
 
-	cd $src/INSTALL
-	make clean
-	make NOOPT="${CFLAGS/-O?/-O0} -fPIC" OPTS="${CFLAGS} -fPIC"
-
-	cd $src/SRC
-	make clean
-
-	make FFLAGS="${CFLAGS} -fPIC" CFLAGS="${CFLAGS} -fPIC" shared
-	cp liblapack.so.$VERSION "$src/"
+	licdir="$install/usr/share/licenses"
+	mkdir -p $licdir
+	cp $src/LICENSE $licdir/blas.LICENSE $licdir/lapack.LICENSE
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-
-	install -m755 -d "$fs/usr/lib"
-  install -m755 "$src/liblapack.so.$VERSION" \
-    "$fs/usr/lib/"
-  ln -sf liblapack.so.$VERSION "$fs/usr/lib/liblapack.so"
-  ln -sf liblapack.so.$VERSION "$fs/usr/lib/liblapack.so.3"
-  
-  install -m755 -d "$fs/usr/share/licenses"
-  install -m644 "$src/LICENSE" \
-    "$fs/usr/share/licenses/lapack.LICENSE"
+	case $PACKAGE in
+		blas)
+			copy lib*blas.so*
+			DEPENDS="gcc-lib-math libgfortran"
+			CAT="libs|Basic Linear Algebra Subprograms"
+			;;
+		blas-dev)
+			copy blas* cblas* cblas*/
+			DEPENDS="blas"
+			CAT="development|BLAS development files"
+			;;
+		lapack)
+			copy liblapack*.so* libtmglib.so
+			DEPENDS="blas gcc-lib-math libgfortran"
+			;;
+		lapack-dev)
+			copy lapack* lapack*/
+			DEPENDS="lapack blas-dev"
+			;;
+	esac
 }
-

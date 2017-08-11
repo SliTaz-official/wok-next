@@ -1,38 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aubio"
-VERSION="0.3.2"
+VERSION="0.4.5"
 CATEGORY="multimedia"
 MAINTAINER="jozee@slitaz.org"
-LICENSE="GPL2"
+LICENSE="GPL3"
 SHORT_DESC="A library for audio labelling"
-WEB_SITE="http://aubio.piem.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/pub/$TARBALL"
-TAGS="audio label multimedia"
+WEB_SITE="https://aubio.org/"
 
-DEPENDS="libsamplerate fftw jack flac libogg \
-libvorbis"
-BUILD_DEPENDS="libsamplerate-dev jack-dev \
-fftw-dev libsndfile-dev fftw libsamplerate flac-dev libogg-dev \
-libvorbis-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://aubio.org/pub/$TARBALL"
+
+BUILD_DEPENDS="python-dev fftw-dev libsndfile-dev libsamplerate-dev jack-dev \
+ffmpeg-dev gfortran lapack-dev python-numpy"
+SPLIT="aubio-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make -j1 &&
-	make -j1 install
-
-	cook_pick_manpages $src/doc/*.1
+	./waf configure \
+		--prefix=/usr \
+		--enable-fftw3f &&
+	./waf build &&
+	./waf install \
+		--destdir="$install"
+#	./setup.py install --root="$install" --optimize=1
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/sounds $fs/usr/share
+	case $PACKAGE in
+		aubio)
+			copy @std
+			DEPENDS="ffmpeg fftw jack libsamplerate libsndfile"
+			TAGS="audio label multimedia"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
