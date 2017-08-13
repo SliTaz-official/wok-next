@@ -1,77 +1,91 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="peazip"
-VERSION="6.0.0"
-SYSTEM="LINUX"
-ENV="GTK2"
-CATEGORY="x-window"
-SHORT_DESC="Open Source archive manager and data compression utility."
-MAINTAINER="hackdorte@sapo.pt"
-LICENSE="LGPL3"
+VERSION="6.4.1"
+CATEGORY="utilities"
+SHORT_DESC="Open Source archive manager and data compression utility"
+MAINTAINER="hackdorte@yandex.com"
+LICENSE="LGPL3 GPL LGPL freeware"
 WEB_SITE="http://peazip.org/peazip-linux.html"
 
-TARBALL="$PACKAGE-$VERSION.$SYSTEM.$ENV.tgz"
+TARBALL="$PACKAGE-$VERSION.LINUX.GTK2.tgz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL2="http://www.peazip.org/downloads/unace/peazip_unace_plugin-1.LINUX.ALL.tar.gz"
+WGET_URL3="http://www.peazip.org/downloads/unrar5/peazip_unrar5_plugin-1.LINUX.ALL.tar.gz"
+WGET_URL4="http://www.peazip.org/downloads/additional/peazip_additional_formats_plugin-2.LINUX.ALL.tar.gz"
 
-DEPENDS="xorg-libX11 atk glibc-base cairo gtk+ gdk-pixbuf glib pango"
+SPLIT="peazip-plugin-unace peazip-plugin-unrar5 peazip-plugin-additional peazip"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# download/extract plugins
+	for i in $WGET_URL2 $WGET_URL3 $WGET_URL4; do
+		tarball="$SRC/$(basename $i)"
+		[ -e $tarball ] || wget -O $tarball $i
+		tar -xzf $tarball
+	done
 
-mkdir -p $install/
-cp -a $src/* $install/
+	bindir=$install/usr/bin
+	libdir=$install/usr/lib/peazip
+	appdir=$install/usr/share/applications
+	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
+	icodir=$install/usr/share/icons/hicolor/256x256/apps
+	actdir=$install/usr/share/file-manager/actions
 
+	mkdir -p $bindir $libdir $appdir $docdir $icodir $actdir
+
+	# Hierarchies for SliTaz GNU/Linux
+	cp -a $src/usr/local/share/PeaZip/res/            $libdir
+	cp -a $src/usr/local/share/PeaZip/peazip          $libdir
+	cp -a $src/usr/local/share/PeaZip/copying.txt     $libdir
+	cp -a $src/usr/local/share/PeaZip/peazip_help.pdf $libdir
+	cp -a $src/usr/local/share/icons/peazip.png       $icodir
+
+	# Desktop entry for Peazip
+	cp $stuff/*.desktop $appdir
+	# PCManFM desktop integration (PeaZip context menu)
+	cp $stuff/actions/*.desktop $actdir
+
+	# Symbolic links
+	ln -s ../lib/peazip/res/pea         $bindir
+	ln -s ../lib/peazip/res/pealauncher $bindir
+	ln -s ../lib/peazip/peazip          $bindir
+	ln    $libdir/peazip_help.pdf       $docdir
+
+	# Plugins
+	cp -a unace/ unrar/ lpaq/ paq/ quad/ $libdir/res/
+
+	# Fix permissions
+	find $install \( -name '*.txt' -o -name '*.7z' -o -name '*.bmp' -o \
+		-name '*.readme' -o -name '*.diz' \) -exec chmod 0644 '{}' \;
+	find $install -type f \( -perm 0775 -o -perm 0777 \) -exec chmod 0755 '{}' \;
+	find $install -type d -exec chmod 0755 '{}' \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-
-  # Build Tree
-    mkdir -p $install/usr/share/applications
-    mkdir -p $install/usr/share/pixmaps
-    cp -a $install/usr/local/share/applications/* $install/usr/share/applications
-    cp -a $install/usr/local/share/icons/* $install/usr/share/pixmaps
-
-
-# Writing (pea.desktop) File
-cat > $install/usr/share/applications/pea.desktop <<EOT
-[Desktop Entry]
-Version=1.0
-Encoding=UTF-8
-Name=Pea Checksum and Hash
-MimeType=application/x-gzip;application/x-lha;application/x-tar;application/x-tgz;application/x-tbz;application/x-tbz2;application/x-zip;application/zip;application/x-bzip;application/x-rar;application/x-tarz;application/x-archive;application/x-bzip2;application/x-jar;application/x-deb;application/x-ace;application/x-7z;application/x-arc;application/x-arj;application/x-compress;application/x-cpio;
-Exec=pea
-Icon=peazip
-Type=Application
-Terminal=false
-X-KDE-HasTempFileOption=true
-Categories=GTK;KDE;Utility;System;Archiving;
-Name[en_US]=Pea Checksum and Hash
-Comment=Peazip Checksum and Hash
-
-EOT
-
-# Writing (pealauncher.desktop) File
-cat > $install/usr/share/applications/pealauncher.desktop <<EOT
-[Desktop Entry]
-Version=1.0
-Encoding=UTF-8
-Name=Pealauncher
-MimeType=application/x-gzip;application/x-lha;application/x-tar;application/x-tgz;application/x-tbz;application/x-tbz2;application/x-zip;application/zip;application/x-bzip;application/x-rar;application/x-tarz;application/x-archive;application/x-bzip2;application/x-jar;application/x-deb;application/x-ace;application/x-7z;application/x-arc;application/x-arj;application/x-compress;application/x-cpio;
-Exec=pealauncher
-Icon=peazip
-Type=Application
-Terminal=false
-X-KDE-HasTempFileOption=true
-Categories=GTK;KDE;Utility;System;Archiving;
-Name[en_US]=Pealauncher
-Comment=Drag here the archive to extract.
-
-EOT
-
-# All Done!
-cp -a $install/* $fs
-
+	case $PACKAGE in
+		peazip-plugin-unace)
+			copy unace/
+			CAT="utilities|UNACE plugin"
+			;;
+		peazip-plugin-unrar5)
+			copy unrar/
+			CAT="utilities|UNRAR5 alternative plugin"
+			;;
+		peazip-plugin-additional)
+			copy lpaq/ paq/ quad/
+			CAT="utilities|additional formats plugin 2"
+			;;
+		peazip)
+			copy @std
+			remove_already_packed
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+ pango xorg-libX11   \
+			busybox desktop-file-utils gmp libcurl ncurses upx zpaq xdg-utils"
+			SUGGESTED="aescrypt gnupg"
+			TAGS="archiver bzip2 encryption gzip rar split tar unrar xz zip 7zip"
+			;;
+	esac
 }
