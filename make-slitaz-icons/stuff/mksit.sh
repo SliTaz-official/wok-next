@@ -1,9 +1,9 @@
 #!/bin/sh
 # Make SliTaz icon theme
-# Aleksej Bobylev <al.bobylev@gmail.com>, 2014-2016
+# Aleksej Bobylev <al.bobylev@gmail.com>, 2014-2017
 # (Started in November 2014)
 
-VERSION="161031"
+VERSION="170814"
 
 . /lib/libtaz.sh
 
@@ -21,15 +21,15 @@ Usage:
 $(basename $0) [OPTIONS ...]
 
 Options:
--f <path>  The path to the original theme from which the icons will be taken
+-f <path>  The path to the original theme from which the icons will be taken.
            Note that this folder contains the file index.theme
--t <path>  The path where the folder with a new theme will created
+-t <path>  The path where the folder with a new theme will be created.
            Note that existing folder will be silently removed
 -s <path>  Path to icon substitution definitions. Where <path> can point to file
            or to folder containing file <original theme name>.sub
 -n 'name'  The name of the new theme (default will be taken from -t path)
 
-+is  -is   Whether to use Inkscape to convert svg icons to png (default: +is)
++rs  -rs   Whether to use Rsvg to convert svg icons to png (default: +rs)
 +op  -op   Whether to use Optipng to optimize png icons (default: +op)
 +sl  -sl   Whether to replace the same icons by symlinks (default: +sl)
 
@@ -160,7 +160,7 @@ esac
 
 # Default parameters:
 
-IS='yes'; OP='yes'; SL='yes'; PNGOPT=''; SUBS=''; color='yes'
+RS='yes'; OP='yes'; SL='yes'; PNGOPT=''; SUBS=''; color='yes'
 
 while [ "x$1" != "x" ]; do
 	case "$1" in
@@ -168,8 +168,8 @@ while [ "x$1" != "x" ]; do
 		-t)  TO="$2";   shift; NAME="$(basename ${TO%/})" ;;
 		-s)  SUBS="$2"; shift; if [ -d "$SUBS" ]; then SUBS="${SUBS%/}/$BASED_ON.sub"; fi ;;
 		-n)  NAME="$2"; shift ;;
-		-is) IS='no'  ;;
-		+is) IS='yes' ;;
+		-rs) RS='no'  ;;
+		+rs) RS='yes' ;;
 		-op) OP='no'  ;;
 		+op) OP='yes' ;;
 		-sl) SL='no'  ;;
@@ -185,23 +185,23 @@ if [ "x$FROM" == "x" -o "x$TO" == "x" ]; then
 fi
 
 echo "Check components..."
-if [ $IS == 'yes' ]; then
-	echo -n "Inkscape: "
-	if [ -x "$(which inkscape)" ]; then
-		echo "$(which inkscape)"
+if [ $RS == 'yes' ]; then
+	echo -n "rsvg-convert: "
+	if [ -x "$(which rsvg-convert)" ]; then
+		echo "$(which rsvg-convert)"
 	else
-		colored 31 "not found! Force '-is'"; IS='no'
+		colored 31 "not found! Force '-rs'"; RS='no'
 	fi
 fi
 if [ $OP == 'yes' ]; then
-	echo -n "Optipng:  "
+	echo -n "optipng     : "
 	if [ -x "$(which optipng)" ]; then
 		echo "$(which optipng)"
 	else
 		colored 31 "not found! Force '-op'"; OP='no'
 	fi
 fi
-echo -n "Symlinks: "
+echo -n "symlinks    : "
 if [ -x "$(which symlinks)" ]; then
 	echo "$(which symlinks)"
 else
@@ -209,7 +209,7 @@ else
 fi
 echo
 
-echo "Options: Inkscape=\"$IS\" Optipng=\"$OP\" Symlinks=\"$SL\""
+echo "Options: Rsvg=\"$RS\" Optipng=\"$OP\" Symlinks=\"$SL\""
 echo "From:    \"$FROM\""
 echo "To:      \"$TO\""
 echo "Subs:    \"$SUBS\""
@@ -816,11 +816,11 @@ echo -n "Original     "; size
 
 #####
 
-if [ "$IS" == "yes" ]; then
-		echo -n "Inkscape...  "
+if [ "$RS" == "yes" ]; then
+	echo -n "Rsvg...      "
 	# convert svg to png
-	# rarely inkscape may fail, good that we leave original file
-	find $TO -type f -iname '*.svg' \( -exec sh -c "export E={}; inkscape -z -f \$E -e \${E%svg}png" \; -exec rm {} \; \)
+	# leave original file if rsvg-convert fail
+	find $TO -type f -iname '*.svg' \( -exec sh -c "export E={}; rsvg-convert \$E -o \${E%svg}png" \; -exec rm '{}' \; \)
 	size
 fi
 
@@ -829,7 +829,7 @@ fi
 if [ "$OP" == "yes" ]; then
 	echo -n "Optipng...   "
 	# re-compress png files
-	find $TO -type f -iname '*.png' -exec optipng -quiet -strip all $PNGOPT {} \;
+	find $TO -type f -iname '*.png' -exec optipng -quiet -strip all $PNGOPT '{}' \;
 	size
 fi
 
@@ -837,7 +837,7 @@ fi
 
 if [ "$SL" == "yes" ]; then
 	echo -n "Symlinks...  "
-	MD5FILE=$(mktemp); find $TO -type f -exec md5sum {} \; | sort > $MD5FILE
+	MD5FILE=$(mktemp); find $TO -type f -exec md5sum '{}' \; | sort > $MD5FILE
 	# substitute repeated files by symlinks
 	for md in $(uniq -d -w32 $MD5FILE | cut -c1-32); do
 		make_symlinks $(grep $md $MD5FILE | cut -c35-)

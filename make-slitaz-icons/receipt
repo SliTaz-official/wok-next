@@ -1,19 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="make-slitaz-icons"
-VERSION="161031"
+VERSION="170814"
 CATEGORY="development"
 SHORT_DESC="Make SliTaz icon theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
-TAGS="icons"
 
-DEPENDS="inkscape optipng symlinks"
+# Rules to compile and make the package.
+compile_rules() {
+	mkdir -p $install/usr/bin
+	install -m755 -oroot -groot $stuff/mksit.sh $install/usr/bin
+}
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	install -m755 -oroot -groot $stuff/mksit.sh $fs/usr/bin
+	copy @std
+	DEPENDS="rsvg-convert optipng-static symlinks"
+	TAGS="icons"
 }

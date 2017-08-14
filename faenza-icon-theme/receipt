@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="faenza-icon-theme"
 VERSION="1.3.1"
@@ -16,20 +16,11 @@ WGET_URL="http://ppa.launchpad.net/tiheum/equinox/ubuntu/pool/main/f/$PACKAGE/$T
 compile_rules()
 {
 	mkdir -p $install/usr/share/icons
-	cp -a Faenza* $install/usr/share/icons
+	cp -r Faenza* $install/usr/share/icons
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	cp -a $install/* $fs
-	# remove big sizes and scalable
-	rm -rf $(find $fs -type d -regex '.*/\(64\|96\|scalable\)')
-	# remove extras
-	rm -rf $(find $fs -type d -regex '.*/extras')
-	# sed -i '/Directories=/ s/\(.+\)\(,actions\/64.*\)/\1/' Faenza/index.theme
-
-	for name in Faenza Faenza-Dark Faenza-Darkest Faenza-Darker; do
-		cp -f $stuff/${name}-index.theme $fs/usr/share/icons/${name}/index.theme
-	done
 }
