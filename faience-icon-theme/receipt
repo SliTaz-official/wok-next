@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="faience-icon-theme"
+VERSION="0.5.1"
+CATEGORY="customization"
+SHORT_DESC="Icon theme based on Faenza"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://tiheum.deviantart.com/art/Faience-icon-theme-255099649"
+HOST_ARCH="any"
+
+TARBALL="${PACKAGE}_$VERSION.tar.gz"
+WGET_URL="http://ppa.launchpad.net/tiheum/equinox/ubuntu/pool/main/f/$PACKAGE/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	mkdir -p $install/usr/share/icons
+	cp -r Faience* $install/usr/share/icons
+	find $install -name '*.theme' -exec chmod 0644 '{}' \;
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+	DEPENDS="faenza-icon-theme"
+}

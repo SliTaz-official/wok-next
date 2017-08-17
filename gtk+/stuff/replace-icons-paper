@@ -1,0 +1,132 @@
+# Replace GTK+ stock icons by Paper icons
+# in order to strip icon theme and save some space.
+
+
+# Return shortest line
+shortest_line() {
+	S=$1; shift
+	for L in $@; do
+		[ "${#L}" -lt "${#S}" ] && S="$L"
+	done
+	echo "$S"
+}
+
+# Replace the same files by symlinks, $@ - list of identical files
+make_symlinks() {
+	S=$(shortest_line $@)
+	for file in $@; do
+		[ "$S" != "$file" ] && ln -sf $S $file
+	done
+}
+
+
+echo -n "Replacing icons... "
+
+F=/usr/share/icons/Paper
+
+# copy icon
+ci() {
+	icon=$(basename $1 .png)
+	size="$2"
+	sub=''
+	case $icon in
+		*-ltr) sub=${icon%-*};;
+		*-rtl)
+			case ${icon%-*} in
+				edit-redo)				sub='edit-undo';;
+				edit-undo)				sub='edit-redo';;
+				format-indent-less)		sub='format-indent-more';;
+				format-indent-more)		sub='format-indent-less';;
+				go-first)				sub='go-last';;
+				go-last)				sub='go-first';;
+				go-next)				sub='go-previous';;
+				go-previous)			sub='go-next';;
+				media-seek-backward)	sub='media-seek-forward';;
+				media-seek-forward)		sub='media-seek-backward';;
+				media-skip-backward)	sub='media-skip-forward';;
+				media-skip-forward)		sub='media-skip-backward';;
+			esac
+			sub="$sub $sub-ltr"
+			;;
+		gtk-caps-lock-warning)		sub='dialog-warning';;
+		gtk-color-picker)			sub='color-picker';;
+		gtk-connect)				sub='network-transmit-receive';;
+		gtk-disconnect)				sub='network-offline';;
+		gtk-edit)					sub='edit';;
+		gtk-font)					sub='font-x-generic';;
+		gtk-page-setup)				sub='document-page-setup';;
+		gtk-preferences)			sub='preferences-desktop';;
+		gtk-select-color)			sub='color-select';;
+		gtk-select-font)			sub='font-select';;
+		gtk-apply)					sub='object-select';;
+		gtk-no)						sub='emblem-unreadable';;
+		gtk-yes)					sub='emblem-default';;
+		gtk-ok)						sub='object-select';;
+	esac
+
+	found=''
+	for i in png svg; do
+		for j in actions apps categories devices emblems emotes mimetypes places status; do
+			for k in $icon $sub; do
+				if [ -f "$F/$size/$j/$k.$i" ]; then
+					found="$F/$size/$j/$k.$i"
+					break 3
+				fi
+			done
+		done
+	done
+	case $found in
+		*.png) cp -f $found $1;;
+		*.svg) rm $1; rsvg-convert $found -o $1;;
+	esac
+}
+
+cd $src/gtk/stock-icons/16; for a in $(ls); do ci $a 16x16; done
+cd $src/gtk/stock-icons/20; for a in $(ls); do ci $a 16x16; done # yes, using 16x16 for 20
+cd $src/gtk/stock-icons/24; for a in $(ls); do ci $a 16x16; done # too
+cd $src/gtk/stock-icons/32; for a in $(ls); do ci $a 32x32; done
+cd $src/gtk/stock-icons/48; for a in $(ls); do ci $a 48x48; done
+
+echo "Done"
+
+for folder in 16 20 24 32 48; do
+	echo -n "Optimizing folder icons $folder... "
+	cd $src/gtk/stock-icons/$folder
+	for icon in ./*.png; do
+		pngquant -f --skip-if-larger --ext .png --speed 1 "$icon"
+		optipng -quiet -o7 -zm1-9 "$icon"
+	done
+	echo "Done"
+done
+
+
+# replace the same icons by symlinks
+
+MD5FILE=$(mktemp)
+find $src/gtk/stock-icons -type f -exec md5sum '{}' \; | sort > $MD5FILE
+for md in $(uniq -d -w32 $MD5FILE | cut -c1-32); do
+	make_symlinks $(grep $md $MD5FILE | cut -c35-)
+done
+rm "$MD5FILE"
+# make all symlinks relative
+symlinks -crs $src/gtk/stock-icons >/dev/null 2>&1
+
+
+
+# missing icons:
+# 16, 24
+# ==============================================================================
+# gtk-convert
+# gtk-index
+# gtk-orientation-landscape
+# gtk-orientation-portrait
+# gtk-orientation-reverse-landscape
+# gtk-orientation-reverse-portrait
+# gtk-undelete-ltr
+# gtk-undelete-rtl
+# printer-paused
+# printer-warning
+# 32
+# ==============================================================================
+# gtk-dnd
+# gtk-dnd-multiple

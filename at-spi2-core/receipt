@@ -1,23 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="at-spi2-core"
-VERSION="2.20.2"
+VERSION="2.22.0"
 CATEGORY="libdevel"
-LICENSE="GPL3"
 SHORT_DESC="Service Provider Interface for the Assistive Technologies"
 MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
 WEB_SITE="https://www.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool dbus-dev xorg-libX11-dev xorg-libXtst-dev \
-gobject-introspection-dev"
+BUILD_DEPENDS="intltool dbus-dev xorg-libX11-dev xorg-libICE-dev \
+xorg-libXtst-dev xorg-libSM-dev gobject-introspection-dev"
 SPLIT="at-spi2-core-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/x/at-spi2-core.html
 	./configure \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
@@ -30,14 +31,16 @@ genpkg_rules()
 	case $PACKAGE in
 		at-spi2-core)
 			copy @std
-			DEPENDS="dbus glib libffi libxcb pcre xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXtst zlib"
+			DEPENDS="dbus glib libffi pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXtst xorg-libxcb zlib"
 			;;
 		at-spi2-core-dev)
 			copy @dev
-			DEPENDS="at-spi2-core dbus-dev glib-dev gobject-introspection-dev \
-			libffi-dev xorg-libX11-dev libxcb-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev pcre-dev"
+			DEPENDS="at-spi2-core \
+			dbus-dev glib-dev gobject-introspection-dev libffi-dev pcre-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev"
 			;;
 	esac
 }

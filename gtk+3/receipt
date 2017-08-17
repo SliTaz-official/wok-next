@@ -1,48 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk+3"
-VERSION="3.20.9"
+VERSION="3.22.8"
 CATEGORY="x-window"
 SHORT_DESC="The GIMP Toolkit 3.x"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://www.gtk.org/"
-CONFIG_FILES="/etc/gtk-3.0/settings.ini"
-SUGGESTED="cups"
-COOKOPTS="!menus"
-
-TARBALL="gtk+-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/gtk+/${VERSION:0:4}/$TARBALL"
-
 #HOST_ARCH="i486 arm"
 CROSS_BUGS="bug: /bin/bash: no: command not found"
 
-DEPENDS="colord at-spi2-atk at-spi2-core atk bzlib cairo dbus eudev fontconfig \
-freetype gdk-pixbuf glib harfbuzz lcms2 libcups libepoxy libffi \
-libgnutls liblzma libpng libxcb libxml2 pango pcre pixman xorg-libX11 \
-xorg-libXau xorg-libXcomposite xorg-libXdamage xorg-libXdmcp xorg-libXext \
-xorg-libXfixes xorg-libXi xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
+TARBALL="gtk+-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/gtk+/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS_arm="atk-dev pango-dev gdk-pixbuf-dev dbus-dev dbus-glib-dev \
+xorg-inputproto"
 BUILD_DEPENDS="glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev gettext \
 xorg-libXinerama-dev xorg-libXi-dev xorg-libXrandr-dev xorg-libXcomposite-dev \
 xorg-libXdamage-dev libepoxy-dev at-spi2-atk-dev cups-dev colord-dev gtk-doc \
 libxslt"
-BUILD_DEPENDS_arm="atk-dev pango-dev gdk-pixbuf-dev dbus-dev dbus-glib-dev \
-xorg-inputproto"
-SPLIT="gtk+3-demo gtk+3-widget-factory gtk+3-icon-browser gtk+3-dev"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm*)
-		BUILD_DEPENDS="$BUILD_DEPENDS_arm"
-		ARCH_ARGS="--enable-introspection=no --disable-glibtest --disable-cups \
---disable-papi --with-xinput gio_can_sniff=yes"
-		export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-		export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include" ;;
-esac
+SPLIT="gtk+3-demo gtk+3-widget-factory gtk+3-icon-browser gtk+3 gtk+3-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/x/gtk3.html
+
+	# Handle cross compilation.
+	case "$ARCH" in
+		arm*)
+			ARCH_ARGS="--enable-introspection=no --disable-glibtest \
+			--disable-cups --disable-papi --with-xinput gio_can_sniff=yes"
+			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
+			export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include"
+			;;
+	esac
+
+	touch gdk/gdk.gresource.xml
+
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -63,20 +58,61 @@ compile_rules()
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 
+	cp -f $stuff/settings.ini $install/etc/gtk-3.0 &&
 	find $install -name '*.desktop' | xargs sed -i '/NoDisplay/d'
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ bin/ themes/ *.so* *.xml
-
-	cp -f $stuff/settings.ini $fs/etc/gtk-3.0
-	find $fs \( -name '*demo*' -o -name 'gtk3-icon*' -o -name '*widget*' \
-		-o -name '*Demo*' -o -name '*exampleapp*' \) -delete
+	case $PACKAGE in
+		gtk+3-demo)
+			copy gtk3-demo* *Demo* *exampleapp*
+			rm -r $fs/usr/share/gtk-doc $fs/usr/share/man
+			CAT="development|example code and demo"
+			;;
+		gtk+3-widget-factory)
+			copy gtk3-widget*
+			rm -r $fs/usr/share/gtk-doc $fs/usr/share/man
+			CAT="development|widget factory"
+			;;
+		gtk+3-icon-browser)
+			copy gtk3-icon-browser gtk3-icon-browser.desktop
+			CAT="development|icon browser"
+			;;
+		gtk+3)
+			COOKOPTS="!menus"
+			copy etc/ bin/ themes/ *.so* *.xml
+			remove_already_packed
+			DEPENDS="at-spi2-atk at-spi2-core atk bzlib cairo colord dbus \
+			eudev fontconfig freetype gdk-pixbuf glib lcms2 libcups libepoxy \
+			libffi libgnutls libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXau xorg-libXcomposite \
+			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+			xorg-libXi xorg-libXinerama xorg-libXrandr xorg-libXrender \
+			xorg-libxcb xorg-pixman zlib"
+			CONFIG_FILES="/etc/gtk-3.0/settings.ini"
+			SUGGESTED="cups"
+			;;
+		gtk+3-dev)
+			copy @dev *.its *.loc *.rng
+#			copy *.h *.la *.pc *.typelib *.gir *.m4 *.its *.loc *.rng
+			DEPENDS="gtk+3 gtk+3-demo gtk+3-icon-browser gtk+3-widget-factory \
+			at-spi2-atk-dev at-spi2-core-dev atk-dev bzip2-dev cairo-dev \
+			colord-dev cups-dev dbus-dev eudev-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gnutls-dev harfbuzz-dev lcms2-dev \
+			libepoxy-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXcomposite-dev xorg-libXdamage-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
+			xorg-libXi-dev xorg-libXinerama-dev xorg-libXrandr-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_gtk_3() {
 	chroot "$1/" /usr/bin/gtk-query-immodules-3.0 --update-cache
 }

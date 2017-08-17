@@ -1,26 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libepoxy"
-VERSION="1.3.1"
+VERSION="1.4.0"
 CATEGORY="x-window"
 SHORT_DESC="Library for handling OpenGL function pointer management"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://github.com/anholt/libepoxy/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="${WEB_SITE}releases/download/v$VERSION/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/anholt/libepoxy/releases/download/v${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros python mesa-dev"
+SPLIT="libepoxy-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/x/libepoxy.html
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		libepoxy) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

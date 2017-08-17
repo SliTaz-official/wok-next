@@ -1,27 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="elementary-icon-theme"
-VERSION="4.0.2"
+VERSION="4.2.0"
 CATEGORY="customization"
 SHORT_DESC="Smooth modern theme designed to be intuitive"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="https://launchpad.net/elementaryicons"
+WEB_SITE="https://github.com/elementary/icons"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$WEB_SITE/${VERSION%%.*}.x/$VERSION/+download/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
 #BUILD_DEPENDS="wget cacerts"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	mkdir -p $install/usr/share/icons/elementary
-	cp -a $src/* $install/usr/share/icons/elementary
+	icodir=$install/usr/share/icons/elementary
+	mkdir -p $icodir
+	cp -r $src/* $icodir
+
+	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
+	mkdir -p $docdir
+	cd $icodir
+	mv AUTHORS *.md CONTRIBUTORS COPYING *.gpl pre-commit $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	copy @std
 }

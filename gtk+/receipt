@@ -1,71 +1,101 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk+"
-VERSION="2.24.30"
+VERSION="2.24.31"
 CATEGORY="x-window"
-SHORT_DESC="The GIMP Toolkit."
+SHORT_DESC="The GIMP Toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gtk.org/"
 HOST_ARCH="i486 arm"
-CONF_FILES="/etc/gtk-2.0/im-multipress.conf"
-SUGGESTED="cups gnutls libgcrypt libgpg-error"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
-DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib harfbuzz libcups \
-libffi libgnutls liblzma libpng libxcb libxml2 pango pcre pixman \
-xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
-BUILD_DEPENDS="faenza-icon-theme optipng glib-dev atk-dev pango-dev cairo-dev \
-gdk-pixbuf-dev cups-dev gobject-introspection-dev gtk-doc automake gettext"
 BUILD_DEPENDS_arm="atk-dev pango-dev gdk-pixbuf-dev dbus-dev dbus-glib-dev \
 xorg-inputproto libxcb-dev fontconfig-dev freetype-dev pixman-dev libxml2-dev \
 libpng-dev libffi-dev xorg-xextproto harfbuzz-dev faenza-icon-theme optipng \
 xorg-libX11-dev xorg-libXext-dev xorg-libXrender-dev automake"
-SPLIT="gtk+-demo gtk+-dev"
-
-# Handle cross compilation.
-case "$ARCH" in
-	arm*)
-		BUILD_DEPENDS=$BUILD_DEPENDS_arm
-		ARCH_ARGS="--enable-introspection=no --disable-glibtest --disable-cups \
-		--disable-papi --with-gdktarget=x11 --with-xinput gio_can_sniff=yes"
-		export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-		export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include"
-		export LIBTOOL=${HOST_SYSTEM}-libtool
-		;;
-esac
-
+BUILD_DEPENDS="paper-icon-theme rsvg-convert optipng-static pngquant-static \
+symlinks \
+glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
+gobject-introspection-dev gtk-doc automake gettext xorg-libXinerama-dev"
+SPLIT="gtk+-demo gtk+ gtk+-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
-	. $stuff/replace-icons; cd $src
+	# http://www.linuxfromscratch.org/blfs/view/stable/x/gtk2.html
+
+	# Handle cross compilation.
+	case "$ARCH" in
+		arm*)
+			BUILD_DEPENDS=$BUILD_DEPENDS_arm
+			ARCH_ARGS="--enable-introspection=no --disable-glibtest --disable-cups \
+			--disable-papi --with-gdktarget=x11 --with-xinput gio_can_sniff=yes"
+			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
+			export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include"
+			export LIBTOOL=${HOST_SYSTEM}-libtool
+			;;
+	esac
+
+	. $stuff/replace-icons-paper; cd $src
 
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
 		--with-html-dir=/usr/share/doc \
-		$CONFIGURE_ARGS ${ARCH_ARGS} &&
+		--enable-debug=no \
+		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make $MAKEFLAGS $LIBTOOL &&
-	make install
+	make install &&
+
+	ln -s /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache \
+		$install/etc/gtk-2.0/gdk-pixbuf.loaders &&
+
+	mkdir -p $install/usr/share/applications &&
+	cp $stuff/*.desktop $install/usr/share/applications
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ bin/ themes/
-	find $fs -name gtk-demo -delete
-	copy *.so*
-
-	ln -s /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache \
-		$fs/etc/gtk-2.0/gdk-pixbuf.loaders
+	case $PACKAGE in
+		gtk+-demo)
+			copy gtk-demo demo/ *.desktop
+			CAT="development|example code and demo"
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXinerama \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		gtk+)
+			COOKOPTS="!menus"
+			copy @std
+			remove_already_packed
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib \
+			libcups libffi libgnutls libharfbuzz liblzma libpng16 libxml2 \
+			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXinerama xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			CONFIG_FILES="/etc/gtk-2.0/im-multipress.conf"
+			SUGGESTED="cups gnutls libgcrypt libgpg-error"
+			;;
+		gtk+-dev)
+			copy @dev
+			DEPENDS="gtk+ \
+			atk-dev bzip2-dev cairo-dev cups-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev gnutls-dev \
+			harfbuzz-dev libffi-dev liblzma-dev libpng16-dev libxml2-dev \
+			pango-dev pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXinerama-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install_gtk_() {
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 --update-cache
 }

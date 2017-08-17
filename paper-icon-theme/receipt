@@ -1,8 +1,8 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="paper-icon-theme"
-VERSION="1.4.0.11"
-COMMIT="579e9aa"
+VERSION="1.4.0.28"	# released v.1.4.0 + 28 commits since it
+COMMIT="0411510"
 CATEGORY="customization"
 SHORT_DESC="Simple and modern icon theme with material design influences"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,13 +12,13 @@ WEB_SITE="https://snwh.org/paper/"
 TARBALL="$PACKAGE-$COMMIT.tar.gz"
 WGET_URL="$GITHUB/snwh/paper-icon-theme/tarball/${COMMIT:-$VERSION}"
 
-DEPENDS="librsvg"
-BUILD_DEPENDS="autoconf automake svgcleaner"
+BUILD_DEPENDS="automake" # svgcleaner"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./autogen.sh &&
+	sed -i 's|-Rv|-R|' Makefile &&
 	make && make install
 
 	# remove hdpi icons, and huge sizes
@@ -32,17 +32,21 @@ compile_rules()
 	done
 	sed -i '/HiDPi/,$d' $it
 
-	# remove duplicates (keep <name>.png, remove <name>.svg)
-	for svg in $(find $install -name '*.svg'); do
-		if [ -e "${svg%svg}png" ]; then
-			echo "Remove duplicate: ${svg#*Paper/}"
-			rm "$svg"
-		fi
-	done
+	cp $install/usr/share/icons/Paper/scalable/actions/action-unavailable-symbolic.svg \
+		$install/usr/share/icons/Paper/scalable/actions/action\ unavailable\ symbolic.svg
+
+#	# remove duplicates (keep <name>.png, remove <name>.svg)
+#	for svg in $(find $install -name '*.svg'); do
+#		if [ -e "${svg%svg}png" ]; then
+#			echo "Remove duplicate: ${svg#*Paper/}"
+#			rm "$svg"
+#		fi
+#	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
 	cp -a $install/* $fs
+	DEPENDS="librsvg"
 }

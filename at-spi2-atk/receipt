@@ -1,11 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="at-spi2-atk"
-VERSION="2.20.1"
+VERSION="2.22.0"
 CATEGORY="libdevel"
-LICENSE="GPL3"
 SHORT_DESC="Bridges ATK to At-Spi2 D-Bus service"
 MAINTAINER="yuripourre@gmail.com"
+LICENSE="GPL3"
 WEB_SITE="https://www.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
@@ -17,6 +17,7 @@ SPLIT="at-spi2-atk-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
+	# http://www.linuxfromscratch.org/blfs/view/stable/x/at-spi2-atk.html
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
@@ -25,14 +26,16 @@ genpkg_rules()
 	case $PACKAGE in
 		at-spi2-atk)
 			copy @std
-			DEPENDS="at-spi2-core atk dbus glib libffi libxcb pcre xorg-libX11 \
-			xorg-libXau xorg-libXdmcp"
+			DEPENDS="at-spi2-core atk dbus glib libffi pcre util-linux-uuid \
+			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libxcb"
 			;;
 		at-spi2-atk-dev)
 			copy @dev
-			DEPENDS="at-spi2-atk gobject-introspection-dev at-spi2-core-dev \
-			glib-dev atk-dev libffi-dev xorg-libX11-dev libxcb-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev dbus-dev pcre-dev"
+			DEPENDS="at-spi2-atk \
+			at-spi2-core-dev atk-dev dbus-dev glib-dev libffi-dev pcre-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev"
 			;;
 	esac
 }
