@@ -36,12 +36,10 @@ compile_rules()
 			;;
 	esac
 
-	touch gdk/gdk.gresource.xml
-
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--enable-debug=no \
+		--disable-debug \
 		--enable-xkb \
 		--enable-xinerama \
 		--enable-xrandr \
@@ -55,7 +53,7 @@ compile_rules()
 		--disable-broadway-backend \
 		--with-x \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make $MAKEFLAGS &&
+	make $MAKEFLAGS 2>&1 | fgrep -v './gdk.gresource.xml' && # ugly fix, but alas...
 	make DESTDIR=$DESTDIR install
 
 	cp -f $stuff/settings.ini $install/etc/gtk-3.0 &&
@@ -97,7 +95,6 @@ genpkg_rules()
 			;;
 		gtk+3-dev)
 			copy @dev *.its *.loc *.rng
-#			copy *.h *.la *.pc *.typelib *.gir *.m4 *.its *.loc *.rng
 			DEPENDS="gtk+3 gtk+3-demo gtk+3-icon-browser gtk+3-widget-factory \
 			at-spi2-atk-dev at-spi2-core-dev atk-dev bzip2-dev cairo-dev \
 			colord-dev cups-dev dbus-dev eudev-dev fontconfig-dev freetype-dev \

@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgudev"
-VERSION="230"
+VERSION="231"
 CATEGORY="libdevel"
 SHORT_DESC="GObject bindings for libudev"
 MAINTAINER="gokhlayeh@slitaz.org"
@@ -12,17 +12,24 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="eudev glib libffi pcre zlib"
 BUILD_DEPENDS="gtk-doc gobject-introspection-dev eudev-dev glib-dev"
+SPLIT="libgudev-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--disable-umockdev \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so*
+	case $PACKAGE in
+		libgudev) copy @std; DEPENDS="eudev glib libffi pcre zlib";;
+		*-dev)    copy @dev; DEPENDS="libgudev eudev-dev glib-dev glibc-dev \
+			libffi-dev pcre-dev zlib-dev";;
+	esac
 }
