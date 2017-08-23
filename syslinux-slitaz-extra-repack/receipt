@@ -1,0 +1,29 @@
+# SliTaz package receipt.
+
+PACKAGE="syslinux-slitaz-extra-repack"
+VERSION="4.06"
+CATEGORY="base-system"
+SHORT_DESC="MBR/FAT/EXT3/PXE bootloader: SliTaz fork, repacked from SliTaz-5"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://hg.slitaz.org/wok/file/tip/syslinux"
+
+TARBALL="syslinux-slitaz-extra-4.06.cpio"
+WGET_URL="http://mirror1.slitaz.org/packages/5.0/syslinux-extra-4.06.tazpkg"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+compile_rules()
+{
+	cpio -dmF $src/$TARBALL -i
+	lzma d $src/fs.cpio.lzma -so | cpio -idm
+	mkdir $install
+	cp -r $src/fs/* $install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	copy @std
+	DEPENDS="syslinux-slitaz-repack posixovl"
+	PROVIDE="syslinux-extra"
+}

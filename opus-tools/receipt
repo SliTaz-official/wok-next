@@ -1,32 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="opus-tools"
-VERSION="0.1.9"
+VERSION="0.1.10"
 CATEGORY="multimedia"
-SHORT_DESC="Opus encoder, decoder and tiny tools."
+SHORT_DESC="Opus encoder, decoder and tiny tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://opus-codec.org/"
-WGET_URL="http://downloads.xiph.org/releases/opus/$TARBALL"
 
-DEPENDS="libogg flac"
-BUILD_DEPENDS="libogg libogg-dev opus-dev pkg-config flac-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://archive.mozilla.org/pub/opus/$TARBALL"
+
+BUILD_DEPENDS="libogg-dev opus-dev flac-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	CFLAGS="$CFLAGS -lm"
-	./configure --prefix=/usr \
-		$CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	copy @std
+	DEPENDS="flac libogg opus"
 }
-

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pcmciautils"
 VERSION="018"
@@ -12,35 +12,25 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 #WGET_URL="http://www.kernel.org/pub/linux/utils/kernel/pcmcia/$TARBALL"
 WGET_URL="http://sourceware.mirrors.tds.net/pub/kernel.org/linux/utils/kernel/pcmcia/$TARBALL"
 
-DEPENDS="sysfsutils eudev"
 BUILD_DEPENDS="sysfsutils-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make
+	sed -i 's|/lib/udev|/usr/lib/udev|g; s|/sbin|/usr/bin|g' Makefile
 
-	mkdir -p $install/sbin
-	cp -a pccardctl $install/sbin
-
-	mkdir -p $install/lib/udev
-	cp -a pcmcia-check-broken-cis pcmcia-socket-startup $install/lib/udev
-
-	mkdir -p $install/etc/udev/rules.d
-	cp -a $src/udev/60-pcmcia.rules $install/etc/udev/rules.d
-
-	mkdir -p $install/etc/pcmcia
-	cp -a $src/config/config.opts $install/etc/pcmcia
-
+	make &&
+	make DESTDIR=$install install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ lib/ sbin/
+	copy @std
+	DEPENDS="sysfsutils   eudev"
 }
 
-post_install()
-{
-	tazpkg reconfigure eudev --root="$1/" --quiet
-}
+#post_install() {
+#	echo "root='$1:$root'"
+#	tazpkg reconfigure eudev --root="$1/" --quiet
+#}

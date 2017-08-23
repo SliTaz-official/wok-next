@@ -43,11 +43,12 @@ genpkg_rules()
 		dbus-helper)
 			copy dbus-daemon-launch-helper
 			CAT="x-window|dbus-daemon-launch-helper"
+			DEPENDS="dbus expat"
 			;;
 		dbus)
 			copy @std
 			remove_already_packed
-			DEPENDS="expat xorg-libX11 slitaz-base-files"
+			DEPENDS="expat xorg-libX11   slitaz-base-files"
 			CONFIG_FILES="/etc/dbus-1/session.conf /etc/dbus-1/system.conf /etc/dbus-1/system.d/"
 			;;
 		*-dev) copy @dev;;
@@ -77,7 +78,11 @@ EOT
 }
 
 post_install_dbus() {
-	dbus-uuidgen --ensure
+	# Mount /dev to fix an error:
+	# Failed to generate UUID: Could not open /dev/urandom: Permission denied
+	[ -z "$1" ] || mount -o bind /dev "$1/dev"
+	chroot "$1/" dbus-uuidgen --ensure
+	[ -z "$1" ] || umount "$1/dev"
 }
 
 pre_remove_dbus() {
