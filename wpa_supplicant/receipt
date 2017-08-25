@@ -1,48 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wpa_supplicant"
-VERSION="2.1"
+VERSION="2.6"
 CATEGORY="utilities"
 SHORT_DESC="WPA Supplicant with support for WPA and WPA2"
 MAINTAINER="0dddba11@googlemail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://hostap.epitest.fi/wpa_supplicant/"
-WGET_URL="http://hostap.epitest.fi/releases/$TARBALL"
-CONFIG_FILES="/etc/wpa/wpa_supplicant.conf"
-TAGS="wireless wifi network"
+WEB_SITE="http://w1.fi/wpa_supplicant/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libssl libcrypto libnl dbus"
-BUILD_DEPENDS="openssl-dev libcrypto-dev libnl-dev dbus-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://w1.fi/releases/$TARBALL"
 
-# Arch install
-case "$SLITAZ_ARCH" in
-	arm*) DEPENDS="libssl libcrypto libnl" ;;
-esac
-
-# Cross compile
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="openssl-dev libcrypto-dev libnl-dev" ;;
-esac
+BUILD_DEPENDS_arm="openssl-dev libcrypto-dev libnl-dev"
+BUILD_DEPENDS="libnl-dev dbus-dev openssl-dev readline-dev"
 
 # Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/$PACKAGE
-	cp -a ./defconfig ./.config
-	sed 's/-lnl/-lnl-3/g' -i ../src/drivers/drivers.mak
-	sed 's/-lnl-3-genl/-lnl-genl-3/g' -i ../src/drivers/drivers.mak
+compile_rules() {
+	# http://www.linuxfromscratch.org/blfs/view/stable/basicnet/wpa_supplicant.html
+
+	cd $src/wpa_supplicant
+	cp -a defconfig .config
+
 	# Main build configs
-	cat >> .config << EOT
+	cat >> .config <<EOT
+CONFIG_DEBUG_FILE=y
+CONFIG_DEBUG_SYSLOG=y
+CONFIG_DEBUG_SYSLOG_FACILITY=LOG_DAEMON
+CONFIG_IPV6=y
+CONFIG_LIBNL32=y
+CONFIG_READLINE=y
+CONFIG_WPS=y
 CONFIG_AP=y
 CONFIG_BGSCAN_SIMPLE=y
-CONFIG_LIBNL20=y
 EOT
-	# Dont use DBUS on ARM arch
+	# Don't use DBUS on ARM arch
 	case "$ARCH" in
 		i?86)
-			cat >> .config << EOT
+			cat >> .config <<EOT
 CFLAGS += -I/usr/include/libnl3
 CONFIG_CTRL_IFACE_DBUS=y
 CONFIG_CTRL_IFACE_DBUS_NEW=y
@@ -50,56 +45,63 @@ CONFIG_CTRL_IFACE_DBUS_INTRO=y
 EOT
 			;;
 		arm)
-			cat >> .config << EOT
+			cat >> .config <<EOT
 CFLAGS += -I${sysroot}/usr/include/libnl3
 CFLAGS += -I${sysroot}/usr/include/openssl
 LIBS += -L${sysroot}/usr/lib
 EOT
 			;;
 	esac
-	make BINDIR=/usr/bin LIBDIR=/lib
+	make BINDIR=/sbin LIBDIR=/lib || exit 1
+
+	# commands
+	bindir="$install/sbin"
+	mkdir -p $bindir
+	install -vm755 wpa_cli        $bindir
+	install -vm755 wpa_passphrase $bindir
+	install -vm755 wpa_supplicant $bindir
+
+	cook_pick_manpages \
+		doc/docbook/wpa_supplicant.conf.5 \
+		doc/docbook/wpa_cli.8 \
+		doc/docbook/wpa_passphrase.8 \
+		doc/docbook/wpa_supplicant.8
+
+	mkdir -p $install/usr/share/dbus-1/system-services
+	install -vm644 dbus/*.service $install/usr/share/dbus-1/system-services/
+
+	mkdir -p $install/etc/dbus-1/system.d
+	install -vm644 dbus/dbus-wpa_supplicant.conf \
+		$install/etc/dbus-1/system.d/wpa_supplicant.conf
+
+	# Startup script and cleaned up wpa_empty.conf
+	cp -a $stuff/etc $install
+	install -vm644 $src/wpa_supplicant/wpa_supplicant.conf $install/etc/wpa
+	chown -R root:root $install/etc
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	# commands
-	mkdir -p $fs/usr/bin
-	install -v -m755 $src/$PACKAGE/wpa_cli $fs/usr/bin
-	install -v -m755 $src/$PACKAGE/wpa_supplicant $fs/usr/bin
-	install -v -m755 $src/$PACKAGE/wpa_passphrase $fs/usr/bin
-
-	# D-Bus control
-	mkdir -p $fs/usr/share/dbus-1/system-services
-	install -v -m644 \
-		$src/wpa_supplicant/dbus/fi.epitest.hostap.WPASupplicant.service \
-		$fs/usr/share/dbus-1/system-services
-	install -v -m644 \
-		$src/wpa_supplicant/dbus/fi.w1.wpa_supplicant1.service \
-		$fs/usr/share/dbus-1/system-services
-
-	mkdir -p $fs/etc/dbus-1/system.d
-	install -v -m644 \
-		$src/wpa_supplicant/dbus/dbus-wpa_supplicant.conf \
-		$fs/etc/dbus-1/system.d/wpa_supplicant.conf
-
-	# Startup script and cleaned up wpa_empty.conf
-	cp -a $stuff/etc $fs
-	install -m644 -oroot -groot $src/$PACKAGE/wpa_supplicant.conf $fs/etc/wpa
+genpkg_rules() {
+	copy @std
+	DEPENDS="dbus libcrypto libnl libssl ncurses readline"
+	CONFIG_FILES="/etc/wpa/wpa_supplicant.conf"
+	TAGS="wireless wifi network"
+	case "$SLITAZ_ARCH" in
+		arm*) DEPENDS="libssl libcrypto libnl";;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
-{
-	grep -qs ^WPA_OPTIONS= $1/etc/daemons.conf || cat >> "$1/etc/daemons.conf" << EOT
+post_install() {
+	grep -qs ^WPA_OPTIONS= $1/etc/daemons.conf || cat >> "$1/etc/daemons.conf" <<"EOT"
 
 # wpa_supplicant daemon options
-WPA_OPTIONS="-B -u -P /var/run/wpa_supplicant.pid -c /etc/wpa/wpa.conf -i \$(. /etc/network.conf ; echo \$WIFI_INTERFACE)"
+WPA_OPTIONS="-B -u -P /var/run/wpa_supplicant.pid -c /etc/wpa/wpa.conf -i $(. /etc/network.conf; echo $WIFI_INTERFACE)"
 
 EOT
 	# We use /etc/wpa/wpa.conf from SliTaz 5.0
-	sed -i s'#/etc/wpa_supplicant.conf#/etc/wpa/wpa.conf#'/ "$1/etc/daemons.conf" 2> /dev/null
-	# 'w' option dont exist anymore with < 0.6.9
-	sed -i s/'-Bw'/'-B'/ "$1/etc/daemons.conf" 2> /dev/null
-	sed -i s/'-B -w'/'-B'/g "$1/etc/init.d/network.sh" 2> /dev/null
+	sed -i 's|/etc/wpa_supplicant.conf|/etc/wpa/wpa.conf|' "$1/etc/daemons.conf" 2>/dev/null
+	# 'w' option don't exist anymore with < 0.6.9
+	sed -i 's|-Bw|-B|' "$1/etc/daemons.conf" 2>/dev/null
+	sed -i 's|-B -w|-B|g' "$1/etc/init.d/network.sh" 2>/dev/null
 }

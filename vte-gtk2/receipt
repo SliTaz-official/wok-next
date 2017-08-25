@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
-PACKAGE="vte"
-VERSION="0.46.1"
+PACKAGE="vte-gtk2"
+VERSION="0.28.2" # last gtk2-based series is 0.28; last version is 0.28.2 (2011-08-28); see vte receipt for latest vte
 CATEGORY="utilities"
 SHORT_DESC="Terminal capabilities for GTK+ widgets"
 MAINTAINER="pankso@slitaz.org"
@@ -9,26 +9,22 @@ LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL="vte-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/vte/0.28/$TARBALL"
 
 BUILD_DEPENDS_arm="gtk+-dev ncurses-dev"
-BUILD_DEPENDS="automake gettext gobject-introspection-dev vala intltool \
-pango-dev gtk+3-dev pcre2-dev gnutls-dev"
-SPLIT="vte-terminal vte vte-dev"
+BUILD_DEPENDS="intltool gtk+-dev python-dev gobject-introspection-dev pygtk-dev"
+SPLIT="vte-gtk2-terminal vte-gtk2-python vte-gtk2 vte-gtk2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html
+	# http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html (for gtk+3 version)
 
 	case "$ARCH" in
 		i?86) ARCH_ARGS="--enable-introspection=yes";;
 		arm)  ARCH_ARGS="--enable-introspection=no";;
 	esac
-
-	sed -i '/Werror/d' configure.ac &&
-	autoreconf &&
 
 	./configure \
 		--sysconfdir=/etc \
@@ -44,32 +40,35 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
-		vte-terminal)
+		vte-gtk2-terminal)
 			copy bin/
 			CAT="development|X Terminal"
-			DEPENDS="vte"
+			DEPENDS="vte-gtk2"
 			;;
-		vte)
+		vte-gtk2-python)
+			copy vtemodule.so vte.defs
+			CAT="development|Python bindings"
+			DEPENDS="python vte-gtk2"
+			PROVIDE="python-vte"
+			;;
+		vte-gtk2)
 			copy @std
 			remove_already_packed
-			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gmp \
-			gtk+3 libffi libgnutls libharfbuzz libidn liblzma libpng16 \
-			libtasn1 libunistring libxml2 nettle p11-kit pango pcre pcre2 \
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 ncurses pango pcre \
 			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
 			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
 			xorg-pixman zlib"
 			;;
-		vte-dev)
+		vte-gtk2-dev)
 			copy @dev
-			DEPENDS="vte vte-terminal \
+			DEPENDS="vte-gtk2 vte-gtk2-terminal vte-gtk2-python \
 			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gmp-dev gnutls-dev gtk+3-dev harfbuzz-dev \
-			libffi-dev libidn-dev libpng16-dev libtasn1-dev libunistring-dev \
-			libxml2-dev nettle-dev p11-kit-dev pango-dev pcre-dev pcre2-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libffi-dev \
+			libpng16-dev libxml2-dev ncurses-dev pango-dev pcre-dev \
 			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libxcb-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-pixman-dev xz-dev \
-			zlib-dev"
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
 			;;
 	esac
 }

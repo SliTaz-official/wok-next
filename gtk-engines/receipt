@@ -1,33 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-engines"
 VERSION="2.20.2"
 CATEGORY="customization"
-SHORT_DESC="All standart GTK+2 engines for themes"
+SHORT_DESC="Standard GTK+2 theme engines"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://linuxfromscratch.org/blfs/view/svn/x/gtk-engines.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
-DEPENDS="gtk+ xorg-libXdamage"
-BUILD_DEPENDS="pkg-config file gtk+-dev"
+BUILD_DEPENDS="file gtk+-dev intltool"
+SPLIT="gtk-clearlooks gtk-engines gtk-engines-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure && make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs && rm -rf $fs/usr/share/locale
-	rm $fs/usr/lib/gtk-2.0/2.10.0/engines/*.la
-	cd $fs/usr/share/$PACKAGE ; sed -i '/lang/d' *
-	
-	# This clearlooks is 5(!) years newer (+~100Kb)
-	# but there are bugs with default slitaz gtk themes
-	find $fs -regex '.*\(clearlooks\|Clearlooks\).*' \
-	-exec ls -l {} \; -delete
+	case $PACKAGE in
+		gtk-clearlooks)
+			copy libclearlooks.so Clearlooks/ clearlooks.xml
+			sed -i '/xml:lang=/d' $fs/usr/share/gtk-engines/*.xml
+			CAT="x-window|default gtk-engine, with ajustable colors"
+			DEPENDS="gtk+"
+			;;
+		gtk-engines)
+			copy @std
+			remove_already_packed
+			sed -i '/xml:lang=/d' $fs/usr/share/gtk-engines/*.xml
+			DEPENDS="gtk+ xorg-libXdamage"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

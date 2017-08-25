@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxde"
 VERSION="0.3.2.1"
@@ -7,13 +7,7 @@ SHORT_DESC="Meta-package for the Lightweight X11 Desktop Environement"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://lxde.org/"
-TAGS="LXDE window-manager desktop"
 HOST_ARCH="i486 arm"
-
-SUGGESTED="lxterminal lxdm lxshortcut xarchiver"
-DEPENDS="xorg-libX11 gtk+ lxpanel lxtask lxappearance lxsession pcmanfm \
-lxsession-edit lxrandr lxinput openbox obconf gpicview leafpad slitaz-configs \
-slitaz-tools-boxes"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
@@ -24,22 +18,24 @@ genpkg_rules()
 	cp -a $stuff/xsessions $fs/usr/share
 	cp -a $stuff/lxde-logout.desktop $fs/usr/share/applications
 	chown -R 0.0 $fs
+
+	TAGS="LXDE window-manager desktop"
+	SUGGESTED="lxterminal lxdm lxshortcut xarchiver"
+	DEPENDS="xorg-libX11 gtk+ lxpanel lxtask lxappearance lxsession pcmanfm \
+	lxsession-edit lxrandr lxinput openbox obconf gpicview leafpad \
+	slitaz-configs slitaz-tools-boxes"
 }
 
 # Add WM to SLIM available sessions.
-post_install()
-{
+post_install() {
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
 	if ! echo "$res" | grep -q $PACKAGE; then
-		echo -n "Adding $PACKAGE to /etc/slim.conf..."
-		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
-		status
+		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
 	fi
 }
 
 # Remove WM from SLIM available sessions.
-post_remove()
-{
+post_remove() {
 	if grep -q $PACKAGE $root/etc/slim.conf; then
 		sed -i s/,$PACKAGE// "$1/etc/slim.conf"
 	fi
