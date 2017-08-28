@@ -1,0 +1,59 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mathomatic"
+VERSION="5232982"
+CATEGORY="math"
+SHORT_DESC="Portable, command-line, educational CAS and calculator software"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://en.wikipedia.org/wiki/Mathomatic"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/rubicks/mathomatic/archive/$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake libtool readline-dev"
+SPLIT="mathomatic-optional mathomatic"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	autoreconf -fi &&
+
+	./configure $CONFIGURE_ARGS && make && make install || return 1
+
+	install -m0755 primes/matho-mult primes/matho-sum primes/primorial \
+		$install/usr/bin
+
+	docdir="$install/usr/share/doc/mathomatic-16.0.5"
+	mkdir -p $docdir
+	cp doc/* $docdir
+
+	appdir="$install/usr/share/applications"
+	mkdir -p $appdir
+	cp icons/*.desktop $appdir
+
+	icodir="$install/usr/share/icons/hicolor"
+	for i in 16 48; do
+		mkdir -p "$icodir/${i}x$i/apps"
+		cp "$stuff/mathomatic$i.png" "$icodir/${i}x$i/apps/mathomatic.png"
+	done
+
+	cook_pick_manpages mathomatic.1 lib/*.3 primes/*.1
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		mathomatic-optional)
+			copy bin/matho-* primorial
+			CAT="math|additional utilities"
+			DEPENDS="mathomatic python"
+			;;
+		mathomatic)
+			copy @std
+			remove_already_packed
+			DEPENDS="ncurses readline"
+			;;
+	esac
+}
