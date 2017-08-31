@@ -1,0 +1,42 @@
+# Virtual filesystem implementation for GIO
+
+GVfs is a userspace virtual filesystem designed to work with the I/O abstraction
+of GIO (a library availible in GLib >= 2.15.1). It installs several modules that
+are automatically used by applications using the APIs of libgio. There is also
+FUSE support that allows applications not using GIO to access the GVfs
+filesystems.
+
+The GVfs model differs from e.g. GnomeVFS in that filesystems must be mounted
+before they are used. There is a master daemon (gvfsd) that handles coordinating
+mounts, and then each mount is (typically) in its own daemon process (although
+mounts can share daemon process).
+
+GVfs comes with a set of backends, including trash support, SFTP, SMB, HTTP,
+DAV, and others.
+
+GVfs also contains modules for GIO that implement volume monitors and the GNOME
+URI scheme handler configuration.
+
+There is a set of command line programs starting with "gvfs-" that lets you run
+commands (like `cat`, `ls`, `stat`, etc) on files in the GVfs mounts.
+
+command | description
+--------|------------
+`gvfs-cat` | concatenates the given files and prints them to the standard output
+`gvfs-copy` | copies a file from one URI location to another
+`gvfs-info` | shows information about the given locations
+`gvfs-less` | executes less using the VFS as the input preprocesor, so less can access any resource accessible by any of the Gvfs backends
+`gvfs-ls` | lists information about the given locations
+`gvfs-mime` | is used to query information about applications that are registered to handle a mime-type, or set the default handler for a mime-type
+`gvfs-mkdir` | creates a directory specified by an URI
+`gvfs-monitor-dir` | prints information about file creation, deletion, file content and attribute changes and mount and unmount operations inside the specified directories
+`gvfs-monitor-file` | prints information about creation, deletion, content and attribute changes and mount and unmount operations affecting the monitored files
+`gvfs-mount` | provides commandline access to various aspects of GIOs mounting functionality
+`gvfs-move` | moves a file from one URI location to another
+`gvfs-open` | opens files with the default application that is registered to handle files of that type
+`gvfs-rename` | changes the name of a file or directory
+`gvfs-rm` | removes a file
+`gvfs-save` | reads from the standard input and saves the data to the given location
+`gvfs-set-attribute` | allows to set a file attribute on a file
+`gvfs-trash` | sends files or directories to the "Trashcan"
+`gvfs-tree` | lists the contents of the given directories recursively, in a tree-like format

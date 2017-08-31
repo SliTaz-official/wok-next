@@ -1,33 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libical"
-VERSION="0.44"
+VERSION="2.0.0"
 CATEGORY="system-tools"
-SHORT_DESC="Opensource ICalendar implementation"
+SHORT_DESC="iCalendar library implementation in C"
 MAINTAINER="erjo@slitaz.org"
-LICENSE="MPL LGPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://sourceforge.net/projects/freeassociation/"
-WGET_URL="http://downloads.sourceforge.net/project/freeassociation/$PACKAGE/$PACKAGE-$VERSION/$TARBALL"
+LICENSE="MPL LGPL2.1"
+WEB_SITE="https://github.com/libical"
 
-DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/libical/libical/releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake perl db-dev gobject-introspection-dev"
+SPLIT="libical-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/libical.html
+	mkdir build &&
+	cd build &&
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DSHARED_ONLY=yes \
+		.. &&
+	make && make install || return 1
+
+	docdir="$install/usr/share/doc/$PACKAGE-$VERSION"
+	mkdir -p $docdir
+	cp -r $src/doc/UsingLibical.txt $docdir
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libical) copy @std;;
+		*-dev)   copy @dev;;
+	esac
 }
-

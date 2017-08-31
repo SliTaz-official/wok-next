@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libcdio-paranoia"
+VERSION="10.2+0.94+2" # please, synchronize this version (x+0.94+x) with libcdio
+CATEGORY="multimedia"
+SHORT_DESC="Port of xiph.org's cdda paranoia to use libcdio for CDROM access"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://www.gnu.org/software/libcdio/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://ftp.gnu.org/gnu/libcdio/$TARBALL"
+
+BUILD_DEPENDS="libcdio-dev"
+SPLIT="libcdio-paranoia-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure \
+		--enable-cpp-progs \
+		--disable-static \
+		--disable-example-progs \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		libcdio-paranoia)
+			copy @std
+			DEPENDS="libcdio"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libcdio-paranoia libcdio-dev"
+			;;
+	esac
+}

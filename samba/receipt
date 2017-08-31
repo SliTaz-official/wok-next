@@ -1,68 +1,131 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="samba"
-VERSION="3.6.7"
+VERSION="4.6.7"
 CATEGORY="system-tools"
-SHORT_DESC="File and print services with SMB/CIFS."
+SHORT_DESC="File and print services with SMB/CIFS"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://samba.org/"
-WGET_URL="${WEB_SITE}$PACKAGE/ftp/stable/$TARBALL"
-TAZPANEL_DAEMON="man|edit::/etc/samba/smb.conf|web::$WEB_SITE"
-SUGGESTED="gamin cups perl"
-CONFIG_FILES="/etc/samba"
+WEB_SITE="https://www.samba.org/"
 BUGS="Open directory needs MIT kerberos support (krb5)"
+COOKOPTS="!menus"
 
-BUILD_DEPENDS="openldap openldap-dev libcomerr-dev cups-dev talloc-dev \
-pkg-config libldap krb5"
-DEPENDS="libldap samba-common glibc-base ncursesw popt zlib cifs-utils acl \
-krb5 cups"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://download.samba.org/pub/samba/stable/$TARBALL"
+
+BUILD_DEPENDS="python-dev perl acl-dev docbook-xsl openldap-dev   \
+gnutls-dev krb5-dev cyrus-sasl-dev zlib-dev popt-dev libtdb-dev talloc-dev \
+libgcrypt-dev nss-dev cups-dev dbus-dev"
+SPLIT="samba-dev" # TODO: swat
+
+version() {
+	wget -O- -q https://download.samba.org/pub/samba/ | \
+	sed '/LATEST-IS-SAMBA/!d; s|.*SAMBA-\([^<]*\).*|\1|'
+}
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src/source3
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--with-piddir=/var/run/samba --with-lockdir=/var/run/samba \
-	--with-winbind --with-ldap --with-fhs --enable-cups --enable-swat \
-	--enable-shared-libs --enable-external-libtalloc --with-libtdb \
-	--with-libsmbsharemodes --with-libsmbclient --without-pam \
-	--sysconfdir=/etc --localstatedir=/var \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make -j1 &&
-	make -j1 DESTDIR=$DESTDIR install || return 1
-	#rm -f $DESTDIR/usr/*bin/*.old
-	#ln -s libwbclient.so $DESTDIR/usr/lib/libwbclient.so.0
+	# http://www.linuxfromscratch.org/blfs/view/stable/basicnet/samba.html
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--with-piddir=/run/samba \
+		--with-pammodulesdir=/lib/security \
+		--enable-fhs \
+		--without-ad-dc \
+		--without-systemd \
+		--enable-selftest \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	mkdir -p $install/lib
+	mv $install/usr/lib/libnss_wins.so* $install/usr/lib/libnss_winbind.so* \
+		$install/lib
+	ln -sf ../../lib/libnss_winbind.so.2 $install/usr/lib/libnss_winbind.so
+	ln -sf ../../lib/libnss_wins.so.2    $install/usr/lib/libnss_wins.so
+
+	install -m644 examples/smb.conf.default $install/etc/samba
+
+	mkdir -pv $install/etc/openldap/schema
+	cp examples/LDAP/README $install/etc/openldap/schema/README.LDAP
+	cp examples/LDAP/samba* $install/etc/openldap/schema
+	cp -r examples/LDAP/get* examples/LDAP/ol* $install/etc/openldap/schema
+
+	cp -a $stuff/etc $install
+
+	# Symlink smbspool to cups backend
+	mkdir -p $install/usr/lib/cups/backend
+	ln -sf /usr/bin/smbspool $install/usr/lib/cups/backend/smb
+
+	# for swat package
+#	icodir="$install/usr/share/icons/hicolor/48x48/apps"
+#	mkdir -p $icodir
+#	cp $stuff/swat.png $icodir
+
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $stuff/etc $fs
-	cat $stuff/*.files-list | while read file; do
-		rm -rf $fs$file
-	done
+	# Note, packages samba-common, smbclient was removed due to circular dependencies:
+	# smbclient <--> samba <--> samba-common
+	case $PACKAGE in
+#		smbclient)
+#			copy smbclient smbspool smbget smbtree smbcacls smbcquotas smbtar \
+#			rpcclient net nmblookup libnetapi.so* libsmbclient.so* smb
+#			CAT="network|client"
+#			DEPENDS="samba libldap libtdb popt talloc"
+#			;;
+#		swat)
+#			copy swat/ swat.desktop swat.png
+#			CAT="development|Samba Web Administration Tool"
+#			DEPENDS="samba"
+#			;;
+		samba)
+			copy @std
+#			remove_already_packed
+			DEPENDS="acl attr dbus libcups libgnutls libldap libtdb ncurses \
+			ncurses-libform ncurses-libpanel perl popt python talloc \
+			talloc-python zlib"
+			PROVIDE="samba-common smbclient"
+			TAZPANEL_DAEMON="man|edit::/etc/samba/smb.conf|web::$WEB_SITE"
+			CONFIG_FILES="/etc/samba/smb.conf"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="samba talloc-dev"
+			;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
-{
-	cat <<EOF
-----
-The main configuration file is /etc/samba/smb.conf
-----
-To start $PACKAGE server you can run :
+post_install_samba() {
+	[ -n "$quiet" ] || cat <<EOT
 
-    /etc/init.d/$PACKAGE start
+	.----------------------------------------------------.
+	| The main configuration file is /etc/samba/smb.conf |
+	|----------------------------------------------------|
+	| To start samba server you can run:                 |
+	|     /etc/init.d/samba start                        |
+	|                                                    |
+	| Or add samba to RUN_DAEMONS in /etc/rcS.conf       |
+	'----------------------------------------------------'
+EOT
+}
 
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
-----
-EOF
+post_install_swat() {
+	[ -f "$1/etc/lighttpd/lighttpd.conf" ] || return
+
+	[ ! grep -q /usr/share/samba/swat/ "$1/etc/lighttpd/lighttpd.conf" ] || return
+
+	sed -e 's|.*"/examples/" => "/usr/share/examples/",|    "/examples/" => "/usr/share/examples/",\n    "/swat/" => "/usr/share/samba/swat/",|g' -i "$1/etc/lighttpd/lighttpd.conf"
+
+	[ -z "$1" ] || return
+	# Start Web server.
+	/etc/init.d/lighttpd stop
+	/etc/init.d/lighttpd start
 }

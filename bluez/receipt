@@ -1,62 +1,70 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bluez"
-VERSION="4.101"
+VERSION="5.43"
 CATEGORY="system-tools"
-SHORT_DESC="Bluetooth protocol stack."
+SHORT_DESC="Bluetooth protocol stack"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.bluez.org/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-#WGET_URL="http://www.kernel.org/pub/linux/bluetooth/$TARBALL"
-WGET_URL="http://sourceware.mirrors.tds.net/pub/kernel.org/linux/bluetooth/$TARBALL"
-TAGS="bluetooth"
 
-DEPENDS="linux-bluetooth alsa-lib glib dbus pygobject dbus-python"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://www.kernel.org/pub/linux/bluetooth/$TARBALL"
+
 BUILD_DEPENDS="alsa-lib-dev dbus-dev glib-dev libusb-dev pkg-config libusb-compat"
+SPLIT="bluez-tools bluez-tools-experimental bluez bluez-dev"
+
+BUILD_DEPENDS="glib-dev dbus-dev eudev-dev libical-dev readline-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's/NEED_USB/xx&/' tools/*.c
-
+	# http://www.linuxfromscratch.org/blfs/view/stable/general/bluez.html
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--libexecdir=/lib \
-		--mandir=/usr/share/man \
-		--enable-bccmd \
-		--enable-dfutool \
-		--enable-dund \
-		--enable-hid2hci \
-		--enable-hidd \
-		--enable-pand \
-		--enable-usb \
-		--enable-cups \
-		--enable-tools \
-		--enable-wiimote \
-		--disable-test \
-		--without-systemdunitdir \
+		--enable-library \
+		--disable-systemd \
+		--enable-experimental \
 		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make install || return 1
+
+	mkdir -p $install/usr/sbin
+	ln -svf ../libexec/bluetooth/bluetoothd $install/usr/sbin
+
+	mkdir -p $install/etc/bluetooth
+	cp src/main.conf $install/etc/bluetooth
+
+	docdir="$install/usr/share/doc/$PACKAGE-$VERSION"
+	mkdir -p $docdir
+	cp doc/*.txt $docdir
+
+	cp $stuff/*.conf $install/etc/bluetooth/
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/alsa-lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/alsa-lib/*.so* $fs/usr/lib/alsa-lib
-	cp -a $install/usr/lib/bluetooth $fs/usr/lib
-	cp -a $install/usr/lib/cups $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-
-	#some extra tools and config files
-	cp -a $src/test/simple-agent $fs/usr/bin/bluez-simple-agent
-	cp  $src/audio/audio.conf $fs/etc/bluetooth
+	case $PACKAGE in
+		bluez-tools)
+			copy bccmd bluemoon ciptool hciattach hciconfig hcidump hcitool \
+			hex2hcd l2ping l2test mpris-proxy rctest rfcomm sdptool
+			CAT="system-tools|tools"
+			;;
+		bluez-tools-experimental)
+			copy bin/
+			rm $fs/usr/bin/bluetoothctl $fs/usr/bin/btmon	# -> main package
+			remove_already_packed
+			CAT="system-tools|experimental tools"
+			;;
+		bluez)
+			copy @std
+			remove_already_packed
+			TAGS="bluetooth"
+			DEPENDS="dbus eudev glib libical ncurses readline   linux-bluetooth"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
