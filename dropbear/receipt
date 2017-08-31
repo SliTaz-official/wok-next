@@ -12,7 +12,7 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://matt.ucc.asn.au/dropbear/releases/$TARBALL"
 
-BUILD_DEPENDS_arm=""
+BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="zlib-dev pam pam-dev"
 SPLIT="dropbear-pam"
 
@@ -72,6 +72,9 @@ compile_rules()
 	      $install/etc/dropbear/dropbear_rsa_host_key \
 	      $install/etc/dropbear/dropbear_ecdsa_host_key
 
+	# PAM
+	cp -a $stuff/pam.d $install/etc
+
 	# Fix dropbear initscript perms
 	chown -R root:root $install
 }
@@ -82,6 +85,7 @@ genpkg_rules() {
 		dropbear)
 			copy @std
 			rm -f $fs/usr/sbin/dropbear-pam
+			rm -r $fs/etc/pam.d/
 			DEPENDS="zlib"
 			CONFIG_FILES="/etc/dropbear"
 			SUGGESTED="sftp-server"
@@ -89,7 +93,7 @@ genpkg_rules() {
 			TAGS="ssh"
 			;;
 		dropbear-pam)
-			copy dropbear-pam
+			copy dropbear-pam pam.d/
 			mv $fs/usr/sbin/dropbear-pam $fs/usr/sbin/dropbear
 			DEPENDS="dropbear pam"
 			CAT="security|with PAM support"
