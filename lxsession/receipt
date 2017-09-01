@@ -3,10 +3,10 @@
 PACKAGE="lxsession"
 VERSION="0.5.3"
 CATEGORY="x-window"
-SHORT_DESC="LXDE X session manager"
+SHORT_DESC="Standard session manager used by LXDE"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://wiki.lxde.org/en/LXSession"
+WEB_SITE="https://wiki.lxde.org/en/LXSession"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
@@ -25,16 +25,15 @@ compile_rules()
 	rm *.stamp
 	autoreconf -fi
 
-	# Additional keys: --enable-buildin-clipboard, --enable-buildin-polkit
 	./configure \
 		--sysconfdir=/etc \
-		--enable-buildin-clipboard \
 		$CONFIGURE_ARGS &&
-	make && make install || exit 1
+	make && make install || return 1
 
 	# customize desktop.conf for SliTaz
-	mkdir -p $install/etc/xdg/lxsession/LXDE/
-	cp $src/data/desktop.conf.example $install/etc/xdg/lxsession/LXDE/desktop.conf
+	confdir="$install/etc/xdg/lxsession/LXDE"
+	mkdir -p $confdir
+	cp $src/data/desktop.conf.example $confdir/desktop.conf
 	sed -i '
 		s|^\(terminal_manager/command\).*|\1=terminal|;
 		s|^\(launcher_manager/command\).*|\1=lxpanelctl|;
@@ -45,11 +44,17 @@ compile_rules()
 		s|^\(sGtk/FontName\).*|\1=DejaVu Sans 10|;
 		s|^#*\(iGtk/ToolbarIconSize\).*|\1=2|;
 		s|^#*\(sGtk/CursorThemeName\).*|\1=slitaz-polar|;
-		' $install/etc/xdg/lxsession/LXDE/desktop.conf
+		' $confdir/desktop.conf
 
 	# change icon
 	sed -i 's|^Icon=.*$|Icon=session-properties|' \
 		$install/usr/share/applications/lxsession-edit.desktop
+
+	# config files examples
+	cp data/*.example $confdir
+
+	# LXDE autostart dir
+	mkdir -p $confdir/autostart
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -59,4 +64,6 @@ genpkg_rules()
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango polkit \
 	xorg-libX11   dbus-glib lsb-release"
 	PROVIDE="lxsession-edit"
+	CONFIG_FILES="/etc/xdg/lxsession/LXDE/desktop.conf \
+	/etc/xdg/lxsession/LXDE/conffiles.conf"
 }
