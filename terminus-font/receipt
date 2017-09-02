@@ -1,24 +1,54 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="terminus-font"
-VERSION="4.40"
+VERSION="4.46"
 CATEGORY="system-tools"
-SHORT_DESC="Monospaced font designed for long (8+ hours per day) work with computers."
+SHORT_DESC="Monospaced font designed for long work with computers"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="OFL"
 WEB_SITE="http://terminus-font.sourceforge.net/"
-WANTED="terminus-font-base"
 
-DEPENDS="terminus-font-base"
-BUILD_DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+BUILD_DEPENDS="py3k xorg-bdftopcf patch"
+SPLIT="terminus-font-x11 terminus-font-base terminus-font"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	for i in dv1 gq2 ij1 ll2 br1; do
+		[ -f "patch-$i.done" ] && continue
+		echo "Applying patch alt/$i.diff"
+		patch -Np1 -i alt/$i.diff 2>&1 | sed 's|^|  |'
+		touch patch-$i.done
+		echo
+	done
+
+	./configure \
+		--prefix=/usr \
+		--psfdir=/usr/share/kbd/consolefonts \
+		--x11dir=/usr/share/fonts/X11 &&
+	make && make DESTDIR=$install install
+}
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	fontdir=$fs/usr/share/kbd/consolefonts
-	mkdir -p $fontdir
-	cp -a $WOK/$WANTED/source/*/ter-v* $fontdir
-	# provided in terminus-font-base
-	rm -f $fontdir/ter-v14n.psf
-	gzip -9 $fontdir/*
+	case $PACKAGE in
+		terminus-font-x11)
+			copy *.pcf*
+			CAT="x-window|Xorg pcf fonts"
+			;;
+		terminus-font-base)
+			copy ter-v14n.*
+			CAT="system-tools|8x14 console font"
+			;;
+		terminus-font)
+			copy @std
+			remove_already_packed
+			CAT="system-tools|console fonts"
+			DEPENDS="terminus-font-base"
+			;;
+	esac
 }
