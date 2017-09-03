@@ -1,64 +1,67 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="alsa-utils"
-VERSION="1.0.27.2"
+VERSION="1.1.4"
 CATEGORY="multimedia"
-SHORT_DESC="Alsa sound system utilities and config tools."
+SHORT_DESC="Command line utilities for the ALSA project"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.alsa-project.org/"
+HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/alsa-utils.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.alsa-project.org/pub/utils/$TARBALL"
-CONFIG_FILES="/var/lib/alsa/asound.state"
-HOST_ARCH="i486 arm"
 
-DEPENDS="alsa-lib ncurses util-linux-getopt"
-BUILD_DEPENDS="alsa-lib-dev ncurses-dev gettext"
+BUILD_DEPENDS="alsa-lib-dev ncurses-dev gettext eudev-dev"
+SPLIT="alsa-utils-test alsa-info alsa-utils"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--disable-alsaconf \
+		--disable-bat \
 		--disable-xmlto \
+		--with-curses=ncursesw \
 		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make && make install || return 1
+
+	# Remove empty dir
+	rmdir $install/usr/share/man/man7
+
+	appdir=$install/usr/share/applications
+	mkdir -p $appdir
+	cp $stuff/alsamixer.desktop $appdir
+
+	# Declare asound.state
+	touch $install/var/lib/alsa/asound.state
+
+	# For conf we need /var/tmp
+	mkdir -p $install/var/tmp
+	chmod 1777 $install/var/tmp
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/alsa $fs/var/lib/alsa $fs/etc
-	#touch $fs/etc/asound.state
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share/alsa/init $fs/usr/share/alsa
-
-	# Declare asound.state
-	touch $fs/var/lib/alsa/asound.state
-	chmod 755 $fs/usr/sbin/*
-	# Remove speaker-test (18 Ko and needs sounds)
-	rm $fs/usr/bin/speaker-test
-	# For conf we need /var/tmp
-	mkdir -p $fs/var/tmp
-	chmod 1777 $fs/var/tmp
-	# Remove alsaconf (use soundconf).
-	rm $fs/usr/sbin/alsaconf
-}
-
-# Main alsa config (card name, volumes, etc) have moved upstream. So backup
-# current one and reenable it after package install so user still have ther
-# sound card and settings working.
-pre_install()
-{
-	if [ -f "$1/etc/asound.state" ]; then
-		mv "$1/etc/asound.state" "$1/tmp"
-	fi
-}
-
-post_install()
-{
-	if [ -f "$1/tmp/asound.state" ]; then
-		mv "$1/tmp/asound.state" "$1/var/lib/alsa"
-	fi
+	case $PACKAGE in
+		alsa-utils-test)
+			copy speaker-test speaker-test/ *.wav
+			CAT="multimedia|speaker test"
+			DEPENDS="alsa-lib"
+			;;
+		alsa-info)
+			copy alsa-info.sh
+			CAT="multimedia|gather ALSA subsystem information"
+			DEPENDS="alsa-utils bash dialog ncurses-extra pciutils wget"
+			;;
+		alsa-utils)
+			copy @std
+			remove_already_packed
+			DEPENDS="alsa-lib ncurses ncurses-libform ncurses-libmenu \
+			ncurses-libpanel"
+			CONFIG_FILES="/var/lib/alsa/asound.state"
+			;;
+	esac
 }
