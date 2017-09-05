@@ -1,32 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="udevil"
-VERSION="0.4.3"
+VERSION="0.4.4"
 CATEGORY="system-tools"
-SHORT_DESC="Fast and light devices manager."
+SHORT_DESC="Mount without password"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://ignorantguru.github.com/udevil/"
-WGET_URL="https://raw.github.com/IgnorantGuru/udevil/master/packages/$VERSION/$TARBALL"
+WEB_SITE="http://ignorantguru.github.io/udevil/"
 
-DEPENDS="udev glib"
-BUILD_DEPENDS="udev-dev glib-dev wget intltool"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://raw.githubusercontent.com/IgnorantGuru/udevil/pkg/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="intltool eudev-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr &&
-	make && make install
+	./configure \
+		--disable-systemd \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	# Must be suid root
+	chmod +s $install/usr/bin/udevil
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	# Must be suid root
-	chmod +s $fs/usr/bin/udevil
+	copy @std
+	DEPENDS="eudev glib   acl"
+	SUGGESTED="util-linux-mount util-linux-misc"
 }
