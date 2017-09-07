@@ -26,6 +26,7 @@ compile_rules()
 		--disable-static \
 		--disable-systemd \
 		--without-systemdsystemunitdir \
+		--with-console-auth-dir=/run/console/ \
 		--docdir=/usr/share/doc/dbus-$VERSION \
 		$CONFIGURE_ARGS &&
 	make && make -j1 install
@@ -61,7 +62,7 @@ pre_install_dbus() {
 	if ! grep -qs 'messagebus' "$1/etc/passwd"; then
 		action 'Adding user: messagebus...'
 		chroot "$1/" addgroup -g25 -S messagebus
-		chroot "$1/" adduser -h/var/run/dbus -S -D -u25 -G25 \
+		chroot "$1/" adduser -h/var/run/dbus -S -D -u25 -G messagebus \
 			-g"D-Bus Message Daemon User" messagebus
 		status
 	fi

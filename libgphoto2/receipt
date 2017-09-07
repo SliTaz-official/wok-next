@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgphoto2"
 VERSION="2.5.13"
@@ -7,16 +7,12 @@ SHORT_DESC="Core library of gphoto2 to access photos from digital camera"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.gphoto.org/"
-TAGS="camera photo"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
 
-DEPENDS="eudev libexif libjpeg-turbo libltdl liblzma libusb libxml2 zlib"
-BUILD_DEPENDS="jpeg-dev libexif-dev libtool libexif jpeg libusb libusb-dev \
-libusb-compat libusb-compat-dev pkg-config"
-
 BUILD_DEPENDS="libtool gettext libjpeg-turbo-dev libexif-dev libusb-dev"
+SPLIT="libgphoto2-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -35,12 +31,22 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy *.so* print-camera-list check-ptp-camera konica/ vcamera/
-	rm -rf $fs/usr/share/doc	# *.so* files here
+	case $PACKAGE in
+		libgphoto2)
+			copy @std
+			DEPENDS="eudev libexif libjpeg-turbo libltdl liblzma libusb \
+			libxml2 zlib"
+			TAGS="camera photo"
+			;;
+		libgphoto2-dev)
+			copy @dev
+			DEPENDS="libgphoto2 eudev-dev libjpeg-turbo-dev libexif-dev \
+			libtool libusb-dev libxml2-dev xz-dev zlib"
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_libgphoto2() {
 	HAL_FDI="$1/usr/share/hal/fdi/information/20thirdparty/10-camera-libgphoto2.fdi"
 	UDEV_RULE="$1/etc/udev/rules.d/70-libgphoto2.rules"
 	CAM_LIST="$1/usr/lib/libgphoto2/print-camera-list"
@@ -57,7 +63,9 @@ post_install()
 	#udev rule
 	"$CAM_LIST" udev-rules version 0.98 group camera mode 0660 > "$UDEV_RULE"
 
-	tazpkg reconfigure eudev --root="$1"
+	[ -z "$1" ] || mount -o bind /dev "$1/dev"
+	chroot "$1/" tazpkg reconfigure eudev
+	[ -z "$1" ] || umount "$1/dev"
 
 	# add group camera
 	if ! grep -q camera "$1/etc/group"; then
@@ -70,7 +78,6 @@ Don't forget to add yourself to group camera to use libgphoto2:
 EOT
 }
 
-post_remove()
-{
+post_remove_libgphoto2() {
 	chroot "$1/" delgroup camera
 }
