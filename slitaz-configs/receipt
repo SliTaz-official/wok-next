@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-configs"
 VERSION="309"
 CATEGORY="base-system"
-SHORT_DESC="SliTaz config files and artwork."
+SHORT_DESC="SliTaz config files"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
@@ -12,21 +12,9 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-configs/archive/$VERSION.tar.bz2"
 
-DEPENDS="slitaz-configs-base xorg-libXcomposite xorg-libXdamage \
-xorg-xcompmgr transset-df ttf-dejavu slim"
-BUILD_DEPENDS="gettext"
-SIBLINGS="slitaz-configs-base"
-
-# Special case for ARM since some (most) config files are in slitaz-arm repo.
-# i486/arm common configs are provided by slitaz-configs-base.
-case "$SLITAZ_ARCH" in
-	i?86) CONFIG_FILES="/etc/slitaz/applications.conf" ;;
-	arm*) DEPENDS="slitaz-arm-configs ttf-dejavu slim" ;;
-esac
-
-case "$ARCH" in
-	i?86*) BUILD_DEPENDS="locale-fr locale-pt_BR locale-ru" ;;
-esac
+BUILD_DEPENDS_arm="gettext"
+BUILD_DEPENDS="locale-fr locale-pt_BR locale-ru gettext"
+SPLIT="slitaz-themes slitaz-configs-base"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -37,53 +25,132 @@ compile_rules()
 			ln -s menu.en.xml $install/etc/xdg/openbox/menu.xml
 			;;
 	esac
+
+	cp -a $src/rootfs/* $install
+
+	# Put applications.conf to /etc/skel
+	mkdir -p $install/etc/skel/.config/slitaz/
+	cp -a $install/etc/slitaz/applications.conf $install/etc/skel/.config/slitaz/
+
+	# Put LXPanel profile to /etc/skel for new users
+	mkdir -p $install/etc/skel/.config/lxpanel
+	cp -a $install/etc/lxpanel/slitaz $install/etc/skel/.config/lxpanel
+
+	# Add XDG user directories
+	for dir in Desktop Documents Downloads Images Music Public Templates Videos; do
+		mkdir -p $install/etc/skel/$dir
+	done
+
+	mv $install/boot/isolinux/splash.jpg $install/boot/isolinux/splash.png
+	rm $install/etc/skel/Templates/*
+
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	case "$ARCH" in
-		i?86)
-			# Copy rootfs files from the stuff
-			mkdir -p $fs/etc/xdg/openbox $fs/usr/share
-			cp -a $src/rootfs/etc/xdg/openbox $fs/etc/xdg
-		
-			# /usr/share
-			for i in applications lxdm slim slitaz; do
-				cp -r $src/rootfs/usr/share/$i $fs/usr/share
-			done
-			cp -a $src/rootfs/usr/bin     $fs/usr
-			cp -a $src/rootfs/etc/lxpanel $fs/etc
-			cp -a $src/rootfs/etc/slitaz  $fs/etc
-			cp -a $install/etc/xdg/openbox/menu.en.xml \
-				$install/etc/xdg/openbox/menu.xml \
-				$fs/etc/xdg/openbox
+	case $PACKAGE in
+		slitaz-configs)
+			# Special case for ARM since some (most) config files are in slitaz-arm repo.
+			# i486/arm common configs are provided by slitaz-configs-base.
+			case "$ARCH" in
+				i?86)
+					copy \
+						/etc/lxpanel/ \
+						/etc/skel/.config/lxpanel/ \
+						/etc/skel/.config/lxsession/ \
+						/etc/skel/.gtkrc-2.0* \
+						/etc/skel/.icons/ \
+						/etc/skel/.Xdefaults \
+						/etc/skel/.xinitrc \
+						/etc/skel/.Xresources \
+						/etc/skel/.xsession \
+						/etc/skel/Templates/ \
+						/etc/xdg/openbox/autostart \
+						/etc/xdg/openbox/environment \
+						/etc/xdg/openbox/menu.en.xml \
+						/etc/xdg/openbox/menu.xml \
+						/etc/xdg/openbox/rc.xml \
+						/usr/bin/ \
+						/usr/share/applications/ \
+						/usr/share/images/ \
+						/usr/share/pixmaps/ \
+						/usr/share/slitaz/ \
+						/usr/share/templates/ \
+						/usr/share/webhome/ \
+						/root/
+					DEPENDS="slitaz-configs-base xorg-libXcomposite \
+					xorg-libXdamage xorg-xcompmgr transset-df ttf-dejavu \
+					slim"
+					;;
+				arm)
+					copy \
+						/usr/share/applications/ \
+						/usr/share/slitaz/
+					DEPENDS="slitaz-arm-configs ttf-dejavu slim"
+					;;
+			esac
+
+			CAT="base-system|for GUI systems"
 			;;
-		arm)
-			mkdir -p $fs/usr/share
-			cp -a $src/rootfs/usr/share/applications $fs/usr/share
-			cp -a $src/rootfs/usr/share/slitaz $fs/usr/share
+		slitaz-themes)
+			copy /usr/share/themes/SliTaz*/ /usr/share/slim/ /usr/share/lxdm/
+			CAT="customization|GTK+2, Openbox3, LXDM and SLiM themes"
+			DEPENDS="slim"
+			;;
+		slitaz-configs-base)
+			CAT="base-system|for text based systems"
+
+			# Copy rootfs files and set permissions.
+			case "$ARCH" in
+				arm*)
+					# Most ARM configs are in slitaz-arm repo but Openbox, webhome
+					# are common to all arch.
+					copy \
+						/usr/bin/ \
+						/etc/lxpanel/ \
+						/etc/skel/
+					# No dbus on ARM
+					sed "s/exec dbus.*$/exec\"/" -i $fs/etc/skel/.xinitrc
+					;;
+				*)
+					copy \
+						/boot/ \
+						/etc/skel/ \
+						/etc/polkit-1/ \
+						/etc/slitaz/
+						CONFIG_FILES="/etc/slitaz/applications.conf"
+					;;
+			esac
+			copy \
+				/usr/share/ \
+				/root/
+			remove_already_packed
+
+			DEPENDS="tazlito tazpkg"
+			# Handle SliTaz arch
+			case "$SLITAZ_ARCH" in
+				arm*) DEPENDS="" ;;
+			esac
 			;;
 	esac
-
-	# Put LXPanel profile to /etc/skel for new users
-	mkdir -p $fs/etc/skel/.config/lxpanel
-	cp -a $fs/etc/lxpanel/slitaz $fs/etc/skel/.config/lxpanel
-
-	chown -R root.root $fs
 }
 
-post_install()
-{
-	case "$SLITAZ_ARCH" in
-		i?86)
-			# By default SLiM provide a base theme and config file have both
-			# base and slitaz who will be choose randomly, so make sure we use
-			# only slitaz theme.
-			if grep -q 'current_theme       slitaz,base' "$1/etc/slim.conf"; then
-				sed -i s/"current_theme .*"/"current_theme       slitaz"/ \
-					"$1/etc/slim.conf"
-			fi
-			;;
-	esac
+# By default SLiM provide a base theme and config file have both
+# base and slitaz who will be choose randomly, so make sure we use
+# only slitaz theme.
+post_install_slitaz_themes() {
+	chroot "$1/" slim-theme -s slitaz
+}
+pre_remove_slitaz_themes() {
+	chroot "$1/" slim-theme -f slitaz
+}
+
+post_install_slitaz_configs_base() {
+	for i in $(ls -d "$1/root" "$1"/home/* 2>/dev/null); do
+		[ -d "$i" ] && cp -f "$1/etc/skel/.xinitrc" "$i"
+	done
+	sed -i 's|$HOME/.config|/etc|' "$1/root/.xinitrc"
+	chmod 0750 $1/root
 }

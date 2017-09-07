@@ -1,45 +1,70 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxdm"
-VERSION="0.4.1"
+VERSION="0.5.3"
 CATEGORY="x-window"
 SHORT_DESC="GUI login manager for LXDE"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://lxde.org/"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
-TAGS="LXDE"
+WEB_SITE="https://wiki.lxde.org/en/LXDM"
 
-DEPENDS="xorg-libX11 gtk+ slitaz-configs"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
 BUILD_DEPENDS="xorg-dev gtk+-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev gtk+-dev   iso-codes" # + consolekit2-dev
+SPLIT="lxdm-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--sbindir=/usr/bin \
 		--libexecdir=/usr/lib/lxdm \
 		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--enable-password \
 		--without-pam \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
+
+	# lxdm daemon
+	cp -a $stuff/init.d/ $install/etc/
+
+	cp -af $stuff/Xsession   $install/etc/lxdm
+	cp -af $stuff/PostLogout $install/etc/lxdm
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc $fs/usr/share
-	cp -a $install/etc/lxdm $fs/etc
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share/lxdm $fs/usr/share
-	cp -a $stuff/init.d $fs/etc
-	# Use /bin/sh
-	sed -i s'/bin\/bash/bin\/sh/' $fs/etc/lxdm/*
-	# Custom SliTaz configuration
-	# NOTE: will move to slitaz-configs when we have a nice theme
-	cp -a $stuff/lxdm.conf $fs/etc/lxdm
-	cp -a $stuff/Xsession $fs/etc/lxdm
-	cp -a $stuff/PostLogout $fs/etc/lxdm
-	chown -R root.root $fs
+	case $PACKAGE in
+		lxdm)
+			copy @std
+			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango \
+			xorg-libX11 xorg-libxcb"
+			SUGGESTED="iso-codes"
+			CONFIG_FILES="/etc/lxdm/LoginReady /etc/lxdm/PostLogin \
+			/etc/lxdm/PostLogout /etc/lxdm/PreLogin /etc/lxdm/PreReboot \
+			/etc/lxdm/PreShutdown /etc/lxdm/Xsession /etc/lxdm/lxdm.conf"
+			TAGS="LXDE"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="lxdm atk-dev cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev pango-dev"
+			;;
+	esac
+}
+
+post_install_lxdm() {
+	grep -q '^lxdm' "$1/etc/passwd" && return 0
+	chroot "$1/" adduser \
+		-h /var/lib/lxdm \
+		-g 'LXDE login manager' \
+		-s /bin/false \
+		-S lxdm
+	chroot "$1/" chown lxdm:lxdm /var/lib/lxdm
+	chroot "$1/" chmod 700       /var/lib/lxdm
 }
