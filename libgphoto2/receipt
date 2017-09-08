@@ -63,13 +63,11 @@ post_install_libgphoto2() {
 	#udev rule
 	"$CAM_LIST" udev-rules version 0.98 group camera mode 0660 > "$UDEV_RULE"
 
-	[ -z "$1" ] || mount -o bind /dev "$1/dev"
-	chroot "$1/" tazpkg reconfigure eudev
-	[ -z "$1" ] || umount "$1/dev"
+	# tazpkg reconfigure eudev --root="$1"
 
 	# add group camera
 	if ! grep -q camera "$1/etc/group"; then
-		chroot "$1/" addgroup -g 97 camera
+		chroot "$1/" addgroup -g 97 -S camera
 	fi
 
 	[ -n "$quiet" ] || cat <<EOT
