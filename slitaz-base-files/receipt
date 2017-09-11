@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-base-files"
-VERSION="330"
+VERSION="331"
 CATEGORY="base-system"
-SHORT_DESC="Linux tree and the necessary files for the base system."
+SHORT_DESC="Linux tree and the necessary files for the base system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD GPL3"
 WEB_SITE="http://www.slitaz.org/"
@@ -12,100 +12,59 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
-DEPENDS="gettext-base"
 BUILD_DEPENDS="gettext"
-
-CONFIG_FILES="
-/etc/adduser.conf
-/etc/passwd
-/etc/fstab
-/etc/issue
-/etc/hosts
-/etc/host.conf
-/etc/hostname
-/etc/group
-/etc/gshadow
-/etc/shadow
-/etc/daemons.conf
-/etc/nsswitch.conf
-/etc/networks
-/etc/profile
-/etc/securetty
-/etc/services
-/etc/shells"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make DESTDIR=$DESTDIR install
-}
+	make DESTDIR=$install install
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p \
-		$fs/bin \
-		$fs/dev \
-		$fs/home \
-		$fs/media/cdrom \
-		$fs/media/flash \
-		$fs/media/usbdisk \
-		$fs/mnt \
-		$fs/proc \
-		$fs/root \
-		$fs/run \
-		$fs/sbin \
-		$fs/sys \
-		$fs/tmp \
-		$fs/usr/bin \
-		$fs/usr/games \
-		$fs/usr/lib \
-		$fs/usr/sbin \
-		$fs/usr/share/doc \
-		$fs/var/cache \
-		$fs/var/games \
-		$fs/var/lib \
-		$fs/var/lock \
-		$fs/var/log/slitaz \
-		$fs/var/spool \
-		$fs/var/tmp \
-		$fs/var/run
+	for i in /bin /dev /home /media/cdrom /media/flash /media/usbdisk /mnt \
+	/proc /root /run /sbin /sys /tmp /usr/bin /usr/games /usr/lib /usr/sbin \
+	/usr/share/doc /var/cache /var/games /var/lib /var/lock /var/log/slitaz \
+	/var/spool /var/tmp /var/run
+	do
+		mkdir -p $install$i
+	done
 
-	# Daemons may store the pid files in /var/run
-	# from 5.0 /var/run is mounted as tmpfs
-	#ln -s /run $fs/var/run
+	# Create /etc/mtab symlink
+	ln -s /proc/mounts $install/etc/mtab
 
-	# Copy all installed files and set permissions.
-	cp -a $install/* $fs
-
-	chown -R root.root $fs/*
-	chmod 1777 $fs/tmp
-	chmod  640 $fs/etc/shadow
-	chmod  640 $fs/etc/gshadow
-	chmod 0750 $fs/root
+	# Add httphelper link
+	ln -s httphelper.sh $install/usr/lib/slitaz/httphelper
 
 	# Populate /dev with $fs/sbin/mktazdevs.sh.
-	$fs/sbin/mktazdevs.sh $fs/dev
-
-	# Create /etc/mtab symlink.
-	cd $fs/etc
-	ln -s /proc/mounts mtab
-
-	# Fix httphelper link
-	cd $fs/usr/lib/slitaz
-	ln -s httphelper.sh httphelper
+	# Not required with udev.
+	# $fs/sbin/mktazdevs.sh $fs/dev
 
 	# Update copyright year
 	grep -rl 'copy; 2' $fs/var/www | xargs \
 		sed -i "s/copy; [0-9]*/copy; $(date +%Y)/"
 
+	# Set release
 	echo 'next' > $fs/etc/slitaz-release
+
+	chown -R root:root $install
+	chmod 1777 $install/tmp
+	chmod  640 $install/etc/shadow
+	chmod  640 $install/etc/gshadow
+	chmod 0750 $install/root
 }
 
-# Pre and post install to backup all /etc/settings
-#
-pre_install()
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
 {
+	cp -a $install/* $fs
+	DEPENDS="gettext-base"
+	CONFIG_FILES="/etc/adduser.conf /etc/passwd /etc/fstab /etc/issue \
+	/etc/hosts /etc/host.conf /etc/hostname /etc/group /etc/gshadow \
+	/etc/shadow /etc/daemons.conf /etc/nsswitch.conf /etc/networks \
+	/etc/profile /etc/securetty /etc/services /etc/shells"
+}
+
+# Pre and post install to backup all /etc settings
+#
+pre_install() {
 	cp -a "$1/etc" "$1/tmp/etc.bak" 2>/dev/null
 	[ -x "$1/usr/bin/sudo" ] && mv "$1/usr/bin/sudo" "$1/usr/bin/sudo.orig"
 	# Remove old /var/run symlink
@@ -113,13 +72,13 @@ pre_install()
 	:
 }
 
-post_install()
-{
+post_install() {
 	if cp -a "$1/tmp/etc.bak"/* "$1/etc"; then
 		rm -r "$1/tmp/etc.bak"
 	fi 2>/dev/null
 
-	[ -x "$1/usr/bin/sudo.orig" ] && mv -f "$1/usr/bin/sudo.orig" "$1/usr/bin/sudo"
+	[ -x "$1/usr/bin/sudo.orig" ] &&
+	mv -f "$1/usr/bin/sudo.orig" "$1/usr/bin/sudo"
 
 	# Reset permission.
 	chmod 640 "$1/etc/shadow"
@@ -130,8 +89,7 @@ post_install()
 	fi
 }
 
-pre_remove()
-{
-	# We can not remove this package!
+# We can not remove this package!
+pre_remove() {
 	exit 1
 }

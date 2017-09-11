@@ -7,6 +7,7 @@ SHORT_DESC="Programs for dynamic creation of device nodes"
 MAINTAINER="tcg.thegamer@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://dev.gentoo.org/~blueness/eudev/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/eudev.html"
 PROVIDE="udev"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -42,9 +43,10 @@ EOF
 	make &&
 	make install
 
-	mkdir -p $install/etc/udev
-	cp $stuff/udev.conf $install/etc/udev
 	cp $stuff/*.rules $install/etc/udev/rules.d
+	cp $stuff/udev/* $install/lib/udev
+
+	mkdir -p "$install/lib/firmware"
 
 	# https://docs.oracle.com/cd/E37670_01/E41138/html/ch07s03.html
 	# /lib/udev/rules.d : default rules files. Do not edit these files.
@@ -67,10 +69,7 @@ genpkg_rules()
 	esac
 }
 
-post_install_eudev()
-{
-	mkdir -p "$1/lib/firmware"
-
+post_install_eudev() {
 	# Create some devices and directories that Udev cannot handle
 	# due to them being required very early in the boot process
 	mkdir -p "$1/lib/udev/devices/pts"
@@ -80,13 +79,13 @@ post_install_eudev()
 	# Sanity check for udev+ldap boot
 	grep GROUP "$1"/etc/udev/rules.d/* "$1"/lib/udev/rules.d/* 2>/dev/null | \
 	sed 's/.*GROUP="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq | \
-	while read x ; do
+	while read x; do
 		grep -q ^$x: "$1/etc/group" || chroot "$1/" addgroup -S $x
 	done
 
 	grep OWNER "$1"/etc/udev/rules.d/* "$1"/lib/udev/rules.d/* 2>/dev/null | \
 	sed 's/.*OWNER="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq | \
-	while read x ; do
+	while read x; do
 		grep -q ^$x: "$1/etc/passwd" || chroot "$1/" adduser -S -D -H $x
 	done
 }

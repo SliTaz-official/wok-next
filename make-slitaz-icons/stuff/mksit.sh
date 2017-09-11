@@ -3,7 +3,7 @@
 # Aleksej Bobylev <al.bobylev@gmail.com>, 2014-2017
 # (Started in November 2014)
 
-VERSION="170814"
+VERSION="170911"
 
 . /lib/libtaz.sh
 
@@ -63,7 +63,7 @@ c() {
 	for SIZE in $SIZES; do
 		FOUND=''
 		for ICON in $(echo "$@" | sed 's|\([^ ]*\)|& gnome-mime-& gnome-dev-&|'); do
-			FINDICON=$(findi $ICON | sed "s|$FROM||g" | grep -e "/$SIZE/" -e "/${SIZE}x$SIZE/")
+			FINDICON=$(findi $ICON | sed "s|$FROM||g" | grep -e "/$SIZE/" -e "/${SIZE}x$SIZE/" -e "/scalable/")
 
 			if [ -n "$FINDICON" ]; then
 				if [ $(echo "$FINDICON" | wc -l) != "1" ]; then
@@ -299,7 +299,7 @@ c mail-mark-read
 c mail-mark-unread
 c mail-message-new
 c mail-reply-all
-c mail-reply-sender
+c mail-reply-sender mail-reply
 c mail-send
 c mail-send-receive
 c media-eject list-remove									# Matrilineare hack
@@ -317,7 +317,7 @@ c object-rotate-left
 c object-rotate-right
 s process-stop				# gtk_stock 16,24
 c system-lock-screen lock									# Matrilineare hack
-c system-log-out contact-new								# Matrilineare hack
+#c system-log-out contact-new								# Matrilineare hack
 c system-run				# gtk_stock 16,24; Transmission (GTK+3) needs it
 c system-search find										# Matrilineare hack
 c system-reboot system-run									# Matrilineare hack
@@ -329,7 +329,7 @@ s view-restore				# gtk_stock 16,24
 s view-sort-ascending		# gtk_stock 16,24
 s view-sort-descending		# gtk_stock 16,24
 c window-close				# gtk_stock 16,20,24; Transmission (GTK+3) needs it
-c window-new
+c window-new list-add
 s zoom-fit-best				# gtk_stock 16,24
 s zoom-in					# gtk_stock 16,24
 s zoom-original				# gtk_stock 16,24
@@ -347,12 +347,21 @@ c gtk-close			# Yad close button
 c gtk-go-forward gtk-go-forward-ltr # tazbox tz Yad dialog
 c bookmark-new		# Midori
 c empty			# Yad:tazbox new-file
-c extract-archive	# tazpkg-box, xarchiver...
+c extract-archive document-export	# tazpkg-box, xarchiver...
 c package-install	# tazpkg-box
+
+c system-log-out-panel  system-log-out-symbolic		# lxpanel logout menu
+c system-reboot-panel   system-restart-symbolic		#
+c system-shutdown-panel system-shutdown-symbolic	#
+
 
 SIZES='16 48'
 c document-new		# Yad:tazbox new-file
 c document-properties	# Yad:tazbox locale, tazbox manage-i18n
+
+c system-log-out		# lxpanel logout menu
+c system-reboot			#
+c system-shutdown		#
 
 
 ############################
@@ -388,26 +397,27 @@ c system-software-install											# synaptic
 c system-software-update									# update-notifier
 c utilities-system-monitor
 c utilities-terminal
+c utilities-root-terminal utilities-terminal
 #-------------------
 c gcolor2						# gcolor2.desktop
 c gnome-glchess					# chess.desktop
 c gpicview						# gpicview.desktop
-c tazcalc gnumeric				# tazcalc.desktop
-c alsaplayer gnome-audio		# alsaplayer.desktop
-c leafpad						# leafpad.desktop
+c tazcalc gnumeric x-office-spreadsheet				# tazcalc.desktop
+c alsaplayer gnome-audio gnome-mplayer		# alsaplayer.desktop
+c leafpad accessories-text-editor						# leafpad.desktop
 c midori						# midori.desktop
 c mtpaint						# mtpaint.desktop
 c xterm							# xterm.desktop
-c burn-box brasero				# burn-box.desktop
-c iso-image-burn				# burn-iso.desktop
-c system-log-out				# lxde-logout.desktop
+c burn-box brasero disk-burner				# burn-box.desktop
+c iso-image-burn disk-burner				# burn-iso.desktop
+#c system-log-out				# lxde-logout.desktop
 c sudoku gnome-sudoku			# sudoku.desktop
 c utilities-log-viewer			# bootlog.desktop
 c preferences-desktop-display	# lxrandr.desktop
 c tazbug bug-buddy				# tazbug.desktop
 c applets-screenshooter			# mtpaint-grab.desktop
-c tazwikiss zim					# tazwikiss.desktop
-c system-software-installer		# tazpanel-pkgs.desktop
+c tazwikiss zim accessories-notes					# tazwikiss.desktop
+c system-software-installer software-center software-store		# tazpanel-pkgs.desktop
 c session-properties			# lxsession-edit.desktop
 c terminal						# sakura.desktop
 c user_auth						# passwd.desktop
@@ -418,7 +428,7 @@ c drive-optical					# tazlito-wiz.desktop
 c network-wireless				# wifi-box.desktop
 c gparted						# gparted.desktop
 c epdfview acroread				# epdfview.desktop
-c menu-editor					# libfm-pref-apps.desktop
+#c menu-editor 					# libfm-pref-apps.desktop
 c preferences-system-windows	# obconf.desktop
 c twitter						# twitter.desktop
 c network-server				# httpd.desktop
@@ -613,7 +623,7 @@ c $A-x-xz-compressed-tar $A-x-archive
 # packages
 c $A-vnd.android.package-archive
 c $A-x-deb
-c $A-x-java-archive
+c $A-x-java-archive java
 c $A-x-rpm
 c $A-x-source-rpm $A-x-rpm
 c $A-x-tazpkg package-x-generic
@@ -677,7 +687,7 @@ c text-x-csrc
 c text-x-install
 c text-x-log text-x-changelog
 c text-x-makefile
-c text-x-markdown text-x-source
+c text-x-markdown text-markdown text-x-source
 c text-x-patch
 c text-x-python
 c text-x-readme
@@ -719,14 +729,10 @@ c folder-videos
 #########################
 # Standard Status Icons #
 #########################
-CATEGORY='status'; SIZES='22'; echo_cat
+CATEGORY='status'; SIZES='16'; echo_cat
 
 c appointment-missed
 c appointment-soon
-c audio-volume-high			# gtk_stock 24
-c audio-volume-low			# gtk_stock 24
-c audio-volume-medium		# gtk_stock 24
-c audio-volume-muted		# gtk_stock 24
 c battery-caution notification-battery-empty
 c battery-low notification-battery-low
 c dialog-error				# gtk_stock 48
@@ -758,8 +764,6 @@ c printer-printing
 c security-high
 c security-medium
 c security-low
-c software-update-available
-c software-update-urgent
 c sync-error
 c sync-synchronizing
 c task-due
@@ -792,6 +796,12 @@ c dialog-password
 c dialog-question
 c dialog-warning
 c appointment-soon			# Yad:tazbox manage-i18n
+c audio-volume-high			# gtk_stock 24
+c audio-volume-low			# gtk_stock 24
+c audio-volume-medium		# gtk_stock 24
+c audio-volume-muted		# gtk_stock 24
+c software-update-available
+c software-update-urgent
 
 # LXPanel status icons
 SIZES="22"
