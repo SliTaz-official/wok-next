@@ -13,6 +13,7 @@ TARBALL="libIDL-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/libIDL/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="bison flex glib-dev pkg-config"
+SPLIT="libidl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,7 +28,16 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std @dev
-	PROVIDE="libIDL"
-	DEPENDS="glib-dev pcre-dev"
+	case $PACKAGE in
+		libidl)
+			copy @std
+			PROVIDE="libIDL"
+			DEPENDS="glib pcre"
+			;;
+		libidl-dev)
+			copy @dev
+			PROVIDE="libIDL-dev"
+			DEPENDS="glib-dev pcre-dev"
+			;;
+	esac
 }

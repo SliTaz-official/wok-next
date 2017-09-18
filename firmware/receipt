@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="firmware"
-VERSION="20170622"
-COMMIT="7d2c913dcd1be083350d97a8cb1eba24cfacbc8a"
+VERSION="20170906"
+COMMIT="a61ac5cf8374edbfe692d12f805a1b194f7fead2"
 CATEGORY="meta"
-SHORT_DESC="Firmware files for Linux"
+SHORT_DESC="Linux firmware"
 MAINTAINER="devel@slitaz.org"
 LICENSE="other"
 WEB_SITE="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
@@ -12,75 +12,237 @@ WEB_SITE="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmwar
 TARBALL="linux-firmware-$COMMIT.tar.gz"
 WGET_URL="$WEB_SITE/snapshot/$TARBALL"
 
-SPLIT="firmware-atheros  firmware-iwlwifi-100   firmware-iwlwifi-105 \
-firmware-iwlwifi-135     firmware-iwlwifi-1000  firmware-iwlwifi-2000 \
-firmware-iwlwifi-2030    firmware-iwlwifi-3160  firmware-iwlwifi-3168 \
-firmware-iwlwifi-3945    firmware-iwlwifi-4965  firmware-iwlwifi-5000 \
-firmware-iwlwifi-5150    firmware-iwlwifi-6000  firmware-iwlwifi-6000g2a \
-firmware-iwlwifi-6000g2b firmware-iwlwifi-6050  firmware-iwlwifi-7260 \
-firmware-iwlwifi-7265    firmware-iwlwifi-8000C firmware-iwlwifi-8265 \
-firmware-nvidia          firmware-radeon        firmware-rt2x00 \
-firmware-rtlnic          firmware-rtlwifi       firmware-misc"
+#BUILD_DEPENDS="b43-fwcutter"
+
+# Package name matched to kernel module.
+# For example, firmware-b43 contains firmware for b43 kernel module.
+f='firmware'
+SPLIT="$f-acenic $f-af9013 $f-aic94xx $f-amdgpu $f-ar5523 $f-at76c50x-usb \
+$f-ath10k_pci $f-ath3k $f-ath6kl_sdio $f-ath6kl_usb $f-ath9k_htc $f-atmel \
+$f-b43 $f-b43legacy $f-bcm203x $f-bfusb $f-bna $f-bnx2 $f-bnx2x $f-brcmfmac \
+$f-brcmsmac $f-bt3c_cs $f-btintel $f-btmrvl_sdio $f-carl9170 $f-cassini \
+$f-cpia2 $f-cx18 $f-cx231xx $f-cx23885 $f-cx24117 $f-cx25840 $f-cxgb3 $f-cxgb4 \
+$f-daqboard2000 $f-drx39xyj $f-ds3000 $f-dvb-ttpci $f-dvb-ttusb-budget \
+$f-dvb-usb-af9015 $f-dvb-usb-af9035 $f-dvb-usb-az6007 $f-dvb-usb-dib0700 \
+$f-dvb-usb-dw2102 $f-dvb-usb-ec168 $f-dvb-usb-lmedm04 $f-e100 $f-emi26 \
+$f-emi62 $f-go7007 $f-go7007-loader $f-gspca_vicam $f-i1480-dfu-usb \
+$f-i2400m-usb $f-i915 $f-io_edgeport $f-io_ti $f-ipw2100 $f-ipw2200 $f-isci \
+$f-isight_$f $f-ivtv $f-iwl3945 $f-iwl4965 $f-iwlwifi $f-jr3_pci $f-kaweth \
+$f-keyspan $f-keyspan_pda $f-lgs8gxx $f-libertas_cs $f-libertas_sdio \
+$f-libertas_tf_usb $f-m88ds3103 $f-me4000 $f-me_daq $f-mga $f-mn88472 \
+$f-mn88473 $f-mt7601u $f-mwifiex_sdio $f-mwifiex_usb $f-mwl8k $f-myri10ge \
+$f-netxen_nic $f-ni_pcidio $f-nouveau $f-orinoco $f-orinoco_usb $f-p54pci \
+$f-p54usb $f-pcnet_cs $f-prism2_usb $f-pvrusb2 $f-qat_dh895xcc $f-qed \
+$f-qlcnic $f-r128 $f-r8169 $f-r8192e_pci $f-r8192u_usb $f-r8712u $f-radeon \
+$f-rsi_sdio $f-rsi_usb $f-rt2800pci $f-rt2800usb $f-rt61pci $f-rt73usb \
+$f-rtl8188ee $f-rtl8192ce $f-rtl8192cu $f-rtl8192de $f-rtl8192ee $f-rtl8192se \
+$f-rtl8723ae $f-rtl8723be $f-rtl8821ae $f-rtl8xxxu $f-s2255drv \
+$f-saa7134-go7007 $f-serial_cs $f-si2157 $f-si2165 $f-si2168 $f-slicoss \
+$f-smc91c92_cs $f-smsmdtv $f-snd-asihpi $f-snd-cs46xx $f-snd-darla20 \
+$f-snd-darla24 $f-snd-echo3g $f-snd-emu10k1 $f-snd-gina20 $f-snd-gina24 \
+$f-snd-hda-codec-ca0132 $f-snd-hdsp $f-snd-indigo $f-snd-indigodj \
+$f-snd-indigodjx $f-snd-indigoio $f-snd-indigoiox $f-snd-korg1212 \
+$f-snd-layla20 $f-snd-layla24 $f-snd-maestro3 $f-snd-mia $f-snd-mixart \
+$f-snd-mona $f-snd-pcxhr $f-snd-riptide $f-snd-usb-6fire $f-snd-vx-lib \
+$f-snd-ymfpci $f-speedfax $f-starfire $f-tda10071 $f-tehuti $f-tg3 \
+$f-ti_usb_3410_5052 $f-tuner-xc2028 $f-typhoon $f-ueagle-atm $f-usb8xxx \
+$f-usbdux $f-usbduxfast $f-usbduxsigma $f-wcn36xx $f-wd719x $f-whiteheat \
+$f-wil6210 $f-wl1251 $f-wl12xx $f-wl18xx $f-xc4000 $f-xc5000 $f-zd1201 \
+$f-zd1211rw"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	# mainline linux kernel firmware
 	make install
 	mkdir -p $install/usr/share/licenses
 	cp $src/LICENSE.* $src/LICENCE.* $install/usr/share/licenses
 	mv $install/lib/firmware/GPL* $install/usr/share/licenses
 	rm $install/lib/firmware/Makefile
+
+	# separate firmware from Debian repository
+	while read deb; do
+		pkg="$(basename $deb)"
+		title "Additional firmware from ${pkg%_all.deb}"
+		url="http://ftp.ch.debian.org/debian/pool/$deb"
+		[ -f "$SRC/$pkg" ] || wget -O $SRC/$pkg $url
+		dpkg-deb -X $SRC/$pkg $install | sed 's|^.|  |'
+	done <<EOT
+non-free/a/atmel-firmware/atmel-firmware_1.3-4_all.deb
+non-free/b/bluez-firmware/bluez-firmware_1.2-3_all.deb
+non-free/z/zd1211-firmware/firmware-zd1211_1.5-4_all.deb
+main/h/hdmi2usb-fx2-firmware/hdmi2usb-fx2-firmware_0.0.0~git20151225-1_all.deb
+EOT
+
+	# random firmware
+	while read dir url; do
+		[ -z "$dir" -o "$dir" == '#' ] && continue
+		title "Additional firmware from $dir"
+		tarball=$dir-$(basename $url)
+		[ -f $SRC/$tarball ] || wget -O $SRC/$tarball $url
+		mkdir -p $src/$dir
+		case $tarball in
+			*.tar.*) tar -C $src/$dir -xf $SRC/$tarball;;
+			*) cp $SRC/$tarball $src/$dir;;
+		esac
+		cd $src/$dir
+		[ $(ls . | wc -l) -eq 1  -a  -d ./$(ls .) ] && cd ./$(ls .)
+
+		fdir="$install/lib/firmware"
+		case $dir in
+			dvb-firmware)
+				./install;;
+			adaptec-firmware)
+				rpm2cpio *.rpm | cpio -idm; cp -r lib/ $install;;
+			ath10k-firmware)
+				cp -r ath10k $fdir;;
+#			broadcom-firmware)
+#				b43-fwcutter -w $fdir linux/wl_apsta.o
+#				cp linux/wl_apsta.o $fdir
+#				;;
+#			broadcom-legacy-firmware)
+#				b43-fwcutter -w $fdir wl_apsta-3.130.20.0.o
+#				cp *.o $fdir/wl_apsta-3.130.20.0.o
+#				;;
+			bfusb)
+				cp *.frm $fdir;;
+			alsa-firmware)
+				./configure $CONFIGURE_ARGS && make && make install;;
+		esac
+
+	done <<EOT
+# https://github.com/OpenELEC/dvb-firmware
+dvb-firmware https://github.com/OpenELEC/dvb-firmware/archive/3fef04a.tar.gz
+
+# https://adaptec.com/en-us/speed/scsi/linux/aic94xx-seq-30-1_tar_gz.php
+adaptec-firmware http://download.adaptec.com/scsi/linux/aic94xx-seq-30-1.tar.gz
+
+# https://wireless.wiki.kernel.org/en/users/Drivers/ath10k/firmware
+# https://github.com/sumdog/ath10k-firmware
+# https://github.com/kvalo/ath10k-firmware
+ath10k-firmware https://github.com/sumdog/ath10k-firmware/archive/5faf5bb.tar.gz
+
+# https://wiki.debian.org/bcm43xx
+# broadcom-firmware http://mirror2.openwrt.org/sources/broadcom-wl-5.100.138.tar.bz2
+# broadcom-legacy-firmware http://mirror2.openwrt.org/sources/wl_apsta-3.130.20.0.o
+
+# https://wiki.ubuntuusers.de/Archiv/Bluetooth/BlueFritz%21/
+bfusb ftp://ftp.in-berlin.de/pub/capi4linux/firmware/bluefusb/3-18-39/bfubase.frm
+
+# http://alsa-project.org/main/index.php/Main_Page
+# http://git.alsa-project.org/?p=alsa-firmware.git;a=summary
+alsa-firmware ftp://ftp.alsa-project.org/pub/firmware/alsa-firmware-1.0.29.tar.bz2
+EOT
+
+	# fix permissions
+	find $install -type f -exec chmod 644 '{}' \;
+	find $install -type d -exec chmod 755 '{}' \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	case ${PACKAGE#*-} in
-		atheros)
-			copy ar*.fw ar*.bin ath3*.fw htc_*.fw LICENCE.atheros_firmware
-			CAT="non-free|atheros modules"
-			DEPENDS="linux-wireless"
-			;;
-		iwlwifi*)
-			num=${PACKAGE##*-}
-			copy iwlwifi-$num-*.ucode LICENCE.iwlwifi_firmware
-			[ $num == '7265' ] && copy iwlwifi-7265D*.ucode
-			CAT="non-free|iwlwifi $num"
-			DEPENDS="linux-wireless"
-			PROVIDE="iwlwifi-$num"
-			;;
-		nvidia)
-			copy nvidia/ LICENCE.nvidia
-			CAT="non-free|NVIDIA"
-			DEPENDS=" "
-			;;
-		radeon)
-			copy radeon/ r128/ amdgpu/ LICENSE.radeon LICENSE.amdgpu
-			CAT="non-free|radeon"
-			DEPENDS="linux-drm"
-			;;
-		rt2x00)
-			copy rt*.bin LICENCE.ralink*
-			CAT="non-free|rt2x00 modules"
-			DEPENDS="linux-wireless"
-			PROVIDE="firmware-rt73 firmware-rt2561 firmware-rt2661 \
-			firmware-rt2860 firmware-rt2870 firmware-rt3070 firmware-rt3071 \
-			firmware-rt3090"
-			;;
-		rtlnic)
-			copy rtl_nic/ LICENCE.rtlwifi_firmware.txt
-			CAT="non-free|Realtek ethernet"
-			DEPENDS=" "
-			;;
-		rtlwifi)
-			copy rtlwifi/ LICENCE.rtlwifi_firmware.txt
-			CAT="non-free|rtlwifi modules"
-			DEPENDS="linux-wireless"
+genpkg_rules() {
+	module=${PACKAGE#*-}
+	case $module in
+		firmware)
+			CAT="meta|all firmware"
+			DEPENDS="$SPLIT"
 			;;
 		misc)
 			copy @std
 			remove_already_packed
-			CAT="non-free|misc blobs"
+			CAT="kernel|misc firmware"
+			;;
+		b43|b43legacy)
+			path=$(find $WOK/linux/install -type f -name $module.ko.xz)
+			desc=$(modinfo -Fdescription $path)
+			CAT="kernel|$desc"
+			DEPENDS="b43-fwcutter"
+			COOKOPTS="empty-pkg"
+			;;
+		*)
+			path=$(find $WOK/linux/install -type f -name $module.ko.xz)
+			fw=$(modinfo -Ffirmware $path | sort -u)
+			copy $fw
+			# check copied files
+			for i in $fw; do
+				if [ ! -f "$fs/lib/firmware/$i" ]; then
+					echo "  Error: $i missing!"
+					mkdir -p $fs/lib/firmware/$(dirname $i)
+					touch $fs/lib/firmware/$i.missing
+					chmod 400 $fs/lib/firmware/$i.missing
+				fi
+			done
+
+			# TODO: copy licenses
+			DEPENDS=" "
+
+			desc=$(modinfo -Fdescription $path)
+			CAT="kernel|$desc"
+
+			# copy the whole folder
+			case $module in
+				acenic|amdgpu|b43|b43legacy|bnx2|bnx2x|cxgb3|cxgb4|e100|emi26|\
+				emi62|vicam|i915|kaweth|keyspan|keyspan_pda|mwl8k|qed|r128|\
+				slicoss)
+					copy $module/;;
+				zd1211rw)   copy zd1211/;;
+				mga)        copy matrox/;;
+				r8169)      copy rtl_nic/;;
+				r8192e_pci) copy RTL8192E/;;
+				r8192u_usb) copy RTL8192U/;;
+			esac
+
+			# follow version (not realized yet)
+			case $module in
+				at76c50x-usb|atmel)
+					VERSION='1.3-4';;
+				bcm203x)
+					VERSION='1.2-3';;
+				zd1211rw)
+					VERSION='1.5-4';;
+			esac
 			;;
 	esac
+}
+
+post_install_firmware_b43() {
+	drv=$(mktemp -d)
+	[ -n "$quiet" ] || echo -e '\nDownloading firmware (12.9MiB)...'
+	# download
+	wget -P $drv http://www.lwfinger.com/b43-firmware/broadcom-wl-5.100.138.tar.bz2
+	# extract tarball
+	tar -C $drv -xf $drv/*.tar.bz2
+	mkdir -p "$1/tmp" "$1/lib/firmware"
+	# copy driver to chroot
+	cp "$drv/broadcom-wl-5.100.138/linux/wl_apsta.o" "$1/tmp"
+	# extract firmware in the chroot
+	chroot "$1/" b43-fwcutter -w '/lib/firmware' '/tmp/wl_apsta.o'
+	# clean
+	rm -rf "$drv" "$1/tmp/wl_apsta.o"
+	# permissions
+	chmod 755 "$1/lib/firmware/b43"
+	find "$1/lib/firmware/b43" -type f -exec chmod 644 '{}' \;
+}
+post_remove_firmware_b43() {
+	rm -rf "$1/lib/firmware/b43"
+}
+
+post_install_firmware_b43legacy() {
+	drv=$(mktemp -d)
+	[ -n "$quiet" ] || echo -e '\nDownloading firmware (0.6MiB)...'
+	# download
+	wget -P $drv http://downloads.openwrt.org/sources/wl_apsta-3.130.20.0.o
+	mkdir -p "$1/tmp" "$1/lib/firmware"
+	# copy driver to chroot
+	cp "$drv/wl_apsta-3.130.20.0.o" "$1/tmp"
+	# extract firmware in the chroot
+	chroot "$1/" b43-fwcutter -w '/lib/firmware' '/tmp/wl_apsta-3.130.20.0.o'
+	# clean
+	rm -rf "$drv" "$1/tmp/wl_apsta-3.130.20.0.o"
+	# permissions
+	chmod 755 "$1/lib/firmware/b43legacy"
+	find "$1/lib/firmware/b43legacy" -type f -exec chmod 644 '{}' \;
+}
+post_remove_firmware_b43legacy() {
+	rm -rf "$1/lib/firmware/b43legacy"
 }

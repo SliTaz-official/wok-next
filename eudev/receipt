@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="eudev"
-VERSION="3.2.2"
+VERSION="3.2.4"
 CATEGORY="base-system"
 SHORT_DESC="Programs for dynamic creation of device nodes"
 MAINTAINER="tcg.thegamer@gmail.com"
@@ -12,9 +12,9 @@ PROVIDE="udev"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
-TARBALL_MD5="41e19b70462692fefd072a3f38818b6e"
+TARBALL_MD5="66acef4c6094aab4aced7ae83b74b0d2"
 
-BUILD_DEPENDS="gobject-introspection-dev util-linux-blkid-dev gperf"
+BUILD_DEPENDS="gobject-introspection-dev util-linux-blkid-dev gperf kmod-dev"
 SPLIT="eudev-dev"
 
 # Rules to configure and make the package.
@@ -39,14 +39,17 @@ EOF
 		--enable-manpages \
 		--disable-static \
 		--config-cache \
+		--enable-kmod \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 
 	cp $stuff/*.rules $install/etc/udev/rules.d
-	cp $stuff/udev/* $install/lib/udev
+	cp -a $stuff/udev/* $install/lib/udev
 
-	mkdir -p "$install/lib/firmware"
+	mkdir -p "$install/lib/firmware" "$install/lib/udev/keymaps/force-release"
+
+	chown -R root:root $install
 
 	# https://docs.oracle.com/cd/E37670_01/E41138/html/ch07s03.html
 	# /lib/udev/rules.d : default rules files. Do not edit these files.
@@ -61,7 +64,7 @@ genpkg_rules()
 	case $PACKAGE in
 		eudev)
 			copy @std
-			DEPENDS="dbus util-linux-blkid util-linux-uuid pciids usbids acl kmod"
+			DEPENDS="kmod liblzma util-linux-blkid util-linux-uuid zlib   dbus"
 			;;
 		eudev-dev)
 			copy @dev

@@ -1,29 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="b43-fwcutter"
-VERSION="015"
+VERSION="019"
 CATEGORY="utilities"
-SHORT_DESC="Broadcom 43xx Linux Driver."
+SHORT_DESC="Utility for extracting Broadcom 43xx firmware"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://bu3sch.de/b43/fwcutter/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$WEB_SITE$TARBALL"
-TAGS="wireless"
+WEB_SITE="http://wireless.kernel.org/en/users/Drivers/b43"
 
-DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://bues.ch/b43/fwcutter/$TARBALL"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	make
+	mkdir -p $install/usr/bin
+	cp -a b43-fwcutter $install/usr/bin
 
-	cook_pick_manpages $src/*.1
+	cook_pick_manpages *.1
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/$PACKAGE $fs/usr/bin
+	copy @std
+	TAGS="wireless"
 }

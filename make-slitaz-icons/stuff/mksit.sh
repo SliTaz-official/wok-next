@@ -3,7 +3,7 @@
 # Aleksej Bobylev <al.bobylev@gmail.com>, 2014-2017
 # (Started in November 2014)
 
-VERSION="170911"
+VERSION="170913"
 
 . /lib/libtaz.sh
 
@@ -217,7 +217,7 @@ echo "Name:    \"$NAME\""
 echo
 
 
-rm -rf $TO
+#rm -rf $TO
 
 # make files list
 ICONSLIST=$(mktemp)
@@ -796,6 +796,8 @@ c dialog-password
 c dialog-question
 c dialog-warning
 c appointment-soon			# Yad:tazbox manage-i18n
+
+SIZES="48 16 22"
 c audio-volume-high			# gtk_stock 24
 c audio-volume-low			# gtk_stock 24
 c audio-volume-medium		# gtk_stock 24

@@ -1,0 +1,183 @@
+#!/bin/sh
+#
+# SliTaz Hardware configuration tool. Auto-detect and configure in a
+# simple way all PCI, PCMCIA and USB devices. Some Wireless Adapters 
+# need non-free firmware not installed by default. Users must use the
+# option --get-firmware to force installation. GUI uses Yad and is
+# called by args such as all box functions.
+#
+# (c) 2009-2015 SliTaz GNU/Linux - GNU GPL v3
+#
+# Authors: Christophe Lincoln <pankso@slitaz.org>
+#          Rohit Joshi <jozee@slitaz.org>
+#
+
+. /lib/libtaz.sh
+export TEXTDOMAIN='slitaz-tools' # i18n text mode
+
+usage() {
+	cat << EOT
+
+$(_n 'SliTaz Hardware configuration')
+
+$(boldify "$(_n 'Usage:')") $(basename $0) [$(_n 'command')] [--$(_n 'option')]
+
+$(boldify "$(_n 'Commands:')")
+  usage             $(_n 'Print this short usage.')
+  init              $(_n 'Used at boot time to configure devices.')
+  setup             $(_n 'Setup hardware devices.')
+  detect-pci        $(_n 'Detect all PCI devices.')
+  detect-usb        $(_n 'Detect all USB devices.')
+  detected-modules  $(_n 'List all detected Kernel modules.')
+
+$(boldify "$(_n 'Options:')")
+  --get-firmware    $(_n 'Get and install non-free firmware (PCI and USB).')
+
+EOT
+}
+
+
+check_firmware() {
+	if [ -x /usr/bin/get-$mod-firmware ]; then
+		if [ ! -d /var/lib/tazpkg/installed/$mod-firmware ]; then
+			# We need an active connection to install firmware and we
+			# only install firmware if specified from cmdline.
+			if ifconfig | grep -q "inet addr"; then
+				# Ensure module is not loaded and get files.
+				if [ "$firmware" == "get" ]; then
+					rmmod $mod 2>/dev/null
+					get-$mod-firmware
+				else
+					_ '* Use --get-firmware option to install missing files.'
+				fi
+			else
+				_ '* No active connection to get and install firmware.'
+			fi
+		else
+			_ '> Firmware in use: %s' "$mod-firmware"
+		fi
+	fi
+}
+
+
+load_module() {
+	if ! lsmod | grep -q "^$mod"; then
+		# Check if builtin, loaded or missing
+#		if zcat /proc/config.gz | fgrep -i $mod | fgrep -q '=y'; then
+		if grep -q "/$mod.ko$" /lib/modules/$(uname -r)/modules.builtin; then
+			_ '* Builtin module : %s' "$mod"
+			unset mod
+		elif modprobe $mod 2>/dev/null; then
+			_ '* Loaded module  : %s' "$mod"
+		else
+			_ '! Missing module : %s' "$mod"
+		fi
+	else
+		_ '> Module in use  : %s' "$mod"
+	fi
+	# Add it to load automatically at next boot.
+	if ! echo "$LOAD_MODULES" | grep -q "$mod"; then
+		sed -i s/"LOAD_MODULES=\"$LOAD_MODULES\""/"LOAD_MODULES=\"$LOAD_MODULES $mod\""/ \
+			/etc/rcS.conf
+	fi
+	. /etc/rcS.conf
+}
+
+
+module_name()
+{
+	local mod mod2
+	while read mod; do
+		if [ -d /sys/module -a ! -d /sys/module/${mod//-/_} ]; then
+			mod2=$(ls -d /sys/module/*/drivers/*:$mod 2>/dev/null | \
+				sed 's|/sys/module/\(.*\)/drivers/.*|\1|')
+			[ "$mod2" ] && mod=$mod2
+		fi
+		echo ${mod//-/_}
+	done
+}
+
+
+# Detect PCI devices and load kernel module only at first boot,
+# in LiveCD mode or with the command 'detect-pci'.
+
+detect_pci_devices() {
+	if [ ! -s /var/lib/detected-modules ]; then
+		. /etc/rcS.conf
+		# We need module_name to match output of lsmod.
+		list=$(sed '/^DRIVER=/!d;s/.*=/ /' /sys/bus/pci/devices/*/uevent| module_name)
+		echo "$list" > /var/lib/detected-modules
+		for mod in $(sort < /var/lib/detected-modules | uniq)
+		do
+			check_firmware
+			load_module
+		done
+	fi
+}
+
+
+# Detect all USB devices.
+
+detect_usb_devices() {
+	if [ -e /sys/bus/usb/devices/usb1 ]; then
+		for product in /sys/bus/usb/devices/*/product
+		do
+			path=$(dirname $product)
+			product=$(cat $product)
+			config=$(cat $path/configuration)
+			debug "$path"
+			. $path/[0-9]*/uevent
+			[ ! "$DRIVER" ] && DRIVER="(none)"
+			echo "$product $config $(indent 40 $DRIVER)"
+			unset DRIVER
+		done
+	fi
+}
+
+
+# Get firmware used by check_firmware()
+
+if [ "$2" == "--get-firmware" ]; then
+	firmware='get'
+fi
+
+
+# What to do.
+
+case "$1" in
+	-i|init)
+		check_root
+		_ 'Detecting PCI devices Kernel modules...'
+		detect_pci_devices
+		_ 'Detecting USB devices Kernel modules...'
+		detect_usb_devices
+		[ -e /sys/class/thermal/thermal_zone0/mode ] &&
+		_ 'Enable fan control...' &&
+		for zone in /sys/class/thermal/thermal_zone*/mode; do
+			echo -n enabled > $zone
+		done ;;
+	-dp|detect-pci)
+		check_root
+		title 'Detected PCI devices Kernel modules'
+		rm -f /var/lib/detected-modules
+		detect_pci_devices
+		footer ;;
+	-du|detect-usb)
+		check_root
+		title 'Detected USB devices Kernel modules'
+		rm -f /var/lib/detected-usb-modules
+		detect_usb_devices
+		footer ;;
+	-s|setup)
+		SETUP_OPTIONS=$(echo "$@" | sed 's/setup//')
+		check_root
+		hwsetup $SETUP_OPTIONS ;;
+	-dm|detected-modules)
+		title 'Detected PCI and USB modules'
+		cat /var/lib/detected-modules /var/lib/detected-usb-modules 2>/dev/null
+		footer ;;
+	*) 
+		usage ;;
+esac
+
+exit 0
