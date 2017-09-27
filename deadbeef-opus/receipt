@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="deadbeef-opus"
+VERSION="0.6"
+CATEGORY="multimedia"
+SHORT_DESC="Ogg Opus decoder plugin for DeaDBeeF"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://bitbucket.org/Lithopsian/deadbeef-opus/overview"
+
+TARBALL="opus-$VERSION.tar.gz"
+WGET_URL="https://bitbucket.org/Lithopsian/deadbeef-opus/downloads/$TARBALL"
+
+BUILD_DEPENDS="opusfile-dev deadbeef-dev"
+
+compile_rules() {
+	# To support large files (> 2GB) on 32 bit systems
+	sed -i '/FILE_OFFSET_BITS/ s|^# ||' Makefile
+
+	make PREFIX=/usr &&
+	make PREFIX=$install/usr install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="deadbeef libcrypto libogg libssl opus opusfile"
+}

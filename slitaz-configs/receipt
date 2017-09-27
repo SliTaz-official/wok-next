@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="slitaz-configs"
-VERSION="309"
+VERSION="312"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz config files"
 MAINTAINER="pankso@slitaz.org"
@@ -13,7 +13,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-configs/archive/$VERSION.tar.bz2"
 
 BUILD_DEPENDS_arm="gettext"
-BUILD_DEPENDS="locale-fr locale-pt_BR locale-ru gettext"
+BUILD_DEPENDS="locale-de locale-en locale-fr locale-hu locale-ja locale-pt_BR \
+locale-ru locale-zh_CN gettext"
 SPLIT="slitaz-themes slitaz-configs-base"
 
 # Rules to configure and make the package.
@@ -25,6 +26,7 @@ compile_rules()
 			ln -s menu.en.xml $install/etc/xdg/openbox/menu.xml
 			;;
 	esac
+	find /usr/share/locale -type f -name 'slitaz*'
 
 	cp -a $src/rootfs/* $install
 
@@ -32,16 +34,35 @@ compile_rules()
 	mkdir -p $install/etc/skel/.config/slitaz/
 	cp -a $install/etc/slitaz/applications.conf $install/etc/skel/.config/slitaz/
 
-	# Put LXPanel profile to /etc/skel for new users
-	mkdir -p $install/etc/skel/.config/lxpanel
-	cp -a $install/etc/lxpanel/slitaz $install/etc/skel/.config/lxpanel
+	cd $install/etc/skel
+	mkdir -p Desktop Documents Downloads Images Music Public Templates Videos
 
-	# Add XDG user directories
-	for dir in Desktop Documents Downloads Images Music Public Templates Videos; do
-		mkdir -p $install/etc/skel/$dir
-	done
-
+	# actually isolinux splash is png
 	mv $install/boot/isolinux/splash.jpg $install/boot/isolinux/splash.png
+
+	# LXPanel settings are in lxpanel package
+	rm -r $install/etc/lxpanel
+
+	# Polkit *.pkla files are not working anymore,
+	# Polkit switches to javascript-based rules
+	rm -r $install/etc/polkit-1
+
+	# LXsession settings are in lxsession package
+	rm -r $install/etc/skel/.config/lxsession
+
+	# Beaver is gone...
+	sed -i 's|beaver|leafpad|' $install/usr/share/applications/defaults.list
+
+	# SliTaz backgrounds in the slitaz-next package
+	rm $install/usr/share/images/slitaz-background*
+
+	# SLiM theme in the slim package
+	rm -r $install/usr/share/slim
+
+	# PCManFM settings in the pcmanfm package
+	rm -r $install/usr/share/slitaz/lxde
+
+	# Remove templates, use that in /usr/share/templates/ only
 	rm $install/etc/skel/Templates/*
 
 	chown -R root:root $install
@@ -57,16 +78,12 @@ genpkg_rules()
 			case "$ARCH" in
 				i?86)
 					copy \
-						/etc/lxpanel/ \
-						/etc/skel/.config/lxpanel/ \
-						/etc/skel/.config/lxsession/ \
 						/etc/skel/.gtkrc-2.0* \
 						/etc/skel/.icons/ \
 						/etc/skel/.Xdefaults \
 						/etc/skel/.xinitrc \
 						/etc/skel/.Xresources \
 						/etc/skel/.xsession \
-						/etc/skel/Templates/ \
 						/etc/xdg/openbox/autostart \
 						/etc/xdg/openbox/environment \
 						/etc/xdg/openbox/menu.en.xml \

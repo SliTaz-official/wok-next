@@ -1,6 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libparserutils"
+COMMIT=""
 VERSION="0.2.3"
 CATEGORY="system-tools"
 SHORT_DESC="Library for building efficient parsers"
@@ -9,24 +10,32 @@ LICENSE="MIT"
 WEB_SITE="http://www.netsurf-browser.org/projects/libparserutils/"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
+BASE_URL="http://source.netsurf-browser.org/$PACKAGE.git/snapshot"
+if [ -n "$COMMIT" ]; then
+	WGET_URL="$BASE_URL/$PACKAGE-$COMMIT.tar.bz2"
+else
+	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
+fi
 
 BUILD_DEPENDS="netsurf-buildsystem"
 SPLIT="libparserutils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile &&
-	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" &&
-	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" \
-		DESTDIR="$install" install
+compile_rules() {
+	[ -z "$COMMIT" ] && cd $VERSION
+
+	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile
+	echo 'CFLAGS += -DWITH_ICONV_FILTER' > Makefile.config.override
+
+	make \
+		PREFIX=/usr \
+		LIBDIR=lib \
+		INCLUDEDIR=include \
+		COMPONENT_TYPE=lib-shared \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libparserutils) copy @std;;
 		*-dev)          copy @dev;;

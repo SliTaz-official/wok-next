@@ -1,41 +1,64 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="deadbeef"
-VERSION="0.5.6"
+VERSION="0.7.2"
 CATEGORY="multimedia"
-SHORT_DESC="Simple to use GTK+ audio player with systray support."
+SHORT_DESC="Simple to use GTK+ audio player with systray support"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-SUGGESTED="deadbeef-plugins"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://deadbeef.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="music audio player mp3 ogg ape"
 
-DEPENDS="gtk+ alsa-lib libogg libvorbis libsamplerate libmad"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev alsa-lib-dev libogg-dev libvorbis-dev libmad-dev \
 libsndfile-dev libsamplerate-dev flac-dev curl-dev libcdio-dev \
 libcddb-dev intltool libsndfile libcurl yasm libzip-dev util-linux-uuid-dev"
+SPLIT="deadbeef-plugins deadbeef-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure CFLAGS="-I/usr/lib/libzip/include" $CONFIGURE_ARGS && 
-	make && make install
+BUILD_DEPENDS="gettext intltool yasm zlib-dev jansson-dev gtk+-dev \
+alsa-lib-dev dbus-dev curl-dev libmad-dev libvorbis-dev libogg-dev flac-dev \
+libsndfile-dev libcdio-dev libcddb-dev cdparanoia-III-dev xorg-libX11-dev \
+imlib2-dev libjpeg-turbo-dev libpng16-dev libsamplerate-dev faad2-dev "
+SPLIT="deadbeef-plugins deadbeef-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/$PACKAGE $fs/usr/share/pixmaps $fs/usr/share/doc
-	cp -a $install/usr/bin $fs/usr
-	for l in alsa ddb_gui_GTK2 hotkeys vorbis mpgmad
-	do
-		cp -a $install/usr/lib/$PACKAGE/$l.so* $fs/usr/lib/$PACKAGE
-	done
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/share/doc/$PACKAGE $fs/usr/share/doc
-	cp -a $install/usr/share/icons/hicolor/32x32/apps/*.png \
-		$fs/usr/share/pixmaps
+genpkg_rules() {
+	case $PACKAGE in
+		deadbeef)
+			# only limited set of plugins
+			copy bin/ applications/ pixmaps/ \
+			alsa.so ddb_gui_GTK2.so hotkeys.so m3u.so mms.so mp3.so notify.so \
+			supereq.so vorbis.so
+			cook_copy_icons
+			DEPENDS="alsa-lib atk cairo dbus fontconfig freetype gdk-pixbuf \
+			glib gtk+ jansson libmad libvorbis pango xorg-libX11"
+			SUGGESTED="deadbeef-plugins"
+			TAGS="music audio player mp3 ogg ape"
+			;;
+		deadbeef-plugins)
+			copy @std
+			remove_already_packed; rm -r $fs/usr/share
+			CAT="multimedia|extra plugins"
+			DEPENDS="deadbeef faad2 flac imlib2 libcddb libcdio libcurl \
+			libogg libsamplerate libsndfile zlib"
+			TAGS="music audio player mp3 ogg ape"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="deadbeef deadbeef-plugins \
+			alsa-lib-dev atk-dev bzip2-dev cairo-dev curl-dev dbus-dev \
+			faad2-dev flac-dev fontconfig-dev freetype-dev gdk-pixbuf-dev \
+			glib-dev gtk+-dev harfbuzz-dev imlib2-dev jansson-dev libcddb-dev \
+			libcdio-dev libffi-dev libidn2-dev libmad-dev libogg-dev \
+			libpng16-dev libsamplerate-dev libsndfile-dev libssh2-dev \
+			libvorbis-dev libxml2-dev openssl-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

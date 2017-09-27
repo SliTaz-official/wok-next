@@ -1,19 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libkeybinder"
-VERSION="0.3.0"
+VERSION="0.3.1"
 CATEGORY="x-window"
 SHORT_DESC="Library for registering global keyboard shortcuts"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://kaizer.se/wiki/keybinder/"
-SOURCE="keybinder"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://kaizer.se/publicfiles/$SOURCE/$TARBALL"
+WEB_SITE="https://github.com/kupferlauncher/keybinder"
 
-DEPENDS="gtk+"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/kupferlauncher/keybinder/releases/download/keybinder-3.0-v$VERSION/keybinder-3.0-$VERSION.tar.gz"
+WGET_URL="https://github.com/kupferlauncher/keybinder/releases/download/v$VERSION/keybinder-$VERSION.tar.gz"
+
 BUILD_DEPENDS="gtk+-dev gobject-introspection-dev xorg-libXext-dev python-dev \
 pygtk-dev pygobject-dev automake autoconf libtool"
+SPLIT="libkeybinder-python libkeybinder-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,8 +26,30 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*so* $fs/usr/lib
-	cp -a $install/usr/lib/python* $fs/usr/lib
+	case $PACKAGE in
+		libkeybinder)
+			copy libkeybinder.so*
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		libkeybinder-python)
+			copy @std
+			remove_already_packed
+			CAT="x-window|python bindings"
+			DEPENDS="libkeybinder python"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libkeybinder libkeybinder-python \
+			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libffi-dev \
+			libpng16-dev libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
-

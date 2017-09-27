@@ -1,7 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="netsurf-buildsystem"
-VERSION="1.5"
+COMMIT="37bf169dab81e00fb0c3fd6b35c992684f018c11"
+VERSION="1.5-170309"
 CATEGORY="development"
 SHORT_DESC="The Netsurf buildsystem"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,22 +10,25 @@ LICENSE="MIT"
 WEB_SITE="http://source.netsurf-browser.org/buildsystem.git/"
 HOST_ARCH="i486 arm"
 
-TARBALL="buildsystem-$VERSION.tar.gz"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
+BASE_URL="http://source.netsurf-browser.org/buildsystem.git/snapshot"
+if [ -n "$COMMIT" ]; then
+	WGET_URL="$BASE_URL/buildsystem-$COMMIT.tar.bz2"
+else
+	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
+fi
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|-Werror||' Makefile &&
-	make         PREFIX=/usr COMPONENT_TYPE='lib-shared' &&
-	make         PREFIX=/usr COMPONENT_TYPE='lib-static' &&
-	make install PREFIX=/usr COMPONENT_TYPE='lib-shared' DESTDIR="$install" &&
-	make install PREFIX=/usr COMPONENT_TYPE='lib-static' DESTDIR="$install"
+compile_rules() {
+	[ -z "$COMMIT" ] && cd $VERSION
+
+	sed -i 's|-Werror||' Makefile
+
+	make \
+		PREFIX=/usr \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="perl"
 }

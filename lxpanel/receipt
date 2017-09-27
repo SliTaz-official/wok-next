@@ -1,53 +1,43 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lxpanel"
-VERSION="0.6.2"
+COMMIT="768c48fe9868adcbb48d1787b448675432f1bb6a"
+VERSION="0.9.3.11" # 11th commit after 0.9.3 release
 CATEGORY="x-window"
 SHORT_DESC="LXDE panel"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.lxde.org/"
+WEB_SITE="https://wiki.lxde.org/en/LXPanel"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://git.lxde.org/gitweb/?p=lxde/lxpanel.git;a=snapshot;h=$COMMIT;sf=txz"
 
 BUILD_DEPENDS_arm="gtk+-dev menu-cache-dev alsa-lib-dev wireless_tools-dev \
 libxml2-dev lxmenu-data"
-BUILD_DEPENDS="intltool gtk+-dev menu-cache-dev alsa-lib-dev \
-wireless_tools-dev libxml2-dev lxmenu-data libwnck2-dev"
+BUILD_DEPENDS="automake libtool intltool gtk+-dev menu-cache-dev alsa-lib-dev \
+wireless_tools-dev libxml2-dev lxmenu-data libwnck2-dev libfm-dev \
+libkeybinder-dev"
 SPLIT="lxpanel-extra lxpanel lxpanel-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	case "$ARCH" in
-		i?86) pluglist="all";;
-		arm*) pluglist="netstatus,volumealsa,cpu,batt,xkb,thermal,cpufreq,monitors";;
+		arm*) ARCH_ARGS='--with-plugins="netstatus,volumealsa,cpu,batt,xkb,thermal,cpufreq,monitors"';;
 	esac
 
-	# Match default desktop colors
-	sed -i 's|gdk_color_parse("green"|gdk_color_parse("#cfcfcf"|' \
-		src/plugins/cpu/cpu.c || return 1
-
+	./autogen.sh
+	CFLAGS="$CFLAGS -lgmodule-2.0"
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--with-plugins="$pluglist" \
+		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make && make install || exit 1
 
-	# Move profile to /etc/lxpanel (/usr maybe read-only) and default config
-	mkdir -p $install/etc/lxpanel
-	mv     $install/usr/share/lxpanel/profile/*	$install/etc/lxpanel
-	ln -sf /etc/lxpanel							$install/usr/share/lxpanel/profile
-	mv -f  $install/etc/lxpanel/default			$install/etc/lxpanel/original
-	cp -a  $stuff/default						$install/etc/lxpanel
-	rm -rf $install/etc/lxpanel/two_panels
-
-	# XDG autostart desktop file (lxsession will use it automaticaly)
-	mkdir -p $install/etc/xdg
-	cp -a $stuff/autostart $install/etc/xdg
+	# SliTaz profile
+	cp -r $stuff/slitaz $install/etc/xdg/lxpanel/
 
 	chown -R root:root $install
 }
@@ -57,29 +47,38 @@ genpkg_rules()
 {
 	case $PACKAGE in
 		lxpanel-extra)
-			copy kbled.so wnckpager.so ns-*.png *lock-*.png xkb-flags/ \
+			copy kbled.so ns-*.png *lock-*.png xkb-flags/ \
 			background.png file-manager.png gnome-*.png mute.png \
 			stock_volume.png volume-*.png window-manager.png
 			CAT="x-window|extra files and plugins"
 			TAGS="LXDE"
-			DEPENDS="lxpanel libwnck2 startup-notification xorg-xcb-util"
+			DEPENDS="lxpanel"
 			;;
 		lxpanel)
 			copy @std
 			remove_already_packed
 			DEPENDS="alsa-lib atk bzlib cairo fontconfig freetype gdk-pixbuf \
-			glib gtk+ libffi libharfbuzz liblzma libpng16 libxml2 menu-cache \
-			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
-			wireless_tools xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-			xorg-libXrender xorg-libxcb xorg-pixman zlib   slitaz-menus"
-			CONFIG_FILES="/etc/lxpanel/default/"
+			glib gtk+ libexif libffi libfm libfm-gtk libharfbuzz libkeybinder \
+			liblzma libpng16 libwnck2 libxml2 menu-cache pango pcre \
+			startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid wireless_tools xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman \
+			xorg-xcb-util zlib   slitaz-menus"
+			#CONFIG_FILES="/etc/xdg/lxpanel/default/"
 			TAGS="LXDE gtk2 panel"
 			SUGGESTED="lxde lxsession slitaz-icon"
 			;;
 		lxpanel-dev)
 			copy @dev
 			DEPENDS="lxpanel lxpanel-extra \
-			glib-dev menu-cache-dev"
+			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libexif-dev \
+			libffi-dev libfm-dev libkeybinder-dev libpng16-dev libwnck2-dev \
+			libxml2-dev lxpanel menu-cache-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib"
 			;;
 	esac
 }

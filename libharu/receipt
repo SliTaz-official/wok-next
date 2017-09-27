@@ -1,0 +1,43 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libharu"
+VERSION="2.3.0"
+CATEGORY="libs"
+SHORT_DESC="C library for generating PDF documents"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="zlib/libpng"
+WEB_SITE="https://github.com/libharu/libharu"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/libharu/libharu/archive/RELEASE_${VERSION//./_}.tar.gz"
+
+BUILD_DEPENDS="automake libtool zlib-dev libpng16-dev"
+SPLIT="libharu-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	touch include/config.h.in
+	aclocal &&
+	libtoolize &&
+	automake --add-missing &&
+	autoconf &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		libharu)
+			copy @std
+			DEPENDS="libpng16 zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libharu libpng16-dev zlib-dev"
+			;;
+	esac
+}

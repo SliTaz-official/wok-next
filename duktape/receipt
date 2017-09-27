@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="duktape"
+VERSION="2.1.1"
+CATEGORY="libs"
+SHORT_DESC="Embeddable Javascript engine"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://duktape.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://duktape.org/$TARBALL"
+
+SPLIT="duktape-dev"
+
+compile_rules() {
+	mv Makefile.sharedlibrary Makefile
+	sed -i 's|-Wall -Wextra|$(CFLAGS)|g' Makefile
+	sed -i "s|/usr/local|$install/usr|" Makefile
+	cp $stuff/duktape.pc .
+	sed -i "s|@@VERSION@@|$VERSION|" duktape.pc
+
+	CFLAGS="$CFLAGS -D DUK_USE_FASTINT -w" make
+
+	mkdir -p $install/usr/lib/pkgconfig $install/usr/include
+	make install
+	cp duktape.pc $install/usr/lib/pkgconfig/
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		duktape) copy @std;;
+		*-dev)   copy @dev;;
+	esac
+}

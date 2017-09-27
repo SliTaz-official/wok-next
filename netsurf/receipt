@@ -1,54 +1,73 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="netsurf"
-VERSION="3.3"
+COMMIT="d3493b138f38c9e26da24fcffb3ef8b813e3ca4e"
+VERSION="3.6-170919"
 CATEGORY="network"
-SHORT_DESC="A simple, fast and light web browser using GTK."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Lightweight and fast web browser"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-all-$VERSION.tar.gz"
 WEB_SITE="http://www.netsurf-browser.org/"
-WGET_URL="http://download.netsurf-browser.org/netsurf/releases/source-full/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="gtk+ libssl libpng jpeg lcms libparserutils hubbub libnsgif \
-libcurl libglade librsvg libgsf libcss libmng zlib libxml2"
-BUILD_DEPENDS="$DEPENDS gtk+-dev libglade-dev openssl-dev libpng-dev \
-jpeg-dev lcms-dev re2c lemon libparserutils-dev hubbub-dev libnsgif-dev \
-librsvg-dev curl-dev pango-dev libcss-dev libwapcaplet-dev libmng-dev \
-zlib-dev libxml2-dev libcroco expat-dev gperf flex bison \
-perl-html-parser perl-html-tagset"
+TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
+BASE_URL="http://source.netsurf-browser.org/$PACKAGE.git/snapshot"
+if [ -n "$COMMIT" ]; then
+	WGET_URL="$BASE_URL/$PACKAGE-$COMMIT.tar.bz2"
+else
+	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
+fi
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	#mv netsurf $PACKAGE-$VERSION 2>/dev/null
-	cd $src
-	cp -a $stuff/Makefile.config .
-	
-	# Fix install target
-	#sed -i 's/cp -vRL/cp -RL/' Makefile
-	#sed -i 's/cp -v/cp /' Makefile
-	make install DESTDIR=$DESTDIR PREFIX=/usr \
+BUILD_DEPENDS="libjpeg-turbo-dev libharu-dev duktape-dev libcss-dev libdom-dev \
+libnsutils-dev libutf8proc-dev curl-dev openssl-dev libpng16-dev libnsbmp-dev \
+libnsgif-dev libsvgtiny-dev libnspsl-dev libnslog-dev gstreamer0-dev gtk+-dev \
+check-dev perl-html-parser nsgenbind" # librsvg-dev
+
+compile_rules() {
+	[ -z "$COMMIT" ] && cd $VERSION
+
+	# Enable NetSurf's use of gstreamer for displaying videos
+	echo 'override NETSURF_USE_VIDEO := YES' > Makefile.config
+	# Enable NetSurf's use of libharu for PDF export and GTK printing support.
+#	echo 'override NETSURF_USE_HARU_PDF := YES' >> Makefile.config
+	# Template used for constructing the User Agent: string.
+	# 1,2: major & minor version numbers; 3 `uname -s`; 4 `uname -m`
+	echo 'override NETSURF_UA_FORMAT_STRING := "NetSurf/%d.%d (SliTaz GNU/%s %s)"' >> Makefile.config
+	# Default home page, if one is not defined by the user.
+	echo 'override NETSURF_HOMEPAGE := "file:///usr/share/webhome/index.html"' >> Makefile.config
+
+
+	# fix installing
+	sed -i '/install \$(EXETARGET)/ s|^|#|' frontends/gtk/Makefile
+
+	make \
+		PREFIX=/usr \
+		LIBDIR=lib \
+		INCLUDEDIR=include \
 		TARGET=gtk \
-		NETSURF_USE_WEBP=NO \
 		NETSURF_GTK_MAJOR=2 \
-		NETSURF_USE_VIDEO=NO
+		install || return 1
+	# FIXME: it is job for `make`
+	cp -af nsgtk $install/usr/bin/netsurf-gtk
+
+	# desktop shortcut
+	mkdir -p $install/usr/share/applications
+	sed 's|netsurf.png|netsurf|' \
+		< frontends/gtk/res/netsurf-gtk.desktop \
+		> $install/usr/share/applications/netsurf-gtk.desktop
+	# desktop icons
+	mkdir -p $install/usr/share/icons
+	cp -r $stuff/hicolor $install/usr/share/icons
+
+	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share \
-		$fs/usr/lib/netsurf
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/netsurf $fs/usr/share
-	
+genpkg_rules() {
+	copy @std
 	# Remove files to save some space
-	rm -rf $fs/usr/share/netsurf/docs
 	rm -rf $fs/usr/share/netsurf/*.xpm
-	rm -rf $fs/usr/share/netsurf/license
-	# Webhome
-	cp -a stuff/webhome $fs/usr/share
-	chown -R root.root $fs
+	DEPENDS="atk cairo expat fontconfig freetype gdk-pixbuf glib gstreamer0 \
+	gtk+ libcrypto libcss libcurl libdom libhubbub libjpeg-turbo libnsbmp \
+	libnsgif libnslog libnspsl libnsutils libparserutils libpng16 libssl \
+	libsvgtiny libutf8proc libwapcaplet libxml2 pango zlib"
+	TAGS="web-browser"
 }

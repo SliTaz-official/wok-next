@@ -1,34 +1,40 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libcss"
-VERSION="0.6.1"
+COMMIT="3e58dd9a29a10cd6400031f0b510084ffacc41d0"
+VERSION="0.6.1-170920"
 CATEGORY="system-tools"
 SHORT_DESC="CSS parser and selection engine"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.netsurf-browser.org/projects/libcss/"
-#HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
+BASE_URL="http://source.netsurf-browser.org/$PACKAGE.git/snapshot"
+if [ -n "$COMMIT" ]; then
+	WGET_URL="$BASE_URL/$PACKAGE-$COMMIT.tar.bz2"
+else
+	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
+fi
 
 BUILD_DEPENDS="netsurf-buildsystem libwapcaplet-dev libparserutils-dev"
 SPLIT="libcss-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed 's:_BSD_SOURCE:_DEFAULT_SOURCE:' -i Makefile &&
-	export CFLAGS="-Wno-error=unused-but-set-variable" &&
+compile_rules() {
+	[ -z "$COMMIT" ] && cd $VERSION
 
-	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" &&
-	make INCLUDEDIR=include LIBDIR=lib PREFIX=/usr COMPONENT_TYPE="lib-shared" \
-		DESTDIR="$install" install
+	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile
+	export CFLAGS="-Wno-error=unused-but-set-variable"
+
+	make \
+		PREFIX=/usr \
+		LIBDIR=lib \
+		INCLUDEDIR=include \
+		COMPONENT_TYPE=lib-shared \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libcss)
 			copy @std

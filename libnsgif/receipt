@@ -1,26 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnsgif"
-VERSION="0.0.3"
-CATEGORY="system-tools"
-SHORT_DESC="Libnsgif is a decoding library for the GIF image file format."
+COMMIT=""
+VERSION="0.1.4"
+CATEGORY="libs"
+SHORT_DESC="Decoding library for the GIF image file format"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WEB_SITE="http://www.netsurf-browser.org/projects/libnsgif/"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
 HOST_ARCH="i486 arm"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make install DESTDIR=$DESTDIR PREFIX=/usr &&
-	make install COMPONENT_TYPE=lib-shared DESTDIR=$DESTDIR PREFIX=/usr
+TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
+BASE_URL="http://source.netsurf-browser.org/$PACKAGE.git/snapshot"
+if [ -n "$COMMIT" ]; then
+	WGET_URL="$BASE_URL/$PACKAGE-$COMMIT.tar.bz2"
+else
+	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
+fi
+
+BUILD_DEPENDS="netsurf-buildsystem"
+SPLIT="libnsgif-dev"
+
+compile_rules() {
+	[ -z "$COMMIT" ] && cd $VERSION
+
+	export CFLAGS="$CFLAGS -fno-strict-aliasing"
+
+	make \
+		PREFIX=/usr \
+		LIBDIR=lib \
+		INCLUDEDIR=include \
+		COMPONENT_TYPE=lib-shared \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libnsgif) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

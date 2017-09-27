@@ -1,6 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libwapcaplet"
+COMMIT=""
 VERSION="0.4.0"
 CATEGORY="system-tools"
 SHORT_DESC="String internment library with rapid string comparison"
@@ -9,31 +10,31 @@ LICENSE="MIT"
 WEB_SITE="http://www.netsurf-browser.org/projects/libwapcaplet/"
 HOST_ARCH="i486 arm"
 
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
-WGET_URL="http://download.netsurf-browser.org/libs/releases/$TARBALL"
+TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
+BASE_URL="http://source.netsurf-browser.org/$PACKAGE.git/snapshot"
+if [ -n "$COMMIT" ]; then
+	WGET_URL="$BASE_URL/$PACKAGE-$COMMIT.tar.bz2"
+else
+	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
+fi
 
 BUILD_DEPENDS="netsurf-buildsystem"
 SPLIT="libwapcaplet-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile &&
+compile_rules() {
+	[ -z "$COMMIT" ] && cd $VERSION
+
+	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' Makefile
 
 	make \
 		PREFIX=/usr \
-		COMPONENT_TYPE="lib-shared" &&
-	make install \
-		INCLUDEDIR=include \
 		LIBDIR=lib \
-		PREFIX=/usr \
-		DESTDIR="$install" \
-		COMPONENT_TYPE="lib-shared"
+		INCLUDEDIR=include \
+		COMPONENT_TYPE=lib-shared \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libwapcaplet) copy @std;;
 		*-dev)        copy @dev;;
