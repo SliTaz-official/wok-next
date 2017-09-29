@@ -1,41 +1,58 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="hexchat"
-VERSION="2.10.2"
+VERSION="2.12.4"
 CATEGORY="network"
 SHORT_DESC="IRC client using GTK+"
 MAINTAINER="lenios@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://hexchat.github.io/"
+WEB_SITE="https://hexchat.github.io/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://dl.hexchat.net/hexchat/$TARBALL"
+WGET_URL="https://dl.hexchat.net/hexchat/$TARBALL"
 
-DEPENDS="gtk+ openssl gettext-base dbus-glib xorg-libXdamage \
-harfbuzz"
-BUILD_DEPENDS="gtk+-dev openssl-dev shared-mime-info"
+BUILD_DEPENDS="automake autoconf-archive libtool intltool gtk+-dev perl-dev \
+python-dev openssl-dev pciutils-dev dbus-glib-dev libnotify-dev \
+libcanberra-dev iso-codes" # libproxy-dev
+SPLIT="hexchat-plugin-perl hexchat-plugin-python hexchat hexchat-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	autoreconf -fi &&
+	sed -i '/_Keywords=/d; /Actions=/d' $src/data/misc/hexchat.desktop.in.in &&
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--disable-plugin \
-		--disable-tcl \
-		--disable-dbus \
-		--disable-python \
-		--enable-spell=static \
-		--enable-ipv6 \
+		--disable-lua \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	# cp -a $install/usr/share/dbus-1 $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		*-perl)
+			copy perl.so
+			DEPENDS="hexchat perl-core"
+			;;
+		*-python)
+			copy python.so
+			DEPENDS="hexchat python"
+			;;
+		hexchat)
+			copy @std
+			remove_already_packed
+			rm -r $fs/usr/share/appdata/
+			DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype \
+			gdk-pixbuf glib gtk+ libcanberra libcrypto libffi libharfbuzz \
+			libltdl liblzma libnotify libogg libpng16 libssl libvorbis libxml2 \
+			pango pciutils pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="hexchat hexchat-plugin-perl hexchat-plugin-python \
+			glib-dev libffi-dev openssl-dev pciutils-dev pcre-dev perl-core \
+			python util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }

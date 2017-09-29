@@ -1,0 +1,24 @@
+# SliTaz package receipt v2.
+
+PACKAGE="autoconf-archive"
+VERSION="2017.03.21"
+CATEGORY="development"
+SHORT_DESC="Collection of GNU Autoconf macros"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://www.gnu.org/software/autoconf-archive/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+
+	rm -r $install/usr/share/autoconf-archive
+	cook_pick_docs AUTHORS COPYING COPYING.EXCEPTION README TODO
+}
+
+genpkg_rules() {
+	copy @dev
+	DEPENDS="autoconf"
+}
