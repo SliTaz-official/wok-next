@@ -1,0 +1,79 @@
+#!/bin/busybox sh
+
+export PATH=/bin
+export HOME=/
+export TERM=vt100
+
+if [ -d /etc ]; then
+	[ -n "$domain" ] && echo search $domain > /etc/resolv.conf
+	for i in $dns; do
+		echo nameserver $i
+	done >> /etc/resolv.conf
+	[ -n "$broadcast" ] && BROADCAST="broadcast $broadcast"
+	[ -n "$subnet" ] && NETMASK="netmask $subnet"
+	if ifconfig $interface ${ip:-0.0.0.0} $BROADCAST $NETMASK; then
+		while route del default gw 0.0.0.0 dev $interface; do
+			:
+		done
+		for i in $router; do
+			route add default gw $i dev $interface
+		done
+	fi
+	exit
+fi
+
+mkdir /tmp /mnt /proc /etc
+mount -t proc none /proc
+mount -t devtmpfs none /dev
+
+arg() {
+	root="$(sed "s/^/ /; s/$/ /; / $1=/!d; s/.* $1=\\([^ ]*\\).*/\\1/" </proc/cmdline)"
+	[ -n "$root" ]
+}
+
+arg init
+init=${root:-/sbin/init}
+[ -n "$(sed 's/$/ /; s/^/ /; / ro /!d' /proc/cmdline)" ] && ro="-o ro"
+[ -n "$(sed 's/$/ /; s/^/ /; / rw /!d' /proc/cmdline)" ] && ro="-o rw"
+
+arg root &&
+root="$(echo $root | sed 's|/|\\\\/|g')" &&
+root="$(blkid | sed "s/\"//g; /$root/!d; s/:.*//;q")" &&
+[ -n "$root" ] &&
+mount $ro $root /mnt
+
+arg loopfs &&
+losetup /dev/loop0 /mnt/$root &&
+mount /dev/loop0 /mnt
+
+arg subroot &&
+cp /bin/busybox /mnt/$root/dev/shm &&
+chroot="$root/dev/shm/busybox chroot $root"
+
+[ -x /mnt/$root/$init ] &&
+umount /dev &&
+umount /proc &&
+exec switch_root mnt $chroot $init
+
+[ -d /proc/bus/usb ] &&
+mount -t usbfs usbfs /proc/bus/usb
+
+while read type dir; do
+	grep -qs $type /proc/filesystems || continue
+	[ -d "$dir" ] || mkdir $dir
+	mount -t $type none $dir
+done <<EOM
+sysfs	/sys
+devpts	/dev/pts
+EOM
+
+TTY=$(tty 2>/dev/null)
+TTY=${TTY:-/dev/tty1}
+
+stty -F $TTY rows 30 2>/dev/null # for jslinux only
+
+udhcpc -b -s /init
+while true; do
+	busybox | sed '/Current/,$!d'
+	setsid sh -c "exec sh <$TTY >$TTY 2>&1"
+done
