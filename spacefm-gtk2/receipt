@@ -11,13 +11,13 @@ WEB_SITE="http://ignorantguru.github.io/spacefm/"
 TARBALL="spacefm-$VERSION.tar.gz"
 WGET_URL="https://github.com/IgnorantGuru/spacefm/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="intltool gtk+-dev eudev-dev ffmpegthumbnailer-dev   \
-startup-notification-dev"
+BUILD_DEPENDS="intltool gtk+-dev eudev-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	./configure \
+		--disable-video-thumbnails \
 		--with-preferable-sudo=/usr/bin/subox \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -30,6 +30,5 @@ compile_rules()
 genpkg_rules()
 {
 	copy @std
-	DEPENDS="cairo eudev ffmpegthumbnailer gdk-pixbuf glib gtk+ pango \
-	startup-notification xorg-libX11   bash"
+	DEPENDS="cairo eudev gdk-pixbuf glib gtk+ pango xorg-libX11   bash"
 }
