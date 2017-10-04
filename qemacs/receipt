@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qemacs"
 VERSION="0.3.3"
@@ -9,26 +9,63 @@ LICENSE="LGPL2.1"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://bellard.org/$PACKAGE/"
 WGET_URL="${WEB_SITE}$TARBALL"
-TAGS="editor"
 
-DEPENDS=""
-BUILD_DEPENDS="gcc3"
+BUILD_DEPENDS="xorg-libX11-dev xorg-libXext-dev xorg-libXv-dev"
+SPLIT="qemacs qemacs-tiny qemacs-x11 qemacs-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	export CFLAGS="-Wno-error=unused-but-set-variable -O2"
+	sed -i 's/\(define SAVED_DATA_SIZE \).*/\1 __builtin_offsetof(EditState,end_of_saved_data)/' qe.h
+	./configure --prefix=/usr --enable-tiny $CONFIGURE_ARGS &&
+	make && mv qe qe-tiny
 	./configure --prefix=/usr --disable-x11 $CONFIGURE_ARGS &&
-	make CC=gcc-3 -j 1
+	make && mv qe qe-nox11
+	./configure --prefix=/usr $CONFIGURE_ARGS &&
+	make && mv qe qe-x11
+	cook_pick_docs qe-doc.html COPYING README
+	cook_pick_manpages *.1
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/share/qe
-	install -m 755 $src/qe $fs/usr/bin/qemacs
-	ln -s qemacs $fs/usr/bin/qe
-	install -m 755 -s $src/html2png $fs/usr/bin
-	install $src/kmaps $src/ligatures $fs/usr/share/qe
+	case $PACKAGE in
+		qemacs)
+			mkdir -p $fs/usr/bin $fs/usr/share/qe
+			install -m 755 $src/qe-nox11 $fs/usr/bin/qemacs
+			ln -s qemacs $fs/usr/bin/qe
+			install -m 755 -s $src/html2png $fs/usr/bin
+			install $src/kmaps $src/ligatures $fs/usr/share/qe
+			DEPENDS=""
+			TAGS="editor"
+			;;
+		qemacs-tiny)
+			mkdir -p $fs/usr/bin
+			install -m 755 $src/qe-tiny $fs/usr/bin/qemacs
+			ln -s qemacs $fs/usr/bin/qe
+			DEPENDS=""
+			TAGS="editor"
+			;;
+		qemacs-x11)
+			mkdir -p $fs/usr/bin $fs/usr/share/qe
+			install -m 755 $src/qe-x11 $fs/usr/bin/qemacs
+			ln -s qemacs $fs/usr/bin/qe
+			install -m 755 -s $src/html2png $fs/usr/bin
+			install $src/kmaps $src/ligatures $fs/usr/share/qe
+			CAT="editors|Light emacs clone with X11 support."
+			DEPENDS="xorg-libX11 xorg-libXext xorg-libXv libxcb \
+				 xorg-libXau xorg-libXdmcp"
+			PROVIDE="qemacs"
+			TAGS="editor"
+			;;
+		qemacs-dev)
+			CAT="development|Light emacs clone developmement files."
+			mkdir -p $fs/usr/include/qemacs
+			for i in cutils.h display.h qe.h qeconfig.h qestyles.h ; do
+				cp $src/$i $fs/usr/include/qemacs
+			done
+			;;
+	esac
 }
-
