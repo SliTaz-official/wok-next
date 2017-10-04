@@ -12,21 +12,25 @@ WEB_SITE="http://gcc.gnu.org/"
 WGET_URL="$GNU_MIRROR/$SOURCE/$SOURCE-$VERSION/$TARBALL"
 TAGS="compiler C C++"
 
-BUILD_DEPENDS="gawk"
+BUILD_DEPENDS="gawk gcc49"
 DEPENDS="gcc"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's/struct siginfo /siginfo_t /' gcc/config/*/linux*.h
 	mkdir gcc-build 
 	cd gcc-build
 	{
+	export LD_LIBRARY_PATH="/usr/libgcc49:$LD_LIBRARY_PATH"
+	export CC=gcc-49
+	export CXX=g++-49
 	$src/configure --prefix=/usr --libexecdir=/usr/lib \
 		--infodir=/usr/share/info --mandir=/usr/share/man --enable-nls \
 		--enable-languages=c,c++ --enable-shared --with-system-zlib \
 		--enable-clocale=gnu --enable-objc-gc --enable-__cxa_atexit \
 		--enable-threads=posix --with-tune=$ARCH \
-		--program-suffix=-3
+		--program-suffix=-3 $CONFIGURE_ARGS
 	make $MAKEFLAGS bootstrap &&
 	make $MAKEFLAGS install
 	} 2>&1 | sed 's/: No such file/: no such file/'
