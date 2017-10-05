@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tazinst"
-VERSION="89"
+VERSION="91"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz installer"
 MAINTAINER="domcox@slitaz.org"
@@ -12,32 +12,30 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/tazinst/archive/$VERSION.tar.bz2"
 
 BUILD_DEPENDS="gettext"
-SIBLINGS="tazinst-gui"
+SPLIT="tazinst-gui tazinst"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	sed -i 's| = |=|' $src/applications/tazinst.desktop
+
 	make &&
 	make DESTDIR=$DESTDIR VERSION=$VERSION install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-#
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share/doc $fs/usr/share
-	cp -a $install/usr/share/locale $fs/usr/share
-	chmod 0644 $fs/usr/share/locale/*/*/*.mo
-	chown -R root.root $fs
-	# remove tazinst-gui locales
-	cd $fs/usr/share/locale
-	for lang in *; do
-		rm -f $lang/*/installer.mo
-	done
-	DEPENDS="util-linux-blkid lzma parted"
-	SUGGESTED="syslinux syslinux-extra syslinux-modules grub4dos-linux tazpanel"
+genpkg_rules() {
 	TAGS="slitaz"
+	case $PACKAGE in
+		tazinst-gui)
+			copy *.cgi *.desktop installer.mo
+			CAT="base-system|GUI frontend"
+			DEPENDS="tazpanel tazinst syslinux syslinux-extra"
+			;;
+		tazinst)
+			COOKOPTS="!menus"
+			copy @std *.mo doc/
+			remove_already_packed
+			DEPENDS="util-linux-blkid lzma parted"
+			SUGGESTED="syslinux syslinux-extra syslinux-modules grub4dos-linux \
+			tazpanel"
+			;;
+	esac
 }

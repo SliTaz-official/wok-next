@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="slitaz-base-files"
-VERSION="332"
+VERSION="333"
 CATEGORY="base-system"
 SHORT_DESC="Linux tree and the necessary files for the base system"
 MAINTAINER="pankso@slitaz.org"
@@ -56,16 +56,16 @@ genpkg_rules()
 {
 	cp -a $install/* $fs
 	DEPENDS="gettext-base"
-	CONFIG_FILES="/etc/adduser.conf /etc/passwd /etc/fstab /etc/issue \
-	/etc/hosts /etc/host.conf /etc/hostname /etc/group /etc/gshadow \
-	/etc/shadow /etc/daemons.conf /etc/nsswitch.conf /etc/networks \
-	/etc/profile /etc/securetty /etc/services /etc/shells"
+	CONFIG_FILES="/etc/adduser.conf /etc/daemons.conf /etc/fstab /etc/group \
+	/etc/gshadow /etc/host.conf /etc/hostname /etc/hosts /etc/issue /etc/motd \
+	/etc/networks /etc/nsswitch.conf /etc/passwd /etc/profile /etc/securetty \
+	/etc/services /etc/shadow /etc/shells /etc/slitaz-release \
+	/etc/slitaz/slitaz.conf /etc/sysctl.conf"
 }
 
 # Pre and post install to backup all /etc settings
 #
 pre_install() {
-	cp -a "$1/etc" "$1/tmp/etc.bak" 2>/dev/null
 	[ -x "$1/usr/bin/sudo" ] && mv "$1/usr/bin/sudo" "$1/usr/bin/sudo.orig"
 	# Remove old /var/run symlink
 	[ -h "$1/var/run" ] && rm -f "$1/var/run"
@@ -73,10 +73,6 @@ pre_install() {
 }
 
 post_install() {
-	if cp -a "$1/tmp/etc.bak"/* "$1/etc"; then
-		rm -r "$1/tmp/etc.bak"
-	fi 2>/dev/null
-
 	[ -x "$1/usr/bin/sudo.orig" ] &&
 	mv -f "$1/usr/bin/sudo.orig" "$1/usr/bin/sudo"
 
