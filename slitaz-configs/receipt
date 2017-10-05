@@ -22,6 +22,8 @@ compile_rules()
 {
 	case "$ARCH" in
 		i?86)
+			# xcompmgr produces visual glitches on the screen
+			sed -i 's|xcompmgr|compton|' ob-menu/menu.xml.in
 			make DESTDIR=$DESTDIR menu
 			ln -s menu.en.xml $install/etc/xdg/openbox/menu.xml
 			;;
@@ -65,6 +67,11 @@ compile_rules()
 	# Remove templates, use that in /usr/share/templates/ only
 	rm $install/etc/skel/Templates/*
 
+	# Now we need ConsoleKit
+	sed -i 's|exec dbus-launch|exec ck-launch-session dbus-launch|' $install/etc/skel/.xinitrc
+
+	# Enable colored terminal prompt by default
+	sed -i '/PS1.*m/ s|#PS1=|PS1=|' $install/etc/skel/.profile
 	chown -R root:root $install
 }
 
@@ -98,8 +105,7 @@ genpkg_rules()
 						/usr/share/webhome/ \
 						/root/
 					DEPENDS="slitaz-configs-base xorg-libXcomposite \
-					xorg-libXdamage xorg-xcompmgr transset-df ttf-dejavu \
-					slim"
+					xorg-libXdamage transset-df ttf-dejavu slim compton"
 					;;
 				arm)
 					copy \

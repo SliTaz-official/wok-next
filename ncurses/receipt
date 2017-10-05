@@ -52,6 +52,13 @@ compile_rules()
 
 	mkdir -p    $install/usr/share/doc/ncurses-$VERSION
 	cp -a doc/* $install/usr/share/doc/ncurses-$VERSION
+
+	# Fix F-keys in the terminal
+	for i in xterm xterm-256color; do
+		mv $install/usr/share/terminfo/x/$i $install/usr/share/terminfo/x/$i.orig
+	done
+	$install/usr/bin/tic $stuff/xterm-patched -o $install/usr/share/terminfo
+	ln -s xterm-256color $install/usr/share/terminfo/x/xterm
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -60,8 +67,8 @@ genpkg_rules()
 	case $PACKAGE in
 		ncurses)
 			copy clear tset reset libncursesw.so* tabset/ \
-			ansi linux rxvt vt100 vt102* xterm xterm-256color xterm-color \
-			xterm-new xterm-vt220
+			linux xterm xterm-256color
+			# ansi rxvt vt100 vt102* xterm-color xterm-new xterm-vt220
 			;;
 		ncurses-libform)
 			copy libformw.so*

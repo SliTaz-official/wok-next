@@ -23,9 +23,22 @@ compile_rules()
 	./autogen.sh &&
 	make && make install
 
+	# Define small icons is 16x16
 	sed -i '20 i\
 gtk-icon-sizes="gtk-large-toolbar=16,16:gtk-small-toolbar=16,16:panel-menu=16,16:gtk-button=16,16"' \
 	$install/usr/share/themes/Paper/gtk-2.0/gtkrc
+
+	# Fix GTK+3 deprecations
+	for i in $(find $install -type f); do
+		sed -i "s|:insensitive|:disabled|g;
+		        s|:inconsistent|:indeterminate|g" $i
+	done
+
+	# Restore "classic" tabs
+	cp -f $stuff/Tabs/*.png $install/usr/share/themes/Paper/gtk-2.0/Tabs/
+
+	# Make pressed buttons be different with non-pressed
+	cp -f $stuff/Buttons/*.png $install/usr/share/themes/Paper/gtk-2.0/Buttons/
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.

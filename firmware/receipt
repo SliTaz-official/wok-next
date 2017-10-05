@@ -48,7 +48,8 @@ $f-snd-ymfpci $f-speedfax $f-starfire $f-tda10071 $f-tehuti $f-tg3 \
 $f-ti_usb_3410_5052 $f-tuner-xc2028 $f-typhoon $f-ueagle-atm $f-usb8xxx \
 $f-usbdux $f-usbduxfast $f-usbduxsigma $f-wcn36xx $f-wd719x $f-whiteheat \
 $f-wil6210 $f-wl1251 $f-wl12xx $f-wl18xx $f-xc4000 $f-xc5000 $f-zd1201 \
-$f-zd1211rw"
+$f-zd1211rw \
+$f-atheros $f-rt2x00 $f-rtlnic $f-rtlwifi"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -96,6 +97,7 @@ EOT
 				rpm2cpio *.rpm | cpio -idm; cp -r lib/ $install;;
 			ath10k-firmware)
 				cp -r ath10k $fdir;;
+			# prohibited
 #			broadcom-firmware)
 #				b43-fwcutter -w $fdir linux/wl_apsta.o
 #				cp linux/wl_apsta.o $fdir
@@ -159,6 +161,34 @@ genpkg_rules() {
 			DEPENDS="b43-fwcutter"
 			COOKOPTS="empty-pkg"
 			;;
+
+		# Meta-packages for backward compatibility with previous release
+		*-atheros)
+			# Some files from old "firmware-atheros" package are not packaged
+			# because they are not required by any of current kernel module.
+			CAT="meta|atheros meta"
+			DEPENDS="firmware-ar5523 firmware-ath3k"
+			;;
+		*-rt2x00)
+			# Some files are not packaged as well
+			CAT="meta|rt2x00 meta"
+			DEPENDS="firmware-rt61pci firmware-rt2800pci firmware-rt2800usb \
+			firmware-rt73usb"
+			;;
+		*-rtlnic)
+			CAT="meta|Realtek ethernet meta"
+			DEPENDS="firmware-r8169"
+			;;
+		*-rtlwifi)
+			# Some files are not packaged as well
+			CAT="meta|rtlwifi meta"
+			DEPENDS="firmware-rtl8188ee firmware-rtl8192ce firmware-rtl8192cu \
+			firmware-rtl8192de firmware-rtl8192ee firmware-rtl8192se \
+			firmware-r8712u firmware-rtl8xxxu firmware-rtl8723be \
+			firmware-rtl8821ae"
+			;;
+		# End meta-packages
+
 		*)
 			path=$(find $WOK/linux/install -type f -name $module.ko.xz)
 			fw=$(modinfo -Ffirmware $path | sort -u)
