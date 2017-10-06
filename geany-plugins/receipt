@@ -1,72 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="geany-plugins"
-VERSION="1.23"
+VERSION="1.31"
 CATEGORY="development"
-SHORT_DESC="Additionnal plugins for Geany."
+SHORT_DESC="Additional plugins for Geany"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://plugins.geany.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/$PACKAGE/$TARBALL"
-#HOST_ARCH="i486 arm"
 
-DEPENDS="enchant gtkspell geany lua"
-BUILD_DEPENDS="gtkspell-dev geany-dev lua-dev libxml2-dev"
+BUILD_DEPENDS_arm="gtkspell-dev geany-dev lua-dev libxml2-dev"
+BUILD_DEPENDS="intltool geany-dev gtk+-dev check-dev vte-gtk2-dev \
+python-dev pygtk-dev gtkspell-dev" # lua5.1-dev but produces error
+SPLIT="geany-plugins-dev"
 
-# Handle cross compilation.
-case "$ARCH" in
-	i?86) 
-		BUILD_DEPENDS="gtkspell-dev geany-dev lua-dev libxml2-dev vte-dev"
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--libexecdir=/usr/lib \
-		--enable-addons \
-		--enable-codenav \
-		--enable-commander \
-		--enable-debugger \
-		--disable-devhelp \
-		--enable-geanydoc \
-		--enable-treebrowser \
-		--enable-geanyvc \
-		--disable-geanyextrasel \
-		--disable-geanygendoc \
-		--disable-geanyinsertnum \
-		--disable-geanylatex \
-		--disable-geanylipsum \
-		--disable-geanylua \
-		--disable-geanymacro \
-		--disable-geanyminiscript \
-		--disable-geanynumberedbookmarks \
-		--disable-geanyprj \
-		--disable-geanysendmail \
-		--disable-geanypg \
-		--disable-largefile \
-		--disable-geniuspaste \
-		--disable-gproject \
-		--disable-markdown \
-		--disable-peg-markdown \
-		--disable-multiterm \
-		--disable-pretty_printer \
-		--disable-scope \
-		--disable-shiftcolumn \
-		--disable-spellcheck \
-		--disable-tableconvert \
-		--disable-updatechecker \
-		--disable-webhelper \
-		--disable-xmlsnippets  \
-		$CONFIGURE_ARGS ${ARCH_ARGS} &&
-	make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/geany 
-	
-	cp -a $install/usr/lib/geany/*.so $fs/usr/lib/geany
+genpkg_rules() {
+	case $PACKAGE in
+		geany-plugins)
+			copy @std
+			DEPENDS="geany atk cairo enchant fontconfig freetype gdk-pixbuf \
+			glib gtk+ gtkspell libxml2 pango python vte-gtk2 xorg-libX11 \
+			xorg-libXext"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="geany-plugins atk-dev bzip2-dev cairo-dev enchant-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev geany-dev glib-dev \
+			gtk+-dev gtkspell-dev harfbuzz-dev libffi-dev libpng16-dev \
+			libxml2-dev ncurses-dev pango-dev pcre-dev python-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			vte-gtk2-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
