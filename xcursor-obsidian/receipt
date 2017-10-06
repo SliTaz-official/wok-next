@@ -7,23 +7,21 @@ SHORT_DESC="Obsidian cursor theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
 WEB_SITE="http://www.gnome-look.org/content/show.php/Obsidian+Cursors?content=73135"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.gnome-look.org/CONTENT/content-files/73135-Obsidian.tar.bz2"
-TAGS="cursor-theme"
 
-DEPENDS="xorg-libXcursor"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://dl.opendesktop.org/api/files/download/id/1460735403/73135-Obsidian.tar.bz2"
+
 BUILD_DEPENDS="symlinks"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $install/usr/share/icons/Obsidian
-	cp -a $src/cursors $src/index.theme $install/usr/share/icons/Obsidian
+compile_rules() {
+	icodir="$install/usr/share/icons/Obsidian"
+	mkdir -p $icodir
+	cp -r $src/cursors $src/index.theme $icodir
 	. $stuff/symdup.sh
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libXcursor"
+	TAGS="cursor-theme"
 }

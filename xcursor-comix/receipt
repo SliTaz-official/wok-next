@@ -1,22 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xcursor-comix"
-VERSION="0.8.2"
+VERSION="0.9.0.5" # 5 commits after the 0.9 release; author use 2-3 digits (0.8.2, 0.9)
+COMMIT="2b025c3c"
 CATEGORY="customization"
 SHORT_DESC="Comix cursor theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="http://www.kde-look.org/content/show.php/ComixCursors?content=32627"
+WEB_SITE="http://www.limitland.de/comixcursors"
+
 TARBALL="ComixCursors-$VERSION.tar.bz2"
-WGET_URL="http://www.limitland.de/downloads/comixcursors/$TARBALL"
-TAGS="cursor-theme"
+WGET_URL="https://gitlab.com/limitland/comixcursors/repository/${COMMIT:-$VERSION}/archive.tar.bz2"
 
-DEPENDS="xorg-libXcursor"
-BUILD_DEPENDS=""
+BUILD_DEPENDS="bc rsvg-convert coreutils-numeric xorg-xcursorgen symlinks"
+SPLIT="xcursor-comix-opaque-white xcursor-comix"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/icons
-	cp -a $src/* $fs/usr/share/icons
+compile_rules() {
+	export MULTISIZE=true
+	export ICONSDIR=$install/usr/share/icons
+	./install-all
+	. $stuff/symdup.sh
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		xcursor-comix-opaque-white)
+			copy ComixCursors-Opaque-White/
+			CAT="customization|opaque white set only"
+			;;
+		xcursor-comix)
+			copy @std
+			remove_already_packed
+			;;
+	esac
+	DEPENDS="xorg-libXcursor"
+	TAGS="cursor-theme"
 }
