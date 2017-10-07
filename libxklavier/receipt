@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libxklavier"
 VERSION="5.0"
@@ -10,8 +10,8 @@ WEB_SITE="http://freedesktop.org/wiki/Software/LibXklavier"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/gswitchit/libxklavier/$VERSION/$TARBALL"
 
-DEPENDS="glib xorg-libXi xorg-libxkbfile"
-BUILD_DEPENDS="libxml2-dev glib-dev xorg-xkbcomp iso-codes"
+BUILD_DEPENDS="libxml2-dev glib-dev xorg-xkbcomp iso-codes xorg-dev"
+SPLIT="libxklavier libxklavier-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,6 +29,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libxklavier)
+			DEPENDS="glib xorg-libXi xorg-libxkbfile"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			;;
+		libxklavier-dev)
+			DEPENDS="libxklavier glib-dev libxml2-dev pkg-config"
+			CAT="development|Development files for libxklavier"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.la $fs/usr/lib
+			;;
+	esac
 }
