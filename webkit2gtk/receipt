@@ -1,0 +1,68 @@
+# SliTaz package receipt v2.
+
+PACKAGE="webkit2gtk"
+VERSION="2.16.6"
+CATEGORY="network"
+SHORT_DESC="Port of web rendering engine WebKit to the GTK+ platform"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="custom"
+WEB_SITE="https://webkitgtk.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/webkitgtk.html"
+
+TARBALL="webkitgtk-$VERSION.tar.xz"
+WGET_URL="http://webkitgtk.org/releases/$TARBALL"
+
+BUILD_DEPENDS="cmake gperf perl python ruby-dev cairo-dev gnutls-dev gtk+3-dev \
+harfbuzz-icu-dev libjpeg-turbo-dev libsoup-dev libxslt-dev libsecret-dev \
+libwebp-dev mesa-dev gtk+-dev enchant-dev gst1-plugins-base-dev \
+libnotify-dev gettext"
+SPLIT="webkit2gtk-dev"
+
+compile_rules() {
+	mkdir -p build &&
+	cd       build &&
+
+	CFLAGS=-Wno-expansion-to-defined \
+	CXXFLAGS=-Wno-expansion-to-defined \
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_SKIP_RPATH=ON \
+		-DPORT=GTK \
+		-DLIB_INSTALL_DIR=/usr/lib \
+		-DUSE_LIBHYPHEN=OFF \
+		-DENABLE_MINIBROWSER=ON \
+		-Wno-dev \
+		\
+		-DENABLE_GEOLOCATION=OFF \
+		-DENABLE_QUARTZ_TARGET=OFF \
+		-DENABLE_WAYLAND_TARGET=OFF \
+		-DENABLE_INTROSPECTION=OFF \
+		.. &&
+	make &&
+	make install || return 1
+
+	for i in 2 dom; do
+		j="$install/usr/share/gtk-doc/html/webkit${i}gtk-4.0"
+		mkdir -p $j
+		cp -a ../Documentation/webkit${i}gtk-4.0/html/* $j
+	done
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		webkit2gtk)
+			copy @std
+			DEPENDS="atk cairo enchant fontconfig freetype gdk-pixbuf glib \
+			gst1-plugins-base gstreamer1 gtk+ gtk+3 icu libgcrypt libharfbuzz \
+			libharfbuzz-icu libicu libjpeg-turbo libnotify libpng16 libsecret \
+			libsoup libsqlite3 libwebp libxml2 libxslt mesa mesa-libegl pango \
+			xorg-libX11 xorg-libXcomposite xorg-libXdamage xorg-libXrender \
+			xorg-libXt zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="webkit2gtk glib-dev gtk+3-dev libsoup-dev"
+			;;
+	esac
+}

@@ -1,0 +1,71 @@
+# SliTaz package receipt v2.
+
+# Purpose of this package is to be built without GTK+3
+PACKAGE="webkitgtk"
+VERSION="2.4.11"
+CATEGORY="network"
+SHORT_DESC="Port of web rendering engine WebKit (legacy) to the GTK+ platform"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="custom"
+WEB_SITE="https://webkitgtk.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://webkitgtk.org/releases/$TARBALL"
+
+BUILD_DEPENDS="cmake gperf perl python ruby-dev cairo-dev gnutls-dev gtk+3-dev \
+harfbuzz-icu-dev libjpeg-turbo-dev libsoup-dev libxslt-dev libsecret-dev \
+libwebp-dev mesa-dev gtk+-dev enchant-dev gst1-plugins-base-dev \
+libnotify-dev gettext"
+SPLIT="webkitgtk-dev"
+
+BUILD_DEPENDS="perl python ruby-dev gperf libjpeg-turbo-dev libpng16-dev \
+libwebp-dev glib-dev icu-dev libxml2-dev pango-dev enchant-dev gtk+-dev \
+xorg-libXt-dev gobject-introspection-dev libsoup-dev libsecret-dev \
+harfbuzz-icu-dev libxslt-dev gst1-plugins-base-dev gettext"
+
+compile_rules() {
+	CXXFLAGS="$CXXFLAGS -fno-delete-null-pointer-checks"
+	CFLAGS="$CFLAGS -fno-delete-null-pointer-checks"
+
+	mkdir -p build &&
+	cd       build &&
+
+	../configure \
+		--enable-introspection \
+		--disable-webkit2 \
+		--disable-gtk-doc \
+		--with-gtk=2.0 \
+		--disable-geolocation \
+		--enable-silent-rules \
+		$CONFIGURE_ARGS &&
+	# https://bugzilla.gnome.org/show_bug.cgi?id=655517
+	sed -i 's| -shared | -Wl,-O1,--as-needed\0|g' libtool &&
+	make all stamp-po &&
+	make -j1 install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		webkitgtk)
+			copy @std
+			DEPENDS="atk cairo enchant fontconfig freetype gdk-pixbuf glib \
+			gst1-plugins-base gstreamer1 gtk+ icu libharfbuzz libharfbuzz-icu \
+			libicu libjpeg-turbo libpng16 libsecret libsoup libsqlite3 libwebp \
+			libxml2 libxslt pango xorg-libX11 xorg-libXrender xorg-libXt zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="webkitgtk atk-dev bzip2-dev cairo-dev enchant-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
+			gst1-plugins-base-dev gstreamer1-dev gtk+-dev harfbuzz-dev \
+			harfbuzz-icu-dev icu-dev libjpeg-turbo-dev libffi-dev \
+			libgcrypt-dev libgpg-error-dev libpng16-dev libsecret-dev \
+			libsoup-dev libwebp-dev libxml2-dev libxslt-dev orc-dev pango-dev \
+			pcre-dev sqlite3-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libXt-dev xorg-libxcb-dev xorg-pixman-dev \
+			xz-dev zlib-dev"
+			;;
+	esac
+}

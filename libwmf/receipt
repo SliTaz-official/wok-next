@@ -1,34 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libwmf"
 VERSION="0.2.8.4"
 CATEGORY="misc"
-SHORT_DESC="library for converting WMF files"
+SHORT_DESC="Converting WMF files"
 MAINTAINER="monghitri@aruba.it"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://wvware.sourceforge.net/libwmf.html"
-WGET_URL="http://sourceforge.net/projects/wvware/files/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="libpng jpeg libgd gdk-pixbuf expat"
-BUILD_DEPENDS="libpng-dev jpeg-dev libgd-dev gdk-pixbuf-dev expat-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/wvware/$TARBALL"
+
+BUILD_DEPENDS="gfortran xorg-libXt-dev expat-dev libxml2-dev freetype-dev \
+libjpeg-turbo-dev libgd-dev gdk-pixbuf-dev gtk+-dev"
+SPLIT="libwmf-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	sed -i 's/^mkdirprog.*$/mkdirprog="mkdir -p"/' install-sh
-	./configure $CONFIGURE_ARGS &&
-	make && 
-	make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/libwmf $fs/usr/lib/gtk-2.0/loaders
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/share/libwmf/fonts $fs/usr/share/libwmf/
-	cp -a $install/usr/lib/*.so* $fs/usr/lib/
-	cp -a $install/usr/lib/gtk-2.0/loaders/*.so* $fs/usr/lib/gtk-2.0/loaders/
+	case $PACKAGE in
+		libwmf)
+			copy @std
+			DEPENDS="bzlib expat freetype gdk-pixbuf glib libharfbuzz \
+			libjpeg-turbo libpng16 pcre xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libxcb zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libwmf bzip2-dev expat-dev freetype-dev gdk-pixbuf-dev \
+			glib-dev harfbuzz-dev libjpeg-turbo-dev libffi-dev libpng16-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libxcb-dev zlib-dev"
+			;;
+	esac
 }

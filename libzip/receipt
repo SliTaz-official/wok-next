@@ -1,33 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libzip"
-VERSION="0.11.2"
+VERSION="1.3.0"
 CATEGORY="misc"
-SHORT_DESC="C library for reading, creating, and modifying zip archives."
+SHORT_DESC="C library for reading, creating, and modifying zip archives"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.nih.at/libzip/"
-WGET_URL="${WEB_SITE}$TARBALL"
+WEB_SITE="https://nih.at/libzip/"
 HOST_ARCH="i486 arm"
 
-BUILD_DEPENDS="zlib-dev"
-DEPENDS="zlib"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://nih.at/libzip/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev coreutils-conditions bzip2-dev perl"
+SPLIT="libzip-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make -j 1 install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libzip)
+			copy @std
+			DEPENDS="bzlib zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libzip bzip2-dev zlib-dev"
+			;;
+	esac
 }

@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lxhotkey"
+VERSION="0.1.0"
+CATEGORY="utilities"
+SHORT_DESC="Hotkeys management utility"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.lxde.org/en/LXHotkey"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
+BUILD_DEPENDS="intltool libfm-dev xorg-libX11-dev"
+SPLIT="lxhotkey-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		lxhotkey)
+			copy @std
+			DEPENDS="glib libfm libfm-extra libunistring xorg-libX11"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="lxhotkey libfm-dev"
+			;;
+	esac
+}
