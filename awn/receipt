@@ -1,0 +1,65 @@
+# SliTaz package receipt v2.
+
+PACKAGE="awn"
+VERSION="0.4.2.16" # latest release 0.4.2 plus 16 commits ahead (13/11/27 -> 15/10/17)
+COMMIT="b8c2248"
+CATEGORY="x-window"
+SHORT_DESC="Dock-like bar which sits at the bottom of the screen"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://launchpad.net/awn/"
+
+TARBALL="avant-window-navigator-${COMMIT:-$VERSION}.tar.gz"
+WGET_URL="https://github.com/p12tic/awn/archive/${COMMIT:-v$VERSION}.tar.gz"
+
+BUILD_DEPENDS="intltool gtk-doc libtool automake python-dev gtk+-dev \
+pycairo-dev pygtk-dev vala python-xdg glibmm-dev libdesktop-agnostic-dev \
+gtkmm-dev dbus-glib-dev xorg-libXcomposite-dev libwnck2-dev libgtop-dev"
+SPLIT="awn-dev"
+COOKOPTS="skip-log-errors"
+
+# Rules to configure and make the package.
+compile_rules() {
+	./autogen.sh &&
+	./configure \
+		--sysconfdir=/etc \
+		--with-desktop=agnostic \
+		$CONFIGURE_ARGS &&
+	make &&
+	make  install || return 1
+
+	# Custom autostart script so we ensure xcompmgr is also started.
+	install -m755 $stuff/awn-autostart $install/usr/bin
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules() {
+	case $PACKAGE in
+		awn)
+			copy @std
+			DEPENDS="atk atkmm bzlib cairo cairomm dbus dbus-glib fontconfig \
+			freetype gdk-pixbuf glib glibmm gtk+ gtkmm libdesktop-agnostic \
+			libffi libgiomm libgtop libharfbuzz liblzma libpng16 libsigc++ \
+			libwnck2 libxml2 pango pangomm pcre python startup-notification \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXcomposite xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			TAGS="panel"
+			PROVIDE="avant-window-navigator"
+			;;
+		awn-dev)
+			copy @dev
+			DEPENDS="awn atk-dev atkmm-dev bzip2-dev cairo-dev cairomm-dev \
+			dbus-dev dbus-glib-dev fontconfig-dev freetype-dev gdk-pixbuf-dev \
+			glib-dev glibmm-dev gtk+-dev gtkmm-dev harfbuzz-dev \
+			libdesktop-agnostic-dev libffi-dev libgiomm-dev libgtop-dev \
+			libpng16-dev libsigc++-dev libwnck2-dev libxml2-dev pango-dev \
+			pangomm-dev pcre-dev python-dev startup-notification-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev \
+			xorg-xcb-util-dev xz-dev zlib-dev"
+			PROVIDE="avant-window-navigator-dev"
+			;;
+	esac
+}
