@@ -1,80 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="midori"
-VERSION="0.5.2"
+VERSION="0.5.11"
 CATEGORY="network"
 SHORT_DESC="Lightweight web browser based on GTK+/WebKit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-#TARBALL="${PACKAGE}_${VERSION}_all_.tar.bz2"
-WEB_SITE="http://twotoasts.de/index.php/midori/"
-#WGET_URL="http://midori-browser.org/downloads/$TARBALL"
-WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION:0:3}/$TARBALL"
-TAGS="web-browser"
-#HOST_ARCH="i486 arm"
+WEB_SITE="http://www.midori-browser.org/"
 
-GENERIC_MENUS="no"
-DEPENDS="libnotify libunique libsoup libwebkit xorg-libXScrnSaver libxslt"
-BUILD_DEPENDS="glib-dev libnotify-dev gtk+-dev xorg-libXScrnSaver-dev \
+TARBALL="${PACKAGE}_${VERSION}_all_.tar.bz2"
+WGET_URL="http://midori-browser.org/downloads/$TARBALL"
+TARBALL_SHA1="64c86935028feb5f89d799c2acacaad67764da6f"
+
+BUILD_DEPENDS_arm="glib-dev libnotify-dev gtk+-dev xorg-libXScrnSaver-dev \
 libwebkit-dev libunique-dev libsoup-dev libxslt-dev gettext intltool"
+BUILD_DEPENDS="cmake vala sqlite3-dev libsoup-dev shared-mime-info gcr-dev \
+webkitgtk-dev gettext rsvg-convert intltool"
 
-# Handle cross compilation
-case "$ARCH" in
-	i?86) 
-		BUILD_DEPENDS="$BUILD_DEPENDS cmake desktop-file-utils-extra 
-		librsvg-apps python vala"
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	#mkdir -p build && cd build
-	#cmake \
-		#-DCMAKE_INSTALL_PREFIX=/usr \
-		#-DCMAKE_INSTALL_LIBDIR=lib \
-		#-DUSE_ZEITGEIST=0 .. &&
+compile_rules() {
 	./configure \
-		--jobs=4 \
 		--prefix=/usr \
 		--disable-zeitgeist &&
 	make &&
-	make install
+	make install || return 1
+
+	cp $stuff/config $install/etc/xdg/midori
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p \
-		$fs/usr/share/doc/midori \
-		$fs/usr/share/pixmaps
-
-	cp -a $install/etc $fs
-	cp $stuff/config $fs/etc/xdg/midori
-	# add SliTaz token to DDG, add Twitter search
-	cd $fs && patch -p1 < $stuff/search.patch && status
-
-	# Midori use sqlite to store bookmarks
-	#cp $stuff/bookmarks.xbel $fs/etc/xdg/midori
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-
-	# desktop files
-	cp -a $install/usr/share/applications $fs/usr/share
-	find $fs -name '*.desktop' -exec sed -i \
-		'/^Version/d; /^GenericName/d; /^X-/d; \
-		/^Actions=/d' \{\} \;
-	desktop=$fs/usr/share/applications/midori.desktop
-	lastline=$(expr $(grep -n '^\[Desktop Action TabNew\]' $desktop | \
-		cut -d: -f1) - 2)
-	head -n $lastline $desktop > $desktop.new
-	mv -f $desktop.new $desktop
-
-	cp -a $install/usr/share/doc/midori/faq* $fs/usr/share/doc/midori
-	cp -a $install/usr/share/midori $fs/usr/share
-
-	# Icons
-	cp -a $install/usr/share/icons $fs/usr/share
-	rm -rf $fs/usr/share/icons/hicolor/scalable
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo fontconfig freetype gcr-base gdk-pixbuf glib gtk+ \
+	libsoup libsoup-gnome libsqlite3 libxml2 p11-kit pango webkitgtk"
+	TAGS="web-browser web webkit"
 }
