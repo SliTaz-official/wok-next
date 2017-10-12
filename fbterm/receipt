@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fbterm"
 VERSION="1.7.0"
@@ -6,14 +6,15 @@ CATEGORY="utilities"
 SHORT_DESC="A fast FrameBuffer based TERMinal emulator for linux"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://code.google.com/p/fbterm/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
+WEB_SITE="https://code.google.com/archive/p/fbterm/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="bzlib expat fontconfig freetype gcc-lib-base glibc-base zlib"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/fbterm/$TARBALL"
+
 #configure: WARNING: libx86.h doesn't exist! VESA support will be disabled!
-BUILD_DEPENDS="freetype-dev fontconfig-dev gpm-dev ncursesw-dev ncursesw-extra"
+# -> http://www.codon.org.uk/~mjg59/libx86/
+BUILD_DEPENDS="freetype-dev fontconfig-dev gpm-dev ncurses-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,6 +26,6 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	copy @std
+	DEPENDS="fontconfig freetype"
 }
