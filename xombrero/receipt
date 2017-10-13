@@ -1,41 +1,50 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+# From official github repo:
+# xombrero has been retired and is no longer under development and supported.
 PACKAGE="xombrero"
-VERSION="1.6.4"
+VERSION="1.6.4.7" # Latest release 1.6.4 + 7 commits
+COMMIT="28d1406"
 CATEGORY="network"
-SHORT_DESC="A minimalist web browser with sophisticated security features."
+SHORT_DESC="A minimalist web browser with sophisticated security features"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="ISC"
-WEB_SITE="https://opensource.conformal.com/wiki/xombrero"
-TARBALL="$PACKAGE-$VERSION.tgz"
-WGET_URL="https://opensource.conformal.com/snapshots/$PACKAGE/$TARBALL"
-CONFIG_FILES="/etc/xombrero.conf"
-TAGS="web-browser"
+WEB_SITE="https://github.com/conformal/xombrero"
 
-SUGGESTED="cacerts"
-DEPENDS="gtk+ libwebkit libbsd"
-BUILD_DEPENDS="gtk+-dev libwebkit-dev libsoup-dev gnutls-dev libbsd-dev \
-groff wget"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/conformal/xombrero/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="glib-dev gtk+-dev webkitgtk-dev libsoup-dev gnutls-dev \
+libbsd-dev perl mdocml" # groff absent yet, so we use mdocml and patch
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	find -type f -print0 | xargs -0 sed -i 's|/usr/local|/usr|'
 	cp -f $stuff/xombrero.desktop .
-	make PREFIX="/usr" -C linux GTK_VERSION="gtk2" install
+	sed -i 's|https://www.cyphertite.com|http://www.slitaz.org/|' \
+		xombrero.c xombrero.conf xombrero.h
+	sed -i 's|/etc/ssl/cert.pem|/etc/ssl/ca-bundle.crt|' xombrero.conf
+	sed -i 's|gtk+-2.0|& javascriptcoregtk-1.0|; s|gnutls|& libbsd|' linux/Makefile
+
+	make -j1 PREFIX="/usr" -C linux GTK_VERSION="gtk2" install || return 1
+
+	cp $stuff/xombrero.conf $install/etc
+
+	# Link icons
+	for size in 16 32 48 64 128 256; do
+		mkdir -p $install/usr/share/icons/hicolor/${size}x$size/apps
+		ln -s ../../../../xombrero/xombreroicon$size.png \
+			$install/usr/share/icons/hicolor/${size}x$size/apps/xombrero.png
+	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc
-	cp -a $install/* $fs
-	cp $stuff/xombrero.conf $fs/etc
-
-	# Link icons
-	for size in 16 32 48 64 128 256; do
-		mkdir -p $fs/usr/share/icons/hicolor/${size}x$size/apps
-		ln -s /usr/share/xombrero/xombreroicon$size.png \
-			$fs/usr/share/icons/hicolor/${size}x$size/apps/xombrero.png
-	done
+	copy @std
+	CONFIG_FILES="/etc/xombrero.conf"
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libbsd \
+	libgnutls libsoup pango webkitgtk xorg-libX11"
+	TAGS="web-browser"
 }
