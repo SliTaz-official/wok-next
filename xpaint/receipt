@@ -1,42 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xpaint"
-VERSION="2.9.10.2"
+VERSION="2.10.1"
 CATEGORY="graphics"
 SHORT_DESC="Simple paint program for X"
 MAINTAINER="mojo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://sf-xpaint.sourceforge.net/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/sf-$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="openjpeg libXaw3dXft"
-BUILD_DEPENDS="openjpeg-dev libXaw3dXft-dev libpng-dev jpeg-dev \
-expat-dev libxml2-dev util-linux-uuid-dev tiff-dev libtool"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/sf-xpaint/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	case "$ARCH" in
-		i?86) LIBTOOL=libtool ;;
-		arm) LIBTOOL=${HOST_SYSTEM}-libtool ;;
-	esac
-	./configure --enable-tiff=no $CONFIGURE_ARGS &&
-	# Fix cross compilation
-	sed -i s'/$(CC) substads.c/gcc substads.c/' Makefile &&
-	sed -i s'/$(CC) preproc.c/gcc preproc.c/' Makefile &&
-	make -j 1 LIBTOOL=${LIBTOOL} && make install
+BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev freetype-dev libXaw3dXft-dev \
+libjpeg-turbo-dev tiff-dev libtool"
+SPLIT="xpaint-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make -j1 && make install || return 1
+
+	mkdir -p $install/usr/share/pixmaps
+	ln -s ../xpaint/XPaintIcon.xpm $install/usr/share/pixmaps/xpaint.xpm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/xpaint $fs/usr/share
-	rm -r $fs/usr/share/xpaint/include
-	rm -r $fs/usr/share/xpaint/c-scripts
-	cp $stuff/xpaint.xpm $fs/usr/share/pixmaps
+genpkg_rules() {
+	case $PACKAGE in
+		xpaint)
+			copy @std
+			DEPENDS="bzlib fontconfig freetype glib libXaw3dXft libharfbuzz \
+			libjpeg-turbo liblzma libpng16 libxml2 pcre tiff util-linux-uuid \
+			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXft xorg-libXmu xorg-libXpm xorg-libXrender \
+			xorg-libXt xorg-libxcb zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xpaint bzip2-dev fontconfig-dev freetype-dev glib-dev \
+			harfbuzz-dev libjpeg-turbo-dev libXaw3dXft-dev libpng16-dev \
+			libxml2-dev pcre-dev tiff-dev util-linux-uuid-dev xorg-libICE-dev \
+			xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXft-dev xorg-libXmu-dev xorg-libXpm-dev \
+			xorg-libXrender-dev xorg-libXt-dev xorg-libxcb-dev xz-dev zlib-dev"
+			;;
+	esac
 }
