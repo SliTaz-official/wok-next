@@ -1,33 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libcclc"
 VERSION="0.7.0"
 CATEGORY="development"
-SHORT_DESC="client library for internet cafe programs"
+SHORT_DESC="Client library for internet cafe programs"
 MAINTAINER="allan316@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://ccl.sourceforge.net"
-WGET_URL="http://nchc.dl.sourceforge.net/project/ccl/libcclc/$VERSION/$TARBALL"
-#WGET_URL="$SF_MIRROR/$SOURCE/$TARBALL"
+WEB_SITE="http://ccl.sourceforge.net/"
 
-DEPENDS="openssl sqlite"
-BUILD_DEPENDS="openssl-dev sqlite-dev file"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/ccl/$TARBALL"
+
+BUILD_DEPENDS="file openssl-dev"
+SPLIT="libcclc-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libcclc)
+			copy @std
+			DEPENDS="libcrypto libssl"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libcclc openssl-dev"
+			;;
+	esac
 }

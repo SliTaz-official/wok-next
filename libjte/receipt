@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libjte"
+VERSION="1.20"
+CATEGORY="utilities"
+SHORT_DESC="Jigdo Template Export library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE=""
+WEB_SITE="http://www.einval.com/~steve/software/JTE/"
+
+TARBALL="jigit_$VERSION.orig.tar.gz"
+WGET_URL="http://www.einval.com/~steve/software/JTE/download/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev bzip2-dev"
+SPLIT="libjte-dev"
+
+compile_rules() {
+	make &&
+	make -C libjte install || return 1
+
+	cook_pick_manpages *.1 *.8
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libjte)
+			copy @std
+			DEPENDS="bzlib zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libjte bzip2-dev zlib-dev"
+			;;
+	esac
+}

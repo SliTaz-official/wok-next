@@ -1,24 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdisasm"
 VERSION="0.23"
 CATEGORY="development"
-SHORT_DESC="x86 Disassembler Library."
+SHORT_DESC="x86 Disassembler Library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Artistic"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://bastard.sourceforge.net/libdisasm.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/bastard/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+BUILD_DEPENDS="gfortran"
+SPLIT="libdisasm-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	./configure "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
+	./configure \
+		"CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
@@ -27,7 +27,8 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libdisasm) copy @std;;
+		*-dev)     copy @dev;;
+	esac
 }

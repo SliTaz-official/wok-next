@@ -1,32 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdaq"
-VERSION="0.6.2"
+VERSION="2.2.1"
 CATEGORY="network"
-SHORT_DESC="Data Acquisition library for packet I/O."
+SHORT_DESC="Data Acquisition library for packet I/O"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.snort.org/"
-WGET_URL="http://www.snort.org/downloads/1221"
+WEB_SITE="https://github.com/Xiche/libdaq"
 
-DEPENDS="libpcap"
-BUILD_DEPENDS="libpcap-dev flex bison wget"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Xiche/libdaq/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake libtool flex bison libpcap-dev"
+SPLIT="libdaq-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	./bootstrap &&
 	./configure \
 		$CONFIGURE_ARGS &&
-	make -j1 && make -j1 DESTDIR=$DESTDIR install
+	make -j1 &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/daq
-	cp -a $install/usr/lib/daq/*.so* $fs/usr/lib/daq
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+		libdaq)
+			copy @std
+			DEPENDS="libpcap"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libdaq libpcap-dev"
+			;;
+	esac
 }
-

@@ -1,26 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libisofs"
 VERSION="1.0.8"
 CATEGORY="utilities"
-SHORT_DESC="libburnia is a project for reading, mastering  and writing optical discs."
+SHORT_DESC="Reading, mastering and writing optical discs"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="https://dev.lovelyhq.com/libburnia/web/wikis/home"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://libburnia-project.org/"
 WGET_URL="http://files.libburnia-project.org/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure $CONFIGURE_ARGS &&
-	make -j1 && make -j1 install
+BUILD_DEPENDS="gfortran acl-dev attr-dev zlib-dev libjte-dev"
+SPLIT="libisofs-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libisofs)
+			copy @std
+			DEPENDS="acl libjte zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libisofs acl-dev attr-dev bzip2-dev libjte-dev zlib-dev"
+			;;
+	esac
 }
