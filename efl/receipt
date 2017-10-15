@@ -22,11 +22,13 @@ jpeg-dev fribidi-dev giflib-dev tiff-dev libsndfile-dev lua-dev
 xorg-libXp-dev xorg-printproto xorg-scrnsaverproto xorg-libXScrnSaver-dev
 xorg-libXcursor-dev xorg-libXcomposite-dev xorg-libXinerama-dev
 xorg-libXrandr-dev xorg-libXtst-dev mesa-dev util-linux-uuid-dev libxml2-dev
-flac-dev autoconf automake"
+flac-dev autoconf automake expat-dev xorg-libxshmfence-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's/DGifCloseFile([^)]*/&,NULL/' \
+		src/modules/evas/loaders/gif/evas_image_load_gif.c
 	autoreconf -v &&
 	ac_aux_dir=$src ./configure \
 		--disable-static \
