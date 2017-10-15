@@ -1,0 +1,48 @@
+# SliTaz package receipt v2.
+
+PACKAGE="notification-daemon-gtk2"
+VERSION="0.5.0" # latest version with gtk2 is 0.5.0 (2010-06-28)
+CATEGORY="x-window"
+SHORT_DESC="Notification daemon for libnotify/notify-send under GTK2"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="http://www.galago-project.org/"
+
+TARBALL="notification-daemon-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/notification-daemon/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool gtk+-dev dbus-dev dbus-glib-dev libcanberra-dev \
+GConf-dev libwnck2-dev libnotify-dev"
+SPLIT="notification-daemon-gtk2-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		notification-daemon-gtk2)
+			copy @std
+			rm -r $fs/usr/share/icons; cook_copy_icons # only 16 and 48
+			DEPENDS="GConf atk bzlib cairo dbus dbus-glib fontconfig freetype \
+			gdk-pixbuf glib gtk+ libcanberra libffi libharfbuzz libltdl \
+			liblzma libnotify libogg libpng16 libvorbis libwnck2 libxml2 \
+			orbit2 pango pcre startup-notification util-linux-blkid \
+			util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman \
+			xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="notification-daemon-gtk2 GConf-dev atk-dev bzip2-dev \
+			cairo-dev dbus-dev dbus-glib-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libcanberra-dev \
+			libffi-dev libogg-dev libpng16-dev libtool libvorbis-dev \
+			libwnck2-dev libxml2-dev orbit2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+}
