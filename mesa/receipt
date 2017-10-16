@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mesa"
 VERSION="12.0.6"
@@ -14,14 +14,12 @@ CONFIG_FILES="/etc/drirc"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/$VERSION/$TARBALL"
 
-DEPENDS="expat libdrm xorg-libXdamage xorg-libXxf86vm xorg-libXt udev \
-xorg-libxshmfence"
 BUILD_DEPENDS="autoconf automake libtool python libdrm-dev libgcrypt-dev \
 eudev-dev xorg-glproto xorg-dri2proto xorg-dri3proto xorg-presentproto \
 libxcb-dev xorg-libxshmfence-dev xorg-libX11-dev xorg-libXext-dev \
 xorg-libXdamage-dev xorg-libXfixes-dev xorg-libXxf86vm-dev expat-dev \
 elfutils-dev llvm-dev xorg-libpciaccess-dev"
-SPLIT="mesa-dri mesa-libegl"
+SPLIT="mesa mesa-dev mesa-dri libegl-mesa"
 # libGLU is included in the package libglu-mesa
 # libGLw is included in the package libglw-mesa
 # libEGL is included in the package libegl-mesa
@@ -56,6 +54,33 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy etc/ libGL.so* libGLESv1_CM.so* libGLESv2.so* libOSMesa.so* \
-		libgbm.so* libglapi.so* libxatracker.so*
+	case $PACKAGE in
+	mesa)
+		DEPENDS="expat libdrm xorg-libXdamage xorg-libXxf86vm \
+			xorg-libXt udev xorg-libxshmfence"
+		copy etc/ libGL.so* libGLESv1_CM.so* libGLESv2.so* \
+			libOSMesa.so* libgbm.so* libglapi.so* libxatracker.so*
+		;;
+	mesa-dev)
+		CAT="development|"3D Graphics Library dev files."
+		DEPENDS="mesa mesa-dri mesa-libegl libdrm-dev \
+			xorg-libXdamage-dev  xorg-libXxf86vm-dev \
+			xorg-libXt-dev xorg-glproto xorg-dri2proto pkg-config"
+		copy *.h *.la *.pc
+		;;
+	mesa-dri)
+		CAT="x-window|Mesa DRI drivers."
+		DEPENDS="elfutils expat libdrm libdrm-intel libdrm-nouveau \
+			libdrm-radeon libgcrypt libgpg-error llvm-libs \
+			xorg-libpciaccess zlib"
+		copy *_dri.so
+		mkdir -p $fs/etc/X11/xorg.conf.d
+		cp $stuff/90-DRI.conf $fs/etc/X11/xorg.conf.d
+		;;
+	libegl-mesa)
+		CAT="libs|OpenGL utility library"
+		DEPENDS="mesa"
+		copy libEGL*
+		;;
+	esac
 }
