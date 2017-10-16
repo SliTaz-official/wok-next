@@ -1,31 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnetfilter_queue"
 VERSION="1.0.2"
 CATEGORY="network"
-SHORT_DESC="API to packets that have been queued by the kernel packet filter."
+SHORT_DESC="API to packets that have been queued by the kernel packet filter"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.netfilter.org/projects/libnetfilter_queue/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.netfilter.org/projects/$PACKAGE/"
-WGET_URL="${WEB_SITE}files/$TARBALL"
+WGET_URL="http://www.netfilter.org/projects/libnetfilter_queue/files/$TARBALL"
 
-DEPENDS="libnfnetlink"
 BUILD_DEPENDS="libnfnetlink-dev libmnl-dev"
+SPLIT="libnetfilter_queue-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libnetfilter_queue)
+			copy @std
+			DEPENDS="libmnl libnfnetlink"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libnetfilter_queue libmnl-dev libnfnetlink-dev"
+			;;
+	esac
 }

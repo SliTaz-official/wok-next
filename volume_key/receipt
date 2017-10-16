@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="volume_key"
+VERSION="0.3.9"
+CATEGORY="libs"
+SHORT_DESC="Manipulating storage volume encryption keys"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://pagure.io/volume_key"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/volume_key.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://releases.pagure.org/volume_key/$TARBALL"
+
+BUILD_DEPENDS="automake gettext gpgme-dev libtool cryptsetup-dev nss-dev \
+python-dev"
+SPLIT="volume_key-dev volume_key-python"
+
+compile_rules() {
+	sed -i '/config.h/d' lib/libvolume_key.h &&
+	autoreconf -fiv &&
+
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		volume_key)
+			copy @std; rm -r $fs/usr/lib/python2.7/
+			DEPENDS="cryptsetup glib gpgme libassuan libdevmapper libgcrypt \
+			libgpg-error nspr nss pcre util-linux-blkid util-linux-uuid"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="volume_key volume_key-python cryptsetup-dev glib-dev \
+			gpgme-dev libassuan-dev libdevmapper-dev libgcrypt-dev \
+			libgpg-error-dev nspr-dev nss-dev pcre-dev python-dev \
+			util-linux-blkid-dev util-linux-uuid-dev"
+			;;
+		*-python)
+			copy site-packages/; remove_already_packed
+			CAT="libs|python bindings"
+			DEPENDS="volume_key python"
+			;;
+	esac
+}

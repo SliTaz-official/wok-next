@@ -1,28 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libspectrum"
-VERSION="1.0.0"
+VERSION="1.4.1"
 CATEGORY="misc"
 SHORT_DESC="ZX Spectrum emulator support library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://fuse-emulator.sourceforge.net/libspectrum.php"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/fuse-emulator/$TARBALL"
 
-DEPENDS="zlib libgcrypt glib audiofile"
+BUILD_DEPENDS="perl zlib-dev libgcrypt-dev bzip2-dev glib-dev audiofile-dev"
+SPLIT="libspectrum-dev"
 
 # Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libspectrum)
+			copy @std
+			DEPENDS="audiofile bzlib glib libgcrypt libgpg-error pcre zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libspectrum audiofile-dev bzip2-dev glib-dev \
+			libgcrypt-dev libgpg-error-dev pcre-dev zlib-dev"
+			;;
+	esac
 }
-

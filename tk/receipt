@@ -1,53 +1,50 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tk"
-VERSION="8.6.6"
+VERSION="8.6.7"
 CATEGORY="development"
 SHORT_DESC="The TCL gui toolkit"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://tcl.sourceforge.net/"
-TAGS="programming language"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/tk.html"
 
 TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/tcl/$TARBALL"
 
-DEPENDS="tcl expat fontconfig freetype xorg-libX11 xorg-libXau xorg-libXdmcp \
-xorg-libXft xorg-libXrender zlib xorg-libXScrnSaver"
 BUILD_DEPENDS="tcl-dev xorg-libX11-dev"
+SPLIT="tk-dev"
 
 # Rules to configure and make the package.
-compile_rules()
-{
-	case "$ARCH" in
-		arm*)
-			ARCH_ARGS="--with-tcl=/cross/arm/sysroot/usr/lib"
-			export tcl_cv_strtod_buggy=1
-			export ac_cv_func_strtod=yes ;;
-	esac
-
-	cd $src/unix
+compile_rules() {
+	cd unix &&
 	./configure \
-		--enable-threads \
-		--enable-shared \
-		$ARCH_ARGS ${CONFIGURE_ARGS} &&
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		$([ $(uname -m) = x86_64 ] && echo --enable-64bit) &&
 	make &&
-
 	sed -e "s@^\(TK_SRC_DIR='\).*@\1/usr/include'@" \
-	    -e "/TK_B/s@='\(-L\)\?.*unix@='\1/usr/lib@" \
-	    -i tkConfig.sh &&
-
-	make DESTDIR=$DESTDIR install
+		-e "/TK_B/s@='\(-L\)\?.*unix@='\1/usr/lib@" \
+		-i tkConfig.sh &&
+	make install &&
+	make install-private-headers &&
+	ln -v -sf wish${VERSION:0:3} $install/usr/bin/wish &&
+	chmod -v 755 $install/usr/lib/libtk${VERSION:0:3}.so &&
+	find $install -name '*.sh' -exec chmod -v 755 '{}' \;
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/tk${VERSION:0:3} $fs/usr/lib
-
-	ln -s wish${VERSION:0:3} $fs/usr/bin/wish
+genpkg_rules() {
+	case $PACKAGE in
+		tk)
+			copy @std
+			find $fs -name '*Config.sh' -delete
+			DEPENDS="tcl xorg-libX11 zlib"
+			TAGS="programming language"
+			;;
+		*-dev)
+			copy @dev *Config.sh
+			DEPENDS="tk tcl-dev xorg-libX11-dev"
+			;;
+	esac
 }

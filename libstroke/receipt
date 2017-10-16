@@ -1,29 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libstroke"
 VERSION="0.5.1"
 CATEGORY="system-tools"
-SHORT_DESC="Stroke translation library"
+SHORT_DESC="A stroke (mouse gesture) translation library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://etla.net/libstroke/"
-WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="xorg-libX11-dev"
+TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
+WGET_URL="http://archive.ubuntu.com/ubuntu/pool/universe/libs/libstroke/$TARBALL"
+
+BUILD_DEPENDS="patch gfortran xorg-libXt-dev"
+SPLIT="libstroke-dev"
 
 # Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libstroke)
+			copy @std
+			DEPENDS="xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libxcb"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

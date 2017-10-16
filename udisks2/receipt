@@ -1,45 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="udisks2"
-VERSION="2.1.8"
+VERSION="2.7.2"
 CATEGORY="system-tools"
 SHORT_DESC="D-Bus service to access and manipulate storage devices"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/udisks/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/udisks2.html"
+
 TARBALL="udisks-$VERSION.tar.bz2"
-WGET_URL="https://udisks.freedesktop.org/releases/$TARBALL"
+WGET_URL="https://github.com/storaged-project/udisks/releases/download/udisks-$VERSION/$TARBALL"
 
-DEPENDS="libatasmart libgudev polkit"
-BUILD_DEPENDS="docbook-xsl gtk-doc libgudev-dev polkit-dev libatasmart-dev \
-gobject-introspection-dev intltool"
+BUILD_DEPENDS="docbook-xsl gtk-doc gobject-introspection-dev libgudev-dev \
+libblockdev-dev polkit-dev libatasmart-dev acl-dev intltool"
+SPLIT="udisks2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
+		--disable-static \
 		--enable-fhs-media \
-		--with-udevdir=/etc/udev \
-		--with-systemdsystemunitdir=no \
 		$CONFIGURE_ARGS &&
-	make && make install
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy etc/ bin/ sbin/ libexec/ dbus-1/ polkit-1/ var/ *.so*
-
-	sed '/lang=/d' -i \
-		$fs/usr/share/polkit-1/actions/org.freedesktop.udisks2.policy
-
-	# Please, note:
-	# Package:  slitaz-configs-base
-	# File:     /etc/polkit-1/localauthority/50-local.d/55-storage.pkla
-	# Provides: complete access to udisks2 methods
+	make && make install || return 1
 
 	# mount to "/media" instead of "/media/<user>"
-	cp $stuff/99-udisks2.rules $fs/etc/udev/rules.d/
+	mkdir -p $install/etc/udev/rules.d/
+	cp $stuff/99-udisks2.rules $install/etc/udev/rules.d/
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		udisks2)
+			copy @std
+			DEPENDS="libatasmart libgudev polkit"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="udisks2 glib-dev"
+			;;
+	esac
 }

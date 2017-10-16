@@ -1,35 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tcpcrypt"
-VERSION="20140821"
+VERSION="0.5"
 CATEGORY="network"
-SHORT_DESC="Attempts to encrypt (almost) all of your network traffic."
+SHORT_DESC="Attempts to encrypt (almost) all of your network traffic"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://tcpcrypt.org/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://github.com/scslab/tcpcrypt.git" 
 
-DEPENDS="libcrypto libnetfilter_queue libnfnetlink libcap libmnl iptables"
-BUILD_DEPENDS="git autoconf automake libtool openssl-dev \
-libnetfilter_queue-dev libnfnetlink-dev libcap-dev libmnl m4"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://tcpcrypt.org/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/user
-	mkdir m4
-	./bootstrap.sh
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="automake libtool libnetfilter_queue-dev \
+libnetfilter_conntrack-dev openssl-dev libpcap-dev libcap-dev"
+SPLIT="tcpcrypt-dev"
+
+compile_rules() {
+	./bootstrap.sh &&
+	./configure $CONFIGURE_ARGS && make && make install
+
+	mkdir -p $install/var/run/tcpcryptd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/var/run/tcpcryptd
-	cp -a $install/usr/bin  $fs/usr
-	cp -a $install/usr/lib/*.so*  $fs/usr/lib
-	cp -a $src/user/launch_tcpcryptd.sh $fs/usr/bin
+genpkg_rules() {
+	case $PACKAGE in
+		tcpcrypt)
+			copy @std
+			DEPENDS="libcap libcrypto libmnl libnetfilter_conntrack \
+			libnetfilter_queue libnfnetlink libpcap"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

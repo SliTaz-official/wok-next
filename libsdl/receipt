@@ -1,46 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl"
-VERSION="1.2.14"
+VERSION="1.2.15"
 CATEGORY="x-window"
 SHORT_DESC="Simple DirectMedia Layer"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-SOURCE="SDL"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.libsdl.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/sdl.html"
+
+TARBALL="SDL-$VERSION.tar.gz"
 WGET_URL="http://www.libsdl.org/release/$TARBALL"
-HOST_ARCH="i486 arm"
 
-DEPENDS="xorg-libXext xorg-libXrender xorg-libX11"
-BUILD_DEPENDS="libglu-mesa mesa-dev xorg-libXt-dev xorg-libXext-dev \
-xorg-libXrender-dev xorg-libX11-dev alsa-lib-dev"
+BUILD_DEPENDS="nasm alsa-lib-dev xorg-libX11-dev xorg-libXrandr-dev \
+libglu-mesa-dev tslib-dev"
+SPLIT="libsdl-dev"
 
-# Handle cross compilation.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="xorg-libXt-dev xorg-libXext-dev xorg-libXrender-dev \
-xorg-libX11-dev" ;;
-esac
+compile_rules() {
+	sed -e '/_XData32/s:register long:register _Xconst long:' \
+		-i src/video/x11/SDL_x11sym.h &&
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	patch -Np1 -i $stuff/sdl-$VERSION-joystick-crash.diff
-	patch -Np1 -i $stuff/sdl-$VERSION-fix-mouse-clicking.patch
-	patch -Np1 -i $stuff/sdl-$VERSION-fix-disappearing-cursor.patch
-	patch -Np1 -i $stuff/sdl-1.2.14-add-XGetRequest-symbol.patch
-	sed -i 's/"=X" (mem)/"=m" (mem)/' src/video/mmx.h
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	cook_pick_docs docs/html/*.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-}
-
-post_install()
-{
-	[ ! -d "$1$INSTALLED/libSDL" ] || rm -rf "$1$INSTALLED/libSDL"
+genpkg_rules() {
+	case $PACKAGE in
+		libsdl)
+			copy @std
+			DEPENDS="tslib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsdl tslib-dev"
+			;;
+	esac
 }

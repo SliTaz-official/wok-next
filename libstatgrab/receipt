@@ -1,29 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libstatgrab"
 VERSION="0.17"
 CATEGORY="system-tools"
-SHORT_DESC="Provides statistics about the system on which it's run."
+SHORT_DESC="Provides statistics about the system on which it's run"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.i-scream.org/libstatgrab/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.uk.i-scream.org/pub/i-scream/libstatgrab/$TARBALL"
 
-DEPENDS="ncurses"
-BUILD_DEPENDS="ncurses-dev"
+BUILD_DEPENDS="gfortran"
+SPLIT="libstatgrab-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure &&
 	make && make -j 1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libstatgrab)
+			copy @std
+			DEPENDS="ncurses"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

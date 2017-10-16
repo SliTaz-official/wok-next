@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libbytesize"
+VERSION="0.11"
+CATEGORY="libs"
+SHORT_DESC="C class for working with arbitrary big sizes"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/storaged-project/libbytesize/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libbytesize.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/storaged-project/libbytesize/archive/$TARBALL"
+
+BUILD_DEPENDS="automake libtool gettext gmp-dev mpfr-dev"
+SPLIT="libbytesize-python libbytesize libbytesize-dev"
+
+compile_rules() {
+	./autogen.sh &&
+
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libbytesize-python)
+			copy *.py
+			DEPENDS="libbytesize python"
+			CAT="libs|python bindings"
+			;;
+		libbytesize)
+			copy @std; remove_already_packed
+			DEPENDS="gmp mpfr pcre"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libbytesize libbytesize-python glib-dev gmp-dev mpfr-dev \
+			pcre-dev"
+			;;
+	esac
+}
