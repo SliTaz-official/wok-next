@@ -10,13 +10,11 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://pages.cs.wisc.edu/~ghost/"
 WGET_URL="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${VERSION/./}/$TARBALL"
 
-DEPENDS="gtk+ expat fontconfig freetype gnutls jpeg libgcrypt libgpg-error \
-libpng tiff zlib cups xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXext xorg-libXt gcc-lib-base jasper jbig2dec" 
 # build depends are optional ; ghostscripts still build but does not compile in cups support
 BUILD_DEPENDS="cairo-dev gtk+-dev expat-dev fontconfig-dev freetype-dev \
 gnutls-dev jpeg-dev libgcrypt-dev libgpg-error-dev libpng-dev tiff-dev \
 zlib-dev cups-dev jbig2dec jasper-dev"
+SPLIT="ghostscript ghostscript-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -45,19 +43,32 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	# Remove doc and examples
-	rm -rf $fs/usr/share/$PACKAGE/$VERSION/doc
-	rm -rf $fs/usr/share/$PACKAGE/$VERSION/examples
-	# Remove CMAPs (Non-free : not covered under GPL) : moved to non-free package get-ghostscript-CMAP
-	rm -rf $fs/usr/share/$PACKAGE/$VERSION/Resource/CMap/*
+	case "$PACKAGE" in
+	ghostscript)
+		DEPENDS="gtk+ expat fontconfig freetype gnutls jpeg libgcrypt \
+			libgpg-error libpng tiff zlib cups xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXt gcc-lib-base jasper jbig2dec" 
+		mkdir -p $fs/usr/share
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib $fs/usr
+		cp -a $install/usr/share/$PACKAGE $fs/usr/share
+		# Remove doc and examples
+		rm -rf $fs/usr/share/$PACKAGE/$VERSION/doc
+		rm -rf $fs/usr/share/$PACKAGE/$VERSION/examples
+		# Remove CMAPs (Non-free : not covered under GPL) : moved to non-free package get-ghostscript-CMAP
+		rm -rf $fs/usr/share/$PACKAGE/$VERSION/Resource/CMap/*
 	
-	# already compiled as a shared lib; gsc is same as gs
-	rm -rf $fs/usr/bin/gs
+		# already compiled as a shared lib; gsc is same as gs
+		rm -rf $fs/usr/bin/gs
+		;;
+	ghostscript-dev)
+		CAT"development|Ghostscript devel file"
+		mkdir -p $fs/usr/include
+		cp -a $install/usr/include $fs/usr
+		;;
+	esac
 }
 
 post_install()
