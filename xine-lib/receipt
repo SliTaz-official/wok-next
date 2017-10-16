@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xine-lib"
-VERSION="1.2.4"
+VERSION="1.2.8"
 CATEGORY="multimedia"
 SHORT_DESC="Xine video library."
 MAINTAINER="pankso@slitaz.org"
@@ -12,9 +12,6 @@ WGET_URL="http://downloads.sourceforge.net/project/xine/$PACKAGE/$VERSION/$TARBA
 SUGGESTED="xine-fonts"
 HOST_ARCH="i486 arm"
 
-SUGGESTED="faad2"
-DEPENDS="zlib xorg-libX11 xorg-libXv xorg-libXvMC alsa-lib libogg libvorbis \
-libtheora xorg-libXvMC xorg-libXv libxcb ffmpeg libmodplug"
 BUILD_DEPENDS="xorg-libXvMC-dev xorg-libXv-dev xorg-xextproto xorg-videoproto \
 alsa-lib-dev libogg-dev libvorbis-dev libtheora-dev freetype-dev perl \
 pkg-config util-linux-uuid-dev libxcb-dev libxcb-dev ffmpeg-dev file \
@@ -57,7 +54,33 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/xine $fs/usr/lib
+	case "$PACKAGE" in
+	xine-lib)
+		SUGGESTED="faad2"
+		DEPENDS="zlib xorg-libX11 xorg-libXv xorg-libXvMC alsa-lib \
+			libogg libvorbis libtheora xorg-libXvMC xorg-libXv \
+			libxcb ffmpeg libmodplug"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/xine $fs/usr/lib
+		;;
+	xine-fonts)
+		CAT="x-window|Extra fonts for Xine video player."
+		DEPENDS="xine-ui"
+		mkdir -p  $fs/usr/share/xine-lib
+		cp -a $install/usr/share/xine-lib/fonts \
+			$fs/usr/share/xine-lib
+		;;
+	xine-lib-dev)
+		CAT="development|Xine video library."
+		DEPENDS="pkg-config"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/bin $fs/usr
+		chmod 755 $fs/usr/bin/*
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/share/aclocal $fs/usr/share
+		;;
+	esac
 }
