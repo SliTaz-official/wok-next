@@ -1,24 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="nomacs"
-VERSION="1.6.0"
+VERSION="2.4.6"
 CATEGORY="graphics"
 SHORT_DESC="Pictures browser"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL3"
 WEB_SITE="http://www.nomacs.org"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE/files/$PACKAGE-$VERSION-source.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/nomacs/nomacs/archive/$VERSION.tar.gz
 
 DEPENDS="libQtCore libQtGui libQtNetwork libgomp exiv2"
-BUILD_DEPENDS="Qt4-dev qmake cmake exiv2-dev libraw-dev"
+BUILD_DEPENDS="Qt4-dev qmake cmake exiv2-dev libraw-dev zlib-dev expat-dev"
 SUGGESTED="xdg-utils qtconfig"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src/src/img ; cp -f nomacs32.png nomacs.png
-	cd $src ; sed -i 's/ ON/ OFF/g' CMakeLists.txt
+	cd $src/ImageLounge/src/img
+	cp -f nomacs32.png nomacs.png
+	cd $src/ImageLounge ; sed -i 's/ ON/ OFF/g' CMakeLists.txt
 	mkdir build ; cd build
 	cmake \
 		-DENABLE_OPENCV=OFF \
