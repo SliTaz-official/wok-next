@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qt4-base"
 SOURCE="qt-everywhere-opensource-src"
@@ -10,10 +10,7 @@ LICENSE="GPL3 LGPL2.1"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://qt-project.org/"
 WGET_URL="http://download.qt-project.org/archive/qt/${VERSION%.*}/$VERSION/$TARBALL"
-# PROVIDE="qt-x11-opensource-src Qt4"
-TAGS="qt"
 
-DEPENDS="libQtWebkit qtconfig"
 BUILD_DEPENDS="xorg-libX11-dev dbus-dev libmng-dev \
 cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev \
 postgresql-dev atk-dev autoconf automake bash \
@@ -23,6 +20,7 @@ libxml2-dev linux-api-headers m4 make mercurial ncurses-dev openssl-dev \
 pango-dev patch pcre-dev perl perl-xml-parser perl-xml-simple pixman-dev \
 pkg-config tiff-dev xorg-dev-proto xorg-dev zip unzip gtk+-dev alsa-lib-dev \
 sqlite-dev libQtClucene wayland-dev"
+SPLIT="qt-base libQtWebkit qtconfig"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -67,5 +65,27 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc/xdg
+	case $PACKAGE in
+	qt4-base)
+		# PROVIDE="qt-x11-opensource-src Qt4"
+		TAGS="qt"
+		DEPENDS="libQtWebkit qtconfig"
+		mkdir -p $fs/etc/xdg
+		;;
+	libQtWebkit)
+		CAT="network|Web browser engine for Qt"
+		DEPENDS="libQtCore libQtGui libQtNetwork libpng"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/libQtWebKit.so* $fs/usr/lib
+		;;
+	qtconfig)
+		CAT="x-window|Qtconfig is a tool that allows users to customize the default settings for Qt applications"
+		DEPENDS="libQt3Support libQtNetwork libQtDBus"
+		mkdir -p $fs/usr/bin $fs/usr/share/qt/translations $fs/usr/share/icons/hicolor/22x22/apps
+		cp -a $install/usr/bin/qtconfig $fs/usr/bin
+		cp -a $install/usr/share/qt/translations/qtconfig*.qm $fs/usr/share/qt/translations
+		cp -a $WOK/qt4/source/qt4-4.8.6/tools/designer/src/components/formeditor/images/qtlogo.png \
+		$fs/usr/share/icons/hicolor/22x22/apps/qtlogo.png
+		;;
+	esac
 }
