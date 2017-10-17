@@ -1,48 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="frogatto"
-VERSION="1.1.1"
+VERSION="1.3.1"
 CATEGORY="games"
-SHORT_DESC="An old-school 2d platformer game, starring a certain quixotic frog."
+SHORT_DESC="Frogatto & Friends is an action-adventure game, starring a certain quixotic frog"
 MAINTAINER="gokhlayeh@slitaz.org"
-LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.frogatto.com"
-WGET_URL="$WEB_SITE/files/$TARBALL"
+LICENSE="CC-BY-3 custom"
+WEB_SITE="https://frogatto.com/"
 
-DEPENDS="xorg-server mesa glew libsdl libsdl-image libsdl-ttf libsdl-mixer \
-libpng libboost-regex libboost-system libboost-date-time libboost-thread \
-libboost-iostreams frogatto-data"
-BUILD_DEPENDS="${DEPENDS/frogatto-data/} ccache xorg-server-dev mesa-dev \
-libsdl-dev libsdl-image-dev libsdl-ttf-dev libsdl-mixer-dev libpng-dev \
-libboost-dev glew-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/frogatto/frogatto/archive/$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="xorg-libX11-dev libsdl-dev mesa-dev libglu-mesa-dev glew-dev \
+libsdl-image-dev libpng16-dev zlib-dev libboost-dev libsdl-ttf-dev \
+libsdl-mixer-dev coreutils-file-format ccache"
+SPLIT="frogatto-data"
 
-	# Frogatto look for multithread libboost (*-mt.so) but we don't use
-	# them in SliTaz, let's lure it.
-	for lib in $(ls /usr/lib/libboost*); do
-		link=$(echo $lib | sed 's/\./-mt./')
-		ln -s $lib $link
-	done
+compile_rules() {
+	CXXFLAGS="$CXXFLAGS -std=gnu++98" make game server || return 1
 
-	# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=652756#19
-	sed -i 's/io_service()/get_io_service()/' $src/src/server.cpp
-
-	make $MAKEFLAGS game server
-
-	# Remove the links previously created.
-	rm -f /usr/lib/libboost*-mt*
+	mkdir -p $install/opt/frogatto/
+	cp game server *.ttf $install/opt/frogatto/
+	cp -r data/ images/ modules/ music/ $install/opt/frogatto
+	install -Dm 755 $stuff/frogatto $install/usr/bin/frogatto
+	install -Dm 644 $stuff/frogatto.desktop $install/usr/share/applications/frogatto.desktop
+	install -Dm 644 $src/images/window-icon.png $install/usr/share/pixmaps/frogatto.png
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/games/frogatto $fs/usr/bin $fs/usr/share/pixmaps
-	cp -a $src/game $src/server $fs/usr/games/frogatto
-	cp -a $src/images/window-icon.png $fs/usr/share/pixmaps
-	cp -a $stuff/frogatto $fs/usr/bin
+genpkg_rules() {
+	case $PACKAGE in
+		frogatto)
+			copy game server frogatto frogatto.desktop frogatto.png
+			DEPENDS="glew libboost-iostreams libboost-regex libboost-system \
+			libboost-thread libglu-mesa libpng16 libsdl libsdl-image \
+			libsdl-mixer libsdl-ttf mesa xorg-libX11 zlib"
+			;;
+		frogatto-data)
+			copy data/ images/ modules/ music/ *.ttf
+			CAT="games|data files"
+			;;
+	esac
 }

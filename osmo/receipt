@@ -1,33 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="osmo"
-VERSION="0.2.12"
+VERSION="0.4.0-1"
 CATEGORY="office"
-SHORT_DESC="A handy personal organizer using GTK+."
+SHORT_DESC="A handy personal organizer using GTK+"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://clayo.org/osmo/"
-WGET_URL="$SF_MIRROR/$PACKAGE-pim/$TARBALL"
-TAGS="office"
 
-DEPENDS="gtk+ libxml2 libwebkit xorg-libXdamage libnotify libical"
-BUILD_DEPENDS="gtk+ gtk+-dev libwebkit-dev libxml2-dev libnotify-dev libical-dev gettext"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/osmo-pim/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/gtkspell-/gtkDISABLEDspell-/' configure
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+aBUILD_DEPENDS="gtk+ gtk+-dev libwebkit-dev libxml2-dev libnotify-dev libical-dev gettext"
+
+BUILD_DEPENDS="gettext gtk+3-dev libarchive-dev libical-dev gtkspell3-dev \
+libnotify-gtk3-dev webkit2gtk-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std *.mo
+	rm -r $fs/usr/share/icons; cook_copy_icons # only 16 and 48
+	DEPENDS="atk cairo enchant gdk-pixbuf glib gtk+3 gtkspell3 libarchive \
+	libical liblzma libnotify-gtk3 libsoup libxml2 pango webkit2gtk zlib"
+	TAGS="office"
 }

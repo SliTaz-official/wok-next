@@ -1,39 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl-pango"
 VERSION="0.1.2"
 CATEGORY="x-window"
-SHORT_DESC="Pango SDL binding."
+SHORT_DESC="Pango SDL binding"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-SOURCE="SDL_Pango"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://sdlpango.sourceforge.net/"
-WGET_URL="$SF_MIRROR/sdlpango/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="pango libsdl"
-BUILD_DEPENDS="pango-dev libsdl-dev pkg-config libxml2-dev"
+TARBALL="SDL_Pango-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/sdlpango/$TARBALL"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm*) ARCH_MAKE="LIBS=/cross/$ARCH/sysroot/usr/lib" ;;
-esac
+BUILD_DEPENDS="patch gfortran pango-dev libsdl-dev"
+SPLIT="libsdl-pango-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	patch -Np0 -i $stuff/SDL_Pango-$VERSION-API-adds.patch
-	patch -Np1 -i $stuff/matrix_declarations.patch
-	./configure \
-		$CONFIGURE_ARGS &&
-	make ${ARCH_MAKE} && make DESTDIR=$DESTDIR install
+compile_rules() {
+	# Handle cross compilation
+	case "$ARCH" in
+		arm*) ARCH_MAKE="LIBS=/cross/$ARCH/sysroot/usr/lib" ;;
+	esac
+
+	./configure $CONFIGURE_ARGS &&
+	make $ARCH_MAKE &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libsdl-pango)
+			copy @std
+			DEPENDS="fontconfig freetype glib libsdl pango"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsdl-pango bzip2-dev fontconfig-dev freetype-dev \
+			glib-dev harfbuzz-dev libffi-dev libpng16-dev libxml2-dev \
+			pango-dev pcre-dev xz-dev zlib-dev"
+			;;
+	esac
 }
-

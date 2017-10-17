@@ -1,31 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl-image"
-SOURCE="SDL_image"
-VERSION="1.2.10"
+VERSION="1.2.12"
 CATEGORY="development"
-SHORT_DESC="An image file loading library."
+SHORT_DESC="An image file loading library"
 MAINTAINER="chadi.elahmad@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.libsdl.org/projects/SDL_image/"
-WGET_URL="http://www.libsdl.org/projects/SDL_image/release/$TARBALL"
+WEB_SITE="http://www.libsdl.org/projects/SDL_image/release-1.2.html"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libsdl libpng jpeg zlib tiff"
-BUILD_DEPENDS="libsdl-dev libpng-dev jpeg-dev zlib-dev tiff-dev"
+TARBALL="SDL_image-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/projects/SDL_image/release/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS \
-		LIBS=" -lz " &&
-	make && make install
+BUILD_DEPENDS="libsdl-dev libjpeg-turbo-dev libpng16-dev tiff-dev libwebp-dev"
+SPLIT="libsdl-image-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libsdl-image)
+			copy @std
+			DEPENDS="libsdl"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsdl-image libsdl-dev"
+			;;
+	esac
 }

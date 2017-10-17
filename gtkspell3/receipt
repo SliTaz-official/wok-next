@@ -1,34 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtkspell3"
-VERSION="3.0.8"
+VERSION="3.0.9"
 CATEGORY="text"
 SHORT_DESC="On-the-fly spell checking for GtkTextView widgets"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gtkspell.sourceforge.net/"
-WGET_URL="$SF_MIRROR/gtkspell/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="enchant gtk+3"
-BUILD_DEPENDS="gobject-introspection vala gtk+3-dev enchant-dev gtk-doc"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/gtkspell/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="gobject-introspection vala intltool gtk+3-dev enchant-dev \
+gtk-doc"
+SPLIT="gtkspell3-dev"
+
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/locale
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-
-	. $WOK/slitaz-i18n/stuff/locale-pack.conf
-	for i in $LOCALE_PACK; do
-		[ -d $install/usr/share/locale/$i ] &&
-			cp -a $install/usr/share/locale/$i $fs/usr/share/locale
-	done
+genpkg_rules() {
+	case $PACKAGE in
+		gtkspell3)
+			copy @std *.mo
+			DEPENDS="atk bzlib cairo enchant fontconfig freetype gdk-pixbuf \
+			glib gtk+3 libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gtkspell3 atk-dev bzip2-dev cairo-dev enchant-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev \
+			util-linux-uuid-dev pango-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }
