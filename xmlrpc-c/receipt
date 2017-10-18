@@ -1,32 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xmlrpc-c"
-VERSION="1.25.28"
+VERSION="1.39.12"
 CATEGORY="network"
-SHORT_DESC="A lightweight RPC library based on XML and HTTP."
+SHORT_DESC="A lightweight RPC library based on XML and HTTP"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://xmlrpc-c.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-#HOST_ARCH="i486 arm"
 
-DEPENDS="gcc-lib-base"
+BUILD_DEPENDS="automake texinfo curl-dev libxml2-dev"
+SPLIT="xmlrpc-c-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	find -name 'Makefile*' | sed 's/Makefile.*/depend.mk/' | \
-		xargs touch -d 197001010000
-	./configure --prefix=/usr \
+compile_rules() {
+	# this file appeared later (with this content), but is absent when it required
+	echo ' -Isrcdir/lib/curl_transport' > src/libxmlrpc_client.cflags
+
+	./configure \
+		--enable-libxml2-backend \
+		--disable-cgi-server \
+		--disable-libwww-client \
+		--disable-wininet-client \
+		--enable-cplusplus \
 		$CONFIGURE_ARGS &&
 	make -j 1 &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		xmlrpc-c) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }
