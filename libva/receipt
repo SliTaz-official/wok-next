@@ -1,33 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libva"
-VERSION="1.7.1"
+VERSION="1.8.2"
 CATEGORY="x-window"
 SHORT_DESC="Userspace Video Acceleration (VA) library"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="other"
+LICENSE="MIT"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/vaapi/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.freedesktop.org/software/vaapi/releases/libva/$TARBALL"
+WGET_URL="https://www.freedesktop.org/software/vaapi/releases/libva/$TARBALL"
 
-DEPENDS="libdrm libxcb mesa xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-xorg-libXfixes"
 BUILD_DEPENDS="libdrm-dev xorg-libX11-dev xorg-libXext-dev xorg-libXfixes-dev \
 mesa-dev expat-dev xorg-libxshmfence-dev"
+SPLIT="libva-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		libva)
+			copy @std
+			DEPENDS="libdrm mesa mesa-libegl xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libxcb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libva expat-dev libdrm-dev mesa-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdamage-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXfixes-dev xorg-libXxf86vm-dev \
+			xorg-libxcb-dev xorg-libxshmfence-dev"
+			;;
+	esac
 }
