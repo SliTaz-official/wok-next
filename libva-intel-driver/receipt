@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libva-intel-driver"
-VERSION="1.7.1"
+VERSION="1.7.3"
 CATEGORY="x-window"
 SHORT_DESC="VA Intel driver"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,26 +9,32 @@ LICENSE="other"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/vaapi/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.freedesktop.org/software/vaapi/releases/$PACKAGE/$TARBALL"
+WGET_URL="https://www.freedesktop.org/software/vaapi/releases/$PACKAGE/$TARBALL"
 
-DEPENDS="libdrm libdrm-intel xorg-libpciaccess"
 BUILD_DEPENDS="autoconf automake libtool python libdrm-dev libva-dev \
 xorg-libpciaccess-dev"
+SPLIT="libva-intel-driver-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi &&
 
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy *.so
+genpkg_rules() {
+	case $PACKAGE in
+		*-driver)
+			copy @std
+			DEPENDS="libdrm libdrm-intel xorg-libpciaccess"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libva-intel-driver libdrm-dev xorg-libpciaccess-dev"
+			;;
+	esac
 }

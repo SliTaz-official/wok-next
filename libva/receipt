@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.freedesktop.org/software/vaapi/releases/libva/$TARBALL"
 
 BUILD_DEPENDS="libdrm-dev xorg-libX11-dev xorg-libXext-dev xorg-libXfixes-dev \
-mesa-dev expat-dev xorg-libxshmfence-dev"
+mesa-dev expat-dev xorg-libxshmfence-dev wayland-dev"
 SPLIT="libva-dev"
 
 compile_rules() {
@@ -28,15 +28,15 @@ genpkg_rules() {
 	case $PACKAGE in
 		libva)
 			copy @std
-			DEPENDS="libdrm mesa mesa-libegl xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libxcb"
+			DEPENDS="libdrm mesa mesa-libegl wayland xorg-libX11 xorg-libXext \
+			xorg-libXfixes"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libva expat-dev libdrm-dev mesa-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdamage-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXfixes-dev xorg-libXxf86vm-dev \
-			xorg-libxcb-dev xorg-libxshmfence-dev"
+			DEPENDS="libva expat-dev libdrm-dev libffi-dev mesa-dev \
+			wayland-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
+			xorg-libXxf86vm-dev xorg-libxcb-dev xorg-libxshmfence-dev"
 			;;
 	esac
 }
