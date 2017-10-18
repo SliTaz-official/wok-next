@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libdrm"
-VERSION="2.4.75"
+VERSION="2.4.82"
 CATEGORY="x-window"
 SHORT_DESC="Freedesktop DRM Library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://dri.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/libdrm.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
@@ -17,10 +18,8 @@ xorg-libpciaccess-dev cairo-dev eudev-dev libxslt docbook-xsl valgrind-dev"
 SPLIT="libdrm-amdgpu libdrm-etnaviv libdrm-exynos libdrm-intel libdrm-nouveau \
 libdrm-omap libdrm-radeon libdrm-tegra libdrm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i "/pthread-stubs/d" configure.ac &&
+compile_rules() {
+#	sed -i "/pthread-stubs/d" configure.ac &&
 	autoreconf -fiv &&
 
 	./configure \
@@ -34,14 +33,11 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-
+genpkg_rules() {
 	case $PACKAGE in
 		libdrm)
 			copy libdrm.so* libkms.so*
-			DEPENDS="glibc-base eudev linux-drm xorg-libpciaccess"
+			DEPENDS="eudev linux-drm xorg-libpciaccess"
 			;;
 		*-amdgpu)
 			copy libdrm_amdgpu.so*
