@@ -21,6 +21,7 @@ compile_rules()
 	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' fig2dev/dev/readpng.c
 	sed -i 's|info_ptr->valid|png_get_valid(png_ptr,info_ptr,PNG_INFO_gAMA)|' fig2dev/dev/readpng.c
 	sed -i 's/png_ptr->gamma/png_gamma(png_ptr)/' fig2dev/dev/readpng.c
+	sed -i '/info_ptr->gamma/{s/info_ptr->//;s/^.*/{ double gamma;\npng_get_gAMA(png_ptr, info_ptr, \&gamma);\n& }/}' fig2dev/dev/readpng.c
 	xmkmf &&
 	make Makefiles &&
 	make &&
