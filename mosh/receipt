@@ -30,13 +30,6 @@ genpkg_rules()
 {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
-	sed -i '/.*quoted_self = shell_quote.*/r/proc/self/fd/0' $fs/usr/bin/mosh <<EOT
-  if (\`\$ssh -V 2>&1\` =~ m{Dropbear}) {
-    my \$host = \$userhost; \$host = \$1 if (\$userhost =~ m{@(.*)});
-    my \$port = 22; \$port = \$1 if (\$ssh =~ m{-p *(\d+)});
-    exec "\$ssh " . shell_quote( '-J', "\$quoted_self --fake-proxy -- \$host \$port", '-t', \$userhost, "\$server " . shell_quote( @server ) );
-  }
-EOT
 }
 
 post_install()
