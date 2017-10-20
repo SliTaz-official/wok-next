@@ -1,33 +1,57 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="liblxqt"
-VERSION="0.8.0"
+VERSION="0.11.1"
 CATEGORY="system-tools"
 SHORT_DESC="Core utility library for all LXDE-Qt components"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/lxde/liblxqt"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/lxde/$PACKAGE/archive/$VERSION.tar.gz"
-TAGS="LXQt"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/liblxqt.html"
 
-DEPENDS="libQtCore libQtDBus libQtGui libqtxdg xorg-libX11"
-BUILD_DEPENDS="wget cacerts cmake Qt4-dev qmake xorg-libX11-dev libqtxdg-dev \
-libQtMimeTypes-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/liblxqt/releases/download/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	patch -p0 < $stuff/poweroff+reboot.diff
+BUILD_DEPENDS="lxqt-build-tools xorg-libX11-dev mesa17-dev libqtxdg-dev \
+kwindowsystem-dev xorg-libXScrnSaver-dev"
+SPLIT="liblxqt-dev"
+
+compile_rules() {
 	mkdir build; cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr -DLXQT_ETC_XDG_DIR=/etc .. &&
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DPULL_TRANSLATIONS=no \
+		\
+		-DLXQT_VERSION=$VERSION -DLXQT_MAJOR_VERSION=${VERSION%%.*} \
+		.. &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		liblxqt)
+			copy @std
+			DEPENDS="kwindowsystem libqtxdg qt5-base qt5-svg qt5-x11extras \
+			xorg-libX11 xorg-libXScrnSaver"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="liblxqt libqtxdg-dev qt5-dev"
+			;;
+	esac
+	TAGS="LXQt"
 }
+
+# liblxqt.so:
+#	libQt5X11Extras.so.5
+#	libQt5Xdg.so.2
+#	libQt5DBus.so.5
+#	libQt5Xml.so.5
+#	libQt5XdgIconLoader.so.2
+#	libQt5Svg.so.5
+#	libQt5Widgets.so.5
+#	libQt5Gui.so.5
+#	libQt5Core.so.5

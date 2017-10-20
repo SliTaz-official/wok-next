@@ -1,30 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxqt-about"
-VERSION="0.8.0"
+VERSION="0.11.1"
 CATEGORY="system-tools"
-SHORT_DESC="The standalone LXQt \"About\" dialog"
+SHORT_DESC="Information about LXQt and the system it's running on"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/lxde/lxqt-about"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/lxde/$PACKAGE/archive/$VERSION.tar.gz"
-TAGS="LXQt"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/lxqt-about.html"
 
-DEPENDS="libQtCore libQtGui liblxqt"
-BUILD_DEPENDS="wget cacerts cmake liblxqt-dev Qt4-dev qmake grep libqtxdg-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/lxqt-about/releases/download/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="cmake liblxqt-dev mesa17-dev kwindowsystem-dev lxqt-build-tools"
+
+compile_rules() {
+	# fix undefined variable
+	sed -i "/#define TECHNICALINFO_H/a #define LXQT_VERSION \"$VERSION\"" \
+		aboutdialog/technicalinfo.h
+	# add translation
+	echo "Comment[ru]=Подробности об LXQt" >> translations/lxqt-about_ru.desktop
+
 	mkdir build; cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DPULL_TRANSLATIONS=no \
+		.. &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="kwindowsystem liblxqt libqtxdg qt5-base qt5-svg qt5-x11extras"
+	TAGS="LXQt"
 }
+
+# lxqt-about
+#	libQt5X11Extras.so.5
+#	libQt5Xdg.so.2
+#	libQt5DBus.so.5
+#	libQt5Xml.so.5
+#	libQt5XdgIconLoader.so.2
+#	libQt5Svg.so.5
+#	libQt5Widgets.so.5
+#	libQt5Gui.so.5
+#	libQt5Core.so.5

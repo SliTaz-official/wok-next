@@ -1,39 +1,60 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxqt-globalkeys"
-VERSION="0.8.0"
+VERSION="0.11.1"
 CATEGORY="system-tools"
 SHORT_DESC="Daemon used to register global keyboard shortcuts"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/lxde/lxqt-globalkeys"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/lxde/$PACKAGE/archive/$VERSION.tar.gz"
-TAGS="LXQt"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/lxqt-globalkeys.html"
 
-DEPENDS="liblxqt libQtCore libQtDBus libQtGui libQtXml xorg-libX11 xorg-libXext"
-BUILD_DEPENDS="wget cacerts cmake liblxqt-dev Qt4-dev qmake grep xorg-xproto \
-xorg-libX11-dev liblxqt-dev libqtxdg-dev libQtMimeTypes-dev sdft"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/lxqt-globalkeys/releases/download/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev lxqt-build-tools liblxqt-dev \
+kwindowsystem-dev"
+SPLIT="lxqt-globalkeys-dev"
+
+compile_rules() {
+	# fix undefined variable
+	sed -i "/#define DEFAULT_CONFIG/a #define LXQT_VERSION \"$VERSION\"" \
+		daemon/main.cpp
+
 	mkdir build; cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DPULL_TRANSLATIONS=no \
+		\
+		-DLXQT_VERSION=$VERSION -DLXQT_MAJOR_VERSION=${VERSION%%.*} \
+		.. &&
 	make &&
-	make DESTDIR=$install install
-
-	# FIXME UPSTREAM: fix .desktop translations
-	sdft $install/usr/share/applications/lxqt-config-globalkeyshortcuts.desktop \
-		-i -r "Name[ru_RU]" \
-		-s "Name[ru]=Настройка глобальных сочетаний клавиш LXQt"
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/applications $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		lxqt-globalkeys)
+			copy @std
+			DEPENDS="kwindowsystem liblxqt libqtxdg qt5-base qt5-svg \
+			qt5-x11extras xorg-libX11 xorg-libXext"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="lxqt-globalkeys qt5-dev"
+			;;
+	esac
+	TAGS="LXQt"
 }
+
+#	libQt5Core.so.5
+#	libQt5DBus.so.5
+#	libQt5Gui.so.5
+#	libQt5Svg.so.5
+#	libQt5Widgets.so.5
+#	libQt5X11Extras.so.5
+#	libQt5Xdg.so.2
+#	libQt5XdgIconLoader.so.2
+#	libQt5Xml.so.5

@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="kidletime"
+VERSION="5.37.0"
+CATEGORY="system-tools"
+SHORT_DESC="KIdleTime is used to report idle time of user and system"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/KDE/kidletime"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/lxqt-kidletime.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://download.kde.org/stable/frameworks/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="cmake extra-cmake-modules qt5-dev mesa17-dev"
+SPLIT="kidletime-dev"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF \
+		-Wno-dev \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		kidletime)
+			copy @std
+			DEPENDS="qt5-base qt5-x11extras xorg-libX11 xorg-libXext \
+			xorg-libxcb"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
+
+#	libQt5Core.so.5
+#	libQt5Gui.so.5
+#	libQt5Widgets.so.5
+#	libQt5X11Extras.so.5

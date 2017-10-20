@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libkscreen"
+VERSION="5.10.5"
+CATEGORY="system-tools"
+SHORT_DESC="KDE's screen management software"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/KDE/libkscreen"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/lxqt-libkscreen.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://download.kde.org/stable/plasma/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake extra-cmake-modules qt5-dev mesa17-dev kwayland-dev"
+SPLIT="libkscreen-dev"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_TESTING=OFF \
+		-Wno-dev \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libkscreen)
+			copy @std
+			DEPENDS="kwayland qt5-base qt5-x11extras xorg-libxcb"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
+
+#	libQt5Core.so.5
+#	libQt5DBus.so.5
+#	libQt5Gui.so.5
+#	libQt5X11Extras.so.5

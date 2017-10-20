@@ -1,32 +1,45 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="polkit-qt"
-VERSION="0.103.0"
+VERSION="0.112.0"
 CATEGORY="system-tools"
 SHORT_DESC="Library that allows to access PolicyKit API with a nice Qt-style API"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-1-$VERSION.tar.bz2"
-WEB_SITE="http://www.kde.org/"
-WGET_URL="ftp://ftp.kde.org/pub/kde/stable/apps/KDE4.x/admin/$TARBALL"
+WEB_SITE="https://github.com/KDE/polkit-qt-1"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/kde/polkit-qt.html"
 
-DEPENDS="polkit"
-BUILD_DEPENDS="qmake Qt4-dev automoc4 polkit-dev glib-dev"
+TARBALL="polkit-qt-1-$VERSION.tar.bz2"
+WGET_URL="http://download.kde.org/stable/apps/KDE4.x/admin/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $src/build
-	cd $src/build
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev polkit-dev glib-dev"
+SPLIT="polkit-qt-dev"
+
+compile_rules() {
+	mkdir build; cd build
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_PREFIX=/usr .. &&
-	make && make install
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-Wno-dev \
+		.. &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		polkit-qt)
+			copy @std
+			DEPENDS="glib polkit qt5-base"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="polkit-qt qt5-dev"
+			;;
+	esac
 }
+
+#	libQt5Core.so.5
+#	libQt5DBus.so.5
+#	libQt5Gui.so.5
+#	libQt5Widgets.so.5

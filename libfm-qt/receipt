@@ -1,0 +1,48 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libfm-qt"
+VERSION="0.11.2"
+CATEGORY="system-tools"
+SHORT_DESC="Core library of PCManFM-Qt"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE=""
+WEB_SITE="https://github.com/lxde/libfm-qt"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/libfm-qt.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/libfm-qt/releases/download/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="lxqt-build-tools mesa17-dev libfm-dev"
+SPLIT="libfm-qt-dev"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DPULL_TRANSLATIONS=no \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libfm-qt)
+			copy @std
+			DEPENDS="glib libfm menu-cache qt5-base qt5-x11extras xorg-libxcb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libfm-qt libfm-dev qt5-dev"
+			;;
+	esac
+	TAGS="LXQt"
+}
+
+# libfm-qt.so:
+#	libQt5Widgets.so.5
+#	libQt5X11Extras.so.5
+#	libQt5Gui.so.5
+#	libQt5Core.so.5
