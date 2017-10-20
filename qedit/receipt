@@ -11,14 +11,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/tgz/$TARBALL"
 TAGS="text-editor"
 
-DEPENDS="libQtGui libQtDBus libQtNetwork xcb-util-keysyms"
-BUILD_DEPENDS="Qt4-dev cmake qmake xcb-util-keysyms-dev zlib-dev"
+DEPENDS="qt5-base xcb-util-keysyms"
+BUILD_DEPENDS="qt5-dev cmake xcb-util-keysyms-dev xorg-dev zlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	patch $src/patterns/shell_patterns.xml $stuff/strvar_color_slitaz
-	cd $src && cmake -DCMAKE_INSTALL_PREFIX=/usr . &&
+	cd $src && cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true . &&
 	make && make DESTDIR=$DESTDIR install
 }
 
