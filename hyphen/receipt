@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="hyphen"
+VERSION="2.8.8"
+CATEGORY="system-tools"
+SHORT_DESC="library for high quality hyphenation and justification"
+MAINTAINER="psychomaniak@xakep.ru"
+LICENSE="GPL2 LGPL2.1 MPL"
+WEB_SITE="http://hunspell.github.io/"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/hunspell/$TARBALL"
+
+BUILD_DEPENDS="automake libtool gettext perl"
+SPLIT="hyphen-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install-libLTLIBRARIES
+	make DESTDIR=$DESTDIR install-binSCRIPTS
+	make DESTDIR=$DESTDIR install-includeHEADERS
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	case $PACKAGE in
+		hyphen) copy @std ;;
+		hyphen-dev) copy @dev ;;
+	esac
+}
