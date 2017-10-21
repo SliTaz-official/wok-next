@@ -12,12 +12,11 @@ WGET_URL="http://www.clutter-project.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL
 
 DEPENDS="gtk+ clutter"
 BUILD_DEPENDS="gtk+-dev clutter-dev gobject-introspection-dev automake autoconf \
-libtool gtk-doc"
+libtool gtk-doc expat-dev xorg-libxshmfence-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	patch -Np1 -i $stuff/fix-gir.patch
 	sed -i -e 's/GTK_WIDGET_REALIZED/gtk_widget_get_realized/' \
 	       -e 's/GTK_WIDGET_VISIBLE/gtk_widget_get_visible/' \
