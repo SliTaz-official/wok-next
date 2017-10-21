@@ -27,7 +27,8 @@ compile_rules()
 	sed -ri 's|(Exec=).*|\1avidemux3_qt5|' avidemux2.desktop
 	bash bootStrap.bash --with-core --with-cli --with-plugins
 	for i in Cli Core PluginsCLI PluginsCommon Qt5 PluginsQt5; do
-		make -C build${i} DESTDIR="$DESTDIR" install
+		( make -C build${i} DESTDIR="$DESTDIR" install 2>/dev/null) | \
+			egrep -v 'No package|ld returned 1 exit status'
 	done
 	mkdir -p $DESTDIR/usr/share/pixmaps $DESTDIR/usr/share/applications
 	cp $src/avidemux_icon.png $DESTDIR/usr/share/pixmaps/avidemux.png
