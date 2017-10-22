@@ -1,28 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pavucontrol"
-VERSION="3.0"
+VERSION="3.0+23" # 23 commits since latest release 3.0 (2015-03-24)
+COMMIT="335c26c57c18d95cc7d4ca693a75ef94fe919e1d" # https://cgit.freedesktop.org/pulseaudio/pavucontrol/
 CATEGORY="multimedia"
 SHORT_DESC="A GTK volume control for PulseAudio"
 MAINTAINER="mojo@slitaz.org"
 LICENSE="LGPL2.1 GPL2 MIT"
 WEB_SITE="http://freedesktop.org/software/pulseaudio/pavucontrol"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="gnome-icon-theme libcanberra gtkmm libsigc++"
-BUILD_DEPENDS="intltool lynx libcanberra-dev gtkmm-dev libsigc++-dev \
-pulseaudio-dev libglade-dev libglademm-dev libltdl"
+TARBALL="$PACKAGE-$COMMIT.tar.xz"
+WGET_URL="https://cgit.freedesktop.org/pulseaudio/pavucontrol/snapshot/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS --disable-gtk3 \
-        && make && make install
+BUILD_DEPENDS="intltool automake gtkmm-dev libsigc++-dev libcanberra-dev \
+pulseaudio-dev"
+
+compile_rules() {
+	NOCONFIGURE=1 ./bootstrap.sh || return 1
+
+	CXXFLAGS="$CXXFLAGS -std=c++11"
+	./configure \
+		--prefix=/usr \
+		--disable-gtk3 \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk atkmm cairo cairomm fontconfig freetype gdk-pixbuf glib \
+	glibmm gtk+ gtkmm libcanberra libgiomm libsigc++ pango pangomm pulseaudio \
+	pulseaudio-glib xorg-libX11"
 }

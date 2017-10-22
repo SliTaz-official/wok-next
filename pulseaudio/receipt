@@ -1,40 +1,109 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pulseaudio"
-VERSION="5.0"
+VERSION="10.0"
 CATEGORY="multimedia"
-SHORT_DESC="A sound system for POSIX OSes."
+SHORT_DESC="A sound system for POSIX OSes"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="LGPL2.1 GPL2 MIT"
+LICENSE="LGPL2.1 GPL2 MIT AGPL3 BSD Sun"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/PulseAudio/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/pulseaudio.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.pulseaudio.org/"
-WGET_URL="http://www.freedesktop.org/software/pulseaudio/releases/$TARBALL"
+WGET_URL="https://www.freedesktop.org/software/pulseaudio/releases/$TARBALL"
 
-DEPENDS="libcap libjson-c libsndfile flac libvorbis dbus gdbm libcap attr \
-speex libsamplerate"
-BUILD_DEPENDS="pkg-config libtool automake autoconf intltool m4 libcap-dev \
-libjson-c-dev libsndfile-dev flac-dev libvorbis-dev util-linux-uuid-dev \
-dbus-dev speex-dev udev-dev libsamplerate-dev alsa-lib-dev"
+BUILD_DEPENDS="intltool libtool xorg-libxcb-dev xorg-libICE-dev xorg-libSM-dev \
+xorg-libXtst-dev libcap-dev check-dev libsndfile-dev alsa-lib-dev gtk+3-dev \
+dbus-dev eudev-dev openssl-dev speexdsp-dev"
+SPLIT="pulseaudio-alsa pulseaudio-cli pulseaudio-esound pulseaudio-glib \
+pulseaudio-http pulseaudio-native pulseaudio-rtp pulseaudio-simple pulseaudio \
+pulseaudio-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./bootstrap.sh
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
 		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-bluez4 \
+		--disable-bluez5 \
+		--disable-rpath \
+		\
+		--disable-oss-output \
+		--disable-oss-wrapper \
 		$CONFIGURE_ARGS &&
 	make &&
-	make -j 1 DESTDIR=$DESTDIR install
+	make install || return 1
+
+	rm $install/etc/dbus-1/system.d/pulseaudio-system.conf
+	sed -i '/load-module module-console-kit/ s|^|#|' $install/etc/pulse/default.pa
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/pulseaudio
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/pulseaudio/*.so* $fs/usr/lib/pulseaudio
-	cp -a $install/usr/lib/pulse-$VERSION $fs/usr/lib
-	rm -fr $fs/etc/dbus-1
+genpkg_rules() {
+	case $PACKAGE in
+		*-alsa)
+			copy libalsa-util.so module-alsa-sink.so module-alsa-source.so \
+			module-alsa-card.so alsa-mixer/
+			CAT="multimedia|ALSA support"
+			DEPENDS="pulseaudio alsa-lib"
+			;;
+		*-cli)
+			copy libcli.so module-cli.so libprotocol-cli.so \
+			module-cli-protocol-tcp.so module-cli-protocol-unix.so
+			CAT="multimedia|CLI support"
+			DEPENDS="pulseaudio"
+			;;
+		*-esound)
+			copy libprotocol-esound.so module-esound-protocol-tcp.so \
+			module-esound-protocol-unix.so
+			CAT="multimedia|EsounD protocol support"
+			DEPENDS="pulseaudio"
+			;;
+		*-glib)
+			copy libpulse-mainloop-glib.so*
+			CAT="multimedia|Glib bindings"
+			DEPENDS="pulseaudio glib"
+			;;
+		*-http)
+			copy libprotocol-http.so module-http-protocol-tcp.so \
+			module-http-protocol-unix.so module-rygel-media-server.so
+			CAT="multimedia|HTTP protocol support"
+			DEPENDS="pulseaudio"
+			;;
+		*-native)
+			copy libprotocol-native.so module-native-protocol-tcp.so \
+			module-native-protocol-fd.so module-native-protocol-unix.so \
+			module-x11-publish.so module-stream-restore.so \
+			module-device-manager.so module-device-restore.so
+			CAT="multimedia|native protocol support"
+			DEPENDS="pulseaudio"
+			;;
+		*-rtp)
+			copy librtp.so module-rtp-recv.so module-rtp-send.so libraop.so \
+			module-raop-sink.so
+			CAT="multimedia|RTP protocol support"
+			DEPENDS="pulseaudio libcrypto libssl"
+			;;
+		*-simple)
+			copy libprotocol-simple.so module-simple-protocol-tcp.so \
+			module-simple-protocol-unix.so
+			CAT="multimedia|simple protocol support"
+			DEPENDS="pulseaudio"
+			;;
+		pulseaudio)
+			copy @std
+			remove_already_packed
+			CAT="multimedia|main part"
+			DEPENDS="dbus eudev gdbm libcap libltdl libsndfile speexdsp \
+			xorg-libICE xorg-libSM xorg-libX11 xorg-libXtst xorg-libxcb"
+			SUGGESTED="consolekit2"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} \
+			dbus-dev flac-dev gdbm-dev glib-dev libcap-dev libogg-dev \
+			libsndfile-dev libtool libvorbis-dev pcre-dev speexdsp-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libxcb-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXi-dev xorg-libXtst-dev"
+			;;
+	esac
 }
