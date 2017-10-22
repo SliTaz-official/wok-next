@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="truecrypt"
 VERSION="7.1a"
@@ -6,33 +6,38 @@ CATEGORY="security"
 SHORT_DESC="Free open-source cross-platform disk encryption software"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="other"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.truecrypt.org"
-WGET_URL="ftp://ftp.archlinux.org/other/tc/$TARBALL"
+WEB_SITE="http://www.truecrypt.org/"
 
-DEPENDS="fuse wxWidgets28 xorg-libSM dmsetup linux-md"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://sources.archlinux.org/other/tc/$TARBALL"
+TARBALL_SHA512="b5e766023168015cb91bfd85c9e2621055dd98408215e02704775861b5070c5a0234a00c64c1bf7faa34e6d0b51ac71cd36169dd7a6f84d7a34ad0cfa304796a"
+
 BUILD_DEPENDS="pkcs nasm fuse-dev wxWidgets28-dev xorg-libSM-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export CXXFLAGS="-Wno-narrowing"
-	sed -i 's/^export LFLAGS :=$/& -Wl,--copy-dt-needed-entries -ldl/' Makefile
-	export PKCS11_INC="/usr/include/pkcs"
-	cd $src
-	make
+	make \
+		PKCS11_INC="/usr/include/pkcs" \
+		WX_CONFIG=/usr/bin/wx-config \
+		TC_EXTRA_LFLAGS+="-ldl $LDFLAGS" \
+		TC_EXTRA_CXXFLAGS="$CXXFLAGS" \
+		TC_EXTRA_CFLAGS="$CFLAGS" || return 1
+
+	install -Dm 755 Main/truecrypt $install/usr/bin/truecrypt
+	install -Dm 644 $stuff/16.png  $install/usr/share/icons/hicolor/16x16/apps/truecrypt.png
+	install -Dm 644 $stuff/48.png  $install/usr/share/icons/hicolor/48x48/apps/truecrypt.png
+	install -Dm 644 License.txt    $install/usr/share/licenses/truecrypt/License.txt
+
+	# function `cook_pick_docs` and web interface can't cope with spaces
+	mv Release/Setup\ Files/ Release/Setup_Files/
+	mv Release/Setup_Files/TrueCrypt\ User\ Guide.pdf Release/Setup_Files/TrueCrypt_User_Guide.pdf
+	cook_pick_docs Release/Setup_Files/*
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin \
-		$fs/usr/share/applications \
-		$fs/usr/share/pixmaps \
-		$fs/usr/share/licenses/$PACKAGE
-	cp -a $src/Main/$PACKAGE $fs/usr/bin
-	cp -a $stuff/$PACKAGE.desktop $fs/usr/share/applications
-	cp -a $src/Resources/Icons/TrueCrypt-48x48.xpm $fs/usr/share/pixmaps/truecrypt.xpm
-
-	cp -a $src/License.txt $fs/usr/share/licenses/$PACKAGE/License.txt
+	copy @std
+	DEPENDS="fuse wxWidgets28 xorg-libSM dmsetup linux-md"
 }
