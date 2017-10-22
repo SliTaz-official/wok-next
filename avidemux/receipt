@@ -17,7 +17,7 @@ BUILD_DEPENDS="tar coreutils-file-special coreutils-file-format cmake yasm \
 gettext pkg-config xorg-libXv-dev libxml2-dev libvorbis-dev lame-dev xvidcore-dev \
 opencore-amr-dev x264-dev faac-dev faad2-dev libsamplerate-dev alsa-lib-dev \
 libxslt-dev libvpx-dev bash qt5-dev xorg-dev zlib-dev mesa17-dev sqlite-dev \
-libglu-mesa-dev "
+libglu-mesa-dev fribidi-dev "
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,6 +25,8 @@ compile_rules()
 	sed -i 's|../avidemux/qt4|../avidemux/qt4 -DLRELEASE_EXECUTABLE=/usr/bin/lrelease-qt5|' bootStrap.bash
 	sed -ri 's|(Name=).*|\1avidemux (Qt)|' avidemux2.desktop
 	sed -ri 's|(Exec=).*|\1avidemux3_qt5|' avidemux2.desktop
+	sed 's/pkg_check_modules(PULSEAUDIOSIMPLE libpulse-simple)//' -i cmake/admCheckAudioDeviceLibs.cmake
+	sed 's|$EXTRA_CMAKE_DEFS|& -DUSE_VAPOURSYNTH=false -DFAAD=false -DFRIBIDI=false |' -i bootStrap.bash
 	bash bootStrap.bash --with-core --with-cli --with-plugins 2>/dev/null
 	for i in Cli Core PluginsCLI PluginsCommon Qt5 PluginsQt5; do
 		( make -C build${i} DESTDIR="$DESTDIR" install 2>/dev/null) | \

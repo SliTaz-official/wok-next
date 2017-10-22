@@ -26,9 +26,10 @@ compile_rules()
 	cp $stuff/mozconfig $src
 	chmod -R +x build/autoconf/* python/*
 	find . -name '*.sh' -exec chmod +x {} \;
+	export CFLAGS=${CFLAGS/486/686} && export CXXFLAGS=${CXXFLAGS/486/686}
 	export MOZBUILD_STATE_PATH="$src/mozbuild"
 	export MOZCONFIG="$src/mozconfig"
-	export CPPFLAGS="$CPPFLAGS -O0"  # s/2/0/
+	export CPPFLAGS="$CPPFLAGS"
 	export MAKEFLAGS="$MAKEFLAGS"
 	python2 mach configure
 	python2 mach build || echo "Next =>"
