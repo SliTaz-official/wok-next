@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gdb"
 VERSION="8.0.1"
@@ -11,8 +11,8 @@ WEB_SITE="http://www.gnu.org/software/gdb/"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ncurses expat glibc-dev"
-BUILD_DEPENDS="ncurses-dev readline-dev perl-dev"
+BUILD_DEPENDS="ncurses-dev readline-dev perl-dev makeinfo"
+SPLIT="gdb-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,6 +27,31 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+	gdb)
+		DEPENDS="ncurses expat glibc-dev"
+		mkdir -p $fs/usr
+		cp -a $install/usr/bin $fs/usr
+		;;
+	gdb-dev)
+		CAT="development|The GNU Project Debugger dev files."
+		DEPENDS="gdb"
+		mkdir -p $fs/usr
+	
+		# Copying include dir if exists
+		if [ -d "$install/usr/include" ]; then
+			cp -a $install/usr/include $fs/usr
+		fi
+	
+		# Copying pkgconfig dir if exists
+		if [ -d "$install/usr/lib/pkgconfig" ]; then
+			test -d $fs/usr/lib/ || mkdir -p $fs/usr/lib/
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		fi
+	
+		# Do not copy static libs, as they are all part of binutils
+		# binutils includes libbdf.*a, libiberty.a, and libopcodes.*a
+		# Copying static libs if exists
+		;;
+	esac
 }
