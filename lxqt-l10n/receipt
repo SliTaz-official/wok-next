@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lxqt-l10n"
+VERSION="0.11.2"
+CATEGORY="system-tools"
+SHORT_DESC="Translations of LXQt"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/lxde/lxqt-l10n"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/lxqt-l10n.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/lxqt-l10n/releases/download/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake qt5-dev lxqt-build-tools"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS=""
+	TAGS="LXQt"
+}

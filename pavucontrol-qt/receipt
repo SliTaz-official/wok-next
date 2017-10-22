@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="pavucontrol-qt"
+VERSION="0.3.0"
+CATEGORY="multimedia"
+SHORT_DESC="A Pulseaudio mixer in Qt (port of pavucontrol)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/lxde/pavucontrol-qt"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/pavucontrol-qt/releases/download/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev lxqt-build-tools pulseaudio-dev"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DPULL_TRANSLATIONS=no \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib pulseaudio pulseaudio-glib qt5-base"
+	SUGGESTED="pulseaudio-alsa"
+	TAGS="LXQt"
+}

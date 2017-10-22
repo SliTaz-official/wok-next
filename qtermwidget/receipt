@@ -1,32 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qtermwidget"
-COMMIT="c12a3635127e5eb8e492f7a9c49500d8693565c0"
-VERSION="${COMMIT:0:7}"
+VERSION="0.7.1"
 CATEGORY="system-tools"
-SHORT_DESC="A Qt terminal widget"
+SHORT_DESC="The terminal widget for QTerminal"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="https://github.com/qterminal/qtermwidget"
+WEB_SITE="https://github.com/lxde/qtermwidget"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/qtermwidget.html"
+
+# release 0.7.1 tarball missed in GitHub
+#TARBALL="$PACKAGE-$VERSION.tar.xz"
+#WGET_URL="https://github.com/lxde/qtermwidget/releases/download/$VERSION/$TARBALL"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/archive/$COMMIT.tar.gz"
+WGET_URL="https://github.com/lxde/qtermwidget/archive/$VERSION.tar.gz"
 
-DEPENDS="gcc-lib-base glibc-base"
-BUILD_DEPENDS="wget cacerts cmake Qt4-dev qmake"
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev"
+SPLIT="qtermwidget-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir build; cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/qtermwidget4 $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		qtermwidget)
+			copy @std
+			DEPENDS="qt5-base"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="qtermwidget qt5-dev"
+			;;
+	esac
+	TAGS="LXQt"
 }

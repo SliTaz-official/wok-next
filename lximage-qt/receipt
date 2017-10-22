@@ -1,34 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lximage-qt"
-VERSION="0.3.0"
+VERSION="0.5.1"
 CATEGORY="graphics"
 SHORT_DESC="The image viewer and screenshot tool for LXQt"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/lxde/lximage-qt"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/lxde/$PACKAGE/archive/$VERSION.tar.gz"
-TAGS="LXQt"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/lximage-qt.html"
 
-DEPENDS="libQtCore libQtDBus libQtGui libQtXml libexif libffi libfm glib \
-pcmanfm-qt pcre xorg-libX11 xorg-libXext xorg-libXfixes zlib"
-BUILD_DEPENDS="wget cacerts cmake Qt4-dev qmake glib-dev libexif-dev libfm-dev \
-xorg-libX11-dev xorg-libXfixes-dev xorg-xproto pcmanfm-qt-dev menu-cache-dev \
-libqtxdg-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/lximage-qt/releases/download/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev libfm-qt-dev lxqt-build-tools"
+
+compile_rules() {
 	mkdir build; cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DPULL_TRANSLATIONS=no \
+		.. &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/lximage-qt
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib libexif libfm libfm-qt menu-cache qt5-base qt5-svg \
+	qt5-x11extras xorg-libX11 xorg-libXext xorg-libXfixes xorg-libxcb"
+	TAGS="LXQt"
 }

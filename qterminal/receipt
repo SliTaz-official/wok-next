@@ -1,37 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qterminal"
-COMMIT="fff3774510ac437b8635f8a0b6c2d7f20b9cef86"
-VERSION="${COMMIT:0:7}"
+VERSION="0.7.1"
 CATEGORY="system-tools"
-SHORT_DESC="A Qt based terminal"
+SHORT_DESC="A lightweight Qt-based terminal emulator"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/qterminal/qterminal"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/archive/$COMMIT.tar.gz"
-GENERIC_PIXMAPS="no"
-GENERIC_MENUS="no"
-TAGS="terminal"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxqt/qterminal.html"
 
-DEPENDS="libQtCore libQtGui xorg-libX11 qtermwidget"
-BUILD_DEPENDS="wget cacerts cmake Qt4-dev qmake qtermwidget-dev xorg-libX11-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/lxde/qterminal/releases/download/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev qtermwidget-dev lxqt-build-tools"
+
+compile_rules() {
 	mkdir build; cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_SYSTEM_QXT=0 .. &&
-	make &&
-	make DESTDIR=$install install
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DPULL_TRANSLATIONS=no \
+		.. &&
+	LIBRARY_PATH=/usr/lib make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-
-	sed -i 's|^Icon=.*$|Icon=terminal|g' $fs/usr/share/applications/*.desktop
+genpkg_rules() {
+	copy @std
+	rm -r $fs/usr/share/appdata $fs/usr/share/icons
+	sed -i '/^Actions=/d' $fs/usr/share/applications/qterminal.desktop
+	DEPENDS="qt5-base qt5-x11extras qtermwidget xorg-libX11"
+	TAGS="terminal LXQt"
 }

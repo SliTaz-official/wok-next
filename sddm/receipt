@@ -1,0 +1,80 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sddm"
+VERSION="0.16.0"
+CATEGORY="x-window"
+SHORT_DESC="QML based X11 and Wayland display manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 CC-BY-3"
+WEB_SITE="https://github.com/sddm/sddm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/sddm.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/sddm/sddm/releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake extra-cmake-modules xorg-libxcb-dev qt5-dev mesa17-dev \
+python-docutils"
+SPLIT="sddm-theme-elarun sddm-theme-maldives sddm-theme-maya sddm"
+
+compile_rules() {
+	sed -i '/UPOWER_SERVICE)/ s|^|//|' src/daemon/PowerManager.cpp
+	sed -i '/\$@$/ s|exec|& ck-launch-session|' data/scripts/Xsession
+
+	# Need login.defs that we don't use
+	cat > /etc/login.defs <<EOT
+UID_MIN 1000
+UID_MAX 1999
+EOT
+
+	# Create dedicated user/group for installation
+	addgroup -g 64 -S sddm
+	adduser  -g "SDDM Daemon"   -h /var/lib/sddm   -u 64   -G sddm \
+		-s /bin/false   -D   sddm
+
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DENABLE_JOURNALD=OFF \
+		-DDBUS_CONFIG_FILENAME=sddm_org.freedesktop.DisplayManager.conf \
+		-DBUILD_MAN_PAGES=ON \
+		-DENABLE_PAM=OFF \
+		-DNO_SYSTEMD=ON \
+		-Wno-dev \
+		.. &&
+	make &&
+	make install || return 1
+
+	install -v -dm755 -o sddm -g sddm $install/var/lib/sddm
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		sddm-theme-elarun)
+			copy elarun/
+			CAT="customization|theme Elarun"
+			;;
+		sddm-theme-maldives)
+			copy maldives/
+			CAT="customization|theme Maldives"
+			;;
+		sddm-theme-maya)
+			copy maya/
+			CAT="customization|theme Maya"
+			;;
+		sddm)
+			copy @std
+			remove_already_packed
+			rm -r $fs/etc/pam.d # PAM disabled, but installed anyway
+			DEPENDS="sddm-theme-maya qt5-base qt5-declarative xorg-libxcb"
+			;;
+	esac
+}
+
+post_install_sddm() {
+	if ! grep -q sddm "$1/etc/passwd"; then
+		chroot "$1/" addgroup -g 64 -S sddm
+		chroot "$1/" adduser  -g "SDDM Daemon"   -h /var/lib/sddm   -u 64 \
+			-G sddm   -s /bin/false   -D   sddm
+	fi
+}
