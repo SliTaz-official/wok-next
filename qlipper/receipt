@@ -1,31 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qlipper"
-VERSION="2.0.2"
+VERSION="5.0.0"
 CATEGORY="utilities"
-SHORT_DESC="Clipboard history tool."
+SHORT_DESC="Clipboard history tool"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-WEB_SITE="http://qlipper.googlecode.com/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$WEB_SITE/files/$TARBALL"
+WEB_SITE="https://github.com/pvanek/qlipper"
 
-DEPENDS="libQtGui libQtDBus libQtNetwork"
-BUILD_DEPENDS="Qt4-dev cmake qmake xorg-libX11-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/pvanek/qlipper/archive/$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src && sed -i 's/ ON/ OFF/g' CMakeLists.txt
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev"
+
+compile_rules() {
+	mkdir build; cd build
 	cmake \
-		-DCMAKE_BUILD_TYPE=release \
-		-DUSE_SYSTEM_QXT=0 \
-		-DCMAKE_INSTALL_PREFIX=/usr . &&
-	make && make DESTDIR=$DESTDIR install
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="qt5-base xorg-libX11"
 }

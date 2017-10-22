@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xdg-user-dirs"
-VERSION="0.14"
+VERSION="0.16"
 CATEGORY="utilities"
 LICENSE="GPL"
-SHORT_DESC="Tool to help manage user directories."
+SHORT_DESC="Tool to help manage user directories"
 MAINTAINER="yuripourre@gmail.com"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/xdg-user-dirs/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/xdg-user-dirs.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.freedesktop.org/wiki/Software/xdg-user-dirs"
-WGET_URL="http://user-dirs.freedesktop.org/releases/$TARBALL"
+WGET_URL="https://user-dirs.freedesktop.org/releases/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="gawk"
+BUILD_DEPENDS="gettext libxslt docbook-xsl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
+		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std *.mo # translations required because of purpose of the program
 }

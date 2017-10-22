@@ -1,35 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lm-sensors"
-SOURCE="lm_sensors"
-VERSION="3.3.3"
+VERSION="3.4.0"
 CATEGORY="system-tools"
-SHORT_DESC="Linux hardware monitoring."
+SHORT_DESC="Linux hardware monitoring"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-SUGGESTED="rrdtool"
-WEB_SITE="http://www.lm-sensors.org/"
-WGET_URL="http://dl.lm-sensors.org/lm-sensors/releases/$TARBALL"
+WEB_SITE="https://github.com/groeck/lm-sensors/issues/3"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/lm_sensors.html"
 
-DEPENDS="perl linux-hwmon"
-BUILD_DEPENDS="bison flex rrdtool-dev"
+TARBALL="lm_sensors-$VERSION.tar.bz2"
+WGET_URL="https://ftp.gwdg.de/pub/linux/misc/lm-sensors/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|/man|/share&|' Makefile
-	patch -p0 < $stuff/linux-3.0.patch &&
-	make PREFIX=/usr PROG_EXTRA=sensord DESTDIR=$DESTDIR install 2>&1 | \
-	sed 's/d: No such file/d: no such file/'
+BUILD_DEPENDS="rrdtool-dev"
+SPLIT="lm-sensors-dev"
+
+compile_rules() {
+	sed -i 's|/etc/sysconfig|/etc/conf.d|' prog/detect/sensors-detect
+
+	make \
+		PREFIX=/usr \
+		BUILD_STATIC_LIB=0 \
+		MANDIR=/usr/share/man \
+		DESTDIR=$install \
+		PROG_EXTRA=sensord \
+		install || return 1
+
+	cook_pick_docs README INSTALL doc/*
+
+	install -D -m755 "$stuff/healthd"      "$install/usr/bin/healthd"
+	install -D -m644 "$stuff/healthd.conf" "$install/etc/healthd.conf"
+	install -D -m644 "$stuff/sensord.conf" "$install/etc/conf.d/sensord"
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		lm-sensors)
+			copy @std
+			DEPENDS="bash linux-hwmon perl rrdtool"
+			SUGGESTED="rrdtool"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

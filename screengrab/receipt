@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="screengrab"
+VERSION="1.97"
+CATEGORY="utilities"
+SHORT_DESC="Crossplatform tool for fast making screenshots"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/QtDesktop/screengrab"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/QtDesktop/screengrab/releases/download/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev kwindowsystem-dev libqtxdg-dev"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="kwindowsystem libqtxdg qt5-base qt5-svg qt5-x11extras xorg-libX11 \
+	xorg-libXext xorg-libxcb"
+}

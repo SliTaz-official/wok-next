@@ -1,19 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dbus"
-VERSION="1.10.14"
+VERSION="1.10.22"
 CATEGORY="x-window"
 SHORT_DESC="D-Bus, a message bus system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/dbus/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/dbus.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://dbus.freedesktop.org/releases/dbus/$TARBALL"
 
-BUILD_DEPENDS="expat-dev xorg-libX11-dev"
-SPLIT="dbus-helper dbus dbus-dev"
+BUILD_DEPENDS="expat-dev xorg-libX11-dev glib-dev xorg-libICE-dev \
+xorg-libSM-dev libxslt xmlto libxml2-tools docbook-xsl"
+SPLIT="dbus-helper dbus-introspect dbus dbus-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -22,19 +24,23 @@ compile_rules()
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-doxygen-docs \
-		--disable-xml-docs \
 		--disable-static \
+		--docdir=/usr/share/doc/dbus-$VERSION \
+		--with-console-auth-dir=/run/console/ \
+		--with-system-pid-file=/run/dbus/pid \
+		--with-system-socket=/run/dbus/system_bus_socket \
 		--disable-systemd \
 		--without-systemdsystemunitdir \
-		--with-console-auth-dir=/run/console/ \
-		--docdir=/usr/share/doc/dbus-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make -j1 install
-#		--without-console-auth-dir \
+	make && make -j1 install || return 1
 
 	# Init script
 	cp -a $stuff/etc $install
 	chown -R root.root $install/etc
+
+	# docbook stuff
+	mkdir -p $install/usr/share/xml/docbook/stylesheet/dbus
+	cp doc/introspect.* $install/usr/share/xml/docbook/stylesheet/dbus
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -45,6 +51,11 @@ genpkg_rules()
 			copy dbus-daemon-launch-helper
 			CAT="x-window|dbus-daemon-launch-helper"
 			DEPENDS="dbus expat"
+			;;
+		dbus-introspect)
+			copy introspect.*
+			CAT="development|introspect DTD & XSL"
+			DEPENDS="libxml2-tools"
 			;;
 		dbus)
 			copy @std
@@ -98,4 +109,17 @@ post_install_dbus_helper() {
 	local i="$1/usr/libexec/dbus-daemon-launch-helper"
 	chown root:messagebus $i
 	chmod 4750 $i
+}
+
+post_install_dbus_introspect() {
+	U="http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd"
+	F="file:///usr/share/xml/docbook/stylesheet/dbus/introspect.dtd"
+
+	# Create a /etc/xml/catalog file
+	mkdir -p "$1/etc/xml"
+	[ ! -f "$1/etc/xml/catalog" ] &&
+	chroot "$1/" xmlcatalog --noout --create /etc/xml/catalog
+
+	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" "$U" "$F" /etc/xml/catalog
+	chroot "$1/" xmlcatalog --noout --add "rewriteURI"    "$U" "$F" /etc/xml/catalog
 }

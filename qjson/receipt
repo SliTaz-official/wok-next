@@ -1,29 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qjson"
-VERSION="0.8.1"
+VERSION="0.9.0"
 CATEGORY="development"
-SHORT_DESC="QJson is a qt-based library that maps JSON data to QVariant objects"
+SHORT_DESC="QJson is a Qt-based library that maps JSON data to QVariant objects"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="http://qjson.sourceforge.net/"
-TARBALL="$PACKAGE-$VERSION.zip"
-WGET_URL="https://github.com/flavio/qjson/archive/$VERSION.zip"
 
-DEPENDS="libQtGui libQtNetwork libQtSql libcrypto"
-BUILD_DEPENDS="Qt4-dev qmake cmake wget"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/flavio/qjson/archive/$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build && cd build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-	make && make install
+BUILD_DEPENDS="cmake qt5-dev"
+SPLIT="qjson-dev"
+
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		qjson)
+			copy @std
+			DEPENDS="qt5-base"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="qjson qt5-dev"
+			;;
+	esac
 }

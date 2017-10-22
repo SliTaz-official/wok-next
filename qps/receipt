@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qps"
 VERSION="1.10.17"
@@ -7,25 +7,23 @@ SHORT_DESC="Advanced process monitor (taskmanager)"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/QtDesktop/qps"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="${WEB_SITE}/releases/download/$VERSION/$TARBALL"
+WGET_URL="$WEB_SITE/releases/download/$VERSION/$TARBALL"
 
-DEPENDS="qt5-base qt5-x11extras"
-BUILD_DEPENDS="qt5-dev xorg-dev zlib-dev cmake mesa17-dev"
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev xorg-libXrender-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cmake .
-	make
-	install -D -m 755 src/qps "$DESTDIR"/usr/bin/qps
-	install -D -m 644 qps.1 "$DESTDIR"/usr/share/man/man1/qps.1
-	install -D -m 644 src/qps.desktop "$DESTDIR"/usr/share/applications/qps.desktop
-	install -D -m 644 icon/icon.xpm "$DESTDIR"/usr/share/pixmaps/qps.xpm
+compile_rules() {
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="qt5-base qt5-x11extras"
 }

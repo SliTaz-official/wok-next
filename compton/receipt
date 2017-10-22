@@ -16,15 +16,12 @@ WGET_URL="https://github.com/chjj/compton/archive/${COMMIT:-v$VERSION}.tar.gz"
 BUILD_DEPENDS="pcre-dev xorg-libX11-dev xorg-libXcomposite-dev \
 xorg-libXfixes-dev xorg-libXdamage-dev xorg-libXrender-dev xorg-libXext-dev \
 xorg-libXrandr-dev xorg-libXinerama-dev dbus-dev asciidoc libxml2-tools \
-docbook-xsl"
+docbook-xsl libconfig-dev"
 # Optional bdeps: libconfig-dev libdrm-dev mesa-dev
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make \
 		COMPTON_VERSION=v$VERSION \
-		NO_LIBCONFIG=yes \
 		NO_VSYNC_DRM=yes \
 		NO_VSYNC_OPENGL=yes \
 		PREFIX=/usr \
@@ -36,12 +33,10 @@ compile_rules()
 	cp -r $stuff/autostart $install/etc/xdg/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy etc/ bin/	# skip icons
 	DEPENDS="dbus pcre xorg-libX11 xorg-libXcomposite xorg-libXdamage \
 	xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrandr \
-	xorg-libXrender   xorg-xwininfo xorg-xprop"
+	xorg-libXrender   xorg-xwininfo xorg-xprop libconfig"
 	CONFIG_FILES="/etc/xdg/compton/compton.conf"
 }

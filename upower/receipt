@@ -1,27 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="upower"
-VERSION="0.9.15"
+VERSION="0.99.5"
 CATEGORY="system-tools"
-SHORT_DESC="UPower is an abstraction for enumerating power devices."
+SHORT_DESC="UPower is an abstraction for enumerating power devices"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://upower.freedesktop.org/"
-WGET_URL="http://upower.freedesktop.org/releases/$TARBALL"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/upower.html"
 
-DEPENDS="polkit glib dbus dbus-glib libgudev libusb"
-BUILD_DEPENDS="polkit-dev glib-dev dbus-dev dbus-glib-dev \
-libgudev-dev libusb-dev intltool"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://upower.freedesktop.org/releases/$TARBALL"
+
+BUILD_DEPENDS="gobject-introspection-dev libxslt gtk-doc glib-dev eudev-dev \
+libgudev-dev libusb-dev intltool dbus-introspect"
+SPLIT="upower-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--sysconfdir=/etc \
-		--libexecdir=/usr/lib/upower \
 		--localstatedir=/var \
+		--enable-deprecated \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -29,13 +31,16 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	cp -a $install/lib/udev $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/upower $fs/usr/lib
-	cp -a $install/usr/share/dbus-1 $fs/usr/share
-	cp -a $install/usr/share/polkit-1 $fs/usr/share
+	case $PACKAGE in
+		upower)
+			copy @std
+			DEPENDS="glib libffi libgudev libusb pcre util-linux-blkid \
+			util-linux-mount util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="upower glib-dev libffi-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }

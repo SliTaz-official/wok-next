@@ -1,28 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxkbcommon"
-VERSION="0.7.1"
+VERSION="0.7.2"
 CATEGORY="x-window"
 SHORT_DESC="Keyboard handling library using XKB data"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="custom"
-WEB_SITE="http://xkbcommon.org"
+WEB_SITE="https://xkbcommon.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libxkbcommon.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://xkbcommon.org/download/$TARBALL"
 
 BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros xorg-xkeyboard-config-dev bison"
-SPLIT="libxkbcommon-dev"
+SPLIT="libxkbcommon-x11 libxkbcommon libxkbcommon-dev"
+SIBLINGS="libxkbcommon-wayland"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	# http://www.linuxfromscratch.org/blfs/view/stable/general/libxkbcommon.html
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--with-xkb-config-root=/usr/share/X11/xkb \
 		--docdir=/usr/share/doc/libxkbcommon-$VERSION \
+		--disable-wayland \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
@@ -31,14 +33,19 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
+		libxkbcommon-x11)
+			copy libxkbcommon-x11.so*
+			DEPENDS="libxkbcommon xorg-libXau xorg-libXdmcp xorg-libxcb   \
+			xorg-xkeyboard-config xorg-libX11"
+			;;
 		libxkbcommon)
 			copy @std
-			DEPENDS="xorg-libXau xorg-libXdmcp xorg-libxcb   \
-			xorg-xkeyboard-config"
+			remove_already_packed
+			DEPENDS=" "
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libxkbcommon \
+			DEPENDS="libxkbcommon libxkbcommon-x11 \
 			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev"
 			;;
 	esac

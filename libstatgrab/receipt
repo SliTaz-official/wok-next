@@ -1,22 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libstatgrab"
-VERSION="0.17"
+VERSION="0.91"
 CATEGORY="system-tools"
 SHORT_DESC="Provides statistics about the system on which it's run"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.i-scream.org/libstatgrab/"
+WEB_SITE="https://www.i-scream.org/libstatgrab/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libstatgrab.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ftp.uk.i-scream.org/pub/i-scream/libstatgrab/$TARBALL"
+WGET_URL="http://www.mirrorservice.org/sites/ftp.i-scream.org/pub/i-scream/libstatgrab/$TARBALL"
 
-BUILD_DEPENDS="gfortran"
+BUILD_DEPENDS="perl"
 SPLIT="libstatgrab-dev"
 
 compile_rules() {
-	./configure &&
-	make && make -j 1 install
+	./configure \
+		--disable-static \
+		--docdir=/usr/share/doc/libstatgrab-$VERSION \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
