@@ -1,18 +1,18 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gdal"
-VERSION="1.9.0"
+VERSION="2.2.2"
 CATEGORY="meta"
 SHORT_DESC="Geospatial Data Abstraction Library."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.gdal.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.osgeo.org/gdal/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://download.osgeo.org/gdal/$VERSION/$TARBALL"
 
-DEPENDS="libgdal gdal-bin gdal-datas"
 BUILD_DEPENDS="python-dev postgresql-dev geos-dev proj-dev curl-dev \
-swig tiff-dev jasper-dev jpeg-dev"
+swig tiff-dev jasper-dev jpeg-dev perl-dev"
+SPLIT="gdal-bin gdal-datas gdal-dev gdal libgdal"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,6 +32,37 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir $fs/usr
-	
+	case $PACKAGE in
+	gdal)
+		DEPENDS="libgdal gdal-bin gdal-datas"
+		mkdir $fs/usr
+		;;
+	gdal-bin)
+		CAT="misc|GDAL Tools."
+		DEPENDS="libgdal"
+		mkdir -p $fs/usr
+		cp -a $install/usr/bin $fs/usr
+		rm -f $fs/usr/bin/gdal-config
+		;;
+	gdal-datas)
+		CAT="misc|GDAL datas."
+		DEPENDS="libgdal"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/gdal $fs/usr/share
+		;;
+	gdal-dev)
+		CAT="development|GDAL development headers."
+		DEPENDS="libgdal"
+		mkdir -p $fs/usr/bin $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/bin/gdal-config $fs/usr/bin
+		;;
+	libgdal)
+		CAT="misc|Geospatial Data Abstraction Library."
+		DEPENDS="geos proj libcurl jasper libpostgresqlclient tiff"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	esac
 }
