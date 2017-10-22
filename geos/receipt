@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="geos"
-VERSION="3.5.0"
+VERSION="3.6.2"
 CATEGORY="misc"
 SHORT_DESC="Geometry Engine, Open Source."
 MAINTAINER="erjo@slitaz.org"
@@ -10,20 +10,31 @@ WEB_SITE="http://trac.osgeo.org/geos/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.osgeo.org/geos/$TARBALL"
 
-DEPENDS="gcc-lib-base"
 BUILD_DEPENDS=""
+SPLIT="geos-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's/cmath/math.h/;s/isnan(/std::&/' configure
-	sed -i 's/(isnan(x))/(std::isnan(x))/' include/geos/platform.h.in
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	geos)
+		DEPENDS="gcc-lib-base"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	geos-dev)
+		CAT="development|Geos dev files."
+		DEPENDS="geos"
+		mkdir -p $fs/usr/bin $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		;;
+	esac
 }
