@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="opencv"
-VERSION="3.1.0"
+VERSION="3.3.0"
 CATEGORY="development"
 SHORT_DESC="Open source computer vision library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,13 +10,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://opencv.org/"
 WGET_URL="https://github.com/Itseez/opencv/archive/$VERSION.tar.gz"
 
-DEPENDS="gtk+ ffmpeg jpeg tiff libpng"
 BUILD_DEPENDS="wget cmake gtk+-dev ffmpeg-dev jpeg-dev tiff-dev libpng-dev"
+SPLIT="opencv opencv-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cmake . -DCMAKE_INSTALL_PREFIX=/usr &&
+	mkdir build && cd build &&
+	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -25,7 +26,19 @@ compile_rules()
 genpkg_rules()
 {
 	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	opencv)
+		DEPENDS="gtk+ ffmpeg jpeg tiff libpng"
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/share $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	opencv-dev)
+		CAT="development|Open source computer vision library development files"
+		DEPENDS="opencv pkg-config"
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	esac
 }
