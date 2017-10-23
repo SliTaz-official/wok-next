@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="transmission"
 VERSION="2.92"
@@ -6,16 +6,13 @@ CATEGORY="network"
 SHORT_DESC="Light and easy to use BitTorrent client."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="transmission-web transmission-cli transmission-daemon"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.transmissionbt.com/"
 WGET_URL="https://transmission.cachefly.net/$TARBALL"
-TAGS="torrent"
 
-DEPENDS="gtk+3 libssl libcurl glib dbus dbus-glib \
-xorg-libXdamage libnotify libevent"
 BUILD_DEPENDS="gtk+3-dev openssl-dev curl-dev curl intltool \
 expat-dev gettext dbus-dev dbus-glib-dev libevent-dev wget tar"
+SPLIT="transmission-cli transmission-daemon transmission-web"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -38,13 +35,55 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/share/applications
-	cp -a $install/usr/bin/${PACKAGE}-gtk $fs/usr/bin/${PACKAGE}
+	case $PACKAGE in
+	transmission)
+		DEPENDS="gtk+3 libssl libcurl glib dbus dbus-glib \
+			xorg-libXdamage libnotify libevent"
+		TAGS="torrent"
+		SUGGESTED="transmission-web transmission-cli transmission-daemon"
+		mkdir -p $fs/usr/bin $fs/usr/share/applications
+		cp -a $install/usr/bin/${PACKAGE}-gtk $fs/usr/bin/${PACKAGE}
+		;;
+	transmission-cli)
+		CAT="network|Transmission command line interface."
+		DEPENDS="transmission libcurl libssl"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/transmission-cli $fs/usr/bin
+		;;
+	transmission-daemon)
+		CAT="network|Transmission daemon and remote tool."
+		SUGGESTED="transmission-web transmission-cli"
+		DEPENDS="libssl libcurl libevent"
+		mkdir -p $fs/usr/bin \
+			$fs/etc/init.d \
+			$fs/var/transmission-daemon
+		cp -a $install/usr/bin/transmission-daemon $fs/usr/bin
+		cp -a $install/usr/bin/transmission-remote $fs/usr/bin
+		cp $stuff/settings.json $fs/var/transmission-daemon
+		cp $stuff/transmission-daemon $fs/etc/init.d
+		;;
+	transmission-web)
+		CAT="network|Transmission web interface."
+		SUGGESTED="transmission-daemon"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/transmission $fs/usr/share
+		rm $fs/usr/share/transmission/web/LICENSE
+		;;
+	esac
 }
 
 # Remove old packages name
-post_install()
+post_install_transmission()
 {
 	rm -f "$1/usr/bin/transmission-gtk"
 	rm -f "$1/usr/share/applications/${PACKAGE}-gtk.desktop"
+}
+
+post_install_transmission_web()
+{
+	# Info message
+	echo "
+You must activate the web interface throught Transmission and then
+connect to: http://localhost:9091"
+	echo ""
 }
