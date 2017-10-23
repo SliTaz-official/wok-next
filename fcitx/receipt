@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fcitx"
 VERSION="4.1.2"
@@ -10,33 +10,86 @@ TARBALL="$PACKAGE-${VERSION}_all.tar.bz2"
 WEB_SITE="http://code.google.com/p/fcitx/"
 WGET_URL="http://fcitx.googlecode.com/files/$TARBALL"
 
-DEPENDS="libfcitx fcitx-skin-default gtk+"
-BUILD_DEPENDS="cmake intltool cairo-dev pango-dev gtk+-dev dbus-dev opencc-dev gcc"
+BUILD_DEPENDS="cmake intltool cairo-dev pango-dev gtk+-dev dbus-dev opencc-dev"
+SPLIT="fcitx-dev fcitx-skin-classic fcitx-skin-dark fcitx-skin-default \
+fcitx-tools libfcitx"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-    mkdir -p $src/build
-    cd $src/build
-    cmake $src -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_QT_IM_MODULE=OFF -DENABLE_GTK2_IM_MODULE=OFF -DENABLE_GTK3_IM_MODULE=OFF -DENABLE_OPENCC=ON || return 1
-    cd $src
-    make -C build || return 1
-    make install/fast -C build DESTDIR=$DESTDIR
+	mkdir -p $src/build
+	cd $src/build
+	cmake $src \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DENABLE_QT_IM_MODULE=OFF \
+		-DENABLE_GTK2_IM_MODULE=OFF \
+		-DENABLE_GTK3_IM_MODULE=OFF \
+		-DENABLE_OPENCC=ON || return 1
+	cd $src
+	make -C build || return 1
+	make install/fast -C build DESTDIR=$DESTDIR
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-    mkdir -p $fs/usr/bin/ $fs/usr/share/fcitx/ $fs/usr/share/applications/
-    cp -a $install/usr/bin/fcitx $fs/usr/bin/
-    cp -a $install/usr/bin/fcitx-configtool $fs/usr/bin/
-    cp -a $install/usr/bin/fcitx-remote $fs/usr/bin/
-    cp -a $install/usr/bin/fcitx4-config $fs/usr/bin/
-    cp -a $install/usr/share/fcitx/addon/ $fs/usr/share/fcitx/
-    cp -a $install/usr/share/fcitx/configdesc/ $fs/usr/share/fcitx/
-    cp -a $install/usr/share/fcitx/data/ $fs/usr/share/fcitx/
-    cp -a $install/usr/share/fcitx/pinyin/ $fs/usr/share/fcitx/
-    cp -a $install/usr/share/fcitx/table/ $fs/usr/share/fcitx/
-    cp -a $install/usr/share/applications/*.desktop $fs/usr/share/applications/
-    cp -a $install/usr/share/icons/ $fs/usr/share/
+	case $PACKAGE in
+	fcitx)
+		DEPENDS="libfcitx fcitx-skin-default gtk+"
+		mkdir -p $fs/usr/bin/ $fs/usr/share/fcitx/ $fs/usr/share/applications/
+		cp -a $install/usr/bin/fcitx $fs/usr/bin/
+		cp -a $install/usr/bin/fcitx-configtool $fs/usr/bin/
+		cp -a $install/usr/bin/fcitx-remote $fs/usr/bin/
+		cp -a $install/usr/bin/fcitx4-config $fs/usr/bin/
+		cp -a $install/usr/share/fcitx/addon/ $fs/usr/share/fcitx/
+		cp -a $install/usr/share/fcitx/configdesc/ $fs/usr/share/fcitx/
+		cp -a $install/usr/share/fcitx/data/ $fs/usr/share/fcitx/
+		cp -a $install/usr/share/fcitx/pinyin/ $fs/usr/share/fcitx/
+		cp -a $install/usr/share/fcitx/table/ $fs/usr/share/fcitx/
+		cp -a $install/usr/share/applications/*.desktop $fs/usr/share/applications/
+		cp -a $install/usr/share/icons/ $fs/usr/share/
+		;;
+	fcitx-dev)
+		CAT="development|The fcitx-dev package includes the header files for the FCITX package."
+		DEPENDS="libfcitx xorg-libX11-dev pkg-config"
+		mkdir -p $fs/usr/lib/pkgconfig/ $fs/usr/share/
+		cp -a $install/usr/lib/libfcitx*.so $fs/usr/lib/
+		cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig/
+		cp -a $install/usr/share/cmake/ $fs/usr/share/
+		cp -a $install/usr/include/ $fs/usr/
+		;;
+	fcitx-skin-classic)
+		CAT="x-window|The classic skin of fcitx."
+		mkdir -p $fs/usr/share/fcitx/skin/
+		cp -a $install/usr/share/fcitx/skin/classic/ $fs/usr/share/fcitx/skin/
+		;;
+	fcitx-skin-dark)
+		CAT="x-window|The dark skin of fcitx."
+		mkdir -p $fs/usr/share/fcitx/skin/
+		cp -a $install/usr/share/fcitx/skin/dark/ $fs/usr/share/fcitx/dark/
+		;;
+	fcitx-skin-default)
+		CAT="x-window|The default skin of fcitx."
+		mkdir -p $fs/usr/share/fcitx/skin/
+		cp -a $install/usr/share/fcitx/skin/default $fs/usr/share/fcitx/skin/
+		;;
+	fcitx-tools)
+		CAT="x-window|The fcitx-tools package includes some tools of fcitx."
+		DEPENDS="fcitx"
+		mkdir -p $fs/usr/bin/
+		cp -a $install/usr/bin/createPYMB $fs/usr/bin/
+		cp -a $install/usr/bin/readPYBase $fs/usr/bin/
+		cp -a $install/usr/bin/readPYMB $fs/usr/bin/
+		cp -a $install/usr/bin/mb2org $fs/usr/bin/
+		cp -a $install/usr/bin/mb2txt $fs/usr/bin/
+		cp -a $install/usr/bin/scel2org $fs/usr/bin/
+		cp -a $install/usr/bin/txt2mb $fs/usr/bin/
+		;;
+	libfcitx)
+		CAT="x-window|The libfcitx package provides shared libraries for FCITX."
+		mkdir -p $fs/usr/lib/fcitx/
+		cp -a $install/usr/lib/fcitx/*.so $fs/usr/lib/fcitx/
+		cp -a $install/usr/lib/libfcitx*.so.* $fs/usr/lib/
+		;;
+	esac
 }
