@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fltk"
 VERSION="1.3.3"
@@ -11,15 +11,9 @@ WEB_SITE="http://www.fltk.org/"
 WGET_URL="http://fltk.org/pub/fltk/$VERSION/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="expat fontconfig freetype libpng jpeg xorg-libX11 xorg-libXau xorg-libXdmcp \
-xorg-libXext xorg-libXft xorg-libXrender zlib gcc-lib-base mesa libglu-mesa"
 BUILD_DEPENDS="jpeg-dev libpng-dev libglu-mesa libglu-mesa-dev mesa mesa-dev \
 xorg-libXinerama-dev xorg-libXft-dev"
-
-# Handle SliTaz arch
-case "$SLITAZ_ARCH" in
-	arm*) DEPENDS="expat fontconfig freetype jpeg libpng xorg-libXft" ;;
-esac
+SPLIT="fltk-dev fltk-doc"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -47,8 +41,33 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/lib $fs/usr/share/pixmaps
-	cp -a $install/usr/bin/fluid $fs/usr/bin
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp $src/fluid/icons/fluid-32.png $fs/usr/share/pixmaps/fluid.png
+	case $PACKAGE in
+	fltk)
+		# Handle SliTaz arch
+		case "$SLITAZ_ARCH" in
+		arm*) DEPENDS="expat fontconfig freetype jpeg libpng \
+				xorg-libXft" ;;
+		*) DEPENDS="expat fontconfig freetype libpng jpeg xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXft \
+			xorg-libXrender zlib gcc-lib-base mesa libglu-mesa"
+		esac
+		mkdir -p $fs/usr/bin $fs/usr/lib $fs/usr/share/pixmaps
+		cp -a $install/usr/bin/fluid $fs/usr/bin
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp $src/fluid/icons/fluid-32.png $fs/usr/share/pixmaps/fluid.png
+		;;
+	fltk-dev)
+		CAT="development|Fast Light Tool Kit devel files."
+		DEPENDS="fltk"
+		mkdir -p $fs/usr/bin $fs/usr/lib
+		cp -a $install/usr/bin/fltk-config $fs/usr/bin
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	fltk-doc)
+		CAT="development|Fast Light Tool Kit documentation and examples."
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/doc $fs/usr/share
+		;;
+	esac
 }
