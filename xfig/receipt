@@ -1,28 +1,27 @@
 # SliTaz package receipt.
 
 PACKAGE="xfig"
-VERSION="3.2.5b"
+VERSION="3.2.6b"
 CATEGORY="x-window"
 SHORT_DESC="Vector graphics editor for X."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE.$VERSION.full.tar.gz"
+TARBALL="$PACKAGE-full-$VERSION.tar.xz"
 WEB_SITE="http://www.xfig.org/"
-WGET_URL="http://downloads.sourceforge.net/mcj/$TARBALL"
+WGET_URL="https://downloads.sourceforge.net/mcj/files/$TARBALL"
 SUGGESTED="transfig"
 
 DEPENDS="jpeg libpng xorg xorg-libXp"
 BUILD_DEPENDS="xorg-imake xorg-cf-files xorg-gccmakedep jpeg-dev \
 libpng-dev xorg-libXp xorg-libX11-dev xorg-libXt-dev xorg-libXpm-dev \
-xorg-libXmu-dev xorg-libXaw-dev"
+xorg-libXmu-dev xorg-libXaw-dev xorg-libXaw3d-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	mv $PACKAGE.$VERSION $src 2> /dev/null
-	cd $src
-	sed -i 's|/usr/local|/usr|;s|#define XAW3D|XCOMM &|' Imakefile
-	xmkmf &&
+	cd $src/$PACKAGE-$VERSION
+	./configure --prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -31,5 +30,4 @@ compile_rules()
 genpkg_rules()
 {
 	cp -a $install/* $fs
-	sed -i 's/^Fig\*Font:.*/Fig*Font:\t\t\tfixed/' $fs/etc/X11/app-defaults/Fig
 }
