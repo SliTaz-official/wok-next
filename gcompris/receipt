@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gcompris"
 VERSION="11.12"
@@ -10,10 +10,10 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gcompris.net/"
 WGET_URL="$SF_MIRROR/project/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="pygtk libsdl-mixer librsvg libxml2 gnuchess gnet sqlite \
-libcroco"
 BUILD_DEPENDS="pygtk-dev libsdl-mixer-dev librsvg-dev libxml2-dev gnuchess \
 gnet-dev sqlite-dev libcroco-dev intltool perl perl-texi2html optipng"
+SPLIT="gcompris-music gcompris-voices-de gcompris-voices-en \
+gcompris-voices-fr gcompris-voices"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,12 +29,57 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/gcompris $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/gcompris/*.so* \
-		$fs/usr/lib/gcompris
-	cp -a $install/usr/share/gcompris $fs/usr/share
-	# Music and voices are splited (gcompris-music, gcompris-fr, etc)
-	rm -rf $fs/usr/share/gcompris/boards/music
-	rm -rf $fs/usr/share/gcompris/boards/voices
+	case $PACKAGE in
+	gcompris)
+		DEPENDS="pygtk libsdl-mixer librsvg libxml2 gnuchess gnet \
+			sqlite libcroco"
+		mkdir -p $fs/usr/lib/gcompris $fs/usr/share
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/gcompris/*.so* \
+			$fs/usr/lib/gcompris
+		cp -a $install/usr/share/gcompris $fs/usr/share
+		# Music and voices are splited (gcompris-music, gcompris-fr, etc)
+		rm -rf $fs/usr/share/gcompris/boards/music
+		rm -rf $fs/usr/share/gcompris/boards/voices
+		;;
+	gcompris-music)
+		CAT="games|Gcompris Education games Music."
+		DEPENDS="gcompris"
+		mkdir -p $fs/usr/share/gcompris/boards
+		cp -a $install/usr/share/gcompris/boards/music \
+		$fs/usr/share/gcompris/boards
+		;;
+	gcompris-voices-de)
+		CAT="games|Gcompris Education games - German voices."
+		DEPENDS="gcompris"
+		mkdir -p $fs/usr/share/gcompris/boards/voices
+		cp -a $install/usr/share/gcompris/boards/voices/de \
+			$fs/usr/share/gcompris/boards/voices
+		;;
+	gcompris-voices-en)
+		CAT="games|Gcompris Education games - English voices."
+		DEPENDS="gcompris"
+		mkdir -p $fs/usr/share/gcompris/boards/voices
+		cp -a $install/usr/share/gcompris/boards/voices/en \
+			$fs/usr/share/gcompris/boards/voices
+		;;
+	gcompris-voices-fr)
+		CAT="games|Gcompris Education games - French voices."
+		DEPENDS="gcompris"
+		mkdir -p $fs/usr/share/gcompris/boards/voices
+		cp -a $install/usr/share/gcompris/boards/voices/fr \
+			$fs/usr/share/gcompris/boards/voices
+		;;
+	gcompris-voices)
+		CAT="games|Gcompris Education games voices (All languages)."
+		DEPENDS="gcompris gcompris-voices-fr"
+		mkdir -p $fs/usr/share/gcompris/boards
+		cp -a $install/usr/share/gcompris/boards/voices \
+			$fs/usr/share/gcompris/boards
+		for l in de en fr
+		do
+			rm -rf $fs/usr/share/gcompris/boards/voices/$l
+		done
+		;;
+	esac
 }
