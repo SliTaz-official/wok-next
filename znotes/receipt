@@ -18,6 +18,8 @@ BUILD_DEPENDS="Qt4-dev qmake wget"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's/qtlocalpeer.h.*/&\n#include <unistd.h>/' \
+		single_inst/qtlocalpeer.cpp
 	lrelease znotes.pro
 	qmake
 	make
