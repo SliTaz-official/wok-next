@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cairo-compmgr-core"
 VERSION="0.3.0"
@@ -11,10 +11,11 @@ SOURCE="cairo-compmgr"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="http://download.tuxfamily.org/ccm/$SOURCE/$TARBALL"
 
-DEPENDS="libbfd libcairo-compmgr0"
 BUILD_DEPENDS="xorg-libXcomposite-dev xorg-libXdamage-dev xorg-libXext-dev \
 xorg-libXi-dev xorg-libSM-dev cairo-dev pixman-dev gtk+-dev vala \
 xorg-libICE-dev xorg-libX11-dev util-linux-uuid-dev intltool"
+SPLIT="cairo-compmgr-dev cairo-compmgr-doc cairo-compmgr-plugins \
+cairo-compmgr-vala libcairo-compmgr0 libcairo-compmgr-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -37,17 +38,74 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p \
-		$fs/usr/bin \
-		$fs/usr/share/applications \
-		$fs/usr/share/cairo-compmgr/ui \
-		$fs/usr/share/cairo-compmgr/schemas
-	cp -a $install/usr/bin/cairo-compmgr $fs/usr/bin
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/man $fs/usr/share
-	cp -a $stuff/cairo-compmgr.desktop $fs/usr/share/applications
-	cp -a $install/usr/share/cairo-compmgr/ui/ccm-preferences.ui \
-		$fs/usr/share/cairo-compmgr/ui
-	cp -a $install/usr/share/cairo-compmgr/schemas/ccm-display.schema-key \
-		$fs/usr/share/cairo-compmgr/schemas
+	case $PACKAGE in
+	cairo-compmgr-core)
+		DEPENDS="libbfd libcairo-compmgr0"
+		mkdir -p \
+			$fs/usr/bin \
+			$fs/usr/share/applications \
+			$fs/usr/share/cairo-compmgr/ui \
+			$fs/usr/share/cairo-compmgr/schemas
+		cp -a $install/usr/bin/cairo-compmgr $fs/usr/bin
+		cp -a $install/usr/share/pixmaps $fs/usr/share
+		cp -a $install/usr/share/man $fs/usr/share
+		cp -a $stuff/cairo-compmgr.desktop $fs/usr/share/applications
+		cp -a $install/usr/share/cairo-compmgr/ui/ccm-preferences.ui \
+			$fs/usr/share/cairo-compmgr/ui
+		cp -a $install/usr/share/cairo-compmgr/schemas/ccm-display.schema-key \
+			$fs/usr/share/cairo-compmgr/schemas
+		;;
+	cairo-compmgr-dev)
+		CAT="development|Cairo composite manager - development files"
+		DEPENDS="libcairo-compmgr-dev"
+		GENERIC_PIXMAPS="no"
+		mkdir -p $fs/usr
+		cp -a $install/usr/include $fs/usr
+		;;
+	cairo-compmgr-doc)
+		CAT="development|Cairo composite manager - documentation"
+		DEPENDS="cairo-compmgr"
+		GENERIC_PIXMAPS="no"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/gtk-doc $fs/usr/share
+		;;
+	cairo-compmgr-plugins)
+		CAT="development|Cairo composite manager - plugins"
+		DEPENDS="cairo-compmgr-core"
+		GENERIC_PIXMAPS="no"
+		mkdir -p \
+			$fs/usr/lib/cairo-compmgr \
+			$fs/usr/share/cairo-compmgr
+		cp -a $install/usr/lib/cairo-compmgr/lib*.so $fs/usr/lib/cairo-compmgr
+		cp -a $install/usr/lib/cairo-compmgr/*.plugin $fs/usr/lib/cairo-compmgr
+		cp -a $install/usr/share/cairo-compmgr/schemas \
+			$fs/usr/share/cairo-compmgr
+		# included in cairo-compmgr-core
+		rm -f $fs/usr/share/cairo-compmgr/schemas/ccm-display.schema-key
+		cp -a $install/usr/share/cairo-compmgr/ui $fs/usr/share/cairo-compmgr
+		;;
+	cairo-compmgr-vala)
+		CAT="development|Cairo composite manager - Vala files"
+		DEPENDS="libcairo-compmgr-dev vala"
+		GENERIC_PIXMAPS="no"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/vala $fs/usr/share
+		;;
+	libcairo-compmgr0)
+		CAT="development|Cairo composite manager - library"
+		PROVIDE="libcairo-compmgr"
+		DEPENDS="gtk+ vala xorg-libSM xorg-libXi"
+		GENERIC_PIXMAPS="no"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	libcairo-compmgr-dev)
+		CAT="development|Cairo composite manager - library development files"
+		DEPENDS="libcairo-compmgr0 pkg-config"
+		GENERIC_PIXMAPS="no"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.la $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
