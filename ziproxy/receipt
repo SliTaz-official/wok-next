@@ -17,6 +17,7 @@ BUILD_DEPENDS="giflib-dev jasper-dev jpeg-dev cyrus-sasl-dev zlib-dev libpng-dev
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's/DGifCloseFile(GifFile/&,NULL/;s/input))/input,NULL))/' src/image.c
 	./configure --prefix=/usr --mandir=/usr/share/man \
 		--localstatedir=/var \
 	$CONFIGURE_ARGS &&

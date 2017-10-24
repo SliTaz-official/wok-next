@@ -1,21 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgdiplus"
-VERSION="2.10"
+VERSION="5.4"
 CATEGORY="development"
 SHORT_DESC="Mono library providing a GDI+ compatible API on non-Windows operating systems"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.mono-project.com/Libgdiplus"
-WGET_URL="ftp://ftp.novell.com/pub/mono/sources/$PACKAGE/$TARBALL"
+WGET_URL="https://github.com/mono/libgdiplus/archive/$VERSION.tar.gz"
 
-DEPENDS="glib glibc-base xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXrender cairo expat freetype fontconfig \
-giflib jpeg libpng tiff pixman libexif zlib util-linux-uuid"
 BUILD_DEPENDS="m4 bison pkg-config glib-dev xorg-dev libxml2-dev \
 cairo-dev expat-dev freetype-dev fontconfig-dev giflib giflib-dev jpeg-dev \
-libpng-dev tiff-dev pixman-dev libexif-dev libexif zlib-dev util-linux-uuid-dev"
+libpng-dev tiff-dev pixman-dev libexif-dev libexif zlib-dev \
+util-linux-uuid-dev automake autoconf libtool"
 
 # Build documentation at http://mono-project.com/Compiling_Mono
 # and http://mono-project.com/Release_Notes_Mono_2.4#Installing_Mono_2.4
@@ -23,6 +21,7 @@ libpng-dev tiff-dev pixman-dev libexif-dev libexif zlib-dev util-linux-uuid-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
+	./autogen.sh
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -37,6 +36,21 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	libgdiplus)
+		DEPENDS="glib glibc-base xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXrender cairo expat \
+			freetype fontconfig giflib jpeg libpng tiff pixman \
+			libexif zlib util-linux-uuid"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	libgdiplus-dev)
+		CAT="development|libgdiplus development files."
+		DEPENDS="libgdiplus pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
