@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
-PACKAGE="zenity"
+PACKAGE="zenity+webkit2"
 VERSION="3.24.0"
 CATEGORY="x-window"
-SHORT_DESC="Display GTK+3 dialogs"
+SHORT_DESC="Display GTK+3 dialogs (with web engine WebKit2GTK)"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2"
 WEB_SITE="https://wiki.gnome.org/Projects/Zenity"
@@ -11,9 +11,10 @@ WEB_SITE="https://wiki.gnome.org/Projects/Zenity"
 TARBALL="zenity-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/zenity/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk+3-dev glib-dev libnotify-gtk3-dev gettext itstool"
-SPLIT="zenity-gnome zenity"
-SIBLINGS="zenity+webkit2"
+BUILD_DEPENDS="gtk+3-dev glib-dev libnotify-gtk3-dev webkit2gtk-dev gettext \
+itstool"
+SPLIT="zenity+webkit2-gnome zenity+webkit2"
+SIBLINGS="zenity"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
@@ -25,11 +26,12 @@ genpkg_rules() {
 			copy help/
 			CAT="gnome|GNOME integration"
 			;;
-		zenity)
+		zenity+webkit2)
 			copy @std
 			remove_already_packed
-			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libnotify-gtk3 pango \
-			xorg-libX11"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libnotify-gtk3 libsoup \
+			pango webkit2gtk xorg-libX11"
+			PROVIDE="webkit2gtk:zenity"
 			TAGS="dialogs"
 			;;
 	esac

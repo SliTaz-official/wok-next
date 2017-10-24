@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="zenity-gtk2"
+VERSION="2.32.1" # GTK+2 was deprecated in newer versions of zenity
+CATEGORY="development"
+SHORT_DESC="gui dialogs"
+MAINTAINER="allan316@gmail.com"
+LICENSE="LGPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/Zenity"
+
+TARBALL="zenity-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/zenity/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="gnome-doc-utils-dev intltool gtk+-dev" # + libnotify-dev -> crash on build. FIXME
+
+compile_rules() {
+	./configure \
+		--disable-scrollkeeper \
+		$CONFIGURE_ARGS &&
+	make && make install
+}
+
+genpkg_rules() {
+	copy @std
+	rm -r $fs/usr/share/gnome/ $fs/usr/share/omf/ # GNOME stuff. Just remove it
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango \
+	xorg-libX11"
+	TAGS="dialogs gui"
+}
