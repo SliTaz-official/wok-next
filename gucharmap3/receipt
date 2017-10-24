@@ -1,47 +1,60 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gucharmap3"
-VERSION="3.18.2"
+VERSION="10.0.0"
 CATEGORY="utilities"
-SHORT_DESC="GNOME Character Map (GTK+3)"
+SHORT_DESC="GNOME Character Map for GTK+3"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Gucharmap"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/gucharmap.html"
+
 TARBALL="gucharmap-$VERSION.tar.xz"
-WEB_SITE="https://wiki.gnome.org/action/show/Apps/Gucharmap"
 WGET_URL="$GNOME_MIRROR/gucharmap/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+3 xorg-libXdamage"
-BUILD_DEPENDS="automake gtk-doc libtool  itstool libxml2-tools glib-dev \
-gtk+3-dev desktop-file-utils-extra gobject-introspection-dev vala"
-SPLIT="gucharmap3-i18n"
+BUILD_DEPENDS="gtk-doc automake gettext libtool gobject-introspection-dev \
+intltool yelp-tools itstool gtk+3-dev desktop-file-utils-extra wget \
+coreutils-file-summarize unzip vala"
+SPLIT="gucharmap3-i18n gucharmap-gnome gucharmap3 gucharmap3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Idea is to have two nonintersecting packages:
-	# gucharmap (for GTK+2) and gucharmap3 (for GTK+3)
-	sed -i '/AC_INIT/s|gucharmap|&3|3; s|GETTEXT_PACKAGE=.*$|&3|' \
-		$src/configure.ac
-	# Disable stuff we never had
-	sed -i '/GNOME_DEBUG_CHECK/d; /YELP/d' $src/configure.ac
-	sed -i '/YELP/d' $src/help/Makefile.am
-
-	./autogen.sh --program-suffix=3
-	make && make install
+compile_rules() {
+	./autogen.sh \
+		--enable-vala \
+		--with-unicode-data=download \
+		--program-suffix=3 &&
+	make && make install || return 1
 
 	find $install/usr/bin -type l -delete
-	mv  $install/usr/share/applications/gucharmap.desktop \
-		$install/usr/share/applications/gucharmap3.desktop
-	sed -i 's|Exec=gucharmap|&3|' \
-		$install/usr/share/applications/gucharmap3.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/glib-2.0 $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		*-i18n)
+			copy *.mo
+			CAT="localization|language files"
+			;;
+		*-gnome)
+			copy help/ metainfo/
+			CAT="gnome|GNOME integration"
+			;;
+		gucharmap3)
+			copy @std
+			remove_already_packed
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

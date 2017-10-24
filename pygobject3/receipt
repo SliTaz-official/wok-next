@@ -1,31 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pygobject3"
-SOURCE="pygobject"
-VERSION="3.18.2"
+VERSION="3.26.0"
 CATEGORY="development"
-SHORT_DESC="Python bindings for the GObject3 library"
+SHORT_DESC="Python Bindings for GLib/GObject/GIO/GTK+"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.xz"
-WEB_SITE="http://live.gnome.org/PyGObject"
-WGET_URL="$GNOME_MIRROR/$SOURCE/${VERSION%.*}/$TARBALL"
+WEB_SITE="https://wiki.gnome.org/Projects/PyGObject"
 
-PROVIDE="python-gi"
-DEPENDS="python pycairo glib libffi gtk-girepository"
-BUILD_DEPENDS="$DEPENDS python python-dev pkg-config glib-dev \
-pycairo-dev cairo-dev libffi-dev gobject-introspection-dev"
+TARBALL="pygobject-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/pygobject/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="automake glib-dev libtool python-dev gobject-introspection-dev \
+cairo-dev pycairo-dev"
+SPLIT="pygobject3-dev"
+
+compile_rules() {
+	NOCONFIGURE=1 ./autogen.sh &&
 	./configure $CONFIGURE_ARGS > /dev/null 2>&1 # create ./libtool
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	sed -i 's| -shared | -Wl,-O1,--as-needed\0|g' libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	case $PACKAGE in
+		pygobject3)
+			copy @std
+			DEPENDS="cairo glib gobject-introspection libffi python"
+			PROVIDE="python-gi"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pygobject3 bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev glib-dev gobject-introspection-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

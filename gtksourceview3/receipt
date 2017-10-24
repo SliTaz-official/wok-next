@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gtksourceview3"
+VERSION="3.24.3"
+CATEGORY="x-window"
+SHORT_DESC="Extends GTK+3 framework for multiline text editing"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/GtkSourceView"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/gtksourceview.html"
+
+TARBALL="gtksourceview-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/gtksourceview/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev itstool gtk+3-dev libxml2-dev gettext gtk-doc vala"
+SPLIT="gtksourceview3-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		gtksourceview3)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gtksourceview3 atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+}

@@ -1,0 +1,64 @@
+Idea is to have two nonintersecting SliTaz packages:
+gucharmap (for GTK+2) and gucharmap3 (for GTK+3)
+Author: Aleksej Bobylev <al.bobylev@gmail.com>
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -36,7 +36,7 @@
+ 
+ AC_PREREQ([2.56])
+ 
+-AC_INIT([GNOME Character Map],[gucharmap_version],[http://bugzilla.gnome.org/enter_bug.cgi?product=gucharmap],[gucharmap])
++AC_INIT([GNOME Character Map],[gucharmap_version],[http://bugzilla.gnome.org/enter_bug.cgi?product=gucharmap],[gucharmap3])
+ 
+ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_SRCDIR([gucharmap/gucharmap.h.in])
+@@ -48,7 +48,7 @@
+ 
+ # checks for progs
+ 
+-GNOME_DEBUG_CHECK
++#GNOME_DEBUG_CHECK
+ 
+ AC_PROG_CC
+ AC_DISABLE_STATIC
+@@ -222,7 +222,7 @@
+ # i18n
+ # ****
+ 
+-GETTEXT_PACKAGE=gucharmap
++GETTEXT_PACKAGE=gucharmap3
+ AC_SUBST([GETTEXT_PACKAGE])
+ AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE],["$GETTEXT_PACKAGE"],[The gucharmap gettext domain])
+ AM_GLIB_GNU_GETTEXT
+@@ -319,7 +319,7 @@
+ 
+ AC_CONFIG_FILES([
+ Makefile
+-gucharmap.desktop.in
++gucharmap3.desktop.in
+ gucharmap.nsi
+ gucharmap.spec
+ data/Makefile
+--- /dev/null
++++ b/gucharmap3.desktop.in.in
+@@ -0,0 +1,8 @@
++[Desktop Entry]
++Type=Application
++_Name=Character Map
++_Comment=Insert special characters into documents
++StartupNotify=true
++Exec=gucharmap3
++Icon=accessories-character-map
++Categories=GNOME;GTK;Utility;
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -14,7 +14,7 @@
+ distcleancheck_listfiles = find . -type -f print | grep -v 'omf\.out'
+ 
+ desktopdir = $(datadir)/applications
+-desktop_in_files = gucharmap.desktop.in.in
++desktop_in_files = gucharmap3.desktop.in.in
+ desktop_DATA 	 = $(desktop_in_files:.desktop.in.in=.desktop)
+ 
+ pkgconfigdir = $(libdir)/pkgconfig
