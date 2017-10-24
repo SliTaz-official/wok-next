@@ -12,9 +12,8 @@ WEB_SITE_2="https://github.com/annulen/webkit/"
 WGET_URL="${WEB_SITE_2}releases/download/${TARBALL/.tar*/}/$TARBALL"
 
 PROVIDE="libQtWebkit"
-CONFIG_FILES="/etc/fonts/conf.d/10-QtWebkit-monospace.conf"
 
-DEPENDS="qt5 sqlite gstreamer1 gst1-plugins-base"
+DEPENDS="qt5 sqlite gstreamer1 gst1-plugins-base hyphen libxslt"
 BUILD_DEPENDS="qt5-dev cmake bison flex gperf ruby-dev xorg-dev mesa17-dev \
 freetype-dev fontconfig-dev sqlite-dev libpng-dev libjpeg-turbo-dev icu-dev \
 glib-dev zlib-dev libxslt-python libxslt-dev gstreamer1-dev \
@@ -22,38 +21,40 @@ gst1-plugins-base-dev hyphen-dev "
 
 compile_rules()
 {
-#	sed 's|FixedFont, default.*$|FixedFont, QLatin1String("monospace"));|' -i \
-#		$src/Source/WebKit/qt/Api/qwebsettings.cpp
 	mkdir -p WebKitBuild/Release
 	cd WebKitBuild/Release
-        export CFLAGS=${CFLAGS/486/686}
-	export CXXFLAGS=${CXXFLAGS/486/686}
-	#QTDIR=/usr
+        export CFLAGS=${CFLAGS/486 -Os/686 -O2}
+	export CXXFLAGS=${CXXFLAGS/486 -Os/686 -O2}
 	QMAKE_CFLAGS=$CFLAGS QMAKE_CXXFLAGS=$CXXFLAGS \
 	cmake	-DPORT=Qt \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DENABLE_ALLINONE_BUILD=OFF \
 		-DENABLE_JIT=OFF \
-		-DENABLE_YARR_JIT=0 \
-		-DENABLE_ASSEMBLER=0 \
+		-DENABLE_DFG_JIT=OFF \
+		-DENABLE_FTL_JIT=OFF \
+		-DENABLE_OPENGL=OFF \
+		-DENABLE_GAMEPAD_DEPRECATED=OFF \
+		-DENABLE_GEOLOCATION=OFF \
 		-DENABLE_SMOOTH_SCROLLING=1 \
 	../..
-	make
-	make install
-#	make INSTALL_ROOT=$DESTDIR -C WebKitBuild/Release install
+	make && make install
 }
 
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/bin $fs/etc/fonts/conf.d
-	cat > $fs/etc/fonts/conf.d/10-QtWebkit-monospace.conf <<EOT
-<fontconfig><alias>
- <family>monospace</family>
-  <prefer>
-	<family>DejaVu Sans Mono</family>
-  </prefer>
-</alias></fontconfig>
+# qtwebkit
+	mkdir -p $fs/usr/lib $fs/usr/bin $fs/usr/share/applications
+#	cp -a $src/WebKitBuild/Release/bin/QtTestBrowser $fs/usr/bin
+#	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	cat > $fs/usr/share/applications/QtTestBrowser.desktop <<EOT
+[Desktop Entry]
+Type=Application
+Name=QtTestBrowser
+Exec=QtTestBrowser
+Categories=Network;WebBrowser;
 EOT
-	cp -a $src/WebKitBuild/Release/bin/Qt* $fs/usr/bin
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+
+
+# qtwebkit + qtwebkit-dev:
+	cp -a $install/* $fs
+
 }
