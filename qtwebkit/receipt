@@ -22,21 +22,25 @@ gst1-plugins-base-dev hyphen-dev "
 
 compile_rules()
 {
-	sed 's|FixedFont, default.*$|FixedFont, QLatin1String("monospace"));|' -i \
-		$src/Source/WebKit/qt/Api/qwebsettings.cpp
-	QTDIR=/usr QMAKE_CXXFLAGS=$CFLAGS \
-	Tools/Scripts/build-webkit \
-		--qt \
-		--makeargs=$MAKEFLAGS \
-		--prefix=/usr \
-		--no-webkit2 \
-		--no-force-sse2 \
-		DEFINES+=ENABLE_JIT=0 \
-		DEFINES+=ENABLE_YARR_JIT=0 \
-		DEFINES+=ENABLE_ASSEMBLER=0 \
-		DEFINES+=ENABLE_SMOOTH_SCROLLING=1
-	make INSTALL_ROOT=$DESTDIR -C WebKitBuild/Release install
-
+#	sed 's|FixedFont, default.*$|FixedFont, QLatin1String("monospace"));|' -i \
+#		$src/Source/WebKit/qt/Api/qwebsettings.cpp
+	mkdir -p WebKitBuild/Release
+	cd WebKitBuild/Release
+        export CFLAGS=${CFLAGS/486/686}
+	export CXXFLAGS=${CXXFLAGS/486/686}
+	#QTDIR=/usr
+	QMAKE_CFLAGS=$CFLAGS QMAKE_CXXFLAGS=$CXXFLAGS \
+	cmake	-DPORT=Qt \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_ALLINONE_BUILD=OFF \
+		-DENABLE_JIT=OFF \
+		-DENABLE_YARR_JIT=0 \
+		-DENABLE_ASSEMBLER=0 \
+		-DENABLE_SMOOTH_SCROLLING=1 \
+	../..
+	make
+	make install
+#	make INSTALL_ROOT=$DESTDIR -C WebKitBuild/Release install
 }
 
 genpkg_rules()
