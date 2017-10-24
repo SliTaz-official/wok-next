@@ -13,7 +13,7 @@ WGET_URL="${WEB_SITE_2}releases/download/${TARBALL/.tar*/}/$TARBALL"
 
 PROVIDE="libQtWebkit"
 
-DEPENDS="qt5 sqlite gstreamer1 gst1-plugins-base hyphen libxslt"
+DEPENDS="qt5 sqlite hyphen libxslt" # gstreamer1 gst1-plugins-base 
 BUILD_DEPENDS="qt5-dev cmake bison flex gperf ruby-dev xorg-dev mesa17-dev \
 freetype-dev fontconfig-dev sqlite-dev libpng-dev libjpeg-turbo-dev icu-dev \
 glib-dev zlib-dev libxslt-python libxslt-dev gstreamer1-dev \
@@ -28,6 +28,8 @@ compile_rules()
 	QMAKE_CFLAGS=$CFLAGS QMAKE_CXXFLAGS=$CXXFLAGS \
 	cmake	-DPORT=Qt \
 		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_API_TESTS=OFF \
+		-DENABLE_WEBKIT2=OFF \
 		-DENABLE_JIT=OFF \
 		-DENABLE_DFG_JIT=OFF \
 		-DENABLE_FTL_JIT=OFF \
@@ -35,6 +37,11 @@ compile_rules()
 		-DENABLE_GAMEPAD_DEPRECATED=OFF \
 		-DENABLE_GEOLOCATION=OFF \
 		-DENABLE_SMOOTH_SCROLLING=1 \
+		-DENABLE_WEB_AUDIO=OFF \
+		-DENABLE_LEGACY_WEB_AUDIO=OFF \
+		-DENABLE_DEVICE_ORIENTATION=OFF \
+		-DENABLE_MEDIA_SOURCE=OFF \
+		-DUSE_GSTREAMER=OFF \
 	../..
 	make && make install
 }
