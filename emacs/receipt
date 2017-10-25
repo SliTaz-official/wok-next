@@ -200,14 +200,15 @@ images/smilies/medium images/tree-widget/default images/tree-widget/folder"
 		DEPENDS="emacs"
 		# lisp files
 		echo -n "Copying sources"
-		( cd $install/usr/share/$PACKAGE/$VERSION/etc/lisp
+		mkdir -p $fs/usr/share/emacs/$VERSION/etc/lisp
+		( cd $install/usr/share/emacs/$VERSION/etc/lisp
 		  find -type f -name '*.el.gz' | cpio -o -H newc ) |
-		( cd $fs/usr/share/$PACKAGE/$VERSION/etc/list ; cpio -id )
+		( cd $fs/usr/share/emacs/$VERSION/etc/lisp ; cpio -id )
 		# refcards
 		echo -n "Copying refcards sources"
-		mkdir -p $fs/usr/share/$WANTED/$VERSION/etc/refcards
-		cp -a $install/usr/share/$WANTED/$VERSION/etc/refcards/*tex \
-			$fs/usr/share/$WANTED/$VERSION/etc/refcards
+		mkdir -p $fs/usr/share/emacs/$VERSION/etc/refcards
+		cp -a $install/usr/share/emacs/$VERSION/etc/refcards/*tex \
+			$fs/usr/share/emacs/$VERSION/etc/refcards
 		status
 		# Doc
 		echo -n "Copying doc files"
