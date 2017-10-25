@@ -1,10 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gst1-plugins-good"
 VERSION="1.10.1"
-SERIES="1.0"
 CATEGORY="multimedia"
-SHORT_DESC="GStreamer Base Plugins"
+SHORT_DESC="GStreamer good Plugins"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
 SOURCE="gst-plugins-good"
@@ -12,7 +11,6 @@ TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="http://gstreamer.freedesktop.org/"
 WGET_URL="${WEB_SITE}src/$SOURCE/$TARBALL"
 
-DEPENDS="gstreamer1 pango alsa-lib mpg123 jpeg"
 BUILD_DEPENDS="gstreamer1-dev gst1-plugins-base-dev mpg123-dev jpeg-dev"
 
 # Rules to configure and make the package.
@@ -34,6 +32,15 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/gstreamer-$SERIES $fs/usr/share/locale
-	mv $install/usr/lib/gstreamer-$SERIES/*.so* $fs/usr/lib/gstreamer-$SERIES
+case $PACKAGE in
+		gst1-plugins-good) copy @std
+			DEPENDS="gstreamer1 gst1-plugins-base pango alsa-lib \
+			mpg123 jpeg"
+		;;
+		*-dev) copy @dev
+			DEPENDS="gstreamer-dev gst1-plugins-base-dev  \
+			gst1-plugins-base gstreamer  gst1-plugins-good \
+			mpg123-dev jpeg-dev "
+		;;
+esac
 }
