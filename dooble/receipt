@@ -16,10 +16,10 @@ BUILD_DEPENDS="wget cacerts qt5-dev qmake libgcrypt-dev sqlite-dev qtwebkit"
 # Rules to configure and make the package.
 compile_rules()
 {
-	srcdir="$src/trunk/browser" ; cd $srcdir
+	srcdir="$src/Version 1.x" ; cd $srcdir
 	find . -regex '.*\(win32\|osx64\|icns\).*' -exec ls -l {} \; -delete
 	sed -i 's|local/dooble/do|bin/do|g' dooble.desktop
-	qmake PREFIX="/usr/" $PACKAGE.pro
+	qmake PREFIX="/usr/" ${PACKAGE}.qt5.pro
 	make && make INSTALL_ROOT=$install install
 	rm -rf $install/usr/local/$PACKAGE/D${PACKAGE:1}
 	mkdir -p $install/usr/share $install/usr/bin $install/usr/lib
