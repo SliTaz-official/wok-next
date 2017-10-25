@@ -6,20 +6,20 @@ CATEGORY="editors"
 SHORT_DESC="The GNU Emacs editor"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gnu.org/software/emacs/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="atk-dev cairo-dev expat-dev dbus-dev freetype-dev \
 fontconfig-dev glib-dev gnutls-dev gtk+-dev jpeg-dev \
-libpng-dev librsvg-dev ncurses-dev pango-dev pkg-config tiff-dev xorg-dev \
+libpng16-dev librsvg-dev ncurses-dev pango-dev pkg-config tiff-dev xorg-dev \
 xorg-dev-proto" # giflib-dev: version 4 needed, add --with-gif=no)
-SPLIT="emacs-help emacs-lisp-sources"
+SPLIT="emacs-help emacs-lisp-sources emacs"
 
 # Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS \
+compile_rules() {
+	./configure \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		--without-makeinfo \
@@ -32,206 +32,63 @@ compile_rules()
 		--libexecdir=/usr/lib \
 		--localstatedir=/var/lib \
 		--sharedstatedir=/var/lib \
-		--prefix=/usr && \
-	make $MAKEFLAGS && \
-	make DESTDIR=$DESTDIR install
+		$CONFIGURE_ARGS &&
+	make $MAKEFLAGS &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	# Install specific site file
+	mkdir -p                   $install/usr/share/emacs/site-lisp/site-start.d
+	cp -a $stuff/default.el \
+	      $stuff/site-start.el $install/usr/share/emacs/site-lisp/
+	cp -a $stuff/90-slitaz.el  $install/usr/share/emacs/site-lisp/site-start.d
+
+	# Use default site-lisp
+	ln -s ../site-lisp $install/usr/share/emacs/$VERSION/site-lisp
+
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	emacs)
-		SUGGESTED="alsa-lib"
-		TAGS="text-editor"
-		DEPENDS="atk cairo dbus expat freetype fontconfig giflib glib \
+		emacs-help)
+			copy \
+				info/ \
+				tutorials/ \
+				refcards/*.pdf \
+				etc/[A-Z]* \
+				etc/*.txt
+			DEPENDS="emacs"
+			CAT="development|help files"
+			;;
+		emacs-lisp-sources)
+			copy \
+				*.el.gz \
+				refcards/*.tex
+			DEPENDS="emacs"
+			CAT="development|Lisp source files"
+			;;
+		emacs)
+			copy @std @dev
+			remove_already_packed
+			strip -s $fs/usr/lib/emacs/$VERSION/i486-pc-linux-gnu/* 2>/dev/null
+			DEPENDS="atk cairo dbus expat freetype fontconfig giflib glib \
 			gnutls gtk+ jpeg libpng librsvg util-linux-uuid \
 			ncurses pango tiff xorg-server zlib librsvg libgsf \
 			libgnutls harfbuzz"
-		# Binary files
-		BIN_FILES="ctags ebrowse emacs-$VERSION emacsclient etags"
-		echo -n "Copying emacs binary files"
-		mkdir -p $fs/usr/bin && \
-		for file in $BIN_FILES; do
-			cp -a $install/usr/bin/$file $fs/usr/bin
-		done
-		status
-		# Lib files
-		echo -n "Copying emacs lib files"
-		cp -a $install/usr/lib $fs/usr
-		status
-		strip -s $fs/usr/lib/$PACKAGE/$VERSION/i486-pc-linux-gnu/* 2> /dev/null
-		# lisp files
-		LISP_DIR="lisp lisp/calc lisp/calendar lisp/cedet lisp/cedet/ede \
-lisp/cedet/semantic lisp/cedet/semantic/analyze lisp/cedet/semantic/bovine \
-lisp/cedet/semantic/decorate lisp/cedet/semantic/symref lisp/cedet/srecode \
-lisp/cedet/semantic/wisent lisp/emacs-lisp lisp/emulation lisp/erc lisp/eshell \
-lisp/gnus lisp/international lisp/language lisp/mail lisp/mh-e lisp/net \
-lisp/nxml lisp/obsolete lisp/org lisp/play lisp/progmodes lisp/textmodes \
-lisp/url lisp/vc"
-		for dir in $LISP_DIR; do
-			echo -n "Copying $dir files"
-			mkdir -p $fs/usr/share/$PACKAGE/$VERSION/$dir && \
-			cp -a $install/usr/share/$PACKAGE/$VERSION/$dir/*.elc \
-				$fs/usr/share/$PACKAGE/$VERSION/$dir
-			if [ $(ls $install/usr/share/$PACKAGE/$VERSION/$dir/ | \
-					grep -c \.el$) -gt 0 ]; then
-				cp -a $install/usr/share/$PACKAGE/$VERSION/$dir/*.el \
-					$fs/usr/share/$PACKAGE/$VERSION/$dir
-			fi
-			for file in COPYING README TODO; do
-				if [ -e $install/usr/share/$PACKAGE/$VERSION/$dir/$file ]; then
-					cp -a $install/usr/share/$PACKAGE/$VERSION/$dir/$file \
-						$fs/usr/share/$PACKAGE/$VERSION/$dir
-				fi
-			done
-			status
-		done
-		# Use linux term only
-		LINUX_TERM="README linux.e* rxvt.elc tty-colors.elc vt100.elc xterm.elc"
-		echo -n "Copying lisp/term files (linux only)"
-		mkdir -p $fs/usr/share/$PACKAGE/$VERSION/lisp/term && \
-		for file in $LINUX_TERM; do
-			cp -a $install/usr/share/$PACKAGE/$VERSION/lisp/term/$file \
-				$fs/usr/share/$PACKAGE/$VERSION/lisp/term
-		done
-		status
-		LEIM_FILES="leim/ja-dic leim/quail"
-		for dir in $LEIM_FILES; do
-			echo -n "Copying $dir files"
-			mkdir -p $fs/usr/share/$PACKAGE/$VERSION/lisp/$dir && \
-			cp -a $install/usr/share/$PACKAGE/$VERSION/lisp/$dir/*.elc \
-				$fs/usr/share/$PACKAGE/$VERSION/lisp/$dir && \
-			status
-		done
-		# Conf files
-		echo -n "Copying conf files"
-		CONF_FILES="ETAGS.README charsets e enriched.txt edt-user.el forms \
-emacs-buffer.gdb gnus nxml org schema srecode ps-prin0.ps \
-ps-prin1.ps ses-example.ses spook.lines themes yow.lines"
-		mkdir -p $fs/usr/share/$PACKAGE/$VERSION/etc && \
-		for file in $CONF_FILES; do
-			cp -a $install/usr/share/$PACKAGE/$VERSION/etc/$file \
-				$fs/usr/share/$PACKAGE/$VERSION/etc
-		done
-		status
-		# Pixmaps files
-		XPM_DIR="images images/custom images/ezimage images/gnus images/gud \
-images/icons/allout-widgets/*-bg images/low-color images/mail images/mpc \
-images/newsticker images/smilies images/smilies/grayscale \
-images/smilies/medium images/tree-widget/default images/tree-widget/folder"
-		for dir in $XPM_DIR; do
-			echo -n "Copying $dir xpm files"
-			mkdir -p $fs/usr/share/$PACKAGE/$VERSION/etc/$dir && \
-			cp -a $install/usr/share/$PACKAGE/$VERSION/etc/$dir/*.xpm \
-				$fs/usr/share/$PACKAGE/$VERSION/etc/$dir && \
-			for file in COPYING README TODO; do
-				if [ -e $install/usr/share/$PACKAGE/$VERSION/$dir/$file ]; then
-					cp -a $install/usr/share/$PACKAGE/$VERSION/$dir/$file \
-						$fs/usr/share/$PACKAGE/$VERSION/$dir
-				fi
-			done
-			status
-		done
-		echo -n "Copying png files"
-		( cd $install/usr/share/$PACKAGE/$VERSION/etc
-		  find -type f -name '*.png' | cpio -o -H newc ) |
-		( cd $fs/usr/share/$PACKAGE/$VERSION/etc ; cpio -id )
-		status
-		# Licence
-		GNU_FILES="AUTHORS CENSORSHIP COPYING DISTRIB FTP GNU ORDERS README"
-		echo -n "Copying License files"
-		for file in $GNU_FILES; do
-			cp -a $install/usr/share/$PACKAGE/$VERSION/etc/$file \
-				$fs/usr/share/$PACKAGE/$VERSION/etc
-		done
-		status
-		# Install specific site file
-		echo -n "Installing specific SliTaz file"
-		cp -a $install/usr/share/$PACKAGE/$VERSION/site-lisp \
-			$fs/usr/share/$PACKAGE && \
-		mkdir -p $fs/usr/share/$PACKAGE/site-lisp/site-start.d && \
-		cp -a $stuff/default.el $stuff/site-start.el \
-			$fs/usr/share/$PACKAGE/site-lisp && \
-		cp -a $stuff/90-slitaz.el \
-			$fs/usr/share/$PACKAGE/site-lisp/site-start.d && \
-		status
-		# Install desktop files for emacs
-		echo -n "Installing emacs menu"
-		mkdir -p $fs/usr/share/pixmaps $fs/usr/share/applications && \
-		cp -a $install/usr/share/applications $fs/usr/share/ && \
-		cp -a $install/usr/share/icons/hicolor/32x32/apps/emacs.png \
-			$fs/usr/share/pixmaps
-		status
-		# Use default site-lisp
-		cd $fs/usr/share/$PACKAGE/$VERSION
-		ln -s ../site-lisp site-lisp
-		;;
-	emacs-help)
-		CAT="development|The GNU Emacs editor - Help files"
-		DEPENDS="emacs"
-		# Help files
-		echo -n "Copying info files"
-		mkdir -p $fs/usr/share/info && \
-		cp -a $install/usr/share/info/* $fs/usr/share/info && \
-		status
-		# Tutorial
-		echo -n "Copying tutorial files"
-		mkdir -p $fs/usr/share/emacs/$VERSION/etc && \
-		cp -a $install/usr/share/emacs/$VERSION/etc/tutorials \
-			$fs/usr/share/emacs/$VERSION/etc
-		status
-		# refcards
-		echo -n "Copying refcards"
-		mkdir -p $fs/usr/share/emacs/$VERSION/etc/refcards && \
-		cp -a  $install/usr/share/emacs/$VERSION/etc/refcards/*pdf \
-			$fs/usr/share/emacs/$VERSION/etc/refcards
-		status
-		# Doc
-		echo -n "Copying doc files"
-		cp -a $install/usr/share/emacs/$VERSION/etc/[A-Z]* \
-			$fs/usr/share/emacs/$VERSION/etc
-		cp -a $install/usr/share/emacs/$VERSION/etc/*.txt \
-			$fs/usr/share/emacs/$VERSION/etc
-		status
-		;;
-	emacs-lisp-sources)
-		CAT="development|The GNU Emacs editor - Lisp source files"
-		DEPENDS="emacs"
-		# lisp files
-		echo -n "Copying sources"
-		mkdir -p $fs/usr/share/emacs/$VERSION/etc/lisp
-		( cd $install/usr/share/emacs/$VERSION/etc/lisp
-		  find -type f -name '*.el.gz' | cpio -o -H newc ) |
-		( cd $fs/usr/share/emacs/$VERSION/etc/lisp ; cpio -id )
-		# refcards
-		echo -n "Copying refcards sources"
-		mkdir -p $fs/usr/share/emacs/$VERSION/etc/refcards
-		cp -a $install/usr/share/emacs/$VERSION/etc/refcards/*tex \
-			$fs/usr/share/emacs/$VERSION/etc/refcards
-		status
-		# Doc
-		echo -n "Copying doc files"
-		DOC_FILES="DEBUG MACHINES TODO"
-		for file in $DOC_FILES; do
-			cp -a $install/usr/share/emacs/$VERSION/etc/$file \
-				$fs/usr/share/emacs/$VERSION/etc
-		done
-		status
+			SUGGESTED="alsa-lib"
+			TAGS="text-editor"
 		;;
 	esac
 }
 
-post_install_emacs()
-{
-	# linking /usr/bin/emacs to new version
-	[ -h "$1/usr/bin/emacs" ] && rm -f "$1/usr/bin/emacs"
-	ln -s /usr/bin/emacs-$VERSION "$1/usr/bin/emacs"
+# linking /usr/bin/emacs to new version
+post_install_emacs() {
+	ln -sf /usr/bin/emacs-$VERSION "$1/usr/bin/emacs"
 }
 
-post_remove_emacs()
-{
+post_remove_emacs() {
 	rm -rf "$1/usr/share/emacs"
 	rm -rf "$1/usr/lib/emacs"
-	rm -f "$1/usr/bin/emacs"
+	rm -f  "$1/usr/bin/emacs"
 }
