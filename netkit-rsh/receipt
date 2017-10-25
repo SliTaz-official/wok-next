@@ -16,6 +16,9 @@ BUILD_DEPENDS="ncurses-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i	-e 's/union wait/int/' \
+		-e 's/status.w_termsig | status.w_retcode/WTERMSIG(status)/' \
+			rlogin/rlogin.c
 	sed -i 's|/man|/share&|' configure
 	mkdir -p $DESTDIR/usr/bin $DESTDIR/usr/sbin \
 		 $DESTDIR/usr/share/man/man1 $DESTDIR/usr/share/man/man8
