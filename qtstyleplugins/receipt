@@ -1,0 +1,26 @@
+# SliTaz package receipt.
+
+PACKAGE="qtstyleplugins"
+VERSION="335dbec"
+CATEGORY="customization"
+SHORT_DESC="qt5 style plugins"
+MAINTAINER="psychomaniak@xakep.ru"
+LICENSE="GPL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="https://github.com/qt/qtstyleplugins/"
+WGET_URL="${WEB_SITE}releases/download/${TARBALL/*-}"
+
+DEPENDS="qt5-base"
+BUILD_DEPENDS="qt5-dev cmake bison flex gperf ruby-dev xorg-dev mesa17-dev \
+freetype-dev fontconfig-dev sqlite-dev libpng-dev libjpeg-turbo-dev icu-dev \
+glib-dev zlib-dev libxslt-python libxslt-dev"
+
+compile_rules()
+{
+	cd src ; qmake ; make ; make install
+}
+
+genpkg_rules()
+{
+	cp -a $install/* $fs
+}
