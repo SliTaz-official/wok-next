@@ -12,6 +12,9 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/qt5.html"
 TARBALL="qt-everywhere-opensource-src-$VERSION.tar.xz"
 WGET_URL="https://download.qt.io/archive/qt/${VERSION%.*}/$VERSION/single/$TARBALL"
 
+PATCH="Do-not-make-lack-of-SSE2-support-on-x86-32-fatal.patch"
+PATCH_URL="https://anonscm.debian.org/cgit/pkg-kde/qt/qtdeclarative.git/plain/debian/patches/"
+
 BUILD_DEPENDS="dbus-dev eudev-dev zlib-dev glib-dev icu-dev pcre-dev \
 openssl-dev sqlite3-dev xorg-libxcb-dev mesa17-dev freetype-dev fontconfig-dev \
 libinput-dev harfbuzz-dev libjpeg-turbo-dev libpng16-dev tslib-dev \
@@ -59,6 +62,13 @@ compile_rules() {
 
 	echo "INCLUDEPATH += /usr/include/openssl-1.0" >> qtbase/src/network/network.pro
 	export OPENSSL_LIBS='-L/usr/lib/openssl-1.0 -lssl -lcrypto'
+
+	[ -s $SOURCES_REPOSITORY/$PATCH ] || \
+		wget -O $SOURCES_REPOSITORY/$PATCH ${PATCH_URL}$PATCH
+	cd $src/qtdeclarative
+	cp $SOURCES_REPOSITORY/$PATCH ./$PATCH
+	patch -p1 -i $PATCH
+	cd ..
 
 	./configure \
 		-prefix $QT5PREFIX \
