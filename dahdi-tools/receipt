@@ -13,6 +13,7 @@ CONFIG_FILES="/etc/dahdi/"
 
 DEPENDS="libusb-compat newt libpri dahdi-perl"
 BUILD_DEPENDS="dahdi-linux-dev ppp-dev newt-dev libpri-dev gtk+-dev file"
+SPLIT="dahdi-tools dahdi-dev dahdi-man dahdi-perl dahdi-ppp"
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 compile_rules()
@@ -33,9 +34,39 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc $fs/usr/lib $fs/usr/share
-	cp -a $install/etc/dahdi $fs/etc
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/lib*.so* $fs/usr/lib
-	cp -a $install/usr/share/dahdi $fs/usr/share
+	case $PACKAGE in
+	dahdi-tools)
+		mkdir -p $fs/etc $fs/usr/lib $fs/usr/share
+		cp -a $install/etc/dahdi $fs/etc
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/lib*.so* $fs/usr/lib
+		cp -a $install/usr/share/dahdi $fs/usr/share
+		;;
+	dahdi-dev)
+		CAT="development|Digium Asterisk Hardware Device Interface development files."
+		PROVIDE="zaptel-dev"
+		DEPENDS="dahdi-linux-dev"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/lib*.a $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	dahdi-man)
+		CAT="network|Digium Asterisk Hardware Device Interface man pages."
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/man $fs/usr/share
+		;;
+	dahdi-perl)
+		CAT="development|Digium Asterisk Hardware Device Interface PERL modules."
+		PROVIDE="zaptel-perl"
+		DEPENDS="perl"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/perl* $fs/usr/lib
+		;;
+	dahdi-ppp)
+		CAT="network|Digium Asterisk Hardware Device Interface PPP plugin."
+		DEPENDS="ppp"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/pppd $fs/usr/lib
+		;;
+	esac
 }
