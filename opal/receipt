@@ -1,35 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="opal"
-VERSION="3.6.6"
+VERSION="3.10.10"
 CATEGORY="network"
 SHORT_DESC="Open Phone Abstraction library."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MPL"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.ekiga.org/"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 TAGS="telephony"
 
-DEPENDS="cyrus-sasl expat jpeg libsdl libogg libtheora libunixODBC \
-openssl ptlib tiff zlib"
 BUILD_DEPENDS="ptlib ptlib-dev openssl-dev"
+SPLIT="opal opal-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's/CODEC_ID/AV_&/;s/PIX_FMT_/AV_&/' plugins/video/*/*.cxx
+	sed -i '/<< mime.PrintContents/ s/mime/(const std::string\&)&/' \
+		src/im/msrp.cxx
 	./configure --prefix=/usr --bindir=/bin \
 	--libexecdir=/usr/bin --mandir=/usr/share/man \
 	$CONFIGURE_ARGS &&
-	make $MAKEFLAGS &&
+	CXXFLAGS=-Wno-deprecated-declarations make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	rm -f $fs/usr/lib/*.a
+	case $PACKAGE in
+	opal)
+		DEPENDS="cyrus-sasl expat jpeg libsdl libogg libtheora \
+			libunixODBC openssl ptlib tiff zlib"
+		mkdir -p $fs/usr
+		cp -a $install/usr/lib $fs/usr
+		rm -f $fs/usr/lib/*.a
+		;;
+	opal-dev)
+		CAT="development|Open Phone Abstraction library devel files."
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp $install/usr/lib/*.a $fs/usr/lib
+		;;
+	esac
 }
