@@ -1,36 +1,51 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmatemixer"
-VERSION="1.9.2"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Mixer library for MATE Desktop."
+VERSION="1.18.0"
+CATEGORY="sound"
+SHORT_DESC="Mixer library for MATE Desktop"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="alsa-lib pulseaudio"
-BUILD_DEPENDS="wget alsa-lib-dev pulseaudio-dev gtk+-dev autoconf automake libtool itstool \
-mate-common-dev gtk-doc util-linux-uuid-dev libjson-c-dev libsndfile-dev flac-dev \
-libvorbis-dev dbus-dev intltool"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/mate-desktop/libmatemixer"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                   \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-static       \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/libmatemixer/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc pulseaudio-dev alsa-lib-dev"
+SPLIT="libmatemixer-pulse libmatemixer libmatemixer-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libmatemixer-pulse)
+			copy libmatemixer-pulse.so
+			DEPENDS="libmatemixer dbus flac gdbm glib libcap libffi libogg \
+			libsndfile libvorbis pcre pulseaudio pulseaudio-glib \
+			util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXtst xorg-libxcb"
+			CAT="sound|PulseAudio module"
+			;;
+		libmatemixer)
+			copy @std @rm
+			DEPENDS="alsa-lib glib libffi pcre"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} alsa-lib-dev dbus-dev flac-dev \
+			gdbm-dev glib-dev libcap-dev libffi-dev libogg-dev libsndfile-dev \
+			libvorbis-dev pcre-dev pulseaudio-dev util-linux-uuid-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libxcb-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXi-dev \
+			xorg-libXtst-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

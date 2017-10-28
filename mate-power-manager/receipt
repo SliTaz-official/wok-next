@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-power-manager"
+VERSION="1.18.0"
+CATEGORY="utilities"
+SHORT_DESC="Power management tool for the MATE desktop"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-power-manager"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-power-manager/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools itstool libcanberra-dev dbus-glib-dev \
+libnotify-dev upower-dev libgnome-keyring3-dev mate-panel-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
+	glib gtk+3 libcanberra libcanberra-gtk3 libffi libgcrypt libgnome-keyring3 \
+	libgpg-error libharfbuzz libltdl liblzma libnotify-gtk3 libogg libpng16 \
+	libvorbis libxml2 mate-panel pango pcre upower util-linux-blkid \
+	util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp \
+	xorg-libXext xorg-libXrandr xorg-libXrender xorg-libxcb xorg-pixman zlib"
+	TAGS="MATE"
+}

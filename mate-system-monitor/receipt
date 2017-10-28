@@ -1,36 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-system-monitor"
-VERSION="1.9.0"
+VERSION="1.18.1"
 CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="MATE's system monitor."
+SHORT_DESC="Process viewer and system resource monitor for MATE"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="dconf dbus-glib gtk+ libgtop libwnck2 librsvg"
-BUILD_DEPENDS="wget dbus-dev dconf-dev cacerts autoconf automake libtool itstool \
-gtk+-dev gtk-doc dbus-glib-dev glibmm-dev gtkmm-dev libgtop-dev libwnck2-dev librsvg-dev \
-yelp-tools mate-common-dev mate-icon-theme intltool"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-system-monitor"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                       \
-		--prefix=/usr                  \
-		--libexecdir=/usr/lib/$PACKAGE \
-		--with-gtk=2.0                 \
-		--disable-static               \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-system-monitor/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools libgtop-dev libwnck3-dev gtk+3-dev \
+gtkmm3-dev librsvg-dev glibmm-dev libgiomm-dev itstool"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/glib-2.0 $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk atkmm bzlib cairo cairomm fontconfig freetype gdk-pixbuf glib \
+	glibmm gtk+3 gtkmm3 libcroco libffi libgiomm libgtop libharfbuzz liblzma \
+	libpng16 librsvg libsigc++ libwnck3 libxml2 pango pangomm pcre \
+	startup-notification util-linux-blkid util-linux-mount util-linux-uuid \
+	xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+	xorg-libXres xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+	TAGS="MATE"
 }

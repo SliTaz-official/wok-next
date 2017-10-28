@@ -1,0 +1,53 @@
+# SliTaz package receipt v2.
+
+PACKAGE="caja-extensions"
+VERSION="1.18.1"
+CATEGORY="utilities"
+SHORT_DESC="Set of extensions for Caja, the MATE file manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/caja-extensions"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/caja-extensions/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc caja-dev mate-desktop-dev dbus-glib-dev \
+glib-dev gupnp-dev"
+SPLIT="caja-extensions-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		caja-extensions)
+			copy @std
+			DEPENDS="atk bzlib cairo caja dbus dbus-glib dconf fontconfig \
+			freetype gdk-pixbuf glib gssdp gtk+3 gupnp libffi libharfbuzz \
+			liblzma libpng16 libsoup libsqlite3 libxml2 mate-desktop pango \
+			pcre startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrandr xorg-libXrender xorg-libxcb xorg-pixman \
+			xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="caja-extensions atk-dev bzip2-dev cairo-dev caja-dev \
+			dbus-dev dbus-glib-dev dconf fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gssdp-dev gtk+3-dev gupnp-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libsoup-dev libxml2-dev mate-desktop-dev \
+			pango-dev pcre-dev sqlite3-dev startup-notification-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrandr-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
+}

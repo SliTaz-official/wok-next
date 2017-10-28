@@ -1,47 +1,53 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-panel"
-VERSION="1.9.1"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Panel where you can run applications and applets using MATE."
+VERSION="1.18.4"
+CATEGORY="x-window"
+SHORT_DESC="MATE panel"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ dconf mate-menus caja libmateweather marco \
-mate-desktop mate-session-manager"
-BUILD_DEPENDS="wget dconf-dev autoconf automake libtool itstool \
-gtk+-dev mate-common-dev mate-desktop-dev mate-menus-dev yelp-tools \
-harfbuzz-dev gtk-doc gobject-introspection-dev dbus-glib-dev \
-libcanberra-dev libwnck2-dev librsvg-dev util-linux-uuid-dev \
-libmateweather-dev libsoup-dev sqlite-dev"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-panel"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh               \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-introspection\
-		--disable-static       \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-panel/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc yelp-tools gobject-introspection-dev \
+xorg-libICE-dev xorg-libSM-dev gtk+3-dev mate-desktop-dev mate-menus-dev \
+dbus-glib-dev libwnck3-dev librsvg-dev libmateweather-dev itstool"
+SPLIT="mate-panel-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--with-in-process-applets=all \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/libexec $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	rm -rf $install/usr/share/help
-
-	# Autostart
-	mkdir -p $fs/etc/xdg/autostart/
-	cp -a $install/usr/share/applications/* $fs/etc/xdg/autostart/
+genpkg_rules() {
+	case $PACKAGE in
+		mate-panel)
+			copy @std
+			DEPENDS="atk bzlib cairo dbus dbus-glib dconf fontconfig freetype \
+			gdk-pixbuf glib gtk+3 libcroco libffi libharfbuzz liblzma \
+			libmateweather libpng16 librsvg libsoup libsqlite3 libwnck3 \
+			libxml2 mate-desktop mate-menus pango pcre startup-notification \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrandr xorg-libXrender xorg-libxcb xorg-pixman \
+			xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mate-panel atk-dev bzip2-dev cairo-dev fontconfig-dev 
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

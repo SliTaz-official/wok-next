@@ -1,48 +1,64 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-control-center"
-VERSION="1.9.0"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="The control center for MATE Desktop."
+VERSION="1.18.2"
+CATEGORY="system-tools"
+SHORT_DESC="Utilities to configure the MATE desktop"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ caja desktop-file-utils libxklavier libgtop librsvg xorg-libICE \
-xorg-libSM xorg-libXt startup-notification gsettings-desktop-schemas \
-mate-settings-daemon"
-BUILD_DEPENDS="wget gtk+-dev autoconf automake libtool itstool libunique-dev \
-dconf-dev mate-common-dev mate-desktop-dev mate-menus-dev mate-settings-daemon-dev \
-libxklavier-dev libmatekbd-dev marco-dev libgtop-dev librsvg-dev dbus-glib-dev \
-yelp-tools xorg-libXScrnSaver-dev xorg-libXt-dev startup-notification-dev \
-util-linux-uuid-dev libcanberra-dev desktop-file-utils"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-control-center"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh               \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-static       \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-control-center/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools itstool xorg-libX11-dev \
+xorg-libXScrnSaver-dev xorg-libXext-dev libcanberra-dev xorg-libXxf86misc-dev \
+xorg-kbproto gtk+3-dev mate-desktop-dev mate-menus-dev dbus-glib-dev marco-dev \
+librsvg-dev mate-settings-daemon-dev libappindicator-gtk3-dev \
+desktop-file-utils"
+SPLIT="mate-control-center-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		\
+		--disable-update-mimedb \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/window-manager-settings/*.so* $fs/usr/lib/window-manager-settings
-
-	# don't overwrite system MIME database, get only packages/*.xml files
-	rm -rf $fs/usr/share/mime/*
-	cp -a $install/usr/share/mime/packages $fs/usr/share/mime
+genpkg_rules() {
+	case $PACKAGE in
+		mate-control-center)
+			copy @std
+			rm $fs/usr/share/applications/mimeinfo.cache
+			DEPENDS="atk bzlib cairo dbus dbus-glib dconf fontconfig freetype \
+			gdk-pixbuf glib gtk+3 libappindicator-gtk3 libcanberra \
+			libcanberra-gtk3 libcroco libdbusmenu-gtk3 libffi libgtop \
+			libharfbuzz libindicator-gtk3 libltdl liblzma libmatekbd libogg \
+			libpng16 librsvg libvorbis libxklavier libxml2 marco mate-desktop \
+			mate-menus pango pcre startup-notification util-linux-blkid \
+			util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXScrnSaver xorg-libXau xorg-libXcomposite \
+			xorg-libXcursor xorg-libXdamage xorg-libXdmcp xorg-libXext \
+			xorg-libXfixes xorg-libXi xorg-libXinerama xorg-libXrandr \
+			xorg-libXrender xorg-libxcb xorg-libxkbfile xorg-pixman \
+			xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mate-control-center atk-dev bzip2-dev cairo-dev dconf-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libcroco-dev libffi-dev libpng16-dev librsvg-dev \
+			libxml2-dev mate-desktop-dev mate-menus-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrandr-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

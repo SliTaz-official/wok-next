@@ -1,0 +1,118 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-applets"
+VERSION="1.18.1"
+CATEGORY="meta"
+SHORT_DESC="Applets for use with the MATE panel"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-applets"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-applets/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools xorg-libX11-dev python-dev gtk+3-dev \
+mate-panel-dev libgtop-dev libwnck3-dev libnotify-gtk3-dev dbus-glib-dev \
+polkit-dev upower-dev gucharmap3-dev pygobject3-dev itstool libmateweather-dev \
+gtksourceview3-dev wireless_tools-dev" # + cpufrequtils-dev + libcpupower(absent)
+ma="mate-applet"
+SPLIT="\
+$ma-accessx-status $ma-battstat $ma-charpick  $ma-command  $ma-cpufreq \
+$ma-drivemount     $ma-geyes    $ma-multiload $ma-netspeed $ma-stickynotes \
+$ma-timer          $ma-trash    $ma-weather \
+mate-applets"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	deps="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 libffi \
+	libharfbuzz liblzma libpng16 libxml2 mate-panel pango pcre \
+	util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau \
+	xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
+
+	case $PACKAGE in
+		*-accessx-status)
+			copy accessx-status* *AccessxStatus* *accessx-status*/mate-* \
+			apps/mate-ax-applet.png
+			DEPENDS="$deps xorg-libICE xorg-libSM"
+			CAT="x-window|Keyboard Accessibility Monitor"
+			;;
+		*-battstat)
+			copy *battstat* *Battstat*
+			DEPENDS="$deps libnotify-gtk3 upower"
+			CAT="x-window|Battery Charge Monitor"
+			;;
+		*-charpick)
+			copy *charpick* *Charpick*
+			DEPENDS="$deps gucharmap3"
+			CAT="x-window|Character Palette"
+			;;
+		*-command)
+			copy *command* *Command*
+			DEPENDS="$deps"
+			CAT="x-window|Command Factory"
+			;;
+		*-cpufreq)
+			copy *cpufreq* *CPUFreq* mate-cpu-frequency-*
+			DEPENDS="$deps dbus dbus-glib polkit"
+			CAT="x-window|CPU Frequency Scaling Monitor"
+			;;
+		*-drivemount)
+			copy *drivemount* *DriveMount*
+			DEPENDS="$deps"
+			CAT="x-window|Disk Mounter"
+			;;
+		*-geyes)
+			copy *geyes* *Geyes* mate-eyes-applet.*
+			DEPENDS="$deps"
+			CAT="x-window|Geyes"
+			;;
+		*-multiload)
+			copy *multiload* *MultiLoad*
+			DEPENDS="$deps libgtop"
+			CAT="x-window|System Monitor"
+			;;
+		*-netspeed)
+			copy *netspeed* *Netspeed*
+			DEPENDS="$deps libgtop"
+			CAT="x-window|Netspeed Applet"
+			;;
+		*-stickynotes)
+			copy *stickynotes* *StickyNotes* mate-sticky-notes-*
+			DEPENDS="$deps gtksourceview3 libwnck3 startup-notification \
+			xorg-xcb-util"
+			CAT="x-window|Sticky Notes"
+			;;
+		*-timer)
+			copy *timer* *Timer*
+			DEPENDS="$deps libnotify-gtk3"
+			CAT="x-window|Sticky Notes"
+			;;
+		*-trash)
+			copy *trash* *Trash*
+			DEPENDS="$deps"
+			CAT="x-window|Panel Trash"
+			;;
+		*-weather)
+			copy *weather* *Weather*
+			DEPENDS="$deps dbus dbus-glib libmateweather libnotify-gtk3 \
+			libsoup libsqlite3"
+			CAT="x-window|Panel Trash"
+			;;
+		mate-applets)
+			DEPENDS="${SPLIT/$PACKAGE/}"
+			;;
+	esac
+
+	remove_already_packed
+
+	[ -d "$fs/usr/share/man" ] && rm -r $fs/usr/share/man
+	TAGS="MATE"
+}

@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-icon-theme-faenza"
+VERSION="1.18.1"
+CATEGORY="customization"
+SHORT_DESC="Icon theme for MATE based on Faenza and Faience"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-icon-theme-faenza"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-icon-theme-faenza/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common"
+SPLIT="mate-icon-theme-faenzadark mate-icon-theme-faenzagray"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	find $install -type d \( -name 32 -o -name 64 -o -name 96 \) -exec rm -r '{}' \; 2>/dev/null
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		mate-icon-theme-faenza)
+			copy matefaenza/
+			DEPENDS="mate-icon-theme"
+			;;
+		*-faenzadark)
+			copy matefaenzadark/
+			DEPENDS="mate-icon-theme-faenza"
+			CAT="customization|dark theme"
+			;;
+		*-faenzagray)
+			copy matefaenzagray/
+			DEPENDS="mate-icon-theme-faenzadark mate-icon-theme-faenza"
+			CAT="customization|gray theme"
+			;;
+	esac
+	TAGS="MATE"
+}

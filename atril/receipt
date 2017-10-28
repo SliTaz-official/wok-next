@@ -1,49 +1,91 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="atril"
-VERSION="1.8.0"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="A document viewer for MATE. Based on evince"
+VERSION="1.18.1"
+CATEGORY="office"
+SHORT_DESC="A document viewer for MATE"
 MAINTAINER="yuripourre@gmail.com"
-WEB_SITE="http://www.mate-desktop.org/"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/atril"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
+WGET_URL="https://github.com/mate-desktop/atril/archive/v$VERSION.tar.gz"
 
-TAGS="pdf djvu"
-DEPENDS="gtk+ mate-desktop dconf libegl-mesa libsecret poppler \
-desktop-file-utils djvulibre zlib"
-SUGGESTED="libspectre mate-icon-theme"
-BUILD_DEPENDS="wget autoconf automake libtool itstool yelp-tools \
-gtk+-dev gtk-doc mate-desktop-dev mate-common-dev mate-icon-theme \
-libsecret-dev caja-dev poppler-dev util-linux-uuid-dev lcms-dev \
-libgcrypt-dev djvulibre-dev gettext intltool xorg-dev "
+BUILD_DEPENDS="mate-common yelp-tools gtk-doc gtk+3-dev libsecret-dev caja-dev \
+gobject-introspection-dev poppler-dev libspectre-dev djvulibre-dev \
+webkit2gtk-dev itstool"
+SPLIT="atril-comics atril-djvu atril-epub atril-pdf atril-psd atril-tiff atril \
+atril-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh \
-		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/libexec $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/atril $fs/usr/lib
-	cp -a $install/usr/lib/caja $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	# Saving some space
-	rm -r $fs/usr/share/man $fs/usr/share/help
-	rm -r $fs/usr/lib/atril/3/backends/lib*a
-	rm -r $fs/usr/lib/caja/extensions-2.0/libatril*a
-	rm -rf $fs/usr/lib/pkgconfig
+genpkg_rules() {
+	case $PACKAGE in
+		*-comics)
+			copy comicsdocument.atril-backend libcomicsdocument.so
+			CAT="office|comix book backend"
+			DEPENDS="atril"
+			;;
+		*-djvu)
+			copy djvudocument.atril-backend libdjvudocument.so
+			CAT="office|DjVu backend"
+			DEPENDS="atril djvulibre libjpeg-turbo"
+			;;
+		*-epub)
+			copy epubdocument.atril-backend libepubdocument.so
+			CAT="office|ePub backend"
+			DEPENDS="atril"
+			;;
+		*-pdf)
+			copy pdfdocument.atril-backend libpdfdocument.so
+			CAT="office|PDF backend"
+			DEPENDS="atril lcms2 libjpeg-turbo poppler tiff"
+			;;
+		*-psd)
+			copy psdocument.atril-backend libpsdocument.so
+			CAT="office|PSD backend"
+			DEPENDS="atril ghostscript libspectre"
+			;;
+		*-tiff)
+			copy tiffdocument.atril-backend libtiffdocument.so
+			CAT="office|TIFF backend"
+			DEPENDS="atril libjpeg-turbo tiff"
+			;;
+		atril)
+			copy @std @rm
+			DEPENDS="at-spi2-atk at-spi2-core atk bzlib cairo caja dbus \
+			fontconfig freetype gdk-pixbuf glib gtk+3 libepoxy libffi \
+			libgcrypt libgpg-error libharfbuzz liblzma libpng16 libsecret \
+			libsoup libsqlite3 libxml2 pango pcre util-linux-blkid \
+			util-linux-mount util-linux-uuid webkit2gtk xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXdamage \
+			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXi \
+			xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			TAGS="MATE pdf djvu"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} at-spi2-atk-dev at-spi2-core-dev \
+			atk-dev bzip2-dev cairo-dev caja-dev dbus-dev djvulibre-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev ghostscript-dev \
+			glib-dev gtk+3-dev harfbuzz-dev libjpeg-turbo-dev lcms2-dev \
+			libepoxy-dev libffi-dev libpng16-dev libsoup-dev libspectre-dev \
+			libxml2-dev pango-dev pcre-dev poppler-dev sqlite3-dev tiff-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			webkit2gtk-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXcomposite-dev xorg-libXdamage-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
+			xorg-libXi-dev xorg-libXinerama-dev xorg-libXrandr-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			TAGS="MATE"
+			;;
+	esac
 }

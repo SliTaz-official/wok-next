@@ -1,42 +1,63 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-settings-daemon"
-VERSION="1.9.5"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Settings daemon for MATE desktop."
+VERSION="1.18.2"
+CATEGORY="system-tools"
+SHORT_DESC="MATE settings daemon"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ dconf fontconfig"
-BUILD_DEPENDS="wget autoconf automake libtool itstool gtk+-dev \
-mate-common-dev mate-desktop-dev dconf-dev gtk-doc dbus-glib-dev \
-libxklavier-dev libmatekbd-dev libmatemixer-dev fontconfig-dev \
-libcanberra-dev libnotify-dev xorg-libXt-dev nss-dev polkit-dev \
-util-linux-uuid-dev"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-settings-daemon"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh              \
-		--prefix=/usr     \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-settings-daemon/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk+3-dev dbus-glib-dev dconf-dev mate-desktop-dev \
+libnotify-gtk3-dev xorg-libXxf86misc-dev libmatekbd-dev libcanberra-dev \
+libmatemixer-dev nss-dev polkit-dev pulseaudio-dev"
+SPLIT="mate-settings-daemon-dev"
+
+compile_rules() {
+	./autogen.sh \
 		--sysconfdir=/etc \
-		--disable-static  \
-		--enable-polkit   \
-		--disable-static  \
+		--localstatedir=/var \
+		\
+		--enable-pulse \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/libexec
-	cp -a $install/etc $fs
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/$PACKAGE/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/$PACKAGE/*settings-plugin $fs/usr/lib
-	cp -a $install/usr/libexec $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		mate-settings-daemon)
+			copy @std
+			DEPENDS="atk bzlib cairo dbus dbus-glib dconf flac fontconfig \
+			freetype gdbm gdk-pixbuf glib gtk+3 libcanberra libcanberra-gtk3 \
+			libcap libffi libharfbuzz libltdl liblzma libmatekbd libmatemixer \
+			libnotify-gtk3 libogg libpng16 libsndfile libvorbis libxklavier \
+			libxml2 mate-desktop nspr nss pango pcre polkit pulseaudio \
+			startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXrandr \
+			xorg-libXrender xorg-libXtst xorg-libXxf86misc xorg-libxcb \
+			xorg-libxkbfile xorg-pixman xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mate-settings-daemon atk-dev bzip2-dev cairo-dev dbus-dev \
+			dbus-glib-dev dconf-dev flac-dev fontconfig-dev freetype-dev \
+			gdbm-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libcanberra-dev libcap-dev libffi-dev libmatekbd-dev \
+			libmatemixer-dev libnotify-gtk3-dev libogg-dev libpng16-dev \
+			libsndfile-dev libtool libvorbis-dev libxklavier-dev libxml2-dev \
+			mate-desktop-dev nspr nss pango-dev pcre-dev pulseaudio-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXi-dev \
+			xorg-libXrandr-dev xorg-libXrender-dev xorg-libXtst-dev \
+			xorg-libXxf86misc-dev xorg-libxcb-dev xorg-libxkbfile-dev \
+			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

@@ -1,34 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mozo"
-VERSION="1.8.0"
+VERSION="1.18.0"
 CATEGORY="x-window"
-LICENSE="GPL3"
-SHORT_DESC="MATE menu editing tool"
+SHORT_DESC="Menu editor for MATE using the freedesktop.org menu specification"
 MAINTAINER="yuripourre@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/mate-desktop/mozo"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
+WGET_URL="https://github.com/mate-desktop/mozo/archive/v$VERSION.tar.gz"
 
-DEPENDS="gtk+ mate-menus pygtk pygobject"
-BUILD_DEPENDS="wget gtk+-dev autoconf automake mate-common-dev \
-mate-desktop-dev mate-menus-dev pygobject-dev"
+BUILD_DEPENDS="mate-common mate-menus-dev pygobject3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                   \
-		--prefix=/usr          \
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python   mate-menus gtk+3-dev pygobject3"
+	TAGS="MATE"
 }

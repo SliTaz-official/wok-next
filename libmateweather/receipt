@@ -1,36 +1,69 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmateweather"
-VERSION="1.9.1"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Provides access to weather information from the Internet."
+VERSION="1.18.1"
+CATEGORY="x-window"
+SHORT_DESC="Library to access weather information from online services"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ libsoup"
-BUILD_DEPENDS="wget dconf-dev gtk+-dev autoconf automake libtool itstool \
-gtk-doc sqlite-dev mate-common-dev mate-desktop-dev libsoup-dev"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/mate-desktop/libmateweather"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh               \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-static       \
-		--disable-python       \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/libmateweather/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc gtk+3-dev libsoup-dev tzdata"
+SPLIT="libmateweather-misc-icons libmateweather-misc-locales libmateweather-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--enable-locations-compression \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libmateweather)
+			copy @std
+			# most of icons -> libmateweather-misc-icons
+			for i in 22x22 24x24 32x32 scalable; do
+				rm -r $fs/usr/share/icons/mate/$i
+			done
+			# most of locales -> libmateweather-misc-locales
+			rm $fs/usr/share/libmateweather/*.gz
+			for i in de es fr pt_BR ru; do
+				cp $install/usr/share/libmateweather/Locations.$i.xml.gz \
+				        $fs/usr/share/libmateweather
+			done
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+			libffi libharfbuzz liblzma libpng16 libsoup libsqlite3 libxml2 \
+			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libxcb xorg-pixman zlib"
+			;;
+		libmateweather-misc-icons)
+			copy icons/mate/ @rm
+			CAT="customization|big icons"
+			DEPENDS="libmateweather"
+			;;
+		libmateweather-misc-locales)
+			copy @std @rm
+			CAT="localization|different locales"
+			DEPENDS="libmateweather"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libsoup-dev libxml2-dev \
+			pango-dev pcre-dev sqlite3-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

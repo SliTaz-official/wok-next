@@ -1,42 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-terminal"
-VERSION="1.9.0"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="MATE Terminal is a terminal emulator for the MATE desktop."
+VERSION="1.18.1"
+CATEGORY="system-tools"
+SHORT_DESC="The MATE Terminal Emulator"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ dconf util-linux-uuid vte mate-desktop harfbuzz"
-BUILD_DEPENDS="wget cacerts dconf-dev gtk+-dev util-linux-uuid-dev \
-vte-dev mate-common-dev mate-desktop-dev yelp-tools autoconf automake libtool \
-itstool harfbuzz-dev"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/mate-desktop/mate-terminal"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh               \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-static       \
-		--disable-scrollkeeper \
-		--with-gnu-ld          \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-terminal/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools vte-dev gtk+3-dev dconf-dev \
+xorg-libX11-dev itstool"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	# Saving some space
-	rm -rf $install/usr/share/man
-	rm -rf $install/usr/share/help
-
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk bzlib cairo dconf fontconfig freetype gdk-pixbuf glib gmp \
+	gtk+3 libffi libgnutls libharfbuzz libidn liblzma libpng16 libtasn1 \
+	libunistring libxml2 nettle p11-kit pango pcre pcre2 util-linux-blkid \
+	util-linux-mount util-linux-uuid vte xorg-libICE xorg-libSM xorg-libX11 \
+	xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+	xorg-pixman zlib"
+	TAGS="MATE"
 }

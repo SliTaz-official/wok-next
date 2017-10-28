@@ -1,0 +1,57 @@
+# SliTaz package receipt v2.
+
+PACKAGE="pluma"
+VERSION="1.18.2"
+CATEGORY="text"
+SHORT_DESC="A powerful text editor for MATE"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/pluma"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/pluma/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools gtk-doc gobject-introspection-dev \
+enchant-dev iso-codes gtk+3-dev gtksourceview3-dev libpeas-dev itstool"
+SPLIT="pluma-dev pluma-plugins pluma"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
+			enchant-dev fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
+			gobject-introspection-dev gtk+3-dev gtksourceview3-dev \
+			harfbuzz-dev libffi-dev libpeas-dev libpng16-dev libxml2-dev \
+			pango-dev pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+		*-plugins)
+			copy plugins/ @rm
+			DEPENDS="pluma enchant python"
+			CAT="text|plugins"
+			;;
+		pluma)
+			copy @std @rm
+			rm -r $fs/usr/lib # -> plugins
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib \
+			gobject-introspection gtk+3 gtksourceview3 libffi libharfbuzz \
+			liblzma libpeas libpeas-gtk libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+	esac
+	TAGS="MATE"
+}

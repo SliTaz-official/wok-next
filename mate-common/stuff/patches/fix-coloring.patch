@@ -1,0 +1,25 @@
+Fix coloring - previously it made the logs broken and weird in the web interface
+because bold-on and bold-off was on the diffelent lines of the log.
+
+--- a/macros/mate-autogen
++++ b/macros/mate-autogen
+@@ -49,16 +49,14 @@
+ 
+ # some terminal codes ...
+ if tty 1>/dev/null 2>&1; then
+-    boldface="`tput bold 2>/dev/null`"
+-    normal="`tput sgr0 2>/dev/null`"
++    boldface=$'\e'[1m
++    normal=$'\e'[0m
+ else
+     boldface=
+     normal=
+ fi
+ printbold() {
+-    echo $ECHO_N "$boldface" $ECHO_C
+-    echo "$@"
+-    echo $ECHO_N "$normal" $ECHO_C
++    printf "$boldface%s$normal\n" "$@"
+ }
+ printerr() {
+     echo "$@" >&2

@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-calc"
+VERSION="1.18.1"
+CATEGORY="x-window"
+SHORT_DESC="Calculator for MATE"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-calc"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-calc/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools gtk+3-dev itstool"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libxml2 pango"
+	TAGS="MATE"
+}

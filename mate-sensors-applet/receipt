@@ -1,0 +1,48 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-sensors-applet"
+VERSION="1.18.3"
+CATEGORY="x-window"
+SHORT_DESC="Display readings from hardware sensors in your MATE panel"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-sensors-applet"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-sensors-applet/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools gtk+3-dev mate-panel-dev dbus-glib-dev \
+libatasmart-dev libnotify-gtk3-dev lm-sensors-dev libxslt-dev itstool"
+SPLIT="mate-sensors-applet-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		mate-sensors-applet)
+			copy @std
+			DEPENDS="atk bzlib cairo dbus dbus-glib eudev fontconfig freetype \
+			gdk-pixbuf glib gtk+3 libatasmart libffi libharfbuzz liblzma \
+			libnotify-gtk3 libpng16 libxml2 lm-sensors mate-panel pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mate-sensors-applet dbus-dev dbus-glib-dev eudev-dev \
+			glib-dev libatasmart-dev libffi-dev lm-sensors-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libxcb-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
+}

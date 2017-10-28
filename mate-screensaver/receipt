@@ -1,35 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-screensaver"
-VERSION="1.9.1"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Screensaver for MATE desktop."
+VERSION="1.18.1"
+CATEGORY="x-window"
+SHORT_DESC="MATE screen saver and locker"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS=""
-BUILD_DEPENDS="wget cacerts autoconf automake libtool itstool \
-mate-common-dev mate-desktop-dev mate-menus-dev dbus-glib-dev \
-dconf-dev gtk+-dev xorg-libXScrnSaver-dev util-linux-uuid-dev"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-screensaver"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                   \
-		--prefix=/usr          \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-screensaver/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common xorg-libX11-dev xorg-libXScrnSaver-dev gtk+3-dev \
+dbus-glib-dev mate-desktop-dev mate-menus-dev xmlto xorg-libXext-dev \
+mesa17-dev libmatekbd-dev libnotify-gtk3-dev"
+SPLIT="mate-screensaver-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/etc $fs/usr
-	cp -a $install/usr/libexec $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		mate-screensaver)
+			copy @std
+			DEPENDS=" atk bzlib cairo dbus dbus-glib dconf expat fontconfig \
+			freetype gdk-pixbuf glib gtk+3 libdrm libffi libharfbuzz liblzma \
+			libmatekbd libnotify-gtk3 libpng16 libxklavier libxml2 \
+			mate-desktop mate-menus mesa17 pango pcre startup-notification \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXScrnSaver xorg-libXau \
+			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+			xorg-libXi xorg-libXrandr xorg-libXrender xorg-libXxf86vm \
+			xorg-libxcb xorg-libxkbfile xorg-libxshmfence xorg-pixman \
+			xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+	TAGS="MATE"
 }

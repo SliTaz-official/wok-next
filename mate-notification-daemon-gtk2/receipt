@@ -1,22 +1,20 @@
 # SliTaz package receipt v2.
 
-PACKAGE="mate-notification-daemon"
-VERSION="1.14.0"
+PACKAGE="mate-notification-daemon-gtk2"
+VERSION="1.14.0" # deprecated version, to use with gtk2
 CATEGORY="x-window"
 SHORT_DESC="Fork of gnome-notification-daemon"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/mate-desktop/mate-notification-daemon/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="mate-notification-daemon-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="autoconf automake libtool gtk+-dev dbus-dev dbus-glib-dev \
 libcanberra-dev libwnck2-dev libnotify-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/^MATE_/d' configure.ac	# build standalone without MATE
 	sed -i '/^OnlyShowIn/d' src/capplet/mate-notification-properties.desktop.in
 
@@ -28,11 +26,9 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	rm -r $fs/usr/share/icons/; cook_copy_icons # only 16 and 48
+	cook_copy_icons # only 16 and 48
 	DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
 	glib gtk+ libcanberra libffi libharfbuzz libltdl liblzma libnotify libogg \
 	libpng16 libvorbis libwnck2 libxml2 pango pcre startup-notification \

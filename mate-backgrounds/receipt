@@ -1,0 +1,39 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-backgrounds"
+VERSION="1.18.0"
+CATEGORY="meta"
+SHORT_DESC="Set of backgrounds packaged with the MATE desktop"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-backgrounds"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-backgrounds/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common"
+SPLIT="mate-backgrounds-abstract mate-backgrounds-desktop \
+mate-backgrounds-nature"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		mate-backgrounds)
+			DEPENDS="$SPLIT"
+			;;
+		*)
+			theme="${PACKAGE##*-}"
+			copy $theme/ mate-$theme.xml
+			CAT="customization|$theme backgrounds"
+			;;
+	esac
+	TAGS="MATE"
+}

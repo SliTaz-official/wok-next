@@ -1,45 +1,51 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="engrampa"
-VERSION="1.9.0"
+VERSION="1.18.2"
 CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="MATE archive manipulator."
+SHORT_DESC="A file archiver for MATE"
 MAINTAINER="yuripourre@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/engrampa"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
+WGET_URL="https://github.com/mate-desktop/engrampa/archive/v$VERSION.tar.gz"
 
-DEPENDS="bzip2 caja desktop-file-utils gtk+ gzip libarchive tar"
-BUILD_DEPENDS="wget dbus-dev dconf-dev cacerts autoconf automake libtool itstool \
-gtk+-dev gtk-doc mate-common-dev mate-desktop-dev yelp-tools"
-SUGGESTED="unrar unace p7zip yelp-tools zip"
+BUILD_DEPENDS="mate-common yelp-tools gtk+3-dev caja-dev json-glib-dev itstool"
+SPLIT="engrampa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                       \
-		--prefix=/usr                  \
-		--libexecdir=/usr/lib/$PACKAGE \
-		--with-gtk=2.0                 \
-		--disable-static               \
-		--disable-packagekit           \
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		\
+		--disable-packagekit \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/$PACKAGE
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/$PACKAGE/* $fs/usr/share/$PACKAGE
-
-	mkdir -p $fs/usr/share/applications
-	cp -a $install/usr/share/applications/* $fs/usr/share/applications
-
-	mkdir -p $fs/usr/share/pixmaps
-	cp -a $install/usr/share/icons/hicolor/32x32/apps/*.png \
-		$fs/usr/share/pixmaps
+genpkg_rules() {
+	case $PACKAGE in
+		engrampa)
+			copy @std
+			DEPENDS="atk bzlib cairo caja fontconfig freetype gdk-pixbuf glib \
+			gtk+3 json-glib libffi libharfbuzz liblzma libpng16 libxml2 pango \
+			pcre util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			SUGGESTED="unrar unace p7zip zip"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="engrampa atk-dev bzip2-dev cairo-dev caja-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

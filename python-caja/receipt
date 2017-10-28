@@ -1,0 +1,48 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-caja"
+VERSION="1.18.1"
+CATEGORY="python"
+SHORT_DESC="libcaja-extension python bindings"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/python-caja"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/python-caja/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc python-dev pygobject3-dev caja-dev"
+SPLIT="python-caja-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		python-caja)
+			copy @std
+			DEPENDS="atk bzlib cairo caja fontconfig freetype gdk-pixbuf glib \
+			gtk+3 libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			python util-linux-blkid util-linux-mount util-linux-uuid \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="python-caja atk-dev bzip2-dev cairo-dev caja-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
+			pcre-dev python util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
+}

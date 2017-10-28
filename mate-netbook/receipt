@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-netbook"
+VERSION="1.18.2"
+CATEGORY="x-window"
+SHORT_DESC="A simple window management tool"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/mate-desktop/mate-netbook"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-netbook/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk+3-dev libwnck3-dev xorg-libXtst-dev \
+libfakekey-dev mate-panel-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+	libfakekey libffi libharfbuzz liblzma libpng16 libwnck3 libxml2 mate-panel \
+	pango pcre startup-notification util-linux-blkid util-linux-mount \
+	util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+	xorg-libXi xorg-libXrender xorg-libXres xorg-libXtst xorg-libxcb \
+	xorg-pixman xorg-xcb-util zlib"
+	TAGS="MATE"
+}

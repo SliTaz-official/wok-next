@@ -1,39 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-menus"
-VERSION="1.9.0"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Common package for MATE Desktop applications."
+VERSION="1.18.0"
+CATEGORY="x-window"
+SHORT_DESC="Library for the Desktop Menu freedesktop.org specification"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="glib python"
-BUILD_DEPENDS="wget cacerts autoconf automake gobject-introspection-dev \
-libtool itstool mate-common-dev python-dev"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-menus"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                   \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--enable-python        \
-		--disable-static       \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-menus/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gobject-introspection-dev python-dev"
+SPLIT="mate-menus-python mate-menus mate-menus-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		\
+		--enable-python \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/python2.7/site-packages/
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/python2.7/site-packages/*.so* $fs/usr/lib/python2.7/site-packages/
-	cp -a $install/etc $fs
+genpkg_rules() {
+	case $PACKAGE in
+		mate-menus-python)
+			copy python*/*.so *.py
+			DEPENDS="mate-menus python"
+			CAT="python|Python bindings"
+			;;
+		mate-menus)
+			copy @std @rm
+			DEPENDS="glib libffi pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} glib-dev libffi-dev pcre-dev \
+			python-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

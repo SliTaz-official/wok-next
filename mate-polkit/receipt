@@ -1,39 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-polkit"
-VERSION="1.9.0"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="PolicyKit integration for the MATE desktop."
+VERSION="1.18.1"
+CATEGORY="security"
+SHORT_DESC="Authentication Agent for PolicyKit and MATE"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ polkit"
-BUILD_DEPENDS="wget cacerts autoconf automake libtool itstool \
-gtk+-dev gtk-doc polkit-dev gobject-introspection-dev mate-common-dev"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/mate-desktop/mate-polkit"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                           \
-		--prefix=/usr                  \
-		--libexecdir=/usr/lib/$PACKAGE \
-		--sysconfdir=/etc              \
-		--localstatedir=/var           \
-		--with-gtk=2.0                 \
-		--enable-introspection         \
-		--disable-static               \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-polkit/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc gtk+3-dev polkit-dev"
+SPLIT="mate-polkit-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib/$PACKAGE
+genpkg_rules() {
+	case $PACKAGE in
+		mate-polkit)
+			copy @std
+			DEPENDS="atk bzlib cairo expat fontconfig freetype gdk-pixbuf glib \
+			gtk+3 libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			polkit util-linux-blkid util-linux-mount util-linux-uuid \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mate-polkit atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev polkit-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

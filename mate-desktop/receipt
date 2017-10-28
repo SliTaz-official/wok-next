@@ -1,35 +1,53 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-desktop"
-VERSION="1.9.3"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Common package for MATE Desktop applications."
+VERSION="1.18.0"
+CATEGORY="x-window"
+SHORT_DESC="Library with common API for various MATE modules"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS="gtk+ gdk-pixbuf libltdl"
-BUILD_DEPENDS="wget cacerts autoconf automake dconf-dev libtool itstool \
-mate-common-dev gtk-doc gtk+-dev gdk-pixbuf-dev yelp-tools harfbuzz-dev \
-intltool"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/mate-desktop"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh               \
-		--prefix=/usr          \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-desktop/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk-doc gobject-introspection-dev dconf-dev \
+startup-notification-dev xorg-libX11-dev xorg-libXrandr-dev gdk-pixbuf-dev \
+gtk+3-dev"
+SPLIT="mate-desktop-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		mate-desktop)
+			copy @std
+			cook_copy_icons # only 16 and 48
+			DEPENDS="atk bzlib cairo dconf fontconfig freetype gdk-pixbuf glib \
+			gtk+3 libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrandr xorg-libXrender xorg-libxcb xorg-pixman \
+			xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mate-desktop atk-dev bzip2-dev cairo-dev dconf-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
+			pcre-dev startup-notification-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrandr-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

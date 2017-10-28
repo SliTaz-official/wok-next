@@ -1,42 +1,56 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="marco"
-VERSION="1.9.3"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="A window manager for MATE Desktop."
+VERSION="1.18.1"
+CATEGORY="system-tools"
+SHORT_DESC="MATE default window manager"
 MAINTAINER="yuripourre@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/mate-desktop/marco"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
+WGET_URL="https://github.com/mate-desktop/marco/archive/v$VERSION.tar.gz"
 
-DEPENDS="gtk+ libcanberra libgtop xorg-libICE xorg-libSM \
-xorg-libXt startup-notification mate-desktop"
-BUILD_DEPENDS="wget gtk+-dev autoconf automake libtool itstool gtk-doc \
-mate-common-dev mate-desktop-dev libcanberra-dev libgtop-dev yelp-tools \
-xorg-libICE-dev xorg-libSM-dev xorg-libXt-dev startup-notification-dev \
-util-linux-uuid-dev zenity"
+BUILD_DEPENDS="mate-common yelp-tools gtk+3-dev startup-notification-dev \
+xorg-libXcursor-dev libgtop-dev libcanberra-dev zenity itstool"
+SPLIT="marco-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh               \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-static       \
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/glib-2.0 $fs/usr/share
-	cp -a $install/usr/share/MateConf $fs/usr/share
-	cp -a $install/usr/share/mate*	$fs/usr/share
-	cp -a $install/usr/share/themes	$fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		marco)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+			libcanberra libcanberra-gtk3 libffi libgtop libharfbuzz libltdl \
+			liblzma libogg libpng16 libvorbis libxml2 pango pcre \
+			startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
+			xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrandr \
+			xorg-libXrender xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="marco atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libcanberra-dev libffi-dev libgtop-dev libogg-dev libpng16-dev \
+			libtool libvorbis-dev libxml2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXcomposite-dev xorg-libXcursor-dev \
+			xorg-libXdamage-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXfixes-dev xorg-libXinerama-dev xorg-libXrandr-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev \
+			xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="MATE"
 }

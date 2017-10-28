@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-indicator-applet"
+VERSION="1.18.1"
+CATEGORY="x-window"
+SHORT_DESC="Display information consistently in the panel"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/mate-desktop/mate-indicator-applet"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-indicator-applet/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common gtk+3-dev xorg-libX11-dev mate-panel-dev \
+libindicator-gtk3-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 libffi \
+	libharfbuzz libindicator-gtk3 liblzma libpng16 libxml2 mate-panel pango \
+	pcre util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+	xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+	xorg-pixman zlib"
+	TAGS="MATE"
+}

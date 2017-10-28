@@ -1,32 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mate-icon-theme"
-VERSION="1.9.0"
+VERSION="1.18.2"
 CATEGORY="customization"
-LICENSE="GPL3"
-SHORT_DESC="MATE's default icon set."
+SHORT_DESC="MATE default icon theme"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
-TAGS="MATE"
-DEPENDS=""
-BUILD_DEPENDS="wget cacerts autoconf automake mate-common-dev icon-naming-utils \
-intltool"
+LICENSE="LGPL3 CC-BY-SA-3"
+WEB_SITE="https://github.com/mate-desktop/mate-icon-theme"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                   \
-		--prefix=/usr          \
-		--enable-icon-mapping  \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-icon-theme/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common icon-naming-utils"
+SPLIT="mate-icon-theme-menta"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		\
+		--enable-icon-mapping \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	# remove empty folder structure
+	rm -r $install/usr/share/locale
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
+genpkg_rules() {
+	case $PACKAGE in
+		mate-icon-theme)
+			copy mate/
+			;;
+		*-menta)
+			copy menta/
+			DEPENDS="mate-icon-theme"
+			CAT="customization|Menta theme"
+			;;
+	esac
+	TAGS="MATE"
 }

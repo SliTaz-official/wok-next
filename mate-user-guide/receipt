@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-user-guide"
+VERSION="1.18.0"
+CATEGORY="doc"
+SHORT_DESC="MATE Desktop User Guide"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="FDL1.1"
+WEB_SITE="https://github.com/mate-desktop/mate-user-guide"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mate-desktop/mate-user-guide/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="mate-common yelp-tools itstool"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		mate-user-guide)
+			copy @std help/C/
+			DEPENDS=""
+			;;
+	esac
+	TAGS="MATE"
+}

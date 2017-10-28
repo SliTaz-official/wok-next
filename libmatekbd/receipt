@@ -1,51 +1,49 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libmatekbd"
-VERSION="1.9.1"
-CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="Keyboard library for MATE Desktop."
+VERSION="1.18.2"
+CATEGORY="libs"
+SHORT_DESC="Keyboard management library"
 MAINTAINER="yuripourre@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/mate-desktop/libmatekbd"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.mate-desktop.org/"
-WGET_URL="https://github.com/mate-desktop/$PACKAGE/archive/$TARBALL"
+WGET_URL="https://github.com/mate-desktop/libmatekbd/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="wget gtk+-dev autoconf automake libtool itstool gtk-doc \
-mate-common-dev dconf-dev libxklavier-dev intltool"
-
+BUILD_DEPENDS="mate-common gobject-introspection-dev gtk+3-dev libxklavier-dev"
 SPLIT="libmatekbd-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh                   \
-		--prefix=/usr          \
-		--sysconfdir=/etc      \
-		--localstatedir=/var   \
-		--disable-static       \
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libmatekbd)
-		TAGS="MATE"
-		DEPENDS="gtk+ iso-codes dconf libxklavier"
-		mkdir -p $fs/usr/share $fs/usr/lib
-		cp -a $install/usr/share $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	libmatekbd-dev)
-		CAT="development|Keyboard library for MATE Desktop, devel files."
-		DEPENDS="libmatekbd pkg-config"
-		TAGS="MATE"
-		mkdir -p $fs/usr/lib $fs/usr/include
-		cp -a $install/usr/lib/*.la $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/include/* $fs/usr/include
-		;;
+		libmatekbd)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+			libffi libharfbuzz liblzma libpng16 libxklavier libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXrender \
+			xorg-libxcb xorg-libxkbfile xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libmatekbd atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxklavier-dev libxml2-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXi-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-libxkbfile-dev \
+			xorg-pixman-dev xz-dev zlib-dev"
+			;;
 	esac
+	TAGS="MATE"
 }
