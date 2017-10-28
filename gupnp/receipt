@@ -1,32 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gupnp"
-VERSION="0.20.10"
+VERSION="1.0.2"
 CATEGORY="network"
-SHORT_DESC="Framework for creating UPnP devices and control points."
+SHORT_DESC="Framework for creating UPnP devices and control points"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/GUPnP"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="https://wiki.gnome.org/action/show/Projects/GUPnP"
-WGET_URL="https://download.gnome.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libsoup util-linux-uuid gssdp"
-BUILD_DEPENDS="wget libsoup-dev util-linux-uuid-dev gssdp-dev sqlite-dev"
+BUILD_DEPENDS="util-linux-uuid-dev glib-dev gssdp-dev libsoup-dev libxml2-dev \
+gobject-introspection-dev gtk-doc vala"
+SPLIT="gupnp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		gupnp)
+			copy @std
+			DEPENDS="glib gssdp libsoup libxml2 util-linux-uuid"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gupnp glib-dev gssdp-dev libffi-dev libsoup-dev \
+			libxml2-dev pcre-dev sqlite3-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xz-dev zlib-dev"
+			;;
+	esac
 }

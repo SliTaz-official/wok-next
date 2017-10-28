@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-xml-sax"
 VERSION="0.99"
@@ -11,21 +11,20 @@ WEB_SITE="https://metacpan.org/release/XML-SAX"
 TARBALL="XML-SAX-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/G/GR/GRANTM/$TARBALL"
 
-DEPENDS="perl-xml-namespacesupport perl-xml-sax-base"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-xml-namespacesupport perl-xml-sax-base"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Please keep `make -j1 install` to FS before installing to the DESTDIR
 	perl Makefile.PL &&
-	make -j1 install && make -j1 DESTDIR=$install install &&
+	make -j1 install &&
+	make -j1 DESTDIR=$install install || return 1
 
 	chmod -R u+w $install
+	cp -v       /usr/lib/perl5/site_perl/5.24.1/XML/SAX/ParserDetails.ini \
+		$install/usr/lib/perl5/site_perl/5.24.1/XML/SAX/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="$BUILD_DEPENDS"
 }

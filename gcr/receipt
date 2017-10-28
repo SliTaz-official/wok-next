@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gcr"
 VERSION="3.20.0"
@@ -7,22 +7,17 @@ SHORT_DESC="Displaying certificates and accessing key stores"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/gcr/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/gcr.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gcr/${VERSION%.*}/$TARBALL"
 
-DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 harfbuzz \
-libffi libgcrypt libgpg-error liblzma libpng libxcb libxml2 p11-kit pango \
-pcre pixman xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
-zlib"
 BUILD_DEPENDS="intltool gtk-doc gobject-introspection-dev gtk+3-dev vala \
 p11-kit-dev libgcrypt-dev"
-SPLIT="gcr-base"
+SPLIT="gcr-base gcr gcr-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i -r 's:"(/desktop):"/org/gnome\1:' schema/*.xml &&
+compile_rules() {
+	sed -i -r 's:"(/desktop):"/org/gnome\1:' schema/*.xml
 
 	./configure \
 		--sysconfdir=/etc \
@@ -30,11 +25,31 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ libexec/ GConf/ applications/ dbus-1/ glib-2.0/ mime/ *.so* *.mo *.ui
-	cook_copy_icons
-	# split gcr-base
-	find $fs \( -name 'libgck-1.so*' -o -name 'libgcr-base-3.so*' \) -delete
+genpkg_rules() {
+	case $PACKAGE in
+		gcr-base)
+			copy libgcr-base-3.so* libgck-1.so*
+			DEPENDS="glib libffi libgcrypt libgpg-error p11-kit pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			CAT="security|base files"
+			;;
+		gcr)
+			copy @std @rm *.mo
+			cook_copy_icons
+			DEPENDS="gcr-base atk bzlib cairo fontconfig freetype gdk-pixbuf \
+			gtk+3 libharfbuzz liblzma libpng16 libxml2 pango shared-mime-info \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libxcb xorg-pixman"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			harfbuzz-dev libffi-dev libgcrypt-dev libgpg-error-dev \
+			libpng16-dev libxml2-dev p11-kit-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

@@ -1,0 +1,59 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libindicator-gtk2"
+VERSION="12.10.1"
+CATEGORY="x-window"
+SHORT_DESC="Set of symbols and convenience functions for Ayatana indicators (GTK+2)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://launchpad.net/libindicator"
+
+TARBALL="libindicator-$VERSION.tar.gz"
+WGET_URL="https://launchpad.net/libindicator/${VERSION%.*}/$VERSION/+download/$TARBALL"
+
+BUILD_DEPENDS="gtk+-dev glib-dev automake libtool"
+SPLIT="libindicator-gtk2-dev"
+SIBLINGS="libindicator-gtk3"
+
+compile_rules() {
+	sed -i 's|\$LIBM| &|; /AM_SILENT_RULES/s|\]$||' configure.ac
+	sed -i '/-Werror/ s|$| -Wno-deprecated-declarations|' -i \
+		libindicator/Makefile.am libindicator/Makefile.in
+	autoreconf -fi &&
+
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--libexecdir=/usr/lib/libindicator \
+		--with-gtk=2 \
+		--disable-static \
+		--disable-tests \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libindicator-gtk2)
+			copy @std
+			rm -r $fs/usr/share
+			DEPENDS="atk-dev bzlib cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libffi-dev \
+			libindicator-gtk2 libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib"
+			;;
+		*-dev)
+			copy @dev 80indicator-debugging
+			DEPENDS="libindicator-gtk2 atk-dev bzip2-dev cairo-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+}

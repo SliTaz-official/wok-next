@@ -3,10 +3,11 @@
 PACKAGE="atkmm"
 VERSION="2.24.2"
 CATEGORY="x-window"
-SHORT_DESC="C++ interface for the popular Accessibility toolkit"
+SHORT_DESC="C++ interface for the ATK accessibility toolkit library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-WEB_SITE="https://www.gnome.org/"
+WEB_SITE="https://developer.gnome.org/atkmm/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/atkmm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -14,25 +15,22 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="atk-dev glibmm-dev"
 SPLIT="atkmm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|atkmm-$VERSION|" doc/Makefile.in
 
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		atkmm)
 			copy @std
 			DEPENDS="atk glib glibmm libsigc++"
 			;;
-		atkmm-dev)
+		*-dev)
 			copy @dev
-			DEPENDS="atkmm pkg-config"
+			DEPENDS="atkmm atk-dev glib-dev glibmm-dev libffi-dev \
+			libsigc++-dev pcre-dev"
 			;;
 	esac
 }

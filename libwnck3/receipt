@@ -1,35 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libwnck3"
-VERSION="3.14.1"
+VERSION="3.24.1"
 CATEGORY="x-window"
 SHORT_DESC="Window Navigator Construction Kit (GTK+3)"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.gnome.org/"
-WGET_URL="$GNOME_MIRROR/libwnck/${VERSION%.*}/libwnck-$VERSION.tar.xz"
+WEB_SITE="https://developer.gnome.org/libwnck/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/libwnck.html"
 
-DEPENDS="expat gtk+ startup-notification xorg-libICE xorg-libSM xorg-libX11 \
-xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext \
-xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libXdamage"
-BUILD_DEPENDS="startup-notification-dev gtk+3-dev gobject-introspection-dev \
-intltool"
+TARBALL="libwnck-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/libwnck/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$install install
+BUILD_DEPENDS="gettext startup-notification-dev xorg-libX11-dev gtk+3-dev \
+xorg-libXres-dev gtk-doc"
+SPLIT="libwnck3-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libwnck3)
+			copy @std
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 startup-notification \
+			xorg-libX11 xorg-libXext xorg-libXrender xorg-libXres"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libwnck3 atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libXres-dev xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev \
+			xz-dev zlib-dev"
+			;;
+	esac
 }

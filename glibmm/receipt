@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glibmm"
-VERSION="2.50.0"
+VERSION="2.52.0"
 CATEGORY="x-window"
-SHORT_DESC="C++ interface for GTK+"
+SHORT_DESC="C++ bindings for GLib"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://www.gtkmm.org/"
+WEB_SITE="https://developer.gnome.org/glibmm/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/glibmm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -14,26 +15,14 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="glib-dev libsigc++-dev"
 SPLIT="libgiomm libgiomm-dev glibmm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|glibmm-$VERSION|" docs/Makefile.in
 
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		glibmm)
-			copy libglibmm*.so*
-			DEPENDS="glib libsigc++ gcc-lib-base glibc-base"
-			;;
-		glibmm-dev)
-			copy glibmm-2.4/ libglibmm*.la glibmm-2.4.pc
-			DEPENDS="glibmm libgiomm-dev libsigc++-dev glib-dev pkg-config"
-			;;
 		libgiomm)
 			copy libgiomm*.so*
 			DEPENDS="glib glibmm libsigc++"
@@ -41,8 +30,19 @@ genpkg_rules()
 			;;
 		libgiomm-dev)
 			copy giomm-2.4/ libgiomm*.la giomm-2.4.pc
-			DEPENDS="libgiomm pkg-config"
+			DEPENDS="libgiomm glib-dev glibmm-dev libffi-dev libsigc++-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev zlib-dev"
 			CAT="development|GIO Framework development files"
+			;;
+		glibmm)
+			copy libglibmm*.so*
+			DEPENDS="glib libsigc++"
+			;;
+		glibmm-dev)
+			copy glibmm-2.4/ libglibmm*.la glibmm-2.4.pc
+			DEPENDS="glibmm libgiomm-dev \
+			glib-dev libffi-dev libsigc++-dev pcre-dev perl"
 			;;
 	esac
 }

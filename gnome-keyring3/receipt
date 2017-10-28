@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-keyring3"
+VERSION="3.20.1"
+CATEGORY="x-window"
+SHORT_DESC="A program that keep password and other secrets for users"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 LGPL2.1"
+WEB_SITE="https://wiki.gnome.org/Projects/GnomeKeyring"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/gnome-keyring.html"
+
+TARBALL="gnome-keyring-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/gnome-keyring/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool gcr-dev libcap-ng-dev libxslt gtk-doc"
+SPLIT="gnome-keyring3-dev"
+
+compile_rules() {
+	sed -i -r 's:"(/desktop):"/org/gnome\1:' schema/*.xml
+
+	./configure \
+		--sysconfdir=/etc \
+		--disable-pam \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		gnome-keyring3)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gcr gcr-base \
+			gdk-pixbuf glib gtk+3 libcap-ng libffi libgcrypt libgpg-error \
+			libharfbuzz liblzma libpng16 libxml2 p11-kit pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gnome-keyring3 glib-dev libffi-dev libgcrypt-dev \
+			libgpg-error-dev pcre-dev"
+			;;
+	esac
+}

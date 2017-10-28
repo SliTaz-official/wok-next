@@ -1,32 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libcap-ng"
-VERSION="0.6.6"
+VERSION="0.7.8"
 CATEGORY="security"
-SHORT_DESC="New generation libcap library."
+SHORT_DESC="New generation libcap library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="http://people.redhat.com/sgrubb/libcap-ng/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://people.redhat.com/sgrubb/libcap-ng/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="python"
-PROVIDE="libcap"
+BUILD_DEPENDS="python-dev swig coreutils-file-format"
+SPLIT="libcap-ng-python libcap-ng-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libcap-ng)
+			copy bin/ libcap-ng.so*
+			PROVIDE="libcap"
+			;;
+		*-python)
+			copy _capng.so capng.py
+			CAT="python|Python bindings"
+			DEPENDS="libcap-ng python"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libgnome-keyring3"
+VERSION="3.12.0"
+CATEGORY="x-window"
+SHORT_DESC="A library that keep password and other secrets for users"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/GnomeKeyring"
+
+TARBALL="libgnome-keyring-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/libgnome-keyring/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool gtk-doc gobject-introspection-dev vala dbus-dev \
+libgcrypt-dev"
+SPLIT="libgnome-keyring3-dev"
+
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libgnome-keyring3)
+			copy @std
+			DEPENDS="dbus glib libffi libgcrypt libgpg-error pcre"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgnome-keyring3 dbus-dev glib-dev libffi-dev \
+			libgcrypt-dev libgpg-error-dev pcre-dev"
+			;;
+	esac
+}
