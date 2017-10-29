@@ -1,32 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgee"
-VERSION="0.9.92"
+VERSION="0.20.0"
 CATEGORY="x-window"
-SHORT_DESC="GObject collection library."
+SHORT_DESC="GObject collection library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://live.gnome.org/Libgee"
+WEB_SITE="https://wiki.gnome.org/Projects/Libgee"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-SERIES="$(echo $VERSION | cut -d. -f1,2)"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/$SERIES/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib libffi"
-BUILD_DEPENDS="bash vala gobject-introspection-dev sed glib-dev libffi-dev sed"
+BUILD_DEPENDS="glib-dev gobject-introspection-dev"
+SPLIT="libgee-dev"
 
-# Rules to configure and make the package.
-compile_rules() 
-{
-	./configure \
-		--enable-introspection=yes \
-		$CONFIGURE_ARGS &&
-	make &&
-	make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libgee)
+			copy @std
+			DEPENDS="glib libffi pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgee glib-dev libffi-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }

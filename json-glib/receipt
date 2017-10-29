@@ -1,32 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="json-glib"
-VERSION="0.14.2"
+VERSION="1.2.8"
 CATEGORY="development"
-SHORT_DESC="JSON-GLib is a library providing serialization and deserialization support for the JavaScript Object Notation"
+SHORT_DESC="JSON parser for GLib"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://live.gnome.org/JsonGlib"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
-TAGS="javascript"
+WEB_SITE="https://wiki.gnome.org/Projects/JsonGlib"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/json-glib.html"
 
-DEPENDS="glib"
-BUILD_DEPENDS="pkg-config gobject-introspection-dev glib-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+BUILD_DEPENDS="glib-dev gtk-doc libxslt-dev gobject-introspection-dev gettext"
+SPLIT="json-glib-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		json-glib)
+			copy @std
+			DEPENDS="glib libffi pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid zlib"
+			TAGS="javascript"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="json-glib glib-dev libffi-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			zlib-dev"
+			;;
+	esac
 }
-

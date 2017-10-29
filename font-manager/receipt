@@ -1,41 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="font-manager"
-VERSION="0.5.7"
+VERSION="0.7.3"
 CATEGORY="utilities"
-SHORT_DESC="A font management application for the GNOME desktop"
+SHORT_DESC="Simple font management for GTK+ desktop environments"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://code.google.com/p/font-manager/"
+WEB_SITE="http://fontmanager.github.io/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
+WGET_URL="https://github.com/FontManager/master/releases/download/$VERSION/$TARBALL"
 
-DEPENDS="python pygtk pygobject pycairo libxml2-python fontconfig freetype \
-sqlite3"
-BUILD_DEPENDS="bash python-dev fontconfig-dev freetype-dev glib-dev pango-dev \
-sqlite3-dev intltool gnome-doc-utils"
+BUILD_DEPENDS="vala gettext intltool freetype-dev fontconfig-dev json-glib-dev \
+cairo-dev gtk+3-dev libgee-dev gucharmap3-dev sqlite3-dev yelp-tools itstool \
+file"
+SPLIT="font-manager-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	sed -i 's/FT_XFREE86_H/&\n#define W_OK (2)/' src/lib/fm-fontutils.c
-	./configure --enable-bytecode --enable-nls $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$install install
-
-	# fix translations
-	for p in $(ls po | grep -e '.po$'); do
-		msgfmt $src/po/$p -o $install/usr/share/locale/${p%.po}/LC_MESSAGES/font-manager.mo
-	done
+compile_rules() {
+	./configure \
+		--disable-schemas-compile \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	# fix paths
-	sed -i "s|$install||g" $fs/usr/bin/* $fs/usr/share/font-manager/*.py
-	# remove help (need absent yelp to show)
-	rm -rf $fs/usr/share/font-manager/help
+genpkg_rules() {
+	case $PACKAGE in
+		font-manager)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
+			gucharmap3 json-glib libffi libgee libharfbuzz liblzma libpng16 \
+			libsqlite3 libxml2 pango pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="font-manager atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev gucharmap3-dev \
+			harfbuzz-dev json-glib-dev libffi-dev libgee-dev libpng16-dev \
+			libxml2-dev pango-dev pcre-dev sqlite3-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

@@ -1,40 +1,48 @@
 # SliTaz package receipt v2.
 
-PACKAGE="glade3"
-VERSION="3.8.6"
+PACKAGE="glade"
+VERSION="3.20.1"
 CATEGORY="development"
-SHORT_DESC="A user interface designer for GTK+2"
-MAINTAINER="pankso@slitaz.org"
-LICENSE="GPL2 LGPL2"
+SHORT_DESC="A user interface designer for GTK+3"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL"
 WEB_SITE="http://glade.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk-doc gtk+-dev pygtk-dev python-dev itstool"
-SPLIT="glade3-python glade3 glade3-dev"
+BUILD_DEPENDS="glib-dev intltool gtk-doc gtk+3-dev pygobject3-dev python-dev \
+itstool"
+SPLIT="glade-python glade glade-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	# sdft can't work with keywords
+	sed -i '/_Keywords=/d' date/glade.desktop.in.in
+
+	# introspection produces error
+	./configure \
+		--disable-introspection \
+		--enable-gladeui \
+		$CONFIGURE_ARGS &&
+	make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		*-python)
 			copy libgladepython.so
-			DEPENDS="glade3 python"
+			DEPENDS="glade python"
 			CAT="python|Python bindings"
 			;;
-		glade3)
+		glade)
 			copy @std @rm
-			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
-			libxml2 pango"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libxml2 pango"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="glade3 glade3-python \
+			DEPENDS="glade glade-python \
 			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libffi-dev \
+			gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev libffi-dev \
 			libpng16-dev libxml2-dev pango-dev pcre-dev python \
 			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
 			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
