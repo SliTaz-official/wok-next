@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="distcc"
 VERSION="3.1"
@@ -13,12 +13,12 @@ WGET_URL="http://distcc.googlecode.com/files/$TARBALL"
 DEPENDS="popt lzo"
 BUILD_DEPENDS="popt-dev lzo-dev python-dev gtk+-dev libgnome-dev \
 libgnomeui-dev libbonoboui-dev libgnomecanvas-dev libgnome-keyring-dev"
+SPLIT="distcc distccmon-gui"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	export CFLAGS="-Wno-error=unused-but-set-variable"
-	cd $src
+	export CFLAGS="-Wno-error=unused-but-set-variable -Wno-unused-local-typedefs"
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -32,19 +32,35 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr \
-		$fs/var/log/distccd \
-		$fs/etc/init.d
+	case $PACKAGE in
+	distcc)
+		mkdir -p $fs/usr \
+			$fs/var/log/distccd \
+			$fs/etc/init.d
 		
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc/distcc $fs/etc
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/etc/distcc $fs/etc
 	
-	echo '127.0.0.1' >> $fs/etc/distcc/clients.allow
+		echo '127.0.0.1' >> $fs/etc/distcc/clients.allow
 	
-	install -o root -g root $stuff/distccd $fs/etc/init.d
+		install -o root -g root $stuff/distccd $fs/etc/init.d
+		;;
+	distccmon-gui)
+		CAT="development|Distcc monitor GUI."
+		DEPENDS="gtk+ distcc"
+		mkdir -p $fs/usr/bin \
+			$fs/usr/share/applications \
+			$fs/usr/share/pixmaps
+		cp -a $install/usr/bin/distccmon-gnome \
+			$fs/usr/bin/distccmon-gui
+		cp -a $install/usr/share/distcc/distccmon-gnome-icon.png \
+			$fs/usr/share/pixmaps/distccmon-gui.png
+		cp stuff/*.desktop $fs/usr/share/applications
+		;;
+	esac
 }
 
-post_install()
+post_install_distcc()
 {
 	if ! grep -q nagios "$1/etc/passwd"; then
 		echo -n "Adding user/group nagios..."
