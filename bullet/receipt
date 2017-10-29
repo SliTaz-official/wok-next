@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bullet"
-VERSION="2.82-r2704"
+VERSION="2.87"
 CATEGORY="graphics"
 SHORT_DESC="3D Real-Time Multiphysics Library"
 MAINTAINER="domcox@slitaz.org"
@@ -10,8 +10,8 @@ WEB_SITE="http://bulletphysics.org"
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://bullet.googlecode.com/files/$TARBALL"
 
-DEPENDS="mesa freeglut"
-BUILD_DEPENDS="cmake mesa-dev freeglut-dev"
+BUILD_DEPENDS="cmake mesa-dev freeglut-dev libglu-mesa-dev"
+SPLIT="bullet bullet-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,6 +29,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	bullet)
+		DEPENDS="mesa freeglut"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	bullet-dev)
+		CAT="development|3D Real-Time Multiphysics Library - devel"
+		DEPENDS="bullet pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/cmake $fs/usr/lib
+		;;
+	esac
 }
