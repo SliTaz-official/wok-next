@@ -1,36 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aircrack-ng"
-VERSION="1.1"
+VERSION="1.2-rc4"
 CATEGORY="network"
-SHORT_DESC="802.11 WEP and WPA-PSK keys cracking program."
+SHORT_DESC="802.11 WEP and WPA-PSK keys cracking program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.aircrack-ng.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.aircrack-ng.org/"
-WGET_URL="http://download.aircrack-ng.org/$TARBALL"
+WGET_URL="https://download.aircrack-ng.org/$TARBALL"
 
-DEPENDS="aircrack-ng-oui iw openssl sqlite3 zlib pylorcon"
-BUILD_DEPENDS="sqlite3-dev pylorcon openssl-dev zlib-dev"
+BUILD_DEPENDS="libnl-dev coreutils-file-special openssl-dev sqlite3-dev \
+zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i s#/usr/local#/usr#g common.mak || return 1
-	sed -i s#/man/man1#/share/man/man1# common.mak || return 1
-
-	# fix build with gcc45
-	sed -i s/-Werror// common.mak || return 1
-
-	make SQLITE=true unstable=true &&
-	make SQLITE=true unstable=true DESTDIR=$DESTDIR install
-	sed -i 's|/usr/local||g' $DESTDIR/usr/sbin/airodump-ng-oui-update
+compile_rules() {
+	make \
+		sqlite=true \
+		experimental=true &&
+	make \
+		sqlite=true \
+		experimental=true \
+		bindir=/usr/bin \
+		sbindir=/usr/sbin \
+		mandir=/usr/share/man/man1/ \
+		smandir=/usr/share/man/man8/ \
+		DESTDIR=$install \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libcrypto libnl libsqlite3 libssl zlib   aircrack-ng-oui iw"
+	PROVIDE="aircrack-ng-scripts"
 }

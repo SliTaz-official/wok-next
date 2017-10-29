@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="brisk-menu"
+VERSION="0.4.5"
+CATEGORY="x-window"
+SHORT_DESC="An efficient menu for the MATE Desktop"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/solus-project/brisk-menu"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/solus-project/brisk-menu/releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="intltool automake libtool gtk+3-dev mate-menus-dev \
+mate-panel-dev"
+
+compile_rules() {
+	./autogen.sh \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 libffi \
+	libharfbuzz liblzma libpng16 libxml2 mate-menus mate-panel pango pcre \
+	util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau \
+	xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
+	TAGS="MATE Solus menu GUI"
+}

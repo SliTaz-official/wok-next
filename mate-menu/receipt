@@ -1,0 +1,24 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mate-menu"
+VERSION="17.10.8"
+CATEGORY="x-window"
+SHORT_DESC="An Advanced Menu for the MATE Desktop"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/ubuntu-mate/mate-menu"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/ubuntu-mate/mate-menu/archive/$VERSION.tar.gz"
+
+BUILD_DEPENDS="python-distutils-extra intltool file"
+
+compile_rules() {
+	python setup.py install --root=$install
+}
+
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="python" # FIXME Python deps...
+	TAGS="MATE Ubuntu menu GUI"
+}

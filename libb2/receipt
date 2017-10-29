@@ -1,0 +1,39 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libb2"
+VERSION="0.98"
+COMMIT="0d7015f"
+CATEGORY="libs"
+SHORT_DESC="C library providing BLAKE2b, BLAKE2s, BLAKE2bp, BLAKE2sp"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="CC0"
+WEB_SITE="https://blake2.net/"
+
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/BLAKE2/libb2/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="automake libtool"
+SPLIT="libb2-dev"
+
+compile_rules() {
+
+	./autogen.sh &&
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libb2)
+			copy @std
+			DEPENDS="libgomp"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
