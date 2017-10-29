@@ -11,7 +11,7 @@ WEB_SITE="http://www.php.net/"
 WGET_URL="http://www.php.net/distributions/$TARBALL"
 #HOST_ARCH="i486 arm"
 
-BUILD_DEPENDS="sqlite-dev libxml2-dev zlib-dev libmysqlclient mysql-dev \
+BUILD_DEPENDS="sqlite3-dev libxml2-dev zlib-dev libmysqlclient mysql-dev \
 net-snmp-dev postgresql-dev gettext openssl-dev apache-dev apr-util-dev \
 c-client mhash-dev libpng-dev libunixODBC unixODBC-dev openldap-dev \
 libldap apr-dev libmcrypt-dev curl-dev cyrus-sasl-dev perl pkg-config \
@@ -63,7 +63,7 @@ case "$ARCH" in
 			--with-sqlite3=shared,/usr \
 			--enable-maintainer-zts" ;;
 	arm*)
-		BUILD_DEPENDS="sqlite-dev libxml2-dev zlib-dev curl-dev"
+		BUILD_DEPENDS="sqlite3-dev libxml2-dev zlib-dev curl-dev"
 		ARCH_ARGS="\
 			--prefix=/usr \
 			--sysconfdir=/etc \
@@ -115,7 +115,7 @@ genpkg_rules()
 	case $PACKAGE in
 	php)
 		PROVIDE="php:lighttpd"
-		DEPENDS="php-common lighttpd zlib libxml2 sqlite libssl"
+		DEPENDS="php-common lighttpd zlib libxml2 sqlite3 libssl"
 		mkdir -p $fs/usr/bin $fs/usr/share/php
 		cp -a $src/sapi/cgi/php-cgi $fs/usr/bin
 		;;
@@ -261,7 +261,7 @@ genpkg_rules()
 		;;
 	php-sqlite)
 		CAT="development|sqlite module for PHP web programming language."
-		DEPENDS="php sqlite"
+		DEPENDS="php sqlite3"
 		mkdir -p $fs/usr/share/php
 		cp $(find $install | grep sqlite.so) $fs/usr/share/php/
 		cp $(find $install | grep sqlite3.so) $fs/usr/share/php/
