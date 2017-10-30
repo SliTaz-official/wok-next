@@ -14,12 +14,12 @@ DEPENDS="fox xine-lib dbus curl sqlite3 taglib libpng jpeg expat tiff \
 mesa libglu-mesa"
 BUILD_DEPENDS="fox-dev sqlite3 taglib dbus-dev xine-lib-dev \
 sqlite3-dev taglib-dev curl-dev expat-dev xorg-xproto \
-xorg-libX11-dev libgcrypt-dev mesa-dev pkg-config"
+xorg-libX11-dev libgcrypt-dev mesa-dev libglu-mesa-dev pkg-config"
 
 # Rules to configure and make the package. 
 compile_rules()
 {
-	cd $src
+	sed -i 's/0x80/-128/g' src/gmutils.cpp
 	# Fixed installing .mo files since busybox install commmand 
 	# doesn't have -T option
 	sed -i 's| -T||g' $src/Makefile
