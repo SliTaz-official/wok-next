@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ufraw"
 VERSION="0.18"
@@ -9,16 +9,15 @@ LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://ufraw.sourceforge.net/"
 WGET_URL="$SF_MIRROR/project/ufraw/ufraw/ufraw-$VERSION/$TARBALL"
-SUGGESTED="ufraw-locales gimp-plugin-ufraw"
 
-DEPENDS="gtk+ exiv2 lcms tiff libgtkimageview libgomp bzip2"
 BUILD_DEPENDS="gimp gimp-dev lcms-dev tiff-dev exiv2-dev gtk+-dev \
 libgtkimageview-dev bzip2-dev"
+SPLIT="ufraw gimp-plugin-ufraw ufraw-locales"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	export CXXFLAGS="-Wno-narrowing"
 	./configure \
 		$CONFIGURE_ARGS &&
 	make && make install
@@ -27,7 +26,25 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $src/ufraw.desktop $fs/usr/share/applications
+	case $PACKAGE in
+	ufraw)
+		SUGGESTED="ufraw-locales gimp-plugin-ufraw"
+		DEPENDS="gtk+ exiv2 lcms tiff libgtkimageview libgomp bzip2"
+		mkdir -p $fs/usr/share/applications
+		cp -a $install/usr/bin $fs/usr
+		cp -a $src/ufraw.desktop $fs/usr/share/applications
+		;;
+	gimp-plugin-ufraw)
+		CAT="graphics|Add raw files support to GIMP with UFRaw."
+		SUGGESTED="ufraw-locales"
+		DEPENDS="gimp"
+		mkdir -p $fs/usr
+		cp -a $install/usr/lib $fs/usr
+		;;
+	ufraw-locales)
+		CAT="misc|Locales for ufraw and gimp-plugin-ufraw."
+		mkdir -p $fs/usr $fs/usr/share
+		cp -a $install/usr/share/locale $fs/usr/share
+		;;
+	esac
 }
