@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tumbler"
-VERSION="0.1.32"
-CATEGORY="system-tools"
-SHORT_DESC="A D-Bus thumbnailing service"
+VERSION="0.1.31" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
+CATEGORY="graphics"
+SHORT_DESC="D-Bus thumbnailing service"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="https://www.openhub.net/p/tumbler"
@@ -11,31 +11,77 @@ WEB_SITE="https://www.openhub.net/p/tumbler"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool dbus-glib-dev curl-dev glib-dev gdk-pixbuf-dev \
-freetype-dev libjpeg-turbo-dev ffmpegthumbnailer-dev gst1-plugins-base-dev \
-libgsf-dev poppler-dev libpng16-dev lcms2-dev tiff-dev gtk-doc"
-SPLIT="tumbler-dev"
+BUILD_DEPENDS="intltool gtk-doc dbus-glib dbus-dev dbus-glib-dev \
+gdk-pixbuf-dev curl-dev freetype-dev libjpeg-turbo-dev ffmpegthumbnailer-dev \
+gst1-plugins-base-dev libgsf-dev poppler-dev libopenraw-dev lcms2-dev"
+SPLIT="tumbler-plugin-cover tumbler-plugin-ffmpeg tumbler-plugin-font \
+tumbler-plugin-gst tumbler-plugin-jpeg tumbler-plugin-odf \
+tumbler-plugin-poppler tumbler-plugin-raw tumbler tumbler-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	# openraw v.0.0.9 - libopenraw-gnome-1.0.pc;
+	# openraw v.0.1.2 - libopenraw-gnome-0.1.pc (current, latest)
+	sed -i 's|libopenraw-gnome-1\.0|libopenraw-gnome-0.1|g' configure
+
 	./configure \
 		--sysconfdir=/etc \
-		--enable-debug=no \
+		--localstatedir=/var \
+		--disable-debug \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
+		*-cover)
+			copy tumbler-cover-thumbnailer.so
+			DEPENDS="tumbler libcrypto libcurl libidn2 libssh2 libssl"
+			CAT="graphics|cover video thumbnailer"
+			;;
+		*-ffmpeg)
+			copy tumbler-ffmpeg-thumbnailer.so
+			DEPENDS="tumbler ffmpegthumbnailer"
+			CAT="graphics|FFmpeg video thumbnailer"
+			;;
+		*-font)
+			copy tumbler-font-thumbnailer.so
+			DEPENDS="tumbler bzlib freetype libharfbuzz"
+			CAT="graphics|font thumbnailer"
+			;;
+		*-gst)
+			copy tumbler-gst-thumbnailer.so
+			DEPENDS="tumbler gst1-plugins-base gstreamer1"
+			CAT="graphics|GStreamer video thumbnailer"
+			;;
+		*-jpeg)
+			copy tumbler-jpeg-thumbnailer.so
+			DEPENDS="tumbler libjpeg-turbo"
+			CAT="graphics|JPEG thumbnailer"
+			;;
+		*-odf)
+			copy tumbler-odf-thumbnailer.so
+			DEPENDS="tumbler bzlib libgsf liblzma libxml2"
+			CAT="graphics|ODF thumbnailer"
+			;;
+		*-poppler)
+			copy tumbler-poppler-thumbnailer.so
+			DEPENDS="tumbler bzlib cairo fontconfig freetype lcms2 libharfbuzz \
+			libjpeg-turbo liblzma libxml2 poppler tiff xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman"
+			CAT="graphics|Poppler PDF/PS thumbnailer"
+			;;
+		*-raw)
+			copy tumbler-raw-thumbnailer.so
+			DEPENDS="tumbler libjpeg-turbo libopenraw libopenraw-gnome"
+			CAT="graphics|RAW thumbnailer"
+			;;
 		tumbler)
-			copy @std
-			DEPENDS="cairo dbus dbus-glib ffmpegthumbnailer freetype \
-			gdk-pixbuf glib gst1-plugins-base gstreamer1 libcurl libgsf \
-			libjpeg-turbo libpng16 libxml2 poppler"
+			copy @std @rm
+			DEPENDS="dbus dbus-glib gdk-pixbuf glib libffi libpng16 pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			CAT="graphics|main package"
 			CONFIG_FILES="/etc/xdg/tumbler/tumbler.rc"
 			;;
 		*-dev)
@@ -43,11 +89,13 @@ genpkg_rules()
 			DEPENDS="tumbler bzip2-dev cairo-dev curl-dev \
 			ffmpegthumbnailer-dev fontconfig-dev freetype-dev gdk-pixbuf-dev \
 			glib-dev gst1-plugins-base-dev gstreamer1-dev harfbuzz-dev \
-			libjpeg-turbo-dev lcms2-dev libffi-dev libgsf-dev libpng16-dev \
-			libxml2-dev openssl-dev pcre-dev poppler-dev tiff-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			libjpeg-turbo-dev lcms2-dev libffi-dev libgsf-dev libidn2-dev \
+			libopenraw-dev libpng16-dev libssh2-dev libxml2-dev openssl-dev \
+			pcre-dev poppler-dev tiff-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
 			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
 			;;
 	esac
+	TAGS="Xfce"
 }

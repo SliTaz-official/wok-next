@@ -1,36 +1,61 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libxfce4ui"
-VERSION="4.11.1"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Gtk Widget library"
+SHORT_DESC="Xfce GTK widget library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
+WEB_SITE="http://www.xfce.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.xfce.org"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ libxfce4util libxfconf startup-notification dbus-glib libglade \
-util-linux-uuid"
-BUILD_DEPENDS="gtk+-dev libxfce4util-dev libxfconf-dev \
-startup-notification-dev libglade-dev xcb-util-dev util-linux-uuid-dev intltool"
+BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
+gtk+-dev libxfce4util-dev startup-notification-dev xfconf-dev glade3-dev \
+gtk-doc"
+SPLIT="libxfce4ui-dev libxfce4ui-glade3 libxfce4ui"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
+		--localstatedir=/var \
 		--disable-debug \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs/
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			DEPENDS="libxfce4ui libxfce4ui-glade3 \
+			atk-dev bzip2-dev cairo-dev dbus-dev dbus-glib-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glade3-dev glib-dev gtk+-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxfce4util-dev xfconf-dev \
+			libxml2-dev pango-dev pcre-dev startup-notification-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+		*-glade3)
+			copy glade3/ @rm
+			DEPENDS="libxfce4ui glade3"
+			CAT="x-window|Glade3 module"
+			;;
+		libxfce4ui)
+			copy @std @rm
+			DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype \
+			gdk-pixbuf glib gtk+ libffi libharfbuzz liblzma libpng16 \
+			libxfce4util libxml2 pango pcre startup-notification \
+			util-linux-blkid util-linux-mount util-linux-uuid xfconf \
+			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman xorg-xcb-util \
+			zlib"
+			;;
+	esac
+	TAGS="Xfce"
 }
-

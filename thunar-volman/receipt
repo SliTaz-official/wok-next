@@ -1,42 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="thunar-volman"
-VERSION="0.8.0"
+VERSION="0.8.1" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Thunar Volume Manager plugin"
+SHORT_DESC="Thunar volume manager plugin"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.xfce.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://foo-projects.org/~benny/projects/thunar-archive-plugin/index.html"
-WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION:0:3}/$TARBALL"
+WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="thunar libxfce4ui startup-notification"
-BUILD_DEPENDS="thunar-dev glibc-locale intltool libexo-dev libgudev-dev libxfce4ui-dev \
- xfconf-dev startup-notification-dev util-linux-uuid-dev libxml2-dev libnotify-dev
- libxfce4util-dev"
+BUILD_DEPENDS="intltool exo-dev libgudev-dev libxfce4ui-dev libnotify-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		--disable-debug \
-		--enable-notifications \
-		--libexecdir=/usr/lib/$PACKAGE $CONFIGURE_ARGS && \
-	make && make install
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/locale $fs/usr/lib
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	
-	#gtk-update-icon-cache -f -t $fs/usr/share/icons/hicolor
+genpkg_rules() {
+	copy @std
+	DEPENDS="exo glib gtk+ libgudev libnotify libxfce4ui libxfce4util pango \
+	xfconf   thunar"
+	TAGS="Xfce"
 }
-

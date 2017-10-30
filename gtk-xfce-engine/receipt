@@ -1,31 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-xfce-engine"
-VERSION="2.8.1"
+VERSION="2.10.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="customization"
 SHORT_DESC="GTK engine for Xfce"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+"
-BUILD_DEPENDS="gtk+-dev libffi"
+BUILD_DEPENDS="gtk+-dev"
+SPLIT="gtk-xfce-engine-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/ $fs/usr/
-
-	find $fs/usr/lib -name "*.la" -exec rm -f {} \;
+genpkg_rules() {
+	case $PACKAGE in
+		gtk-xfce-engine)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gtk-xfce-engine atk-dev bzlib cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib"
+			;;
+	esac
+	TAGS="Xfce"
 }

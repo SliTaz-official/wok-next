@@ -1,17 +1,17 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxfce4util"
-VERSION="4.13.1"
+VERSION="4.12.1" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Utility library"
+SHORT_DESC="Xfce utility library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
-WEB_SITE="http://www.xfce.org"
+WEB_SITE="http://www.xfce.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk-doc gobject-introspection-dev"
+BUILD_DEPENDS="intltool gtk-doc"
 SPLIT="libxfce4util-dev"
 
 compile_rules() {
@@ -19,6 +19,7 @@ compile_rules() {
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -28,11 +29,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		libxfce4util)
 			copy @std
-			DEPENDS="glib libffi pcre"
+			DEPENDS="glib pcre"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libxfce4util glib-dev libffi-dev pcre-dev"
+			DEPENDS="libxfce4util glib-dev pcre-dev"
 			;;
 	esac
 	TAGS="Xfce"

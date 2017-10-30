@@ -1,58 +1,56 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="thunar"
-VERSION="1.4.0"
+VERSION="1.6.6" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Thunar File Manager"
+SHORT_DESC="Thunar file manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-SOURCE="Thunar"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org"
+
+TARBALL="Thunar-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
-TAGS="file-manager"
 
-DEPENDS="libpng jpeg gtk+ libxfce4util dbus-glib libexo pcre libexif libgudev \
-gamin libxfce4ui startup-notification util-linux-uuid libnotify"
-BUILD_DEPENDS="libpng-dev jpeg-dev gtk+-dev libxml2-dev dbus-glib-dev \
-libexo-dev zlib-dev intltool libgudev-dev libxfce4ui-dev libxfce4util-dev xcb-util-dev \
-startup-notification-dev util-linux-uuid-dev libnotify-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev exo-dev libxfce4ui-dev \
+libgudev-dev libnotify-dev gtk-doc libexif-dev xfce4-panel-dev"
+SPLIT="thunar-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc \
-		--enable-dbus \
-		--enable-startup-notification \
-		--enable-notifications \
-		--enable-gio-unix \
-		--enable-gudev \
-		--libexecdir=/usr/lib \
-		--enable-debug=no \
+		--localstatedir=/var \
+		--disable-debug \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p \
-		$fs/usr/share \
-		$fs/usr/lib/thunarx-2
-
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-
-	cp -a $install/usr/lib/Thunar $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/thunarx-2/*.so* $fs/usr/lib/thunarx-2
-	cp -a $install/usr/share/dbus-1 $fs/usr/share
-
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/Thunar $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		thunar)
+			copy @std
+			DEPENDS="atk bzlib cairo dbus dbus-glib exo fontconfig freetype \
+			gdk-pixbuf glib gtk+ libexif libffi libgudev libharfbuzz liblzma \
+			libnotify libpng16 libxfce4ui libxfce4util libxml2 pango pcre \
+			startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xfce4-panel xfconf xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			TAGS="Xfce file-manager"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="thunar atk-dev bzlib cairo-dev dbus-dev dbus-glib-dev \
+			exo-dev fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
+			gtk+-dev harfbuzz-dev libexif-dev libffi-dev libpng16-dev \
+			libxfce4ui-dev libxfce4util-dev libxml2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xfce4-panel-dev xfconf-dev xorg-libICE-dev \
+			xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib"
+			TAGS="Xfce"
+			;;
+	esac
 }
-

@@ -1,18 +1,18 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xfconf"
-VERSION="4.13.4"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Configuration Utility"
+SHORT_DESC="Xfce configuration utility"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.xfce.org"
+WEB_SITE="http://www.xfce.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool libxfce4util-dev perl-extutils-depends \
-perl-extutils-pkgconfig perl-glib gtk-doc dbus-dev perl-dev"
+BUILD_DEPENDS="intltool libxfce4util-dev dbus-dev dbus-glib-dev \
+perl-extutils-depends perl-extutils-pkgconfig perl-glib perl-dev gtk-doc"
 SPLIT="xfconf-dev xfconf-perl xfconf"
 
 compile_rules() {
@@ -20,10 +20,12 @@ compile_rules() {
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
+	chmod a+x $install/usr/lib/libxfconf-0.so.2.0.0
 	find $install/usr/lib/perl5 -type f -exec chmod u+w '{}' \;
 }
 
@@ -32,8 +34,8 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			DEPENDS="xfconf xfconf-perl \
-			glib-dev libffi-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
+			dbus-dev dbus-glib-dev glib-dev libffi-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev zlib"
 			;;
 		xfconf-perl)
 			copy /usr/lib/perl5/ @rm
@@ -42,8 +44,8 @@ genpkg_rules() {
 			;;
 		xfconf)
 			copy @std @rm
-			DEPENDS="dbus glib libffi libxfce4util pcre util-linux-blkid \
-			util-linux-mount util-linux-uuid zlib"
+			DEPENDS="dbus dbus-glib glib libffi libxfce4util pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
 			;;
 	esac
 	TAGS="Xfce"

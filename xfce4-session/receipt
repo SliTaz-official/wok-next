@@ -1,64 +1,55 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfce4-session"
-VERSION="4.11.0"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
 SHORT_DESC="Xfce session manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
-SUGGESTED="perl-xml-parser"
 
-DEPENDS="libxfce4util libxfce4ui libwnck2 dbus-glib libglade xorg-iceauth"
-BUILD_DEPENDS="libxfce4util-dev libxfce4ui-dev xfconf-dev libglade-dev dbus-dev  \
-dbus-glib-dev xorg-iceauth libwnck2-dev pkg-config intltool util-linux-uuid-dev \
-xorg-libSM-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev libxfce4util-dev libxfce4ui-dev \
+libwnck2-dev polkit-dev upower-dev xorg-iceauth"
+SPLIT="xfce4-session-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	touch libtoolT
+
+	./configure \
 		--sysconfdir=/etc \
-		--enable-panel-plugin \
-		--disable-gnome \
+		--localstatedir=/var \
 		--disable-debug \
-		--libexecdir=/usr/lib/$PACKAGE \
-		--mandir=/usr/share/man $CONFIGURE_ARGS  2>&1 | grep -v libtoolT &&
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
-}
+	make install || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib \
-		$fs/usr/share/locale \
-		$fs/sbin
-			
-	cp -a $install/etc $fs/	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/xfce4 $fs/usr/lib
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/themes $fs/usr/share
-	#cp -a $install/usr/share/xfce4 $fs/usr/share
-	
 	# xfce4-session-logout workarround
-	cp stuff/shutdown $fs/sbin
-
-	# strip all files
-	#strip -s $fs/usr/lib/$PACKAGE/xf*
-	
-	# remove autostartfile
-	rm -f $fs/etc/xdg/autostart/*
-	
-	# Remove unecessary files
-	find $fs/ -name "*.*a" -exec rm -f {} \;
-
-	# Remove SVG icons
-	rm -rf $fs/usr/share/icons/hicolor/scalable
+	mkdir -p $install/sbin
+	cp $stuff/shutdown $install/sbin
 }
 
+genpkg_rules() {
+	case $PACKAGE in
+		xfce4-session)
+			copy @std
+			DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
+			glib gtk+ libwnck2 libxfce4ui libxfce4util pango polkit xfconf \
+			xorg-libICE xorg-libSM xorg-libX11   xorg-iceauth"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xfce4-session atk-dev bzip2-dev cairo-dev dbus-dev \
+			dbus-glib-dev fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
+			gtk+-dev harfbuzz-dev libffi-dev libpng16-dev libxfce4ui-dev \
+			libxfce4util-dev libxml2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xfconf-dev xorg-libICE-dev xorg-libSM-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev \
+			xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+}

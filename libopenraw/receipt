@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libopenraw"
+VERSION="0.1.2"
+CATEGORY="graphics"
+SHORT_DESC="Library for decoding RAW files"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL"
+WEB_SITE="https://libopenraw.freedesktop.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://libopenraw.freedesktop.org/download/$TARBALL"
+
+BUILD_DEPENDS="libboost-dev libjpeg-turbo-dev libxml2-dev curl-dev glib-dev \
+gdk-pixbuf-dev"
+SPLIT="libopenraw-gnome libopenraw libopenraw-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libopenraw-gnome)
+			copy libopenrawgnome.so*
+			DEPENDS="libopenraw"
+			CAT="gnome|GNOME support"
+			;;
+		libopenraw)
+			copy @std @rm
+			DEPENDS="gdk-pixbuf glib libffi libjpeg-turbo libpng16 pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libopenraw libopenraw-gnome gdk-pixbuf-dev glib-dev \
+			libjpeg-turbo-dev libffi-dev libpng16-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev zlib"
+			;;
+	esac
+}

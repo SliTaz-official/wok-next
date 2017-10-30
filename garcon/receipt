@@ -1,42 +1,52 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="garcon"
-VERSION="0.3.0"
+VERSION="0.4.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="misc"
 SHORT_DESC="Xfce menu library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
+WEB_SITE="http://www.xfce.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.xfce.org"
-WGET_URL="http://archive.xfce.org/src/xfce/garcon/${VERSION%.*}/$TARBALL"
+WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib gtk+ libxfce4ui libxfce4util util-linux-uuid startup-notification"
-BUILD_DEPENDS="intltool glib-dev libxfce4ui-dev libxfce4util-dev \
-		util-linux-uuid-dev gtk+-dev startup-notification-dev"
+BUILD_DEPENDS="intltool libxfce4util-dev gtk+-dev libxfce4ui-dev gtk-doc"
+SPLIT="garcon-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
 		--sysconfdir=/etc \
-		--disable-login \
-		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--disable-debug \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr \
-		$fs/usr/share \
-		$fs/usr/lib
-	
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/etc $fs/
-	cp -a $install/usr/share/desktop* $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		garcon)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxfce4ui libxfce4util \
+			libxml2 pango pcre startup-notification util-linux-blkid \
+			util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="garcon atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
+			libffi-dev libpng16-dev libxfce4ui-dev libxfce4util-dev \
+			libxml2-dev pango-dev pcre-dev startup-notification-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="Xfce"
 }
-

@@ -1,36 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfce4-dev-tools"
-VERSION="4.11.0"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="development"
-SHORT_DESC="Xfce Developpers Tools "
+SHORT_DESC="Xfce developpers tools"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://xfce.org/~benny/projects/xfce4-dev-tools/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="subversion autoconf automake intltool pkg-config"
+BUILD_DEPENDS="glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	#patch -p1 -i $stuff/xdt-autogen-4.6.0.u || return 1
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	
-	chmod 755 $fs/usr/bin/xdt-*
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="glib-dev pcre   subversion autoconf automake intltool"
 }

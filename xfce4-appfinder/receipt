@@ -1,35 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfce4-appfinder"
-VERSION="4.11.0"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Application Finder"
+SHORT_DESC="Xfce application finder"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.xfce.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.xfce.org"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ garcon libxfce4ui xfconf thunar gamin dbus-glib startup-notification \
- garcon util-linux-uuid"
-BUILD_DEPENDS="intltool libxfce4util-dev libxfce4ui-dev garcon-dev xfconf-dev \
- startup-notification-dev dbus-glib-dev util-linux-uuid-dev "
+BUILD_DEPENDS="intltool libxfce4util-dev garcon-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr \
-		--disable-static \
-		--disable-debug $CONFIGURE_ARGS && 
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="garcon gdk-pixbuf glib gtk+ libxfce4ui libxfce4util xfconf"
 }
-
