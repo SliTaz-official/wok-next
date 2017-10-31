@@ -1,30 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gsettings-desktop-schemas"
-VERSION="3.20.0"
-CATEGORY="x-window"
-SHORT_DESC="Collection of GSettings schemas for settings shared by various components of a GNOME Desktop"
+VERSION="3.24.0"
+CATEGORY="gnome"
+SHORT_DESC="Collection of GSettings schemas"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
-WEB_SITE="http://www.gnome.org/"
+WEB_SITE="https://git.gnome.org/browse/gsettings-desktop-schemas"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/gsettings-desktop-schemas.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib"
 BUILD_DEPENDS="glib-dev gobject-introspection-dev intltool"
+SPLIT="gsettings-desktop-schemas-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in &&
+compile_rules() {
+	sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in
 
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy usr/
-	rm -rf $fs/usr/share/locale
+genpkg_rules() {
+	case $PACKAGE in
+		gsettings-desktop-schemas)
+			copy @std
+			DEPENDS="glib dconf"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gsettings-desktop-schemas glib-dev"
+			;;
+	esac
 }
