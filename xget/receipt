@@ -12,12 +12,12 @@ WEB_SITE="http://xcpu.sourceforge.net/xget"
 WGET_URL="$SF_MIRROR/xcpu/$VERSION/$TARBALL"
 
 DEPENDS=""
-BUILD_DEPENDS="openssl openssl-dev elfutils-dev"
+BUILD_DEPENDS="openssl openssl-dev elfutils-dev zlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's|<stdio.h>|&\n#include <sys/resource.h>|' xcpufs/xcpufs.c
 	make -j 1 &&
 	make INSTALLPREFIX=$DESTDIR/usr install
 }
