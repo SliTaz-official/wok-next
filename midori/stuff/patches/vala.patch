@@ -1,0 +1,78 @@
+The current vala doesn't forgive the mistakes...
+Thanks Archlinux team!
+
+--- a/midori/midori-notebook.vala
++++ b/midori/midori-notebook.vala
+@@ -22,7 +22,7 @@
+         public bool close_button_left { get; set; default = false; }
+         public bool close_button_visible { get; set; default = false; }
+ 
+-        protected Tally (Midori.Tab tab) {
++        public Tally (Midori.Tab tab) {
+             this.tab = tab;
+             box = new Gtk.HBox (false, 1);
+             add (box);
+--- a/extensions/transfers.vala
++++ b/extensions/transfers.vala
+@@ -275,7 +275,7 @@
+                     Transfer found;
+                     store.get (iter, 0, out found);
+                     if (transfer == found) {
+-                        store.remove (iter);
++                        store.remove (ref iter);
+                         break;
+                     }
+                 } while (store.iter_next (ref iter));
+@@ -455,7 +455,7 @@
+                 if (notifications.length () == 1)
+                     msg = _("The file '<b>%s</b>' has been downloaded.").printf (filename);
+                 else
+-                    msg = _("'<b>%s</b>' and %d other files have been downloaded.").printf (filename, notifications.length ());
++                    msg = _("'<b>%s</b>' and %u other files have been downloaded.").printf (filename, notifications.length ());
+                 get_app ().send_notification (_("Transfer completed"), msg);
+                 notifications = new GLib.List<string> ();
+             }
+--- a/extensions/adblock/widgets.vala
++++ b/extensions/adblock/widgets.vala
+@@ -227,7 +227,7 @@
+                             liststore.get (iter, 0, out sub);
+                             if (sub.mutable) {
+                                 config.remove (sub);
+-                                liststore.remove (iter);
++                                liststore.remove (ref iter);
+                                 return true;
+                             }
+                         }
+--- a/extensions/apps.vala
++++ b/extensions/apps.vala
+@@ -265,7 +265,7 @@
+                             store.get (iter, 0, out launcher);
+                             try {
+                                 launcher.file.trash (null);
+-                                store.remove (iter);
++                                store.remove (ref iter);
+ 
+                                 string filename = Midori.Download.clean_filename (launcher.name);
+ #if HAVE_WIN32
+--- a/extensions/history-list.vala
++++ b/extensions/history-list.vala
+@@ -223,7 +223,7 @@
+                     FixMe: the retrun value of `Gtk.ListStore.remove` should be checked
+                     Note:  in some cases the return value of `Gtk.ListStore.remove` is wrong
+                 */
+-                model.remove (iter);
++                model.remove (ref iter);
+                 this.browser.close_tab (view);
+                 if (length > 2)
+                     this.resize_treeview ();
+--- a/extensions/notes.vala
++++ b/extensions/notes.vala
+@@ -116,7 +116,7 @@
+                     if (current_note == note) {
+                         current_note = null;
+                     }
+-                    notes_list_store.remove (iter);
++                    notes_list_store.remove (ref iter);
+                     break;
+                 }
+             } while (notes_list_store.iter_next (ref iter));
