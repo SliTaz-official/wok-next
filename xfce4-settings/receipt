@@ -1,52 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfce4-settings"
-VERSION="4.11.2"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Settings Manager"
+SHORT_DESC="Xfce settings manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxfce4util libxfce4ui libexo xfconf libglade dbus-glib xorg-libXi \
-xorg-libXrandr libnotify libwnck2"
-BUILD_DEPENDS="libxfce4util-dev libxfce4ui-dev libexo-dev xfconf-dev libglade-dev 
- dbus-glib-dev xorg-libXi-dev xorg-libXrandr-dev xorg-inputproto libnotify-dev \
-intltool exo startup-notification-dev  util-linux-uuid-dev garcon-dev"
+BUILD_DEPENDS="intltool exo-dev garcon-dev xorg-libXi-dev xorg-libXrandr-dev \
+upower-dev libnotify-dev xorg-libXcursor-dev xorg-xf86-input-libinput-dev \
+libxklavier-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
 		--sysconfdir=/etc \
-		--enable-xcursor \
-		--enable-libnotify \
-		--enable-xrandr \
-		--enable-libxklavier \
-		--enable-sound-settings \
+		--localstatedir=/var \
 		--disable-debug \
-		--disable-static \
-		--mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+		--enable-pluggable-dialogs \
+		--enable-sound-settings \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr \
-		$fs/usr/share/locale
-
-	cp -a $install/etc $fs/	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	
-	if [ -f $fs/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml ]; then
-		sed -i 's/Xfce/Clearlooks/' $fs/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
-		sed -i 's/Rodent/Tango/' $fs/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
-	fi
-		
+genpkg_rules() {
+	copy @std hicolor/ # only 128 icons here
+	DEPENDS="cairo dbus dbus-glib exo fontconfig garcon gdk-pixbuf glib gtk+ \
+	libnotify libxfce4ui libxfce4util libxklavier pango upower xfconf \
+	xorg-libX11 xorg-libXcursor xorg-libXi xorg-libXrandr"
 }
-

@@ -1,52 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfdesktop"
-VERSION="4.10.0"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Desktop"
+SHORT_DESC="Xfce desktop"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxfce4util libxfcegui4 thunar libexo libglade gamin libnotify"
-BUILD_DEPENDS="libxfce4util-dev thunar-dev libexo-dev libwnck2-dev \
-xfconf-dev libglade-dev gamin-dev hal-dev xfce4-panel-dev libnotify-dev intltool \
-util-linux-uuid-dev dbus-glib libxfce4ui-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
+dbus-glib-dev gtk+-dev libxfce4util-dev libxfce4ui-dev libwnck2-dev exo-dev \
+thunar-dev garcon-dev libnotify-dev"
+SPLIT="xfdesktop-extras xfdesktop"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr \
-	--sysconfdir=/etc \
-	--enable-notifications \
-	--enable-gio-unix \
-	--enable-thunarx \
-	--disable-static \
-	--libexecdir=/usr/lib/$PACKAGE \
-	--mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib \
-		$fs/usr/share/locale \
-		$fs/usr/share/xfce4
-
-	cp -a $install/usr/bin $fs/usr
-	#~ cp -a $install/etc $fs/
-	#~ cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-	#~ cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	cp -a $install/usr/share/applications $fs/usr/share
-	#~ cp -a $install/usr/share/desktop-directories $fs/usr/share
-	#~ cp -a $install/usr/share/xfce4/panel-plugins $fs/usr/share/xfce4
-	
-	#~ strip -s $fs/usr/lib/$PACKAGE/xfce4/panel-plugins/*
-
+genpkg_rules() {
+	case $PACKAGE in
+		*-extras)
+			copy backgrounds/
+			CAT="x-window|backgrounds"
+			;;
+		xfdesktop)
+			copy @std @rm
+			DEPENDS="atk bzlib cairo dbus dbus-glib exo fontconfig freetype \
+			garcon gdk-pixbuf glib gtk+ libffi libharfbuzz liblzma libnotify \
+			libpng16 libwnck2 libxfce4ui libxfce4util libxml2 pango pcre \
+			startup-notification thunar util-linux-blkid util-linux-mount \
+			util-linux-uuid xfconf xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman xorg-xcb-util zlib"
+			;;
+	esac
 }
-
