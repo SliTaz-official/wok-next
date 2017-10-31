@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="vivaldi"
+VERSION="1.12.955.48"
+CATEGORY="network"
+SHORT_DESC="An advanced browser made with the power user in mind"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="custom"
+WEB_SITE="https://vivaldi.com/"
+
+TARBALL="vivaldi-stable-$VERSION-1.i386.rpm"
+WGET_URL="https://downloads.vivaldi.com/stable/$TARBALL"
+
+compile_rules() {
+	mkdir -p $install
+	cp -a ./opt/ ./usr/ $install
+
+	# link icons
+	for size in 16 48; do
+		mkdir -p $install/usr/share/icons/hicolor/${size}x$size/apps
+		ln -s ../../../../../../opt/vivaldi/product_logo_$size.png \
+			$install/usr/share/icons/hicolor/${size}x$size/apps/vivaldi.png
+	done
+
+	# remome useless comments (after sdft)
+	sed -i '/^#/d' $install/usr/share/applications/vivaldi-stable.desktop
+
+	# suid sandbox
+	chmod 4755 $install/opt/vivaldi/vivaldi-sandbox
+
+	# extract license
+	mkdir -p $install/usr/share/licenses/$PACKAGE
+	sed '/<!DOCTYPE/,/<\/html>/!d' $src/opt/vivaldi/locales/en-US.pak \
+	| sed 's|.*<!DOCTYPE|<!DOCTYPE|' \
+	> $install/usr/share/licenses/$PACKAGE/EULA.html
+}
+
+genpkg_rules() {
+	copy opt/ usr/
+	DEPENDS="GConf alsa-lib atk cairo dbus expat fontconfig gdk-pixbuf glib \
+	gtk+3 libcups nspr nss pango xorg-libX11 xorg-libXScrnSaver \
+	xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXext \
+	xorg-libXfixes xorg-libXi xorg-libXrandr xorg-libXrender xorg-libXtst \
+	xorg-libxcb"
+	TAGS="web-browser"
+}
