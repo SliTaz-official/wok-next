@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="celestia"
-VERSION="1.6.0"
+VERSION="1.6.1"
 CATEGORY="games"
 SHORT_DESC="Real-time 3D Space Simulation"
 MAINTAINER="slaxemulator@gmail.com"
@@ -11,16 +11,17 @@ WEB_SITE="http://www.shatters.net/celestia/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS="gtk+ glew libtheora lua5.1 gtkglext freeglut xorg-libXmu mesa libglu-mesa libjpeg jpeg zlib"
-BUILD_DEPENDS="$DEPENDS gtk+-dev libtheora-dev lua5.1-dev gtkglext-dev freeglut-dev xorg-libXmu-dev libglu-mesa mesa-dev libpng-dev libogg-dev jpeg-dev glew-dev zlib-dev gettext autoconf"
+BUILD_DEPENDS="$DEPENDS gtk+-dev libtheora-dev lua5.1-dev gtkglext-dev \
+freeglut-dev xorg-libXmu-dev libglu-mesa mesa-dev libpng-dev libogg-dev \
+jpeg-dev glew-dev zlib-dev gettext autoconf"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -ldl"
-	patch -p0 -i $stuff/celestia-1.6.0-gcc45.patch
-	patch -p1 -i $stuff/make-dereferenced-temporaries-explicit
-	sed -i 's/NULL/0/' src/celengine/frametree.h
+	sed -i 's|"ray.h"|&\n#include "mathlib.h"|' src/celmath/intersect.h
+	sed -i 's|NULL|0|' src/celengine/frametree.h
+	sed -i 's|"png.h"|&\n#include "zlib.h"|' src/celestia/imagecapture.cpp
+	sed -i 's|<cstdio>|&\n#include <string.h>|' src/celengine/*.cpp
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
