@@ -16,7 +16,7 @@ BUILD_DEPENDS="libsdl-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's|<stdlib.h>|&\n#include <unistd.h>|' src/Main.cpp
 	if [ ! -f gcc44.u.done ]; then
 		patch -p0 < $stuff/gcc44.u
 		touch gcc44.u.done
@@ -32,4 +32,3 @@ genpkg_rules()
 	cp -a $stuff/sokoban.desktop $fs/usr/share/applications
 	cp -a $stuff/syasokoban $fs/usr/bin/syasokoban
 }
-
