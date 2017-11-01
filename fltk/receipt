@@ -12,8 +12,11 @@ WGET_URL="http://fltk.org/pub/fltk/$VERSION/$TARBALL"
 HOST_ARCH="i486 arm"
 
 BUILD_DEPENDS="jpeg-dev libpng-dev libglu-mesa libglu-mesa-dev mesa mesa-dev \
-xorg-libXinerama-dev xorg-libXft-dev"
-SPLIT="fltk-dev fltk-doc"
+xorg-libXinerama-dev xorg-libXft-dev \
+xorg-libXft fontconfig xorg-libX11-dev xorg-libXinerama \
+xorg-libXfixes"
+SPLIT="fltk-dev fltk-doc fltk-blocks fltk-checkers fltk-colbrowser fltk-editor \
+fltk-sudoku"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -35,7 +38,15 @@ compile_rules()
 		--enable-threads \
 		$CONFIGURE_ARGS &&
 	make lib $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install &&
+	cd test
+	[ -x ./blocks ] || make blocks
+	[ -x ./checkers ] || make checkers
+	rm -f colbrowser
+	sed -i s'#"rgb.txt"#"/usr/share/fltk/rgb.txt"#' colbrowser.cxx &&
+	make colbrowser
+	[ -x ./editor ] || make editor
+	[ -x ./sudoku ] || make sudoku
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -68,6 +79,43 @@ genpkg_rules()
 		CAT="development|Fast Light Tool Kit documentation and examples."
 		mkdir -p $fs/usr/share
 		cp -a $install/usr/share/doc $fs/usr/share
+		;;
+	fltk-blocks)
+		CAT="games|FLTK Blocks game."
+		DEPENDS="fltk"
+		mkdir -p $fs/usr/games $fs/usr/share/pixmaps
+		cp -a ${src}/test/blocks $fs/usr/games/$PACKAGE
+		cp -a ${src}/test/desktop/blocks-32.png \
+			$fs/usr/share/pixmaps/$PACKAGE.png
+		;;
+	fltk-checkers)
+		CAT="games|FLTK Checkers game."
+		DEPENDS="fltk"
+		mkdir -p $fs/usr/games $fs/usr/share/pixmaps
+		cp -a ${src}/test/checkers $fs/usr/games/$PACKAGE
+		cp -a ${src}/test/desktop/checkers-32.png \
+			$fs/usr/share/pixmaps/$PACKAGE.png
+		;;
+	fltk-colbrowser)
+		CAT="graphics|FLT Color browser."
+		DEPENDS="fltk xorg-libXinerama"
+		mkdir -p $fs/usr/bin $fs/usr/share/fltk
+		cp -a ${src}/test/colbrowser ${fs}/usr/bin/$PACKAGE
+		cp ${src}/test/rgb.txt ${fs}/usr/share/fltk
+		;;
+	fltk-editor)
+		CAT="development|Fast Light Tool Kit text editor."
+		DEPENDS="fltk"
+		mkdir -p $fs/usr/bin
+		cp -a ${src}/test/editor $fs/usr/bin/$PACKAGE
+		;;
+	fltk-sudoku)
+		CAT="games|FLTK Sudoku game."
+		DEPENDS="fltk"
+		mkdir -p $fs/usr/games $fs/usr/share/pixmaps
+		cp -a ${src}/test/sudoku $fs/usr/games/$PACKAGE
+		cp -a ${src}/test/desktop/sudoku-32.png \
+			$fs/usr/share/pixmaps/$PACKAGE.png
 		;;
 	esac
 }
