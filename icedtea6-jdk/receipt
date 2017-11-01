@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="icedtea6-jdk"
 SOURCE="icedtea6"
@@ -11,13 +11,13 @@ TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.iced-tea.org/"
 WGET_URL="http://icedtea.wildebeest.org/download/source/$TARBALL"
 
-DEPENDS="icedtea6-jre xorg xorg-libXtst xorg-libXp cups"
 BUILD_DEPENDS="gcc+gcj autoconf automake m4 diffutils gawk cups-dev wget cpio \
 coreutils-file-special coreutils-file-summarize alsa-lib-dev file patch perl \
 zip unzip findutils  bzip2 tar glib-dev fastjar rhino ecj apache-ant jpeg-dev \
 xalan-xerces-j gtk+-dev giflib-dev libpng-dev xorg-dev xorg-libXtst-dev \
 xorg-libXp-dev xorg-dev-proto nss nss-dev jdk6-jaxws jdk6-jaxp jdk6-jaf \
 openjdk-6-src"
+SPLIT="icedtea6-jdk icedtea6-jre java-jdk java-jre"
 
 # Note to icedtea6 updaters,
 # You should check version into receipts:
@@ -153,7 +153,45 @@ EOT
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/jvm/java-icedtea
-	cp -a $install/usr/lib/jvm/java-icedtea/bin $fs/usr/lib/jvm/java-icedtea
-	cp -a $install/usr/lib/jvm/java-icedtea/lib $fs/usr/lib/jvm/java-icedtea
+	case $PACKAGE in
+	icedtea6-jdk)
+		DEPENDS="icedtea6-jre xorg xorg-libXtst xorg-libXp cups"
+		mkdir -p $fs/usr/lib/jvm/java-icedtea
+		cp -a $install/usr/lib/jvm/java-icedtea/bin $fs/usr/lib/jvm/java-icedtea
+		cp -a $install/usr/lib/jvm/java-icedtea/lib $fs/usr/lib/jvm/java-icedtea
+		;;
+	icedtea6-jre)
+		CAT="development|A Free Software harness for OpenJDK JRE."
+		DEPENDS="glibc-base gcc-lib-base util-linux-uuid alsa-lib \
+			freetype giflib libjpeg libpng zlib xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXi xorg-libXrender xorg-libXtst"
+		mkdir -p $fs/usr/lib/jvm/java-icedtea
+		cp -a $install/usr/lib/jvm/java-icedtea/jre $fs/usr/lib/jvm/java-icedtea
+		;;
+	java-jdk)
+		CAT="development|Symlinks for the default Java Development Kit (icedtea6)."
+		TAGS="java"
+		DEPENDS="icedtea6-jdk"
+		mkdir -p $fs/usr
+		cp -a $install/usr/jdk-bin $fs/usr/bin
+		;;
+	java-jre)
+		CAT="development|Symlinks for the default Java Runtime Environment (icedtea6)."
+		DEPENDS="icedtea6-jre"
+		mkdir -p $fs/usr
+		cp -a $install/usr/jre-bin $fs/usr/bin
+		;;
+	esac
+}
+
+# Post install/remove commands for Tazpkg.
+post_install_icedtea6_jre()
+{
+	ln -sf /usr/lib/jvm/java-icedtea/bin/java "$1/usr/bin/java"
+}
+
+post_remove_icedtea6_jre()
+{
+	rm -f "$1/usr/bin/java"
 }
