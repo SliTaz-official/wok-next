@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mdocml"
 VERSION="1.12.1"
@@ -10,8 +10,8 @@ WEB_SITE="http://mdocml.bsd.lv/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://mdocml.bsd.lv/snapshots/$TARBALL"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="db-dev"
+SPLIT="mdocml mdocml-cgi mdocml-dev mdocml-extra mdocml-man"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,6 +34,37 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/mandoc $fs/usr/bin
+	case $PACKAGE in
+	mdocml)
+		DEPENDS="glibc-base"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/mandoc $fs/usr/bin
+		;;
+	mdocml-cgi)
+		CAT="development|CGI files for mdocml"
+		DEPENDS="glibc-base libdb"
+		mkdir -p $fs/var
+		cp -a $install/var/www $fs/var
+		;;
+	mdocml-dev)
+		CAT="development|Devel files for mdocml"
+		DEPENDS="mdocml"
+		mkdir -p $fs/usr
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib $fs/usr
+		;;
+	mdocml-extra)
+		CAT="base-system|Extra files for mdocml"
+		DEPENDS="glibc-base libdb mdocml"
+		mkdir -p $fs/usr
+		cp -a $install/usr/bin $fs/usr
+		rm -f $fs/usr/bin/mandoc
+		;;
+	mdocml-man)
+		CAT="development|Man files for mdocml"
+		DEPENDS="mdocml"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/man $fs/usr/share
+		;;
+	esac
 }
