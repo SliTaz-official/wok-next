@@ -1,38 +1,50 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cairo-dock"
-VERSION="2.4.0~2"
+VERSION="3.3.2"
 CATEGORY="x-window"
 SHORT_DESC="Cairo-Dock is a light and eye-candy dock to launch."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.glx-dock.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://launchpad.net/cairo-dock-core/${VERSION:0:3}/${VERSION:0:5}/+download/$TARBALL"
+WGET_URL="https://github.com/Cairo-Dock/cairo-dock-core/archive/$VERSION.tar.gz"
 
-DEPENDS="gtk+ cairo librsvg xorg-xcompmgr mesa gtkglext dbus libcurl"
-BUILD_DEPENDS="$DEPENDS cmake gtk+-dev cairo-dev librsvg-dev mesa-dev \
+BUILD_DEPENDS="gtk+ cairo librsvg xorg-xcompmgr mesa gtkglext dbus libcurl \
+cmake gtk+-dev cairo-dev librsvg-dev mesa-dev \
 gtkglext-dev dbus-dev dbus-glib-dev curl-dev libcroco wget libxml2-dev \
 xorg-libXtst-dev xorg-libXcomposite-dev libglu-mesa-dev gettext-tools"
-SUGGESTED="cairo-dock-plugins"
+SPLIT="cairo-dock cairo-dock-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i 's|<glib/g.*h>|<glib.h>|' src/gldit/cairo-dock-keybinder.h
 	mkdir -p build && cd build
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
 	make &&
-	make DESTDIR=$DESTDIR install &&
-	sed -i s/'.svg'/''/ $DESTDIR/usr/share/applications/*
+	make DESTDIR=$DESTDIR install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/$PACKAGE
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	chmod a+x $fs/usr/lib/libgldi.so.2.4.0~2
+	case $PACKAGE in
+	cairo-dock)
+		DEPENDS="gtk+ cairo librsvg xorg-xcompmgr mesa gtkglext dbus libcurl"
+		SUGGESTED="cairo-dock-plugins"
+		mkdir -p $fs/usr/lib $fs/usr/share/$PACKAGE
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/share/$PACKAGE $fs/usr/share
+		chmod a+x $fs/usr/lib/libgldi.so.2.4.0~2
+		;;
+	cairo-dock-dev)
+		CAT="x-window|Cairo dock devel file."
+		DEPENDS="cairo-dock pkg-config"
+		mkdir -p $fs/usr/lib
+		#cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	esac
 }
