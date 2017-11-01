@@ -1,27 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfce4-notifyd"
-VERSION="0.2.2"
-HI_VERSION=$(echo $VERSION | cut -d. -f1,2)
+VERSION="0.2.4" # higher versions required libxfce4ui2 that depends on GTK+3
 CATEGORY="development"
 SHORT_DESC="Simple, visually-appealing notification daemon for Xfce"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://goodies.xfce.org/projects/applications/xfce4-notifyd"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/$HI_VERSION/$TARBALL"
+WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxfce4ui"
-BUILD_DEPENDS="libxfce4ui-dev libxfconf-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev libxfce4util-dev \
+libxfce4ui-dev libnotify-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --disable-debug $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	# */bin/*-config usually a dev file, but not in this case
+	copy @std xfce4-notifyd-config
+	DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk+ \
+	libnotify libxfce4ui libxfce4util pango xfconf xorg-libICE xorg-libSM \
+	xorg-libX11"
+	TAGS="Xfce"
 }

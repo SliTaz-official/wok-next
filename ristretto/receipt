@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ristretto"
+VERSION="0.8.2"
+CATEGORY="graphics"
+SHORT_DESC="Xfce image viewer"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://docs.xfce.org/apps/ristretto/start"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool libexif-dev gtk+-dev dbus-glib-dev libxfce4util-dev \
+libxfce4ui-dev libmagic-dev"
+
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk+ \
+	libexif libmagic libxfce4ui libxfce4util pango xfconf xorg-libICE \
+	xorg-libSM xorg-libX11"
+	TAGS="Xfce"
+}

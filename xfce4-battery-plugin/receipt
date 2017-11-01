@@ -1,0 +1,53 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xfce4-battery-plugin"
+VERSION="1.0.5" # v.1.0.5 is the latest with GTK+2 support
+CATEGORY="x-window"
+SHORT_DESC="Xfce panel battery plugin"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://goodies.xfce.org/projects/panel-plugins/xfce4-battery-plugin"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://archive.xfce.org/src/panel-plugins/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool gtk+-dev libxfce4util-dev libxfce4ui-dev \
+xfce4-panel-dev"
+SPLIT="xfce4-battery-plugin-dev"
+
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		xfce4-battery-plugin)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libffi libharfbuzz liblzma libpng16 libxfce4ui libxfce4util \
+			libxml2 pango pcre startup-notification util-linux-blkid \
+			util-linux-mount util-linux-uuid xfce4-panel xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXrender xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="xfce4-battery-plugin atk-dev bzip2-dev cairo-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev \
+			harfbuzz-dev libffi-dev libpng16-dev libxfce4ui-dev \
+			libxfce4util-dev libxml2-dev pango-dev pcre-dev \
+			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xfce4-panel-dev xorg-libICE-dev xorg-libSM-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev \
+			xorg-xcb-util-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="Xfce"
+}

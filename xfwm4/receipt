@@ -1,46 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfwm4"
-VERSION="4.11.1"
+VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
 CATEGORY="x-window"
-SHORT_DESC="Xfce Window Manager"
+SHORT_DESC="Xfce window manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
-TAGS="window-manager"
 
-DEPENDS="libxfce4util libxfce4ui xfconf dbus-glib libwnck2 libglade"
-BUILD_DEPENDS="libxfce4util-dev xfconf-dev libxfce4ui-dev xorg-compositeproto intltool \
-libwnck2-dev dbus-glib-dev util-linux-uuid-dev libxml2-dev"
+BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
+xorg-libXext-dev gtk+-dev libxfce4util-dev libxfce4ui-dev libwnck2-dev \
+libdrm-dev xorg-libXrandr-dev xorg-libXcomposite-dev xorg-libXfixes-dev \
+xorg-libXdamage-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--enable-render \
-		--enable-startup-notification \
-		--enable-randr \
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		--disable-debug \
-		--disable-static \
-		--mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make  install
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr \
-		$fs/usr/share/locale
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/themes $fs/usr/share
-	cp -a $install/usr/share/xfwm4 $fs/usr/share
-
-	# Remove SVG icons
-	test -d $fs/usr/share/icons/hicolor/scalable \
-		&& rm -rf $fs/usr/share/icons/hicolor/scalable
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk+ \
+	libwnck2 libxfce4ui libxfce4util pango startup-notification xfconf \
+	xorg-libICE xorg-libSM xorg-libX11 xorg-libXcomposite xorg-libXdamage \
+	xorg-libXext xorg-libXfixes xorg-libXrandr xorg-libXrender"
+	TAGS="Xfce window-manager"
 }

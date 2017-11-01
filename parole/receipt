@@ -1,50 +1,55 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="parole"
-VERSION="0.5.2"
+VERSION="0.5.4" # I downgraded parole from 0.9.2 to 0.5.4 to build against GTK+2
 CATEGORY="multimedia"
-SHORT_DESC="Media Player for Xfce."
+SHORT_DESC="Media player for Xfce"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://docs.xfce.org/apps/parole/start"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://goodies.xfce.org/projects/applications/parole"
-WGET_URL="http://archive.xfce.org/src/apps/parole/${VERSION:0:3}/$TARBALL"
+WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxfcegui4 libxfce4util dbus-glib glib gst0-plugins-base taglib \
-startup-notification libnotify gstreamer0 util-linux-uuid"
-BUILD_DEPENDS="intltool libxfcegui4-dev libxfce4util-dev dbus-glib-dev \
-glib-dev gst0-plugins-base-dev taglib-dev startup-notification-dev \
-libnotify-dev gstreamer0-dev util-linux-uuid-dev coreutils-operations \
-gtk+-dev libxml2-dev orc-dev libxfconf-dev libxfce4ui-dev"
+BUILD_DEPENDS="intltool dbus-dev dbus-glib-dev libxfce4util-dev xfconf-dev \
+libxfce4ui-dev libxfce4ui-dev gstreamer0-dev gst0-plugins-base-dev taglib-dev \
+libnotify-dev gtk-doc"
+SPLIT="parole-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--libexecdir=/usr/lib/$PACKAGE \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		--disable-debug \
-		--disable-power-manager-plugin \
+		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/icons \
-		$fs/usr/share/pixmaps 
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/icons/hicolor $fs/usr/share/icons
-	cp -a $install/usr/share/parole $fs/usr/share
-	
-	cd $fs/usr/share/pixmaps
-	ln -s ../icons/hicolor/32x32/apps/$PACKAGE.png ; cd -
-	
-	# Clean-up & strip
-	rm -rf $fs/usr/share/icons/hicolor/scalable
-	find $fs/usr/lib -exec strip -s {} 2> /dev/null \;
+genpkg_rules() {
+	case $PACKAGE in
+		parole)
+			copy @std
+			DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype \
+			gdk-pixbuf glib gst0-plugins-base gstreamer0 gtk+ libffi \
+			libharfbuzz liblzma libnotify libpng16 libxfce4ui libxfce4util \
+			libxml2 orc pango pcre taglib util-linux-blkid util-linux-mount \
+			util-linux-uuid xfconf xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="parole atk-dev bzip2-dev cairo-dev dbus-dev dbus-glib-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev \
+			harfbuzz-dev libffi-dev libnotify-dev libpng16-dev \
+			libxfce4util-dev libxml2-dev pango-dev pcre-dev taglib-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xfconf-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
+	TAGS="Xfce"
 }
-

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfburn"
 VERSION="0.5.4"
@@ -6,34 +6,29 @@ CATEGORY="utilities"
 SHORT_DESC="GTK+ based CD and DVD burning application"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://goodies.xfce.org/projects/applications/xfburn"
-WGET_URL="http://archive.xfce.org/src/apps/xfburn/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ libburn libexo libisofs libxfce4ui"
-BUILD_DEPENDS="intltool libburn-dev libexo-dev libisofs-dev libxfce4ui-dev"
- 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|glib.h>|&\n#include <glib-object.h>|' xfburn/xfburn-settings.h
-	./configure --prefix=/usr --sysconfdir=/etc \
-	--libexecdir=/usr/bin \
-	--disable-gstreamer \
-	--disable-dbus \
-	--disable-hal \
-	--disable-thunar-vfs \
-	$CONFIGURE_ARGS &&
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool libburn-dev libisofs-dev gtk+-dev libxfce4ui-dev \
+exo-dev libgudev-dev gstreamer1-dev gst1-plugins-base-dev"
+COOKOPTS="!uiz" # headers of the *.ui disappeared
+
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/xfburn $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo exo fontconfig freetype gdk-pixbuf glib \
+	gst1-plugins-base gstreamer1 gtk+ libburn libgudev libisofs libxfce4ui \
+	libxfce4util pango"
+	TAGS="Xfce"
 }
