@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="uclibc-cross-compiler-x86_64"
 VERSION="prebuilt"
@@ -12,15 +12,64 @@ WEB_SITE="http://impactlinux.com/aboriginal"
 WGET_URL="$WEB_SITE/downloads/binaries/cross-compiler/$TARBALL"
 TAGS="compiler C"
 
-SUGGESTED="uclibc-${PACKAGE##*-}"
+SPLIT="uclibc-armv4eb uclibc-armv4l uclibc-armv4tl uclibc-armv5l uclibc-armv6l \
+uclibc-cross-compiler-armv4eb uclibc-cross-compiler-armv4l \
+uclibc-cross-compiler-armv4tl uclibc-cross-compiler-armv5l \
+uclibc-cross-compiler-armv6l uclibc-cross-compiler-i486 \
+uclibc-cross-compiler-mips uclibc-cross-compiler-mips64 \
+uclibc-cross-compiler-mipsel uclibc-cross-compiler-powerpc \
+uclibc-cross-compiler-sh4 uclibc-cross-compiler-sparc \
+uclibc-cross-compiler-x86_64 uclibc-i486 uclibc-mips uclibc-mips64 \
+uclibc-mipsel uclibc-powerpc uclibc-sh4 uclibc-sparc uclibc-x86_64"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	ln -s . uclibc-cross-compiler-x86_64
+	for i in $(echo " $SPLIT" | sed -e 's/uclibc-cross-compiler-//g' \
+		   	-e 's/ uclibc-[^ ]*//g' -e 's/ x86_64//'); do
+		[ -s $SOURCES_REPOSITORY/${TARBALL/x86_64/$i} ] ||
+			 wget -P $SOURCES_REPOSITORY ${WGET_URL/x86_64/$i}
+		mkdir uclibc-cross-compiler-$i
+		busybox tar xf $SOURCES_REPOSITORY/${TARBALL/x86_64/$i} \
+			-C uclibc-cross-compiler-$i
+	done
+}
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share $fs/usr/bin
-	cp -a $src $fs/usr/share/$PACKAGE
-	for i in $(cd $src ; ls bin/${PACKAGE##*-}-*); do
-		file=$(basename $i)
-		ln -s ../share/$PACKAGE/bin/$file $fs/usr/bin/uclibc-$file
+	case $PACKAGE in
+	uclibc-cross-compiler-*)
+		CAT="development|Toolchain for uclibc/${PACKAGE##*-}."
+		SUGGESTED="uclibc-${PACKAGE##*-}"
+		mkdir -p $fs/usr/share $fs/usr/bin
+		cp -a $src/$PACKAGE $fs/usr/share/$PACKAGE
+		for i in $(cd $src/$PACKAGE ; ls bin/${PACKAGE##*-}-*); do
+			file=$(basename $i)
+			ln -s ../share/$PACKAGE/bin/$file $fs/usr/bin/uclibc-$file
+		done
+		;;
+	uclibc-*)
+		TAZBB_NO_INSTALL="because this is not the right target !"
+		CAT="base-system|UcLibc ${PACKAGE##*-} libraries."
+		mkdir -p $fs/lib
+		cp -a $src/${PACKAGE/cross-compiler-/}/lib/*.so* $fs/lib
+		;;
+	esac
+}
+
+# Pre and post install commands for Tazpkg.
+post_install_uclibc_i486()
+{
+	echo chroot "$1/" /usr/bin/uclibc-i486-ldconfig
+}
+
+pre_remove_uclibc_i486()
+{
+	for i in /lib/ld-uClibc.so*; do
+		case "$(readlink $i)" in
+		*usr/share/uclibc_i486/lib/*) rm -f $i ;;
+		esac
 	done
 }
