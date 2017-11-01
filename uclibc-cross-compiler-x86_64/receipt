@@ -26,9 +26,8 @@ uclibc-mipsel uclibc-powerpc uclibc-sh4 uclibc-sparc uclibc-x86_64"
 # Rules to configure and make the package.
 compile_rules()
 {
-	ln -s . cross-compiler-x86_64
 	for i in $(echo " $SPLIT" | sed -e 's/uclibc-cross-compiler-//g' \
-		   	-e 's/ uclibc-[^ ]*//g' -e 's/ x86_64//'); do
+		   	-e 's/ uclibc-[^ ]*//g'); do
 		[ -s $SOURCES_REPOSITORY/${TARBALL/x86_64/$i} ] ||
 			 wget -P $SOURCES_REPOSITORY ${WGET_URL/x86_64/$i}
 		busybox tar xf $SOURCES_REPOSITORY/${TARBALL/x86_64/$i}
