@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-games"
 VERSION="2.32.1"
@@ -11,11 +11,11 @@ WEB_SITE="http://www.gnome.org/"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 # Games: aisleriot need guile. glchess use pygtk/mesa and is splitted
-DEPENDS="clutter-gtk GConf guile libcanberra librsvg seed xorg-libXi"
 BUILD_DEPENDS="GConf-dev librsvg-dev libcroco-dev mesa-dev clutter-dev \
 clutter-gtk-dev python-dev pygtk-dev libcanberra-dev gnome-doc-utils-dev \
 libvorbis-dev libogg-dev util-linux-uuid-dev seed-dev libtool guile-dev \
 libffi-dev"
+SPLIT="gnome-games-glchess gnome-games-icons gnome-games-sudoku"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,22 +34,65 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/$PACKAGE-common
+	case $PACKAGE in
+	gnome-games)
+		DEPENDS="clutter-gtk GConf guile libcanberra librsvg seed xorg-libXi"
+		mkdir -p $fs/usr/lib $fs/usr/share/$PACKAGE-common
 
-	cp -a $install/usr/games $fs/usr
-	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-	cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/share/$PACKAGE-common/cards \
-		$fs/usr/share/$PACKAGE-common
-	cp -a $install/usr/share/gir-1.0 $fs/usr/share
+		cp -a $install/usr/games $fs/usr
+		cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
+		cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
+		cp -a $install/usr/share/$PACKAGE $fs/usr/share
+		cp -a $install/usr/share/$PACKAGE-common/cards \
+			$fs/usr/share/$PACKAGE-common
+		cp -a $install/usr/share/gir-1.0 $fs/usr/share
 
-	# Remove splitted games files
-	rm -f $fs/usr/games/glchess
-	rm -f $fs/usr/games/gnome-sudoku
-	rm -f $fs/usr/share/*/glchess.desktop
-	rm -f $fs/usr/share/*/gnome-sudoku.desktop
+		# Remove splitted games files
+		rm -f $fs/usr/games/glchess
+		rm -f $fs/usr/games/gnome-sudoku
+		rm -f $fs/usr/share/*/glchess.desktop
+		rm -f $fs/usr/share/*/gnome-sudoku.desktop
 
-	cp -a $install/var $fs
-	chmod a+w $fs/var/games/*
+		cp -a $install/var $fs
+		chmod a+w $fs/var/games/*
+		;;
+	gnome-games-glchess)
+		CAT="games|Chess game using GL/Mesa."
+		TAGS="chess"
+		DEPENDS="mesa python gnuchess gnome-games-icons"
+		game=glchess
+		mkdir -p \
+			$fs/usr/games $fs/usr/lib \
+			$fs/usr/share/applications
+
+		cp -a $install/usr/games/$game $fs/usr/games
+		cp -a $install/usr/lib/python* $fs/usr/lib
+		rm -rf $fs/usr/lib/python*/*/gnome_sudoku
+		cp -a $install/usr/share/$game $fs/usr/share
+
+		cp $src/$game/$game.desktop $fs/usr/share/applications
+		;;
+	gnome-games-icons)
+		CAT="games|Gnome games icons set."
+		DEPENDS="gnome-games"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/icons $fs/usr/share
+		rm -rf $fs/usr/share/icons/hicolor/scalable
+		;;
+	gnome-games-sudoku)
+		CAT="games|Gnome sudoku game."
+		DEPENDS="python pygtk python-gconf gnome-games-icons"
+		game=gnome-sudoku
+		mkdir -p \
+			$fs/usr/games $fs/usr/lib \
+			$fs/usr/share/applications
+
+		cp -a $install/usr/games/$game $fs/usr/games
+		cp -a $install/usr/lib/python* $fs/usr/lib
+		rm -rf $fs/usr/lib/python*/*/glchess
+		cp -a $install/usr/share/$game $fs/usr/share
+
+		cp $src/$game/$game.desktop $fs/usr/share/applications
+		;;
+	esac
 }
