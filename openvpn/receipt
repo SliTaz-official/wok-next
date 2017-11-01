@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openvpn"
 VERSION="2.3.6"
@@ -12,13 +12,12 @@ WGET_URL="http://swupdate.openvpn.net/community/releases/$TARBALL"
 TAGS="vpn tunnel network"
 HOST_ARCH="i486 arm"
 
-DEPENDS="lzo libcrypto openssl"
 BUILD_DEPENDS="lzo-dev libcrypto-dev openssl-dev pam-dev"
+SPLIT="openvpn openvpn-doc openvpn-down-root openvpn-pam"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--prefix=/usr \
 		--enable-password-save \
@@ -32,16 +31,45 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/sbin
-	cp -a $install/usr/sbin/openvpn $fs/usr/sbin
-	cp -a $stuff/etc $fs
-	chown root.root $fs/etc/init.d/*
-	chmod 0644 $fs/etc/openvpn/openvpn.conf
+	case $PACKAGE in
+	openvpn)
+		DEPENDS="lzo libcrypto openssl"
+		mkdir -p $fs/usr/sbin
+		cp -a $install/usr/sbin/openvpn $fs/usr/sbin
+		cp -a $stuff/etc $fs
+		chown root.root $fs/etc/init.d/*
+		chmod 0644 $fs/etc/openvpn/openvpn.conf
+		;;
+	openvpn-doc)
+		CAT="network|Documentation for OpenVPN."
+		DEPENDS="openvpn"
+		mkdir -p $fs/usr/share/openvpn
+		cp -a $install/usr/share/		$fs/usr/
+		cp -a $src/sample/sample-config-files	$fs/usr/share/openvpn
+		cp -a $src/sample/sample-plugins	$fs/usr/share/openvpn
+		cp -a $src/sample/sample-keys		$fs/usr/share/openvpn
+		cp -a $src/sample/sample-scripts	$fs/usr/share/openvpn
+		;;
+	openvpn-down-root)
+		CAT="network|The down-root plugin for OpenVPN."
+		DEPENDS="openvpn"
+		mkdir -p $fs/usr/share/openvpn
+		cp -a $src/src/plugins/down-root/.libs/openvpn-plugin-down-root.so \
+			$fs/usr/share/openvpn
+		;;
+	openvpn-pam)
+		CAT="network|PAM plugin for OpenVPN."
+		PROVIDE="openvpn:pam"
+		DEPENDS="openvpn pam"
+		mkdir -p $fs/usr/share/openvpn
+		cp -a $src/src/plugins/auth-pam/.libs/openvpn-plugin-auth-pam.so \
+			$fs/usr/share/openvpn
+		;;
+	esac
 }
 
-post_remove()
+post_remove_openvpn()
 {
 	# remove config
 	rm -rf ${root}/etc/openvpn
 }
-
