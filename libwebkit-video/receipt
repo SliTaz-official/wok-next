@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libwebkit-video"
 VERSION="1.8.3"
@@ -10,25 +10,19 @@ SOURCE="webkit"
 TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="http://webkitgtk.org"
 WGET_URL="$WEB_SITE/releases/$TARBALL"
-PROVIDE="libwebkit"
 
-DEPENDS="gtk+ enchant libxslt expat gtk+ jpeg libpng libxml2 sqlite3 \
-xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXcomposite \
-xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
-xorg-libXrandr xorg-libXrender xorg-libXt acl xorg-libXdamage libsoup \
-gcc-lib-base libtasn1 util-linux-uuid glib-networking gst0-plugins-base"
 BUILD_DEPENDS="gtk+-dev enchant enchant-dev gperf libxslt-dev jpeg-dev \
 libpng-dev glib-dev autoconf automake gnutls-dev sqlite3-dev libtool \
 m4 bison flex xorg-libXdamage-dev acl-dev libsoup-dev libxml2-dev \
 libxcb-dev xcb-util-dev util-linux-uuid-dev zlib-dev libtasn1-dev \
 gobject-introspection-dev tar gettext glib-networking-dev gtk-doc \
 xorg-libXt gstreamer0-dev gst0-plugins-base-dev"
+SPLIT="libwebkit-video libwebkit-video-dev"
 SUGGESTED="gst0-plugins-good gst0-plugins-bad gst0-plugins-ugly gst0-ffmpeg"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	# libwebkit does not like parallel builds.
 	export MAKEFLAGS=$(echo $MAKEFLAGS | sed 's/-j[0-9]*/-j1/')
 	# Build fix with newer bison 2.6
@@ -61,8 +55,35 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/bin
-	[ -d $install/usr/lib/girepository-1.0 ] &&
-		cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	libwebkit-video)
+		PROVIDE="libwebkit"
+		DEPENDS="gtk+ enchant libxslt expat gtk+ jpeg libpng libxml2 \
+			sqlite3 xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXcomposite xorg-libXcursor xorg-libXdmcp \
+			xorg-libXext xorg-libXfixes xorg-libXinerama \
+			xorg-libXrandr xorg-libXrender xorg-libXt acl \
+			xorg-libXdamage libsoup gcc-lib-base libtasn1 \
+			util-linux-uuid glib-networking gst0-plugins-base"
+		mkdir -p $fs/usr/lib $fs/usr/bin
+		[ -d $install/usr/lib/girepository-1.0 ] &&
+			cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	libwebkit-video-dev)
+		CAT="development|devel files for libwebkit"
+		DEPENDS="libwebkit-video libsoup-dev enchant-dev libtasn1-dev \
+			sqlite3-dev pkg-config"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		[ -d $install/usr/share/gir-1.0 ] &&
+			cp -a $install/usr/share/gir-1.0 $fs/usr/share
+		if [ -f $fs/usr/lib/pkgconfig/webkit-1.0.pc ]; then
+			ln -sf /usr/lib/pkgconfig/webkit-1.0.pc \
+				$fs/usr/lib/pkgconfig/webkitgtk-1.0.pc
+		fi
+		;;
+	esac
 }
