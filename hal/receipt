@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="hal"
 VERSION="0.5.14"
@@ -11,10 +11,10 @@ WEB_SITE="http://www.freedesktop.org/wiki/Software/hal"
 WGET_URL="http://hal.freedesktop.org/releases/$TARBALL"
 CROSS="error: cannot check for file existence when cross compiling"
 
-DEPENDS="dbus dbus-glib slitaz-base-files udev util-linux-blkid libusb-compat"
 BUILD_DEPENDS="dbus-dev dbus-glib dbus-glib-dev udev-dev pciutils \
 util-linux-blkid-dev expat-dev util-linux-uuid-dev glib-dev pkg-config \
 libv4l-dev"
+SPLIT="hal hal-dev hal-extra hal-scripts"
 
 EXTRA="
 hald-addon-cpufreq
@@ -57,44 +57,80 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/hal $fs/usr/lib
-	cp -a $install/usr/share/hal $fs/usr/share
-	chmod -R +x $fs/usr/lib/hal/scripts/*
-	# Remove a few run time lib and strip.
-	for lib in $EXTRA
-	do
-		rm $fs/usr/lib/hal/$lib
-	done
-	strip -s $fs/usr/lib/hal/* 2>/dev/null
-	# Init script
-	cp -a stuff/etc $fs
+	case $PACKAGE in
+	hal)
+		DEPENDS="dbus dbus-glib slitaz-base-files udev \
+			util-linux-blkid libusb-compat"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/etc $fs
+		cp -a $install/var $fs
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/hal $fs/usr/lib
+		cp -a $install/usr/share/hal $fs/usr/share
+		chmod -R +x $fs/usr/lib/hal/scripts/*
+		# Remove a few run time lib and strip.
+		for lib in $EXTRA
+		do
+			rm $fs/usr/lib/hal/$lib
+		done
+		strip -s $fs/usr/lib/hal/* 2>/dev/null
+		# Init script
+		cp -a stuff/etc $fs
 
-	# Policy for ntfs-3g
-	cp -a stuff/policy $fs/usr/share/hal/fdi/
-	chown -R root.root $fs
+		# Policy for ntfs-3g
+		cp -a stuff/policy $fs/usr/share/hal/fdi/
+		chown -R root.root $fs
 
-	# exclude unwanted fdi files
-	rm $fs/usr/share/hal/fdi/policy/10osvendor/10-cpufreq.fdi
-	rm $fs/usr/share/hal/fdi/policy/10osvendor/10-dockstation.fdi
-	rm $fs/usr/share/hal/fdi/policy/10osvendor/10-imac-backlight.fdi
-	rm $fs/usr/share/hal/fdi/policy/10osvendor/15-storage-luks.fdi
-	rm $fs/usr/share/hal/fdi/policy/10osvendor/30-wol.fdi
+		# exclude unwanted fdi files
+		rm $fs/usr/share/hal/fdi/policy/10osvendor/10-cpufreq.fdi
+		rm $fs/usr/share/hal/fdi/policy/10osvendor/10-dockstation.fdi
+		rm $fs/usr/share/hal/fdi/policy/10osvendor/10-imac-backlight.fdi
+		rm $fs/usr/share/hal/fdi/policy/10osvendor/15-storage-luks.fdi
+		rm $fs/usr/share/hal/fdi/policy/10osvendor/30-wol.fdi
 	
-	# change bash to sh in hal scripts
-	sed -i 's:/bin/bash:/bin/sh:' $fs/usr/lib/hal/scripts/hal* 
-	sed -i 's:/bin/bash:/bin/sh:' $fs/usr/lib/hal/scripts/linux/hal* 
-	# use full-path
-	sed -i 's:hal-functions:/usr/lib/hal/scripts/hal-functions:' $fs/usr/lib/hal/scripts/hal* 
-	sed -i 's:hal-functions:/usr/lib/hal/scripts/hal-functions:' $fs/usr/lib/hal/scripts/linux/hal* 
+		# change bash to sh in hal scripts
+		sed -i 's:/bin/bash:/bin/sh:' $fs/usr/lib/hal/scripts/hal* 
+		sed -i 's:/bin/bash:/bin/sh:' $fs/usr/lib/hal/scripts/linux/hal* 
+		# use full-path
+		sed -i 's:hal-functions:/usr/lib/hal/scripts/hal-functions:' $fs/usr/lib/hal/scripts/hal* 
+		sed -i 's:hal-functions:/usr/lib/hal/scripts/hal-functions:' $fs/usr/lib/hal/scripts/linux/hal* 
+		;;
+	hal-dev)
+		CAT="development|Hal devel files."
+		DEPENDS="hal dbus-dev pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	hal-extra)
+		CAT="x-window|Hal extra lib and fdi files."
+		DEPENDS="dbus dbus-glib glib hal"
+		mkdir -p $fs/usr/lib/hal $fs/usr/share/hal/fdi/policy/10osvendor
+		for lib in $EXTRA
+		do
+			cp $install/usr/lib/hal/$lib $fs/usr/lib/hal
+		done
+	
+		# copy some excluded files from hal
+		cp -a $install/usr/share/hal/fdi/policy/10osvendor/10-cpufreq.fdi $fs/usr/share/hal/fdi/policy/10osvendor
+		cp -a $install/usr/share/hal/fdi/policy/10osvendor/10-dockstation.fdi $fs/usr/share/hal/fdi/policy/10osvendor
+		cp -a $install/usr/share/hal/fdi/policy/10osvendor/10-imac-backlight.fdi $fs/usr/share/hal/fdi/policy/10osvendor
+		cp -a $install/usr/share/hal/fdi/policy/10osvendor/15-storage-luks.fdi $fs/usr/share/hal/fdi/policy/10osvendor
+		cp -a $install/usr/share/hal/fdi/policy/10osvendor/30-wol.fdi $fs/usr/share/hal/fdi/policy/10osvendor
+		;;
+	hal-scripts)
+		CAT="x-window|Hal scripts files."
+		DEPENDS="dbus dbus-glib glib hal"
+		mkdir -p $fs/usr/lib/hal
+		cp -a $install/usr/lib/hal/scripts $fs/usr/lib/hal
+		;;
+	esac
 }
 
-pre_install()
+pre_install_hal()
 {
 	# Go for echoing on configuration files if any haldaemon user
 	# was found.
@@ -117,7 +153,7 @@ EOT
 	fi
 }
 
-pre_remove()
+pre_remove_hal()
 {
 	/etc/init.d/hald stop
 	deluser haldaemon
