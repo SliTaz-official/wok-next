@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfe"
 VERSION="1.40"
@@ -12,10 +12,9 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 TAGS="file-manager"
 #HOST_ARCH="i486 arm"
 
-SUGGESTED="adie calculator shutterbug xfe-extras xfi"
-DEPENDS="libpng jpeg tiff xorg-libXft fox"
 BUILD_DEPENDS="libpng-dev jpeg-dev tiff-dev xorg-libXft-dev fox-dev automake"
 GENERIC_MENUS="no"
+SPLIT="xfe xfe-extras xfi xfw"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -36,13 +35,48 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/share/xfe/icons
-	cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-	cp -a $install/usr/share/xfe/xferc $fs/usr/share/xfe
-	sed -i 's/gnomeblue-theme/tango-theme/' $fs/usr/share/xfe/xferc
-	# Tango/Gnome icons theme only
-	cp -a $install/usr/share/xfe/icons/tango-theme \
-		$fs/usr/share/xfe/icons
-	cp -a $install/usr/share/xfe/icons/gnome-theme \
-		$fs/usr/share/xfe/icons	
+	case $PACKAGE in
+	xfe)
+		SUGGESTED="adie calculator shutterbug xfe-extras xfi"
+		DEPENDS="libpng jpeg tiff xorg-libXft fox"
+		mkdir -p $fs/usr/bin $fs/usr/share/xfe/icons
+		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
+		cp -a $install/usr/share/xfe/xferc $fs/usr/share/xfe
+		sed -i 's/gnomeblue-theme/tango-theme/' $fs/usr/share/xfe/xferc
+		# Tango/Gnome icons theme only
+		cp -a $install/usr/share/xfe/icons/tango-theme \
+			$fs/usr/share/xfe/icons
+		cp -a $install/usr/share/xfe/icons/gnome-theme \
+			$fs/usr/share/xfe/icons	
+		;;
+	xfe-extras)
+		CAT="system-tools|Xfe File manager tools."
+		DEPENDS="xfe"
+		GENERIC_MENUS="no"
+		mkdir -p $fs/usr/bin \
+			$fs/usr/share/applications \
+			$fs/usr/share/icons 
+
+		cp -a $install/usr/bin/xf[i,v,p,w] $fs/usr/bin
+		cp -a $install/usr/share/applications/xf[i,v,p,w]* $fs/usr/share/applications
+		cp -a $src/xf[i,v,p,w].png $fs/usr/share/icons
+		;;
+	xfi)
+		CAT="x-window|X File Image viewer using the Fox Toolkit."
+		LOCALE=""
+		DEPENDS="fox"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
+		copy_generic_files
+		;;
+	xfw)
+		CAT="x-window|X File Writer - Text editor using the Fox Toolkit."
+		LOCALE=""
+		TAGS="text-editor"
+		DEPENDS="fox"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
+		copy_generic_files
+		;;
+	esac
 }
