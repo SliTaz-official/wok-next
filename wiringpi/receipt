@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wiringpi"
 GITHASH="f18c8f7204d6354220fd6754578b3daa43734e1b"
@@ -13,7 +13,7 @@ WGET_URL="https://git.drogon.net/?p=wiringPi;a=snapshot;h=${GITHASH};sf=tgz"
 TAGS="raspberrypi rpi"
 HOST_ARCH="arm"
 
-RELATED="wiringpi-dev wiringpi-piglow wiringpi-piface"
+SPLIT="wiringpi wiringpi-dev wiringpi-piglow wiringpi-piface"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -72,7 +72,37 @@ testsuite() {
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a ${install}/usr/lib/*.so* $fs/usr/lib
-	cp -a ${install}/usr/bin $fs/usr
+	case $PACKAGE in
+	wiringpi)
+		mkdir -p $fs/usr/lib
+		cp -a ${install}/usr/lib/*.so* $fs/usr/lib
+		cp -a ${install}/usr/bin $fs/usr
+		;;
+	wiringpi-dev)
+		CAT="system-tools|The WiringPi headers files."
+		TAGS="raspberrypi rpi"
+		HOST_ARCH="arm"
+		mkdir -p $fs/usr
+		cp -a ${install}/usr/include $fs/usr
+		;;
+	wiringpi-piface)
+		CAT="system-tools|The WiringPi PiFace examples."
+		TAGS="raspberrypi rpi"
+		HOST_ARCH="arm"
+		mkdir -p $fs/usr/lib/wiringpi/piface
+		cd ${src}/examples/PiFace
+		for ex in $(ls *.c)
+		do
+			cp -a ${ex%.c} $fs/usr/lib/wiringpi/piface/${ex%.c}
+		done
+		;;
+	wiringpi-piglow)
+		CAT="system-tools|The WiringPi Piglow utility (useful for SHell scripts)."
+		WEB_SITE="http://wiringpi.com/"
+		TAGS="raspberrypi rpi"
+		HOST_ARCH="arm"
+		mkdir -p $fs/usr/bin
+		cp -a ${src}/examples/PiGlow/piglow $fs/usr/bin
+		;;
+	esac
 }
