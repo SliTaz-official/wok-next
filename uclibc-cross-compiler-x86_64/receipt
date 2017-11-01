@@ -25,14 +25,12 @@ uclibc-mipsel uclibc-powerpc uclibc-sh4 uclibc-sparc uclibc-x86_64"
 # Rules to configure and make the package.
 compile_rules()
 {
-	ln -s . uclibc-cross-compiler-x86_64
+	ln -s . cross-compiler-x86_64
 	for i in $(echo " $SPLIT" | sed -e 's/uclibc-cross-compiler-//g' \
 		   	-e 's/ uclibc-[^ ]*//g' -e 's/ x86_64//'); do
 		[ -s $SOURCES_REPOSITORY/${TARBALL/x86_64/$i} ] ||
 			 wget -P $SOURCES_REPOSITORY ${WGET_URL/x86_64/$i}
-		mkdir uclibc-cross-compiler-$i
-		busybox tar xf $SOURCES_REPOSITORY/${TARBALL/x86_64/$i} \
-			-C uclibc-cross-compiler-$i
+		busybox tar xf $SOURCES_REPOSITORY/${TARBALL/x86_64/$i}
 	done
 }
 
@@ -44,8 +42,8 @@ genpkg_rules()
 		CAT="development|Toolchain for uclibc/${PACKAGE##*-}."
 		SUGGESTED="uclibc-${PACKAGE##*-}"
 		mkdir -p $fs/usr/share $fs/usr/bin
-		cp -a $src/$PACKAGE $fs/usr/share/$PACKAGE
-		for i in $(cd $src/$PACKAGE ; ls bin/${PACKAGE##*-}-*); do
+		cp -a $src/cross-compiler-${PACKAGE##*-} $fs/usr/share/$PACKAGE
+		for i in $(cd $src/cross-compiler-${PACKAGE##*-} ; ls bin/${PACKAGE##*-}-*); do
 			file=$(basename $i)
 			ln -s ../share/$PACKAGE/bin/$file $fs/usr/bin/uclibc-$file
 		done
@@ -54,7 +52,7 @@ genpkg_rules()
 		TAZBB_NO_INSTALL="because this is not the right target !"
 		CAT="base-system|UcLibc ${PACKAGE##*-} libraries."
 		mkdir -p $fs/lib
-		cp -a $src/${PACKAGE/cross-compiler-/}/lib/*.so* $fs/lib
+		cp -a $src/cross-compiler-${PACKAGE##*-}/lib/*.so* $fs/lib
 		;;
 	esac
 }
