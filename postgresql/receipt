@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="postgresql"
 VERSION="9.5.4"
@@ -14,7 +14,7 @@ WGET_URL="http://ftp.postgresql.org/pub/source/v$VERSION/$TARBALL"
 
 DEPENDS="postgresql-client slitaz-base-files"
 BUILD_DEPENDS="readline-dev zlib-dev   perl python-dev"
-SPLIT="libpostgresqlclient postgresql-client postgresql-doc"
+SPLIT="libpostgresqlclient postgresql-client postgresql-dev postgresql-doc"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -35,23 +35,47 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/ postgresql/ *.so*
+	case $PACKAGE in
+	postgresql)
+		copy bin/ postgresql/ *.so*
 
-	mkdir -p $fs/var/lib/pgsql $fs/var/log/postgresql $fs/etc/pgsql.d
-	cp -a $stuff/etc $fs
-	ln -s /var/lib/pgsql/postgresql.conf $fs/etc
-	chmod 700 $fs/var/lib/pgsql
+		mkdir -p $fs/var/lib/pgsql $fs/var/log/postgresql $fs/etc/pgsql.d
+		cp -a $stuff/etc $fs
+		ln -s /var/lib/pgsql/postgresql.conf $fs/etc
+		chmod 700 $fs/var/lib/pgsql
 
-	# split
-	for i in clusterdb createdb createlang createuser dropdb droplang dropuser \
-		pg_dump pg_dumpall pg_restore psql reindexdb vacuumdb libpq.so*; do
-		find $fs -name $i -delete
-	done
-	rm -r $fs/usr/include $fs/usr/lib/postgresql/pgxs
+		# split
+		for i in clusterdb createdb createlang createuser dropdb droplang dropuser \
+			pg_dump pg_dumpall pg_restore psql reindexdb vacuumdb libpq.so*; do
+			find $fs -name $i -delete
+		done
+		rm -r $fs/usr/include $fs/usr/lib/postgresql/pgxs
+		;;
+	libpostgresqlclient)
+		CAT="misc|Advanced object-relational database management system (client libraries)"
+		copy libpq.so*
+		;;
+	postgresql-client)
+		CAT="misc|Advanced object-relational database management system (client files)"
+		PROVIDE="mysql_or_postgresql"
+		DEPENDS="libpostgresqlclient zlib ncurses readline"
+		copy clusterdb createdb createlang createuser dropdb droplang \
+			dropuser pg_dump pg_dumpall pg_restore psql reindexdb vacuumdb
+		;;
+	postgresql-dev)
+		CAT="development|Advanced object-relational database management system (development files)"
+		DEPENDS="postgresql"
+		copy *.h *.a *.pc pgxs/
+		;;
+	postgresql-doc)
+		CAT="doc|Advanced object-relational database management system (documentation)"
+		copy doc/
+		;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
+post_install_postgresql()
 {
 	# adduser postgres if needed
 	if ! grep -q postgres: "$1/etc/passwd"; then
@@ -81,7 +105,7 @@ Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
 EOF
 }
 
-post_remove()
+post_remove_postgresql()
 {
 	# when both user and group have the same id# and name
 	# both group and user will get removed with either delusr/delgroup
