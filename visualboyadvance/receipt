@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="visualboyadvance"
 VERSION="1.7.2"
@@ -7,18 +7,17 @@ SHORT_DESC="An emulator for Gameboy and GameboyAdvance systems"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
 TARBALL="VisualBoyAdvance-src-$VERSION.tar.gz"
-CONFIG_FILES="/etc/VisualBoyAdvance.cfg"
 WEB_SITE="http://vba.ngemu.com/"
 WGET_URL="http://downloads.sourceforge.net/sourceforge/vba/$TARBALL"
-TAGS="emulator gameboy"
 
-DEPENDS="libsdl"
 BUILD_DEPENDS="libglademm-dev libglademm libsdl-dev patch nasm gtk+-dev gtkmm-dev \
 cairomm-dev libglade-dev libxml2-dev zlib-dev bison flex"
+SPLIT="visualboyadvance visualboyadvance-gtk"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/Util.cpp
 	sed -i 's/int i = 0; i < 16; i++/int ii = 0; ii < 16; ii++/' \
 		src/sdl/debugger.cpp
 	sed -i 's/void \*,void \*/gzFile, void */' src/Util.cpp
@@ -38,5 +37,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	case $PACKAGE in
+	visualboyadvance)
+		CONFIG_FILES="/etc/VisualBoyAdvance.cfg"
+		TAGS="emulator gameboy"
+		DEPENDS="libsdl"
+		cp -a $install/* $fs
+		;;
+	visualboyadvance-gtk)
+		CAT="games|An emulator for Gameboy and Gameboy Advance systems (GTK frontend)."
+		TAGS="emulator gameboy"
+		DEPENDS="libglademm visualboyadvance"
+		mkdir -p $fs/usr/bin $fs/usr/share/applications
+		cp -a $install/usr/bin/gvba $fs/usr/bin
+		cp $stuff/visualboyadvance-gtk.desktop $fs/usr/share/applications
+		;;
+	esac
 }
