@@ -13,22 +13,21 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://gcc.gnu.org/pub/gcc/releases/gcc-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
-SPLIT="gcc-lib-base gcc-lib-math libgfortran gfortran libgomp libobjc gcc"
+SPLIT="gcc-lib-base gcc-lib-math libgfortran gfortran libgomp libobjc \
+libatomic gcc"
 
-# Handle cross compilation (native i486/ARM gcc)
-case "$ARCH" in
-	i?86)
-		ARCH_ARGS="--with-tune=$ARCH"
-		pkgversion="SliTaz"
-		languages="c,c++,objc,fortran" ;;
-	arm*)
-		pkgversion="SliTaz ARM"
-		languages="c,c++" ;;
-esac
+compile_rules() {
+	# Handle cross compilation (native i486/ARM gcc)
+	case "$ARCH" in
+		i?86)
+			ARCH_ARGS="--with-tune=$ARCH"
+			pkgversion="SliTaz"
+			languages="c,c++,objc,fortran" ;;
+		arm*)
+			pkgversion="SliTaz ARM"
+			languages="c,c++" ;;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	# Package slitaz-toolchain use 'cook --options' when rebuilding
 	# the full SliTaz toolchain.
 	[ "$2" == "--first-pass" ] && opt=$2
@@ -99,19 +98,17 @@ compile_rules()
 	rm -rf $WOK/$PACKAGE/$PACKAGE-build
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gcc-lib-base)
 			copy libgcc_s.so* libstdc++.so*
 			rm $fs/usr/lib/*.py
-			CAT="development|base libraries"
+			CAT="libs|base libraries"
 			DEPENDS="glibc-base"
 			;;
 		gcc-lib-math)
 			copy libquadmath.so*
-			CAT="development|math libraries"
+			CAT="libs|math libraries"
 			DEPENDS="glibc-base"
 			;;
 		libgfortran)
@@ -120,15 +117,14 @@ genpkg_rules()
 			DEPENDS="gcc-lib-base gcc-lib-math glibc-base"
 			;;
 		gfortran)
-			copy *gfortran libgfortran.* f951 finclude/
-			remove_already_packed
+			copy *gfortran libgfortran.* f951 finclude/ @rm
 			CAT="development|fortran extension"
 			TAGS="compiler fortran"
 			DEPENDS="libgfortran gcc glibc-base gmp mpc-library mpfr zlib"
 			;;
 		libgomp)
 			copy libgomp.so*
-			CAT="development|API specification for parallel programming"
+			CAT="libs|API specification for parallel programming"
 			DEPENDS="glibc-base"
 			;;
 		libobjc)
@@ -136,10 +132,14 @@ genpkg_rules()
 			CAT="libdevel|API for gcc object"
 			DEPENDS="gcc-lib-base glibc-base"
 			;;
+		libatomic)
+			copy libatomic.so*
+			CAT="libs|libatomic"
+			DEPENDS=" "
+			;;
 		gcc)
-			copy bin/ lib/ include/ *.py
-			remove_already_packed
-			DEPENDS="gcc-lib-base libgomp libobjc \
+			copy bin/ lib/ include/ *.py @rm
+			DEPENDS="gcc-lib-base libgomp libobjc libatomic \
 			glibc-base gmp mpc-library mpfr zlib   binutils elfutils"
 			SUGGESTED="python"
 			TAGS="compiler C"
@@ -147,9 +147,7 @@ genpkg_rules()
 	esac
 }
 
-# Post install commands for Tazpkg.
-post_install_gcc()
-{
+post_install_gcc() {
 	[ -f "$1/lib/cpp" ]    || ln -s ../usr/bin/cpp "$1/lib"
 	[ -f "$1/usr/bin/cc" ] || ln -s gcc "$1/usr/bin/cc"
 }
