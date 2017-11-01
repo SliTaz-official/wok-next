@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="qemu-light"
-VERSION="1.2.0"
+VERSION="2.0.2"
 CATEGORY="misc"
 SHORT_DESC="Light Qemu i386-softmmu target (without xen, vde, bluez, blobs, tls)."
 MAINTAINER="pankso@slitaz.org"
@@ -14,16 +14,27 @@ TAGS="virtualization"
 CONFLICT="qemu"
 
 DEPENDS="alsa-lib libsdl util-linux-uuid"
-BUILD_DEPENDS="perl alsa-lib-dev libsdl-dev util-linux-uuid-dev python \
-glib-dev zlib-dev"
+BUILD_DEPENDS="gettext perl alsa-lib-dev libsdl-dev util-linux-uuid-dev python \
+glib-dev zlib-dev autoconf automake libtool bison flex"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	mkdir -p $DESTIDR/usr/share/qemu/ia32
+
+	[ -s $SOURCES_REPOSITORY/$UEFIZIP ] || wget -P $SOURCES_REPOSITORY \
+		http://netassist.dl.sourceforge.net/project/edk2/OVMF/$UEFIZIP
+	unzip $SOURCES_REPOSITORY/$UEFIZIP OVMF.fd -d $DESTIDR/usr/share/qemu/ia32
+
+	patch -p0 < $stuff/cloop.u
+
 	TARGET="i386-softmmu"
+
+	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
+	#--cross-prefix= --host-cc=
 	./configure \
 		--prefix=/usr \
+		--sysconfdir=/etc \
 		--disable-xen \
 		--disable-vnc-sasl \
 		--disable-vnc-tls \
