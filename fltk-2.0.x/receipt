@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fltk-2.0.x"
 VERSION="r7725"
@@ -11,11 +11,9 @@ WEB_SITE="http://www.fltk.org/"
 WGET_URL="subversion|http://svn.easysw.com/public/fltk/fltk/trunk"
 BRANCH="${VERSION#r}"
 
-DEPENDS="expat fontconfig freetype jpeg xorg-libX11 xorg-libXau xorg-libXdmcp \
-xorg-libXext xorg-libXft xorg-libXrender zlib libpng12 xorg-libXi \
-xorg-libXinerama gcc-lib-base"
 BUILD_DEPENDS="xorg-libXft-dev libglu-mesa libglu-mesa-dev mesa mesa-dev \
 subversion autoconf xorg-dev libpng12-dev"
+SPLIT="fltk-2.0.x-dev fltk-2.0.x-fluid2 fltk-2.0.x-gl"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -44,8 +42,37 @@ EOF
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	# Remove gl support --> fltk-2.0.x-gl
-	rm $fs/usr/lib/libfltk2*gl*
+	case $PACKAGE in
+	fltk-2.0.x)
+		DEPENDS="expat fontconfig freetype jpeg xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXft \
+			xorg-libXrender zlib libpng12 xorg-libXi \
+			xorg-libXinerama gcc-lib-base"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		# Remove gl support --> fltk-2.0.x-gl
+		rm $fs/usr/lib/libfltk2*gl*
+		;;
+	fltk-2.0.x-dev)
+		CAT="development|Fast Light Tool Kit devel files (FLZK 2.0)."
+		DEPENDS="fltk-2.0.x"
+		mkdir -p $fs/usr/bin $fs/usr/lib
+		cp -a $install/usr/bin/fltk2-config $fs/usr/bin
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	fltk-2.0.x-fluid2)
+		CAT="development|Fast Light Tool Kit designer 2.0 serie."
+		DEPENDS="fltk-2.0.x"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/fluid2 $fs/usr/bin
+		;;
+	fltk-2.0.x-gl)
+		CAT="x-window|Fast Light Tool Kit GL library."
+		DEPENDS="mesa libglu-mesa expat fontconfig xorg-libXft \
+			xorg-libXi xorg-libXinerama xorg-libXext gcc-lib-base"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/libfltk2*gl*.so* $fs/usr/lib
+		;;
+	esac
 }
