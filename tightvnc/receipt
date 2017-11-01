@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tightvnc"
 VERSION="1.3.10"
@@ -9,12 +9,12 @@ LICENSE="GPL2"
 TARBALL="$PACKAGE-${VERSION}_unixsrc.tar.bz2"
 WEB_SITE="http://www.tightvnc.com/"
 WGET_URL="$SF_MIRROR/vnc-tight/$TARBALL"
-DEPENDS="xorg-base-fonts jpeg zlib"
+
 BUILD_DEPENDS="xorg-imake xorg-gccmakedep xorg-cf-files xorg-libXp \
 xorg-libXaw-dev xorg-libXt-dev xorg-xproto xorg-libXau-dev xorg-libXdmcp-dev \
 xorg-libXmu-dev xorg-xextproto xorg-printproto xorg-kbproto xorg-inputproto \
 xorg-scrnsaverproto xorg-xauth jpeg-dev zlib-dev xorg-libXrandr-dev"
-TAGS="remote-desktop vnc"
+SPLIT="tightvnc tightvnc-extra tightvnc-java tightvnc-viewer"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -40,10 +40,14 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/Xvnc $fs/usr/bin
-	cp $src/vncpasswd/vncpasswd $fs/usr/bin
-	cat > $fs/usr/bin/startvnc <<EOM
+	case $PACKAGE in
+	tightvnc)
+		TAGS="remote-desktop vnc"
+		DEPENDS="xorg-base-fonts jpeg zlib"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/Xvnc $fs/usr/bin
+		cp $src/vncpasswd/vncpasswd $fs/usr/bin
+		cat > $fs/usr/bin/startvnc <<EOM
 #!/bin/sh
 
 case "\$1" in
@@ -60,5 +64,35 @@ Xvnc -ac -geometry \${2:-1920x1024} -depth \${3:-24} :\${1:-1} &
 export DISPLAY=:\${1:-1}
 exec \$WINDOW_MANAGER
 EOM
-	chmod +x $fs/usr/bin/startvnc
+		chmod +x $fs/usr/bin/startvnc
+		;;
+	tightvnc-extra)
+		CAT="x-window|VNC extra tools."
+		TAGS="vnc"
+		DEPENDS="perl jpeg zlib xorg-libXdmcp xorg-libXau xorg-libX11 \
+			xorg-libXext"
+		mkdir -p $fs/usr/bin $fs/etc
+		cp $src/vncconnect/vncconnect $src/vncserver $fs/usr/bin
+		cp $src/tightvncserver.conf $fs/etc
+		cat >> $fs/etc/tightvncserver.conf << 'EOF'
+$vncClasses = "/usr/share/vnc/classes";
+$fontPath = "/usr/share/fonts/X11/misc/";
+EOF
+		;;
+	tightvnc-java)
+		CAT="x-window|VNC Java client."
+		DEPENDS="tightvnc"
+		mkdir -p $fs/usr/share/vnc 
+		cp -pa $src/classes $fs/usr/share/vnc
+		;;
+	tightvnc-viewer)
+		CAT="x-window|VNC client for X."
+		TAGS="vnc remote-desktop"
+		DEPENDS="jpeg zlib xorg-libXdmcp xorg-libXau xorg-libX11 \
+			xorg-libXext xorg-libXp xorg-libXpm xorg-libICE \
+			xorg-libSM xorg-libXt xorg-libXmu xorg-libXaw"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/vncviewer $fs/usr/bin
+		;;
+	esac
 }
