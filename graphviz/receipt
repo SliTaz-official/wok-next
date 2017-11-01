@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="graphviz"
 VERSION="2.28.0"
@@ -10,16 +10,15 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.graphviz.org/"
 WGET_URL="${WEB_SITE}pub/$PACKAGE/ARCHIVE/$TARBALL"
 
-DEPENDS="zlib libpng jpeg expat libxml2 librsvg util-linux-uuid pcre"
 BUILD_DEPENDS="xorg-dev expat-dev zlib-dev pkg-config libpng-dev \
 jpeg-dev libgd-dev lua-dev swig ocaml python-dev tcl-dev tk-dev \
 librsvg-dev php-dev ruby-dev libcroco-dev util-linux-uuid-dev \
 pango-dev libxml2-dev php-cli gdk-pixbuf-dev guile-dev pcre-dev"
+SPLIT="graphviz graphviz-dev graphviz-doc"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	sed -i 's/.*php5.*/&\n	sed -i "s|char .type_name;|const \&|" gv_php.cpp/' tclpkg/gv/Makefile*
 	sed -i 's/.*PHPWRITE.*/    TSRMLS_FETCH();\n&/' tclpkg/gv/gv_php_init.c
 	./configure --prefix=/usr \
@@ -62,13 +61,30 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/graphviz
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib/
-	cp -a $install/usr/lib/graphviz $fs/usr/lib/
-	rm -f $fs/usr/lib/graphviz/*.la
-	cp -a $install/usr/share/graphviz/lefty $fs/usr/share/graphviz
-	cp -a $install/usr/share/graphviz/smyrna $fs/usr/share/graphviz
-	cp -a $install/usr/share/graphviz/graphs $fs/usr/share/graphviz
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+	graphviz)
+		DEPENDS="zlib libpng jpeg expat libxml2 librsvg util-linux-uuid pcre"
+		mkdir -p $fs/usr/lib $fs/usr/share/graphviz
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib/
+		cp -a $install/usr/lib/graphviz $fs/usr/lib/
+		rm -f $fs/usr/lib/graphviz/*.la
+		cp -a $install/usr/share/graphviz/lefty $fs/usr/share/graphviz
+		cp -a $install/usr/share/graphviz/smyrna $fs/usr/share/graphviz
+		cp -a $install/usr/share/graphviz/graphs $fs/usr/share/graphviz
+		cp -a $install/usr/bin $fs/usr
+		;;
+	graphviz-dev)
+		CAT="development|Automatic graph drawing development files."
+		mkdir -p $fs/usr/lib/graphviz
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		cp -a $install/usr/lib/graphviz/*.la $fs/usr/lib/graphviz
+		cp -a $install/usr/include $fs/usr
+		;;
+	graphviz-doc)
+		CAT="development|Automatic graph drawing documentation files."
+		mkdir -p $fs/usr/share/graphviz
+		cp -a $install/usr/share/graphviz/doc $fs/usr/share/graphviz
+		;;
+	esac
 }
