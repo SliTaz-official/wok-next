@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipti v2.
 
 PACKAGE="lyx"
 VERSION="2.0.5.1"
@@ -10,9 +10,9 @@ WEB_SITE="http://www.lyx.org"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.lyx.org/pub/lyx/stable/2.0.x/$TARBALL"
 
-DEPENDS="aiksaurus aspell bzlib libQtGui python"
 BUILD_DEPENDS="python Qt4-dev bison aspell-dev xorg-libX11-dev aiksaurus-dev \
 zlib-dev"
+SPLIT="lyx lyx-dev lyx-examples lyx-locales"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -25,9 +25,31 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/lyx $fs/usr/share
-	rm -r $fs/usr/share/lyx/doc $fs/usr/share/lyx/examples
+	case $PACKAGE in
+	lyx)
+		DEPENDS="aiksaurus aspell bzlib libQtGui python"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/share/lyx $fs/usr/share
+		rm -r $fs/usr/share/lyx/doc $fs/usr/share/lyx/examples
+		;;
+	lyx-doc)
+		CAT="office|Documentation for LyX"
+		DEPENDS="lyx"
+		mkdir -p $fs/usr/share/lyx
+		cp -a $install/usr/share/lyx/doc $fs/usr/share/lyx
+		;;
+	lyx-examples)
+		CAT="officer|Examples for LyX"
+		DEPENDS="lyx"
+		mkdir -p $fs/usr/share/lyx
+		cp -a $install/usr/share/lyx/examples $fs/usr/share/lyx
+		;;
+	lyx-locales)
+		CAT="localization|Locale files for LyX"
+		DEPENDS="lyx"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/locale $fs/usr/share
+		;;
+	esac
 }
-
