@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cherokee"
 VERSION="1.2.101"
@@ -9,10 +9,9 @@ LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.cherokee-project.com/"
 WGET_URL="http://www.cherokee-project.com/download/${VERSION%.*}/$VERSION/$TARBALL"
-PROVIDE="lighttpd"
 
-DEPENDS="pcre cyrus-sasl openssl python libmysqlclient libldap ffmpeg"
 BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl-dev openldap-dev python-dev pam-dev libmysqlclient ffmpeg-dev gettext autoconf automake"
+SPLIT="cherokee cherokee-dev cherokee-doc"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -43,13 +42,35 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/cherokee $fs/usr/share $fs/etc/init.d
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/cherokee/*.so* $fs/usr/lib/cherokee
-	cp -a $install/usr/share/cherokee $fs/usr/share
-	cp -a $install/var $fs
-	cp -a $install/etc $fs
-	cp -a $stuff/cherokee $fs/etc/init.d
+	case $PACKAGE in
+	cherokee)
+		PROVIDE="lighttpd"
+		DEPENDS="pcre cyrus-sasl openssl python libmysqlclient \
+			libldap ffmpeg"
+		mkdir -p $fs/usr/lib/cherokee $fs/usr/share $fs/etc/init.d
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/cherokee/*.so* $fs/usr/lib/cherokee
+		cp -a $install/usr/share/cherokee $fs/usr/share
+		cp -a $install/var $fs
+		cp -a $install/etc $fs
+		cp -a $stuff/cherokee $fs/etc/init.d
+		;;
+	cherokee-dev)
+		CAT="development|devel files for cherokee"
+		DEPENDS="cherokee pkg-config"
+		mkdir -p $fs/usr/lib/cherokee $fs/usr/share
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/cherokee/*.*a $fs/usr/lib/cherokee
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/share/aclocal $fs/usr/share
+		;;
+	cherokee-doc)
+		CAT="misc|Docs for cherokee"
+		DEPENDS="cherokee"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/doc $fs/usr/share
+		;;
+	esac
 }

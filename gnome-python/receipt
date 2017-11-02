@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-python"
 VERSION="2.28.1"
@@ -10,9 +10,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnome.org/"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="python pygobject pygtk libgnome"
 BUILD_DEPENDS="python-dev pygobject-dev pygtk-dev libgnome-dev audiofile \
 esound libxml2-dev"
+SPLIT="gnome-python gnome-python-dev python-gconf"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,9 +27,29 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/share/pygtk $fs/usr/share
-	cp -a $install/usr/lib $fs/usr
-	rm -rf $fs/usr/lib/pkgconfig
-	rm -rf $fs/usr/lib/gnome-vfs-2.0/modules/*a
+	case $PACKAGE in
+	gnome-python)
+		DEPENDS="python pygobject pygtk libgnome"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/pygtk $fs/usr/share
+		cp -a $install/usr/lib $fs/usr
+		rm -rf $fs/usr/lib/pkgconfig
+		rm -rf $fs/usr/lib/gnome-vfs-2.0/modules/*a
+		;;
+	gnome-python-dev)
+		CAT="development|Python bindings for GNOME, development files."
+		DEPENDS="gnome-python pkg-config"
+		mkdir -p $fs/usr/lib/gnome-vfs-2.0/modules
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/gnome-vfs-2.0/modules/*.so $fs/usr/lib/gnome-vfs-2.0/modules
+		cp -a $install/usr/include $fs/usr
+		;;
+	python-gconf)
+		CAT="system-tools|Python bindings for gconf."
+		_PYTHONVER=$(grep  ^VERSION= $WOK/python/receipt | cut -d "=" -f2 | sed -e 's/"//g')
+		mkdir -p $fs/usr/lib/python${_PYTHONVER%.*}/site-packages/gtk-2.0
+		cp -a $install/usr/lib/python${_PYTHONVER%.*}/site-packages/gtk-2.0/gconf.so \
+			$fs/usr/lib/python${_PYTHONVER%.*}/site-packages/gtk-2.0
+		;;
+	esac
 }

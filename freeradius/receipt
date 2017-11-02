@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="freeradius"
 VERSION="2.1.12"
@@ -10,12 +10,10 @@ SOURCE="freeradius-server"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.freeradius.org/"
 WGET_URL="ftp://ftp.freeradius.org/pub/freeradius/$TARBALL"
-CONFIG_FILES="/etc/raddb"
 
-DEPENDS="libssl cyrus-sasl libldap libltdl python readline libunixODBC \
-libkrb5 libcomerr3 libmysqlclient gdbm"
 BUILD_DEPENDS="libtool openldap-dev openssl-dev pam-dev krb5-dev gdbm-dev \
 libtool"
+SPLIT="freeradius freeradius-dialupadmin freeradius-pam"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -33,14 +31,76 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share $fs/etc/init.d $fs/var/run/radiusd
+	case $PACKAGE in
+	freeradius)
+		CONFIG_FILES="/etc/raddb"
+		DEPENDS="libssl cyrus-sasl libldap libltdl python readline \
+			libunixODBC libkrb5 libcomerr3 libmysqlclient gdbm"
+		mkdir -p $fs/usr/lib $fs/usr/share $fs/etc/init.d $fs/var/run/radiusd
 
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/freeradius $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	rm -f $fs/usr/lib/rlm_pam* $fs/etc/raddb/modules/pam
-	cp -a $stuff/freeradius $fs/etc/init.d/
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/share/freeradius $fs/usr/share
+		cp -a $install/etc $fs
+		cp -a $install/var $fs
+		rm -f $fs/usr/lib/rlm_pam* $fs/etc/raddb/modules/pam
+		cp -a $stuff/freeradius $fs/etc/init.d/
+		;;
+	freeradius-dialupadmin)
+		CAT="network|radius server web interface"
+		CONFIG_FILES="/etc/dialupadmin"
+		DEPENDS="php"
+		mkdir -p $fs/usr/share $fs/etc/dialupadmin
+		cp -a $src/dialup_admin $fs/usr/share
+		cp -a $src/dialup_admin/conf/* $fs/etc/dialupadmin
+		rm -rf $fs/usr/share/dialup_admin/conf
+		ln -s /etc/dialupadmin $fs/usr/share/dialup_admin
+		;;
+	freeradius-pam)
+		CAT="security|pam module for radius server"
+		PROVIDE="freeradius:pam"
+		DEPENDS="freeradius pam"
+		mkdir -p $fs/usr/lib $fs/etc/raddb/modules
+		cp -a $install/usr/lib/rlm_pam*.so* $fs/usr/lib
+		cp -a $install/etc/raddb/modules/pam $fs/etc/raddb/modules
+		;;
+	esac
+}
+
+post_install_freeradius_dialupadmin()
+{
+	# Configure lighttpd server
+	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
+		if ! grep -q /usr/share/dialup_admin/ "$1/etc/lighttpd/lighttpd.conf"; then
+	    		sed -e 's|.*"/examples/" => "/usr/share/examples/",|    "/examples/" => "/usr/share/examples/",\n    "/dialupadmin/" => "/usr/share/dialup_admin/htdocs/",|g' -i "$1/etc/lighttpd/lighttpd.conf"
+			if [ -z "$1" ]; then
+				# Start Web server.
+				/etc/init.d/lighttpd stop
+				/etc/init.d/lighttpd start
+			fi
+		fi
+	fi
+	# Configure apache server
+	if [ -f "$1/etc/apache/httpd.conf" ]; then
+		if [ ! -f "$1/etc/apache/conf.d/dialupadmin" ]; then
+			cat > "$1/etc/apache/conf.d/dialupadmin" <<EOT
+<IfModule mod_alias.c>
+    Alias /dialupadmin /usr/share/dialup_admin/htdocs
+</IfModule>
+<DirectoryMatch /usr/share/dialup_admin/htdocs/>
+    DirectoryIndex index.html
+    Options +FollowSymLinks
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+</DirectoryMatch>
+EOT
+			if [ -z "$1" ]; then
+				# Start Web server.
+				/etc/init.d/apache stop
+				/etc/init.d/apache start
+			fi
+		fi
+	fi
 }
