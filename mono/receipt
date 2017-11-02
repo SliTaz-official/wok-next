@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mono"
 VERSION="2.10.8"
@@ -10,9 +10,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.mono-project.com/"
 WGET_URL="http://download.mono-project.com/sources/$PACKAGE/$TARBALL"
 
-DEPENDS="glib glibc-base zlib libgdiplus"
 BUILD_DEPENDS="tar bzip2 m4 pkg-config bison gawk \
 gettext glib-dev perl libgdiplus-dev"
+SPLIT="mono mono-dev mono-doc"
 
 # Build documentation at http://mono-project.com/Compiling_Mono
 # and http://mono-project.com/Release_Notes_Mono_2.4#Installing_Mono_2.4
@@ -20,7 +20,6 @@ gettext glib-dev perl libgdiplus-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--sysconfdir=/etc \
 		--with-libgdiplus=installed \
@@ -45,10 +44,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/mono $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
-	chmod +x $fs/usr/bin/*
+	case $PACKAGE in
+	mono)
+		DEPENDS="glib glibc-base zlib libgdiplus"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/mono $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/etc $fs
+		chmod +x $fs/usr/bin/*
+		;;
+	mono-dev)
+		CAT="development|mono development files."
+		DEPENDS="mono pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	mono-doc)
+		CAT="development|mono documentation files."
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/monodoc $fs/usr/lib
+		;;
+	esac
 }

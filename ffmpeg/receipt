@@ -17,7 +17,7 @@ BUILD_DEPENDS_arm="zlib-dev bzip2-dev yasm"
 #coreutils-file-special yasm"
 BUILD_DEPENDS="coreutils-file-format libass-dev fdk-aac-dev lame-dev opus-dev \
 libtheora-dev libvorbis-dev libvpx-dev x264-dev x265-dev xorg-libX11-dev"
-SPLIT="ffmpeg-dev"
+SPLIT="ffmpeg ffmpeg-dev ffplay ffserver"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -90,6 +90,21 @@ genpkg_rules()
 			case "$SLITAZ_ARCH" in
 				arm*) DEPENDS="alsa-lib bzip2 zlib" ;;
 			esac
+			;;
+		ffplay)
+			CAT="multimedia|Very simple and portable media player using the ffmpeg and the SDL library."
+			TAGS="audio video player"
+			DEPENDS="ffmpeg libsdl"
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/ffplay $fs/usr/bin
+			;;
+		ffserver)
+			CAT="multimedia|FFmpeg audio/video fast and small stream server."
+			TAGS="audio video server"
+			DEPENDS="ffmpeg"
+			mkdir -p $fs/usr/bin $fs/etc
+			cp ${stuff}/ffserver.conf $fs/etc
+			cp -a $install/usr/bin/ffserver $fs/usr/bin
 			;;
 		*-dev)
 			copy @dev examples/
