@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="raspberrypi-vc"
 GITHASH="1db68b5da75330e4d21fa10b8271c0f463d605d2"
@@ -15,6 +15,7 @@ TAGS="raspberrypi rpi"
 HOST_ARCH="arm"
 
 BUILD_DEPENDS="wget"
+SPLIT="raspberrypi-vc raspberrypi-boot raspberrypi-boot-x"
 
 # Cross tool PATH is not set in genpkg_rules
 compile_rules()
@@ -27,16 +28,36 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	vc="$fs/opt/vc"
-	mkdir -p ${fs}/opt
-	cp -a ${src}/opt/vc ${fs}/opt
-	echo -n "Cleaning: VC libraries devel files"
-	rm -rf ${vc}/include ${vc}/src ${vc}/lib/*.a
-	status
+	case $PACKAGE in
+	raspberrypi-vc)
+		vc="$fs/opt/vc"
+		mkdir -p ${fs}/opt
+		cp -a ${src}/opt/vc ${fs}/opt
+		echo -n "Cleaning: VC libraries devel files"
+		rm -rf ${vc}/include ${vc}/src ${vc}/lib/*.a
+		status
+		;;
+	raspberrypi-boot)
+		CAT="system-tools|Raspberry Pi bootloader firmware."
+		mkdir -p $fs/boot
+		for fw in bootcode.bin fixup.dat start.elf
+		do
+			cp -a ${src}/boot/${fw} ${fs}/boot
+		done
+		;;
+	raspberrypi-boot-x)
+		CAT="system-tools|Raspberry Pi bootloader firmware with Pi camera support."
+		mkdir -p $fs/boot
+		for fw in start_x.elf fixup_x.dat
+		do
+			cp -a ${src}/boot/${fw} ${fs}/boot
+		done
+		;;
+	esac
 }
 
 # PATH + LD_LIBRARY_PATH
-post_install()
+post_install_raspberrypi_vc()
 {
 	# PATH + LD_LIBRARY_PATH
 	if ! fgrep -q '/opt/vc/bin' ${1}/etc/profile; then

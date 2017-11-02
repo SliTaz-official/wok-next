@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="poptop"
 VERSION="1.3.4"
@@ -11,10 +11,8 @@ TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://poptop.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 TAGS="vpn tunnel"
-#WANTED="ppp"		# need VERSION
-CONFIG_FILES="/etc/pptpd.conf /etc/ppp/options.pptpd"
 
-DEPENDS="ppp bcrelay"
+SPLIT="poptop bcrelay poptop-man"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -33,11 +31,27 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr $fs/etc/ppp $fs/etc/init.d
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	rm -f $fs/usr/sbin/bcrelay
-	cp $src/samples/pptpd.conf $fs/etc
-	cp $src/samples/options.pptpd $fs/etc/ppp
-	ln -s daemon $fs/etc/init.d/pptpd
+	case $PACKAGE in
+	poptop)
+		CONFIG_FILES="/etc/pptpd.conf /etc/ppp/options.pptpd"
+		DEPENDS="ppp bcrelay"
+		mkdir -p $fs/usr $fs/etc/ppp $fs/etc/init.d
+		cp -a $install/usr/lib $fs/usr
+		cp -a $install/usr/sbin $fs/usr
+		rm -f $fs/usr/sbin/bcrelay
+		cp $src/samples/pptpd.conf $fs/etc
+		cp $src/samples/options.pptpd $fs/etc/ppp
+		ln -s daemon $fs/etc/init.d/pptpd
+		;;
+	bcrelay)
+		CAT="network|Broadcast relay daemon."
+		mkdir -p $fs/usr/sbin
+		cp -a $install/usr/sbin/bcrelay $fs/usr/sbin
+		;;
+	poptop-man)
+		CAT="network|PPTP server man pages."
+		mkdir -p $fs/usr/
+		cp -a $install/usr/share $fs/usr/
+		;;
+	esac
 }
