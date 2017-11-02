@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nagvis"
 VERSION="1.5.7"
@@ -9,9 +9,8 @@ LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nagvis.org/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-SUGGESTED="graphviz"
 
-DEPENDS="nagios php-mysql php-gd ndoutils mk-livestatus"
+SPLIT="nagvis nagvis-doc nagvis-flex"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -22,85 +21,111 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/nagvis \
-		$fs/etc/apache/conf.d \
-		$fs/var/lib/nagvis/var/tmpl/cache \
-		$fs/var/lib/nagvis/var/tmpl/compile \
-		$fs/usr/share/doc/nagvis
+	case $PACKAGE in
+	nagivs)
+		SUGGESTED="graphviz"
+		DEPENDS="nagios php-mysql php-gd ndoutils mk-livestatus"
+		mkdir -p $fs/usr/share/nagvis \
+			$fs/etc/apache/conf.d \
+			$fs/var/lib/nagvis/var/tmpl/cache \
+			$fs/var/lib/nagvis/var/tmpl/compile \
+			$fs/usr/share/doc/nagvis
 	
-	cp -a $src/share $fs/usr/share/nagvis
-	cp -a $src/etc $fs/etc/nagvis
+		cp -a $src/share $fs/usr/share/nagvis
+		cp -a $src/etc $fs/etc/nagvis
 	
-	# copy demo maps.
-	#~ cp $fs/usr/share/nagios/nagvis/nagvis/images/maps/nagvis-demo.png \
-		#~ $fs/var/lib/nagvis/automap.png
+		# copy demo maps.
+		#~ cp $fs/usr/share/nagios/nagvis/nagvis/images/maps/nagvis-demo.png \
+			#~ $fs/var/lib/nagvis/automap.png
 	
-	# link  var direcxtory (FHS)	
-	ln -s /var/lib/nagvis/var  $fs/usr/share/nagvis/var
+		# link  var direcxtory (FHS)	
+		ln -s /var/lib/nagvis/var  $fs/usr/share/nagvis/var
 	
-	# move config files
-	ln -s /etc/nagvis $fs/usr/share/nagvis/etc
+		# move config files
+		ln -s /etc/nagvis $fs/usr/share/nagvis/etc
 	
-	# nagvis config
-	mv $fs/etc/nagvis/nagvis.ini.php-sample $fs/etc/nagvis/nagvis.ini.php
-	sed -i  -e 's|;language=|language=|' \
-		-e 's|;dateformat="Y-m-d H:i:s"|dateformat="d-m-Y H:i:s"|' \
-		-e 's|;base=.*|base="/usr/share/nagvis/"|' \
-		-e 's|;htmlbase=|htmlbase=|' \
-		-e 's|;htmlcgi=|htmlcgi=|' \
-		-e 's|;backendtype=|backendtype=|' \
-		-e 's|;dbhost=|dbhost=|' \
-		-e 's|;dbport=|dbport=|' \
-		-e 's|;dbname=|dbname=|' \
-		-e 's|;dbname=|dbname=|' \
-		-e 's|;dbuser=|dbuser=|' \
-		-e 's|;dbpass=""|dbpass=|' \
-		-e 's|;dbprefix=|dbprefix=|' \
-		-e 's|;dbinstancename=|dbinstancename=|' \
-		$fs/etc/nagvis/nagvis.ini.php
+		# nagvis config
+		mv $fs/etc/nagvis/nagvis.ini.php-sample $fs/etc/nagvis/nagvis.ini.php
+		sed -i  -e 's|;language=|language=|' \
+			-e 's|;dateformat="Y-m-d H:i:s"|dateformat="d-m-Y H:i:s"|' \
+			-e 's|;base=.*|base="/usr/share/nagvis/"|' \
+			-e 's|;htmlbase=|htmlbase=|' \
+			-e 's|;htmlcgi=|htmlcgi=|' \
+			-e 's|;backendtype=|backendtype=|' \
+			-e 's|;dbhost=|dbhost=|' \
+			-e 's|;dbport=|dbport=|' \
+			-e 's|;dbname=|dbname=|' \
+			-e 's|;dbname=|dbname=|' \
+			-e 's|;dbuser=|dbuser=|' \
+			-e 's|;dbpass=""|dbpass=|' \
+			-e 's|;dbprefix=|dbprefix=|' \
+			-e 's|;dbinstancename=|dbinstancename=|' \
+			$fs/etc/nagvis/nagvis.ini.php
 	
-	sed -i -e '/;logonmodule=/ {
-		a\logonmodule="LogonEnv"\
+		sed -i -e '/;logonmodule=/ {
+			a\logonmodule="LogonEnv"\
 logonenvvar="REMOTE_USER"\
 logonenvcreateuser="0"
-	}' $fs/etc/nagvis/nagvis.ini.php
-	sed -i -e '/;socket/ a\socket="unix:/var/lib/nagios/rw/live"' $fs/etc/nagvis/nagvis.ini.php
-	sed -i -e 's/;showautomaps=1/showautomaps=0/' $fs/etc/nagvis/nagvis.ini.php
+		}' $fs/etc/nagvis/nagvis.ini.php
+		sed -i -e '/;socket/ a\socket="unix:/var/lib/nagios/rw/live"' $fs/etc/nagvis/nagvis.ini.php
+		sed -i -e 's/;showautomaps=1/showautomaps=0/' $fs/etc/nagvis/nagvis.ini.php
 	
-	# Apache config
-	mv $fs/etc/nagvis/apache2-nagvis.conf-sample $fs/etc/nagvis/apache2-nagvis.conf
-	ln -s /etc/nagvis/apache2-nagvis.conf $fs/etc/apache/conf.d/nagvis.conf
-	sed -i -e 's|@NAGVIS_WEB@|/nagvis|' \
-		-e 's|@NAGVIS_PATH@|/usr/share/nagvis|' \
-		-e 's|#AuthName|AuthName|' \
-		-e 's|#AuthType|AuthType|' \
-		-e 's|#AuthUserFile|AuthUserFile|' \
-		-e 's|@NAGIOS_PATH@.*|/etc/nagios/htpasswd.users|' \
-		-e 's| #Require|Require|' $fs/etc/nagvis/apache2-nagvis.conf
+		# Apache config
+		mv $fs/etc/nagvis/apache2-nagvis.conf-sample $fs/etc/nagvis/apache2-nagvis.conf
+		ln -s /etc/nagvis/apache2-nagvis.conf $fs/etc/apache/conf.d/nagvis.conf
+		sed -i -e 's|@NAGVIS_WEB@|/nagvis|' \
+			-e 's|@NAGVIS_PATH@|/usr/share/nagvis|' \
+			-e 's|#AuthName|AuthName|' \
+			-e 's|#AuthType|AuthType|' \
+			-e 's|#AuthUserFile|AuthUserFile|' \
+			-e 's|@NAGIOS_PATH@.*|/etc/nagios/htpasswd.users|' \
+			-e 's| #Require|Require|' $fs/etc/nagvis/apache2-nagvis.conf
 	
-	# Fix perms
-	chown -R www.www $fs/usr/share/nagvis $fs/var/lib/nagvis
-	chown -R root.www $fs/etc/nagvis
+		# Fix perms
+		chown -R www.www $fs/usr/share/nagvis $fs/var/lib/nagvis
+		chown -R root.www $fs/etc/nagvis
 	
-	chmod 664 $fs/etc/nagvis/nagvis.ini.php  
-	chmod 775 $fs/etc/nagvis/maps
-	chmod 664 $fs/etc/nagvis/maps/*
-	chmod 664 $fs/etc/nagvis/geomap/*
-	chmod 664 $fs/etc/nagvis/automaps/*
-	chmod 775 $fs/var/lib/nagvis
+		chmod 664 $fs/etc/nagvis/nagvis.ini.php  
+		chmod 775 $fs/etc/nagvis/maps
+		chmod 664 $fs/etc/nagvis/maps/*
+		chmod 664 $fs/etc/nagvis/geomap/*
+		chmod 664 $fs/etc/nagvis/automaps/*
+		chmod 775 $fs/var/lib/nagvis
 
-	# Cleanup
-	rm -f $fs/usr/share/nagvis/install.*
-	rm -f $fs/usr/share/nagvis/share/uifx
+		# Cleanup
+		rm -f $fs/usr/share/nagvis/install.*
+		rm -f $fs/usr/share/nagvis/share/uifx
 	
-	mv $fs/usr/share/nagvis/share/userfiles/images/maps $fs/var/lib/nagvis
-	chmod 775 $fs/var/lib/nagvis/maps
-	chmod 664 $fs/var/lib/nagvis/maps/*
-	ln -s /var/lib/nagvis/maps $fs/usr/share/nagvis/share/userfiles/images/
-
+		mv $fs/usr/share/nagvis/share/userfiles/images/maps $fs/var/lib/nagvis
+		chmod 775 $fs/var/lib/nagvis/maps
+		chmod 664 $fs/var/lib/nagvis/maps/*
+		ln -s /var/lib/nagvis/maps $fs/usr/share/nagvis/share/userfiles/images/
+		;;
+	nagvis-doc)
+		CAT="network|Nagvis documentation and licence"
+		DEPENDS="nagvis"
+		mkdir -p $fs/usr/share/doc/nagvis \
+			$fs/usr/share/nagvis
+	
+		# Copy doc and licence
+		cp -a  $src/INSTALL $fs/usr/share/doc/nagvis
+		cp -a $src/LICENCE $fs/usr/share/doc/nagvis
+		cp -a $src/README $fs/usr/share/doc/nagvis
+		cp -a $src/ChangeLog $fs/usr/share/doc/nagvis
+		cp -pa $src/docs $fs/usr/share/nagvis
+		;;
+	nagvis-flex)
+		CAT="network|Nagvis Flex"
+		DEPENDS="nagvis"
+		mkdir -p $fs/usr/share/nagvis
+	
+		# Copy doc and licence
+		cp -a $src/uifx $fs/usr/share/nagvis
+		;;
+	esac
 }
 
-post_install()
+post_install_nagvis()
 {
 	cat <<EOT
 Now visit http://localhost/nagvis

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mupdf"
 VERSION="1.11"
@@ -11,9 +11,9 @@ TARBALL="$PACKAGE-$VERSION-source.tar.gz"
 WGET_URL="http://mupdf.com/downloads/$TARBALL"
 #HOST_ARCH="i486 arm"
 
-DEPENDS="bzlib freetype fontconfig jbig2dec openjpeg xorg-libXext"
 BUILD_DEPENDS="freetype-dev fontconfig-dev jbig2dec-dev jpeg-dev \
 openjpeg-dev zlib-dev xorg-dev"
+SPLIT="mupdf mudraw mupdf-dev"
 
 # Rules to configure and make the package.  
 compile_rules()
@@ -49,6 +49,24 @@ EOT
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/mupdf* $fs/usr/bin
+	case $PACKAGE in
+	mupdf)
+		DEPENDS="bzlib freetype fontconfig jbig2dec openjpeg xorg-libXext"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/mupdf* $fs/usr/bin
+		;;
+	mudraw)
+		CAT="development|A lightweight PDF and XPS viewer (mudraw)"
+		DEPENDS="bzlib freetype jbig2dec openjpeg"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/mudraw $fs/usr/bin
+		;;
+	mupdf-dev)
+		CAT="development|Development files for mupdf"
+		DEPENDS="mupdf mudraw"
+		mkdir -p $fs/usr
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib $fs/usr
+		;;
+	esac
 }

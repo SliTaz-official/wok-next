@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ntop"
 VERSION="4.1.0"
@@ -9,19 +9,16 @@ LICENSE="GPL3"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.ntop.org/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-CONFIG_FILES="/etc/ntop"
 TAGS="network"
 
-DEPENDS="zlib openssl libpng libpcap glibc gdbm rrdtool perl pcre geoip \
-libwrap"
 BUILD_DEPENDS="zlib-dev openssl-dev libpng-dev libpcap-dev libtool \
 glibc-dev gdbm-dev rrdtool autoconf automake rrdtool-dev wget geoip-dev \
 libwrap libtool"
+SPLIT="ntop ntop-dev ntop-man"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./autogen.sh --prefix=/usr	\
 		--sysconfdir=/etc \
 		--localstatedir=/var/lib \
@@ -33,25 +30,42 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/plugins \
-		$fs/usr/share \
-		$fs/var/log/ntop
+	case $PACKAGE in
+	ntop)
+		CONFIG_FILES="/etc/ntop"
+		DEPENDS="zlib openssl libpng libpcap glibc gdbm rrdtool perl \
+			pcre geoip libwrap"
+		mkdir -p $fs/usr/lib/plugins \
+			$fs/usr/share \
+			$fs/var/log/ntop
 
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/ntop $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/ntop $fs/usr/share
-	chown -R www.www $fs/usr/share/ntop
-	cp -a $install/usr/bin $fs
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/ntop $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/share/ntop $fs/usr/share
+		chown -R www.www $fs/usr/share/ntop
+		cp -a $install/usr/bin $fs
+		cp -a $install/etc $fs
+		cp -a $install/var $fs
 
-	# Copy startup script and fix perms
-	cp -a stuff/etc $fs
-	chown root.root $fs/etc/init.d/ntop
+		# Copy startup script and fix perms
+		cp -a stuff/etc $fs
+		chown root.root $fs/etc/init.d/ntop
+		;;
+	ntop-dev)
+		CAT="development|Network traffic probe development files."
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.a $fs/usr/lib
+		;;
+	ntop-man)
+		CAT="development|Network traffic probe man page."
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/man $fs/usr/share
+		;;
+	esac
 }
 
-post_install()
+post_install_ntop()
 {
 	user=ntop
 	group=ntop
@@ -75,12 +89,12 @@ post_install()
 	echo -e "Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf\n"
 }
 
-pre_remove()
+pre_remove_ntop()
 {
 	[ "$1" ] || /etc/init.d/$PACKAGE stop
 }
 
-post_remove()
+post_remove_ntop()
 {
         user=ntop
         group=ntop
