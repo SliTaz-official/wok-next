@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jpeg"
 VERSION="8c"
@@ -12,7 +12,7 @@ WGET_URL="http://www.ijg.org/files/$TARBALL"
 TAGS="jpeg jpg"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libjpeg"
+SPLIT="jpeg jpeg-dev libjpeg"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,8 +29,27 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p  $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	# In libjpeg package
-	#cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	jpeg)
+		DEPENDS="libjpeg"
+		mkdir -p  $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		# In libjpeg package
+		#cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	jpeg-dev)
+		CAT="development|JPEG images libs."
+		DEPENDS="jpeg libjpeg"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $src/jpegint.h $fs/usr/include
+		;;
+	libjpeg)
+		CAT="x-window|JPEG image libs."
+		TAGS="jpeg jpg"
+		mkdir -p  $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	esac
 }

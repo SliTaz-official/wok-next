@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gucharmap"
 VERSION="3.0.1"
@@ -10,9 +10,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://wiki.gnome.org/action/show/Apps/Gucharmap"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ xorg-libXdamage"
 BUILD_DEPENDS="itstool libxml2-tools glib-dev gtk+-dev intltool"
-SPLIT="gucharmap-i18n"
+SPLIT="gucharmap gucharmap-dev gucharmap-i18n"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -31,9 +30,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/lib $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/applications $fs/usr/share
+	case $PACKAGE in
+	gucharmap)
+		DEPENDS="gtk+ xorg-libXdamage"
+		mkdir -p $fs/usr/bin $fs/usr/lib $fs/usr/share
+		cp -a $install/etc $fs
+		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/share/applications $fs/usr/share
+		;;
+	gucharmap-dev)
+		CAT="development|GNOME Character Map (GTK+2), development files"
+		DEPENDS="gucharmap"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/*.la $fs/usr/lib
+		;;
+	gucharmap-i18n)
+		CAT="localization|Language files for GNOME Character Map (GTK+2)"
+		DEPENDS="gucharmap"
+		mkdir -p $fs/usr/share/locale
+		cp -a $install/usr/share/locale/* $fs/usr/share/locale
+		;;
+	esac
 }

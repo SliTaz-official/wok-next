@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lzma"
 VERSION="4.57"
@@ -13,9 +13,8 @@ HOST_ARCH="i486 arm"
 TARBALL="lzma$(echo $VERSION | sed 's/\.//').tar.bz2"
 WGET_URL="$SF_MIRROR/sevenzip/$TARBALL"
 
-DEPENDS="lzlib zlib gcc-lib-base"
 BUILD_DEPENDS="zlib-dev"
-SPLIT="lzlib lzlib-dev"
+SPLIT="lzma lzlib lzlib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -44,10 +43,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/CPP/7zip/Compress/LZMA_Alone/lzma-shared $fs/usr/bin/lzma-alone
-	cp $stuff/lzma $fs/usr/bin
-	chmod 755 $fs/usr/bin/lzma
-	ln -s lzma $fs/usr/bin/unlzma
-	ln -s lzma $fs/usr/bin/lzcat
+	case $PACKAGE in
+	lzma)
+		DEPENDS="lzlib zlib gcc-lib-base"
+		mkdir -p $fs/usr/bin
+		cp -a $src/CPP/7zip/Compress/LZMA_Alone/lzma-shared $fs/usr/bin/lzma-alone
+		cp $stuff/lzma $fs/usr/bin
+		chmod 755 $fs/usr/bin/lzma
+		ln -s lzma $fs/usr/bin/unlzma
+		ln -s lzma $fs/usr/bin/lzcat
+		;;
+	lzlib-dev)
+		CAT="development|Compressor with a high compression ratio devel files."
+		mkdir -p $fs/usr/include
+		cp -a $src/CPP/7zip/Compress/LZMA_Alone/lzlib.h $fs/usr/include
+		;;
+	lzlib)
+		CAT="base-system|Compressor with a high compression ratio library."
+		DEPENDS="zlib gcc-lib-base"
+		mkdir -p $fs/lib
+		cp -a $src/CPP/7zip/Compress/LZMA_Alone/liblz.so.1.0.0 $fs/lib
+		ln -s liblz.so.1.0.0 $fs/lib/liblz.so
+		ln -s liblz.so.1.0.0 $fs/lib/liblz.so.1
+		;;
+	esac
 }

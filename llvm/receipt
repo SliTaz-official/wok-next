@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="llvm"
 VERSION="3.9.1"
@@ -11,16 +11,12 @@ WEB_SITE="http://llvm.org/"
 TARBALL="$PACKAGE-$VERSION.src.tar.xz"
 WGET_URL="${WEB_SITE}releases/$VERSION/$TARBALL"
 
-DEPENDS="libffi gcc-lib-base llvm-libs"
 BUILD_DEPENDS="cmake zlib-dev libffi-dev python"
-SPLIT="llvm-libs"
+SPLIT="llvm- llvm-dev llvm-libs"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-#	export LDFLAGS="$LDFLAGS -Wl,-fuse-ld=gold"
-#	ln -f $(readlink -f $(which ld.gold)) $(readlink -f $(which ld))
-
 	mkdir build && cd build &&
 	CC=gcc CXX=g++ \
 	cmake \
@@ -37,5 +33,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy bin/
+	case $PACKAGE in
+	llvm)
+		DEPENDS="libffi gcc-lib-base llvm-libs"
+		copy bin/
+		;;
+	llvm-dev)
+		CAT="development|LLVM (Low Level Virtual Machine): development files"
+		DEPENDS="llvm"
+		copy include/ cmake/
+		;;
+	llvm-libs)
+		CAT="libs|LLVM (Low Level Virtual Machine): libraries"
+		DEPENDS="libffi gcc-lib-base llvm-libs"
+		copy *.so*
+		;;
+	esac
 }
