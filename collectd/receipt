@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="collectd"
 VERSION="5.1.0"
@@ -11,13 +11,12 @@ WEB_SITE="http://collectd.org"
 WGET_URL="http://collectd.org/files/$TARBALL"
 CONFIG_FILES="/etc/collectd/collectd.conf"
 
-DEPENDS="rrdtool perl"
 BUILD_DEPENDS="slitaz-toolchain rrdtool-dev"
+SPLIT="collectd collectd-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--prefix=/usr \
 		--localstatedir=/var \
@@ -40,23 +39,33 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-
-	mkdir -p $fs/usr/lib/collectd \
-		$fs/usr/share \
-		$fs/etc/init.d
+	case $PACKAGE in
+	collectd)
+		DEPENDS="rrdtool perl"
+		mkdir -p $fs/usr/lib/collectd \
+			$fs/usr/share \
+			$fs/etc/init.d
 	
+		cp -a $install/etc $fs/
+		cp -a $install/var $fs/
+		cp -a $install/usr/share/collectd $fs/usr/share
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/collectd/*.so $fs/usr/lib/collectd
+		cp -a $install/usr/lib/perl5 $fs/usr/lib
 	
-	cp -a $install/etc $fs/
-	cp -a $install/var $fs/
-	cp -a $install/usr/share/collectd $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/collectd/*.so $fs/usr/lib/collectd
-	cp -a $install/usr/lib/perl5 $fs/usr/lib
-	
-	# Add init script and fixes
-	install -g root -o root -m 0755 $stuff/collectd $fs/etc/init.d
-	chmod 0644 $fs/etc/collectd/*
+		# Add init script and fixes
+		install -g root -o root -m 0755 $stuff/collectd $fs/etc/init.d
+		chmod 0644 $fs/etc/collectd/*
+		;;
+	collectd-dev)
+		CAT="network|System Stattistics Collection Daemon"
+		DEPENDS="pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
-
