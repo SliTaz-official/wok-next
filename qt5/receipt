@@ -32,7 +32,7 @@ qt5-script           qt5-scxml            qt5-sensors          \
 qt5-serialbus        qt5-serialport       qt5-speech           \
 qt5-svg              qt5-tools            qt5-virtualkeyboard  \
 qt5-wayland          qt5-webchannel       qt5-websockets       \
-qt5-x11extras        qt5-xmlpatterns      \
+qt5-x11extras        qt5-xmlpatterns      qt5-base-egl	\
 \
 qt5-locale-ar    qt5-locale-ca    qt5-locale-cs    qt5-locale-da \
 qt5-locale-de    qt5-locale-en    qt5-locale-es    qt5-locale-fa \
@@ -179,6 +179,10 @@ genpkg_rules() {
 			CAT="development|GTK+3 theme support"
 			DEPENDS="qt5-base atk cairo gdk-pixbuf glib gtk+3 mesa17 pango \
 			xorg-libX11 xorg-libXext";;
+		qt5-base-egl)
+			copy libQt5Egl*
+			CAT="development|EGL libs"
+			DEPENDS="qt5-base mesa17 mesa17-libegl mesa17-libgbm" ;;
 		*)
 			# examine folders in $src to understand what we need to copy from $install
 			examine="$src/qt${PACKAGE#qt5-}"
@@ -210,6 +214,7 @@ genpkg_rules() {
 		qt5-3d)
 			CAT="development|3D module"
 			DEPENDS="qt5-base qt5-declarative qt5-gamepad mesa17 zlib";;
+
 		qt5-base)
 			# Move binaries (that required for compiling the packages) to qt5-dev
 			rm -r $fs/usr/bin
@@ -217,12 +222,15 @@ genpkg_rules() {
 			# Move to qt5-base-gtk3 because only it depends on GTK3 and friends
 			rm $fs/usr/lib/qt5/plugins/platformthemes/libqgtk3.so
 
+			# Move to qt5-base-egl
+			rm -f $fs/usr/lib/libQt5Egl*
+
 			CAT="development|Base module"
 			DEPENDS="dbus eudev fontconfig freetype glib icu libcrypto libcups \
 			libdrm libharfbuzz libicu libinput libjpeg-turbo libpng16 \
-			libsqlite3 libssl libxkbcommon mesa17 mesa17-libegl mesa17-libgbm \
+			libsqlite3 libssl libxkbcommon libxkbcommon-x11 mesa17  \
 			mtdev tslib xorg-libICE xorg-libSM xorg-libX11 xorg-libXext \
-			xorg-libXi xorg-libxcb zlib";;
+			xorg-libXi xorg-libxcb zlib libatomic";;
 		qt5-canvas3d)
 			CAT="development|Canvas3D module"
 			DEPENDS="qt5-base qt5-declarative mesa17";;

@@ -18,7 +18,7 @@ xorg-libxcb-dev xorg-libxshmfence-dev xorg-libX11-dev xorg-libXext-dev \
 xorg-libXdamage-dev xorg-libXfixes-dev xorg-libXxf86vm-dev expat-dev \
 elfutils-dev llvm-dev xorg-libpciaccess-dev wayland-dev libva-dev libvdpau-dev \
 zlib-dev"
-SPLIT="mesa17-dri mesa17-libegl mesa17-libgbm mesa17-osmesa \
+SPLIT="mesa17-dri mesa17-libegl mesa17-libgbm mesa17-osmesa mesa17-libswrAVX \
 mesa17-libwayland-egl mesa17-libxatracker mesa17-vdpau mesa17 mesa17-dev"
 
 compile_rules() {
@@ -101,11 +101,16 @@ genpkg_rules() {
 			xorg-libxcb xorg-libxshmfence zlib"
 			PROVIDE="mesa-vdpau"
 			;;
+		*-libswrAVX)
+			copy libswrAVX*so*
+			CAT="x-window|Fast software rendering driver for CPU with AVX"
+			DEPENDS="mesa17 llvm-libs"
+			;;
 		mesa17)
 			copy @std
 			remove_already_packed
 			CAT="x-window|main OpenGL libraries"
-			DEPENDS="expat libdrm llvm-libs xorg-libX11 xorg-libXau \
+			DEPENDS="expat libdrm xorg-libX11 xorg-libXau \
 			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
 			xorg-libXxf86vm xorg-libxcb xorg-libxshmfence zlib"
 			SUGGESTED="nvidia"
