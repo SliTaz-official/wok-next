@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-vnc"
 VERSION="0.5.4"
@@ -6,19 +6,17 @@ CATEGORY="x-window"
 SHORT_DESC="VNC viewer widget for GTK."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-SUGGESTED="gtk-vnc-python"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wiki.gnome.org/Projects/gtk-vnc"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 TAGS="vnc remote-desktop"
 
-DEPENDS="gnutls libgpg-error gtk+ pygtk cyrus-sasl libtasn1 \
-pulseaudio util-linux-uuid libjson-c libsndfile flac libvorbis"
 BUILD_DEPENDS="gnutls-dev libgpg-error-dev gtk+-dev cyrus-sasl cyrus-sasl-dev \
 intltool pkg-config pygtk-dev pygobject-dev libffi-dev python-dev \
 libgcrypt-dev zlib-dev expat-dev libtasn1-dev perl-text-csv libffi expat \
 pulseaudio-dev util-linux-uuid-dev libjson-c-dev libsndfile-dev flac-dev \
 libvorbis-dev dbus-dev"
+SPLIT="gtk-vnc-dev gtk-vnc-python"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -31,6 +29,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	gtk-vnc)
+		SUGGESTED="gtk-vnc-python"
+		DEPENDS="gnutls libgpg-error gtk+ pygtk cyrus-sasl libtasn1 \
+			pulseaudio util-linux-uuid libjson-c libsndfile flac \
+			libvorbis"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	gtk-vnc-dev)
+		CAT="development|GTK VNC devel files."
+		DEPENDS="gtk-vnc pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	gtk-vnc-python)
+		CAT="development|GTK VNC python bindings."
+		DEPENDS="gtk-vnc python"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/python* $fs/usr/lib
+		;;
+	esac
 }

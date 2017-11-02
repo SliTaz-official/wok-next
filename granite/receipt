@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="granite"
 VERSION="0.2.1"
@@ -11,9 +11,9 @@ BRANCH="535"
 TARBALL="$PACKAGE-$BRANCH.tar.bz2"
 WGET_URL="bzr|lp:granite"
 
-DEPENDS="gtk+3 libgee"
 BUILD_DEPENDS="bazaar cmake vala gtk+3-dev glib-dev libgee-dev \
 gobject-introspection-dev"
+SPLIT="granite granite-demo granite-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,20 +32,43 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p \
-		$fs/usr/lib \
-		$fs/usr/share/locale
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	# icons converted from svg
-	for size in 16 22 24 32 48; do
-		ifolder=$fs/usr/share/icons/hicolor/${size}x${size}/actions
-		mkdir -p $ifolder
-		cp $stuff/${size}.png $ifolder/application-menu.png
-	done
-	# localization
-	. $WOK/slitaz-i18n/stuff/locale-pack.conf
-	for lang in $LOCALE_PACK; do
-		langf=$install/usr/share/locale/$lang
-		[ -d $langf ] && cp -a $langf $fs/usr/share/locale
-	done
+	case $PACKAGE in
+	granite)
+		DEPENDS="gtk+3 libgee"
+		mkdir -p \
+			$fs/usr/lib \
+			$fs/usr/share/locale
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		# icons converted from svg
+		for size in 16 22 24 32 48; do
+			ifolder=$fs/usr/share/icons/hicolor/${size}x${size}/actions
+			mkdir -p $ifolder
+			cp $stuff/${size}.png $ifolder/application-menu.png
+		done
+		# localization
+		. $WOK/slitaz-i18n/stuff/locale-pack.conf
+		for lang in $LOCALE_PACK; do
+			langf=$install/usr/share/locale/$lang
+			[ -d $langf ] && cp -a $langf $fs/usr/share/locale
+		done
+		;;
+	granite-dev)
+		CAT="development|Development files for granite"
+		DEPENDS="granite"
+		mkdir -p \
+			$fs/usr/lib \
+			$fs/usr/share
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/girepository* $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/share/gir* $fs/usr/share
+		cp -a $install/usr/share/vala $fs/usr/share
+		;;
+	granite-demo)
+		CAT="development|Demo for granite"
+		DEPENDS="granite"
+		mkdir -p $fs/usr
+		cp -a $install/usr/bin $fs/usr
+		;;
+	esac
 }
