@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tcplay"
 VERSION="2.0"
@@ -10,9 +10,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/bwalex/tc-play"
 WGET_URL="https://github.com/bwalex/tc-play/archive/v$VERSION.tar.gz"
 
-DEPENDS="libgcrypt libdevmapper libcrypto util-linux-uuid zlib udev"
 BUILD_DEPENDS="cmake wget libdevmapper-dev libgcrypt-dev util-linux-uuid-dev \
 libdevmapper openssl-dev zlib-dev"
+SPLIT="tcplay libtcplay-dev libtcplay"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,6 +23,25 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/tcplay $fs/usr/bin
+	case $PACKAGE in
+	tcplay)
+		DEPENDS="libgcrypt libdevmapper libcrypto util-linux-uuid zlib udev"
+		mkdir -p $fs/usr/bin
+		cp -a $src/tcplay $fs/usr/bin
+		;;
+	libtcplay-dev)
+		CAT="development|Free TrueCrypt implementation, development files."
+		DEPENDS="libgcrypt-dev libdevmapper-dev openssl-dev \
+			util-linux-uuid-dev zlib-dev"
+		mkdir -p $fs/usr/lib $fs/usr/include
+		cp -a $src/libtcplay.a $fs/usr/lib
+		cp -a $src/tcplay*.h $fs/usr/include
+		;;
+	libtcplay)
+		CAT="system-tools|Free TrueCrypt implementation."
+		DEPENDS="libgcrypt libdevmapper libcrypto util-linux-uuid zlib udev"
+		mkdir -p $fs/usr/lib
+		cp -a $src/libtcplay.so* $fs/usr/lib
+		;;
+	esac
 }

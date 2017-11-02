@@ -1,23 +1,21 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="vcdimager"
-VERSION="0.7.23"
+VERSION="0.7.24"
 CATEGORY="multimedia"
 SHORT_DESC="vcd tools"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.vcdimager.org/" 
-WGET_URL="ftp://ftp.gnu.org/gnu/vcdimager/$TARBALL"
-TAGS="multimedia video vcd"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libcdio libxml2 popt"
 BUILD_DEPENDS="libcdio libcdio-dev libxml2-dev popt-dev gfortran"
+SPLIT="vcdimager vcdimager-dev vcdimager-xmltools"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure $CONFIGURE_ARGS &&
 	make && make install
 }
@@ -25,6 +23,29 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/vcdimager $fs/usr/bin
+	case $PACKAGE in
+	vcdimager)
+		TAGS="multimedia video vcd"
+		DEPENDS="libcdio libxml2 popt"
+		mkdir -p $fs/usr/bin
+		cp -a $install/usr/bin/vcdimager $fs/usr/bin
+		;;
+	vcdimager-dev)
+		CAT="development|vcdimager devel files"
+		DEPENDS="pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	vcdimager-xmltools)
+		CAT="multimedia|vcd xml and diagnostic tools from vcdimager"
+		TAGS="vcd"
+		DEPENDS="vcdimager"
+		mkdir -p $fs/usr/bin $fs/usr/lib 
+		cp -a $install/usr/bin/ $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		rm $fs/usr/bin/vcdimager	
+		;;
+	esac
 }
