@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="binutils m4 ncurses-dev readline-dev texinfo"
-SPLIT="gmp gpm-dev gpm-extra"
+SPLIT="gmp gmp-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -42,17 +42,5 @@ genpkg_rules()
 	case $PACKAGE in
 		gmp)   copy @std;;
 		*-dev) copy @dev;;
-		*-extra)
-			CAT="misc|Mouse server for console, extra files."
-			DEPENDS="gpm"
-			mkdir -p $fs/usr
-			cp -a $install/usr/bin $fs/usr
-			;;
 	esac
-}
-
-# Just to be sure when cross-compiling.
-testsuite_gpm_extra()
-{
-	readelf -h $install/usr/bin/gpm-root
 }

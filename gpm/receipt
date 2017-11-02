@@ -12,9 +12,8 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}archives/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="gawk bison ncurses-dev automake autoconf libtool texinfo"
-SPLIT="gpm-extra"
+SPLIT="gpm gpm-dev gpm-extra"
 
 # When cross compiling gawk and bison build system are used.
 case "$ARCH" in
@@ -36,20 +35,44 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	chmod a+x $fs/usr/lib/*
-	cp -a $stuff/* $fs
+	case $PACKAGE in
+	gpm)
+		DEPENDS="ncurses"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		chmod a+x $fs/usr/lib/*
+		cp -a $stuff/* $fs
+		;;
+	gpm-dev)
+		CAT="development|Mouse server for console, development files."
+		DEPENDS="gpm"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		;;
+	gpm-extra)
+		CAT="misc|Mouse server for console, extra files."
+		DEPENDS="gpm"
+		mkdir -p $fs/usr
+		cp -a $install/usr/bin $fs/usr
+		;;
+	esac
 }
 
 # Pre and post install commands for Tazpkg.
-pre_remove()
+pre_remove_gpm()
 {
 	[ -n "$1" ] || /etc/init.d/gpm stop
 }
 
-post_install()
+post_install_gpm()
 {
 	[ -n "$1" -o -s /aufs-umount.sh ] || /etc/init.d/gpm start
+}
+
+# Just to be sure when cross-compiling.
+testsuite_gpm_extra()
+{
+	readelf -h $install/usr/bin/gpm-root
 }
