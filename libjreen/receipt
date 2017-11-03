@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libjreen"
 VERSION="1.1.1"
@@ -10,8 +10,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://qutim.org/jreen"
 WGET_URL="http://qutim.org/dwnl/44/$TARBALL"
 
-DEPENDS="libQtNetwork libQtCore qca libidn"
-BUILD_DEPENDS="Qt4-dev qca-dev libidn-dev cmake qmake"
+BUILD_DEPENDS="Qt4-dev qca-dev libidn-dev cmake qmake zlib-dev"
+SPLIT="libjreen libjreen-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,6 +27,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/
-	cp -a $install/usr/lib $fs/usr
+	case $PACKAGE in
+	libjreen)
+		DEPENDS="libQtNetwork libQtCore qca libidn"
+		mkdir -p $fs/usr/
+		cp -a $install/usr/lib $fs/usr
+		;;
+	libjreen-dev)
+		CAT="development|Qt jabber library, written in C++"
+		DEPENDS="libjreen pkg-config"
+		mkdir -p $fs/usr/share $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
