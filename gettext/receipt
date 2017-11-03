@@ -14,7 +14,7 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libcroco-dev libxml2-dev glib-dev acl-dev"
 BUILD_DEPENDS_arm="attr-dev ncurses-dev libxml2-tools libxml2-dev"
-SPLIT="gettext-base gettext-tools"
+SPLIT="gettext-base gettext-tools gettext"
 
 # Handle cross compilation. Glibc-locale are installed in cross chroot.
 case "$ARCH" in
@@ -42,18 +42,6 @@ testsuite()
 genpkg_rules()
 {
 	case $PACKAGE in
-		gettext)
-			copy @std @dev
-			# Remove "gettext-base" and "gettext-tools" files.
-			for i in gettext gettext.sh envsubst ngettext \
-				msgcat msgfmt msgmerge xgettext \
-				libgettextlib*.so* libgettextsrc*.so*; do
-				find $fs -name "$i" -delete
-			done
-			# Runtime depends, then dev-depends
-			DEPENDS="gettext-base gettext-tools libcroco liblzma libxml2 \
-			acl-dev attr-dev libcroco-dev libxml2-dev glib-dev pcre-dev m4"
-			;;
 		gettext-base)
 			copy gettext gettext.sh envsubst ngettext
 			CAT="base-system|base tools"
@@ -64,6 +52,12 @@ genpkg_rules()
 			libgettextlib*.so* libgettextsrc*.so*
 			CAT="libs|tools"
 			DEPENDS="acl attr glib libcroco libgomp liblzma libxml2 pcre zlib"
+			;;
+		gettext)
+			copy @std @dev @rm
+			# Runtime depends, then dev-depends
+			DEPENDS="gettext-base gettext-tools libcroco liblzma libxml2 \
+			acl-dev attr-dev libcroco-dev libxml2-dev glib-dev pcre-dev m4"
 			;;
 	esac
 }

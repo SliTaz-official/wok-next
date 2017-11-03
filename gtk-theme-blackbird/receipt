@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-theme-blackbird"
 VERSION="0.4"
@@ -6,27 +6,19 @@ CATEGORY="customization"
 SHORT_DESC="Blackbird is GTK+2 and GTK+3 theme from the Shimmer Project"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 CC-BY-SA-3"
-WEB_SITE="http://shimmerproject.org/"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/shimmerproject/Blackbird/archive/v$VERSION.tar.gz"
+WEB_SITE="https://shimmerproject.org/"
 HOST_ARCH="any"
 
-DEPENDS="gtk2-engine-murrine"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/shimmerproject/Blackbird/archive/v$VERSION.tar.gz"
 
-# Rules to configure and make the package
-compile_rules()
-{
-	patch -p1 -i $stuff/define-sizes.patch
+compile_rules() {
+	T="$install/usr/share/themes/Blackbird"
+	mkdir -p $T
+	cp -r gtk-2.0 gtk-3.0 metacity-1 xfce-notify-4.0 xfwm4 $T
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	T='/usr/share/themes/Blackbird'
-	mkdir -p $fs/$T
-	cp -a \
-		$src/gtk-2.0 \
-		$src/gtk-3.0 \
-		$src/xfce-notify-4.0 \
-		$fs/$T
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2-engine-murrine"
 }

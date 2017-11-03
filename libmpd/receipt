@@ -1,31 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmpd"
 VERSION="11.8.17"
 CATEGORY="multimedia"
+SHORT_DESC="Signal based wrapper around libmpdclient"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="Signal based wrapper around libmpdclient"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://gmpclient.org/"
-WGET_URL="http://download.sarine.nl/Programs/gmpc/${VERSION%.*}/$TARBALL"
+WEB_SITE="https://gmpclient.org/"
 HOST_ARCH="i486 arm"
 
-DEPENDS="glib"
-BUILD_DEPENDS="pkg-config glib-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.sarine.nl/Programs/gmpc/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
+BUILD_DEPENDS="glib-dev"
+SPLIT="libmpd-dev"
 
 compile_rules() {
-  cd $src
-  ./configure --prefix=/usr $CONFIGURE_ARGS &&
-  make &&
-  make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*so* $fs/usr/lib/
+
+genpkg_rules() {
+	case $PACKAGE in
+		libmpd)
+			copy @std
+			DEPENDS="glib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libmpd glib-dev pcre-dev"
+			;;
+	esac
 }

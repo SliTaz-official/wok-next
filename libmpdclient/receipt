@@ -1,31 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmpdclient"
-VERSION="2.6"
+VERSION="2.11"
 CATEGORY="system-tools"
-SHORT_DESC="C & C++ API library for MPD."
+SHORT_DESC="Library for interfacing Music Player Daemon (MPD)"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://mpd.wikia.com/wiki/ClientLib:libmpdclient"
-WGET_URL="http://www.musicpd.org/download/$PACKAGE/2/$TARBALL"
+WEB_SITE="https://www.musicpd.org/libs/libmpdclient/"
 HOST_ARCH="i486 arm"
 
-DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.musicpd.org/download/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+BUILD_DEPENDS="doxygen"
+SPLIT="libmpdclient-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libmpdclient)
+			copy @std
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-
