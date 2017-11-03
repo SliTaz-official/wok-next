@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lirc"
-VERSION="0.9.0"
+VERSION="0.9.4d"
 CATEGORY="utilities"
 SHORT_DESC="Enables decoding and sending signals of many commonly used remote controls."
 MAINTAINER="rcx@zoominternet.net"
@@ -10,8 +10,6 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.lirc.org/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base libusb libusb-compat libftdi xorg-libXau libirman \
-portaudio alsa-lib util-linux-uuid"
 BUILD_DEPENDS="linux linux-module-headers python libusb-dev libirman-dev \
 portaudio-dev alsa-lib-dev libusb-compat-dev util-linux-uuid-dev \
 libftdi-dev jack-dev"
@@ -19,33 +17,13 @@ libftdi-dev jack-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	
-	sed -i '/smp_lock.h/d' drivers/lirc_atiusb/lirc_atiusb.c
-
-	# Up through at least lirc 0.8.5, lirc_gpio doesn't build with kernel 2.6.22+
-	#echo "Disabling build of drivers/lirc_gpio due to kernel incompatibility"
-	#sed -i -e "s:lirc_gpio\.o::" drivers/lirc_gpio/Makefile.am
-	#sed -i -e "s:lirc_gpio\.o::" drivers/lirc_gpio/Makefile.in
-
-	# lirc_parallel is not SMP safe
-	echo "Disabling build of drivers/lirc_parallel due to SMP incompatibility"
-	sed -i -e "s:lirc_parallel\.o::" drivers/lirc_parallel/Makefile.am
-	sed -i -e "s:lirc_parallel\.o::" drivers/lirc_parallel/Makefile.in
-
-	echo "Disabling build of drivers/lirc_i2c due to kernel 2.6.38+ incompatibility"
-	sed -i -e "s:lirc_i2c\.o::" drivers/lirc_i2c/Makefile.am
-	sed -i -e "s:lirc_i2c\.o::" drivers/lirc_i2c/Makefile.in
-
-	echo "Disabling build of drivers/lirc_wpc8769l due to kernel incompatibility"
-	sed -i -e "s:lirc_wpc8769l\.o::" drivers/lirc_wpc8769l/Makefile.am
-	sed -i -e "s:lirc_wpc8769l\.o::" drivers/lirc_wpc8769l/Makefile.in
-
 	KERNEL_VERSION=`grep  ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
 	sed -i "s/uname -r/echo $KERNEL_VERSION-slitaz/g" configure
 
 	./configure \
 		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
 		--with-x \
 		--with-driver=all \
 		--with-kerneldir=/usr/src/linux \
@@ -58,11 +36,26 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+	case $PACKAGE in
+	lirc)
+		DEPENDS="glibc-base libusb libusb-compat libftdi xorg-libXau \
+			libirman portaudio alsa-lib util-linux-uuid"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/share/lirc $fs/usr/share
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/sbin $fs/usr
 
-	cp -a $install/dev $fs
-	cp -a $install/lib $fs
+		cp -a $install/etc $fs
+		cp -a $install/var $fs
+		;;
+	lirc-dev)
+		CAT="development|lirc devel files."
+		DEPENDS="pkg-config lirc"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
