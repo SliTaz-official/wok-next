@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qca"
 VERSION="2.0.3"
@@ -10,13 +10,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://delta.affinix.com/qca/"
 WGET_URL="http://delta.affinix.com/download/qca/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libQtCore"
 BUILD_DEPENDS="Qt4-dev qmake"
+SPLIT="qca qca-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's|set(in, n|this->&|' src/botantools/botan/botan/secmem.h
 	./configure \
 		--prefix=/usr \
 		--certstore-path=/etc/ssl/certs/ca-certificates.crt \
@@ -29,7 +29,21 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	qca)
+		DEPENDS="libQtCore"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	qca-dev)
+		CAT="development|The qca devel files."
+		DEPENDS="pkg-config"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/*.prl $fs/usr/lib
+		cp -a $install/usr/share/qt $fs/usr/share
+		;;
+	esac
 }
