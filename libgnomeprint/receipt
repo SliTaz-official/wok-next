@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgnomeprint"
 VERSION="2.18.8"
@@ -10,14 +10,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org/"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ popt libxml2 libart_lgpl"
 BUILD_DEPENDS="pkg-config glib-dev pango-dev intltool flex libart_lgpl-dev \
 libxml2-dev"
+SPLIT="libgnomeprint libgnomeprint-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--with-html-dir=/usr/share/doc \
 		--without-cups \
@@ -28,17 +27,37 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share/locale
+	case $PACKAGE in
+	libgnomeprint)
+		DEPENDS="gtk+ popt libxml2 libart_lgpl"
+		mkdir -p $fs/usr/lib $fs/usr/share/locale
 	
-	# Copy shared libs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
+		# Copy shared libs
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
 	
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
+		cp -a $install/usr/share/locale/fr $fs/usr/share/locale
+		cp -a $install/usr/share/$PACKAGE $fs/usr/share
 	
-	# Remove static libs
-	rm $fs/usr/lib/$PACKAGE/$VERSION/modules/*.*a
-	rm $fs/usr/lib/$PACKAGE/$VERSION/modules/*/*.*a
+		# Remove static libs
+		rm $fs/usr/lib/$PACKAGE/$VERSION/modules/*.*a
+		rm $fs/usr/lib/$PACKAGE/$VERSION/modules/*/*.*a
+		;;
+	libgnomeprint-dev)
+		CAT="development|GNOME print library"
+		DEPENDS="gtk+-dev popt-dev libxml2-dev pkg-config"
+		mkdir -p $fs/usr/lib
+	
+		# Copy static libs
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/$WANTED $fs/usr/lib
+	
+		cp -a $install/usr/include $fs/usr
+	
+		# Remove shared libs
+		rm $fs/usr/lib/$WANTED/$VERSION/modules/*.so*
+		rm $fs/usr/lib/$WANTED/$VERSION/modules/*/*.so*
+		;;
+	esac
 }
-
