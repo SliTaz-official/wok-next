@@ -59,6 +59,8 @@ genpkg_rules()
 		mkdir -p $fs/boot/isolinux $install/usr/share/doc
 		cp $stuff/iso2exe/README* $install/usr/share/doc
 		cp $stuff/iso2exe/init.custom $install/usr/share/doc
+		cp $src/doc/*.txt $install/usr/share/doc
+		cp -a $src/man $install/usr/share/
 		cp $LINLD/*/linld.com $fs/boot
 		cp -a $src/core/isolinux.bin $fs/boot/isolinux
 		lzma e $src/com32/modules/md5sum.c32 $fs/boot/isolinux/c32box.c32
@@ -70,11 +72,13 @@ genpkg_rules()
 		while read label kbd loc tz menu; do
 			for i in ${kbd/,/ }; do
 				[ -e $src/kbd/$i ] || continue
+				map=" $i"
+				[ ${kbd#*,} == $i ] && map=
 				cat >> $fs/boot/isolinux/i18n.cfg <<EOT
 LABEL $label
 	MENU LABEL $menu
 	com32 c32box.c32
-	append kbdmap kbd $i lang=$loc kmap=${kbd#*,} tz=$tz
+	append kbd$map lang=$loc kmap=${kbd#*,} tz=$tz
 
 EOT
 				break
@@ -108,6 +112,7 @@ nn		no-latin1	nn_NO	Europe/Oslo		Norsk (Nynorsk)
 po		pl2		pl_PL	Europe/Warsaw		Polski
 pt		pt-latin1	pt_PT	Europe/Lisbon		Portugues
 ru		ru		ru_RU	Europe/Moscow		Russian
+ru_uk\ uk	ru		ru_UA	Europe/Kiev		Russian Ukraine
 sl		slovene		sl_SI	Europe/Ljubljana	Slovenski
 fi		fi		fi_FI	Europe/Helsinki		Suomi
 se		se-lat6		sv_SE	Europe/Stockholm	Svenska
@@ -132,7 +137,7 @@ EOT
 		for kbd in $(cd $src/kbd; ls | tee ../kbd.l); do
 			msg="Invalid file kbd/$kbd"
 			[ -s $src/kbd/$kbd ] && msg="Unused: file kbd/$kbd" &&
-			grep -q " $kbd " $fs/boot/isolinux/i18n.cfg && continue
+				grep -q "[= ]$kbd " $fs/boot/isolinux/i18n.cfg && continue
 			sed -i "/^$kbd\$/d" $src/kbd.l
 			echo "$msg"
 		done

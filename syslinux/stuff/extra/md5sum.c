@@ -248,6 +248,10 @@ static void md5_begin(void)
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
 
+#ifdef EXTRA
+#define WITH_UNROCKRIDGE
+#endif
+#ifdef WITH_UNROCKRIDGE
 static char *unrockridge(const char *name)
 {
 	static char buffer[256];
@@ -270,6 +274,7 @@ static char *unrockridge(const char *name)
 	buffer[i] = 0;
 	return buffer;
 }
+#endif
 
 static uint8_t *hash_file(const char *filename)
 {
@@ -278,9 +283,12 @@ static uint8_t *hash_file(const char *filename)
 	static uint8_t hash_value[16*2+1];
 
 	src_fd = open(filename, O_RDONLY);
+#ifdef WITH_UNROCKRIDGE
 	if (src_fd < 0) {
 		src_fd = open(unrockridge(filename), O_RDONLY);
 	}
+#endif
+
 	if (src_fd < 0) {
 		return NULL;
 	}
@@ -301,6 +309,7 @@ static uint8_t *hash_file(const char *filename)
 	return hash_value;
 }
 
+#ifdef EXTRA
 static int main_say(int argc, char **argv)
 {
 	int i;
@@ -310,6 +319,7 @@ static int main_say(int argc, char **argv)
 	sleep(5);
 	return 0;
 }
+#endif
 
 static int main_md5sum(int argc, char **argv)
 {
@@ -323,8 +333,10 @@ static int main_md5sum(int argc, char **argv)
 		FILE *fp;
 		char eol, *line, buffer[4096];
 		fp = fopen(*argv,"r");
+#ifdef WITH_UNROCKRIDGE
 		if (fp == NULL)
 			fp = fopen(unrockridge(*argv),"r");
+#endif
 
 		while ((line = fgets(buffer,sizeof(buffer),fp)) != NULL) {
 			uint8_t *hash_value;
@@ -494,7 +506,7 @@ static int main_reboot(int argc, char *argv[])
     int i;
 
     for (i = 1; i < argc; i++) {
-	if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--warm"))
+	if (strstr(argv[i], "-w"))
 	    warm = 1;
     }
 
@@ -578,22 +590,40 @@ static int main_kbdmap(int argc, char *argv[])
 {
     const struct syslinux_keyboard_map *const kmap = syslinux_keyboard_map();
     size_t map_size, size, i;
-    char *kbdmap, *msg;
+    char *kbdmap, *msg, *kbdfile, *kbdname;
+    int skip = 3;
 
     if (argc < 3)
-	usage("Usage: kbdmap archive.cpio mapfile [cmdline]..");
+	usage("Usage: kbdmap [archive.cpio] [mapfile] [cmdline]..");
+
+    if (loadfile(kbdfile = argv[1], (void **) &kbdmap, &map_size)) {
+	kbdfile = "kbd";
+	skip--;
+    }
+    else {
+	free(kbdmap);
+    }
+
+    if (strchr(kbdname = argv[skip-1],'=')) {
+	for (i = --skip; argv[i]; i++) {
+	    if (!strncmp(argv[i], "kmap=", 5)) {
+		kbdname = argv[i] + 5;
+		break;
+	    }
+	}
+    }
 
     // Save extra cmdline arguments
-    setlinuxarg(1, argc - 3, argv + 3);
+    setlinuxarg(1, argc - skip, argv + skip);
 
     msg="Append to kernel parameters: ";
-    for (i = 3; i < (size_t) argc; i++, msg = " ")
+    for (i = skip; i < (size_t) argc; i++, msg = " ")
 	printf("%s%s",msg,argv[i]);
     printf("\n\n                            Hit RETURN to continue.\n");
 
     msg = "Load error";
     if (kmap->version != 1 ||
-	loadfile(argv[1], (void **) &kbdmap, &map_size))
+	loadfile(kbdfile, (void **) &kbdmap, &map_size))
     	goto kbdmap_error;
     if (* (short *) kbdmap == 0x005D) {
 	void *p = malloc(map_size = * (long *) (kbdmap + 5));
@@ -623,7 +653,7 @@ static int main_kbdmap(int argc, char *argv[])
 	len = 1 + strlen(name);
 	i += len;
 	i += ((-i)&3);
-	if (!strcmp(name, argv[2])) {
+	if (!strcmp(name, kbdname)) {
 	    kbdmap += i;
 	    break;
 	}
@@ -717,6 +747,9 @@ static char *find_argument(char **argv, const char *argument)
 }
 
 /* Search for a boolean argument; return its position, or 0 if not present */
+#if 1
+#define find_boolean(a,b)	(find_argument(a,b) != NULL)
+#else
 static int find_boolean(char **argv, const char *argument)
 {
     char **arg;
@@ -728,49 +761,45 @@ static int find_boolean(char **argv, const char *argument)
 
     return 0;
 }
+#endif
 
 static int got_config;
 static char *custom_cmdline = "";
 static int custom_initrdlen;
-static char *custom_initrdbase;
+static int custom_initrdbase;
 static char *custom_buffer;
 static struct disk_info diskinfo;
 
 static int has_custom_config(void)
 {
     const union syslinux_derivative_info *sdi;
-    int retry=0;
     
     if (got_config)
     	goto done;
+    got_config = -1;
     sdi = syslinux_derivative_info();
     if (sdi->c.filesystem != SYSLINUX_FS_ISOLINUX)
     	goto fail;
     disk_get_params(sdi->iso.drive_number, &diskinfo);
     custom_buffer = disk_read_sectors(&diskinfo, 32768 / diskinfo.bps, 1);
-    got_config = (*(unsigned long *) (custom_buffer + 80) * 2048) / diskinfo.bps;
-    do {
-	free(custom_buffer);
-	custom_buffer = disk_read_sectors(&diskinfo, got_config, 1);
-	if (!memcmp(custom_buffer,"#!boot ",7)) {
-	    char *p = custom_buffer+7+32+1;
+    got_config = (*(unsigned long *) (custom_buffer + 80)) 
+    		 * 2048 / diskinfo.bps;
+    free(custom_buffer);
+    custom_buffer = disk_read_sectors(&diskinfo, got_config, 1);
+    if (!memcmp(custom_buffer,"#!boot ",7)) {
+	char *p = custom_buffer+7+32+1;
 	
-    	    if (!memcmp(p,"append=",7)) {
-		custom_cmdline = p + 7;
-		p = strchr(p,'\n');
-		*p++ = 0;
-    	    }
-    	    if (!memcmp(p,"initrd:",7)) {
-    		custom_initrdlen = strtoul(p + 7, &custom_initrdbase, 10);
-    		custom_initrdbase++;
-    	    }
-    	    return 1;
-	}
-	got_config += 16UL;
-	retry = 1 - retry;
-    } while (retry);
+    	if (!memcmp(p,"append=",7)) {
+	    custom_cmdline = p + 7;
+	    p = strchr(p,'\n');
+	    *p++ = 0;
+    	}
+    	if (!memcmp(p,"initrd:",7)) {
+    	    custom_initrdlen = strtoul(p + 7, &custom_initrdbase, 10);
+    	    custom_initrdbase += (got_config << 11) + 1 - (int) custom_buffer;
+    	}
+    }
 fail:
-    got_config = -1;
 done:
     return got_config > 0;
 }
@@ -782,20 +811,15 @@ static int loadcustominitrd(void **data)
     
     p = *data = malloc(custom_initrdlen);
     if (!p) return 0;
-    len = custom_initrdlen;
-    while (1) {
-	n = 2048 + custom_buffer - custom_initrdbase;
+    for (len = custom_initrdlen; len != 0; len -= n, p += n) {
+	free(custom_buffer);
+	custom_buffer = disk_read_sectors(&diskinfo, custom_initrdbase >> 11,
+					  2048 / diskinfo.bps);
+	n = 2048 - (custom_initrdbase & 2047);
     	if (n > len)
     	    n = len;
-	memcpy(p, custom_initrdbase, n);
-	p += n;
-	len -= n;
-	if (len == 0)
-	    break;
-	free(custom_buffer);
-	got_config += 2048 / diskinfo.bps;
-	custom_initrdbase = custom_buffer = 
-		disk_read_sectors(&diskinfo, got_config, 2048 / diskinfo.bps);
+	memcpy(p, custom_buffer + (custom_initrdbase & 2047), n);
+	custom_initrdbase += n;
     }
     return 1;
 }
@@ -823,10 +847,10 @@ static char *make_cmdline(char **argv)
 	return NULL;
 
     for (arg = argv; *arg; arg++) {
-	int len = strlen(*arg);
-	memcpy(p, *arg, len);
-	p[len] = ' ';
-	p += len + 1;
+	size = strlen(*arg);
+	memcpy(p, *arg, size);
+	p[size] = ' ';
+	p += size + 1;
     }
 
     for (i = 0; i < 255; i++) {
@@ -849,10 +873,7 @@ static char *make_cmdline(char **argv)
     return cmdline;
 }
 
-static bool __constfunc cpu_has_cpuid(void)
-{
-    return cpu_has_eflag(X86_EFLAGS_ID);
-}
+#define cpu_has_cpuid() cpu_has_eflag(X86_EFLAGS_ID)
 
 static bool __constfunc cpu_has_level(uint32_t level)
 {
@@ -896,8 +917,10 @@ static const char *extfilename(const char *filename, char *ext, int feature)
 		if (cpu_has_feature(feature)) {
 			strcat(newfilename, ext);
 			fd = open(new, O_RDONLY);
+#ifdef WITH_UNROCKRIDGE
 			if (fd < 0)
 				fd = open(new = unrockridge(new), O_RDONLY);
+#endif
 			if (fd >= 0) {
 				found = new;
 				close(fd);
@@ -945,6 +968,7 @@ static int main_linux(int argc, char *argv[])
     const char *initrd_name;
     struct initramfs *initramfs;
     struct setup_data *setup_data;
+    char *errmsg;
     char *cmdline;
     char *boot_image;
     void *kernel_data;
@@ -958,20 +982,20 @@ static int main_linux(int argc, char *argv[])
     openconsole(&dev_null_r, &dev_stdcon_w);
 
     (void)argc;
-    argp = argv + 1;
 
-    while ((arg = *argp) && arg[0] == '-') {
+    for (argp = argv + 1; (arg = *argp) && arg[0] == '-'; argp++) {
 	if (!strcmp("-dhcpinfo", arg)) {
 	    opt_dhcpinfo = true;
 	} else {
-	    fprintf(stderr, "%s: unknown option: %s\n", progname, arg);
-	    return 1;
+	    errmsg = "%s: unknown option: %s\n";
+	    goto unknown_option;
 	}
-	argp++;
     }
 
     if (!arg) {
-	fprintf(stderr, "%s: missing kernel name\n", progname);
+	errmsg = "%s: missing kernel name\n";
+unknown_option:
+	fprintf(stderr, errmsg, progname, arg);
 	return 1;
     }
 
@@ -980,8 +1004,8 @@ static int main_linux(int argc, char *argv[])
     errno = 0;
     boot_image = malloc(strlen(kernel_name) + 12);
     if (!boot_image) {
-	fprintf(stderr, "Error allocating BOOT_IMAGE string: ");
-	goto bail;
+	errmsg = "Error allocating BOOT_IMAGE string: ";
+	goto bailmsg;
     }
     strcpy(boot_image, "BOOT_IMAGE=");
     strcpy(boot_image + 11, kernel_name);
@@ -1008,20 +1032,20 @@ static int main_linux(int argc, char *argv[])
     errno = 0;
     cmdline = make_cmdline(argp);
     if (!cmdline) {
-	fprintf(stderr, "make_cmdline() failed: ");
-	goto bail;
+	errmsg = "make_cmdline() failed: ";
+	goto bailmsg;
     }
 
     /* Initialize the initramfs chain */
     errno = 0;
     initramfs = initramfs_init();
     if (!initramfs) {
-	fprintf(stderr, "initramfs_init() failed: ");
-	goto bail;
+	errmsg = "initramfs_init() failed: ";
+	goto bailmsg;
     }
 
     if ((arg = find_argument(argp, "initrd="))) {
-	do {
+	while (1) {
 	    p = strchr(arg, ',');
 	    if (p)
 		*p = '\0';
@@ -1039,9 +1063,12 @@ static int main_linux(int argc, char *argv[])
 	    if (!opt_quiet)
 		printf("ok\n");
 
-	    if (p)
-		*p++ = ',';
-	} while ((arg = p));
+	    if (!p)
+		break;
+
+	    *p++ = ',';
+	    arg = p;
+	}
     }
 
     /* Append the DHCP info */
@@ -1050,8 +1077,8 @@ static int main_linux(int argc, char *argv[])
 	errno = 0;
 	if (initramfs_add_file(initramfs, dhcpdata, dhcplen, dhcplen,
 			       "/dhcpinfo.dat", 0, 0755)) {
-	    fprintf(stderr, "Unable to add DHCP info: ");
-	    goto bail;
+	    errmsg = "Unable to add DHCP info: ";
+	    goto bailmsg;
 	}
     }
 
@@ -1078,10 +1105,7 @@ static int main_linux(int argc, char *argv[])
 	    char *ep;
 
 	    type = strtoul(arg + 5, &ep, 10);
-	    if (ep[0] != '=' || !ep[1])
-		continue;
-
-	    if (!type)
+	    if (!type || ep[0] != '=' || !ep[1])
 		continue;
 
 	    if (setup_data_file(setup_data, type, ep+1, opt_quiet))
@@ -1093,27 +1117,28 @@ static int main_linux(int argc, char *argv[])
     errno = 0;
     syslinux_boot_linux(kernel_data, kernel_len, initramfs,
 			setup_data, cmdline);
-    fprintf(stderr, "syslinux_boot_linux() failed: ");
+    errmsg = "syslinux_boot_linux() failed: ";
 
+bailmsg:
+    fprintf(stderr, errmsg);
 bail:
+    errmsg = "Error %d";
     switch(errno) {
     case ENOENT:
-	fprintf(stderr, "File not found\n");
+	errmsg = "File not found";
 	break;
     case ENOMEM:
-	fprintf(stderr, "Out of memory\n");
-	break;
-    default:
-	fprintf(stderr, "Error %d\n", errno);
-	break;
+	errmsg = "Out of memory";
     }
-    fprintf(stderr, "%luM RAM found on this %s bits machine.\n",
+    fprintf(stderr, errmsg, errno);
+    fprintf(stderr, "\n%luM RAM and %s bit cpu found.\n%s: Boot aborted!\n",
 		    memory_size() >> 10,
-    		    cpu_has_feature(X86_FEATURE_LM) ? "64": "32");
-    fprintf(stderr, "%s: Boot aborted!\n", progname);
+    		    cpu_has_feature(X86_FEATURE_LM) ? "64": "32",
+		    progname);
     return 1;
 }
 
+#ifdef EXTRA
 static int main_setarg(int argc, char *argv[])
 {
 	if (argc < 3) {
@@ -1191,6 +1216,7 @@ static int main_listarg(int argc, char *argv[])
     sleep(5);
     return 0;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -1199,16 +1225,19 @@ int main(int argc, char *argv[])
 		char *name;
 		int (*main)(int argc, char *argv[]);
 	} bin[] = {
+#ifdef EXTRA
 		{ "say",	main_say      },
-		{ "md5sum",	main_md5sum   },
-		{ "ifmem",	main_ifmem    },
-		{ "reboot",	main_reboot   },
-		{ "poweroff",	main_poweroff },
-		{ "kbdmap",	main_kbdmap   },
-		{ "linux",	main_linux    },
 		{ "setarg",	main_setarg   },
 		{ "ifarg",	main_ifarg    },
-		{ "listarg",	main_listarg  }
+		{ "listarg",	main_listarg  },
+#endif
+		{ "kbdmap",	main_kbdmap   },
+		{ "kbd",	main_kbdmap   },
+		{ "ifmem",	main_ifmem    },
+		{ "linux",	main_linux    },
+		{ "md5sum",	main_md5sum   },
+		{ "reboot",	main_reboot   },
+		{ "poweroff",	main_poweroff }
 	};
 
 	openconsole(&dev_null_r, &dev_stdcon_w);

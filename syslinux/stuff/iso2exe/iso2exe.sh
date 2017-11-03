@@ -34,21 +34,8 @@ compress()
 add_rootfs()
 {
 	TMP=/tmp/iso2exe$$
-	mkdir -p $TMP/dev
-	cp -a /dev/tty /dev/tty0 $TMP/dev
-	$0 --get init > $TMP/init.exe
-#	mount -o loop,ro $1 $TMP
-#	oldslitaz="$(ls $TMP/boot/isolinux/splash.lss 2> /dev/null)"
-#	umount -d $TMP
-#	[ "$oldslitaz" ] && # for SliTaz <= 3.0 only...
-#	grep -q mount.posixovl.iso2exe $TMP/init.exe && mkdir $TMP/bin &&
-#	cp /usr/sbin/mount.posixovl $TMP/bin/mount.posixovl.iso2exe \
-#		2> /dev/null && echo "Store mount.posixovl ($(wc -c \
-#			< /usr/sbin/mount.posixovl) bytes) ..."
-	find $TMP -type f -print0 | xargs -0 chmod +x
-	find $TMP -print0 | xargs -0 touch -t 197001010100.00 
-	( cd $TMP ; find * | grep -v rootfs.gz | cpio -o -H newc ) | \
-		compress $TMP/rootfs.gz
+	mkdir -p $TMP
+	$0 --get rootfs.gz > $TMP/rootfs.gz
 	SIZE=$(wc -c < $TMP/rootfs.gz)
 	store 24 $SIZE $1
 	OFS=$(( $OFS - $SIZE ))
@@ -62,7 +49,7 @@ add_dosexe()
 	TMP=/tmp/bootiso$$
 	$0 --get bootiso.bin > $TMP 2> /dev/null 
 	OFS=$(($(get 20 $TMP) - 0xC0))
-	printf "Adding DOS/EXE stub at %04X (%d bytes) ...\n" $OFS $((0x8000 - $OFS))
+	printf "Adding DOS/EXE stub at %04X (%d bytes) ...\n" $OFS $((0x7FF0 - $OFS))
 	ddq if=$TMP bs=1 skip=$OFS of=$1 seek=$OFS conv=notrunc
 	rm -f $TMP
 }
@@ -105,7 +92,7 @@ add_win32exe()
 		i=3; [ -n "$mac" ] && i=9
 		ddq if=/tmp/exe$$ bs=512 skip=1 of=$1 seek=$i conv=notrunc
 		for i in 12C 154 17C ; do	# always 3 UPX sections
-			store $((0x$i)) $((1024 + $(get 0x$i $1))) $1 2
+			store $((0x$i)) $((1024 + $(get 0x$i $1))) $1
 		done
 	fi
 	printf "Adding bootiso head at %04X...\n" 0
@@ -118,12 +105,22 @@ add_win32exe()
 	ddq if=/tmp/exe$$ of=$1 bs=1 count=24 seek=$((0x1A0)) skip=$((0x1A0)) conv=notrunc
 	ddq if=$2 bs=1 skip=$((0x1B8)) seek=$((0x1B8)) count=72 of=$1 conv=notrunc
 	store 510 $((0xAA55)) $1
-	rm -f /tmp/exe$$ /tmp/coff$$
 	i=$SIZE; OFS=$(($SIZE+512))
 	[ -n "$mac" ] && OFS=$SIZE && i=1536
 	store 417 $(($i/512)) $1 8
 	printf "Moving syslinux hybrid boot record at %04X (512 bytes) ...\n" $i
 	ddq if=$2 bs=1 count=512 of=$1 seek=$i conv=notrunc
+	if [ $(get $((0x7C00)) /tmp/exe$$) -eq 60905 ]; then
+		ddq if=/tmp/exe$$ bs=1 count=66 skip=$((0x7DBE)) of=$1 seek=$(($i + 0x1BE)) conv=notrunc
+		ddq if=$1 bs=1 count=3 skip=$i of=$1 seek=$(($i + 0x1BE)) conv=notrunc
+		ddq if=/tmp/exe$$ bs=1 count=3 skip=$((0x7C00)) of=$1 seek=$i conv=notrunc
+	fi
+	rm -f /tmp/exe$$ /tmp/coff$$
+	if [ -z "$RECURSIVE_PARTITION" -a $(get 470 $1 4) -eq 0 ]; then
+		store 464 $((1+$i/512)) $1 8
+		store 470 $(($i/512)) $1 8
+		store 474 $(($(get 474 $1 4) - $i/512)) $1 32
+	fi
 }
 
 add_fdbootstrap()
@@ -144,12 +141,12 @@ add_fdbootstrap()
 gzsize()
 {
 	echo $(($(hexdump -C | awk ' {
-		for (i = 2; i < 18; i++) if ($i != "00") break;
-		if (i == 18) {
-			for (i = 17; i > 1; i--) if ($i != "00") break;
-			print "0x" $1 " + 7 - " (16 - i) 
+		for (i = 17; i > 1; i--) if ($i != "00") break;
+		if (i == 1) {
+			print "0x" $1 " + 1 + 1 - " n
 			exit
 		}
+		n = 17 - i
 	}')))
 }
 
@@ -175,7 +172,7 @@ fileofs()
 	rootfs.gz)	SIZE=$(get 24 "$ISO"); OFFSET=$(($stub - $SIZE));;
 	tazboot.com)	OFFSET=$(($(get 64 "$ISO") - 0xC0))
 			SIZE=$(($stub - $(get 24 "$ISO") - $OFFSET));;
-	dosstub)	OFFSET=$stub; SIZE=$((0x8000 - $OFFSET));;
+	dosstub)	OFFSET=$stub; SIZE=$((0x7FF0 - $OFFSET));;
 	boot.md5)	OFFSET=$((0x7FF0)); SIZE=16;;
 	fs.iso)		OFFSET=$((0x8000))
 			SIZE=$((2048*$c - $OFFSET));;
@@ -191,6 +188,53 @@ fileofs()
 			SIZE=$(($(ddq bs=2k skip=$c if="$ISO" count=1 | \
 				sed '/^initrd:/!d;s/.*://') + 0));;
 	esac
+}
+
+trailer()
+{
+	OFFSET=$(stat -c %s "$1")
+	[ $OFFSET -gt $HEAP ] &&
+	printf "%d free bytes in %04X..%04X\n" $(($OFFSET - $HEAP)) $HEAP $OFFSET
+	if [ $(get 510 "$1") -eq 43605 ]; then
+		echo "MBR partitions :"
+		for i in 0 1 2 3; do
+			SIZE=$(get $((446+12+16*i)) "$1" 4)
+			[ $SIZE -eq 0 ] && continue
+			OFFSET=$(get $((446+8+16*i)) "$1" 4)
+			printf " $i:%08X  %08X  %02X\n" $OFFSET $SIZE \
+				$(get $((446+4+16*i)) "$1" 1)
+		done
+		if [ $(get 466 "$1") -eq 65263 ]; then
+			echo "EFI partitions :"
+			n=$(get 584 "$1" 1)
+			s=$(get 596 "$1")
+			o=$((($(get 552 "$1" 1)*512)-($(get 592 "$1")*$s)))
+			i=0
+			while [ $n -gt $i ]; do
+				f=$(get $(($o+0x20)) "$1" 4)
+				l=$(($(get $(($o+0x28)) "$1" 4)-$f))
+				[ $l -eq 0 ] && break
+				printf " $i:%08X  %08X  %s\n" $f $(($l+1)) \
+				"$(od -An -N 36 -w -j $(($o+0x38)) -t a "$1" \
+				 | sed 's/\( nul\)*//g;s/   //g;s/ sp//')"
+				o=$(($o+$s))
+				i=$(($i+1))
+			done
+		fi
+	fi
+	o=2048
+	if [ $(get $o "$1") -eq 19792 ]; then
+		echo "Apple partitions :"
+		i=0
+		while [ $(get $o "$1") -eq 19792 ]; do
+			f=$((0x$(od -An -N 4 -j $(($o+8)) -t x1 "$1" | sed 's/ //g')))
+			l=$((0x$(od -An -N 4 -j $(($o+0x54)) -t x1 "$1" | sed 's/ //g')))
+			printf " $i:%08X  %08X  %s\n" $f $l \
+			"$(ddq bs=1 skip=$(($o+16)) count=32 if="$1")"
+			o=$(($o+2048))
+			i=$(($i+1))
+		done
+	fi
 }
 
 list()
@@ -209,48 +253,24 @@ list()
 		[ $OFFSET -ge $HEAP ] && HEAP=$(($OFFSET+$SIZE))
 		printf "$f at %04X ($SIZE bytes).\n" $OFFSET
 	done
-	OFFSET=$(stat -c %s "$ISO")
-	[ $OFFSET -gt $HEAP ] &&
-	printf "%d free bytes in %04X..%04X\n" $(($OFFSET - $HEAP)) $HEAP $OFFSET
-	if [ $(get 510 "$ISO") -eq 43605 ]; then
-		echo "MBR partitions :"
-		for i in 0 1 2 3; do
-			SIZE=$(get $((446+12+16*i)) "$ISO" 4)
-			[ $SIZE -eq 0 ] && continue
-			OFFSET=$(get $((446+8+16*i)) "$ISO" 4)
-			printf " $i:%08X  %08X  %02X\n" $OFFSET $SIZE \
-				$(get $((446+4+16*i)) "$ISO" 1)
-		done
-		if [ $(get 466 "$ISO") -eq 65263 ]; then
-			echo "EFI partitions :"
-			n=$(get 584 "$ISO" 1)
-			s=$(get 596 "$ISO")
-			o=$((($(get 552 "$ISO" 1)*512)-($(get 592 "$ISO")*$s)))
-			i=0
-			while [ $n -gt $i ]; do
-				f=$(get $(($o+0x20)) "$ISO" 4)
-				l=$(($(get $(($o+0x28)) "$ISO" 4)-$f))
-				[ $l -eq 0 ] && break
-				printf " $i:%08X  %08X  %s\n" $f $(($l+1)) \
-				"$(od -An -N 36 -w -j $(($o+0x38)) -t a "$ISO" \
-				 | sed 's/\( nul\)*//g;s/   //g;s/ sp//')"
-				o=$(($o+$s))
-				i=$(($i+1))
+	trailer $ISO
+}
+
+restore_hybrid_mbr()
+{
+	if [ $(get 0 "$1") -eq 60905 ]; then
+		ddq bs=1 conv=notrunc if="$1" of="$1" skip=$((0x1BE)) seek=0 count=3
+		ddq bs=1 skip=$((0x1BE)) count=66 if="$2" | \
+			ddq bs=1 seek=$((0x1BE)) count=66 of="$1" conv=notrunc
+		if [ -n "$RECURSIVE_PARTITION" ]; then
+			for i in 0 1 2 3 ; do
+				n=$(get $((0x1C6+16*i)) $1 4)
+				[ $n -eq 0 -o $n -gt 64 ] && continue
+				store $((0x1C0+16*i)) 1 $1 8
+				store $((0x1C6+16*i)) 0 $1 32
+				store $((0x1CA+16*i)) $(($(get $((0x1CA+16*i)) $1 4)+$n)) $1 32
 			done
 		fi
-	fi
-	o=2048
-	if [ $(get $o "$ISO") -eq 19792 ]; then
-		echo "Apple partitions :"
-		i=0
-		while [ $(get $o "$ISO") -eq 19792 ]; do
-			f=$((0x$(od -An -N 4 -j $(($o+8)) -t x1 "$ISO" | sed 's/ //g')))
-			l=$((0x$(od -An -N 4 -j $(($o+0x54)) -t x1 "$ISO" | sed 's/ //g')))
-			printf " $i:%08X  %08X  %s\n" $f $l \
-			"$(ddq bs=1 skip=$(($o+16)) count=32 if="$ISO")"
-			o=$(($o+2048))
-			i=$(($i+1))
-		done
 	fi
 }
 
@@ -260,6 +280,7 @@ extract()
 		fileofs $f
 		[ $SIZE -eq 0 ] ||
 		ddq bs=1 count=$SIZE skip=$OFFSET if="$ISO" >$f
+		[ "$f" == "syslinux.mbr" ] && restore_hybrid_mbr "$f" "$ISO"
 	done
 }
 
@@ -278,9 +299,17 @@ clear_custom_config()
 case "$1" in
 --build)
 	shift
-	ls -l $@
+	TMP=/tmp/iso2exe$$
+	mkdir -p $TMP/dev
+	cp -a /dev/tty /dev/tty0 $TMP/dev
+	cat init > $TMP/init.exe
+	find $TMP -type f -print0 | xargs -0 chmod +x
+	find $TMP -print0 | xargs -0 touch -t 197001010100.00 
+	( cd $TMP; find dev init.exe | cpio -o -H newc ) | compress rootfs.gz
+	rm -rf $TMP
+	ls -l $@ rootfs.gz
 	cat >> $0 <<EOM
-$(tar cf - $@ | compress | uuencode -m -)
+$(tar cf - ${@/init/rootfs.gz} | compress | uuencode -m -)
 EOT
 EOM
 	sed -i '/^case/,/^esac/d' $0
@@ -493,7 +522,10 @@ EOT
 	    23117)
 		b=$(get 417 $1 1)
 		n=$(($(get 64 $1) + 0xC0 - ($(get 26 $1 1)*512) - ($b+1)*512))
-		ddq if=$1 bs=512 count=1 skip=$b of=$1 conv=notrunc
+		ddq if=$1 bs=512 count=1 skip=$b of=/tmp/hymbr$$
+		restore_hybrid_mbr /tmp/hymbr$$ $1
+		ddq if=/tmp/hymbr$$ of=$1 conv=notrunc
+		rm -f /tmp/hymbr$$
 		if [ $(get 512 $1) -eq 17989 ]; then
 			n=$(($(get 0x25C $1)/512))
 			ddq if=$1 bs=512 seek=44 count=20 skip=$n of=$1 conv=notrunc
@@ -517,7 +549,7 @@ EOT
 	esac
 	case "$(get 0 $1)" in
 	23117)	echo "The file $1 is already an EXE file." 1>&2 && exit 1;;
-	0)	[ -x /usr/bin/isohybrid ] && isohybrid $1;;
+	0)	[ -x /usr/bin/isohybrid ] && isohybrid -entry 2 $1;;
 	esac
 
 	gpt= ; [ $(get 466 $1) -eq 65263 ] && gpt=1
@@ -551,6 +583,7 @@ EOT
 			md5sum | cut -c-32 | sed 's/\(..\)/\\x\1/g')" | \
 			ddq bs=16 seek=2047 conv=notrunc of=$1
 	fi
+	HEAP=$(($(custom_config_sector $1)*2048))
 	if [ "$append$initrd" ]; then
 		echo -n "Adding custom config... "
 		DATA=/tmp/$(basename $0)$$
@@ -560,16 +593,17 @@ EOT
 		[ -s "$initrd" ] && echo "initrd:$(stat -c %s $initrd)" >> $DATA &&
 			cat $initrd >> $DATA
 		echo "#!boot $(md5sum $DATA | sed 's/ .*//')" | cat - $DATA | \
-		ddq bs=2k seek=$(custom_config_sector $1) of=$1 conv=notrunc
+		ddq bs=2k seek=$(custom_config_sector $1) of=$1
 		newsz=$(stat -c %s $1)
+		mb=$(((($newsz -1)/1048576)+1))
+		HEAP=$(($mb*1048576))
+		ddq bs=1048576 seek=$mb count=0 of=$1
+		h=$(get 417 "$1" 1)
+		[ -z "$RECURSIVE_PARTITION" ] || h=0
 		for i in 0 1 2 3 ; do
-			[ $(get $((0x1BE+16*i)) $1 4) == $((0x00010080)) ] || continue
-			mb=$(((($newsz -1)/1024/1024)+1))
-			h=$((512*$(get 417 "$1" 1)))
+			[ $(get $((0x1BE+16*i)) $1 2) == $((0x0080)) ] || continue
+			store $((0x1CA+16*i)) $(($mb*2048-$h)) $1 32
 			store $((0x1C5+16*i)) $(($mb-1)) $1 8
-			store $(($h+0x1C5+16*i)) $(($mb-1)) $1 8
-			store $((0x1CA+16*i)) $(($mb*2048)) $1 32
-			store $(($h+0x1CA+16*i)) $(($mb*2048)) $1 32
 		done
 		if [ $newsz -gt $isosz ]; then
 			echo "$(($newsz - $isosz)) extra bytes."
@@ -588,6 +622,7 @@ EOT
 		store 18 $(( (-$n -1) % 65536 )) $1
 	fi
 	echo " done."
+	trailer $1
 }
 
 main "$@" <<EOT
