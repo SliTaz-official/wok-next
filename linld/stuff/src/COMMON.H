@@ -49,7 +49,9 @@ extern struct image_himem {
     void (*next_chunk)(struct image_himem *);
     u16 state;
     u16 fd2close;
-} pm, initrd;
+} imgs[2];
+#define pm (imgs[0])
+#define initrd (imgs[1])
 
 extern int skip_alloc;
 extern u32 base_himem;
@@ -76,7 +78,6 @@ extern u16 vid_mode;
 // External asm helpers
 extern "C" void memcpy32(u32, u16,u32, u32);
 extern "C" void rmcpy();
-extern "C" void set_sregs_jump_seg_ofs(u32 csip);
 extern "C" void xmm_alloc(struct image_himem *m);
 extern u32 topmem;
 extern "C" u32 memtopz();
@@ -99,4 +100,4 @@ extern "C" void open_image(const char *name, struct image_himem *m);
 extern "C" int read_image(struct image_himem *m, void* data, int sz);
 char* load_kernel();
 void load_initrd();
-void boot_kernel();
+extern "C" void boot_kernel();

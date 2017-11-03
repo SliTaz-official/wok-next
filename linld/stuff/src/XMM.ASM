@@ -43,11 +43,13 @@ xmm_handler	dd	?
         global  xmm_driver:near
         proc    xmm_driver near
 
+		push	si
+		mov	si,offset xmm_handler
 		ifndef	NO386
-		cmp	[xmm_handler],0
+		cmp	[si],0
 		else
-		mov	ax,[word xmm_handler]
-		or	ax,[word xmm_handler+2]
+		mov	ax,[word si]
+		or	ax,[word si+2]
 		endif
 		jne	@@gotit
 
@@ -65,9 +67,10 @@ xmm_handler	dd	?
 		xchg	ax,cx			; restore cmd
 		push	es
 		push	bx
-		pop	[xmm_handler]
+		pop	[dword si]
 @@gotit:
-		call	[xmm_handler]
+		call	[dword si]
+		pop	si
                 ret
 xmm_fail:
                 xor     ax,ax
@@ -109,11 +112,9 @@ xmm_fail:
 		mov	dx,[bx+8]		; hi m->size
 		sub	ax,1
 		sbb	dx,0
-		mov	cx,10
-@@tokblp:
-		shr	dx,1
-		rcr	ax,1
-		loop	@@tokblp
+		mov	cl,10
+		extrn	N_LXURSH@:near
+		call	N_LXURSH@
 		endif
                 inc     dx
 		push	bx

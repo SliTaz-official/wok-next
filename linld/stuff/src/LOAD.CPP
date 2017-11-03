@@ -115,14 +115,13 @@ u16 rm_size;
 u8 pm_high;	// @ = @rm_size + 2, see JUMP.ASM
 u8* rm_buf;	// @ = @rm_size + 3, see JUMP.ASM
 u32 base_himem = _1m+_64k;
-extern struct image_himem pm, initrd;
 
 // register value to launch the kernel real mode code
 #ifdef NO386
-static u32 csip;
+u32 csip;
 extern "C" u16 topseg();
 #else
-static u32 csip=0x90200000;
+u32 csip=0x90200000;
 #define topseg() 0x9000
 #endif
 
@@ -155,7 +154,7 @@ char* load_kernel() {
     if(kernelparams->setup_sects == 0) {
 #if 1
         if(* (int *) &first1k->pad10[0x3F-0x24] == 0x3AE8) {
-            seekset(pm.fd,rm_seek=0x200);
+            lseekset(pm.fd,rm_seek=0x200);
             csip+=0xFFE00042;
         }
         else
@@ -246,12 +245,12 @@ cmd_line_ok:
 
 void load_initrd() {
     struct image_himem *m = &initrd;
-    m->errmsg = "Can't use initrd file";
     if (!initrd_name && !m->fd) return;
+    m->errmsg = "Can't use initrd file";
 
     open_image(initrd_name, m);
 
-    if ((m->fallback=(memtop()-m->size)&(~PAGE_MASK)) < pm.fallback+pm.size) {
+    if ((m->fallback=(memtop()-m->size)&(~PAGE_MASK)) < m[-1].fallback+m[-1].size) {
         close(m->fd);
         puts(m->errmsg);
         return;
@@ -263,20 +262,4 @@ void load_initrd() {
         kernelparams->initrd_buf  = m->fallback;
         kernelparams->initrd_size = m->size;
     }
-}
-
-void boot_kernel() {
-
-    // Shrink stack: we won't need much of it now and have no malloc() plans
-    {
-        u16 new_SP=u16(heap_top)+0x100;
-        if(_SP>new_SP) _SP=new_SP;
-    }
-    if( (u16(_SP)>>4)+u16(_CS) >= topseg() ) {
-        // Oops! We can stomp on our toes... better stop now
-        die("Loaded too close to 9000:0");
-    }
-
-    // Move rm loader & commandline to 0x90000, Jump to kernel rm code
-    set_sregs_jump_seg_ofs(csip);
 }

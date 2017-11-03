@@ -165,29 +165,6 @@ putsz:
         endp    _puts
 
 
-		ifdef	EXTRA
-;***************************************************************
-;int chdir(char *path);
-;***************************************************************
-        global  _chdir:near
-        proc    _chdir near
-
-		pop	ax
-		pop	dx
-		push	dx
-		push	ax
-chdir:
-		stc
-		mov	ax,713Bh
-		int	21h
-		jnc	chkc
-		mov	ah,3Bh
-		jmp	dos
-
-        endp    _chdir
-		endif
-
-
 ;***************************************************************
 ;int fileattr(const char* name);
 ;***************************************************************
@@ -284,10 +261,10 @@ close:
 
         endp    _read
 
-		ifdef	EXTRA 
 ;***************************************************************
 ;long lseekset(int fd, unsigned long sz);
 ;***************************************************************
+
         global  _lseekset:near
         proc    _lseekset near
 
@@ -296,22 +273,6 @@ close:
                 pop	dx			; sz lo
                 pop	cx			; sz hi
                 push	cx
-                push	dx
-
-		else
-;***************************************************************
-;long seekset(int fd, unsigned sz);
-;***************************************************************
-        global  _seekset:near
-        proc    _seekset near
-
-		xor	cx,cx
-		pop	ax			;caller return address
-                pop	bx			; fd
-                pop	dx			; sz
-                push	dx
-		endif
-
                 push	bx
                 push	ax
         global  lseekset:near
@@ -328,11 +289,7 @@ lseek0:						; lseek0(bx,ax=dir)
 		xor	cx,cx
 		jmp	dos
 
-		ifdef	EXTRA 
         endp    _lseekset
-		else
-        endp    _seekset
-		endif
 
 		ifdef	EXTRA
 struc		isostate	; struct isostate {
@@ -622,8 +579,8 @@ ends					;}; // size=8200
 	endif
 		shl	eax,12		; i*_4k
 ; if (edx < pm.fallback+i*_4k && edx >= pm.fallback) again
-		extrn	_pm
-		mov	bx,offset _pm+2
+		extrn	_imgs
+		mov	bx,offset _imgs+2
 		push	eax
 		add	eax,[bx-2+2]
 		cmp	eax,edx		; pm.fallback+i*_4k <= edx ?
@@ -633,8 +590,8 @@ ends					;}; // size=8200
 		jae	@@vcpi_alloc
 @@pmok:
 ; if (edx >= initrd.fallback+i*_4k && edx < initrd.fallback+initrd.size) again
-		extrn	_initrd
-		mov	bx,offset _initrd+2
+		extrn	_imgs
+		mov	bx,offset _imgs+32+2
 		add	eax,[bx-2+2]	; +initrd.fallback
 		cmp	eax,edx		; initrd.fallback+i*_4k > edx ?
 		ja	@@initrdok
@@ -1342,36 +1299,34 @@ image_done:
 		push	si di es
 		mov	ah,30h
 		int	21h
-		cmp	al,3
-		jb	@@skip
 		xor	di,di
-		mov	es,[cs:2Ch]
-		mov	cx,-1
+		cmp	al,3
 		mov	ax,di
-@@loop1:
+		jb	@@skip
+		;mov	es,[cs:2Ch]
+		mov	es,[di+2Ch]
+		mov	cx,-1
+@@loop:
 		repne
 		  scasb
 		scasb
-		jne	@@loop1
-		lea	si,[di+2]
-		mov	bx, si
-		call	strlen
-		xchg	ax,cx
-		inc	cx
-		call	malloc_or_die
-		xchg	ax,di
-		push	ds
+		jne	@@loop
+		inc	di
+		inc	di
+		mov	si,di			; progname @es:di
+		repne
+		  scasb
+		mov	cx,di
+		sub	cx,si			; progname len
+		call	malloc_or_die		; keep cx
+		mov	di,ax
 		push	ds
 		push	es
 		pop	ds
 		pop	es
-		push	di
-@@loop2:
-		lodsb
-		stosb
-		or	al,al
-		jnz	@@loop2
-		pop	ax
+		rep
+		  movsb
+		push	es
 		pop	ds
 @@skip:
 		pop	es di si
@@ -1381,7 +1336,7 @@ image_done:
 
 
 ;***************************************************************
-;int chdirname(char *path)
+;void chdirname(char *path)
 ;***************************************************************
         global  _chdirname:near
         proc    _chdirname near
@@ -1393,35 +1348,36 @@ image_done:
 
 		cmp	[byte bx+1],3Ah
 		jne	@@nodisk
-		mov	dl,[bx]
-		or	dl,20h
+		mov	dl,20h
+		or	dl,[bx]
 		sub	dl,61h
 		mov	ah,0Eh
-		push	bx
 		int	21h
-		pop	bx
 		inc	bx
 		inc	bx
 @@nodisk:
-		mov	dx,bx
 		xor	cx,cx
 @@next:
 		mov	al,[bx]
 		cmp	al,5Ch
 		jne	@@tsteos
-		mov	cx,bx
+		mov	dx,bx
+		inc	cx
 @@tsteos:
 		inc	bx
 		or	al,al
 		jnz	@@next
-		cbw
 		jcxz	@@end
-		mov	bx,cx
+		mov	bx,dx
 		push	[word bx]
 		mov	[bx],al
-		push	bx
-		call	chdir
-		pop	bx
+		stc
+		mov	ax,713Bh		; chdir long filename
+		int	21h
+		mov	ah,3Bh			; chdir
+		jnc	chdirdone
+		int	21h
+chdirdone:
 		pop	[word bx]
 @@end:
 		ret

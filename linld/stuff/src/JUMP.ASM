@@ -11,12 +11,18 @@
                 p386
 		endif
 
-        group   DGROUP  _TEXT,_BSS
+        group   DGROUP  _TEXT,_DATA,_BSS
         assume  cs:DGROUP,ds:DGROUP
+
+        segment _DATA byte public use16 'DATA'
+
+overflow	db	"Loaded too close to 9000:0",0
+
+        ends    _DATA
 
         segment _BSS byte public use16 'BSS'
 
-        global  _pm:dword
+        global  _imgs:dword
 
         ends    _BSS
 
@@ -24,31 +30,49 @@
         segment _TEXT byte public use16 'CODE'
 
 ;***************************************************************
-;void set_sregs_jump_seg_ofs(u32 csip);
+;void boot_kernel();
 ;****** Never returns
 ;***************************************************************
-        global  _set_sregs_jump_seg_ofs:near
-        proc    _set_sregs_jump_seg_ofs near
-
-		extrn	dos_shutdown:near
-
-		pop	ax			; caller return address
+	global	_boot_kernel:near
+        proc    _boot_kernel near
+        
+; Shrink stack: we won't need much of it now and have no malloc() plans
+		extrn	_heap_top:word
+		mov	ax,[_heap_top]
+		inc	ah
+		cmp	ax,sp
+		ja	@@samesp
+		xchg	ax,sp
+@@samesp:
 		ifdef	NO386
 		extrn	_topseg:near
 		call	near _topseg
 		mov	es,ax
 		xchg	ax,bx
+		mov	cl,4
+		mov	ax,sp
+		shr	ax,cl
 		else
-		push	9000h
-		pop	es
+		mov	bx,9000h
+		mov	es,bx
+		mov	ax,sp
+		shr	ax,4
 		endif
-		pop	dx			; ip
-		pop	cx			; cs
+		mov	dx,cs
+		add	ax,dx
+		cmp	ax,bx
+		jb	@@nooverflow
+; Oops! We can stomp on our toes... better stop now
+		mov	bx,offset overflow
+		extrn	die:near
+		jmp	near die
+@@nooverflow:
 		cli				; we start doing destructive things to DOS
 		push	es
 		pop	ss
 		mov	sp,0A000h
-		push	cx dx
+		extrn	_csip:dword
+		push	[dword _csip]
 		extrn	_rm_size:word
 		mov	si,offset _rm_size	; _rm_size, _pm_high, _rm_buf
 		lodsw
@@ -66,36 +90,34 @@
 		rep
 		  movsb
 		cmp	al,cl			; load high ?
-		jne	isbzimage
+		jne	@@isbzimage
 		ifdef	NO386
 		add	bh,9
 		push	bx			; topseg()+0x0900
 		else
-		push	9900h			; 4096 bytes for cmdline
-	;push	9820h			; 512 bytes for cmdline
+		push	9800h+(4096/16)		; 4096 bytes for cmdline
 		endif
 		; finish loading
 		extrn   @last_ditch$qv:near
 		push	cs
 		call	@last_ditch$qv
-		mov	ax,[word _pm+2+2]	; get pm->fallback high word
+		mov	ax,[word _imgs+2+2]	; get pm->fallback high word
 		; self move
 		;cld
 		pop	es			; min 2048 bytes for stack
 		xor	si,si			;  A000 -9000 -0800(>movedend)
 		xor	di,di			; set ZF
 		mov	cx,offset movedend
-        global  _bss_end:byte
-	;mov	cx,offset _bss_end
 		rep
 		  movsb
 		push	es
-		call	near doretf		; mov cs,es
+		call	near @@doretf		; mov cs,es
 		push	ss
 		pop	es
 		push	cs
 		pop	ds
 		push	ax
+		extrn	dos_shutdown:near
 		call	near dos_shutdown
 		;in	al,70h
 		;or	al,80h			; disable NMI
@@ -103,12 +125,12 @@
 		pop	bx
 		; move zImage pm
 		mov	ax,8
-		cwd
+		cwd				; clear dx
 		cmp	bx,ax
-		ja	bufhigh
+		ja	@@bufhigh
 		sub	ax,bx
 		inc	ax
-bufhigh:
+@@bufhigh:
 		push	ax
 		push	dx			; size=up to 512k
 		push	bx			; src ofs= pm.fallback
@@ -133,10 +155,10 @@ bufhigh:
 		cmp	[dword 1E6h],'SKLE'
 		else
 		cmp	[word 1E6h],'LE'
-		jne	notelks
+		jne	@@notelks
 		cmp	[word 1E8h],'SK'
 		endif
-		jne	notelks
+		jne	@@notelks
 		ifdef	NO386
 		mov	cx,120h
 		push	cx
@@ -155,10 +177,9 @@ bufhigh:
 		push	es
 		pop	ss
 		push	cx
-notelks:
+@@notelks:
 		endif
-
-isbzimage:
+@@isbzimage:
 		push	ss
 		pop	ds
 		;push	ss
@@ -171,12 +192,11 @@ isbzimage:
 		endif
 		assume	nothing
 		assume	cs:DGROUP
-
-doretf:
+@@doretf:
                 retf
 
 movedend:
-        endp    _set_sregs_jump_seg_ofs
+        endp    _boot_kernel
 
         ends    _TEXT
 

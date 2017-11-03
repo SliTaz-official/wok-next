@@ -33,12 +33,13 @@ $(cat TAZBOOT/!COMPILEX.BAT)
 EOT
 	SDL_VIDEODRIVER=dummy dosbox MAKE.BAT -exit -c "mount D $src" \
 		2>&1 | grep -v 'ALSA lib'
+	grep Error: */LNK.LOG && return 1
 	cp LINLD$SUFFIX/LINLD.COM linld.com
 	cp TAZBOOT/TAZBOOT.COM tazboot.com
 	objdump -D -b binary -mi386 -Maddr16,data16 --adjust-vma=0x100 \
 		linld.com > linld.lst
-	sh $stuff/upx.sh linld.com
-	sh $stuff/upx.sh tazboot.com
+	upx -5 --8086 linld.com
+	upx -5 --8086 tazboot.com
 	cc -o tobzimage.o -Wa,-algms=tobzimage.lst -c $stuff/tobzimage.S
 	objcopy -O binary tobzimage.o tobzimage.bin
 	cp $stuff/tobzimage .

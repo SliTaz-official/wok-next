@@ -39,15 +39,17 @@ dos_shutdown:
 		push	ss
 		push	ax
 		pop	[dword cs:sssp]
+		mov	[word bx+4],offset step19
 		else
+		mov	ax,offset step19
+		xchg	ax,[word bx+4]
 		push	[word bx+6]	
-		push	[word bx+4]		; save step
+		push	ax			; save step
 		mov	[word cs:sssp],sp
 		mov	[word cs:sssp+2],ss
 		endif
 		;cmp	[byte bx+7],0F0h
 		;jnc	notdos
-		mov	[word bx+4],offset step19
 		mov	[bx+6],cs
 		pushf
 		pop	ax
@@ -72,10 +74,10 @@ notdos:
 		ifndef	NO386
 		lss	sp,[dword cs:sssp]
 		else
-		lds	bx,[dword cs:sssp]
+		lds	ax,[dword cs:sssp]
 		push	ds
 		pop	ss
-		mov	sp,bx
+		xchg	ax,sp
 		endif
 		xor	bx,bx
 		mov	ds,bx
@@ -168,13 +170,16 @@ endm
 		xor	bx,bx
 		xor	dx,dx
 		xor	si,si
-		mov	ax,[bp+8]		; srcseg
-		call	near N_LXLSH@4
-		add	[bp+10],ax		; srcofs lo
-		adc	[bp+10+2],dx		; srcofs hi
+		mov	ax,[srcseg]
+		mov	cl,4
+		extrn	N_LXLSH@:near
+		call	near N_LXLSH@
+		add	[word srcofs],ax
+		adc	[word srcofs+2],dx
 @@2flat:
-		mov	ax,[bp+si+10]		; srcofs, dstofs lo
-		mov	dx,[bp+si+10+2]		; srcofs, dstofs hi
+		mov	ax,[word si+srcofs]	; srcofs, dstofs lo
+		mov	dx,[word si+srcofs+2]	; srcofs, dstofs hi
+		extrn	N_LXURSH@4:near
 		call	near N_LXURSH@4
 		or	bx,dx			; >=1mb flag
 		push	ax			; srcseg, dstseg
@@ -182,8 +187,8 @@ endm
 		jnz	@@2flat
 		pop	dx			; dstseg
 		pop	ax			; srcseg
-		test	bx,bx			; <1mb ? (clear C)
-                jnz     @@pmcopy
+		dec	bx			; <1mb ?
+                jns     @@pmcopy
 		push	di
 @@movlp:
 		mov	ds,ax
@@ -260,7 +265,7 @@ endm
                 ;db      66h     ;operand width override for ecx
                 db      67h     ;address width override for esi/edi
             rep movsb
-		cld
+		;cld
 
 ;****** Return to rm *******************************************
                 dec     ax              ;CR0_PE off
@@ -297,39 +302,6 @@ GDT             dd      ?,?
                 ;                  Pl E W    D
 
         endp    _memcpy32
-
-		ifdef	NO386
-        global  N_LXURSH@:near
-        global  N_LXURSH@4:near
-        proc    N_LXURSH@4 near
-
-		mov	cl,4
-N_LXURSH@:
-		mov	ch,0
-@@loop:
-		shr	dx,1
-		rcr	ax,1
-		loop	@@loop
-		ret
-
-        endp    N_LXURSH@4
-
-        global  N_LXLSH@:near
-        global  N_LXLSH@4:near
-        proc    N_LXLSH@4 near
-
-		mov	cl,4
-N_LXLSH@:
-		mov	ch,0
-@@loop:
-		shl	ax,1
-		rcl	dx,1
-		loop	@@loop
-		ret
-
-        endp    N_LXLSH@4
-
-		endif
 
         ends    _TEXT
 

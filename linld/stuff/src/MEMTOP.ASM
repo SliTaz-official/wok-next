@@ -42,23 +42,21 @@ saved15		dd	?
 ;***************************************************************
 ;        proc    _memtop_e801 near
 
-                ;push    cx bx
                 xor     cx,cx           ;fix to work around buggy
                 xor     dx,dx           ;  BIOSes which dont clear/set
                 stc                     ;  carry on pass/error of
                 mov     ax,0E801h
                 int     15h
                 jc      @@err
-                test    cx,cx           ;kludge to handle BIOSes
-                jnz     @@use_cxdx      ;  which report their extended
-                test    dx,dx           ;  memory in AX/BX rather than
+		xchg	ax,cx
+                push    ax              ;kludge to handle BIOSes
+                or      ax,dx           ;  which report their extended
+		pop	ax		;  memory in AX/BX rather than
                 jnz     @@use_cxdx      ;  CX/DX.  The spec I have read
 @@use_axbx:     mov     dx,bx           ;  seems to indicate AX/BX
-                jmp     @@end_kludge    ;  are more reasonable anyway...
-@@use_cxdx:     xchg    ax,cx
-@@end_kludge:                   ;now: dx=64k units above 16m
+                xchg	ax,cx		;  are more reasonable anyway...
+@@use_cxdx:                     ;now: dx=64k units above 16m
                                 ;     ax=1k units above 1m below 16m (max 3c00h)
-                ;pop     bx cx
                 test    dx,dx
                 jz      tokb            ;dx=0 here, ax=kbs above 1m
                 xor     ax,ax           ;ignore info on low 16M (assume full)
@@ -84,28 +82,56 @@ saved15		dd	?
 @@ok:
 ;                xor     dx,dx
                 test    ax,ax           ;happens on big mem systems
-                jz      @@fail
+                jnz      tokb
+
+;***************************************************************
+;u32 memtop_cmos()
+;***************************************************************
+
+;memtop_cmos:
+                pushf
+                cli
+                call	rdcmos17
+                popf
 tokb:
                 xor     dx,dx
                 add     ah,4h           ;account for 1024 low kb
                 adc     dx,dx           ;  (optimized to death)
+		mov	cl,10		;multiply by 1024
+        global  N_LXLSH@:near
+N_LXLSH@:
 		ifndef	NO386
-                shld    dx,ax,10        ;multiply by 1024
-                shl     ax,10           ;  (kbytes -> bytes)
+		shld    dx,ax,cl
+		shl     ax,cl		;  (kbytes -> bytes)
 		else
+		mov	ch,0
 @@lp:
-		mov	cx,10
-                shl     ax,1            ;multiply by 1024
+		shl	ax,1
 		rcl	dx,1
 		loop	@@lp
 		endif
-;		mov	cx,ax
-;		or	cx,dx		;update ZF
-;@@fail:
-                ret
+		ret
+
 ;        endp    _memtop_88
 
-@@fail:
+		ifdef	NO386
+        global  N_LXURSH@:near
+        global  N_LXURSH@4:near
+;        proc    N_LXURSH@4 near
+N_LXURSH@4:
+		mov	cl,4
+N_LXURSH@:
+		mov	ch,0
+@@loop:
+		shr	dx,1
+		rcr	ax,1
+		loop	@@loop
+		ret
+
+;        endp    N_LXURSH@4
+
+		endif
+
 
 ;        proc    _memtopz near
 
@@ -113,16 +139,7 @@ tokb:
 ;		jnz	@@ok
 ;                call	_memtop_88
 ;		jnz	@@ok
-
-;***************************************************************
-;u32 memtop_cmos()
-;***************************************************************
-
-                pushf
-                cli
-                call	rdcmos17
-                popf
-		jmp	tokb
+;		jmp	memtop_cmos
 
 rdcmos17:       mov     al,18h		; read bytes 17-18 from CMOS
                 call    @@rdcmos
@@ -173,38 +190,36 @@ _memtop:
 
 		ifndef  xmm_hook
                 mov     ax,4300h
-		ifdef	NO386
-		cwd
-		endif
                 int     2fh
                 cmp     al,80h			; 80h = XMS driver installed
                 je      @@skip
 		endif
+		xor	bx,bx
+		mov	es,bx
 		ifndef	NO386
-		push	0
-		pop	es
-		mov	bx,15*4
-		mov	eax,[bx]
+		push	cs
+		push	offset int15_88
+		pop	eax
+		xchg	eax,[es:bx+15*4]
 		mov	[saved15],eax
 		else
-		mov	es,dx
-		mov	bx,15*4
-		mov	ax,[bx]
+		mov	ax,offset int15_88
+		xchg	ax,[es:bx+15*4]
 		mov	[word saved15],ax
-		mov	ax,[bx+2]
+		mov	ax,cs
+		xchg	ax,[es:bx+15*4+2]
 		mov	[word saved15+2],ax
 		endif
-		mov	[word bx],offset int15_88
-		mov	[bx+2],cs
 @@skip:
 		ret
 int15_88:
                 cmp     ah,88h
                 je      @@do88
+@@jmp_saved15:
                 jmp     [saved15]
 @@do88:
                 pushf
-                call    [saved15]
+                call    @@jmp_saved15
                 test    ax,ax
                 jnz     @@iret
 
