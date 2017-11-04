@@ -3,7 +3,7 @@
 PACKAGE="lz4"
 VERSION="1.7.5"
 CATEGORY="base-system"
-SHORT_DESC="High speed lossless compressor."
+SHORT_DESC="High speed lossless compressor"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://lz4.github.io/lz4/"
@@ -12,7 +12,7 @@ TAGS="compression"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lz4/lz4/tarball/v$VERSION"
 
-SPLIT="lz4 lz4-dev lz4-lib lz4c"
+SPLIT="lz4-dev lz4-lib lz4c"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,19 +26,20 @@ genpkg_rules()
 	case $PACKAGE in
 	lz4)
 		copy lz4 unlz4 lz4cat
+		DEPENDS=" "
 		;;
 	lz4c)
-		CAT="base-system|The lz4c compressor"
+		CAT="base-system|lz4c compressor"
 		copy lz4c
-		;;
-	lz4-dev)
-		CAT="development|LZ4 development files."
-		DEPENDS="pkg-config lz4-lib"
-		copy *.h *.a *.pc
+		DEPENDS=" "
 		;;
 	lz4-lib)
-		CAT="base-system|The lz4c compressor shared library"
+		CAT="base-system|lz4c compressor shared library"
 		copy *.so*
+		DEPENDS=" "
+		;;
+	lz4-dev)
+		copy @dev
 		;;
 	esac
 }

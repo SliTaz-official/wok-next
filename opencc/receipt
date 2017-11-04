@@ -11,7 +11,7 @@ WEB_SITE="http://code.google.com/p/opencc/"
 WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/opencc/$TARBALL"
 
 BUILD_DEPENDS="cmake gettext"
-SPLIT="opencc opencc-dev opencc-tools"
+SPLIT="opencc-tools opencc opencc-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,24 +28,16 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
+	opencc-tools)
+		CAT="utilities|command line tools"
+		DEPENDS="opencc"
+		copy usr/bin/ # only binaries
+		;;
 	opencc)
-		mkdir -p $fs/usr/lib/ $fs/usr/share/
-		cp -a $install/usr/lib/lib*.so.* $fs/usr/lib/
-		cp -a $install/usr/share/opencc/ $fs/usr/share/
+		copy @std @rm # all the rest
 		;;
 	opencc-dev)
-		CAT="development|Development files for OpenCC"
-		DEPENDS="opencc pkg-config"
-		mkdir -p $fs/usr/lib/pkgconfig/
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.so $fs/usr/lib/
-		cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig/
-		;;
-	opencc-tools)
-		CAT="utilities|Command line tools for OpenCC"
-		DEPENDS="opencc"
-		mkdir -p $fs/usr
-		cp -a $install/usr/bin $fs/usr
+		copy @dev
 		;;
 	esac
 }

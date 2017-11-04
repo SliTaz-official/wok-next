@@ -3,7 +3,7 @@
 PACKAGE="libwrap"
 VERSION="7.6"
 CATEGORY="system-tools"
-SHORT_DESC="Wietse Venema's network logger."
+SHORT_DESC="Wietse Venema's network logger"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
 SOURCE="tcp_wrappers"
@@ -12,7 +12,7 @@ WEB_SITE="ftp://ftp.porcupine.org/pub/security/index.html"
 WGET_URL="ftp://ftp.porcupine.org/pub/security/$TARBALL"
 HOST_ARCH="i486 arm"
 
-SPLIT="libwrap libwrap-dev tcpd"
+SPLIT="libwrap-dev tcpd"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -35,13 +35,12 @@ genpkg_rules()
 		cp -a $src/shared/*.so* $fs/usr/lib
 		;;
 	libwrap-dev)
-		CAT="development|Wietse Venema's network logger devel files."
 		mkdir -p $fs/usr/include $fs/usr/lib
 		cp -a $src/tcpd.h $fs/usr/include
 		cp -a $src/*.a $fs/usr/lib
 		;;
 	tcpd)
-		CAT="development|Wietse Venema's network encapsulation files."
+		CAT="development|network encapsulation files"
 		CONFIG_FILES="/etc/hosts.allow /etc/hosts.deny"
 		DEPENDS="libwrap"
 		mkdir -p $fs/usr/sbin $fs/etc
@@ -54,9 +53,4 @@ genpkg_rules()
 		touch $fs/etc/hosts.deny
 		;;
 	esac
-}
-
-clean_wok()
-{
-	rm -rf $PWD/${SOURCE}_${VERSION}
 }
