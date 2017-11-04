@@ -1,38 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
-PACKAGE="terminal"
+PACKAGE="xfce4-terminal"
 VERSION="0.6.3"
 CATEGORY="x-window"
 SHORT_DESC="Terminal emunaltor for Xfce Desktop Environment"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-SOURCE="xfce4-terminal"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.xfce.org/"
-WGET_URL="http://archive.xfce.org/src/apps/$SOURCE/${VERSION%.*}/$TARBALL"
-TAGS="terminal"
-PROVIDE="$SOURCE"
+WEB_SITE="http://goodies.xfce.org/projects/applications/terminal"
 
-DEPENDS="libexo vte startup-notification dbus libxfce4ui"
-BUILD_DEPENDS="libexo-dev gtk+-dev vte-dev dbus-dev startup-notification-dev \
-intltool pkg-config util-linux-uuid-dev libxfce4ui-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man --libexecdir=/usr/lib/xfce4 \
-	--disable-static $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev gtk+-dev vte-gtk2-dev \
+libxfce4ui-dev"
+
+compile_rules(){
+	# warning: internationalized messages should not contain the '\r' escape sequence
+	sed -i 's|\\r||g' po/hr.po po/sv.po
+
+	./configure \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/locale
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/xfce4 $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk gdk-pixbuf glib gtk+ libxfce4ui libxfce4util pango vte-gtk2 \
+	xorg-libX11"
+	TAGS="Xfce terminal"
 }
