@@ -11,12 +11,13 @@ WEB_SITE="http://collectd.org"
 WGET_URL="http://collectd.org/files/$TARBALL"
 CONFIG_FILES="/etc/collectd/collectd.conf"
 
-BUILD_DEPENDS="slitaz-toolchain rrdtool-dev"
+BUILD_DEPENDS="slitaz-toolchain rrdtool-dev perl"
 SPLIT="collectd collectd-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' src/*.c configure*
 	./configure \
 		--prefix=/usr \
 		--localstatedir=/var \
