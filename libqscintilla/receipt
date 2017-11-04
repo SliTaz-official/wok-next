@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libqscintilla"
 VERSION="2.8.3"
@@ -10,9 +10,8 @@ WEB_SITE="http://www.riverbankcomputing.co.uk/software/qscintilla"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/pyqt/QScintilla-gpl-$VERSION.tar.gz"
 
-DEPENDS="libQtGui"
 BUILD_DEPENDS="Qt4-dev cmake qmake PyQt-x11-gpl"
-SUGGESTED="juffed"
+SPLIT="libqscintilla libqscintilla-dev"
 
 # Rules to configure and make the package.BUILD_TYPE=Release
 compile_rules()
@@ -26,5 +25,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir $fs/usr ; cp -a $install/usr/lib $fs/usr
+	case $PACKAGE in
+	libqscintilla)
+		DEPENDS="libQtGui"
+		SUGGESTED="juffed"
+		mkdir $fs/usr ; cp -a $install/usr/lib $fs/usr
+		;;
+	libqscintilla-dev)
+		CAT="development|Editor classes & widgets: qm, dev files."
+		DEPENDS="libqscintilla"
+		cp -a $install/* $fs
+		rm -rf $fs/usr/lib
+		;;
+	esac
 }
