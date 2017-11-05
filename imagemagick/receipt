@@ -1,22 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="imagemagick"
-VERSION="7.0.5-5"
+VERSION="7.0.6-10"
 CATEGORY="graphics"
 SHORT_DESC="ImageMagick - convert, edit, and compose images"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="Apache"
-WEB_SITE="http://www.imagemagick.org/"
+WEB_SITE="https://www.imagemagick.org/script/index.php"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/imagemagick.html"
 
 TARBALL="ImageMagick-$VERSION.tar.xz"
 WGET_URL="https://www.imagemagick.org/download/releases/$TARBALL"
 
 BUILD_DEPENDS="bzip2-dev xorg-libX11-dev xorg-libICE-dev xorg-libXext-dev \
 xorg-libXt-dev zlib-dev libtool fftw-dev fontconfig-dev freetype-dev \
-libjpeg-turbo-dev lcms2-dev xz-dev pango-dev libpng-dev tiff-dev \
-libxml2-dev librsvg-dev perl-dev util-linux-uuid-dev"
-# jasper-dev ilmbase-dev openexr-dev graphviz-dev libgsf-dev
-SPLIT="imagemagick-dev perl-image-magick"
+libjpeg-turbo-dev lcms2-dev xz-dev pango-dev libpng16-dev tiff-dev \
+libxml2-dev librsvg-dev perl-dev util-linux-uuid-dev jasper-dev ilmbase-dev \
+openexr-dev libgsf-dev" # graphviz-dev
+SPLIT="perl-image-magick imagemagick imagemagick-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -40,8 +41,13 @@ compile_rules()
 genpkg_rules()
 {
 	case $PACKAGE in
+		perl-image-magick)
+			copy perl5/
+			CAT="perl|Image::Magick Perl module"
+			DEPENDS="perl imagemagick"
+			;;
 		imagemagick)
-			copy @std
+			copy @std @rm
 
 			# CVE-2016-3714 work around v5
 			sed -i '/<policymap>/r/dev/stdin' $fs/etc/ImageMagick-7/policy.xml <<EOT
@@ -57,7 +63,7 @@ genpkg_rules()
 EOT
 			DEPENDS="bzlib cairo fftw fontconfig freetype gdk-pixbuf glib \
 			harfbuzz lcms2 libcroco libffi libgomp libjpeg-turbo \
-			libltdl liblzma libpng librsvg libxcb libxml2 pango pcre pixman \
+			libltdl liblzma libpng16 librsvg libxcb libxml2 pango pcre pixman \
 			tiff util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 \
 			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libXt \
 			zlib"
@@ -68,16 +74,11 @@ EOT
 			DEPENDS="imagemagick bzip2-dev cairo-dev fftw-dev fontconfig-dev \
 			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev harfbuzz-dev \
 			lcms2-dev libcroco-dev libffi-dev libjpeg-turbo-dev \
-			liblzma-dev libpng-dev librsvg-dev libtool libxcb-dev libxml2-dev \
+			liblzma-dev libpng16-dev librsvg-dev libtool libxcb-dev libxml2-dev \
 			pango-dev pcre-dev pixman-dev tiff-dev util-linux-uuid-dev \
 			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
 			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
 			xorg-libXt-dev zlib-dev"
-			;;
-		perl-image-magick)
-			copy perl5/
-			CAT="perl|Image::Magick Perl module"
-			DEPENDS="perl imagemagick"
 			;;
 	esac
 }

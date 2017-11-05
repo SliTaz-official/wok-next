@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libcdr"
+VERSION="0.1.4"
+CATEGORY="graphics"
+SHORT_DESC="CorelDraw file format importer library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 LGPL2.1 MPL"
+WEB_SITE="https://wiki.documentfoundation.org/DLP/Libraries/libcdr"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://dev-www.libreoffice.org/src/libcdr/$TARBALL"
+
+BUILD_DEPENDS="librevenge-dev lcms2-dev icu-dev libboost-dev cppunit-dev \
+doxygen"
+SPLIT="libcdr-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libcdr)
+			copy @std
+			DEPENDS="icu lcms2 libicu librevenge zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libcdr icu-dev lcms2-dev librevenge-dev zlib-dev"
+			;;
+	esac
+}

@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libvisio"
+VERSION="0.1.5"
+CATEGORY="graphics"
+SHORT_DESC="Interpret and import visio diagrams"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL"
+WEB_SITE="https://wiki.documentfoundation.org/DLP/Libraries/libvisio"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://dev-www.libreoffice.org/src/libvisio/$TARBALL"
+
+BUILD_DEPENDS="librevenge-dev libxml2-dev icu-dev libboost-dev cppunit-dev \
+doxygen perl gperf"
+SPLIT="libvisio-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libvisio)
+			copy @std
+			DEPENDS="icu libicu liblzma librevenge libxml2 zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libvisio icu-dev librevenge-dev libxml2-dev xz-dev \
+			zlib-dev"
+			;;
+	esac
+}

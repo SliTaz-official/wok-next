@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libwpd"
+VERSION="0.10.2"
+CATEGORY="graphics"
+SHORT_DESC="Library for importing WordPerfect (tm) documents"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL"
+WEB_SITE="http://libwpd.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/libwpd/$TARBALL"
+
+BUILD_DEPENDS="doxygen librevenge-dev libboost-dev"
+SPLIT="libwpd-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libwpd)
+			copy @std
+			DEPENDS="librevenge zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libwpd librevenge-dev"
+			;;
+	esac
+}

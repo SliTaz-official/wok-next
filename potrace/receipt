@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="potrace"
+VERSION="1.14"
+CATEGORY="graphics"
+SHORT_DESC="Transform bitmaps into vector graphics"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="http://potrace.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/potrace/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev"
+SPLIT="potrace-dev"
+
+compile_rules() {
+	./configure \
+		--enable-metric \
+		--enable-a4 \
+		--with-libpotrace \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		potrace)
+			copy @std
+			DEPENDS="zlib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
