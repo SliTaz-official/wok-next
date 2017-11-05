@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="memtest"
 VERSION="5.01"
@@ -13,13 +13,14 @@ TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="xz"
-SPLIT="memtest-serial"
+SPLIT="memtest-serial gcc3"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	sed -i  -e '/scp memtest.bin/d' \
-		-e 's/no-stack-protector/& -fgnu89-inline/' Makefile
+	sed -i  -e '/scp memtest.bin/d' -e 's/gcc/gcc-3/' \
+		-e 's/-fno-stack-protector//' Makefile
+	sed -i 's/0b10/2/' init.c
 	patch -p1 < $stuff/$SOURCE-$VERSION-array-size.patch
 	make
 	cp $stuff/*.S $stuff/pack .
@@ -43,6 +44,23 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/boot
-	cp $src/memtest.packed $fs/boot/memtest
+	case $PACKAGE in
+	memtest)
+		mkdir -p $fs/boot
+		cp $src/memtest.packed $fs/boot/memtest
+		;;
+	memtest-serial)
+		CAT="base-system|Memory failures detection tool using serial port."
+		mkdir -p $fs/boot
+		cp $src/memtest.packed-115200 $fs/boot/memtest
+		;;
+	esac
+}
+
+# Pre and post install commands for Tazpkg.
+post_install_memtest_serial()
+{
+	cat <<EOT
+Output to vga and serial port. Default kernel cmdline: console=ttyS0,115200e8
+EOT
 }
