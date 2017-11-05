@@ -11,14 +11,13 @@ WEB_SITE="http://linux.tlk.fr/games/Powermanga/"
 WGET_URL="http://linux.tlk.fr/games/Powermanga/download/$TARBALL"
 
 DEPENDS="libsdl-mixer zlib"
-BUILD_DEPENDS="libsdl-dev zlib-dev libsdl-mixer-dev"
+BUILD_DEPENDS="libsdl-dev zlib-dev libsdl-mixer-dev xorg-libXext"
 
 # Packaging for SliTaz by Rene Rivero.
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	sed -i 's|SDL_mixer.h|SDL/SDL_mixer.h|' src/sdl_mixer.cpp
 	sed -i '239,243 s|^|// |' src/sdl_mixer.cpp
 	./configure && make && make install

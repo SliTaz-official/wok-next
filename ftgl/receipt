@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ftgl"
 VERSION="2.1.3-rc5"
@@ -10,13 +10,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://ftgl.wiki.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="freetype freeglut mesa libglu-mesa"
-BUILD_DEPENDS="$DEPENDS freetype-dev freeglut-dev mesa-dev libglu-mesa-dev"
+BUILD_DEPENDS="$DEPENDS freetype-dev freeglut-dev mesa-dev libglu-mesa-dev \
+expat-dev xorg-libxshmfence-dev"
+SPLIT="ftgl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lGL"
 	./configure \
@@ -28,7 +28,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	ftgl)
+		DEPENDS="freetype freeglut mesa libglu-mesa"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	ftgl-dev)
+		CAT="development|devel files"
+		DEPENDS="ftgl pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		;;
+	esac
 }
-
