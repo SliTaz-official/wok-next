@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnfc"
 VERSION="1.7.0"
@@ -10,8 +10,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://nfc-tools.org/index.php?title=Libnfc"
 WGET_URL="http://libnfc.googlecode.com/files/$TARBALL"
 
-DEPENDS="libusb pcsc-lite"
-BUILD_DEPENDS="pkg-config libusb-dev libusb-compat pcsc-lite-dev"
+BUILD_DEPENDS="pkg-config libusb-dev libusb-compat-dev pcsc-lite-dev udev-dev"
+SPLIT="libnfc-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,7 +26,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	libnfc)
+		DEPENDS="libusb pcsc-lite"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	libnfc-dev)
+		CAT="development|Near Field Communication (NFC) library, development files."
+		DEPENDS="libnfc pcsc-lite-dev libusb-dev pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
