@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="svgcleaner-gui"
+VERSION="0.9.1"
+#COMMIT="bdb9de5"
+CATEGORY="graphics"
+SHORT_DESC="GUI for svgcleaner"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/RazrFalcon/svgcleaner-gui"
+
+TARBALL="$PACKAGE-${COMMIT:-v$VERSION}.tar.gz"
+WGET_URL="$GITHUB/RazrFalcon/svgcleaner-gui/tarball/${COMMIT:-v$VERSION}"
+
+BUILD_DEPENDS="qt5-dev"
+
+compile_rules() {
+	qmake PREFIX=/usr &&
+	sed -i '/strip.*desktop/d' Makefile &&
+	make &&
+	make INSTALL_ROOT=$install install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="libatomic mesa17 qt5-base qt5-svg   svgcleaner"
+}

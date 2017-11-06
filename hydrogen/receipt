@@ -1,37 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="hydrogen"
-VERSION="0.9.5"
+VERSION="pre-1.0.0-170920" # in CMakeLists: v.1.0.0, but not released yet; 170920 is date of last commit to master
+COMMIT="1bab373"
 CATEGORY="multimedia"
+SHORT_DESC="Advanced Drum Machine"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="Advanced Drum Machine"
 WEB_SITE="http://www.hydrogen-music.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="multimedia"
+WGET_URL="https://github.com/hydrogen-music/hydrogen/archive/${COMMIT:-$VERSION}.tar.gz"
 
-DEPENDS="libarchive liblrdf libQtCore libQtGui libQtXml \
-jack libsndfile"
-BUILD_DEPENDS="scons libarchive-dev liblrdf-dev Qt4-dev \
-jack jack-dev \
-flac-dev libsndfile-dev alsa-lib-dev zlib-dev libtar-dev \
-ladspa-dev raptor-dev pkg-config subversion"
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev zlib-dev libarchive-dev libsndfile-dev \
+alsa-lib-dev ladspa-dev liblo-dev jack-dev pulseaudio-dev cppunit-dev doxygen"
+SPLIT="hydrogen-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	export QTDIR=/usr
-	mkdir -p $DESTDIR
-	scons prefix=/usr libarchive=1 
-	scons -k DESTDIR=$DESTDIR install 
+compile_rules() {
+	sed -i 's|/man/man1|/share&|' CMakeLists.txt
+
+	mkdir build
+	cd    build
+	[ -e CMakeCache.txt ] && rm CMakeCache.txt # for executing `cook --continue`
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install || return 1
+
+	cd $install/usr/share/hydrogen/data/i18n/
+	rm *.ts updateTranslations.sh stats.py
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share	
+
+genpkg_rules() {
+	case $PACKAGE in
+		hydrogen)
+			copy @std
+			DEPENDS="alsa-lib jack libarchive liblo libsndfile pulseaudio \
+			qt5-base qt5-xmlpatterns zlib"
+			TAGS="multimedia"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

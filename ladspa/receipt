@@ -1,34 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ladspa"
 VERSION="1.13"
 CATEGORY="multimedia"
+SHORT_DESC="LADSPA: Linux Audio Developer's Simple Plugin API"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2.1"
-SHORT_DESC="Linux Audio Developer's Simple Plugin API (LADSPA)"
 WEB_SITE="http://www.ladspa.org/"
-TARBALL="${PACKAGE}_sdk_$VERSION.tgz"
-WGET_URL="$WEB_SITE/download/$TARBALL"
-TAGS="multimedia"
 
-DEPENDS="gcc-lib-base"
-BUILD_DEPENDS=""
+TARBALL="ladspa_sdk_$VERSION.tgz"
+WGET_URL="https://github.com/OpenMandrivaAssociation/ladspa/raw/master/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/src
-	sed -i -e 's/mkdirhier/mkdir -p/' makefile 
-	make targets 
+SPLIT="ladspa-dev"
+
+compile_rules() {
+	cd src
+	sed -i \
+		-e 's/mkdirhier/mkdir -p/' \
+		-e "s#-O3#${CFLAGS} ${LDFLAGS/,--as-needed/}#" \
+		makefile
+	make targets &&
 	make INSTALL_PLUGINS_DIR=$DESTDIR/usr/lib/ladspa/ \
-		INSTALL_INCLUDE_DIR=$DESTDIR/usr/include/  \
-		INSTALL_BINARY_DIR=$DESTDIR/usr/bin/ install 
+		INSTALL_INCLUDE_DIR=$DESTDIR/usr/include/ \
+		INSTALL_BINARY_DIR=$DESTDIR/usr/bin/ \
+		install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/$PACKAGE
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/$PACKAGE/*so* $fs/usr/lib/$PACKAGE	
+
+genpkg_rules() {
+	case $PACKAGE in
+		ladspa)
+			copy @std
+			TAGS="multimedia"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
