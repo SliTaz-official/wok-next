@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="notes"
+VERSION="1.0.0"
+CATEGORY="text"
+SHORT_DESC="Note taking application, write down your thoughts"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="http://www.get-notes.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/nuttyartist/notes/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev xorg-libxcb-dev xorg-libX11-dev mesa17-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		../src &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	install -Dm0644 $src/packaging/linux/common/notes.desktop \
+		$install/usr/share/applications/notes.desktop
+	mkdir -p $install/usr/share/icons/hicolor
+	cp -r $src/packaging/linux/common/icons/* $install/usr/share/icons/hicolor
+}
+
+genpkg_rules() {
+	copy @std
+	cook_copy_icons # only 16 and 48; svg is too huge
+	DEPENDS="libatomic mesa17 qt5-base xorg-libX11"
+}

@@ -1,0 +1,50 @@
+# SliTaz package receipt v2.
+
+PACKAGE="qtav"
+VERSION="1.12.0"
+CATEGORY="multimedia"
+SHORT_DESC="Multimedia playback framework based on Qt and FFmpeg"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1 GPL3"
+WEB_SITE="http://www.qtav.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/wang-bin/QtAV/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev ffmpeg-dev openal-dev pulseaudio-dev xorg-libXv-dev \
+libva-dev mesa17-dev libsdl2-dev"
+SPLIT="qtav-dev qtav-player qtav-qmlplayer qtav"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		.. &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+}
+
+genpkg_rules() {
+	COOKOPTS="!menus"
+	case $PACKAGE in
+		*-dev)
+			copy @dev *.prl *.prf qmldir
+			;;
+		qtav-player)
+			copy Player Player.desktop
+			CAT="multimedia|QtAV multimedia player"
+			DEPENDS="qtav qt5-svg"
+			;;
+		qtav-qmlplayer)
+			copy QMLPlayer QMLPlayer.desktop qml/ @rm
+			CAT="multimedia|QtAV QML multimedia player"
+			DEPENDS="qtav qt5-declarative"
+			;;
+		qtav)
+			copy @std @rm
+			DEPENDS="ffmpeg libass libatomic libva mesa17 openal pulseaudio \
+			qt5-base xorg-libX11 xorg-libXext xorg-libXv"
+			;;
+	esac
+}

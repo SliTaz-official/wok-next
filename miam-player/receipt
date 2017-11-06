@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="miam-player"
+VERSION="0.8.0"
+CATEGORY="multimedia"
+SHORT_DESC="Open source music player"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/MBach/Miam-Player"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/MBach/Miam-Player/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev xorg-libX11-dev mesa17-dev taglib-dev qtav-dev \
+libsdl2-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		.. &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	sed -i '/Actions=/d; /TryExec=/d; /Path=/d' \
+		$install/usr/share/applications/miam-player.desktop
+}
+
+genpkg_rules() {
+	copy @std icons/ # the only 64 icon
+	DEPENDS="libatomic mesa17 qt5-base qt5-multimedia qt5-x11extras qtav taglib"
+}
