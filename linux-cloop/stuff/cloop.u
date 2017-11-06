@@ -1,6 +1,6 @@
 --- cloop.h
 +++ cloop.h
-@@ -20,6 +20,80 @@
+@@ -20,6 +20,81 @@
  /* data_index (num_blocks 64bit pointers, network order)...      */
  /* compressed data (gzip block compressed format)...             */
  
@@ -18,6 +18,7 @@
 +	u_int32_t optidx;	/* 32-bit index number */
 +};
 +
++#define ntohl be32_to_cpu
 +static inline char *build_index(struct block_info *offsets, unsigned long n)
 +{
 +	u_int32_t *ofs32 = (u_int32_t *) offsets;
@@ -26,26 +27,26 @@
 +	if (ofs32[0] == 0) {
 +		if (ofs32[2]) { /* ACCELERATED KNOPPIX V1.0 */
 +			while (n--) {
-+				offsets[n].offset = __be64_to_cpu(offsets[n].offset);
++				offsets[n].offset = be64_to_cpu(offsets[n].offset);
 +				offsets[n].size = ntohl(offsets[n].size);
 +			}
 +			return (char *) "128BE accelerated knoppix 1.0";
 +		}
 +		else { /* V2.0 */
-+			loff_t last = __be64_to_cpu(ofs64[n - 1]);
++			loff_t last = be64_to_cpu(ofs64[n - 1]);
 +			while (n--) {
 +				offsets[n].size = last - 
-+					(offsets[n].offset = __be64_to_cpu(ofs64[n])); 
++					(offsets[n].offset = be64_to_cpu(ofs64[n])); 
 +				last = offsets[n].offset;
 +			}
 +			return (char *) "64BE v2.0";
 +		}
 +	}
 +	else if (ofs32[1] == 0) { /* V1.0 */
-+		loff_t last = __le64_to_cpu(ofs64[n - 1]);
++		loff_t last = le64_to_cpu(ofs64[n - 1]);
 +		while (n--) {
 +			offsets[n].size = last - 
-+				(offsets[n].offset = __le64_to_cpu(ofs64[n])); 
++				(offsets[n].offset = le64_to_cpu(ofs64[n])); 
 +			last = offsets[n].offset;
 +		}
 +		return (char *) "64LE v1.0";
