@@ -24,9 +24,10 @@ compile_rules()
 	patch -p0 < $stuff/cloop.u
 	# use f_inode with linux > 3.19
 	sed -i  -e 's|f_dentry->d_inode|f_inode|' \
-		-e 's|&& rw != READA|\n#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)\n&\n#endif|' \
+		-e 's|&& rw != READA|\n#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)\n&\n#endif\n|' \
 		-e 's|.*blk_queue_merge_bvec.*|#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0)\n&\n#endif|' \
 			cloop.c
+	make cloop_suspend &&
 	make KERNEL_DIR="/usr/src/linux" cloop.ko && xz cloop.ko
 }
 	
