@@ -1,31 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl2"
-VERSION="2.0.3"
+VERSION="2.0.5"
 CATEGORY="x-window"
-SHORT_DESC="a cross-platform interactive media development library"
+SHORT_DESC="Cross-platform interactive media development library"
 MAINTAINER="tcg.thegamer@gmail.com"
 LICENSE="zlib/libpng"
+WEB_SITE="http://libsdl.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/sdl2.html"
+
 TARBALL="SDL2-$VERSION.tar.gz"
-WEB_SITE="http://libsdl.org"
-WGET_URL="${WEB_SITE}/release/${TARBALL}"
+WGET_URL="http://www.libsdl.org/release/$TARBALL"
 
-DEPENDS="alsa-lib mesa dbus"
-BUILD_DEPENDS="alsa-lib-dev mesa-dev mesa-wayland-dev pulseaudio-dev dbus-dev"
+BUILD_DEPENDS="alsa-lib-dev doxygen pulseaudio-dev xorg-libXcursor-dev \
+xorg-libXinerama-dev xorg-libXScrnSaver-dev xorg-libXxf86vm-dev mesa17-dev \
+wayland-dev wayland-protocols-dev libxkbcommon-dev eudev-dev dbus-dev ibus-dev \
+tslib-dev graphviz" # + fcitx-dev -> broken
+SPLIT="libsdl2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--disable-oss \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	cd docs && doxygen && cd - &&
+	make install || return 1
+
+	rm $install/usr/lib/libSDL2*.a
+	cook_pick_docs \
+		docs/output/html/*.html \
+		docs/output/html/*.css \
+		docs/output/html/*.js \
+		docs/output/html/*.png
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libsdl2)
+			copy @std
+			DEPENDS="tslib"
+			SUGGESTED="alsa-lib mesa17 dbus"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsdl2 tslib-dev"
+			;;
+	esac
 }
