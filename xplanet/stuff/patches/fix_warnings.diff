@@ -1,0 +1,165 @@
+diff --git a/src/libdisplay/DisplayBase.cpp b/src/libdisplay/DisplayBase.cpp
+index 7287232..1fd086f 100644
+--- a/src/libdisplay/DisplayBase.cpp
++++ b/src/libdisplay/DisplayBase.cpp
+@@ -224,7 +224,7 @@ DisplayBase::drawLabel(PlanetProperties *planetProperties[])
+                 tzSave = "TZ=";
+                 tzSave += tzEnv;
+             }
+-            putenv("TZ=UTC");
++            putenv((char *)"TZ=UTC");
+             tzset();
+         }
+ 
+diff --git a/src/libdisplay/DisplayX11.cpp b/src/libdisplay/DisplayX11.cpp
+index ad5a47d..f5cbff1 100644
+--- a/src/libdisplay/DisplayX11.cpp
++++ b/src/libdisplay/DisplayX11.cpp
+@@ -97,8 +97,8 @@ DisplayX11::DisplayX11(const int tr) : DisplayBase(tr)
+ 		// contributed by Dragan Stanojevic - Nevidljivi <invisible@hidden-city.net>
+ 		XClassHint classHint;
+ 
+-		classHint.res_name  = "xplanet";
+-		classHint.res_class = "XPlanet";
++		classHint.res_name  = (char *)"xplanet";
++		classHint.res_class = (char *)"XPlanet";
+ 
+ 		XSetClassHint(display, window, &classHint);
+             }
+diff --git a/src/libimage/ReadImage.cpp b/src/libimage/ReadImage.cpp
+index 0d07575..8a47dd2 100644
+--- a/src/libimage/ReadImage.cpp
++++ b/src/libimage/ReadImage.cpp
+@@ -45,6 +45,7 @@ ReadImage(const char *filename, int &width, int &height,
+ {
+     char buf[4];
+     unsigned char *ubuf = (unsigned char *) buf;
++    size_t ret = 0;
+     int success = 0;
+ 
+     FILE *file;
+@@ -53,8 +54,10 @@ ReadImage(const char *filename, int &width, int &height,
+   
+     /* see what kind of file we have */
+ 
+-    fread(buf, 1, 4, file);
++    ret = fread(buf, 1, 4, file);
+     fclose(file);
++    if (ret != 4)
++        return 0;
+ 
+     if (!strncmp("BM", buf, 2))
+     {
+diff --git a/src/libimage/png.c b/src/libimage/png.c
+index 51bac8d..d5d6645 100644
+--- a/src/libimage/png.c
++++ b/src/libimage/png.c
+@@ -20,6 +20,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ 
+ #include <png.h>
+ 
+diff --git a/src/libmultiple/RayleighScattering.cpp b/src/libmultiple/RayleighScattering.cpp
+index d885173..1b3f406 100644
+--- a/src/libmultiple/RayleighScattering.cpp
++++ b/src/libmultiple/RayleighScattering.cpp
+@@ -618,19 +618,28 @@ RayleighScattering::readBinaryTable(const char *filename)
+ 
+     if (inFile != NULL)
+     {
+-        size_t dim0, dim1, dim2;
+-        fread(&dim0, sizeof(size_t), 1, inFile);
+-        fread(&dim1, sizeof(size_t), 1, inFile);
+-        fread(&dim2, sizeof(size_t), 1, inFile);
+-
+-        size_t size = dim0*dim1*dim2;
++        size_t dim0, dim1, dim2, ret;
++        ret = fread(&dim0, sizeof(size_t), 1, inFile);
++        if (ret == sizeof(size_t))
++            ret = fread(&dim1, sizeof(size_t), 1, inFile);
++        if (ret == sizeof(size_t))
++            ret = fread(&dim2, sizeof(size_t), 1, inFile);
++
++        if (ret == sizeof(size_t))
++        {
++            size_t size = dim0*dim1*dim2;
+ 
+-        dblArray = new double[size];
+-        fread(dblArray, sizeof(double), size, inFile);
++            dblArray = new double[size];
++            ret = fread(dblArray, sizeof(double), size, inFile);
++            if (ret != size)
++            {
++                delete dblArray;
++		dblArray = NULL;
++            }
++        }
++        fclose(inFile);
+     }
+ 
+-    fclose(inFile);
+-
+     return dblArray;
+ }
+ 
+diff --git a/src/readConfig.cpp b/src/readConfig.cpp
+index cc1964f..3186534 100644
+--- a/src/readConfig.cpp
++++ b/src/readConfig.cpp
+@@ -49,7 +49,7 @@ readConfig(const char *line, PlanetProperties *planetProperties[])
+             int r, g, b;
+             if (sscanf(returnString, "%d,%d,%d", &r, &g, &b) == 3)
+             {
+-                unsigned char color[3] = { r & 0xff, g & 0xff, b & 0xff };
++                unsigned char color[3] = { (unsigned char)(r & 0xff), (unsigned char)(g & 0xff), (unsigned char)(b & 0xff) };
+                 currentProperties->ArcColor(color);
+             }
+             else
+@@ -179,7 +179,7 @@ readConfig(const char *line, PlanetProperties *planetProperties[])
+             int r, g, b;
+             if (sscanf(returnString, "%d,%d,%d", &r, &g, &b) == 3)
+             {
+-                unsigned char color[3] = { r & 0xff, g & 0xff, b & 0xff };
++                unsigned char color[3] = { (unsigned char)(r & 0xff), (unsigned char)(g & 0xff), (unsigned char)(b & 0xff) };
+                 currentProperties->Color(color);
+             }
+             else
+@@ -244,7 +244,7 @@ readConfig(const char *line, PlanetProperties *planetProperties[])
+             int r, g, b;
+             if (sscanf(returnString, "%d,%d,%d", &r, &g, &b) == 3)
+             {
+-                unsigned char color[3] = { r & 0xff, g & 0xff, b & 0xff };
++                unsigned char color[3] = { (unsigned char)(r & 0xff), (unsigned char)(g & 0xff), (unsigned char)(b & 0xff) };
+                 currentProperties->GridColor(color);
+             }
+             else
+@@ -296,7 +296,7 @@ readConfig(const char *line, PlanetProperties *planetProperties[])
+             int r, g, b;
+             if (sscanf(returnString, "%d,%d,%d", &r, &g, &b) == 3)
+             {
+-                unsigned char color[3] = { r & 0xff, g & 0xff, b & 0xff };
++                unsigned char color[3] = { (unsigned char)(r & 0xff), (unsigned char)(g & 0xff), (unsigned char)(b & 0xff) };
+                 currentProperties->MarkerColor(color);
+             }
+             else
+@@ -403,7 +403,7 @@ readConfig(const char *line, PlanetProperties *planetProperties[])
+             int r, g, b;
+             if (sscanf(returnString, "%d,%d,%d", &r, &g, &b) == 3)
+             {
+-                unsigned char color[3] = { r & 0xff, g & 0xff, b & 0xff };
++                unsigned char color[3] = { (unsigned char)(r & 0xff), (unsigned char)(g & 0xff), (unsigned char)(b & 0xff) };
+                 currentProperties->OrbitColor(color);
+             }
+             else
+@@ -473,7 +473,7 @@ readConfig(const char *line, PlanetProperties *planetProperties[])
+             int r, g, b;
+             if (sscanf(returnString, "%d,%d,%d", &r, &g, &b) == 3)
+             {
+-                unsigned char color[3] = { r & 0xff, g & 0xff, b & 0xff };
++                unsigned char color[3] = { (unsigned char)(r & 0xff), (unsigned char)(g & 0xff), (unsigned char)(b & 0xff) };
+                 currentProperties->TextColor(color);
+             }
+             else
