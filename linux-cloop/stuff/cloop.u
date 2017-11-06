@@ -112,7 +112,7 @@
  
   /* We buffer some uncompressed blocks for performance */
   int buffered_blocknum[BUFFERED_BLOCKS];
-@@ -256,11 +263,11 @@
+@@ -260,11 +267,11 @@
      return i;
     }
  
@@ -126,7 +126,7 @@
  
   buflen = ntohl(clo->head.block_size);
  
-@@ -275,9 +282,9 @@
+@@ -279,9 +286,9 @@
   if (ret != 0)
    {
     printk(KERN_ERR "%s: zlib decompression error %i uncompressing block %u %u/%lu/%u/%u "
@@ -138,7 +138,7 @@
     clo->buffered_blocknum[clo->current_bufnum] = -1;
     return -1;
    }
-@@ -489,30 +496,73 @@
+@@ -493,30 +500,73 @@
                cloop_name, ntohl(clo->head.block_size));
         error=-EBADF; goto error_release;
        }
@@ -230,7 +230,7 @@
       if (!clo->offsets)
        {
         printk(KERN_ERR "%s: out of kernel mem for offsets\n", cloop_name);
-@@ -521,19 +571,22 @@
+@@ -525,19 +575,22 @@
      }
     num_readable = MIN(total_offsets - offsets_read,
                        (clo->underlying_blksize - offset) 
@@ -260,7 +260,7 @@
            ntohl(clo->head.block_size), clo->largest_block);
    }
  /* Combo kmalloc used too large chunks (>130000). */
-@@ -565,16 +618,6 @@
+@@ -569,16 +622,6 @@
     error=-ENOMEM; goto error_release_free_all;
    }
   zlib_inflateInit(&clo->zstream);
@@ -277,7 +277,7 @@
   {
    int i;
    for(i=0; i<BUFFERED_BLOCKS; i++) clo->buffered_blocknum[i] = -1;
-@@ -653,7 +696,7 @@
+@@ -657,7 +700,7 @@
     }
   }
  error_release_free:
