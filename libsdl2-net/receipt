@@ -1,29 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl2-net"
-SOURCE="SDL2_net"
-VERSION="2.0.0"
-CATEGORY="x-window"
-SHORT_DESC="SDL2 net support."
+VERSION="2.0.1"
+CATEGORY="network"
+SHORT_DESC="SDL2 net support"
 MAINTAINER="tcg.thegamer@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.libsdl.org/projects/SDL_net/"
-WGET_URL="http://www.libsdl.org/projects/SDL_net/release/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libsdl2"
-BUILD_DEPENDS="libsdl2-dev"
+TARBALL="SDL2_net-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/projects/SDL_net/release/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="libsdl2-dev"
+SPLIT="libsdl2-net-dev"
+
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libsdl2-net)
+			copy @std
+			DEPENDS="libsdl2 tslib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsdl2-net libsdl2-dev tslib-dev"
+			;;
+	esac
 }

@@ -1,30 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl2-ttf"
-SOURCE="SDL2_ttf"
-VERSION="2.0.12"
+VERSION="2.0.14"
 CATEGORY="x-window"
-SHORT_DESC="SDL2 ttf support."
+SHORT_DESC="SDL2 ttf support"
 MAINTAINER="tcg.thegamer@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.libsdl.org/projects/SDL_ttf/"
-WGET_URL="http://www.libsdl.org/projects/SDL_ttf/release/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libsdl2 freetype zlib"
-BUILD_DEPENDS="libsdl2-dev freetype-dev mesa"
+TARBALL="SDL2_ttf-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/projects/SDL_ttf/release/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+BUILD_DEPENDS="freetype-dev libsdl2-dev xorg-libX11-dev xorg-libICE-dev \
+mesa17-dev"
+SPLIT="libsdl2-ttf-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libsdl2-ttf)
+			copy @std
+			DEPENDS="bzlib freetype glib libharfbuzz libpng16 libsdl2 pcre \
+			tslib zlib"
+			SUGGESTED="mesa17"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsdl2-ttf bzip2-dev freetype-dev glib-dev harfbuzz-dev \
+			libpng16-dev libsdl2-dev pcre-dev tslib-dev zlib-dev"
+			;;
+	esac
 }

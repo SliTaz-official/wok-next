@@ -1,0 +1,45 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libsmpeg2"
+VERSION="2.0.0"
+CATEGORY="multimedia"
+SHORT_DESC="SDL2 MPEG Player Library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2"
+WEB_SITE="http://icculus.org/smpeg/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="subversion|svn://svn.icculus.org/smpeg/tags/release_${VERSION//./_}"
+
+BUILD_DEPENDS="libsdl libsdl-dev gtk+-dev autoconf automake m4 subversion tar"
+BUILD_DEPENDS="subversion automake libsdl2-dev"
+SPLIT="libsmpeg2-player libsmpeg2 libsmpeg2-dev"
+
+compile_rules() {
+	CFLAGS="$CFLAGS -Wno-error=narrowing"
+	./autogen.sh &&
+	./configure \
+		--disable-static \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-player)
+			copy plaympeg
+			CAT="multimedia|player"
+			DEPENDS="libsmpeg2"
+			;;
+		libsmpeg2)
+			copy @std @rm
+			DEPENDS="libsdl2 tslib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsmpeg2 tslib-dev"
+			;;
+	esac
+}

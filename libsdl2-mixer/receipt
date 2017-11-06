@@ -12,23 +12,20 @@ HOST_ARCH="i486 arm"
 TARBALL="SDL2_mixer-$VERSION.tar.gz"
 WGET_URL="http://www.libsdl.org/projects/SDL_mixer/release/$TARBALL"
 
-BUILD_DEPENDS="libsdl2-dev libmodplug-dev libvorbis-dev flac-dev \
-libmad-dev" # fluidsynth-dev old
+BUILD_DEPENDS="libsdl2-dev libmodplug-dev fluidsynth-dev libvorbis-dev \
+flac-dev libsmpeg2-dev"
 SPLIT="libsdl2-mixer-dev"
 
 compile_rules() {
-	./configure \
-		--enable-music-mp3-mad-gpl \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libsdl2-mixer)
 			copy @std
-			DEPENDS="libsdl2 libmad tslib"
-			SUGGESTED="libmodplug libvorbis libogg flac"
+			DEPENDS="libsdl2 tslib"
+			SUGGESTED="libmodplug fluidsynth libvorbis libogg flac libsmpeg2"
 			;;
 		*-dev)
 			copy @dev
