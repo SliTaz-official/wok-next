@@ -1,90 +1,103 @@
 # SliTaz package receipt v2.
 
 PACKAGE="graphviz"
-VERSION="2.28.0"
+VERSION="2.40.1"
 CATEGORY="x-window"
-SHORT_DESC="Automatic graph drawing."
+SHORT_DESC="Automatic graph drawing"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Eclipse"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.graphviz.org/"
-WGET_URL="${WEB_SITE}pub/$PACKAGE/ARCHIVE/$TARBALL"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/graphviz.html"
 
-BUILD_DEPENDS="xorg-dev expat-dev zlib-dev pkg-config libpng-dev \
-jpeg-dev libgd-dev lua-dev swig ocaml python-dev tcl-dev tk-dev \
-librsvg-dev php-dev ruby-dev libcroco-dev util-linux-uuid-dev \
-pango-dev libxml2-dev php-cli gdk-pixbuf-dev guile-dev pcre-dev"
-SPLIT="graphviz graphviz-dev graphviz-doc"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://graphviz.org/pub/graphviz/stable/SOURCES/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/.*php5.*/&\n	sed -i "s|char .type_name;|const \&|" gv_php.cpp/' tclpkg/gv/Makefile*
-	sed -i 's/.*PHPWRITE.*/    TSRMLS_FETCH();\n&/' tclpkg/gv/gv_php_init.c
-	./configure --prefix=/usr \
-		--infodir=/usr/share/info \
-		--disable-static \
-		--disable-gtk \
-		--disable-gtkgl \
-		--disable-gtkglext \
-		--with-pangocairo \
-		--with-x \
-		--with-gdk-pixbuf \
-		--with-ghostscript=no \
-		--without-gtk \
-		--without-gtkgl \
-		--without-gtkglext \
-		--without-glade \
-		--with-ortho=no \
-		--disable-sharp \
-		--disable-java \
-		--enable-guile=yes \
-		--with-rsvg=yes \
-		--with-png=yes \
-		--with-jpeg=yes \
-		--enable-lua=yes \
-		--enable-ocaml=yes \
-		--enable-php=yes \
-		--enable-ruby=yes \
-		--enable-tcl=yes \
-		--enable-python=yes \
-		--disable-python23 \
-		--disable-python24 \
-		--disable-python25 \
-		--disable-python26 \
-		--disable-r \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="automake xorg-dev expat-dev zlib-dev libpng16-dev \
+libjpeg-turbo-dev libgd-dev swig ocaml python-dev tcl-dev tk-dev librsvg-dev \
+ruby-dev libcroco-dev util-linux-uuid-dev pango-dev libxml2-dev gdk-pixbuf-dev \
+guile-dev pcre-dev perl-dev libtool" # php-dev lua-dev
+SPLIT="graphviz-dev graphviz-doc graphviz-demo graphviz-guile graphviz-ocaml \
+graphviz-perl graphviz-python graphviz-ruby graphviz-tcl graphviz"
+COOKOPTS="skip-log-errors"
+
+# FIXME: PHP and Lua support is temporarily disabled
+# (PHP broken itself, Lua breaks the Graphviz)
+
+compile_rules() {
+	sed -i '/ruby/s/1\.9/2.4/'       configure.ac
+	sed -i '/LIBPOSTFIX="64"/s/64//' configure.ac
+	autoreconf &&
+
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	graphviz)
-		DEPENDS="zlib libpng jpeg expat libxml2 librsvg util-linux-uuid pcre"
-		mkdir -p $fs/usr/lib $fs/usr/share/graphviz
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib/
-		cp -a $install/usr/lib/graphviz $fs/usr/lib/
-		rm -f $fs/usr/lib/graphviz/*.la
-		cp -a $install/usr/share/graphviz/lefty $fs/usr/share/graphviz
-		cp -a $install/usr/share/graphviz/smyrna $fs/usr/share/graphviz
-		cp -a $install/usr/share/graphviz/graphs $fs/usr/share/graphviz
-		cp -a $install/usr/bin $fs/usr
-		;;
-	graphviz-dev)
-		CAT="development|Automatic graph drawing development files."
-		mkdir -p $fs/usr/lib/graphviz
-		cp -a $install/usr/lib/*a $fs/usr/lib
-		cp -a $install/usr/lib/graphviz/*.la $fs/usr/lib/graphviz
-		cp -a $install/usr/include $fs/usr
-		;;
-	graphviz-doc)
-		CAT="development|Automatic graph drawing documentation files."
-		mkdir -p $fs/usr/share/graphviz
-		cp -a $install/usr/share/graphviz/doc $fs/usr/share/graphviz
-		;;
+		*-dev)
+			copy @dev
+			DEPENDS="graphviz graphviz-guile graphviz-ocaml graphviz-perl \
+			graphviz-python graphviz-ruby graphviz-tcl \
+			bzip2-dev cairo-dev expat-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gmp-dev harfbuzz-dev libjpeg-turbo-dev \
+			libcroco-dev libffi-dev libgd-dev libpng16-dev librsvg-dev libtool \
+			libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXpm-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			SUGGESTED="guile-dev ocaml perl-dev python-dev ruby-dev tcl-dev"
+			;;
+		*-doc)
+			CAT="doc|documentation"
+			copy doc/
+			;;
+		*-demo)
+			CAT="development|demo"
+			copy demo/
+			DEPENDS="graphviz perl python ruby tcl"
+			;;
+		*-guile)
+			copy guile/ @rm
+			CAT="x-window|Guile bindings"
+			DEPENDS="graphviz expat gmp guile libltdl zlib"
+			;;
+		*-ocaml)
+			copy ocaml/ @rm
+			CAT="x-window|Ocaml bindings"
+			DEPENDS="graphviz expat libltdl zlib"
+			;;
+		*-perl)
+			copy perl/ perl5/ @rm
+			CAT="x-window|Perl bindings"
+			DEPENDS="graphviz expat libltdl perl perl-core zlib"
+			;;
+		*-python)
+			copy python/ python2.7/ @rm
+			CAT="x-window|Python bindings"
+			DEPENDS="graphviz expat libltdl python zlib"
+			;;
+		*-ruby)
+			copy ruby/ @rm
+			CAT="x-window|Python bindings"
+			DEPENDS="graphviz expat gmp libltdl libruby zlib"
+			;;
+		*-tcl)
+			copy tcl/ tcl8.6/ @rm
+			CAT="x-window|Tcl bindings"
+			DEPENDS="graphviz bzlib cairo expat fontconfig freetype glib \
+			libffi libgd libharfbuzz libjpeg-turbo libltdl liblzma libpng16 \
+			libxml2 pango pcre xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXpm xorg-libXrender xorg-libxcb xorg-pixman \
+			zlib"
+			;;
+		graphviz)
+			copy @std @rm
+			DEPENDS="bzlib cairo expat fontconfig freetype gdk-pixbuf glib \
+			libcroco libffi libgd libharfbuzz libjpeg-turbo libltdl liblzma \
+			libpng16 librsvg libxml2 pango pcre util-linux-blkid \
+			util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXaw xorg-libXdmcp xorg-libXext \
+			xorg-libXmu xorg-libXpm xorg-libXrender xorg-libXt xorg-libxcb \
+			xorg-pixman zlib"
+			;;
 	esac
 }
