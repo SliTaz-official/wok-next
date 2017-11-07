@@ -18,7 +18,9 @@ xorg-libXcomposite-dev xorg-libXdamage-dev libpng12-dev expat-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' \
+		matchbox/theme-engines/mb-wm-theme-png.c
+
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lexpat"
 
 	# http://git.yoctoproject.org/cgit/cgit.cgi/libmatchboxwm2/commit/?h=rib//matchbox-next&context=6

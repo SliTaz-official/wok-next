@@ -19,6 +19,9 @@ libpng libpng-dev libpcap libpcap-dev automake autoconf libtool zlib-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|"printer.h".*|&\n#include <zlib.h>|' \
+		src/hardware/parport/printer.cpp
+	sed -i '/HAVE_REMOTE/d' src/hardware/ne2000.cpp
 	sed -i 's/define DOSBOX_DOS_INC_H/&\n#include <stddef.h>/' include/dos_inc.h
 	./autogen.sh
 	./configure \
