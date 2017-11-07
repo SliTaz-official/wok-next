@@ -4,6 +4,7 @@ PACKAGE="linux-cloop"
 SOURCE="cloop"
 GITHASH="9acc0fcad420b5ff7062fdd1c90d27ada5278b97" # 3.14
 VERSION="${GITHASH:0:7}"
+EXTRAVERSION="_$kvers"
 CATEGORY="base-system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
@@ -30,11 +31,10 @@ compile_rules()
 	make cloop_suspend &&
 	make KERNEL_DIR="/usr/src/linux" cloop.ko && xz cloop.ko
 }
-	
+
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
-{	
-	EXTRAVERSION=_$kvers
+{
 	mkdir -p $fs/lib/modules/$kvers-slitaz/kernel/misc $fs/dev $fs/usr/bin
 	cp $src/cloop_suspend $fs/usr/bin
 	cp $src/cloop.ko.xz $fs/lib/modules/$kvers-slitaz/kernel/misc
