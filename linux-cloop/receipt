@@ -2,7 +2,7 @@
 
 PACKAGE="linux-cloop"
 SOURCE="cloop"
-GITHASH="9acc0fcad420b5ff7062fdd1c90d27ada5278b97" # 3.14
+GITHASH="897009b4b2fe70433a1e8aea8a024aeebc32b209" # 3.4
 VERSION="${GITHASH:0:7}"
 EXTRAVERSION="_$kvers"
 CATEGORY="base-system"
@@ -11,8 +11,9 @@ LICENSE="GPL2"
 SHORT_DESC="The read-only compressed loop device kernel module."
 WEB_SITE="http://knoppix.net/wiki/Cloop"
 TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="http://debian-knoppix.alioth.debian.org/packages/$SOURCE/$TARBALL"
-WGET_URL="https://github.com/KlausKnopper/cloop/archive/$GITHASH.zip"
+#WGET_URL="http://debian-knoppix.alioth.debian.org/packages/$SOURCE/$TARBALL"
+#WGET_URL="https://github.com/KlausKnopper/cloop/archive/$GITHASH.zip"
+WGET_URL="https://github.com/Outernet-Project/cloop/archive/$GITHASH.zip
 
 DEPENDS="linux"
 BUILD_DEPENDS="linux-module-headers xz"
@@ -22,12 +23,6 @@ SUGGESTED="cloop-utils"
 
 compile_rules()
 {
-	patch -p0 < $stuff/cloop.u
-	# use f_inode with linux > 3.19
-	sed -i  -e 's|f_dentry->d_inode|f_inode|' \
-		-e 's|&& rw != READA|\n#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)\n&\n#endif\n|' \
-		-e 's|.*blk_queue_merge_bvec.*|#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 3, 0)\n&\n#endif|' \
-			cloop.c
 	make cloop_suspend &&
 	make KERNEL_DIR="/usr/src/linux" cloop.ko && xz cloop.ko
 }

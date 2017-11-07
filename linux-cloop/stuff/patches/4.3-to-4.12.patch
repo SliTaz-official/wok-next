@@ -1,0 +1,99 @@
+--- cloop.c
++++ cloop.c
+@@ -17,7 +17,7 @@
+ \************************************************************************/
+ 
+ #define CLOOP_NAME "cloop"
+-#define CLOOP_VERSION "4.3"
++#define CLOOP_VERSION "4.12"
+ #define CLOOP_MAX 8
+ 
+ #ifndef KBUILD_MODNAME
+@@ -257,8 +257,14 @@
+    {
+     size_t outputSize = clo->head.block_size;
+     /* We should adjust outputSize here, in case the last block is smaller than block_size */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0) /* field removed */
+     err = lz4_decompress(clo->compressed_buffer, (size_t *) &compressed_length,
+                          clo->buffer[clo->current_bufnum], outputSize);
++#else
++    err = LZ4_decompress_safe(clo->compressed_buffer,
++                              clo->buffer[clo->current_bufnum],
++                              compressed_length, outputSize);
++#endif
+     if (err >= 0) 
+     {
+      err = 0;
+@@ -438,6 +444,7 @@
+      offset      += length_in_buffer;
+     } /* while inner loop */
+    kunmap(bvec.bv_page);
++   cond_resched();
+   } /* end rq_for_each_segment*/
+  return ((buffered_blocknum!=-1) || preloaded);
+ }
+@@ -490,10 +497,18 @@
+    int rw;
+  /* quick sanity checks */
+    /* blk_fs_request() was removed in 2.6.36 */
+-   if (unlikely(req == NULL || (req->cmd_type != REQ_TYPE_FS)))
++   if (unlikely(req == NULL
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0) /* field removed */
++   || (req->cmd_type != REQ_TYPE_FS)
++#endif
++   ))
+     goto error_continue;
+    rw = rq_data_dir(req);
+-   if (unlikely(rw != READ && rw != READA))
++   if (unlikely(rw != READ
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
++                && rw != READA
++#endif
++    ))
+     {
+      DEBUGP("cloop_do_request: bad command\n");
+      goto error_continue;
+@@ -509,7 +524,11 @@
+    continue; /* next request */
+   error_continue:
+    DEBUGP(KERN_ERR "cloop_do_request: Discarding request %p.\n", req);
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0)
+    req->errors++;
++#else
++   req->error_count++;
++#endif
+    __blk_end_request_all(req, -EIO);
+   }
+ }
+@@ -926,7 +945,11 @@
+  struct kstat stat;
+  int err;
+  if (!file) return -ENXIO;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
+  err = vfs_getattr(&file->f_path, &stat);
++#else
++ err = vfs_getattr(&file->f_path, &stat, STATX_INO, AT_STATX_SYNC_AS_STAT);
++#endif
+  if (err) return err;
+  memset(info, 0, sizeof(*info));
+  info->lo_number  = clo->clo_number;
+@@ -1096,7 +1119,7 @@
+  /* losetup uses write-open and flags=0x8002 to set a new file */
+  if(mode & FMODE_WRITE)
+   {
+-   printk(KERN_WARNING "%s: Can't open device read-write in mode 0x%x\n", cloop_name, mode);
++   printk(KERN_INFO "%s: Open in read-write mode 0x%x requested, ignored.\n", cloop_name, mode);
+    return -EROFS;
+   }
+  cloop_dev[cloop_num]->refcnt+=1;
+@@ -1154,6 +1177,10 @@
+    goto error_out;
+   }
+  clo->clo_queue->queuedata = clo;
++#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0)
++ queue_flag_set_unlocked(QUEUE_FLAG_NONROT, clo->clo_queue);
++ queue_flag_set_unlocked(QUEUE_FLAG_NOMERGES, clo->clo_queue);
++#endif
+  clo->clo_disk = alloc_disk(1);
+  if(!clo->clo_disk)
+   {
