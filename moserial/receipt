@@ -15,15 +15,14 @@ TAGS="serial console"
 DEPENDS="GConf gnome-doc-utils gtk+"
 BUILD_DEPENDS="GConf-dev gnome-doc-utils-dev intltool pkg-config vala gtk+-dev"
 
-
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	# removing help
 	patch -Np3 -i $stuff/glade.patch
 	# build
 	./configure $CONFIGURE_ARGS \
+		--disable-scrollkeeper \
 		--prefix="/usr" &&
 	make &&
 	make DESTDIR=$DESTDIR install
