@@ -17,12 +17,12 @@ WGET_URL="http://pingus.seul.org/files/$TARBALL"
 DEPENDS="libsdl libsdl-image libsdl-mixer libboost-signals gcc-lib-base"
 
 BUILD_DEPENDS="scons libsdl-dev libsdl-image-dev libsdl-mixer-dev libboost-dev \
-libboost-signals"
+libboost-signals libpng-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/screenshot.cpp
 	scons
 }
 
