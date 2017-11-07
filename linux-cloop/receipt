@@ -23,6 +23,7 @@ SUGGESTED="cloop-utils"
 
 compile_rules()
 {
+	sed -i 's|dev_t.*|&\n#define uint64_t loff_t|' cloop_suspend.c
 	make cloop_suspend &&
 	make KERNEL_DIR="/usr/src/linux" cloop.ko && xz cloop.ko
 }
