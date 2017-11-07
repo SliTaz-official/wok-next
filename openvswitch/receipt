@@ -1,17 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openvswitch"
 VERSION="2.4.0"
 CATEGORY="network"
-SHORT_DESC="Multilayer virtual switch."
+SHORT_DESC="Multilayer virtual switch"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://openvswitch.org/"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
-DEPENDS="libssl zlib python bash"
-BUILD_DEPENDS="openssl-dev zlib-dev"
+BUILD_DEPENDS="openssl-dev zlib-dev perl"
+SPLIT="openvswitch-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -28,10 +28,22 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs/
-	cp -a $install/var $fs/
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/sbin $fs/usr/
-	cp -a $install/usr/share $fs/usr/
+	case $PACKAGE in
+	openvswitch)
+		DEPENDS="libssl zlib python bash"
+		mkdir -p $fs/usr
+		cp -a $install/etc $fs/
+		cp -a $install/var $fs/
+		cp -a $install/usr/bin $fs/usr/
+		cp -a $install/usr/sbin $fs/usr/
+		cp -a $install/usr/share $fs/usr/
+		;;
+	openvswitch-dev)
+		CAT="development|development files"
+		DEPENDS="pkg-config openvswitch"
+		mkdir -p $fs/usr
+		cp -a $install/usr/lib $fs/usr
+		cp -a $install/usr/include $fs/usr
+		;;
+	esac
 }
