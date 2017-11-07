@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libvips"
 VERSION="7.42.3"
@@ -10,11 +10,11 @@ TARBALL="vips-$VERSION.tar.gz"
 WEB_SITE="http://www.vips.ecs.soton.ac.uk/"
 WGET_URL="$WEB_SITE/supported/${VERSION%.*}/$TARBALL"
 TAGS="image"
-DEPENDS="fftw lcms pango libpng jpeg imagemagick tiff zlib glib \
-libexif openexr liboil"
+
 BUILD_DEPENDS="wget cacerts pkg-config gtk-doc libtool swig \
 gobject-introspection-dev fftw-dev lcms-dev libpng-dev jpeg-dev \
-imagemagick-dev tiff-dev zlib-dev libexif-dev"
+imagemagick-dev tiff-dev zlib-dev libexif-dev gettext"
+SPLIT="libvips-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,7 +30,22 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	libvips)
+		DEPENDS="fftw lcms pango libpng jpeg imagemagick tiff zlib \
+			glib libexif openexr liboil"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	libvips-dev)
+		CAT="development|devel files"
+		DEPENDS="libvips"
+		mkdir -p $fs/usr/lib $fs/usr/include
+		cp -a $install/usr/lib/*.a $fs/usr/lib
+		cp -a $install/usr/lib/*.la $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		;;
+	esac
 }
