@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="vice"
-VERSION="2.2"
+VERSION="3.1"
 CATEGORY="games"
 SHORT_DESC="Commodore 64 and others emulator."
 MAINTAINER="devl547@gmail.com"
@@ -11,19 +11,16 @@ WEB_SITE="http://www.viceteam.org/"
 WGET_URL="http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/VICE/$TARBALL"
 
 DEPENDS="gtk+"
-BUILD_DEPENDS="gtk+-dev"
+BUILD_DEPENDS="gtk+-dev gettext-tools"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	sed -i 's/cp .(fontsdir)/echo &/' data/fonts/Makefile.*
 	./configure \
 		--prefix=/usr \
 		--enable-gnomeui \
-		--enable-memmap \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make DESTDIR=$DESTDIR install
+	make $MAKEFLAGS && make -j 1 DESTDIR=$DESTDIR install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
