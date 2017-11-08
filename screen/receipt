@@ -17,19 +17,26 @@ SPLIT="screen screen-pam screen-terminfo"
 compile_rules()
 {
 	cp -a $src $src-pam
-	./configure --with-sys-screenrc=/etc/screenrc \
-		--disable-pam $CONFIGURE_ARGS &&
+
+	./configure \
+		--with-sys-screenrc=/etc/screenrc \
+		--disable-pam \
+		$CONFIGURE_ARGS &&
 	make &&
-	make -j1 DESTDIR=$DESTDIR install &&
-	cd $src-pam &&
-	./configure --with-sys-screenrc=/etc/screenrc \
-		--enable-pam $CONFIGURE_ARGS &&
+	make -j1 DESTDIR=$DESTDIR install || return 1
+
+	cd $src-pam
+	./configure \
+		--with-sys-screenrc=/etc/screenrc \
+		--enable-pam \
+		$CONFIGURE_ARGS &&
 	make &&
-	make -j1 DESTDIR=$DESTDIR-pam install &&
+	make -j1 DESTDIR=$DESTDIR-pam install || return 1
+
 	for dir in $DESTDIR $DESTDIR-pam ; do
-		mkdir -p $dir/usr/share/terminfo &&
-		tic -o $dir/usr/share/terminfo terminfo/screeninfo.src &&
-		mkdir -p $dir/etc &&
+		mkdir -p $dir/usr/share/terminfo
+		tic -o $dir/usr/share/terminfo terminfo/screeninfo.src
+		mkdir -p $dir/etc
 		cp $src/etc/screenrc $dir/etc
 	done
 }
@@ -42,9 +49,12 @@ genpkg_rules()
 		CONFIG_FILES="/etc/screenrc"
 		SUGGESTED="screen-terminfo"
 		DEPENDS="elfutils"
-		[ $PACKAGE == screen-pam] && DEPENDS="$DEPENDS pam" &&
-			CAT="system-tools|with PAM support" &&
-			PROVIDE="screen:pam" && install=$install-pam
+		if [ $PACKAGE == 'screen-pam' ]; then
+			DEPENDS="$DEPENDS pam"
+			CAT="system-tools|with PAM support"
+			PROVIDE="screen:pam"
+			install=$install-pam
+		fi
 		mkdir -p $fs/usr/bin $fs/usr/share
 		cp -a $install/etc $fs
 		cp -a $install/usr/bin/screen-$VERSION $fs/usr/bin/screen

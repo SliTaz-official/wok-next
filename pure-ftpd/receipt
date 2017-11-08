@@ -24,13 +24,13 @@ compile_rules()
 		--with-puredb \
 		--with-extauth \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
 
 	cd $src-pam
 	./configure \
 		--with-pam \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-pam install
+	make && make DESTDIR=$DESTDIR-pam install || return 1
 
 	# daemon
 	mkdir -p $install/etc/init.d $install-pam/etc/init.d

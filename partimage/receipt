@@ -18,7 +18,9 @@ compile_rules()
 {
 	sed -i 's/gzFile \*m_gzImageFile/gzFile m_gzImageFile/' src/client/imagefile.h
 	sed -i 's/(gzFile \*) gzdopen/gzdopen/' src/client/imagefile.cpp
+
 	cp -a $src $src-pam
+
 	./configure \
 		--prefix=/usr \
 		--disable-pam \
@@ -26,7 +28,7 @@ compile_rules()
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
 
 	cd $src-pam
 	./configure \

@@ -22,7 +22,7 @@ compile_rules()
 		--libexecdir=/usr/lib/netatalk \
 		--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
 
 	cd $src-pam
 	./configure --with-pam --prefix=/usr --sysconfdir=/etc \
@@ -37,16 +37,19 @@ genpkg_rules()
 {
 	DEPENDS="perl libdb libcrypto cups gnutls libgcrypt libgpg-error  \
 		libwrap zlib libcomerr3"
-	[ $PACKAGE == netatalk-pam ] && DEPENDS="$DEPENDS pam" &&
-		PROVIDE="netatalk:pam" && CAT="system-tools|using PAM" &&
+	if [ $PACKAGE == 'netatalk-pam' ]; then
+		DEPENDS="$DEPENDS pam"
+		PROVIDE="netatalk:pam"
+		CAT="system-tools|using PAM"
 		install=$install-pam
+	fi
 	mkdir -p $fs/usr/share $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 	#cp -a $install/usr/lib/netatalk $fs/usr/lib
 	cp -a $install/etc $fs
 	cp -a $stuff/etc $fs
-	[ $PACKAGE == netatalk-pam ] || rm -rf $fs/etc/pam.d
+	[ $PACKAGE == 'netatalk-pam' ] || rm -rf $fs/etc/pam.d
 	rm -f $fs/etc/netatalk/uams/*a
 }
 

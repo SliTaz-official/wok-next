@@ -27,7 +27,7 @@ compile_rules()
 	sed -i '/install.*STALIBNAME/d' libcap/Makefile
 
 	make $ARCH_ARGS &&
-	make RAISE_SETFCAP=no prefix=/usr install
+	make RAISE_SETFCAP=no prefix=/usr install || return 1
 
 	chmod 755 $install/usr/lib/libcap.so
 	mkdir $install/lib
@@ -45,7 +45,7 @@ genpkg_rules()
 			DEPENDS="attr"
 			;;
 		libcap-pam)
-			CAT="system-tools|pam module"
+			CAT="system-tools|PAM module"
 			PROVIDE="libcap:pam"
 			DEPENDS="libcap pam"
 			copy pam_cap.so

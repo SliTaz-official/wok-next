@@ -35,7 +35,7 @@ compile_rules()
 		--disable-doc \
 		--build=${ARCH}-slitaz-gnulinux \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	make $MAKEFLAGS && make install || return 1
 
 	cd $src-pam
 	./configure \
@@ -54,11 +54,13 @@ genpkg_rules()
 	enlightenment|enlightenment-pam)
 		DEPENDS="eet evas ecore eeze emotion efreet edbus edje \
 			elementary alsa-lib xcb-util-keysyms"
-		[ $PACKAGE == enlightenment-pam ] &&
-			DEPENDS="$DEPENDS pam" && install=$install-pam &&
-			CAT="x-window|with PAM, Bluez and connman support" &&
-			SUGGESTED="bluez wpa_supplicant connman pm-utils" &&
+		if [ $PACKAGE == 'enlightenment-pam' ]; then
+			DEPENDS="$DEPENDS pam"
+			install=$install-pam
+			CAT="x-window|with PAM, Bluez and connman support"
+			SUGGESTED="bluez wpa_supplicant connman pm-utils"
 			PROVIDE="enlightenment:pam"
+		fi
 		mkdir -p $fs/usr/share/locale
 		# Use a modified sysactions.conf
 		cp -a $stuff/etc $fs
@@ -82,7 +84,6 @@ genpkg_rules()
 		;;
 	enlightenment-backgrounds)
 		CAT="x-window|additional backgrounds"
-		DEPENDS=""
 		mkdir -p $fs/usr/share/enlightenment/data/backgrounds
 		cp -a $install/usr/share/enlightenment/data/backgrounds/* \
 			$fs/usr/share/enlightenment/data/backgrounds

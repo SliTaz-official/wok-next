@@ -18,7 +18,7 @@ cyrus-sasl-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	autoreconf -fi &&
+	autoreconf -fi || return 1
 
 	mkdir -p $src/saslauthd/cmulocal
 	cp -a $src $src-pam
@@ -34,7 +34,7 @@ compile_rules()
 		--with-ldap \
 		--with-openssl \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
 	cd $src-pam
 	./configure \
@@ -47,7 +47,7 @@ compile_rules()
 		--with-ldap \
 		--with-openssl \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-pam install &&
+	make && make DESTDIR=$DESTDIR-pam install || return 1
 
 	for inst in $install $install-pam; do
 		docdir="$inst/usr/share/doc/cyrus-sasl-$VERSION"

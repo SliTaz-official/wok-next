@@ -19,9 +19,9 @@ SPLIT="polkit polkit-pam polkit-dev polkit-pam-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	addgroup -g 27 polkitd &&
+	addgroup -g 27 polkitd
 	adduser -g "PolicyKit Daemon Owner" -h /etc/polkit-1 -u 27 \
-		-G polkitd -s /bin/false -D polkitd &&
+		-G polkitd -s /bin/false -D polkitd
 
 	cp -a $src $src-pam
 	./configure \
@@ -30,19 +30,19 @@ compile_rules()
 		--enable-libsystemd-login=no \
 		--with-authfw=shadow \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
-	cd $src-pam &&
+	cd $src-pam
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--enable-libsystemd-login=no \
 		--with-authfw=pam \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-pam install &&
+	make && make DESTDIR=$DESTDIR-pam install || return 1
 
-	mkdir -p $install-pam/etc/pam.d &&
-	cp $stuff/polkit-1 $install-pam/etc/pam.d &&
+	mkdir -p $install-pam/etc/pam.d
+	cp $stuff/polkit-1 $install-pam/etc/pam.d
 	for inst in $install $install-pam ; do
 		# for access file in web interface, will be changed back in post-install to 700
 		chmod 755 "$inst/etc/polkit-1/rules.d/"
@@ -61,6 +61,7 @@ genpkg_rules()
 			;;
 		polkit-pam)
 			install=$install-pam copy @std
+			CAT="base-system|using PAM"
 			DEPENDS="expat glib js pam"
 			PROVIDE="polkit:pam"
 			;;
@@ -70,6 +71,7 @@ genpkg_rules()
 			;;
 		polkit-pam-dev)
 			install=$install-pam copy @dev
+			CAT="development|development files, using PAM"
 			DEPENDS="polkit expat-dev glib-dev js-dev pam-dev"
 			PROVIDE="polkit-dev:pam"
 			;;

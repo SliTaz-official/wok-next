@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="warzone2100"
 VERSION="3.2.3"
@@ -6,34 +6,34 @@ CATEGORY="games"
 SHORT_DESC="3D realtime strategy game on a future Earth"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://wz2100.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/warzone2100/releases/$VERSION/$TARBALL"
 
-DEPENDS="libsdl-net mesa openal jpeg libpng libvorbis libtheora libmad physfs \
-quesoglc popt ttf-dejavu ttf-dejavu-extra"
-BUILD_DEPENDS="automake perl zip gettext qt5-dev xorg-libX11-dev libsdl2-dev \
-libpng16-dev libtheora-dev openal-dev libvorbis-dev glew-dev mesa17-dev \
-libcrypto-dev physfs-dev xorg-libXrandr-dev fribidi-dev freetype-dev \
-fontconfig-dev openssl-dev git"
+BUILD_DEPENDS="automake perl zip unzip gettext qt5-dev xorg-libX11-dev \
+libsdl2-dev libpng16-dev libtheora-dev openal-dev libvorbis-dev glew-dev \
+mesa17-dev libcrypto-dev physfs-dev xorg-libXrandr-dev fribidi-dev \
+freetype-dev fontconfig-dev openssl-dev git"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	autogen.sh &&
+compile_rules() {
+	# small improvements
+	sed -i 's| = |=|' icons/warzone2100.desktop
+	rm po/pt_BR.gmo; sed -i 's|\\v||' po/pt_BR.po; msgfmt po/pt_BR.po -o po/pt_BR.gmo
+
+	./autogen.sh &&
 	./configure \
 		--with-distributor="SliTaz" \
+		--with-appdatadir=/usr/share/appdata \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make -C src autorevision.h &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy @std
-#	mkdir -p $fs/usr/share/pixmaps
-#	cp -a $install/usr/bin $fs/usr
-#	cp -a $install/usr/share/applications $fs/usr/share
-#	cp -a $install/usr/share/icons/warzone2100.png $fs/usr/share/pixmaps
-#	cp -a $install/usr/share/warzone2100 $fs/usr/share
+genpkg_rules() {
+	copy @std hicolor/ *.mo
+	DEPENDS="fontconfig freetype fribidi glew glib libcrypto libglu-mesa \
+	libharfbuzz libogg libpng16 libsdl2 libtheora libvorbis mesa17 openal \
+	physfs qt5-base qt5-script xorg-libX11 xorg-libXrandr zlib   libsdl2-net"
 }

@@ -27,7 +27,7 @@ compile_rules()
 	cp -a $src $src-pam
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR/usr install
+	make DESTDIR=$DESTDIR/usr install || return 1
 
 	cd $src-pam
 	sed -i 's/#USE_PAM/USE_PAM/' pppd/Makefile.linux
@@ -41,8 +41,12 @@ genpkg_rules()
 {
 	case $PACKAGE in
 	ppp|ppp-pam)
-		[ $PACKAGE == ppp-pam ] && DEPENDS="pam" && PROVIDE="ppp:pam" &&
-			CAT="network|with PAM support" && install=$install-pam
+		if [ $PACKAGE == 'ppp-pam' ]; then
+			DEPENDS="pam"
+			PROVIDE="ppp:pam"
+			CAT="network|with PAM support"
+			install=$install-pam
+		fi
 		mkdir -p $fs/usr $fs/var/www/tazpanel/menu.d/network/VPN
 		cp -a $install/usr/sbin $fs/usr
 		[ -d "$install/usr/lib" ] && cp -a $install/usr/lib $fs/usr
@@ -111,7 +115,6 @@ EOT
 		chmod 711 $fs/etc/ppp/scripts/*
 		;;
 	ppp-dev)
-		CAT="development|development files"
 		copy include/
 		;;
 	esac

@@ -27,7 +27,7 @@ compile_rules()
 		--sysconfdir=/etc --localstatedir=/var \
 		--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
 
 	cd $src-pam
 	./configure --prefix=/usr --infodir=/usr/share/info \
@@ -47,8 +47,12 @@ genpkg_rules()
 	perdition|perdition-pam)
 		DEPENDS="vanessa_logger vanessa_adt vanessa_socket libldap \
 			openssl cyrus-sasl glibc-base libkrb5 libcomerr3 gdbm"
-		[ $PACKAGE == perdition-pam ] && DEPENDS="$DEPENDS pam" &&
-			PROVIDE="perdition:pam" && install=$install-pam
+		if [ $PACKAGE == 'perdition-pam' ]; then
+			CAT="network|with PAM support"
+			DEPENDS="$DEPENDS pam"
+			PROVIDE="perdition:pam"
+			install=$install-pam
+		fi
 		mkdir -p $fs/usr/lib $fs/etc/openldap/schema
 		cp -a $install/etc $fs
 		rm -f $fs/etc/perdition/perdition.conf
@@ -61,7 +65,6 @@ genpkg_rules()
 		cp $src/perdition/db/ldap/perdition.schema $fs/etc/openldap/schema
 		;;
 	perdition-dev)
-		CAT="development|development files"
 		DEPENDS="perdition"
 		mkdir -p $fs/usr/lib
 		cp -a $install/usr/lib/*.a $fs/usr/lib

@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="pulse"
+VERSION="0.0.32" # releases are absent, there's 32th commit
+COMMIT="77456be"
+CATEGORY="system-tools"
+SHORT_DESC="CPU monitor that can disable processors on the fly"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/DoMiNeLa10/pulse"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/DoMiNeLa10/pulse/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="gtk+-dev"
+
+compile_rules() {
+	make || return 1
+
+	mkdir -p $install/usr/bin
+	cp -a pulse $install/usr/bin
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango"
+}
