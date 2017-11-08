@@ -170,9 +170,34 @@ pre_remove_cups() {
 }
 
 post_install_cups_pam() {
-	post_install_cups "$1"
+	# Start CUPS daemon
+	if [ -z "$1" -a ! -s /aufs-umount.sh ]; then
+		/etc/init.d/cupsd start || continue
+	fi
+
+	# Clean TazPanel menu cache
+	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null
+
+	# Edit daemons.conf
+	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"; then
+		cat >> "$1/etc/daemons.conf" <<EOT
+# CUPS printing daemon options.
+CUPSD_OPTIONS=""
+
+EOT
+	fi
+
+	# Add lpadmin group
+	addgroup -g 23 lpadmin
+
+	# Return permissions to previous state
+	chmod 640 $1/etc/cups/*
+	chmod 700 $1/usr/lib/cups/backend/ipp $1/usr/lib/cups/backend/lpd
+	chmod 500 $1/usr/sbin/cupsd
 }
 
 pre_remove_cups_pam() {
-	pre_remove_cups "$1"
+	# Stop CUPS daemon before rm.
+	[ -z "$1" -a -x /etc/init.d/cupsd ] && /etc/init.d/cupsd stop
+	:
 }
