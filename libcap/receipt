@@ -14,7 +14,7 @@ WGET_URL="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/$TA
 
 BUILD_DEPENDS="gperf pam-dev attr-dev perl"
 BUILD_DEPENDS_arm="gperf pam-dev attr-dev"
-SPLIT="libcap-dev"
+SPLIT="libcap-pam libcap-dev"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -43,6 +43,12 @@ genpkg_rules()
 		libcap)
 			copy @std
 			DEPENDS="attr"
+			;;
+		libcap-pam)
+			CAT="system-tools|pam module"
+			PROVIDE="libcap:pam"
+			DEPENDS="libcap pam"
+			copy pam_cap.so
 			;;
 		*-dev) copy @dev;;
 	esac

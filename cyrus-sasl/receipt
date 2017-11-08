@@ -11,14 +11,17 @@ WEB_SITE="http://cyrusimap.web.cmu.edu/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.cyrusimap.org/cyrus-sasl/$TARBALL"
 
-BUILD_DEPENDS="automake libtool openldap-dev db-dev openssl-dev krb5-dev"
-SPLIT="libsasl libsasl-modules cyrus-sasl cyrus-sasl-dev"
-SIBLINGS="cyrus-sasl-pam libsasl-without-ldap"
+BUILD_DEPENDS="automake libtool openldap-dev db-dev openssl-dev krb5-dev pam-dev"
+SPLIT="libsasl libsasl-without-ldap libsasl-modules cyrus-sasl cyrus-sasl-pam \
+cyrus-sasl-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
 	autoreconf -fi &&
+
+	cp -a $src $src-pam
+	cp -a $src $src-without-ldap
 
 	./configure \
 		--sysconfdir=/etc \
@@ -30,16 +33,48 @@ compile_rules()
 		--with-ldap \
 		--with-openssl \
 		$CONFIGURE_ARGS &&
-	mkdir -p $src/saslauthd/cmulocal &&
+	mkdir -p saslauthd/cmulocal &&
 	make && make install &&
 
-	docdir="$install/usr/share/doc/cyrus-sasl-$VERSION"
-	mkdir -p $docdir &&
-	cd $src/doc &&
-	cp *.html *.txt ONEWS TODO ../saslauthd/LDAP_SASLAUTHD $docdir &&
+	cd $src-pam
+	./configure \
+		--sysconfdir=/etc \
+		--enable-auth-sasldb \
+		--with-dbpath=/var/lib/sasl/sasldb2 \
+		--with-saslauthd=/var/run/saslauthd \
+		--with-pam \
+		--with-devrandom=/dev/urandom \
+		--with-ldap \
+		--with-openssl \
+		$CONFIGURE_ARGS &&
+	mkdir -p saslauthd/cmulocal &&
+	make && make install &&
 
-	cp -a $stuff/etc $install &&
-	chown -R root:root $install/etc
+	for inst in $install $install-pam; do
+		docdir="$inst/usr/share/doc/cyrus-sasl-$VERSION"
+		mkdir -p $docdir &&
+		cd $src/doc &&
+		cp *.html *.txt ONEWS TODO ../saslauthd/LDAP_SASLAUTHD $docdir &&
+		cp -a $stuff/etc $inst &&
+		chown -R root:root $inst/etc
+	done
+
+	cd $src-without-ldap
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--without-pam \
+		--disable-anon \
+		--disable-cram \
+		--disable-digest \
+		--disable-gssapi \
+		--enable-login \
+		--disable-otp \
+		--enable-plain \
+		--with-openssl \
+		--with-devrandom=/dev/urandom \
+		--mandir=/usr/share/man $CONFIGURE_ARGS &&
+	make && make DESTDIR=$DESTDIR--without-ldap install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -48,6 +83,11 @@ genpkg_rules()
 	case $PACKAGE in
 		libsasl)
 			copy libsasl2*.so*
+			CAT="system-tools|library"
+			DEPENDS=" "
+			;;
+		libsasl-without-ldap)
+			install=$install-without-ldap copy libsasl2*.so*
 			CAT="system-tools|library"
 			DEPENDS=" "
 			;;
@@ -60,8 +100,15 @@ genpkg_rules()
 		cyrus-sasl)
 			copy @std
 			remove_already_packed
-			DEPENDS="libcomerr3 libcrypto libdb libkrb5 libldap libsasl \
-			libsasl-modules libssl"
+			DEPENDS="libcomerr3 libcrypto libdb libkrb5 libldap \
+			libsasl libsasl-modules libssl"
+			;;
+		cyrus-sasl-pam)
+			install=$install-pam copy @std
+			rm -rf $fs/usr/lib
+			CAT="network|using PAM"
+			DEPENDS="libcomerr3 libcrypto libdb libkrb5 libldap \
+			libsasl libsasl-modules libssl pam"
 			;;
 		*-dev)
 			copy @dev
@@ -71,5 +118,9 @@ genpkg_rules()
 }
 
 post_install_cyrus_sasl() {
+	[ -d "$1/var/lib/sasl" ] || install -v -dm700 "$1/var/lib/sasl"
+}
+
+post_install_cyrus_sasl_pam() {
 	[ -d "$1/var/lib/sasl" ] || install -v -dm700 "$1/var/lib/sasl"
 }
