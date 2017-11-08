@@ -17,8 +17,7 @@ BUILD_DEPENDS_arm="freetype-dev jpeg-dev libpng-dev xorg-libXft-dev \
 xorg-libXmu-dev"
 BUILD_DEPENDS="cmake xorg-libX11-dev freetype-dev libjpeg-turbo-dev zlib-dev \
 libpng16-dev fontconfig-dev xorg-libXft-dev xorg-libXrender-dev xorg-libXmu-dev"
-SPLIT="slim-theme-default slim"
-SIBLINGS="slim-pam"
+SPLIT="slim-theme-default slim slim-pam"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -34,25 +33,40 @@ compile_rules()
 	esac
 
 	mkdir build; cd build
+	cp -a $src $src-pam
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DX11_Xmu_LIB="$LIBS/libXmu.so" \
 		-DX11_Xft_INCLUDE_PATH=$INCL \
 		-DX11_Xmu_INCLUDE_PATH=$INCL \
+		-DUSE_PAM=no \
 		.. &&
 	make &&
 	make DESTDIR=$DESTDIR install || exit 1
 
-	cp -r $stuff/themes $install/usr/share/slim
+	cd $src-pam/build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DX11_Xmu_LIB="$LIBS/libXmu.so" \
+		-DX11_Xft_INCLUDE_PATH=$INCL \
+		-DX11_Xmu_INCLUDE_PATH=$INCL \
+		-DUSE_PAM=yes \
+		.. &&
+	make &&
+	make DESTDIR=$DESTDIR-pam install || exit 1
 
-	# Config file and rc script.
-	cp -a $stuff/etc $install
+	for inst in $install $install-pam ; do
+		cp -r $stuff/themes $inst/usr/share/slim
 
-	# slim-theme manager & default strings
-	install -m755 $stuff/slim-theme $install/usr/bin/slim-theme
-	install -m644 $stuff/strings    $install/usr/share/slim/strings
+		# Config file and rc script.
+		cp -a $stuff/etc $inst
 
-	chown -R root:root $install
+		# slim-theme manager & default strings
+		install -m755 $stuff/slim-theme $inst/usr/bin/slim-theme
+		install -m644 $stuff/strings    $inst/usr/share/slim/strings
+
+		chown -R root:root $inst
+	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -71,10 +85,27 @@ genpkg_rules() {
 			CONFIG_FILES="/etc/slim.conf"
 			SUGGESTED="slim-theme-default slitaz-configs"
 			;;
+		slim-pam)
+			install=$install-pam copy @std
+			rm -rf $fs/usr/share/slim/themes/default
+			DEPENDS="fontconfig freetype libjpeg-turbo libpng16 xorg-libX11 \
+			xorg-libXft xorg-libXmu xorg-libXrender zlib pam"
+			CONFIG_FILES="/etc/slim.conf"
+			SUGGESTED="slim-theme-default slitaz-configs"
+			PROVIDE="slim:pam"
+			CAT="x-window|(PAM enabled)"
+			;;
 	esac
 }
 
 post_install_slim() {
+	local USER=$(awk -F: '/:1000:1000:/ { print $1 }' "$1/etc/passwd")
+	[ -n "$USER" ] &&
+	sed -i s/"default_user .*"/"default_user        $USER"/ "$1/etc/slim.conf"
+	sed -i 's|>/tmp/X-output||' "$1/etc/slim.conf"
+}
+
+post_install_slim_pam() {
 	local USER=$(awk -F: '/:1000:1000:/ { print $1 }' "$1/etc/passwd")
 	[ -n "$USER" ] &&
 	sed -i s/"default_user .*"/"default_user        $USER"/ "$1/etc/slim.conf"
