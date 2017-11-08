@@ -12,8 +12,8 @@ TARBALL="cups-$VERSION-source.tar.gz"
 WGET_URL="https://github.com/apple/cups/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="automake libusb-dev zlib-dev acl-dev dbus-dev gnutls-dev perl \
-python"
-SPLIT="libcups cups cups-doc cups-dev"
+python pam pam-dev"
+SPLIT="libcups cups cups-pam cups-doc cups-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,11 +29,14 @@ compile_rules()
 	aclocal  -I config-scripts &&
 	autoconf -I config-scripts &&
 
+	cp -a $src $src-pam
+
 	CC=gcc \
 	./configure \
 		--sysconfdir=/etc \
 		--libdir=/usr/lib \
 		--localstatedir=/var \
+		--disable-pam \
 		--disable-systemd \
 		--with-rcdir=/tmp/cupsinit \
 		--with-system-groups=lpadmin \
@@ -42,40 +45,57 @@ compile_rules()
 	make &&
 	make BUILDROOT=$install install &&
 
-	rm -rf $install/tmp &&
+	cd $src-pam &&
+	CC=gcc \
+	./configure \
+		--sysconfdir=/etc \
+		--libdir=/usr/lib \
+		--localstatedir=/var \
+		--enable-pam \
+		--disable-systemd \
+		--with-rcdir=/tmp/cupsinit \
+		--with-system-groups=lpadmin \
+		--with-docdir=/usr/share/doc/cups-$VERSION \
+		$CONFIGURE_ARGS &&
+	make &&
+	make BUILDROOT=$install-pam install &&
 
-	ln -svnf ../doc/cups-$VERSION $install/usr/share/cups/doc-$VERSION
+	for inst in $install $install-pam ; done
+		rm -rf $inst/tmp &&
 
-	echo "ServerName /var/run/cups/cups.sock" > $install/etc/cups/client.conf &&
+		ln -svnf ../doc/cups-$VERSION $inst/usr/share/cups/doc-$VERSION
 
-	sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
-		$install/usr/share/cups/templates/choose-uri.tmpl &&
-	sed -i 's|htmlview|browser|' $install/usr/share/applications/cups.desktop &&
-	sed -i 's|^#Group .*|Group lp|' $install/etc/cups/cups-files.conf &&
+		echo "ServerName /var/run/cups/cups.sock" > $inst/etc/cups/client.conf &&
 
-	# Daemon script
-	cp -a $stuff/etc $install &&
-	chown -R root:root $install/etc &&
-	# TazPanel link
-	cp -a $stuff/var $install &&
-	chown -R root:root $install/var &&
+		sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
+			$inst/usr/share/cups/templates/choose-uri.tmpl &&
+		sed -i 's|htmlview|browser|' $inst/usr/share/applications/cups.desktop &&
+		sed -i 's|^#Group .*|Group lp|' $inst/etc/cups/cups-files.conf &&
 
-	# Install ssl directory where to store the certs, solves some samba issues
-	install -dm700 -g lp $install/etc/cups/ssl &&
+		# Daemon script
+		cp -a $stuff/etc $inst &&
+		chown -R root:root $inst/etc &&
+		# TazPanel link
+		cp -a $stuff/var $inst &&
+		chown -R root:root $inst/var &&
 
-	# Install some more configuration files that will get filled by cupsd
-	touch $install/etc/cups/printers.conf &&
-	touch $install/etc/cups/classes.conf &&
-	touch $install/etc/cups/subscriptions.conf &&
-	chgrp -R lp $install/etc/cups &&
+		# Install ssl directory where to store the certs, solves some samba issues
+		install -dm700 -g lp $inst/etc/cups/ssl &&
 
-	# Comment out unnecessary PageLogFormat entry
-	sed -i -e 's:PageLogFormat:#PageLogFormat:' $install/etc/cups/cupsd.conf* &&
+		# Install some more configuration files that will get filled by cupsd
+		touch $inst/etc/cups/printers.conf &&
+		touch $inst/etc/cups/classes.conf &&
+		touch $inst/etc/cups/subscriptions.conf &&
+		chgrp -R lp $inst/etc/cups &&
 
-	# Change files permissions to be accessible via web interface - will be
-	# fixed in post_install
-	chmod -c o+r $install/etc/cups/* $install/usr/sbin/cupsd \
-	$install/usr/lib/cups/backend/ipp $install/usr/lib/cups/backend/lpd
+		# Comment out unnecessary PageLogFormat entry
+		sed -i -e 's:PageLogFormat:#PageLogFormat:' $inst/etc/cups/cupsd.conf* &&
+
+		# Change files permissions to be accessible via web interface - will be
+		# fixed in post_install
+		chmod -c o+r $inst/etc/cups/* $inst/usr/sbin/cupsd \
+		$inst/usr/lib/cups/backend/ipp $inst/usr/lib/cups/backend/lpd
+	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -92,6 +112,15 @@ genpkg_rules()
 			copy @std var/ # copy empty dirs in var/
 			remove_already_packed
 			DEPENDS="acl dbus libcups libgnutls libusb zlib"
+			CONFIG_FILES="/etc/cups/"
+			TAGS="printer printing"
+			;;
+		cups-pam)
+			install=$install-pam
+			copy @std var/ # copy empty dirs in var/
+			remove_already_packed
+			DEPENDS="acl dbus libcups libgnutls libusb zlib pam"
+			PROVIDE="cups:pam"
 			CONFIG_FILES="/etc/cups/"
 			TAGS="printer printing"
 			;;
@@ -138,4 +167,12 @@ pre_remove_cups() {
 	# Stop CUPS daemon before rm.
 	[ -z "$1" -a -x /etc/init.d/cupsd ] && /etc/init.d/cupsd stop
 	:
+}
+
+post_install_cups_pam() {
+	post_install_cups "$1"
+}
+
+pre_remove_cups_pam() {
+	pre_remove_cups "$1"
 }
