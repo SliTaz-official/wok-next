@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="netatalk"
 VERSION="2.2.3"
@@ -11,45 +11,80 @@ WEB_SITE="http://netatalk.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 CONFIG_FILES="/etc/netatalk/AppleVolumes.* /etc/netatalk/*.conf"
 
-DEPENDS="perl libdb libcrypto cups gnutls libgcrypt libgpg-error  \
-libwrap zlib libcomerr3"
-BUILD_DEPENDS="db-dev libcrypto-dev file"
+BUILD_DEPENDS="db-dev libcrypto-dev file pam-dev"
+SPLIT="netatalk netatalk-pam"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	#sed -i  -e 's/pam =/pam_x =/' -e 's/USE_PAM, 1,/USE_PAM, 0,/' \
-	#	-e 's/pam_so =/pam_so_x =/' configure.in
+	cp -a $src $src-pam
 	./configure --without-pam --prefix=/usr --sysconfdir=/etc \
-	--libexecdir=/usr/lib/netatalk \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+		--libexecdir=/usr/lib/netatalk \
+		--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
+
+	cd $src-pam
+	./configure --with-pam --prefix=/usr --sysconfdir=/etc \
+		--libexecdir=/usr/lib/netatalk \
+		--mandir=/usr/share/man $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR-pam install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
+	DEPENDS="perl libdb libcrypto cups gnutls libgcrypt libgpg-error  \
+		libwrap zlib libcomerr3"
+	[ $PACKAGE == netatalk-pam ] && DEPENDS="$DEPENDS pam" &&
+		PROVIDE="netatalk:pam" && CAT="system-tools|using PAM" &&
+		install=$install-pam
 	mkdir -p $fs/usr/share $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 	#cp -a $install/usr/lib/netatalk $fs/usr/lib
 	cp -a $install/etc $fs
 	cp -a $stuff/etc $fs
+	[ $PACKAGE == netatalk-pam ] || rm -rf $fs/etc/pam.d
 	rm -f $fs/etc/netatalk/uams/*a
 }
 
 # Pre and post install commands for Tazpkg.
-post_install()
+pre_install_netatalk()
 {
+	rm -f "$1/usr/bin/timeout"
+}
+
+post_install_netatalk()
+{
+	ln -s /bin/busybox "$1/usr/bin/timeout"
 	cat <<EOF
 ----
-To start $PACKAGE server you can run :
+To start netatalk server you can run :
 
-    /etc/init.d/$PACKAGE start
+    /etc/init.d/netatalk start
 
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
+Or add netatalk to RUN_DAEMONS in /etc/rcS.conf
+----
+EOF
+}
+
+pre_install_netatalk_pam()
+{
+	rm -f "$1/usr/bin/timeout"
+}
+
+post_install_netatalk_pam()
+{
+	ln -s /bin/busybox "$1/usr/bin/timeout"
+	cat <<EOF
+----
+To start netatalk server you can run :
+
+    /etc/init.d/netatalk start
+
+Or add netatalk to RUN_DAEMONS in /etc/rcS.conf
 ----
 EOF
 }

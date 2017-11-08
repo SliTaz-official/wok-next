@@ -11,8 +11,8 @@ WEB_SITE="https://www.openssh.com/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/$TARBALL"
 
-BUILD_DEPENDS="libcrypto-dev zlib-dev openssl-dev perl mdocml-dev" # groff
-SPLIT="sftp-server openssh"
+BUILD_DEPENDS="libcrypto-dev zlib-dev openssl-dev perl mdocml-dev pam-dev" # groff
+SPLIT="sftp-server openssh openssh-pam"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -31,23 +31,37 @@ compile_rules()
 		-u 50 \
 		sshd &&
 
+	cp -a $src $src-pam
 	./configure \
 		--sysconfdir=/etc/ssh \
 		--with-md5-passwords \
 		--with-privsep-path=/var/lib/sshd \
+		--without-pam \
+		--without-ssh1 \
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install || return 1
 
-	install -vm755 contrib/ssh-copy-id $install/usr/bin
+	cd $src-pam
+	./configure \
+		--sysconfdir=/etc/ssh \
+		--with-privsep-path=/var/lib/sshd \
+		--with-pam \
+		--with-xauth=/usr/bin/xauth \
+		--without-ssh1 \
+		$CONFIGURE_ARGS &&
+	make && make DESTDIR=$DESTDIR-pam install || return 1
 
-	cook_pick_manpages contrib/ssh-copy-id.1
-	cook_pick_docs INSTALL LICENCE OVERVIEW README*
+	for inst in $install $install-pam ; do
+		install -vm755 contrib/ssh-copy-id $inst/usr/bin
 
-	# SliTaz stuff
+		install=$inst cook_pick_manpages contrib/ssh-copy-id.1
+		install=$inst cook_pick_docs INSTALL LICENCE OVERVIEW README*
 
-	mkdir -p $install/etc/init.d
-	cp $stuff/openssh $install/etc/init.d
-	cat >> $install/etc/ssh/ssh_config <<EOT
+		# SliTaz stuff
+
+		mkdir -p $inst/etc/init.d
+		cp $stuff/openssh $inst/etc/init.d
+		cat >> $inst/etc/ssh/ssh_config <<EOT
 
 # client bug CVE-2016-0777 and CVE-2016-0778
 Host *
@@ -58,6 +72,8 @@ Host *+*
   ProxyCommand ssh $(echo %h | sed 's/+[^+]*$//;s/\([^+%%]*\)%%\([^+]*\)$/\2 -l \1/;s/:/ -p /') exec nc -w1 $(echo %h | sed 's/^.*+//;/:/!s/$/ %p/;s/:/ /')
 
 EOT
+	done
+	sed -i 's/.*UsePAM.*/UsePAM yes/' $install-pam/etc/ssh/sshd_conifig
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -77,6 +93,15 @@ genpkg_rules()
 			/etc/inetd.conf"
 			TAGS="ssh security"
 			PROVIDE="ssh"
+			TAZPANEL_DAEMON="man::sshd|edit::/etc/ssh/sshd_config|options|web::$WEB_SITE"
+			;;
+		openssh-pam)
+			install=$install-pam copy @std sshd/
+			DEPENDS="sftp-server libcrypto zlib pam"
+			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config /etc/ssh/sshd_config \
+			/etc/inetd.conf"
+			TAGS="ssh security"
+			PROVIDE="openssh:pam ssh:pam"
 			TAZPANEL_DAEMON="man::sshd|edit::/etc/ssh/sshd_config|options|web::$WEB_SITE"
 			;;
 	esac
@@ -102,6 +127,30 @@ EOT
 }
 
 post_remove_openssh() {
+	grep -q sshd "$1/etc/inetd.conf" &&
+	sed -i '/sshd/d' "$1/etc/inetd.conf"
+}
+
+post_install_openssh_pam() {
+	grep -q ssh "$1/etc/inetd.conf" || cat >> "$1/etc/inetd.conf" <<EOT
+#ssh	stream	tcp	nowait	root	sshd	sshd	-i
+EOT
+
+	while read dropbear openssh; do
+		[ -s "$1$dropbear" ] || continue
+		chroot "$1/" dropbearconvert dropbear openssh $dropbear $openssh
+		chroot "$1/" dropbearkey -y -f $dropbear | grep ssh > "$1$openssh.pub"
+		chroot "$1/" dropbearkey -y -f $dropbear | grep Fingerprint
+	done <<EOT
+/etc/dropbear/dropbear_rsa_host_key	/etc/ssh/ssh_host_rsa_key
+/etc/dropbear/dropbear_dss_host_key	/etc/ssh/ssh_host_dsa_key
+/etc/dropbear/dropbear_ecdsa_host_key	/etc/ssh/ssh_host_ecdsa_key
+EOT
+
+	chroot "$1/" ssh-keygen -A
+}
+
+post_remove_openssh_pam() {
 	grep -q sshd "$1/etc/inetd.conf" &&
 	sed -i '/sshd/d' "$1/etc/inetd.conf"
 }
