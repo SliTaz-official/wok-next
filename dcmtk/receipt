@@ -1,17 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dcmtk"
 VERSION="3.6.0"
 CATEGORY="misc"
-SHORT_DESC="The DICOM Toolkit."
+SHORT_DESC="The DICOM Toolkit"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://dicom.offis.de/dcmtk"
 WGET_URL="ftp://dicom.offis.de/pub/dicom/offis/software/$PACKAGE/$PACKAGE${VERSION//./}/$TARBALL"
 
-DEPENDS="libxml2 tiff libpng libwrap"
 BUILD_DEPENDS="libxml2-dev tiff-dev libpng-dev zlib-dev libwrap-dev"
+SPLIT="dcmtk dcmtk-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,5 +27,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs/
+	case $PACKAGE in
+	dcmtk)
+		DEPENDS="libxml2 tiff libpng libwrap"
+		cp -a $install/* $fs/
+		;;
+	dcmtk-dev)
+		CAT="development|development files"
+		MAINTAINER="pascal.bellard@slitaz.org"
+		DEPENDS="dcmtk"
+		mkdir -p $fs/usr/include/dcmtk $fs/usr/lib
+		cp -a $src/*/include/dcmtk/* $fs/usr/include/dcmtk
+		cp -a $src/*/*/*a $fs/usr/lib
+		;;
+	esac
 }
