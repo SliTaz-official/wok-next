@@ -48,7 +48,7 @@ compile_rules()
 		--with-openssl \
 		$CONFIGURE_ARGS &&
 	mkdir -p saslauthd/cmulocal &&
-	make && make install &&
+	make && make DESTDIR=$DESTDIR-pam install &&
 
 	for inst in $install $install-pam; do
 		docdir="$inst/usr/share/doc/cyrus-sasl-$VERSION"
@@ -74,7 +74,7 @@ compile_rules()
 		--with-openssl \
 		--with-devrandom=/dev/urandom \
 		--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR--without-ldap install
+	make && make DESTDIR=$DESTDIR-without-ldap install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
