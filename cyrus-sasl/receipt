@@ -20,6 +20,7 @@ compile_rules()
 {
 	autoreconf -fi &&
 
+	mkdir -p $src/saslauthd/cmulocal
 	cp -a $src $src-pam
 	cp -a $src $src-without-ldap
 
@@ -33,7 +34,6 @@ compile_rules()
 		--with-ldap \
 		--with-openssl \
 		$CONFIGURE_ARGS &&
-	mkdir -p saslauthd/cmulocal &&
 	make && make install &&
 
 	cd $src-pam
@@ -47,7 +47,6 @@ compile_rules()
 		--with-ldap \
 		--with-openssl \
 		$CONFIGURE_ARGS &&
-	mkdir -p saslauthd/cmulocal &&
 	make && make DESTDIR=$DESTDIR-pam install &&
 
 	for inst in $install $install-pam; do
