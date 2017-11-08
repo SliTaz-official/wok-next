@@ -15,8 +15,8 @@ WGET_URL="https://download.samba.org/pub/samba/stable/$TARBALL"
 
 BUILD_DEPENDS="python-dev perl acl-dev docbook-xsl openldap-dev   \
 gnutls-dev krb5-dev cyrus-sasl-dev zlib-dev popt-dev libtdb-dev talloc-dev \
-libgcrypt-dev nss-dev cups-dev dbus-dev"
-SPLIT="samba-dev" # TODO: swat
+libgcrypt-dev nss-dev cups-dev dbus-dev pam pam-dev"
+SPLIT="samba samba-pam samba-dev" # TODO: swat
 
 version() {
 	wget -O- -q https://download.samba.org/pub/samba/ | \
@@ -28,6 +28,7 @@ compile_rules()
 {
 	# http://www.linuxfromscratch.org/blfs/view/stable/basicnet/samba.html
 
+	cp -a $src $src-pam
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -35,37 +36,55 @@ compile_rules()
 		--with-piddir=/run/samba \
 		--with-pammodulesdir=/lib/security \
 		--enable-fhs \
+		--without-pam \
 		--without-ad-dc \
 		--without-systemd \
 		--enable-selftest \
 		$CONFIGURE_ARGS &&
 	make && make install || return 1
 
-	mkdir -p $install/lib
-	mv $install/usr/lib/libnss_wins.so* $install/usr/lib/libnss_winbind.so* \
-		$install/lib
-	ln -sf ../../lib/libnss_winbind.so.2 $install/usr/lib/libnss_winbind.so
-	ln -sf ../../lib/libnss_wins.so.2    $install/usr/lib/libnss_wins.so
+	cd $src-pam
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--with-piddir=/run/samba \
+		--with-pammodulesdir=/lib/security \
+		--enable-fhs \
+		--with-pam \
+		--without-ad-dc \
+		--without-systemd \
+		--enable-selftest \
+		$CONFIGURE_ARGS &&
+	make && make DESTDIR=install-pam || return 1
 
-	install -m644 examples/smb.conf.default $install/etc/samba
+	for inst in $install $install-pam ; do
+		mkdir -p $inst/lib
+		mv $inst/usr/lib/libnss_wins.so* $inst/usr/lib/libnss_winbind.so* \
+			$inst/lib
+		ln -sf ../../lib/libnss_winbind.so.2 $inst/usr/lib/libnss_winbind.so
+		ln -sf ../../lib/libnss_wins.so.2    $inst/usr/lib/libnss_wins.so
 
-	mkdir -pv $install/etc/openldap/schema
-	cp examples/LDAP/README $install/etc/openldap/schema/README.LDAP
-	cp examples/LDAP/samba* $install/etc/openldap/schema
-	cp -r examples/LDAP/get* examples/LDAP/ol* $install/etc/openldap/schema
+		install -m644 examples/smb.conf.default $inst/etc/samba
 
-	cp -a $stuff/etc $install
+		mkdir -pv $inst/etc/openldap/schema
+		cp examples/LDAP/README $inst/etc/openldap/schema/README.LDAP
+		cp examples/LDAP/samba* $inst/etc/openldap/schema
+		cp -r examples/LDAP/get* examples/LDAP/ol* $inst/etc/openldap/schema
 
-	# Symlink smbspool to cups backend
-	mkdir -p $install/usr/lib/cups/backend
-	ln -sf /usr/bin/smbspool $install/usr/lib/cups/backend/smb
+		cp -a $stuff/etc $inst
 
-	# for swat package
-#	icodir="$install/usr/share/icons/hicolor/48x48/apps"
-#	mkdir -p $icodir
-#	cp $stuff/swat.png $icodir
+		# Symlink smbspool to cups backend
+		mkdir -p $inst/usr/lib/cups/backend
+		ln -sf /usr/bin/smbspool $inst/usr/lib/cups/backend/smb
 
-	chown -R root:root $install
+		# for swat package
+#		icodir="$inst/usr/share/icons/hicolor/48x48/apps"
+#		mkdir -p $icodir
+#		cp $stuff/swat.png $icodir
+
+		chown -R root:root $inst
+	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -93,6 +112,16 @@ genpkg_rules()
 			talloc-python zlib"
 			PROVIDE="samba-common smbclient"
 			TAZPANEL_DAEMON="man|edit::/etc/samba/smb.conf|web::$WEB_SITE"
+			CONFIG_FILES="/etc/samba/smb.conf"
+			;;
+		samba-dev)
+			copy @std
+#			remove by hand already packed files...
+			DEPENDS="acl attr dbus libcups libgnutls libldap libtdb ncurses \
+			ncurses-libform ncurses-libpanel perl popt python talloc \
+			talloc-python zlib pam"
+			PROVIDE="samba:pam samba-common smbclient"
+			TAZPANEL_DAEMON="man::samba|edit::/etc/samba/smb.conf|web::$WEB_SITE"
 			CONFIG_FILES="/etc/samba/smb.conf"
 			;;
 		*-dev)
