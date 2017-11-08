@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="kvantum"
+VERSION="0.10.5"
+CATEGORY="customization"
+SHORT_DESC="Linux SVG-based theme engine for Qt4/Qt5 and KDE"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/tsujan/Kvantum/tree/master/Kvantum"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/tsujan/Kvantum/archive/V$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev xorg-libX11-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		../Kvantum &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	find $install/usr/share -type f -exec chmod 0644 '{}' \;
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="libatomic mesa17 qt5-base qt5-svg qt5-x11extras xorg-libX11 \
+	xorg-libXext"
+}

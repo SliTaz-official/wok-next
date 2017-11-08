@@ -26,7 +26,10 @@ compile_rules() {
 		--with-distributor="SliTaz" \
 		--with-appdatadir=/usr/share/appdata \
 		$CONFIGURE_ARGS &&
-	make -C src autorevision.h &&
+	# not work on the cook server, OK at home:
+	# make -C src autorevision.h &&
+	# dirty hack here, and only for current version:
+	cp -f $stuff/autorevision.* src/ &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

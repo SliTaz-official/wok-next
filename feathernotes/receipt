@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="feathernotes"
+VERSION="170724"
+COMMIT="48c9dc1"
+CATEGORY="x-window"
+SHORT_DESC="Lightweight Qt5 Notes-Manager for Linux"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/tsujan/FeatherNotes"
+
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/tsujan/FeatherNotes/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="qt5-dev mesa17-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		.. &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	find $install/usr/share -type f -exec chmod 0644 '{}' \;
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="libatomic mesa17 qt5-base qt5-svg qt5-x11extras xorg-libX11"
+}

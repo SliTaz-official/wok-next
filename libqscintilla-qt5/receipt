@@ -1,0 +1,57 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libqscintilla-qt5"
+VERSION="2.10.1"
+CATEGORY="libs"
+SHORT_DESC="Scintilla C++ editor class ported to Qt5"
+MAINTAINER="psychomaniak@xakep.ru"
+LICENSE="GPL2"
+WEB_SITE="http://www.riverbankcomputing.co.uk/software/qscintilla"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/pyqt/QScintilla_gpl-$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev mesa17-dev python"
+SPLIT="libqscintilla-qt5-dev libqscintilla-qt5-python libqscintilla-qt5"
+
+compile_rules() {
+	export QMAKEFEATURES=$src/Qt4Qt5/features/
+
+	cd $src/Qt4Qt5
+	qmake qscintilla.pro &&
+	make &&
+	make DESTDIR=$DESTDIR INSTALL_ROOT=$DESTDIR install || return 1
+
+	cd $src/designer-Qt4Qt5
+	qmake designer.pro \
+		INCLUDEPATH+=../Qt4Qt5 \
+		QMAKE_LIBDIR+=../Qt4Qt5 &&
+	make &&
+	make DESTDIR=$DESTDIR INSTALL_ROOT=$DESTDIR install || return 1
+
+	cd $src/Python
+	python configure.py \
+		--pyqt=PyQt5 \
+		-n ../Qt4Qt5/ \
+		-o ../Qt4Qt5/ \
+		-c &&
+	make &&
+	make DESTDIR=$DESTDIR INSTALL_ROOT=$DESTDIR install || return 1
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @dev mkspecs/
+			;;
+		libqscintilla-qt5-python)
+			copy python/
+			DEPENDS="libqscintilla-qt5 python"
+			CAT="development|Python files"
+			;;
+		libqscintilla-qt5)
+			copy @std @rm
+			DEPENDS="libatomic mesa17 qt5-base qt5-tools"
+			;;
+	esac
+}

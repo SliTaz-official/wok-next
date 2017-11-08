@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="featherpad"
+VERSION="0.6.3"
+CATEGORY="text"
+SHORT_DESC="Lightweight Qt5 Plain-Text Editor for Linux"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/tsujan/FeatherPad"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/tsujan/FeatherPad/archive/V$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev mesa17-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		.. &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	find $install/usr/share -type f -exec chmod 0644 '{}' \;
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="libatomic mesa17 qt5-base qt5-svg qt5-x11extras xorg-libX11"
+}
