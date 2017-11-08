@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="screen"
 VERSION="4.2.1"
@@ -9,30 +9,51 @@ LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/screen"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-CONFIG_FILES="/etc/screenrc"
-SUGGESTED="screen-terminfo"
 
-DEPENDS="elfutils"
-BUILD_DEPENDS="ncurses-extra"
+BUILD_DEPENDS="ncurses-extra pam-dev"
+SPLIT="screen screen-pam screen-terminfo"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	cp -a $src $src-pam
 	./configure --with-sys-screenrc=/etc/screenrc \
-		$CONFIGURE_ARGS &&
+		--disable-pam $CONFIGURE_ARGS &&
 	make &&
 	make -j1 DESTDIR=$DESTDIR install &&
-	mkdir -p $DESTDIR/usr/share/terminfo &&
-	tic -o $DESTDIR/usr/share/terminfo terminfo/screeninfo.src &&
-	mkdir -p $DESTDIR/etc &&
-	cp -a $src/etc/screenrc $DESTDIR/etc
+	cd $src-pam &&
+	./configure --with-sys-screenrc=/etc/screenrc \
+		--enable-pam $CONFIGURE_ARGS &&
+	make &&
+	make -j1 DESTDIR=$DESTDIR-pam install &&
+	for dir in $DESTDIR $DESTDIR-pam ; do
+		mkdir -p $dir/usr/share/terminfo &&
+		tic -o $dir/usr/share/terminfo terminfo/screeninfo.src &&
+		mkdir -p $dir/etc &&
+		cp -a $src/etc/screenrc $dir/etc
+	done
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin/screen-$VERSION $fs/usr/bin/screen
-	cp -a $install/usr/share/screen $fs/usr/share
+	case $PACKAGE in
+	screen|screen-pam)
+		CONFIG_FILES="/etc/screenrc"
+		SUGGESTED="screen-terminfo"
+		DEPENDS="elfutils"
+		[ $PACKAGE == screen-pam] && DEPENDS="$DEPENDS pam" &&
+			CAT="system-tools|with PAM support" &&
+			PROVIDE="screen:pam" && install=$install-pam
+		mkdir -p $fs/usr/bin $fs/usr/share
+		cp -a $install/etc $fs
+		cp -a $install/usr/bin/screen-$VERSION $fs/usr/bin/screen
+		cp -a $install/usr/share/screen $fs/usr/share
+		;;
+	screen-terminfo)
+		CAT="system-tools|terminfo files"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/terminfo $fs/usr/share/
+		;;
+	esac
 }

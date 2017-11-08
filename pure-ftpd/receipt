@@ -8,17 +8,17 @@ MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.pureftpd.org/project/pure-ftpd"
 CONFIG_FILES="/etc/pure-ftpd.conf"
-SIBLINGS="pure-ftpd-pam"
 
 TARBALL="pure-ftpd-$VERSION.tar.bz2"
 WGET_URL="https://download.pureftpd.org/pub/pure-ftpd/releases/$TARBALL"
 
-DEPENDS="attr libcap libssl"
-BUILD_DEPENDS="openssl-dev"
+BUILD_DEPENDS="openssl-dev pam-dev"
+SPLIT="pure-ftpd pure-ftpd-pam"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	cp -a $src $src-pam
 	./configure \
 		--without-pam \
 		--with-puredb \
@@ -26,13 +26,31 @@ compile_rules()
 		$CONFIGURE_ARGS &&
 	make && make install
 
+	cd $src-pam
+	./configure \
+		--with-pam \
+		$CONFIGURE_ARGS &&
+	make && make DESTDIR=$DESTDIR-pam install
+
 	# daemon
-	mkdir -p $install/etc/init.d
+	mkdir -p $install/etc/init.d $install-pam/etc/init.d
 	install -groot -oroot -m0755 $stuff/pure-ftpd $install/etc/init.d
+	install -groot -oroot -m0755 $stuff/pure-ftpd $install-pam/etc/init.d
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy @std
+	case $PACKAGE in
+	pure-ftpd)
+		DEPENDS="attr libcap libssl"
+		copy @std
+		;;
+	pure-ftpd-pam)
+		DEPENDS="attr libcap pam"
+		PROVIDE="pure-ftpd:pam"
+		CAT="network|using PAM"
+		install=$install-pam copy @std
+		;;
+	esac
 }
