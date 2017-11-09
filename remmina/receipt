@@ -1,22 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="remmina"
-SOURCE="Remmina"
-GITHASH="3a1aed9ce9e2e24a5f6ff82b106215db9a2587c1"	# 15/07/2013
-VERSION=${GITHASH:0:7}
+VERSION="1.2.0-rcgit.24"
 CATEGORY="network"
 SHORT_DESC="Remote desktop client written in GTK+"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.zip"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://$PACKAGE.sourceforge.net/"
-WGET_URL="https://github.com/FreeRDP/$SOURCE/archive/$GITHASH.zip"
+WGET_URL="https://github.com/FreeRDP/Remmina/archive/v$VERSION.tar.gz"
 PROVIDE="remmina-plugins"
 TAGS="rdp vnc nx xdmcp"
 
 DEPENDS="gtk+ libgcrypt libssh vte freerdp"
 BUILD_DEPENDS="gtk+-dev intltool wget cmake libgcrypt-dev libssh-dev vte-dev \
-freerdp-dev libvncserver-dev libgnome-keyring-dev gettext telepathy-glib-dev"
+freerdp-dev libvncserver-dev libgnome-keyring-dev gettext telepathy-glib-dev \
+libappindicator-gtk3-dev xorg-libxkbfile-dev"
+SPLIT="remmina-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -24,7 +24,6 @@ compile_rules()
 	# Here `sed -i '/external_tools/d' ...` because cmake (make install)
 	# produce error trying to install "external tools" to
 	# "$install/root/.remmina/external_tools/"
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
 	mkdir build
 	cmake -DCMAKE_INSTALL_PREFIX=/usr -DWITH_TELEPATHY=OFF \
 		-DWITH_AVAHI=OFF &&
@@ -37,5 +36,13 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	cp -a $install/* $fs
+	case $PACKAGE in
+	remmina)
+		cp -a $install/* $fs
+		;;
+	remmina-dev)
+		mkdir -p $fs/usr
+		cp -a $install/usr/include $fs/usr
+		;;
+	esac
 }
