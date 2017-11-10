@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnustep-gui"
-VERSION="0.20.0"
+VERSION="0.25.1"
 CATEGORY="x-window"
 SHORT_DESC="GNUstep GUI class library."
 MAINTAINER="pankso@slitaz.org"
@@ -14,6 +14,7 @@ DEPENDS="gnustep-base audiofile aspell giflib portaudio cups libcomerr3 \
 libtasn1 jpeg tiff libpng"
 BUILD_DEPENDS="gnustep-make gnustep-base-dev audiofile-dev aspell-dev giflib-dev \
 portaudio-dev cups-dev libtasn1-dev tar jpeg-dev tiff-dev libpng-dev"
+SPLIT="gnustep-gui-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,8 +28,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/GNUstep $fs/usr/lib
+	case $PACKAGE in
+	gnustep-gui)
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/GNUstep $fs/usr/lib
+		;;
+	gnustep-gui-dev)
+		DEPENDS="gnustep-gui"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/share/GNUstep $fs/usr/share
+		;;
+	esac
 }
