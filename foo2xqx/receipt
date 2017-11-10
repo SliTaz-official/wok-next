@@ -1,17 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="foo2xqx"
-VERSION="20141104"
+VERSION="20170320"
 CATEGORY="system-tools"
-SHORT_DESC="a linux printer driver for XQX stream protocol."
+SHORT_DESC="a linux printer driver for XQX stream protocol"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 TARBALL="foo2zjs.tar.gz"
 WEB_SITE="http://foo2xqx.rkkda.com/"
 WGET_URL="http://foo2zjs.rkkda.com/$TARBALL"
 
-DEPENDS="ghostscript foo2xqx-data"
-BUILD_DEPENDS="foomatic-db-engine bc"
+BUILD_DEPENDS="foomatic-db-engine bc cups groff"
+SPLIT="foo2xqx foo2xqx-data"
 
 # Rules to configure and make the package.
 #
@@ -37,7 +37,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/bin $fs
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+	foo2xqx)
+		DEPENDS="ghostscript foo2xqx-data"
+		mkdir -p $fs/usr
+		cp -a $install/bin $fs
+		cp -a $install/usr/bin $fs/usr
+		;;
+	foo2xqx-data)
+		CAT="non-free|firmware files"
+		mkdir -p $fs/usr
+		cp -a $install/usr/share $fs/usr
+		;;
+	esac
 }
