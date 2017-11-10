@@ -31,7 +31,8 @@ BUILD_DEPENDS="alsa-lib-dev gtk+-dev cdparanoia-III-dev libmad-dev xorg-libXv-de
 
 compile_rules()
 {
-	cd $src
+	sed -i	-e 's/info->color_type/png_get_color_type(png, info)/' \
+		-e 's/pngstr->io_ptr/png_get_io_ptr(pngstr)/' libmpcodecs/vd_mpng.c
 	KERNEL_VERSION=`grep  ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
 	sed -i "s/uname -r/echo $KERNEL_VERSION-slitaz/" configure
 	# disable unwanted features, remote control, streaming, networking, unwanted codecs, 
