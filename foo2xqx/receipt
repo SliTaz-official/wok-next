@@ -10,7 +10,7 @@ TARBALL="foo2zjs.tar.gz"
 WEB_SITE="http://foo2xqx.rkkda.com/"
 WGET_URL="http://foo2zjs.rkkda.com/$TARBALL"
 
-BUILD_DEPENDS="foomatic-db-engine bc cups groff"
+BUILD_DEPENDS="foomatic-db-engine bc groff coreutils-context-system"
 SPLIT="foo2xqx foo2xqx-data"
 
 # Rules to configure and make the package.
@@ -30,7 +30,7 @@ compile_rules()
 		 $FOO2SLX $FOO2HIPERC $FOO2QPDL ; do
 		./getweb $i
 	done
-	mkdir -p $DESTDIR/usr/lib/cups/filter
+	mkdir -p $DESTDIR/filter
 	make DESTDIR=$DESTDIR install
 }
 
@@ -46,8 +46,9 @@ genpkg_rules()
 		;;
 	foo2xqx-data)
 		CAT="non-free|firmware files"
-		mkdir -p $fs/usr
+		mkdir -p $fs/usr/lib/cups
 		cp -a $install/usr/share $fs/usr
+		cp -a $install/filter $fs/usr/lib/cups/
 		;;
 	esac
 }
