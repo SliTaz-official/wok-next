@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ndiswrapper-driver"
-VERSION="1.59"
+VERSION="1.61"
 EXTRAVERSION="_$kvers"
 CATEGORY="system-tools"
 SHORT_DESC="Add Windows network drivers support to Linux kernel."
@@ -13,8 +13,8 @@ WEB_SITE="http://ndiswrapper.sourceforge.net/joomla/"
 WGET_URL="$SF_MIRROR/$SOURCE/stable/$TARBALL"
 TAGS="windows wireless network"
 
-DEPENDS="linux"
 BUILD_DEPENDS="linux-module-headers xz"
+SPLIT="ndiswrapper-driver ndiswrapper-utils ndiswrapper"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -26,10 +26,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/sbin $fs/sbin $fs/lib/modules/${kvers}-slitaz/kernel/misc
+	case $PACKAGE in
+	ndiswrapper-driver)
+		DEPENDS="linux"
+		mkdir -p $fs/usr/sbin $fs/sbin $fs/lib/modules/${kvers}-slitaz/kernel/misc
 
-	# Install utilities
-	install -o root -m 0755 $src/utils/loadndisdriver $fs/sbin/
-	install -o root -m 0644 $src/driver/ndiswrapper.ko.xz \
-		$fs/lib/modules/${kvers}-slitaz/kernel/misc/ndiswrapper.ko.xz
+		# Install utilities
+		install -o root -m 0755 $src/utils/loadndisdriver $fs/sbin/
+		install -o root -m 0644 $src/driver/ndiswrapper.ko.xz \
+			$fs/lib/modules/${kvers}-slitaz/kernel/misc/ndiswrapper.ko.xz
+		;;
+	ndiswrapper-utils)
+		CAT="system-tools|utilities"
+		DEPENDS="ndiswrapper-driver perl"
+		mkdir -p $fs/usr/sbin $fs/sbin 
+		# Install utilities	
+		install -o root -m 755 $src/utils/ndiswrapper $fs/usr/sbin/
+		install -o root -m 755 $src/utils/ndiswrapper-buginfo $fs/usr/sbin/
+		;;
+	ndiswrapper)
+		CATEGORY="meta"
+		DEPENDS="ndiswrapper-driver ndiswrapper-utils wireless_tools"
+		mkdir -p $fs/usr/sbin $fs/sbin 
+		;;
+	esac
 }
