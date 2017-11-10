@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libav"
 VERSION="0.6.1"
@@ -11,16 +11,17 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/andoma/libav.git"
 BRANCH="v$VERSION"
 
-DEPENDS="libsdl xorg-libXfixes zlib"
 BUILD_DEPENDS="git coreutils-file-format \
 libsdl-dev faac-dev faad2-dev lame-dev nut opencore-amr-dev openjpeg-dev \
 netatalk-dev schroedinger-dev speex-dev libtheora-dev libvorbis-dev \
 libvpx-dev x264 xvidcore-dev \
 zlib-dev bzlib binutils "
+SPLIT="libav-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|config.h"|&\n#include "libavutil/common.h"|' ffserver.c
 	./configure \
 		--prefix=/usr \
 		--enable-shared \
@@ -43,8 +44,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share $fs/usr
+	case $PACKAGE in
+	libav)
+		DEPENDS="libsdl xorg-libXfixes zlib"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/share $fs/usr
+		;;
+	libav-dev)
+		DEPENDS="libav pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
 }
