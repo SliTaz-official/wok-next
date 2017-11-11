@@ -37,6 +37,12 @@ compile_rules()
 		fi
 	fi
 
+	make mrproper &&
+	make headers_check &&
+	make INSTALL_HDR_PATH=$DESTDIR/usr headers_install
+
+	find $install \( -name .install -o -name ..install.cmd \) -delete
+
 	# Get and apply Aufs patches
 	. $WOK/linux/stuff/tools/aufs-patches
 
@@ -62,12 +68,6 @@ EOT
 	patch -p1 -i $stuff/installmandocs.patch
 
 	make mandocs && make installmandocs
-
-	make mrproper &&
-	make headers_check &&
-	make INSTALL_HDR_PATH=$DESTDIR/usr headers_install
-
-	find $install \( -name .install -o -name ..install.cmd \) -delete
 }
 
 
