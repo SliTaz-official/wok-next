@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="zbar"
 VERSION="0.10"
@@ -10,16 +10,15 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://zbar.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="jpeg imagemagick pango cairo freetype fontconfig atk gtk+ glib"
 BUILD_DEPENDS="linux-api-headers jpeg-dev imagemagick-dev pango-dev cairo-dev \
 freetype-dev fontconfig-dev atk-dev gtk+-dev glib-dev util-linux-uuid-dev \
 lcms-dev fftw-dev openexr-dev ilmbase-dev graphviz-dev gdk-pixbuf libxml2-dev \
 libtool"
+SPLIT="zbar-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure --prefix=/usr --mandir=/usr/share/man \
 		--localstatedir=/var \
 		--without-qt \
@@ -33,7 +32,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.   
 genpkg_rules()                                      
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	zbar)
+		DEPENDS="jpeg imagemagick pango cairo freetype fontconfig atk gtk+ glib"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	zbar-dev)
+		DEPENDS="zbar pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }

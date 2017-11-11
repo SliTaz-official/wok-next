@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="directfb"
 VERSION="1.4.3"
@@ -12,8 +12,8 @@ WEB_SITE="http://www.directfb.org/"
 WGET_URL="http://www.directfb.org/downloads/Core/$SOURCE-${VERSION%.*}/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libpng12 libjpeg freetype tslib zlib"
 BUILD_DEPENDS="libpng12-dev jpeg-dev freetype-dev tslib-dev perl"
+SPLIT="directfb-dev"
 
 # Handle cross compilation.
 case "$ARCH" in
@@ -43,10 +43,24 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/directfb-* $fs/usr/lib
-	cp -a $install/usr/share/directfb-* $fs/usr/share
-	find $fs/usr/lib -name "*.*a" -exec rm '{}' \;
+	case $PACKAGE in
+	directfb)
+		DEPENDS="libpng12 libjpeg freetype tslib zlib"
+		mkdir -p $fs/usr/lib $fs/usr/share
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/directfb-* $fs/usr/lib
+		cp -a $install/usr/share/directfb-* $fs/usr/share
+		find $fs/usr/lib -name "*.*a" -exec rm '{}' \;
+		;;
+	directfb-dev)
+		DEPENDS="pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/directfb-* $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		find $fs/usr/lib -name "*.so*" -exec rm '{}' \;
+		;;
+	esac
 }

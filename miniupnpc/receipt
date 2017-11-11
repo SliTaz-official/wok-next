@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="miniupnpc"
 VERSION="1.8"
@@ -11,8 +11,8 @@ WEB_SITE="http://miniupnp.tuxfamily.org/"
 WGET_URL="$WEB_SITE/files/$TARBALL"
 TAGS="upnp"
 
-DEPENDS=""
 BUILD_DEPENDS=""
+SPLIT="miniupnpc-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -24,7 +24,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PAKAGE in
+	miniupnpc)
+		DEPENDS=""
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	miniupnpc-dev)
+		DEPENDS="miniupnpc"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		;;
+	esac
 }

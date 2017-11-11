@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="guacamole"
 VERSION="0.9.4"
@@ -10,12 +10,11 @@ TARBALL="$PACKAGE-server-$VERSION.tar.gz"
 WEB_SITE="http://guac-dev.org/"
 WGET_URL="$SF_MIRROR/project/$PACKAGE/current/source/$TARBALL"
 
-DEPENDS="cairo ossp-uuid libxml2 libvorbis libssl freerdp libvncserver \
-libssh2 pango pulseaudio libjson-c libsndfile flac bzlib zlib"
 BUILD_DEPENDS="cairo-dev ossp-uuid-dev libxml2-dev openssl-dev jpeg-dev \
 libvncserver-dev freerdp-dev libvorbis-dev pango-dev pulseaudio-dev \
 libssh2-dev xorg-dev libjson-c-dev libsndfile-dev flac-dev dbus-dev \
 libgcrypt-dev"
+SPLIT="guacamole-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -30,7 +29,19 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	guacamole)
+		DEPENDS="cairo ossp-uuid libxml2 libvorbis libssl freerdp \
+			libvncserver libssh2 pango pulseaudio libjson-c \
+			libsndfile flac bzlib zlib"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	guacamole-dev)
+		DEPENDS="guacamole"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*a $fs/usr/lib
+		;;
 }

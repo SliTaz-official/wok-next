@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libQtMimeTypes"
 BRANCH="123e5255daf5bc780f8ecfa62f796a2aedef9a13"
@@ -11,8 +11,8 @@ WEB_SITE="https://qt.gitorious.org/qtplayground/mimetypes"
 TARBALL="$PACKAGE-$BRANCH.tar.gz"
 WGET_URL="$WEB_SITE/archive/$BRANCH.tar.gz"
 
-DEPENDS="libQtCore"
 BUILD_DEPENDS="wget cacerts Qt4-dev qmake"
+SPLIT="libQtMimeTypes-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -23,6 +23,17 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+	case $PACKAGE in
+	libQtMimeTypes)
+		DEPENDS="libQtCore"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		;;
+	libQtMimeTypes-dev)
+		DEPENDS="libQtMimeTypes"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }

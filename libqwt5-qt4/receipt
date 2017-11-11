@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libqwt5-qt4"
 VERSION="5.2.0"
@@ -11,13 +11,12 @@ TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://qwt.sourceforge.net"
 WGET_URL="http://switch.dl.sourceforge.net/sourceforge/qwt/$TARBALL"
 
-DEPENDS="libQtCore libQtGui libQtScript libQtXml libQtDesigner gcc-lib-base"
 BUILD_DEPENDS="$DEPENDS qt4 qmake Qt4-dev"
+SPLIT="libqwt5-qt4-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	qmake
 	make -j1 &&
 	make INSTALL_ROOT=$DESTDIR install
@@ -26,7 +25,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/qt $fs/usr/lib
-	cp -a $install/usr/local/qwt-$VERSION/lib/libqwt.so* $fs/usr/lib
+	case $PACKAGE in
+	libqwt5-qt4)
+		DEPENDS="libQtCore libQtGui libQtScript libQtXml libQtDesigner gcc-lib-base"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/lib/qt $fs/usr/lib
+		cp -a $install/usr/local/qwt-$VERSION/lib/libqwt.so* $fs/usr/lib
+		;;
+	libqwt5-qt4-dev)
+		DEPENDS="qt-x11-opensource-src libqwt5-qt4"
+		mkdir -p $fs/usr/include
+		cp -a $install/usr/local/qwt-$VERSION/include/*.h \
+			$fs/usr/include
+		;;
+	esac
 }

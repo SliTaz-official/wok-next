@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gutenprint"
 VERSION="5.2.8"
@@ -10,14 +10,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://gimp-print.sourceforge.net/"
 WGET_URL="$SF_MIRROR/gimp-print/$TARBALL"
 
-DEPENDS="gnutls readline gtk+ cups libtasn1 gmp"
 BUILD_DEPENDS="gnutls-dev expat-dev cups-dev libgcrypt-dev zlib-dev \
 foomatic-db-engine libtasn1-dev gmp-dev tar"
+SPLIT="gutenprint-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -34,18 +33,29 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/etc $fs/usr/lib $fs/usr/share
+	case $PACKAGE in
+	gutenprint)
+		DEPENDS="gnutls readline gtk+ cups libtasn1 gmp"
+		mkdir -p $fs/etc $fs/usr/lib $fs/usr/share
 	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/cups $fs/usr/lib
-	cp -a $install/usr/lib/gutenprint $fs/usr/lib
-	cp -a $install/usr/share/cups $fs/usr/share
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share	
-	cp -a $install/etc   $fs
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/sbin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/cups $fs/usr/lib
+		cp -a $install/usr/lib/gutenprint $fs/usr/lib
+		cp -a $install/usr/share/cups $fs/usr/share
+		cp -a $install/usr/share/$PACKAGE $fs/usr/share	
+		cp -a $install/etc   $fs
 	
-	# Remove docs
-	rm -rf $fs/usr/share/$PACKAGE/doc
+		# Remove docs
+		rm -rf $fs/usr/share/$PACKAGE/doc
+		;;
+	gutenprint-dev)
+		DEPENDS="gutenprint pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }
-
