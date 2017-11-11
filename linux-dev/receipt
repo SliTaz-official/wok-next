@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="linux-dev"
-VERSION="4.9.4"
+VERSION="4.9.30"
 KBASEVER="4.9"
 CATEGORY="development"
 SHORT_DESC="Menu based tool to configure the Linux Kernel"
@@ -13,8 +13,10 @@ TARBALL="linux-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
 DEPENDS="ncurses"
-BUILD_DEPENDS="ncurses-dev patch"
-SIBLINGS="linux linux-api-headers linux-man"
+BUILD_DEPENDS="python-sphinx perl xmlto util-linux-getopt docbook-xsl \
+coreutils-operations findutils ncurses-dev patch bash"
+SPLIT="linux-dev linux-man linux-api-headers"
+SIBLINGS="linux"
 COOKOPTS="!pngz !svgz !uiz"
 
 if [ "$KBASEVER" != "${VERSION%.0}" ]; then
@@ -39,7 +41,9 @@ compile_rules()
 	. $WOK/linux/stuff/tools/aufs-patches
 
 	make defconfig
-	make menuconfig 2>&1 | grep -v Error
+	sed -i 's/^menuconfig:.*/z&\n\techo menuconfig is ready\n\n&/' \
+		scripts/kconfig/Makefile
+	make zmenuconfig
 
 	p="$install/usr/src/linux-$VERSION-slitaz"
 	mkdir -p $p
@@ -54,10 +58,34 @@ cd ../src/linux-$VERSION-slitaz
 SRCARCH=x86 ARCH=i386 KERNELVERSION=$VERSION \$p/mconf Kconfig
 EOT
 	chmod a+x $install/usr/bin/menuconfig
+
+	patch -p1 -i $stuff/installmandocs.patch
+
+	make mandocs && make installmandocs
+
+	make mrproper &&
+	make headers_check &&
+	make INSTALL_HDR_PATH=$DESTDIR/usr headers_install
+
+	find $install \( -name .install -o -name ..install.cmd \) -delete
 }
+
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	copy Kconfig* mconf menuconfig .config
+	case $PACKAGE in
+	linux-dev)
+		copy Kconfig* mconf menuconfig .config
+		;;
+	linux-man)
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/man $fs/usr/share
+		;;
+	linux-api-headers)
+		CAT="development|Kernel headers sanitized for use in userspace"
+		PROVIDE="linux-headers linux64-api-headers linux64-headers"
+		copy @dev
+		;;
+	esac
 }
