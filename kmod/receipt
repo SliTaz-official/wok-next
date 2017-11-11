@@ -16,9 +16,7 @@ BUILD_DEPENDS="zlib-dev xz-dev tar"
 BUILD_DEPENDS_arm="zlib-dev xz-dev"
 SPLIT="kmod-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--bindir=/bin \
 		--with-rootlibdir=/lib \
@@ -37,14 +35,14 @@ compile_rules()
 	ln -s kmod $install/bin/lsmod
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		kmod)
 			copy @std
 			PROVIDE="modules-init-tools depmod"
-			DEPENDS="zlib liblzma"
+			# please keep glibc-base here because kmod used in the post-install
+			# of linux-* packages and will not work instead
+			DEPENDS="glibc-base zlib liblzma"
 			;;
 		*-dev)
 			copy @dev

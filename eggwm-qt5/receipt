@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="eggwm-qt5"
+VERSION="170821"
+COMMIT="254abfb"
+CATEGORY="base-system"
+SHORT_DESC="Qt5 very basic window manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/MoonLightDE/mlde.w.eggwm"
+
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/MoonLightDE/mlde.w.eggwm/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="qt5-dev xorg-libxcb-dev xorg-libX11-dev"
+
+compile_rules() {
+	qmake -makefile &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	find $install/usr/share -type f -exec chmod a-x '{}' \;
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="libatomic mesa17 qt5-base qt5-x11extras xorg-libX11"
+}

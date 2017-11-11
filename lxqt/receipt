@@ -1,49 +1,49 @@
 # SliTaz package receipt.
 
 PACKAGE="lxqt"
-VERSION="0.8.0"
+VERSION="0.11"
 CATEGORY="meta"
-SHORT_DESC="LXQt metapackage + userconfig slim-install."
+SHORT_DESC="LXQt metapackage"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-WEB_SITE="http://lxqt.org"
+WEB_SITE="http://lxqt.org/"
 TAGS="LXQt"
 
-DEPENDS="gvfs gvfs-udisks2 lximage-qt libQtMimeTypes liblxqt liblxqt-mount lxqt-about \
-lxqt-admin lxqt-appswitcher lxqt-common lxqt-config lxqt-config-randr \
-lxqt-globalkeys lxqt-notificationd lxqt-openssh-askpass lxqt-panel \
-lxqt-policykit lxqt-powermanagement lxqt-qtplugin lxqt-runner lxqt-session \
-lxqt-themes openbox obconf-qt oxygen-icons qlipper qtconfig pcmanfm-qt \
-xorg-xprop xorg-xset"
+DEPENDS="gvfs gvfs-udisks2 lximage-qt liblxqt lxqt-about lxqt-admin \
+lxqt-common lxqt-config lxqt-globalkeys lxqt-notificationd \
+lxqt-openssh-askpass lxqt-panel lxqt-policykit lxqt-powermanagement \
+lxqt-qtplugin lxqt-runner lxqt-session lxqt-themes openbox \
+qlipper pcmanfm-qt xorg-xprop xorg-xset qterminal"
+# discontinued dependencies: libQtMimeTypes liblxqt-mount lxqt-appswitcher
+# lxqt-config-randr obconf-qt qtconfig
 
-SUGGESTED="copyq juffed qterminal qps qupzilla"
+SUGGESTED="copyq juffed qps qupzilla oxygen-icons"
 
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/etc
 }
 
-post_install()
-{
-	for i in $(ls -d "$1"/home/* 2> /dev/null);
-	do	[ -d "$i" ] && \
+post_install() {
+	for i in $(ls -d "$1"/home/* 2>/dev/null); do
+		[ -d "$i" ] &&
 		sed '/WINDOW_MANAGER=/s|"\([^"]*\)"|"startlxqt"|' -i \
 		"$i/.config/slitaz/applications.conf" \
 		"$1/etc/slitaz/applications.conf"
 	done
-	
+
 	for a in lxpanel pcmanfm tazpkg-notify xcompmgr; do
-		grep -q LXQt "$1/etc/xdg/autostart/$a.desktop" || \
-		sed '/NotShowIn=/s|;$|&LXQt;|' -i "$1/etc/xdg/autostart/$a.desktop"
+		if [ -e "$1/etc/xdg/autostart/$a.desktop" -a \
+			! grep -q LXQt "$1/etc/xdg/autostart/$a.desktop" ]; then
+			sed '/NotShowIn=/s|;$|&LXQt;|' -i "$1/etc/xdg/autostart/$a.desktop"
+		fi
 	done
 }
 
-post_remove()
-{
-	for i in $(ls -d "$1"/home/* 2> /dev/null);
-	do [ -d "$i" ] && \
-		sed '/WINDOW_MANAGER=/s|"\([^"]*\)"|"lxde-session"|' -i \
-		"$i/.config/slitaz/applications.conf" \
-		"$1/etc/slitaz/applications.conf"
+post_remove() {
+	for i in $(ls -d "$1"/home/* 2> /dev/null); do
+		[ -d "$i" ] &&
+		sed -i '/WINDOW_MANAGER=/ s|"\([^"]*\)"|"lxde-session"|' \
+			"$i/.config/slitaz/applications.conf" \
+			"$1/etc/slitaz/applications.conf"
 	done
 }

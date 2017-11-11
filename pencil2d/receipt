@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="pencil2d"
+VERSION="0.6-171109" # releases absent; current v.0.6 in the ChangeLog.md
+COMMIT="80acbff"
+CATEGORY="graphics"
+SHORT_DESC="Animation and drawing software"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/pencil2d/pencil"
+
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/pencil2d/pencil/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="qt5-dev mesa17-dev"
+
+compile_rules() {
+	# specify correct version
+	sed -i 's|0\.5\.4|0.6|' app/app.pro core_lib/core_lib.pro
+	sed -i '/^Keywords/d' pencil2d.desktop # sdft can't handle keywords
+
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		.. &&
+	make &&
+	make INSTALL_ROOT=$install install || return 1
+
+	find $install/usr/share -type f -exec chmod 0644 '{}' \;
+}
+
+genpkg_rules() {
+	copy @std hicolor/ # only 128 icon
+	DEPENDS="libatomic mesa17 qt5-base qt5-multimedia qt5-svg"
+}
