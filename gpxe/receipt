@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gpxe"
 VERSION="0.9.3"
@@ -11,6 +11,7 @@ WEB_SITE="http://www.etherboot.org/"
 WGET_URL="http://kernel.org/pub/software/utils/boot/$PACKAGE/Old/$TARBALL"
 
 BUILD_DEPENDS="perl"
+SPLIT="gpxe gpxe-pxe"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -32,12 +33,27 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/boot
-	cp $src/src/bin/gpxe.lkrn $fs/boot/gpxe
-	# install 255 bytes of forced url at offset 519
-	echo -n "\
+	case $PACKAGE in
+	gpxe)
+		mkdir -p $fs/boot
+		cp $src/src/bin/gpxe.lkrn $fs/boot/gpxe
+		# install 255 bytes of forced url at offset 519
+		echo -n "\
 http://mirror.slitaz.org/pxe/pxelinux.0,\
 http://mirror.switch.ch/ftp/mirror/pxe/pxelinux.0,\
 http://download.tuxfamily.org/slitaz/pxe/pxelinux.0" | cat - /dev/zero | \
-		dd bs=1 seek=519 count=255 conv=notrunc of=$fs/boot/gpxe
+			dd bs=1 seek=519 count=255 conv=notrunc of=$fs/boot/gpxe
+		;;
+	gpxe-pxe)
+		CAT="system-tools|Ethernet bootloader for pxe server."
+		mkdir -p $fs/usr/share/boot
+		cp $src/src/bin/undionly.kpxe $fs/usr/share/boot/gpxe.pxe
+		# install 255 bytes of forced url at offset 5
+		echo -n "\
+http://mirror.slitaz.org/pxe/pxelinux.0,\
+http://mirror.switch.ch/ftp/mirror/pxe/pxelinux.0,\
+http://download.tuxfamily.org/slitaz/pxe/pxelinux.0" | cat - /dev/zero | \
+		   dd bs=1 seek=5 count=255 conv=notrunc of=$fs/usr/share/boot/gpxe.pxe
+		;;
+	esac
 }

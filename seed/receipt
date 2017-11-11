@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="seed"
 VERSION="3.2.0"
@@ -10,16 +10,14 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gnome.org/"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libffi libwebkit gobject-introspection dbus dbus-glib readline \
-mpfr gmp libxslt util-linux-uuid cairo gnome-js-common"
 BUILD_DEPENDS="libffi-dev libwebkit-dev gobject-introspection-dev dbus-dev \
 dbus-glib-dev readline-dev mpfr-dev gmp-dev libxslt-dev util-linux-uuid-dev \
 cairo-dev gnome-js-common intltool gtk+-dev"
+SPLIT="seed-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./configure \
 		--with-webkit=1.0 \
 		$CONFIGURE_ARGS &&
@@ -29,9 +27,27 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib/seed $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/seed/*.so* $fs/usr/lib/seed
-	cp -a $install/usr/share/seed $fs/usr/share
+	case $PACKAGE in
+	seed)
+		DEPENDS="libffi libwebkit gobject-introspection dbus dbus-glib \
+			readline mpfr gmp libxslt util-linux-uuid cairo \
+			gnome-js-common"
+		mkdir -p $fs/usr/lib/seed $fs/usr/share
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/seed/*.so* $fs/usr/lib/seed
+		cp -a $install/usr/share/seed $fs/usr/share
+		;;
+	seed-dev)
+		DEPENDS="libffi-dev libwebkit-dev gobject-introspection-dev \
+			dbus-dev dbus-glib-dev readline-dev mpfr-dev gmp-dev \
+			libxslt-dev util-linux-uuid-dev cairo-dev \
+			gnome-js-common pkg-config"
+		mkdir -p $fs/usr/lib/seed
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/seed/*.*a $fs/usr/lib/seed
+		;;
+	esac
 }

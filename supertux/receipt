@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="supertux"
 VERSION="0.3.3"
@@ -11,15 +11,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://supertux.lethargik.org/"
 WGET_URL="http://supertux.googlecode.com/files/$TARBALL"
 
-DEPENDS="libsdl libsdl-image libsdl-mixer curl physfs openal mesa glew \
-supertux-data"
 BUILD_DEPENDS="libsdl-dev libsdl-image-dev libsdl-mixer-dev curl-dev \
 physfs-dev openal-dev mesa-dev glew-dev cmake libboost-dev libvorbis-dev"
+SPLIT="supertux-data"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	cp $stuff/menu.h src
 	sed -i 's|#  include <curl/types.h>||g' src/addon/addon_manager.cpp
 	sed -i '1i#include <cstddef>' src/supertux/screen_manager.hpp
@@ -30,6 +28,18 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	case $PACKAGE in
+	supertux)
+		DEPENDS="libsdl libsdl-image libsdl-mixer curl physfs openal \
+			mesa glew supertux-data"
+		mkdir -p $fs/usr
+		cp -a $install/usr/bin $fs/usr
+		;;
+	supertux-data)
+		CAT="games|data files"
+		echo Copying data...
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/share/games $fs/usr/share
+		;;
+	esac
 }

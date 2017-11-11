@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libimobiledevice"
 VERSION="1.1.1"
@@ -10,9 +10,9 @@ WEB_SITE="http://libimobiledevice.org"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/downloads/$TARBALL"
 
-DEPENDS="gnutls glib libplist usbmuxd"
 BUILD_DEPENDS="gnutls-dev glib-dev libplist-dev usbmuxd-dev python-dev swig \
 libxml2-dev libgcrypt-dev"
+SPLIT="libimobiledevice-dev"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -27,8 +27,20 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/python* $fs/usr/lib
+	case $PACKAGE in
+	libimobiledevice)
+		DEPENDS="gnutls glib libplist usbmuxd"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/bin $fs/usr
+		cp -a $install/usr/lib/*.so* $fs/usr/lib
+		cp -a $install/usr/lib/python* $fs/usr/lib
+		;;
+	libimobiledevice-dev)
+		DEPENDS="libimobiledevice pkg-config"
+		mkdir -p $fs/usr/lib
+		cp -a $install/usr/include $fs/usr
+		cp -a $install/usr/lib/*.*a $fs/usr/lib
+		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+		;;
+	esac
 }

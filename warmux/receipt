@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="warmux"
 VERSION="11.04.1"
@@ -9,14 +9,11 @@ LICENSE="GPL2"
 WEB_SITE="http://www.wormux.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.gna.org/warmux/$TARBALL"
-PROVIDE="wormux"
-SUGGESTED="warmux-music"
 
-DEPENDS="libsdl-gfx libsdl-image libsdl-mixer libsdl-net libsdl-ttf \
-curl freetype libxml2 libxml++ gcc-lib-base gettext-base"
 BUILD_DEPENDS="libsdl-dev libsdl-gfx-dev libsdl-image-dev libsdl-mixer-dev \
 libsdl-net-dev libsdl-ttf-dev curl-dev freetype-dev libxml2-dev libxml++-dev \
 pkg-config"
+SPLIT="warmux warmux-music"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -37,13 +34,28 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/games $fs/usr
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/warmux $fs/usr/share
+	case $PACKAGE in
+	warmux)
+		PROVIDE="wormux"
+		SUGGESTED="warmux-music"
+		DEPENDS="libsdl-gfx libsdl-image libsdl-mixer libsdl-net \
+			libsdl-ttf curl freetype libxml2 libxml++ gcc-lib-base \
+			gettext-base"
+		mkdir -p $fs/usr/share
+		cp -a $install/usr/games $fs/usr
+		cp -a $install/usr/share/pixmaps $fs/usr/share
+		cp -a $install/usr/share/warmux $fs/usr/share
 
-	# Remove unecessary files
-	rm -rf $fs/usr/share/warmux/font
-	rm -rf $fs/usr/share/warmux/music
-	#rm -rf $fs/usr/share/warmux/sound
+		# Remove unecessary files
+		rm -rf $fs/usr/share/warmux/font
+		rm -rf $fs/usr/share/warmux/music
+		#rm -rf $fs/usr/share/warmux/sound
+		;;
+	warmux-music)
+		CAT="games|game music (~35Mb)"
+		DEPENDS="warmux"
+		mkdir -p $fs/usr/share/warmux
+		cp -a $install/usr/share/warmux/music $fs/usr/share/warmux
+		;;
+	esac
 }

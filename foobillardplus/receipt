@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="foobillardplus"
 VERSION="3.42beta"
@@ -14,6 +14,7 @@ DEPENDS="bzlib freetype libglu-mesa libpng libsdl-mixer libsdl-net"
 
 BUILD_DEPENDS="bash automake autoconf libsdl-dev libsdl-mixer-dev \
 libsdl-net-dev mesa-dev libglu-mesa freetype-dev libpng-dev libglu-mesa-dev"
+SPLIT="foobillardplus foobillardplus-music"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -29,12 +30,22 @@ compile_rules()
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin $fs/usr/share/foobillardplus
-	cp -a $src/src/foobillardplus $fs/usr/bin
-	DATADIR=$fs/usr/share/foobillardplus
-	cp -a $src/data/* $DATADIR
-	rm -f $DATADIR/*.ttf
-	rm -f $DATADIR/*.ico
-	# move to package foobillardplus-music
-	rm -rf $DATADIR/music
+	case $PACKAGE in
+	foobillardplus)
+		mkdir -p $fs/usr/bin $fs/usr/share/foobillardplus
+		cp -a $src/src/foobillardplus $fs/usr/bin
+		DATADIR=$fs/usr/share/foobillardplus
+		cp -a $src/data/* $DATADIR
+		rm -f $DATADIR/*.ttf
+		rm -f $DATADIR/*.ico
+		# move to package foobillardplus-music
+		rm -rf $DATADIR/music
+		;;
+	foobillardplus-music)
+		CAT="games|Music files for FooBillard++"
+		DEPENDS="foobillardplus"
+		mkdir -p $fs/usr/share/foobillardplus
+		cp -a $src/data/music $fs/usr/share/foobillardplus
+		;;
+	esac
 }
