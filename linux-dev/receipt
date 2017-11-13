@@ -4,7 +4,7 @@ PACKAGE="linux-dev"
 VERSION="4.9.30"
 KBASEVER="4.9"
 CATEGORY="development"
-SHORT_DESC="Menu based tool to configure the Linux Kernel"
+SHORT_DESC="The Linux Kernel"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.kernel.org/"
@@ -77,15 +77,16 @@ genpkg_rules()
 	case $PACKAGE in
 	linux-dev)
 		copy Kconfig* mconf menuconfig .config
+		CAT="development|menu based configuration tool"
 		;;
 	linux-man)
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/man $fs/usr/share
+		copy /usr/share/man/
+		CAT="doc|manual pages"
 		;;
 	linux-api-headers)
-		CAT="development|Kernel headers sanitized for use in userspace"
-		PROVIDE="linux-headers linux64-api-headers linux64-headers"
 		copy @dev
+		CAT="development|headers sanitized for use in userspace"
+		PROVIDE="linux-headers linux64-api-headers linux64-headers"
 		;;
 	esac
 }
