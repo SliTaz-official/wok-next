@@ -24,13 +24,16 @@ compile_rules() {
 		-DPULL_TRANSLATIONS=no \
 		.. &&
 	make &&
-	make install
+	make install || return 1
+
+	rmdir  $install/usr/include/libfm-qt/tests/		# empty
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libfm-qt)
 			copy @std
+			rm -rf $fs/usr/share/mime	# useless, see shared-mime-info package
 			DEPENDS="glib libfm menu-cache qt5-base qt5-x11extras xorg-libxcb"
 			;;
 		*-dev)
