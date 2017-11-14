@@ -1,30 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmad"
 VERSION="0.15.1b"
 CATEGORY="multimedia"
-SHORT_DESC="MAD is a high-quality MPEG audio decoder."
+SHORT_DESC="MPEG audio decoder library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.underbit.com/products/mad/"
-WGET_URL="$SF_MIRROR/mad/$TARBALL"
 HOST_ARCH="i486 arm"
 
-BUILD_DEPENDS="gfortran"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/mad/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i '/-fforce-mem/d' ./configure
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="automake libtool gfortran"
+SPLIT="libmad-dev"
+
+compile_rules() {
+	CFLAGS="$CFLAGS -ftree-vectorize -ftree-vectorizer-verbose=1"
+	touch NEWS AUTHORS ChangeLog
+	autoreconf -fi || return 1
+
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libmad)
+			copy @std
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

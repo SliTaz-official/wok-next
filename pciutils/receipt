@@ -1,45 +1,64 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pciutils"
-VERSION="3.2.1"
+VERSION="3.5.5"
 CATEGORY="system-tools"
 SHORT_DESC="Linux PCI Utilities"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://mj.ucw.cz/sw/pciutils/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pciutils.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://mj.ucw.cz/pciutils.html"
 WGET_URL="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/$TARBALL"
 
-DEPENDS="glibc-base zlib pciids"
-BUILD_DEPENDS="zlib-dev"
+BUILD_DEPENDS="kmod-dev eudev-dev zlib-dev"
+SPLIT="pciutils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make OPT="${CFLAGS} -fPIC -DPIC" SHARED=no PREFIX=/usr SHAREDIR=/usr/share/misc MANDIR=/usr/share/man all
-	cp -a lib/libpci.a $WOK/$PACKAGE/source
-	make clean
-	make OPT="${CFLAGS}" ZLIB=yes SHARED=yes PREFIX=/usr SHAREDIR=/usr/share/misc MANDIR=/usr/share/man all
-	make SHARED=yes PREFIX=/usr SHAREDIR=/usr/share/misc MANDIR=/usr/share/man DESTDIR="$DESTDIR" install install-lib
-	cp -a $WOK/$PACKAGE/source/libpci.a $DESTDIR/usr/lib
+compile_rules() {
+	make \
+		OPT="$CFLAGS -fPIC -DPIC" \
+		ZLIB=yes \
+		SHARED=no \
+		PREFIX=/usr \
+		SHAREDIR=/usr/share/misc \
+		MANDIR=/usr/share/man \
+		SBINDIR=/usr/bin \
+		lib/libpci.a &&
+	cp lib/libpci.a $src/../ &&
+
+	make clean &&
+	make \
+		OPT="$CFLAGS" \
+		ZLIB=yes \
+		SHARED=yes \
+		PREFIX=/usr \
+		SBINDIR=/usr/bin \
+		SHAREDIR=/usr/share/misc \
+		MANDIR=/usr/share/man \
+		all &&
+
+	make \
+		SHARED=yes \
+		PREFIX=/usr \
+		SBINDIR=/usr/bin \
+		SHAREDIR=/usr/share/misc \
+		MANDIR=/usr/share/man \
+		DESTDIR=$install \
+		install install-lib &&
+
+	mv $src/../libpci.a $install/usr/lib
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/lib
-	cp -a $install/usr/sbin/lspci $fs/usr/bin
-	cp -a $install/usr/sbin/setpci $fs/usr/bin
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-}
-
-# Overlap busybox
-pre_install()
-{
-	rm -f "$1/usr/bin/lspci"
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/usr/bin/lspci"
+genpkg_rules() {
+	case $PACKAGE in
+		pciutils)
+			copy @std
+			rm -rf $fs/usr/share/
+			DEPENDS="eudev kmod liblzma zlib   pciids"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
