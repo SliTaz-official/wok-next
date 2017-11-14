@@ -1,27 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="iniparser"
-VERSION="3.1"
+VERSION="4.1"
 CATEGORY="system-tools"
-SHORT_DESC="Free stand-alone ini file parsing library."
+SHORT_DESC="Free stand-alone ini file parsing library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://ndevilla.free.fr/iniparser/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ndevilla.free.fr/iniparser/$TARBALL"
+WGET_URL="https://github.com/ndevilla/iniparser/archive/v$VERSION.tar.gz"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+SPLIT="iniparser-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
+
+	mkdir -p $install/usr/lib $install/usr/include
+	cp -a *.so*   $install/usr/lib
+	cp    *.*a    $install/usr/lib
+	cp    src/*.h $install/usr/include
+	cook_pick_docs html/ AUTHORS README.md LICENSE FAQ*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $src/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		iniparser)
+			copy @std
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
