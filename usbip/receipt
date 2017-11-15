@@ -1,39 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="usbip"
 VERSION="0.1.7"
 CATEGORY="system-tools"
-SHORT_DESC="general USB device sharing system over IP network."
+SHORT_DESC="General USB device sharing system over IP network"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://usbip.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="usb"
 
-DEPENDS="sysfsutils glib libwrap linux-usbip"
-BUILD_DEPENDS="sysfsutils-dev lzma libtool glib-dev libwrap libwrap-dev"
+BUILD_DEPENDS="automake libtool sysfsutils-dev libwrap-dev glib-dev"
+SPLIT="usbip-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/drivers
-	KERNEL_VERSION=`grep  ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
+# From usbip web site: http://usbip.sourceforge.net/#download
+#
+# For Linux, the source code of usbip was merged into the staging tree, and
+# finally has been moved to the mainline since Linux-3.17. Development is
+# ongoing in the kernel community, not here. Linux distributions will provide
+# binary packages of usbip. Just for historical records, the project page keeps
+# old download files of the Linux version. Do not use them.
+#
+#   ?
+
+compile_rules() {
+	KERNEL_VERSION=$(grep ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g')
 
 	cd $src/src
-	./autogen.sh
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		usbip)
+			copy @std
+			DEPENDS="glib libwrap pcre sysfsutils   linux-usbip"
+			TAGS="usb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="usbip libwrap-dev sysfsutils-dev"
+			;;
+	esac
 }
-

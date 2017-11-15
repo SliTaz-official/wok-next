@@ -1,38 +1,59 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="urxvt"
 VERSION="9.22"
 CATEGORY="utilities"
-SHORT_DESC="terminal with unicode support"
+SHORT_DESC="Terminal emulator with Unicode support for X11"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="GPL2"
-SOURCE="rxvt-unicode"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://software.schmorp.de/pkg/rxvt-unicode.html"
+
+TARBALL="rxvt-unicode-$VERSION.tar.bz2"
 WGET_URL="http://dist.schmorp.de/rxvt-unicode/$TARBALL"
-TAGS="terminal"
 
-DEPENDS="fontconfig xorg-libX11 expat freetype xorg-libXft zlib gcc-lib-base \
-xorg-xmessage"
-BUILD_DEPENDS="xorg-libX11-dev"
+BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev gdk-pixbuf-dev \
+startup-notification-dev xorg-libXmu-dev xorg-libXft-dev perl-dev ncurses-extra"
+SPLIT="urxvt-full"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	busybox patch -p0 -i $stuff/gcc.u
+compile_rules() {
+	rm -r $install-full 2>/dev/null
+	cp -a $src $src-full
+
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--disable-perl \
-		--with-codesets='eu' \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+		--disable-everything \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	cd $src-full
+	./configure \
+		--enable-everything \
+		--enable-256-color \
+		--with-terminfo=/usr/share/terminfo \
+		$CONFIGURE_ARGS &&
+	make && make DESTDIR=$install-full install || return 1
+
+	install -Dm0644 $stuff/urxvt-full.desktop \
+		$install-full/usr/share/applications/urxvt-full.desktop
+
+	R="$install-full/usr/share/terminfo"
+	mkdir -p $R
+	tic -s -o $R $src-full/doc/etc/rxvt-unicode.terminfo
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		urxvt)
+			copy @std
+			DEPENDS="xorg-libX11"
+			;;
+		urxvt-full)
+			install=$install-full copy @std
+			CAT="utilities|everything enabled"
+			DEPENDS="fontconfig freetype gdk-pixbuf glib perl perl-core \
+			startup-notification xorg-libX11 xorg-libXft xorg-libXmu \
+			xorg-libXrender xorg-libXt"
+			PROVIDE="urxvt"
+			;;
+	esac
+	TAGS="terminal"
 }
