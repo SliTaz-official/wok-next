@@ -1,37 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libnice"
-VERSION="0.0.13"
+VERSION="0.1.14"
 CATEGORY="system-tools"
-SHORT_DESC="The GLib ICE implementation."
+SHORT_DESC="The GLib ICE implementation"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1 MPL"
+WEB_SITE="https://nice.freedesktop.org/wiki/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://nice.freedesktop.org/"
-WGET_URL="http://nice.freedesktop.org/releases/$TARBALL"
+WGET_URL="https://nice.freedesktop.org/releases/$TARBALL"
 
-DEPENDS="gstreamer0"
-BUILD_DEPENDS="gstreamer0 gstreamer0-dev pkg-config glib-dev libxml2-dev"
+BUILD_DEPENDS="gnutls-dev glib-dev gstreamer0-dev gstreamer1-dev \
+gobject-introspection-dev"
+SPLIT="libnice-gst0 libnice-gst1 libnice libnice-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-    cd $src
-    ./configure \
-    	--prefix=/usr \
-    	--mandir=/usr/share/man \
-	--with-gstreamer \
-    	$CONFIGURE_ARGS &&
-    make &&
-    make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/gstreamer-* $fs/usr/lib
-	rm $fs/usr/lib/gstreamer-*/*.*a
+genpkg_rules() {
+	case $PACKAGE in
+		libnice-gst0)
+			copy libgstnice010.so
+			DEPENDS="libnice gstreamer0 liblzma libxml2"
+			CAT="multimedia|GStreamer-0.10 plugin"
+			;;
+		libnice-gst1)
+			copy libgstnice.so
+			DEPENDS="libnice gstreamer1"
+			CAT="multimedia|GStreamer-1.0 plugin"
+			;;
+		libnice)
+			copy @std @rm
+			DEPENDS="glib gmp libffi libgnutls libidn libtasn1 libunistring \
+			nettle p11-kit pcre util-linux-blkid util-linux-mount \
+			util-linux-uuid zlib"
+			;;
+		libnice-dev)
+			copy @dev
+			DEPENDS="libnice libnice-gst0 libnice-gst1 \
+			glib-dev gmp-dev gnutls-dev gstreamer0-dev gstreamer1-dev \
+			libffi-dev libidn-dev libtasn1-dev libunistring-dev libxml2-dev \
+			nettle-dev p11-kit-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xz-dev zlib-dev"
+			;;
+	esac
 }
