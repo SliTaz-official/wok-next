@@ -1,43 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="httpfs-fuse"
 VERSION="2.06.08.26"
 CATEGORY="system-tools"
-SHORT_DESC="HTTP Filesystem implemented with FUSE."
+SHORT_DESC="HTTP Filesystem implemented with FUSE"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-SOURCE="httpfs_with_static_binaries"
-TARBALL="${SOURCE}_$VERSION.tar.gz"
 WEB_SITE="http://httpfs.sourceforge.net/"
+
+TARBALL="httpfs_with_static_binaries_$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/httpfs/$TARBALL"
-TAGS="filesystem"
 
-DEPENDS="fuse"
-BUILD_DEPENDS="fuse-dev upx"
+BUILD_DEPENDS="fuse-dev upx391"
+SPLIT="httpfs-fuse-static"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	patch -p0 < $stuff/httpfs.u
-	mkdir -p $DESTDIR/usr/bin $DESTDIR/usr/share/boot
-	# keep uclibc prebuilt. Glibc version is 10x bigger !
+compile_rules() {
+	mkdir -p $install/usr/bin $install/usr/share/boot
+	# keep uclibc prebuilt. Glibc version is 10x bigger!
 	if true; then
-		install -m 755 static_uclibc/httpfs $DESTDIR/usr/share/boot/httpfs-static
-		upx -d $DESTDIR/usr/share/boot/httpfs-static
+		install -m 755 static_uclibc/httpfs $install/usr/share/boot/httpfs-static
+		upx -d $install/usr/share/boot/httpfs-static
 	else
 		sed 's/lpthread/& -ldl -lrt/' static_uclibc/make_httpfs | sh
-		cp -a httpfs $DESTDIR/usr/share/boot/httpfs-static
+		cp -a httpfs $install/usr/share/boot/httpfs-static
 	fi
-	. ./make_httpfs && cp -a httpfs $DESTDIR/usr/bin
-	install -m 755 static_uclibc/fusermount $DESTDIR/usr/share/boot/fusermount-static
-	upx -d $DESTDIR/usr/share/boot/fusermount-static
-	chmod 4755 $DESTDIR/usr/share/boot/fusermount-static
-	chmod 555 $DESTDIR/usr/share/boot/httpfs-static
+	. ./make_httpfs && cp -a httpfs $install/usr/bin
+	install -m 755 static_uclibc/fusermount $install/usr/share/boot/fusermount-static
+	upx -d $install/usr/share/boot/fusermount-static
+	chmod 4755 $install/usr/share/boot/fusermount-static
+	chmod  555 $install/usr/share/boot/httpfs-static
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		httpfs-fuse)
+			copy /usr/bin/
+			DEPENDS="fuse"
+			;;
+		httpfs-fuse-static)
+			copy /usr/share/
+			CAT="system-tools|static files"
+			;;
+	esac
+	TAGS="filesystem"
 }

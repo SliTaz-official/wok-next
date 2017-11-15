@@ -1,33 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libvncserver"
-VERSION="0.9.9"
+VERSION="0.9.11"
 CATEGORY="network"
-SHORT_DESC="The vnc library"
+SHORT_DESC="VNC library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-SOURCE="LibVNCServer"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://libvncserver.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="http://libvnc.github.io/"
 
-DEPENDS="jpeg zlib libssl"
-BUILD_DEPENDS="jpeg-dev zlib openssl-dev"
+TARBALL="LibVNCServer-$VERSION.tar.gz"
+WGET_URL="https://github.com/LibVNC/libvncserver/archive/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+BUILD_DEPENDS="automake libtool openssl-dev libjpeg-turbo-dev libpng16-dev"
+SPLIT="libvncserver-novnc libvncserver-dev"
+
+compile_rules() {
+	./autogen.sh $CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	mkdir -p $install/var/www
+	cp -r webclients/novnc $install/var/www
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libvncserver)
+			copy *.so*
+			DEPENDS="libcrypto libjpeg-turbo libpng16 libssl zlib"
+			;;
+		libvncserver-novnc)
+			copy novnc/
+			CAT="network|noVNC web client"
+			DEPENDS=" "
+			;;
+		*-dev)
+			copy @dev
+			rm -r $fs/var	# it includes 'include/' too and false recognized as dev files
+			DEPENDS="libvncserver libjpeg-turbo-dev libpng16-dev openssl-dev \
+			zlib-dev"
+			;;
+	esac
 }
-

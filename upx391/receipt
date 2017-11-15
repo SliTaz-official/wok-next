@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+# Note. While the latest UPX works as expected, it can't decompress some
+# executables packed with UPX-1.25 and shipped with the package httpfs-fuse.
+# Error message produced with the UPX 3.92-3.94:
+# upx: <filename>: Exception: compressed data violation
+
+PACKAGE="upx391"
+VERSION="3.91"
+CATEGORY="system-tools"
+SHORT_DESC="Ultimate Packer for eXecutables (free version using UCL compression)"
+MAINTAINER="devl547@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://upx.github.io/"
+
+TARBALL="upx-$VERSION.tar.gz"
+WGET_URL="https://github.com/upx/upx/archive/v$VERSION.tar.gz"
+WGET_URL2="http://downloads.sourceforge.net/sevenzip/lzma465.tar.bz2"
+
+BUILD_DEPENDS="ucl-dev zlib-dev perl"
+
+compile_rules() {
+	TARBALL2="$(basename $WGET_URL2)"
+	SRC2="$SOURCES_REPOSITORY/$TARBALL2"
+	[ -s "$SRC2" ] || wget -O "$SRC2" "$WGET_URL2"
+	tar -xf "$SRC2"
+
+	CXXFLAGS="$CXXFLAGS -DWITH_ZLIB=1 -Wno-error=misleading-indentation"
+	UPX_LZMADIR=$src make all || return 1
+
+	mkdir -p $install/usr/bin $install/usr/share/man/man1
+	cp -a $src/src/upx.out $install/usr/bin/upx
+	cp -a $src/doc $install/usr/share
+	rm $install/usr/share/doc/Makefile
+	mv $install/usr/share/doc/upx.1 $install/usr/share/man/man1
+}
+
+genpkg_rules() {
+	copy upx
+	DEPENDS="ucl zlib"
+}
