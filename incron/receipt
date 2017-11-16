@@ -16,6 +16,7 @@ DEPENDS="gcc-lib-base"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|fcntl.h>|&\n#include <unistd.h>|' icd-main.cpp
 	sed -i 's|/usr/local|/usr|' Makefile
 	make &&
 	make DESTDIR=$DESTDIR install

@@ -19,6 +19,9 @@ BUILD_DEPENDS="libsdl-dev zlib-dev curl-dev libzip-dev"
 compile_rules()
 {
 	cd $src/src
+	sed -i 's|sys/stat.h>|&\n#include <unistd.h>|' Frame.cpp
+	sed -i 's|fcntl.h>|&\n#include <unistd.h>|' SerialComms.cpp
+	sed -i 's|sys/time.h>|&\n#include <unistd.h>|' Timer.cpp Applewin.cpp
 	grep -q /usr/share/apple2 Applewin.cpp ||
 	sed -i 's|.*REGISTRY.*|\tchdir("/usr/share/apple2");\n&|' Applewin.cpp
 	make CXXFLAGS="-O3 -I/usr/lib/libzip/include -I/usr/include/SDL"
