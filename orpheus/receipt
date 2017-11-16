@@ -18,7 +18,7 @@ BUILD_DEPENDS="autoconf automake libvorbis-dev libogg-dev ncurses-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	sed -i 's|fcntl.h>|&\n#include <unistd.h>|' src/streamtrack.cc
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -logg"
 	unset CFLAGS CXXFLAGS
 	./configure 2>&1 | grep -v /config.rpath &&
