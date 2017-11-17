@@ -13,29 +13,22 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/yad-dialog/$TARBALL"
 
 BUILD_DEPENDS="patch gtk+-dev gtk+3-dev webkitgtk-dev intltool"
-SPLIT="yad-html yad-gtk3"
+SPLIT="yad-html:html yad-gtk3:gtk3"
 
 compile_rules() {
-	sed -i '/^SUBDIRS/ s|.*|SUBDIRS = 16x16 48x48|' data/icons/Makefile.in
-	rm -rf $install-*
-	cp -a $src $src-h
-	cp -a $src $src-3
+	case $SET in
+		'')   Gtk=gtk2; Html=disable;;
+		html) Gtk=gtk2; Html=enable ;;
+		gtk3) Gtk=gtk3; Html=disable;;
+	esac
 
-while read Pkg Src Gtk Html Install; do
-	title "Making $Pkg"
-	cd $Src
 	./configure \
 		--enable-icon-browser \
 		--with-gtk=$Gtk \
 		--$Html-html \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$Install install || return 1
-done <<EOT
-yad      $src    gtk2 disable $install
-yad-html $src-h  gtk2 enable  $install-h
-yad-gtk3 $src-3  gtk3 disable $install-3
-EOT
+	make install
 }
 
 genpkg_rules() {
@@ -47,7 +40,7 @@ genpkg_rules() {
 			TAGS="gtk2"
 			;;
 		yad-html)
-			install=$install-h copy @std
+			copy @std
 			CAT="utilities|GTK+2, with HTML widget"
 			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
 			libsoup pango webkitgtk"
@@ -55,7 +48,7 @@ genpkg_rules() {
 			PROVIDE="yad:webkitgtk"
 			;;
 		yad-gtk3)
-			install=$install-3 copy @std
+			copy @std
 			CAT="utilities|GTK+3"
 			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 pango"
 			TAGS="gtk3"

@@ -13,31 +13,29 @@ WGET_URL="http://dist.schmorp.de/rxvt-unicode/$TARBALL"
 
 BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev gdk-pixbuf-dev \
 startup-notification-dev xorg-libXmu-dev xorg-libXft-dev perl-dev ncurses-extra"
-SPLIT="urxvt-full"
+SPLIT="urxvt-full:full"
 
 compile_rules() {
-	rm -r $install-full 2>/dev/null
-	cp -a $src $src-full
+	case $SET in
+		'')
+			./configure \
+				--disable-everything \
+				$CONFIGURE_ARGS &&
+			make && make install
+			;;
+		full)
+			./configure \
+				--enable-everything \
+				--enable-256-color \
+				--with-terminfo=/usr/share/terminfo \
+				$CONFIGURE_ARGS &&
+			make && make install || return 1
 
-	./configure \
-		--disable-everything \
-		$CONFIGURE_ARGS &&
-	make && make install || return 1
-
-	cd $src-full
-	./configure \
-		--enable-everything \
-		--enable-256-color \
-		--with-terminfo=/usr/share/terminfo \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$install-full install || return 1
-
-	install -Dm0644 $stuff/urxvt-full.desktop \
-		$install-full/usr/share/applications/urxvt-full.desktop
-
-	R="$install-full/usr/share/terminfo"
-	mkdir -p $R
-	tic -s -o $R $src-full/doc/etc/rxvt-unicode.terminfo
+			R="$install/usr/share/terminfo"
+			mkdir -p $R
+			tic -s -o $R $src/doc/etc/rxvt-unicode.terminfo
+			;;
+	esac
 }
 
 genpkg_rules() {
@@ -47,7 +45,7 @@ genpkg_rules() {
 			DEPENDS="xorg-libX11"
 			;;
 		urxvt-full)
-			install=$install-full copy @std
+			copy @std
 			CAT="utilities|everything enabled"
 			DEPENDS="fontconfig freetype gdk-pixbuf glib perl perl-core \
 			startup-notification xorg-libX11 xorg-libXft xorg-libXmu \

@@ -12,22 +12,40 @@ TARBALL="fuse-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/fuse-emulator/$TARBALL"
 
 BUILD_DEPENDS="perl libspectrum-dev xorg-libX11-dev xorg-libICE-dev gtk+-dev \
-alsa-lib-dev libsdl-dev"
+gtk+3-dev alsa-lib-dev libsdl-dev"
+SPLIT="fuse-emulator-gtk3:gtk3"
 
 compile_rules() {
+	SET_ARGS=''; [ -z "$SET" ] && SET_ARGS='--disable-gtk3'
+
 	./configure \
 		--enable-desktop-integration \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
 genpkg_rules() {
-	copy @std
-	rm -r $fs/usr/share/icons; cook_copy_icons # only 16 and 48
-	DEPENDS="alsa-lib atk audiofile bzlib cairo fontconfig freetype gdk-pixbuf \
-	glib gtk+ libffi libgcrypt libgpg-error libharfbuzz liblzma libpng16 \
-	libsdl libspectrum libxml2 pango pcre tslib util-linux-blkid \
-	util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp \
-	xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
+	case $PACKAGE in
+		fuse-emulator)
+			copy @std @ico # only 16 and 48
+			DEPENDS="alsa-lib atk audiofile bzlib cairo fontconfig freetype \
+			gdk-pixbuf glib gtk+ libffi libgcrypt libgpg-error libharfbuzz \
+			liblzma libpng16 libsdl libspectrum libxml2 pango pcre tslib \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+		fuse-emulator-gtk3)
+			copy @std @ico # only 16 and 48
+			CAT="games|with GTK+3 interface"
+			DEPENDS="alsa-lib atk audiofile bzlib cairo fontconfig freetype \
+			gdk-pixbuf glib gtk+3 libffi libgcrypt libgpg-error libharfbuzz \
+			liblzma libpng16 libsdl libspectrum libxml2 pango pcre tslib \
+			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
+			;;
+	esac
 	TAGS="emulator spectrum"
 }
