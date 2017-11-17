@@ -1,41 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="uhd"
-VERSION="release_003_009_003"
+VERSION="3.10.2.0"; FANCY_VERSION="release_003_010_002_000"
 CATEGORY="network"
-SHORT_DESC="The USRP(tm) Hardware Driver."
+SHORT_DESC="The USRP(tm) Hardware Driver"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/EttusResearch/uhd"
-WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
-DEPENDS="libboost-date-time libboost-filesystem libboost-program-options \
-libboost-regex libboost-system libboost-unit-test-framework libboost-serialization \
-libboost-thread libboost-math-tr1 udev python"
-BUILD_DEPENDS="wget cmake python python-mako libboost-dev libboost-date-time \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/$FANCY_VERSION.tar.gz"
+
+BUILD_DEPENDS="cmake python python-mako libboost-dev libboost-date-time \
 libboost-filesystem libboost-program-options libboost-regex \
 libboost-system libboost-unit-test-framework libboost-serialization \
-libboost-thread libboost-math-tr1 libusb-dev udev-dev"
+libboost-thread libboost-math-tr1 libusb-dev eudev-dev"
+SPLIT="uhd-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/host
 	mkdir build
 	cd build
-	cmake .. -DENABLE_MANUAL=OFF -DENABLE_DOXYGEN=OFF \
-		-DENABLE_MAN_PAGES=OFF -DENABLE_B200=ON -DENABLE_USB=ON \
-		-DCMAKE_INSTALL_PREFIX=/usr
-	make && make DESTDIR=$DESTDIR install
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DENABLE_MANUAL=OFF \
+		-DENABLE_DOXYGEN=OFF \
+		-DENABLE_MAN_PAGES=OFF \
+		-DENABLE_B200=ON \
+		-DENABLE_USB=ON \
+		.. &&
+	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/uhd $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		uhd)
+			copy @std
+			DEPENDS="libboost-chrono libboost-date-time libboost-filesystem \
+			libboost-program-options libboost-regex libboost-serialization \
+			libboost-system libboost-thread libboost-unit-test-framework \
+			libusb ncurses ncurses-libform python   libboost-math-tr1 eudev"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="uhd"
+			;;
+	esac
 }
