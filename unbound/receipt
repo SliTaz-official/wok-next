@@ -48,6 +48,7 @@ genpkg_rules() {
 }
 
 post_install_unbound() {
+	[ -d "$1/var/lib/unbound" ] || mkdir -p "$1/var/lib/unbound"
 	chroot "$1/" adduser -S -H  -h /var/lib/unbound -D unbound 2>/dev/null
 	chroot "$1/" chown unbound     /var/lib/unbound
 	chroot "$1/" unbound-anchor -a /var/lib/unbound/root.key
