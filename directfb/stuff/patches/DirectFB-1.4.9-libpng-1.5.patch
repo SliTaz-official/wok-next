@@ -90,7 +90,7 @@ index 6d65ea3..7d82c5c 100644
            if (data->color_type == PNG_COLOR_TYPE_PALETTE) {
                 u32        key;
 -               png_colorp palette    = data->info_ptr->palette;
--               png_bytep  trans      = data->info_ptr->trans_alpha;
+-               png_bytep  trans      = data->info_ptr->trans;
 -               int        num_colors = MIN( MAXCOLORMAPSIZE,
 -                                            data->info_ptr->num_palette );
 -               u8         cmap[3][num_colors];
@@ -119,7 +119,7 @@ index 6d65ea3..7d82c5c 100644
            }
            else {
                 /* ...or based on trans rgb value */
--               png_color_16p trans = &data->info_ptr->trans_color;
+-               png_color_16p trans = &data->info_ptr->trans_values;
 -
 -               data->color_key = (((trans->red & 0xff00) << 8) |
 -                                  ((trans->green & 0xff00)) |
@@ -133,7 +133,7 @@ index 6d65ea3..7d82c5c 100644
       switch (data->color_type) {
            case PNG_COLOR_TYPE_PALETTE: {
 -               png_colorp palette    = data->info_ptr->palette;
--               png_bytep  trans      = data->info_ptr->trans_alpha;
+-               png_bytep  trans      = data->info_ptr->trans;
 -               int        num_trans  = data->info_ptr->num_trans;
 -               int        num_colors = MIN( MAXCOLORMAPSIZE, data->info_ptr->num_palette );
 +               png_colorp    palette;
