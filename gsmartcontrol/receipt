@@ -1,14 +1,14 @@
 # SliTaz package receipt.
 
 PACKAGE="gsmartcontrol"
-VERSION="0.8.6"
+VERSION="0.9.0"
 CATEGORY="system-tools"
 SHORT_DESC="Hard disk drive health inspection tool (GUI for smartctl)."
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 GPL3"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://gsmartcontrol.berlios.de/"
-WGET_URL="http://download.berlios.de/$PACKAGE/$TARBALL"
+WEB_SITE="https://gsmartcontrol.sourceforge.io/home/"
+WGET_URL="$SF_MIRROR/$PACKAGE/$VERSION/$TARBALL"
 
 DEPENDS="pcre glib gtk+ cairomm gtkmm smartmontools"
 BUILD_DEPENDS="pcre-dev glib-dev gtk+-dev cairomm-dev gtkmm-dev"
@@ -16,10 +16,6 @@ BUILD_DEPENDS="pcre-dev glib-dev gtk+-dev cairomm-dev gtkmm-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	sed -i '/ifndef _WIN32/{NNNNNNNNNd}' src/hz/sync_policy_glib.h
-	sed -i 's/lock(hz_glib/lock(g/' src/hz/sync_policy_glib.h
-	
 	./configure --prefix=/usr $CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
 }
