@@ -1,0 +1,136 @@
+diff -u -r nss_ldap-265.orig/configure.in nss_ldap-265/configure.in
+--- nss_ldap-265.orig/configure.in	2009-11-06 19:28:08.000000000 +0900
++++ nss_ldap-265/configure.in	2012-12-20 17:04:48.798942465 +0900
+@@ -234,6 +234,7 @@
+ AC_CHECK_FUNCS(pthread_once)
+ AC_CHECK_FUNCS(ether_aton)
+ AC_CHECK_FUNCS(ether_ntoa)
++AC_CHECK_FUNCS(__libc_once __libc_atfork __libc_lock_lock __libc_lock_unlock)
+ 
+ AC_MSG_CHECKING(for struct ether_addr)
+ AC_TRY_COMPILE([#include <sys/types.h>
+Only in nss_ldap-265: configure.in.orig
+diff -u -r nss_ldap-265.orig/ldap-nss.c nss_ldap-265/ldap-nss.c
+--- nss_ldap-265.orig/ldap-nss.c	2009-11-06 19:28:08.000000000 +0900
++++ nss_ldap-265/ldap-nss.c	2012-12-20 17:04:48.798942465 +0900
+@@ -142,7 +142,7 @@
+  */
+ static ldap_session_t __session = { NULL, NULL, 0, LS_UNINITIALIZED };
+ 
+-#if defined(HAVE_PTHREAD_ATFORK) || defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#if defined(HAVE_PTHREAD_ATFORK) || defined(HAVE___LIBC_ONCE)
+ static pthread_once_t __once = PTHREAD_ONCE_INIT;
+ #endif
+ 
+@@ -150,7 +150,7 @@
+ static FILE *__debugfile;
+ #endif /* LBER_OPT_LOG_PRINT_FILE */
+ 
+-#ifndef HAVE_PTHREAD_ATFORK
++#if !defined(HAVE_PTHREAD_ATFORK) || !defined(HAVE___LIBC_ONCE)
+ /* 
+  * Process ID that opened the session.
+  */
+@@ -162,7 +162,7 @@
+ static int __ssl_initialized = 0;
+ #endif /* HAVE_LDAPSSL_CLIENT_INIT */
+ 
+-#if defined(HAVE_PTHREAD_ATFORK) || defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#if defined(HAVE_PTHREAD_ATFORK) || defined(HAVE___LIBC_ONCE)
+ /*
+  * Prepare for fork(); lock mutex.
+  */
+@@ -513,7 +513,7 @@
+ }
+ #endif /* HAVE_NSSWITCH_H */
+ 
+-#if defined(HAVE_PTHREAD_ATFORK) || defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#if defined(HAVE_PTHREAD_ATFORK) || defined(HAVE___LIBC_ONCE)
+ static void
+ do_atfork_prepare (void)
+ {
+@@ -547,7 +547,7 @@
+ #ifdef HAVE_PTHREAD_ATFORK
+   (void) pthread_atfork (do_atfork_prepare, do_atfork_parent,
+ 			 do_atfork_child);
+-#elif defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#elif defined(HAVE___LIBC_ATFORK)
+   (void) __libc_atfork (do_atfork_prepare, do_atfork_parent, do_atfork_child);
+ #endif
+ 
+@@ -1096,7 +1096,7 @@
+ do_init (void)
+ {
+   ldap_config_t *cfg;
+-#ifndef HAVE_PTHREAD_ATFORK
++#if !defined(HAVE_PTHREAD_ATFORK) || !defined(HAVE___LIBC_ONCE)
+   pid_t pid;
+ #endif
+   uid_t euid;
+@@ -1113,7 +1113,7 @@
+     }
+ 
+ #ifndef HAVE_PTHREAD_ATFORK
+-#if defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#if defined(HAVE___LIBC_ONCE)
+   /*
+    * This bogosity is necessary because Linux uses different
+    * PIDs for different threads (like IRIX, which we don't
+@@ -1145,7 +1145,7 @@
+     pid = -1;			/* linked against libpthreads, don't care */
+ #else
+   pid = getpid ();
+-#endif /* HAVE_LIBC_LOCK_H || HAVE_BITS_LIBC_LOCK_H */
++#endif /* HAVE___LIBC_ONCE */
+ #endif /* HAVE_PTHREAD_ATFORK */
+ 
+   euid = geteuid ();
+@@ -1155,7 +1155,7 @@
+   syslog (LOG_DEBUG,
+ 	  "nss_ldap: __session.ls_state=%d, __session.ls_conn=%p, __euid=%i, euid=%i",
+ 	  __session.ls_state, __session.ls_conn, __euid, euid);
+-#elif defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#elif defined(HAVE___LIBC_ONCE)
+   syslog (LOG_DEBUG,
+ 	  "nss_ldap: libpthreads=%s, __session.ls_state=%d, __session.ls_conn=%p, __pid=%i, pid=%i, __euid=%i, euid=%i",
+  	  ((__pthread_once == NULL || __pthread_atfork == NULL) ? "FALSE" : "TRUE"),
+@@ -1179,11 +1179,11 @@
+     }
+   else
+ #ifndef HAVE_PTHREAD_ATFORK
+-#if defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#if defined(HAVE___LIBC_ONCE)
+   if ((__pthread_once == NULL || __pthread_atfork == NULL) && __pid != pid)
+ #else
+   if (__pid != pid)
+-#endif /* HAVE_LIBC_LOCK_H || HAVE_BITS_LIBC_LOCK_H */
++#endif /* HAVE___LIBC_ONCE */
+     {
+       do_close_no_unbind ();
+     }
+@@ -1244,9 +1244,9 @@
+       debug ("<== do_init (pthread_once failed)");
+       return NSS_UNAVAIL;
+     }
+-#elif defined(HAVE_PTHREAD_ATFORK) && ( defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H) )
++#elif defined(HAVE_PTHREAD_ATFORK) && defined(HAVE___LIBC_ONCE)
+   __libc_once (__once, do_atfork_setup);
+-#elif defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#elif defined(HAVE___LIBC_ONCE)
+   /*
+    * Only install the pthread_atfork() handlers i
+    * we are linked against libpthreads. Otherwise,
+Only in nss_ldap-265: ldap-nss.c.orig
+diff -u -r nss_ldap-265.orig/ldap-nss.h nss_ldap-265/ldap-nss.h
+--- nss_ldap-265.orig/ldap-nss.h	2009-11-06 19:28:08.000000000 +0900
++++ nss_ldap-265/ldap-nss.h	2012-12-20 17:04:48.798942465 +0900
+@@ -670,7 +670,7 @@
+ #define NSS_LDAP_LOCK(m)		mutex_lock(&m)
+ #define NSS_LDAP_UNLOCK(m)		mutex_unlock(&m)
+ #define NSS_LDAP_DEFINE_LOCK(m)		static mutex_t m = DEFAULTMUTEX
+-#elif defined(HAVE_LIBC_LOCK_H) || defined(HAVE_BITS_LIBC_LOCK_H)
++#elif defined(HAVE___LIBC_LOCK_LOCK) && defined(HAVE___LIBC_LOCK_UNLOCK)
+ #define NSS_LDAP_LOCK(m)		__libc_lock_lock(m)
+ #define NSS_LDAP_UNLOCK(m)		__libc_lock_unlock(m)
+ #define NSS_LDAP_DEFINE_LOCK(m)		static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER
+Only in nss_ldap-265: ldap-nss.h.orig

@@ -18,6 +18,10 @@ libnl-dev nss-dev ppp-dev iptables-dev util-linux-uuid-dev dhcp-client intltool"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i '/expires > 0)$/{p;s/.*/{/;NNN;s/$/\n}/}' \
+		src/ip6-manager/nm-ip6-manager.c
+	sed -i 's/.\(if (.nm_supplicant_config_add_setting_8021x\)/    \1/' \
+		src/supplicant-manager/nm-supplicant-config.c
 	./configure \
 		--prefix=/usr \
 		--libexecdir=/usr/lib/$PACKAGE \
