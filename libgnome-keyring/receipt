@@ -1,34 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgnome-keyring"
 VERSION="2.32.0"
 CATEGORY="x-window"
-SHORT_DESC="A libray that keep password and other secrets for users."
+SHORT_DESC="A library that keep password and other secrets for users"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnome.org"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 HOST_ARCH="i486 arm"
 
-DEPENDS="libgcrypt dbus glib"
-BUILD_DEPENDS="libgcrypt-dev dbus-dev glib-dev intltool"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="libgcrypt-dev dbus-dev glib-dev intltool"
+SPLIT="libgnome-keyring-dev"
+
+compile_rules() {
 	./configure \
 		--libexecdir=/usr/lib/$PACKAGE \
 		--sysconfdir=/etc/gnome \
-		--disable-pam \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libgnome-keyring)
+			copy @std
+			DEPENDS="dbus glib libgcrypt libgpg-error"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgnome-keyring dbus-dev glib-dev libgcrypt-dev \
+			libgpg-error-dev pcre-dev"
+			;;
+	esac
 }

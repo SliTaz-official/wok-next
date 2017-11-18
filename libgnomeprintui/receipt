@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgnomeprintui"
 VERSION="2.18.6"
@@ -6,29 +6,45 @@ CATEGORY="x-window"
 SHORT_DESC="GNOME print user interface library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ libgnomeprint libgnomecanvas libart_lgpl"
 BUILD_DEPENDS="pkg-config gnome-icon-theme flex libgnomeprint-dev \
 xorg-libXinerama-dev xorg-libXrandr-dev xorg-libXcursor-dev \
 xorg-libXcomposite-dev xorg-libXdamage-dev \
 libgnomecanvas-dev libart_lgpl-dev intltool"
+SPLIT="libgnomeprintui-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--with-html-dir=/usr/share/doc \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		libgnomeprintui)
+			copy @std
+			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			libart_lgpl libffi libgnomecanvas libgnomeprint libharfbuzz \
+			liblzma libpng16 libxml2 pango pcre util-linux-blkid \
+			util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXinerama xorg-libXrender \
+			xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgnomeprintui atk-dev bzip2-dev cairo-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev \
+			harfbuzz-dev libart_lgpl-dev libffi-dev libgnomecanvas-dev \
+			libgnomeprint-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXinerama-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xz-dev zlib-dev   gnome-icon-theme"
+			;;
+	esac
 }

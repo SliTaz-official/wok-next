@@ -1,37 +1,55 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgnomeui"
 VERSION="2.24.5"
 CATEGORY="x-window"
-SHORT_DESC="This is the gui parts of what was previously gnome-libs"
+SHORT_DESC="This is the GUI parts of what was previously gnome-libs"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnome.org"
 
-DEPENDS="libgnome libgnomecanvas libglade libbonoboui gnome-keyring"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="libgnome-dev libgnomecanvas-dev gnome-keyring \
 libgnome-keyring-dev libbonoboui-dev util-linux-uuid-dev libgcrypt-dev \
-dbus-glib-dev esound-dev audiofile-dev libglade-dev intltool"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+dbus-glib-dev esound-dev audiofile-dev libglade-dev intltool xorg-libICE-dev \
+xorg-libSM-dev"
+SPLIT="libgnomeui-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--libexecdir=/usr/lib/$PACKAGE \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/libglade $fs/usr/lib
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	find $fs/usr/lib -name *.*a -exec rm -f {} \;
+genpkg_rules() {
+	case $PACKAGE in
+		libgnomeui)
+			copy @std
+			DEPENDS="GConf alsa-lib atk audiofile bzlib cairo dbus dbus-glib \
+			esound fontconfig freetype gdk-pixbuf glib gnome-vfs gtk+ \
+			libart_lgpl libbonobo libbonoboui libffi libgcrypt libglade \
+			libgnome libgnome-keyring libgnomecanvas libgpg-error libharfbuzz \
+			liblzma libpng16 libxml2 orbit2 pango pcre popt util-linux-blkid \
+			util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
+			xorg-libXinerama xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgnomeui GConf-dev alsa-lib-dev atk-dev audiofile-dev \
+			bzip2-dev cairo-dev dbus-dev dbus-glib-dev esound-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gnome-vfs-dev \
+			gtk+-dev harfbuzz-dev libart_lgpl-dev libbonoboui-dev libffi-dev \
+			libgcrypt-dev libglade-dev libgnome-dev libgnome-keyring-dev \
+			libgnomecanvas-dev libgpg-error-dev libpng16-dev libxml2-dev \
+			orbit2-dev pango-dev pcre-dev popt-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libICE-dev \
+			xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXinerama-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

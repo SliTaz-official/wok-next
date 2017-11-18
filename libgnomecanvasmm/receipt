@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgnomecanvasmm"
 VERSION="2.26.0"
 CATEGORY="x-window"
-SHORT_DESC="A C++ wrapper for libgnomecanvas."
+SHORT_DESC="A C++ wrapper for libgnomecanvas"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="http://gtkmm.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtkmm libgnomecanvas"
-BUILD_DEPENDS="gtkmm-dev libgnomecanvas-dev"
+BUILD_DEPENDS="gfortran gtkmm-dev libgnomecanvas-dev"
+SPLIT="libgnomecanvasmm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|.*glibmm/propertyproxy.h|#include <gtkmm.h>\n&|' \
 		libgnomecanvas/libgnomecanvasmm/properties.h
 	sed -i 's|gtkmm/main|gtkmm|' \
@@ -23,6 +22,7 @@ compile_rules()
 		libgnomecanvas/libgnomecanvasmm/init.cc \
 		examples/canvas_affine/canvas_affine.cc \
 		examples/canvas_events/canvas_events.cc
+
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -30,9 +30,25 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libgnomecanvasmm)
+			copy @std
+			DEPENDS="atk atkmm cairo cairomm fontconfig freetype gdk-pixbuf \
+			glib glibmm gtk+ gtkmm libart_lgpl libgiomm libgnomecanvas \
+			libsigc++ pango pangomm"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgnomecanvasmm atk-dev atkmm-dev bzip2-dev cairo-dev \
+			cairomm-dev fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
+			glibmm-dev gtk+-dev gtkmm-dev harfbuzz-dev libart_lgpl-dev \
+			libffi-dev libgiomm-dev libgnomecanvas-dev libpng16-dev \
+			libsigc++-dev libxml2-dev pango-dev pangomm-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXinerama-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev xz-dev zlib-dev"
+			;;
+	esac
 }

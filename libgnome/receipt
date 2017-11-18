@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgnome"
 VERSION="2.30.0"
@@ -6,43 +6,44 @@ CATEGORY="x-window"
 SHORT_DESC="GNOME Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
-GENERIC_PIXMAPS="no"
 
-DEPENDS="libbonobo gnome-vfs esound audiofile GConf popt alsa-lib dbus-glib \
-openssl"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="libbonobo-dev gnome-vfs-dev esound-dev audiofile-dev \
 GConf-dev popt-dev alsa-lib-dev dbus-glib-dev intltool libffi libxml2-dev"
+SPLIT="libgnome-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/-DG_DISABLE_DEPRECATED//' libgnome/Makefile*
+
 	./configure \
 		--sysconfdir=/etc/gnome \
 		--localstatedir=/var/lib \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
+
+	mkdir -p $install/usr/share/images
+	ln -s ../pixmaps/backgrounds/gnome/background-default.jpg \
+		$install/usr/share/images/gnome-default.jpg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/bonobo $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-
-	# Background
-	cp -a $install/usr/share/gnome-background-* $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	mkdir -p $fs/usr/share/images && cd $fs/usr/share/images
-	ln -s ../pixmaps/backgrounds/gnome/background-default.jpg \
-		gnome-default.jpg
-		
-	# Clean unwated files
-	cd $fs/usr/lib ; find . -name "*.*a" -exec rm -f {} \;
+genpkg_rules() {
+	case $PACKAGE in
+		libgnome)
+			copy @std
+			DEPENDS="GConf alsa-lib audiofile dbus dbus-glib esound glib \
+			gnome-vfs libbonobo libffi liblzma libxml2 orbit2 pcre popt \
+			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgnome GConf-dev alsa-lib-dev audiofile-dev dbus-dev \
+			dbus-glib-dev esound-dev glib-dev gnome-vfs-dev libbonobo-dev \
+			libffi-dev libxml2-dev orbit2-dev pcre-dev popt-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xz-dev zlib-dev"
+			;;
+	esac
 }

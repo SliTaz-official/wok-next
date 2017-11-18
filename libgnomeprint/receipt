@@ -12,11 +12,9 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="pkg-config glib-dev pango-dev intltool flex libart_lgpl-dev \
 libxml2-dev"
-SPLIT="libgnomeprint libgnomeprint-dev"
+SPLIT="libgnomeprint-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--with-html-dir=/usr/share/doc \
 		--without-cups \
@@ -24,40 +22,18 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libgnomeprint)
-		DEPENDS="gtk+ popt libxml2 libart_lgpl"
-		mkdir -p $fs/usr/lib $fs/usr/share/locale
-	
-		# Copy shared libs
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-	
-		cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-		cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	
-		# Remove static libs
-		rm $fs/usr/lib/$PACKAGE/$VERSION/modules/*.*a
-		rm $fs/usr/lib/$PACKAGE/$VERSION/modules/*/*.*a
-		;;
-	libgnomeprint-dev)
-		CAT="development|GNOME print library"
-		DEPENDS="gtk+-dev popt-dev libxml2-dev pkg-config"
-		mkdir -p $fs/usr/lib
-	
-		# Copy static libs
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/lib/libgnomeprint $fs/usr/lib
-	
-		cp -a $install/usr/include $fs/usr
-	
-		# Remove shared libs
-		rm $fs/usr/lib/libgnomeprint/$VERSION/modules/*.so*
-		rm $fs/usr/lib/libgnomeprint/$VERSION/modules/*/*.so*
-		;;
+		libgnomeprint)
+			copy @std
+			DEPENDS="bzlib fontconfig freetype glib libart_lgpl libffi \
+			libharfbuzz liblzma libpng16 libxml2 pango pcre zlib"
+			;;
+		libgnomeprint-dev)
+			copy @dev
+			DEPENDS="libgnomeprint bzip2-dev fontconfig-dev freetype-dev \
+			glib-dev harfbuzz-dev libart_lgpl-dev libffi-dev libpng16-dev \
+			libxml2-dev pango-dev pcre-dev xz-dev zlib-dev"
+			;;
 	esac
 }
