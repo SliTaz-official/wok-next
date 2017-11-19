@@ -10,7 +10,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.etherboot.org/"
 WGET_URL="http://kernel.org/pub/software/utils/boot/$PACKAGE/Old/$TARBALL"
 
-BUILD_DEPENDS="perl"
+BUILD_DEPENDS="perl gcc49"
 SPLIT="gpxe gpxe-pxe"
 
 # Rules to configure and make the package.
@@ -27,7 +27,10 @@ compile_rules()
 	sed -i 's/ = (++tp->cur_rx) %/++; tp->cur_rx %=/' drivers/net/tulip.c
 	sed -i 's/? s : ___strtok//' core/stringextra.c
 	sed -i '/timer2_running/d' include/timer.h
-	make EXTRA_CFLAGS="-fno-strict-aliasing -Wno-error=unused-but-set-variable"  bin/gpxe.lkrn bin/undionly.kpxe  2>&1 | grep -v housekeeping: | grep -v blib.list
+	make EXTRA_CFLAGS="-fno-strict-aliasing \
+-Wno-error=unused-but-set-variable -Wno-error=implicit-function-declaration \
+-Wno-error=array-bounds -Wno-error=misleading-indentation" \
+bin/gpxe.lkrn bin/undionly.kpxe  2>&1 | grep -v housekeeping: | grep -v blib.list
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
