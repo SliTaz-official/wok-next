@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="serf"
+VERSION="1.3.9"
+CATEGORY="libdevel"
+SHORT_DESC="High-performance asynchronous HTTP client library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache"
+WEB_SITE="https://serf.apache.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/serf.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://archive.apache.org/dist/serf/$TARBALL"
+
+BUILD_DEPENDS="scons apr-dev apr-util-dev"
+SPLIT="serf-dev"
+
+compile_rules() {
+	sed -i "/Append/s:RPATH=libdir,::"   SConstruct &&
+	sed -i "/Default/s:lib_static,::"    SConstruct &&
+	sed -i "/Alias/s:install_static,::"  SConstruct &&
+
+	scons PREFIX=/usr &&
+	scons PREFIX=/usr install --install-sandbox=$install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		serf)
+			copy @std
+			DEPENDS="apr apr-util expat gdbm libcrypto libldap libssl \
+			util-linux-uuid zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="serf expat-dev gdbm libldap-dev openssl-dev \
+			util-linux-uuid-dev zlib-dev"
+			;;
+	esac
+}

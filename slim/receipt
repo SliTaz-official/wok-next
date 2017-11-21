@@ -18,11 +18,9 @@ xorg-libXmu-dev pam-dev"
 BUILD_DEPENDS="cmake xorg-libX11-dev freetype-dev libjpeg-turbo-dev zlib-dev \
 libpng16-dev fontconfig-dev xorg-libXft-dev xorg-libXrender-dev xorg-libXmu-dev \
 pam-dev"
-SPLIT="slim-theme-default slim slim-pam"
+SPLIT="slim-theme-default slim slim-pam:pam"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Handle cross compilation
 	case "$ARCH" in
 		i?86)
@@ -33,61 +31,51 @@ compile_rules()
 			LIBS=/cross/$ARCH/sysroot/usr/lib ;;
 	esac
 
+	case "$SET" in
+		'')  SET_ARGS='-DUSE_PAM=no';;
+		pam) SET_ARGS='-DUSE_PAM=yes';;
+	esac
+
 	mkdir build; cd build
-	cp -a $src $src-pam
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DX11_Xmu_LIB="$LIBS/libXmu.so" \
 		-DX11_Xft_INCLUDE_PATH=$INCL \
 		-DX11_Xmu_INCLUDE_PATH=$INCL \
-		-DUSE_PAM=no \
+		$SET_ARGS \
 		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install || exit 1
+	make install || return 1
 
-	cd $src-pam/build
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DX11_Xmu_LIB="$LIBS/libXmu.so" \
-		-DX11_Xft_INCLUDE_PATH=$INCL \
-		-DX11_Xmu_INCLUDE_PATH=$INCL \
-		-DUSE_PAM=yes \
-		.. &&
-	make &&
-	make DESTDIR=$DESTDIR-pam install || exit 1
+	cp -r $stuff/themes $install/usr/share/slim
 
-	for inst in $install $install-pam ; do
-		cp -r $stuff/themes $inst/usr/share/slim
+	# Config file and rc script.
+	cp -a $stuff/etc $install
 
-		# Config file and rc script.
-		cp -a $stuff/etc $inst
+	# slim-theme manager & default strings
+	install -m755 $stuff/slim-theme $install/usr/bin/slim-theme
+	install -m644 $stuff/strings    $install/usr/share/slim/strings
 
-		# slim-theme manager & default strings
-		install -m755 $stuff/slim-theme $inst/usr/bin/slim-theme
-		install -m644 $stuff/strings    $inst/usr/share/slim/strings
-
-		chown -R root:root $inst
-	done
+	chown -R root:root $install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		slim-theme-default)
-			CAT="customization|default theme bundled with SLiM"
 			copy default/
+			CAT="customization|default theme bundled with SLiM"
 			DEPENDS="slim slitaz-configs-base"
 			;;
 		slim)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="fontconfig freetype libjpeg-turbo libpng16 xorg-libX11 \
 			xorg-libXft xorg-libXmu xorg-libXrender zlib"
 			CONFIG_FILES="/etc/slim.conf"
 			SUGGESTED="slim-theme-default slitaz-configs"
 			;;
 		slim-pam)
-			install=$install-pam copy @std
+			copy @std
 			rm -rf $fs/usr/share/slim/themes/default
 			DEPENDS="fontconfig freetype libjpeg-turbo libpng16 xorg-libX11 \
 			xorg-libXft xorg-libXmu xorg-libXrender zlib pam"

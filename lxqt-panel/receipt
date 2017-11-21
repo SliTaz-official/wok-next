@@ -15,18 +15,16 @@ WGET_URL="https://github.com/lxde/$PACKAGE/archive/$VERSION.tar.gz"
 BUILD_DEPENDS="cmake qt5-dev mesa17-dev kwindowsystem-dev liblxqt-dev \
 lxqt-build-tools lxqt-globalkeys-dev libstatgrab-dev solid-dev menu-cache-dev \
 lm-sensors-dev libsysstat-dev libdbusmenu-qt-dev xorg-libXcomposite-dev \
-xorg-libXrender-dev alsa-lib-dev libxkbcommon-dev xorg-xcb-util-dev"
-SPLIT="lxqt-panel-dev"
+xorg-libXrender-dev alsa-lib-dev libxkbcommon-dev xorg-xcb-util-dev \
+pulseaudio-dev"
+SPLIT="lxqt-panel-sensors lxqt-panel lxqt-panel-dev"
 
 compile_rules() {
-	sed -i 's|<KF5/KWindowSystem/|<|' \
+	sed -i.orig 's|<KF5/KWindowSystem/|<|' \
 		plugin-taskbar/lxqttaskgroup.h \
 		plugin-taskbar/lxqttaskgroup.cpp
-	sed -i '/kbdinfo.h/i #undef explicit' \
+	sed -i.orig '/kbdinfo.h/i #undef explicit' \
 		plugin-kbindicator/src/x11/kbdlayout.cpp
-	# fix undefined variable
-	sed -i "/#define LXQTPANEL_H/a #define LXQT_VERSION \"$VERSION\"" \
-		panel/lxqtpanel.h
 
 	mkdir build; cd build
 	cmake \
@@ -34,7 +32,7 @@ compile_rules() {
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DPULL_TRANSLATIONS=no \
 		-DCMAKE_INSTALL_LIBDIR=lib \
-		-DVOLUME_USE_PULSEAUDIO=no \
+		-DVOLUME_USE_PULSEAUDIO=yes \
 		.. &&
 	make &&
 	make install
@@ -42,13 +40,20 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
+		*-sensors)
+			# separated due to large depends, and because I can't get it work
+			copy libsensors.so sensors.desktop
+			CAT="system-tools|sensors plugin"
+			DEPENDS="lxqt-panel lm-sensors"
+			;;
 		lxqt-panel)
-			copy @std
+			copy @std @rm
 			DEPENDS="alsa-lib glib kwindowsystem libdbusmenu-qt liblxqt \
-			libqtxdg libstatgrab libsysstat libxkbcommon-x11 lm-sensors \
-			lxqt-globalkeys menu-cache qt5-base qt5-svg qt5-x11extras solid \
-			xorg-libX11 xorg-libXcomposite xorg-libXdamage xorg-libXext \
-			xorg-libXfixes xorg-libXrender xorg-libxcb xorg-xcb-util"
+			libqtxdg libstatgrab libsysstat libxkbcommon-x11 libxkbcommon \
+			lxqt-globalkeys menu-cache pulseaudio qt5-base qt5-svg \
+			qt5-x11extras solid xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXcomposite xorg-libXdamage xorg-libXext xorg-libXfixes \
+			xorg-libXrender xorg-libxcb xorg-xcb-util"
 			SUGGESTED="qastools xscreensaver"
 			;;
 		*-dev)

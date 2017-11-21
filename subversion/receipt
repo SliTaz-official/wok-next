@@ -12,7 +12,7 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/subversion.html"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://archive.apache.org/dist/subversion/$TARBALL"
 
-BUILD_DEPENDS="apr-dev apr-util-dev cyrus-sasl-dev dbus-dev gettext \
+BUILD_DEPENDS="apr-dev apr-util-dev serf-dev cyrus-sasl-dev dbus-dev gettext \
 libmagic-dev python-dev"
 SPLIT="libsvn subversion subversion-dev"
 
@@ -31,18 +31,18 @@ genpkg_rules() {
 	case $PACKAGE in
 		libsvn)
 			copy *.so*
-			CAT="system-tools|library"
-			DEPENDS="apr apr-util expat libmagic libsasl libsqlite3 \
+			CAT="libdevel|library"
+			DEPENDS="apr apr-util expat libmagic libsasl libsqlite3 serf \
 			util-linux-uuid zlib"
 			;;
 		subversion)
-			copy @std; remove_already_packed
+			copy @std @rm
 			DEPENDS="libsvn"
 			;;
 		*-dev)
 			copy @dev
 			DEPENDS="libsvn subversion apr-dev apr-util-dev cyrus-sasl-dev \
-			expat-dev libmagic-dev cyrus-sasl-dev sqlite3-dev \
+			expat-dev libmagic-dev cyrus-sasl-dev serf-dev sqlite3-dev \
 			util-linux-uuid-dev zlib-dev"
 			;;
 	esac
