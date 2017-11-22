@@ -1,0 +1,34 @@
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ AWFLIB = /usr/lib/awf	# beware, awf itself knows this
+ BIN = /usr/bin
+-MAN = /usr/man/man1
++MAN = /usr/share/man/man1
+ CP = common dev.dumb mac.man mac.ms pass1 pass2.base pass2.man pass2.ms pass3
+ DTR = README COPYRIGHT Makefile awf awf.1 awf.1.out common dev.dumb mac.man \
+ 	mac.ms pass1 pass2.base pass2.man pass2.ms pass3
+@@ -8,16 +8,17 @@
+ SHELL = /bin/sh
+ 
+ r:	awf.1
+-	chmod +x awf
+-	AWFLIB=. awf -man awf.1 >tmp
++	chmod +x ./awf
++	AWFLIB=. ./awf -man awf.1 >tmp
+ 	cmp tmp awf.1.out
+ 	rm tmp
+ 
+ install:
+-	-if test ! -d $(AWFLIB) ; then mkdir $(AWFLIB) ; fi
+-	cp $(CP) $(AWFLIB)
+-	cp awf $(BIN)
+-	cp awf.1 $(MAN)
++	mkdir -p $(DESTDIR)$(AWFLIB) $(DESTDIR)$(BIN) $(DESTDIR)$(MAN)
++	cp $(CP) $(DESTDIR)$(AWFLIB)
++	chmod +x ./awf
++	cp awf $(DESTDIR)$(BIN)
++	cp awf.1 $(DESTDIR)$(MAN)
+ 
+ rr:	r testm tests.Z tests.out.Z
+ 	AWFLIB=. awf -man testm >tmp

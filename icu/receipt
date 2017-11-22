@@ -1,44 +1,55 @@
 # SliTaz package receipt v2.
 
 PACKAGE="icu"
-VERSION="58.2"
+VERSION="60.1"
 CATEGORY="system-tools"
 SHORT_DESC="International Components for Unicode"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://site.icu-project.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/icu.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.icu-project.org/files/icu4c/$VERSION/icu4c-${VERSION//./_}-src.tgz"
-TARBALL_MD5="fac212b32b7ec7ab007a12dff1f3aea1"
+# We need to get sources from SVN in order to customize ICU and shrink its size.
+# http://userguide.icu-project.org/icudata#TOC-Customizing-ICU-s-Data-Library
+#
+#TARBALL="$PACKAGE-$VERSION.tar.gz"
+#WGET_URL="http://download.icu-project.org/files/icu4c/$VERSION/icu4c-${VERSION//./_}-src.tgz"
+#TARBALL_MD5="3d164a2d1bcebd1464c6160ebb8315ef"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="svn|http://source.icu-project.org/repos/icu/tags/release-${VERSION//./-}/"
 
-SPLIT="libicu icu icu-dev"
+BUILD_DEPENDS="subversion"
+SPLIT="libicu icu icu-dev libicu-full:full icu-full:full icu-full-dev:full"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/source
+compile_rules() {
+	cd $src/icu4c/source
+	sed -i.orig 's/xlocale/locale/' i18n/digitlst.cpp
+	if [ -z "$SET" ]; then
+		rm data/mappings/ucm*.mk
+		cp -r $stuff/* .
+	fi
+
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		libicu)
+		libicu|libicu-full)
 			copy libicuuc.so* libicudata.so*
 			CAT="libs|core libraries"
 			DEPENDS=" "
 			;;
-		icu)
-			copy bin/ sbin/ *.so*
+		icu|icu-full)
+			copy bin/ sbin/ *.so* @rm
 			rm $fs/usr/bin/icu-config
-			remove_already_packed
 			DEPENDS="libicu"
 			;;
 		*-dev)
-			copy @std @dev
-			remove_already_packed
+			copy @std @dev @rm
 			;;
+	esac
+
+	case $PACKAGE in
+		*full*) PROVIDE="${PACKAGE/-full/}";;
 	esac
 }
