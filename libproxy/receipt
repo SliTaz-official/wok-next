@@ -18,8 +18,10 @@ gtk+-dev pkg-config"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	./autogen.sh
+	sed -i 's|cstdlib.*|&\n#include <unistd.h>|' libproxy/url.cpp
+	sed -i 's|"pacutils.h"|&\n#include <unistd.h>|' \
+		libproxy/modules/pacrunner_webkit.cpp
 	sed -i -e 's/WITH_MOZJS:BOOL=ON/WITH_MOZJS:BOOL=OFF/' \
 	       -e 's|/usr/local|/usr|' CMakeCache.txt
 	./autogen.sh &&

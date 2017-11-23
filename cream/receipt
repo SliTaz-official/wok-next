@@ -12,16 +12,14 @@ WGET_URL="$SF_MIRROR/cream-browser/$TARBALL"
 TAGS="web-browser"
 
 DEPENDS="gtk+ gcc-lib-base libwebkit libtasn1"
-BUILD_DEPENDS="libwebkit-dev libwebkit libsoup-dev gtk+-dev"
+BUILD_DEPENDS="libwebkit-dev libwebkit libsoup-dev gtk+-dev gettext-tools"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	mv -f $PACKAGE $src 2> /dev/null
-	cd $src
 	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -31,4 +29,3 @@ genpkg_rules()
 {
 	cp -a $install/usr $fs
 }
-
