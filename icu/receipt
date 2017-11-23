@@ -34,22 +34,37 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libicu|libicu-full)
+		libicu)
 			copy libicuuc.so* libicudata.so*
 			CAT="libs|core libraries"
-			DEPENDS=" "
+			DEPENDS="glibc-base"
 			;;
-		icu|icu-full)
+		icu)
 			copy bin/ sbin/ *.so* @rm
 			rm $fs/usr/bin/icu-config
 			DEPENDS="libicu"
 			;;
-		*-dev)
+		icu-dev)
 			copy @std @dev @rm
+			DEPENDS="libicu icu"
 			;;
-	esac
 
-	case $PACKAGE in
-		*full*) PROVIDE="${PACKAGE/-full/}";;
+		libicu-full)
+			copy libicuuc.so* libicudata.so*
+			CAT="libs|core libraries"
+			DEPENDS="glibc-base"
+			PROVIDE="libicu"
+			;;
+		icu-full)
+			copy bin/ sbin/ *.so* @rm
+			rm $fs/usr/bin/icu-config
+			DEPENDS="libicu-full"
+			PROVIDE="icu"
+			;;
+		icu-full-dev)
+			copy @std @dev @rm
+			DEPENDS="libicu-full icu-full"
+			PROVIDE="icu-dev"
+			;;
 	esac
 }
