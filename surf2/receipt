@@ -1,17 +1,17 @@
 # SliTaz package receipt v2.
 
-PACKAGE="surf"
-VERSION="1.8"
+PACKAGE="surf2"
+VERSION="2.0"
 CATEGORY="network"
-SHORT_DESC="Simple web browser based on WebKit/GTK+2"
-MAINTAINER="mallory@sweetpeople.org"
+SHORT_DESC="Simple web browser based on WebKit2/GTK+2"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://surf.suckless.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="surf-$VERSION.tar.gz"
 WGET_URL="https://dl.suckless.org/surf/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev webkitgtk-dev"
+BUILD_DEPENDS="gtk+-dev webkit2gtk-dev"
 
 compile_rules() {
 	sed -i 's|/usr/local|/usr|' config.mk
@@ -25,8 +25,9 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libsoup pango \
-	webkitgtk xorg-libX11"
+	DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libsoup pango webkit2gtk \
+	xorg-libX11"
 	SUGGESTED="dmenu"
+	PROVIDE="webkit2gtk:surf"
 	TAGS="web-browser"
 }

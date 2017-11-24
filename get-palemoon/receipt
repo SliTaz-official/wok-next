@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="get-palemoon"
 VERSION="27.6.1"
@@ -7,17 +7,17 @@ SHORT_DESC="Browser based on Firefox that's optimised for performance. Official 
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
 WEB_SITE="http://www.palemoon.org/"
-TAGS="browser"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $stuff/$PACKAGE $fs/usr/bin
+compile_rules() {
+	install -Dm0755 $stuff/get-palemoon $install/usr/bin/get-palemoon
 }
 
-post_install()
-{
+genpkg_rules() {
+	copy @std
+	TAGS="browser"
+}
+
+post_install() {
 	echo 'To get browser run get-palemoon command as root'
 	echo 'For media playback try to install ffmpeg package'
 }

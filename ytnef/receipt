@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ytnef"
+VERSION="1.9.2"
+CATEGORY="mail"
+SHORT_DESC="Yeraze's TNEF Stream Reader - for winmail.dat files"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://github.com/Yeraze/ytnef"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Yeraze/ytnef/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake libtool"
+SPLIT="ytnef-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	autoreconf -fi &&
+
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		ytnef) copy @std;;
+		*-dev) copy @dev;;
+	esac
+}

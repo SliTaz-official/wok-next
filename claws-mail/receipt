@@ -1,222 +1,194 @@
 # SliTaz package receipt v2.
 
 PACKAGE="claws-mail"
-VERSION="3.9.3"
-CATEGORY="network"
-SHORT_DESC="The user-firendly, lightweight and fast email client"
+VERSION="3.15.1"
+CATEGORY="mail"
+SHORT_DESC="Claws Mail email client"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.claws-mail.org/index.php"
-WGET_URL="$SF_MIRROR/sylpheed-claws/$TARBALL"
 
-BUILD_DEPENDS="libetpan-dev curl-dev gpgme-dev glib-dev libgpg-error-dev \
-enchant libidn-dev db-dev expat-dev cyrus-sasl-dev xcb-util-dev gtk+-dev \
-pkg-config libassuan libassuan-dev xorg-dev gnutls-dev libwebkit-dev curl-dev xorg-libXinerama-dev \
-xorg-libXrandr-dev xorg-libXcursor-dev xorg-libXcomposite-dev \
-xorg-libXdamage-dev libxslt-dev xorg-libXt-dev util-linux-uuid-dev \
-python-dev pygtk-dev libarchive-dev attr-dev acl-dev liblzma-dev poppler-dev lcms-dev \
-ghostscript-dev libgnome-keyring-dev dbus-dev lcms2-dev perl-dev"
-SPLIT="claws-mail-acpinotifier claws-mail-addresskeeper claws-mail-archive \
-claws-mail-attachwarner claws-mail-attremover claws-mail-bsfilter \
-claws-mail-clamd claws-mail-dev claws-mail-fancy claws-mail-fetchinfo \
-claws-mail-mailmbox claws-mail-newmail claws-mail-notification \
-claws-mail-pdfviewer claws-mail-plugins claws-mail-python claws-mail-rssyl-dev \
-claws-mail-rssyl claws-mail-spam_report claws-mail-tnefparse \
-claws-mail-vcalendar"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://www.claws-mail.org/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-	 	--disable-ldap \
-	 	--disable-jpilot \
-		$CONFIGURE_ARGS &&
-	make && make install
+BUILD_DEPENDS="gettext xorg-libSM-dev glib-dev gnutls-dev gtk+-dev enchant-dev \
+startup-notification-dev dbus-dev dbus-glib-dev openldap-dev librsvg-dev \
+libetpan-dev curl-dev expat-dev webkitgtk-dev libsoup-dev libarchive-dev \
+libical-dev poppler-dev gpgme-dev python-dev pygtk-dev libcanberra-dev \
+ytnef-dev libnotify-dev perl-dev lcms2-dev"
+cm='claws-mail'
+SPLIT="\
+$cm-acpinotifier $cm-addresskeeper $cm-archive   $cm-attachwarner \
+$cm-attremover   $cm-bsfilter      $cm-clamd     $cm-fancy \
+$cm-fetchinfo    $cm-libravatar    $cm-mailmbox  $cm-managesieve \
+$cm-newmail      $cm-notification  $cm-pdfviewer $cm-perl \
+$cm-plugins      $cm-python        $cm-rssyl     $cm-spam_report \
+$cm-tnefparse    $cm-vcalendar     $cm-extras    $cm-dev"
+
+compile_rules() {
+	sed -i '/^Actions=/d' claws-mail.desktop # sdft can't work with actions
+
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	claws-mail)
-		TAGS="email client"
-		DEPENDS="libetpan libdb libsasl libcurl gpgme enchant dbus \
-			dbus-glib expat libgnutls gtk+ libgcrypt \
-			startup-notification xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXcomposite \
-			xorg-libXcursor xorg-libXdmcp xorg-libXext \
-			xorg-libXfixes xorg-libXinerama xorg-libXrandr \
-			xorg-libXrender xorg-libXdamage gcc-lib-base libtasn1"
-		mkdir -p $fs/usr/share \
-			$fs/usr/lib/$PACKAGE/plugins
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/share/icons $fs/usr/share
-		;;
-	claws-mail-acpinotifier)
-		CAT="network|Enables mail notification via LEDs on some laptops (Acer, ASUS, Fujitsu, IBM). "
-		DEPENDS="claws-mail"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/acpi_notifier.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-addresskeeper)
-		CAT="network|Keeps all recipient addresses in an addressbook folder. "
-		DEPENDS="claws-mail"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/address_keeper.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-archive)
-		CAT="network|claws-mail archiving features"
-		DEPENDS="claws-mail libarchive acl liblzma bzlib"
-		mkdir -p $fs/usr/lib/claws-mail/plugins \
-			$fs/usr/share/locale
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so  \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-attachwarner)
-		CAT="network|Warn about missing attachment"
-		DEPENDS="claws-mail"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-attremover)
-		CAT="network|claws-mail plugin - Remove attachments from emails."
-		DEPENDS="claws-mail xorg-libXdamage"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/att_remover.so $fs/usr/lib/claws-mail/plugins/
-		;;
-	claws-mail-bsfilter)
-		CAT="network|Check all recieved message with BSFilter"
-		DEPENDS="claws-mail"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-clamd)
-		CAT="network|Scans recieved message with Clam AV"
-		DEPENDS="claws-mail clamav"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-dev)
-		CAT="development|The user-firendly, lightweight and fast email client dev files"
-		DEPENDS="claws-mail gtk+-dev libetpan-dev gnutls-dev pkg-config"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/claws-mail/plugins/*.*a $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib/
-		cp $src/config.h $fs/usr/include/claws-mail/
-		;;
-	claws-mail-fancy)
-		CAT="network|Renders HTML e-mail using the WebKit library "
-		DEPENDS="claws-mail libwebkit libcurl libsoup libarchive"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-fetchinfo)
-		CAT="network|Inserts headers containing some download information."
-		DEPENDS="claws-mail libwebkit libcurl libsoup"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-mailmbox)
-		CAT="network|Handles mailboxes in mbox format."
-		DEPENDS="claws-mail libwebkit libcurl libsoup"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-newmail)
-		CAT="network|Claws Mail writes a msg header summary to a log file."
-		DEPENDS="claws-mail libwebkit libcurl libsoup"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-notification)
-		CAT="network|claws-mail plugin - mail notification."
-		DEPENDS="claws-mail libnotify xorg-libXdamage"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so* $fs/usr/lib/claws-mail/plugins/
-		;;
-	claws-mail-pdfviewer)
-		CAT="network|PDF viewer for Claws Mail."
-		DEPENDS="claws-mail poppler "
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/pdf_viewer.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-plugins)
-		CAT="network|Standart plugins for claws-mail."
-		DEPENDS="claws-mail bogofilter xorg-libXdamage gcc-lib-base"
-		mkdir -p $fs/usr/lib/claws-mail/plugins 
-		cp -a $install/usr/lib/claws-mail/plugins/bogofilter.so $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/lib/claws-mail/plugins/pgpcore.so $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/lib/claws-mail/plugins/pgpinline.so $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/lib/claws-mail/plugins/pgpmime.so $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/lib/claws-mail/plugins/smime.so $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/lib/claws-mail/plugins/spamassassin.so $fs/usr/lib/claws-mail/plugins/
-		#cp -a $install/usr/lib/claws-mail/plugins/trayicon.so $fs/usr/lib/claws-mail/plugins/
-		;;
-	claws-mail-python)
-		CAT="network|Python interface to Claws Mail' filtering mechanism."
-		DEPENDS="claws-mail pygtk"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-rssyl-dev)
-		CAT="development|RSS feed aggregator for Claws Mail dev files."
-		DEPENDS="claws-mail curl libxml2"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/rssyl.*a* $fs/usr/lib/claws-mail/plugins/
-		;;
-	claws-mail-rssyl)
-		CAT="network|RSS feed aggregator for Claws Mail."
-		SUGGESTED="claws-mail-fancy"
-		TAGS="rss newsfeed"
-		DEPENDS="claws-mail curl libxml2 expat gtk+ xorg-libX11 \
-			xorg-libXau xorg-libXcomposite xorg-libXcursor \
-			xorg-libXdmcp xorg-libXext xorg-libXfixes \
-			xorg-libXinerama xorg-libXrandr xorg-libXrender \
-			xorg-libXdamage"
-		mkdir -p $fs/usr/lib/claws-mail/plugins \
-			$fs/usr/share/locale
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so $fs/usr/lib/claws-mail/plugins/
-		cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-		;;
-	claws-mail-spam_report)
-		CAT="network|Reports spam to various places"
-		DEPENDS="claws-mail libcurl"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/spamreport.so  \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-tnefparse)
-		CAT="network|Enables Claws Mail reading application/ms-tnef attachments."
-		DEPENDS="claws-mail "
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/tnef_parse.so \
-			$fs/usr/lib/claws-mail/plugins
-		;;
-	claws-mail-vcalendar)
-		CAT="network|claws-mail plugin - vcalendar messages support."
-		DEPENDS="claws-mail curl xorg-libXdamage gnutls"
-		mkdir -p $fs/usr/lib/claws-mail/plugins
-		cp -a $install/usr/lib/claws-mail/plugins/${PACKAGE:11}.so $fs/usr/lib/claws-mail/plugins/
-		;;
+		claws-mail)
+			copy bin/ icons/
+			CAT="mail|the user-friendly, lightweight and fast email client"
+			DEPENDS="atk bzlib cairo dbus dbus-glib enchant fontconfig \
+			freetype gdk-pixbuf glib gmp gtk+ libcroco libcrypto libetpan \
+			libffi libgnutls libharfbuzz libidn libldap liblzma libpng16 \
+			librsvg libssl libtasn1 libunistring libxml2 nettle p11-kit pango \
+			pcre startup-notification util-linux-blkid util-linux-mount \
+			util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman \
+			xorg-xcb-util zlib"
+			TAGS="email client"
+			;;
+		*-acpinotifier)
+			copy acpi_notifier.so
+			CAT="mail|mail notification via LEDs on some laptops"
+			DEPENDS="claws-mail"
+			;;
+		*-addresskeeper)
+			copy address_keeper.so
+			CAT="mail|keeps all recipient addresses in an addressbook folder"
+			DEPENDS="claws-mail"
+			;;
+		*-archive)
+			copy archive.so
+			CAT="mail|archiving features"
+			DEPENDS="claws-mail acl attr libarchive lz4-lib lzo"
+			;;
+		*-attachwarner)
+			copy attachwarner.so
+			CAT="mail|warn about missing attachment"
+			DEPENDS="claws-mail"
+			;;
+		*-attremover)
+			copy att_remover.so
+			CAT="mail|remove attachments from emails"
+			DEPENDS="claws-mail"
+			;;
+		*-bsfilter)
+			copy bsfilter.so
+			CAT="mail|check all recieved message with BSFilter"
+			DEPENDS="claws-mail"
+			;;
+		*-clamd)
+			copy clamd.so
+			CAT="mail|scans recieved message with Clam AV"
+			DEPENDS="claws-mail   clamav"
+			;;
+		*-fancy)
+			copy fancy.so
+			CAT="mail|renders HTML e-mail using the WebKit library"
+			DEPENDS="claws-mail gst1-plugins-base gstreamer1 icu libatomic \
+			libcurl libgcrypt libgpg-error libharfbuzz-icu libicu libidn2 \
+			libjpeg-turbo libsecret libsoup libsoup-gnome libsqlite3 libssh2 \
+			libwebp libxslt orc webkitgtk xorg-libXt"
+			;;
+		*-fetchinfo)
+			copy fetchinfo.so
+			CAT="mail|inserts headers containing some download information"
+			DEPENDS="claws-mail"
+			;;
+		*-libravatar)
+			copy libravatar.so
+			CAT="mail|displays libravatar/gravatar profile image"
+			DEPENDS="claws-mail libcurl libidn2 libssh2"
+			;;
+		*-mailmbox)
+			copy mailmbox.so
+			CAT="mail|handles mailboxes in mbox format"
+			DEPENDS="claws-mail"
+			;;
+		*-managesieve)
+			copy managesieve.so
+			CAT="mail|manage Sieve filters on servers"
+			DEPENDS="claws-mail libcurl libidn2 libssh2"
+			;;
+		*-newmail)
+			copy newmail.so
+			CAT="mail|writes a msg header summary to a log file"
+			DEPENDS="claws-mail libetpan"
+			;;
+		*-notification)
+			copy notification.so
+			CAT="mail|mail notification"
+			DEPENDS="claws-mail libcanberra libcanberra-gtk2 libltdl libnotify \
+			libogg libvorbis"
+			;;
+		*-pdfviewer)
+			copy pdf_viewer.so
+			CAT="mail|PDF viewer"
+			DEPENDS="claws-mail lcms2 libjpeg-turbo poppler tiff"
+			;;
+		*-perl)
+			copy perl.so
+			CAT="mail|Perl interface to filtering mechanism"
+			DEPENDS="claws-mail perl-core"
+			;;
+		*-plugins)
+			copy bogofilter.so pgpcore.so pgpinline.so pgpmime.so smime.so \
+			spamassassin.so
+			# plugins/trayicon.so
+			CAT="mail|standard plugins"
+			DEPENDS="claws-mail gpgme libassuan libgpg-error   bogofilter"
+			;;
+		*-python)
+			copy python.so
+			CAT="mail|Python interface to filtering mechanism"
+			DEPENDS="claws-mail python   pygtk"
+			;;
+		*-rssyl)
+			copy rssyl.so
+			CAT="mail|RSS feed aggregator"
+			DEPENDS="claws-mail expat libcurl libidn2 libssh2"
+			SUGGESTED="claws-mail-fancy"
+			TAGS="rss newsfeed"
+			;;
+		*-spam_report)
+			copy spamreport.so
+			CAT="mail|reports spam to various places"
+			DEPENDS="claws-mail libcurl libidn2 libssh2"
+			;;
+		*-tnefparse)
+			copy tnef_parse.so
+			CAT="mail|reading application/ms-tnef attachments"
+			DEPENDS="claws-mail ytnef"
+			;;
+		*-vcalendar)
+			copy vcalendar.so
+			CAT="mail|vcalendar messages support"
+			DEPENDS="claws-mail libcurl libical libidn2 libssh2"
+			;;
+		*-extras)
+			CAT="meta|all extras plugins"
+			DEPENDS="claws-mail-archive claws-mail-attremover \
+			claws-mail-notification claws-mail-spam_report \
+			claws-mail-vcalendar claws-mail-fancy claws-mail-rssyl"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="claws-mail acl-dev atk-dev attr-dev bzip2-dev cairo-dev \
+			curl-dev enchant-dev expat-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gpgme-dev gst1-plugins-base-dev \
+			gstreamer1-dev gtk+-dev harfbuzz-dev harfbuzz-icu-dev icu-dev \
+			libjpeg-turbo-dev lcms2-dev libarchive-dev libassuan-dev \
+			libcanberra-dev libetpan-dev libffi-dev libgcrypt-dev \
+			libgpg-error-dev libical-dev libidn2-dev libnotify-dev libogg-dev \
+			libpng16-dev libsecret-dev libsoup-dev libssh2-dev libtool \
+			libvorbis-dev libwebp-dev libxml2-dev libxslt-dev lz4-lib lzo-dev \
+			nettle-dev openssl-dev orc-dev pango-dev pcre-dev perl-dev \
+			poppler-dev python-dev sqlite3-dev tiff-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev webkitgtk-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libXt-dev xorg-libxcb-dev xorg-pixman-dev xz-dev ytnef-dev \
+			zlib-dev   gnutls-dev"
+			PROVIDE="claws-mail-rssyl-dev"
+			;;
 	esac
-}
-
-# Post installation custom.
-post_install_claws_mail()
-{
-	[ -x "$1/usr/bin/gtk-update-icon-cache" ] &&
-	  chroot "$1/" gtk-update-icon-cache -f -t /usr/share/icons/hicolor
 }
