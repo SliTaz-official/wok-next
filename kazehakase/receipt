@@ -29,6 +29,9 @@ compile_rules()
 		patch -p1 -i $src/debian/patches/$i.dpatch
 	done
 
+	# remove gnutls_certificate_type_set_priority depredicated call
+	sed -i '/cert_type_priority/{Nd}' src/net/kz-http.c
+
 	for i in $stuff/*.patch; do
 		patch -p1 -i $i
 	done
