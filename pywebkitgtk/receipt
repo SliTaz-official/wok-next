@@ -1,35 +1,49 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pywebkitgtk"
-VERSION="1.1.7"
-CATEGORY="development"
-SHORT_DESC="Python bindings to the Webkit GTK+ port."
+VERSION="1.1.8"
+CATEGORY="python"
+SHORT_DESC="Python2 bindings to the WebKit GTK+ port"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://code.google.com/p/pywebkitgtk/"
-WGET_URL="http://pywebkitgtk.googlecode.com/files/$TARBALL"
+WEB_SITE="https://code.google.com/archive/p/pywebkitgtk/"
 
-DEPENDS="libwebkit pygtk libxslt"
-BUILD_DEPENDS="libwebkit-dev pygtk-dev libxslt-dev python-dev util-linux-uuid-dev pkg-config"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/pywebkitgtk/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="python-dev libxslt-dev glib-dev pygtk-dev webkitgtk-dev"
+SPLIT="pywebkitgtk-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/pywebkitgtk $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		pywebkitgtk)
+			copy @std
+			DEPENDS="atk bzlib cairo enchant fontconfig freetype gdk-pixbuf \
+			glib gst1-plugins-base gstreamer1 gtk+ icu libatomic libffi \
+			libgcrypt libgpg-error libharfbuzz libharfbuzz-icu libicu \
+			libjpeg-turbo liblzma libpng16 libsecret libsoup libsqlite3 \
+			libwebp libxml2 libxslt orc pango pcre python util-linux-blkid \
+			util-linux-mount util-linux-uuid webkitgtk xorg-libICE xorg-libSM \
+			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
+			xorg-libXt xorg-libxcb xorg-pixman zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pywebkitgtk atk-dev bzip2-dev cairo-dev enchant-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
+			gst1-plugins-base-dev gstreamer1-dev gtk+-dev harfbuzz-dev \
+			harfbuzz-icu-dev icu-dev libjpeg-turbo-dev libffi-dev \
+			libgcrypt-dev libgpg-error-dev libpng16-dev libsecret-dev \
+			libsoup-dev libwebp-dev libxml2-dev libxslt-dev orc-dev pango-dev \
+			pcre-dev sqlite3-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev webkitgtk-dev xorg-libICE-dev xorg-libSM-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libXt-dev xorg-libxcb-dev xorg-pixman-dev \
+			xz-dev zlib-dev"
+			;;
+	esac
 }
-
