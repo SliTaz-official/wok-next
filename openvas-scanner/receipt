@@ -1,29 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="openvas-scanner"
-VERSION="3.0.0"
+VERSION="5.0.8"
 CATEGORY="network"
 SHORT_DESC="Network security scanner (scanner)."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.openvas.org/"
-WGET_URL="http://wald.intevation.org/frs/download.php/684/$TARBALL"
-CONFIG_FILES="/var/lib/openvas /etc/openvas"
+WGET_URL="http://wald.intevation.org/frs/download.php/2436/$TARBALL"
+CONFIG_FILES="/var/lib/openvas"
 
-DEPENDS="openvas-libraries openssl"
-BUILD_DEPENDS="libpcap libpcap-dev util-linux-uuid openvas-libraries \
-openvas-libraries-dev pkg-config gnutls-dev glib-dev"
+DEPENDS="openvas-libraries glib libgcrypt"
+BUILD_DEPENDS="libgcrypt-dev pkg-config glib-dev redis openvas-libraries-dev \
+gnutls-dev libpcap-dev cmake doxygen"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	./configure --prefix=/usr \
-	--localstatedir=/var --sysconfdir=/etc \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
-	make &&
+	[ -d build ] || mkdir build                                            
+	cd build &&                                                                   
+	cmake	-DCMAKE_INSTALL_PREFIX=/usr \                                         
+		-DLOCALSTATEDIR=/var .. &&                                            
+	make &&                                                                       
 	make DESTDIR=$DESTDIR install
 }
 
@@ -31,7 +30,6 @@ compile_rules()
 genpkg_rules()
 {
 	mkdir -p $fs/usr
-	cp -a $install/etc $fs
 	cp -a $install/var $fs
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
