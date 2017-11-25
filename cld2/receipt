@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="cld2"
+VERSION="150821"
+COMMIT="b56fa78"
+CATEGORY="text"
+SHORT_DESC="Compact Language Detector 2"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://github.com/CLD2Owners/cld2"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/CLD2Owners/cld2/archive/$COMMIT.tar.gz"
+
+SPLIT="cld2-dev"
+
+compile_rules() {
+	cd internal
+	CXXFLAGS="-std=c++98 $CXXFLAGS" sh ./compile_libs.sh || return 1
+
+	cd $src
+	install -Dm755 internal/libcld2.so      $install/usr/lib/libcld2.so
+	install -Dm755 internal/libcld2_full.so $install/usr/lib/libcld2_full.so
+	for header in internal/*.h public/*.h; do
+		install -Dm644 "$header" $install/usr/include/cld2/$header
+	done
+	cook_pick_docs LICENSE README.md
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		cld2)  copy @std;;
+		*-dev) copy @dev;;
+	esac
+}

@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="uchardet"
+VERSION="0.0.6"
+CATEGORY="text"
+SHORT_DESC="Encoding detector library ported from Mozilla"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/uchardet/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.freedesktop.org/software/uchardet/releases/$TARBALL"
+
+BUILD_DEPENDS="cmake"
+SPLIT="uchardet-dev"
+
+compile_rules() {
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=Release \
+		. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		uchardet) copy @std;;
+		*-dev)    copy @dev;;
+	esac
+}

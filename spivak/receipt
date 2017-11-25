@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="spivak"
+VERSION="1.1"
+CATEGORY="multimedia"
+SHORT_DESC="Free and feature-rich karaoke player"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/gyunaev/spivak"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/gyunaev/spivak/archive/$VERSION.tar.gz"
+
+BUILD_DEPENDS="qt5-dev cld2-dev sqlite3-dev libzip-dev uchardet-dev \
+gstreamer1-dev gst1-plugins-base-dev"
+
+compile_rules() {
+	qmake &&
+	make || return 1
+
+	install -Dm0755 src/spivak \
+		$install/usr/bin/spivak
+	install -Dm0755 plugins/languagedetector/plugin_langdetect.so \
+		$install/usr/lib/spivak/plugins/plugin_langdetect.so
+	install -Dm0644 packaging/icon.png \
+		$install/usr/share/icons/hicolor/64x64/apps/spivak.png
+	install -Dm0644 packaging/spivak.desktop \
+		$install/usr/share/applications/spivak.desktop
+}
+
+genpkg_rules() {
+	copy @std icons/
+	DEPENDS="bzlib cld2 glib gst1-plugins-base gstreamer1 libatomic libsqlite3 \
+	libzip mesa17 qt5-base uchardet zlib"
+}
