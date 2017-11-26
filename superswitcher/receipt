@@ -12,12 +12,11 @@ WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
 
 DEPENDS="gtk+ libwnck2 GConf"
 BUILD_DEPENDS="perl-xml-parser intltool glib-dev gtk+-dev libwnck2-dev \
-autoconf automake"
+xorg-libXcomposite-dev xorg-libXrender-dev autoconf automake"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	find . -name '*.[ch]*' | xargs sed -i 's|<glib/.*h|<glib.h|'
 
 	# Fix from Gentoo: http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/x11-misc/superswitcher/superswitcher-0.6.ebuild
@@ -41,4 +40,3 @@ genpkg_rules()
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 }
-

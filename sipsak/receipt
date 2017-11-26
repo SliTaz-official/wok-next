@@ -16,6 +16,7 @@ BUILD_DEPENDS="libcrypto-dev libcrypto"
 # Rules to configure and make the package.
 compile_rules()
 {
+	sed -i 's|inline char\* get_body|char* get_body|' header_f.*
 	./configure --prefix=/usr --infodir=/usr/share/info \
 	--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
@@ -28,4 +29,3 @@ genpkg_rules()
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 }
-
