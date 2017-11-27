@@ -11,9 +11,7 @@ WEB_SITE="http://code.qt.io/cgit/qt/qtwebkit.git/"
 WEB_SITE_2="https://github.com/annulen/webkit/"
 WGET_URL="${WEB_SITE_2}releases/download/${TARBALL/.tar*/}/$TARBALL"
 
-PROVIDE="libQtWebkit"
-
-DEPENDS="qt5 sqlite3 hyphen libxslt" # gstreamer1 gst1-plugins-base 
+DEPENDS="qt5-base qt5-location qt5-sensors qt5-webchannel sqlite3 hyphen libxslt" # gstreamer1 gst1-plugins-base 
 BUILD_DEPENDS="qt5-dev cmake bison flex gperf ruby-dev xorg-dev mesa17-dev \
 freetype-dev fontconfig-dev sqlite3-dev libpng-dev libjpeg-turbo-dev icu-dev \
 glib-dev zlib-dev libxslt-python libxslt-dev gstreamer1-dev \
@@ -23,8 +21,8 @@ compile_rules()
 {
 	mkdir -p WebKitBuild/Release
 	cd WebKitBuild/Release
-        export CFLAGS=${CFLAGS/486 -Os/686 -O2}
-	export CXXFLAGS=${CXXFLAGS/486 -Os/686 -O2}
+        export CFLAGS=${CFLAGS/486 -Os/686 -O0}
+	export CXXFLAGS=${CXXFLAGS/486 -Os/686 -O0}
 	QMAKE_CFLAGS=$CFLAGS QMAKE_CXXFLAGS=$CXXFLAGS \
 	cmake	-DPORT=Qt \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -50,7 +48,7 @@ genpkg_rules()
 {
 # qtwebkit
 	mkdir -p $fs/usr/lib $fs/usr/bin $fs/usr/share/applications
-#	cp -a $src/WebKitBuild/Release/bin/QtTestBrowser $fs/usr/bin
+	cp -a $src/WebKitBuild/Release/bin/QtTestBrowser $fs/usr/bin
 #	cp -a $install/usr/lib/*.so* $fs/usr/lib
 	cat > $fs/usr/share/applications/QtTestBrowser.desktop <<EOT
 [Desktop Entry]
