@@ -1,38 +1,53 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="smx"
 VERSION="1.1.4-454"
 CATEGORY="development"
-SHORT_DESC="text-embedded macro processing language."
+SHORT_DESC="Text-embedded macro processing language"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+LICENSE="BSD"
 WEB_SITE="http://www.smxlang.org/"
-WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
 
-DEPENDS="unixODBC sqlite3 libgd libcrypto gcc-lib-base zlib"
-BUILD_DEPENDS="apache-dev apr-dev apr-util-dev unixODBC-dev \
-sqlite3 libgd-dev openssl-dev perl-dev fontconfig-dev xorg-libXpm-dev libtool"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/smx/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	sed -i	-e 's/ap_get_server_version/ap_get_server_banner/' \
-		-e 's/remote_ip/client_ip/' modsmx/modsmx.h
-	sed -i 's/modsmx.h"/&\n#ifdef APLOG_USE_MODULE\nAPLOG_USE_MODULE(smx);\n#undef APLOG_MARK\n#define APLOG_MARK __FILE__, __LINE__, APLOG_MODULE_INDEX\n#endif/' modsmx/modsmx.cpp
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="unixODBC-dev apache-dev perl-dev apr-dev apr-util-dev \
+openssl-dev libtdb-dev libgd-dev fcgi-dev"
+SPLIT="smx-fcgi smx smx-dev"
+
+compile_rules() {
+	find docs -type f -exec dos2unix '{}' \;
+	# disable creating man pages: segmentation fault
+	sed -i '/doc2man/d' smx/Makefile.in
+	# FIXME: smx may not work as expected.
+	#        Any other examples of using?
+	#        Or it is only inconsistence in the docs/doc2man script?
+
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		*-fcgi)
+			copy smx-fcgi
+			CAT="development|FastCGI support"
+			DEPENDS="smx fcgi"
+			;;
+		smx)
+			copy @std @rm
+			DEPENDS="bzlib fontconfig freetype glib libcrypto libgd \
+			libharfbuzz libjpeg-turbo liblzma libpng16 libsqlite3 libtdb \
+			libunixODBC libwebp libxml2 pcre perl-core tiff xorg-libX11 \
+			xorg-libXau xorg-libXdmcp xorg-libXpm xorg-libxcb zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="smx smx-fcgi \
+			bzip2-dev fontconfig-dev freetype-dev glib-dev harfbuzz-dev \
+			libjpeg-turbo-dev libgd-dev libpng16-dev libtdb-dev libwebp-dev \
+			libxml2-dev openssl-dev pcre-dev perl-dev sqlite3-dev tiff-dev \
+			unixODBC-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
+			xorg-libXpm-dev xorg-libxcb-dev xz-dev zlib-dev"
+			;;
+	esac
 }

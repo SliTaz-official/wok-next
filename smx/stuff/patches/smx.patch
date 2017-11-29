@@ -1,0 +1,71 @@
+--- a/modsmx/modsmx.h
++++ b/modsmx/modsmx.h
+@@ -206,11 +206,11 @@
+ 
+ 	const char *GetServerName()		{return ap_get_server_name(myReq);}
+ 	int   GetServerPort()			{return ap_get_server_port(myReq);}
+-	const char *GetServerSoftware()	{return ap_get_server_version();}
++	const char *GetServerSoftware()	{return ap_get_server_banner();}
+ 	const char *GetServerProtocol()	{return myReq->protocol;}
+ 	const char *GetServerAddr();
+ 
+-	const char *GetRemoteAddr()		{return myReq->connection->remote_ip;}
++	const char *GetRemoteAddr()		{return myReq->connection->client_ip;}
+ #ifdef APACHE2
+ 	const char *GetRemoteHost()		{return (char *) ap_get_remote_host(myReq->connection, myReq->per_dir_config, REMOTE_NAME, NULL);}
+ #else
+--- a/modsmx/modsmx.cpp
++++ b/modsmx/modsmx.cpp
+@@ -55,6 +55,11 @@
+ // #define _DWINMEM // define if you want to test memory allocation
+ 
+ #include "modsmx.h"
++#ifdef APLOG_USE_MODULE
++APLOG_USE_MODULE(smx);
++#undef APLOG_MARK
++#define APLOG_MARK __FILE__, __LINE__, APLOG_MODULE_INDEX
++#endif
+ 
+ /* -------------------------------------------------------------- */
+ static CMutex gCrit("mod_smx.1917000012");
+--- a/libsmx/dbd_tdb.cpp
++++ b/libsmx/dbd_tdb.cpp
+@@ -88,7 +88,7 @@
+ 	CStr str;
+ 	TDB_DATA key;
+ 	TDB_DATA data;
+-	key.dptr=(char *)name;
++	key.dptr=(unsigned char *)name;
+ 	key.dsize=strlen(name);
+ 
+ 	int retry = 0;
+@@ -114,7 +114,7 @@
+ 
+ bool CDBDriverTdb::Exists(const char *name) {
+         TDB_DATA key;
+-        key.dptr=(char *)name;
++        key.dptr=(unsigned char *)name;
+         key.dsize=strlen(name);
+         return tdb_exists(m_db, key);
+ }
+@@ -122,7 +122,7 @@
+ bool CDBDriverTdb::Del(const char *name, HTRANS txn) {
+         CStr str;
+         TDB_DATA key;
+-        key.dptr=(char *)name;
++        key.dptr=(unsigned char *)name;
+         key.dsize=strlen(name);
+         return tdb_delete(m_db, key) == 0;
+ }
+@@ -133,9 +133,9 @@
+         CStr str;
+         TDB_DATA key;
+         TDB_DATA data;
+-        key.dptr=(char *)name;
++        key.dptr=(unsigned char *)name;
+         key.dsize=strlen(name);
+-        data.dptr=(char *)val;
++        data.dptr=(unsigned char *)val;
+         data.dsize=vlen;
+         if (tdb_store(m_db, key, data, TDB_REPLACE) == 0) {
+ 		return true;

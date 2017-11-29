@@ -1,43 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgd"
-VERSION="2.2.4"
+VERSION="2.2.5"
 CATEGORY="graphics"
-SHORT_DESC="Library for the dynamic creation of images."
+SHORT_DESC="Library for the dynamic creation of images"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.libgd.org/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/libgd/libgd/tarball/gd-$VERSION"
 
-DEPENDS="zlib libpng libjpeg freetype expat fontconfig xorg-libX11 \
-xorg-libXau xorg-libXdmcp xorg-libXpm"
 BUILD_DEPENDS="libpng-dev jpeg-dev expat-dev freetype-dev \
 xorg-libXau-dev xorg-libXdmcp-dev xorg-libXpm-dev automake libtool gettext \
 fontconfig-dev"
+BUILD_DEPENDS="automake libtool xorg-libX11-dev zlib-dev libpng16-dev \
+freetype-dev fontconfig-dev libjpeg-turbo-dev xorg-libXpm-dev tiff-dev \
+libwebp-dev"
+SPLIT="libgd-dev"
 
-# Cross compilation use some build host tools
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS cmake" ;;
-	arm) ARCH_ARGS="--with-jpeg=/cross/$ARCH/sysroot/usr/lib" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap.sh &&
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
-	# split
-	rm $fs/usr/bin/gdlib-config
+genpkg_rules() {
+	case $PACKAGE in
+		libgd)
+			copy @std
+			DEPENDS="bzlib fontconfig freetype glib libharfbuzz libjpeg-turbo \
+			liblzma libpng16 libwebp libxml2 pcre tiff xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXpm xorg-libxcb zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgd bzip2-dev fontconfig-dev freetype-dev glib-dev \
+			harfbuzz-dev libjpeg-turbo-dev libpng16-dev libwebp-dev \
+			libxml2-dev pcre-dev tiff-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXpm-dev xorg-libxcb-dev xz-dev zlib-dev"
+			;;
+	esac
 }
