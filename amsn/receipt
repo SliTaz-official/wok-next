@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="amsn"
 VERSION="0.98.9"
@@ -7,33 +7,32 @@ SHORT_DESC="Alvaro's Messenger"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://amsn-project.net/"
+
 TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="chat messenger im"
 
-DEPENDS="tk glib tls jpeg xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXScrnSaver zlib libpng libv4l gcc-lib-base"
-BUILD_DEPENDS="tls glib-dev tcl-dev tk-dev jpeg-dev xorg-libICE-dev \
+BUILD_DEPENDS="tls glib-dev tcl-dev tk-dev libjpeg-turbo-dev xorg-libICE-dev \
 xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-xorg-libXScrnSaver-dev zlib-dev libpng-dev libv4l-dev autoconf automake"
+xorg-libXScrnSaver-dev zlib-dev libpng16-dev libv4l-dev autoconf automake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-	 --with-tcl=/usr/lib $CONFIGURE_ARGS && \
-	make && \
-	make DESTDIR=$DESTDIR install
-}
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--with-tcl=/usr/lib \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
 	for ext in png xml css; do
-		find $fs -type f -name '*.'$ext -exec chmod a-x \{\} \;
+		find $install -type f -name '*.'$ext -exec chmod a-x \{\} \;
 	done
+	find $install -iname 'thumbs.db' -delete
 }
 
+genpkg_rules() {
+	copy @std
+	DEPENDS="libjpeg-turbo libpng16 python xorg-libICE xorg-libSM xorg-libX11 \
+	zlib   tk glib tls xorg-libXau xorg-libXdmcp xorg-libXScrnSaver libv4l"
+	# /usr/share/amsn/plugins/amsnplus/snapshot depends on libImlib.so.11 - absent
+	TAGS="chat messenger im"
+}

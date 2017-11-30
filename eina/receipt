@@ -1,34 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eina"
 VERSION="1.7.10"
 CATEGORY="base-system"
-SHORT_DESC="EFL Core data structure library."
+SHORT_DESC="EFL Core data structure library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
-TAGS="e enlightenment efl"
 HOST_ARCH="i486 arm"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="eina-dev"
+
+compile_rules() {
 	CFLAGS="$CFLAGS -fvisibility=hidden"
 	LDFLAGS="$LDFLAGS -fvisibility=hidden"
 	export LDFLAGS
 
-	./configure --enable-amalgamation $CONFIGURE_ARGS && \
+	./configure \
+		--enable-amalgamation \
+		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		eina)
+			copy @std
+			TAGS="e enlightenment efl"
+			;;
+		eina-dev)
+			copy @dev
+			;;
+	esac
 }

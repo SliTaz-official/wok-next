@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-elementary"
 VERSION="1.7.0"
@@ -6,26 +6,31 @@ CATEGORY="base-system"
 SHORT_DESC="Python bindings for Elementary"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="LGPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.enlightenment.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.enlightenment.org/releases/BINDINGS/python/$TARBALL"
-TAGS="e enlightenment python"
 
-DEPENDS="elementary python-evas"
-BUILD_DEPENDS="elementary-dev python-evas-dev python-cython udev \
-autoconf automake git subversion libtool"
+BUILD_DEPENDS="shared-mime-info elementary-dev python-evas-dev python-cython \
+eudev autoconf automake git subversion libtool"
+SPLIT="python-elementary-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh &&
 	./configure --prefix=/usr &&
 	make $MAKEFLAGS all && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/python2.7 $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		python-elementary)
+			copy @std
+			DEPENDS="elementary python-evas"
+			TAGS="e enlightenment python"
+			;;
+		python-elementary-dev)
+			copy @dev
+			DEPENDS="python-elementary elementary-dev python-evas-dev"
+			;;
+	esac
 }

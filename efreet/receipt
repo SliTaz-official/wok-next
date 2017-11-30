@@ -1,35 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="efreet"
 VERSION="1.7.10"
 CATEGORY="base-system"
-SHORT_DESC="EFL library for handling of freedesktop.org specs."
+SHORT_DESC="EFL library for handling of freedesktop.org specs"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
-TAGS="e enlightenment efl"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ecore"
-BUILD_DEPENDS="ecore-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="ecore-dev"
+SPLIT="efreet-dev"
+
+compile_rules() {
 	export CFLAGS="$CFLAGS -fvisibility=hidden"
 	export LDFLAGS="$LDFLAGS -fvisibility=hidden"
-	./configure --disable-doc $CONFIGURE_ARGS &&
+
+	./configure \
+		--disable-doc \
+		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/efreet $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		efreet)
+			copy @std
+			DEPENDS="ecore"
+			TAGS="e enlightenment efl"
+			;;
+		efreet-dev)
+			copy @dev
+			DEPENDS="ecore-dev pkg-config"
+			;;
+	esac
 }

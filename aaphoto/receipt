@@ -1,33 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aaphoto"
 VERSION="0.41"
 CATEGORY="graphics"
-SHORT_DESC="Automatic photo adjusting."
+SHORT_DESC="Automatic photo adjusting"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL3"
-SOURCE="aaphoto_sources_v"
-TARBALL="$SOURCE$VERSION.tar.gz"
-WEB_SITE="http://log69.com/aaphoto_en.html" 
+WEB_SITE="http://log69.com/aaphoto_en.html"
+
+TARBALL="aaphoto_sources_v$VERSION.tar.gz"
 #WGET_URL="http://log69.com/downloads/$TARBALL"
 WGET_URL="http://ftp.uni-erlangen.de/pub/FreeBSD/ports/distfiles/$TARBALL"
-TAGS="photo jpeg jpg png bmp"
 
-DEPENDS="jasper jpeg libpng zlib"
-BUILD_DEPENDS="jpeg-dev jasper-dev libpng libpng-dev zlib-dev autoconf"
+BUILD_DEPENDS="libjpeg-turbo-dev jasper-dev libpng16-dev autoconf"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-   	sed -i 's/#include <png.h>/#include <zlib.h>\n&/' aaphoto.c
-	./configure --prefix=/usr &&
-	make &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	sed -i 's/#include <png.h>/#include <zlib.h>\n&/' aaphoto.c
+
+	./configure --prefix=/usr && make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="jasper libgomp libjpeg-turbo libpng16"
+	TAGS="photo jpeg jpg png bmp"
 }

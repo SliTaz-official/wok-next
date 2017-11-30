@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="evas"
 VERSION="1.7.10"
 CATEGORY="x-window"
-SHORT_DESC="EFL Canvas and scenegraph rendering library."
+SHORT_DESC="EFL Canvas and scenegraph rendering library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
-TAGS="e enlightenment efl"
 HOST_ARCH="i486 arm"
 
-DEPENDS="eet expat fontconfig freetype giflib libpng tiff libxml2 \
-xorg-libXScrnSaver xorg-libXp eina"
-BUILD_DEPENDS="eet-dev expat-dev fontconfig-dev freetype-dev fribidi-dev \
- giflib-dev libpng-dev tiff-dev libxml2-dev util-linux-uuid-dev \
-xorg-libXScrnSaver-dev xorg-libXp-dev eina-dev"
-OPTIONAL_DEPENDS="mesa-dev libglu-mesa-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="eet-dev expat-dev fontconfig-dev freetype-dev fribidi-dev \
+giflib-dev libpng16-dev tiff-dev libxml2-dev util-linux-uuid-dev \
+xorg-libXScrnSaver-dev xorg-libXp-dev eina-dev"
+SPLIT="evas-dev"
+
+compile_rules() {
 	sed -i 's/DGifCloseFile(gif/&,NULL/' \
 		src/modules/loaders/gif/evas_image_load_gif.c
 	export CFLAGS="$CFLAGS -fvisibility=hidden"
 	export LDFLAGS="$LDFLAGS -fvisibility=hidden"
+
 	./configure \
 		--libexecdir=/usr/lib/$PACKAGE \
 		--enable-cpu-c \
@@ -35,12 +32,21 @@ compile_rules()
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/evas $fs/usr/lib
-	rm -rf $fs/usr/lib/evas/modules/*/*/*/*.*a
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		evas)
+			copy @std
+			DEPENDS="eet expat fontconfig freetype giflib libpng16 tiff \
+			libxml2 xorg-libXScrnSaver xorg-libXp eina"
+			OPTIONAL_DEPENDS="mesa-dev libglu-mesa-dev"
+			TAGS="e enlightenment efl"
+			;;
+		evas-dev)
+			copy @dev
+			DEPENDS="eet-dev expat-dev fontconfig-dev freetype-dev fribidi-dev \
+			giflib-dev libpng16-dev tiff-dev libxml2-dev util-linux-uuid-dev \
+			xorg-dev xorg-libXScrnSaver-dev xorg-libXp-dev pkg-config"
+			OPTIONAL_DEPENDS="mesa-dev libglu-mesa-dev"
+			;;
+	esac
 }

@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eet"
 VERSION="1.7.10"
 CATEGORY="base-system"
-SHORT_DESC="EFL Data encode/decode and storage library."
+SHORT_DESC="EFL Data encode/decode and storage library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
-TAGS="e enlightenment efl"
 HOST_ARCH="i486 arm"
 
-DEPENDS="eina libjpeg libssl"
-BUILD_DEPENDS="eina-dev jpeg-dev openssl-dev zlib-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm) LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib" ;;
-esac
+BUILD_DEPENDS="eina-dev libjpeg-turbo-dev openssl-dev zlib-dev"
+SPLIT="eet-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case "$ARCH" in
+		arm) LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib" ;;
+	esac
 	export CFLAGS="$CFLAGS -fvisibility=hidden"
 	export LDFLAGS="$LDFLAGS -fvisibility=hidden"
+
 	./configure \
 		--disable-doc \
 		--disable-old-eet-file-format \
@@ -33,10 +30,16 @@ compile_rules()
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr/bin
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		eet)
+			copy @std
+			DEPENDS="eina libjpeg-turbo libssl"
+			TAGS="e enlightenment efl"
+			;;
+		eet-dev)
+			copy @dev
+			DEPENDS="eina-dev libjpeg-turbo-dev openssl-dev pkg-config"
+			;;
+	esac
 }

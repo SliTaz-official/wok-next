@@ -1,23 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eio"
 VERSION="1.7.10"
 CATEGORY="base-system"
-SHORT_DESC="EFL Async I/O library."
+SHORT_DESC="EFL Async I/O library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
-TAGS="e enlightenment efl"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ecore"
-BUILD_DEPENDS="ecore-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="ecore-dev"
+SPLIT="eio-dev"
+
+compile_rules() {
 	CFLAGS="$CFLAGS -fvisibility=hidden"
 	LDFLAGS="$LDFLAGS -fvisibility=hidden"
 	export LDFLAGS
@@ -26,9 +24,16 @@ compile_rules()
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		eio)
+			copy @std
+			DEPENDS="ecore"
+			TAGS="e enlightenment efl"
+			;;
+		eio-dev)
+			copy @dev
+			DEPENDS="ecore-dev pkg-config"
+			;;
+	esac
 }

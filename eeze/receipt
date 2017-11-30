@@ -1,34 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eeze"
 VERSION="1.7.10"
 CATEGORY="x-window"
-SHORT_DESC="EFL Device abstraction library."
+SHORT_DESC="EFL Device abstraction library"
 MAINTAINER="pankso@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 LICENSE="BSD"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
-TAGS="e enlightenment efl"
 HOST_ARCH="i486 arm"
 
-DEPENDS="ecore udev"
-BUILD_DEPENDS="ecore-dev udev-dev"
+WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="ecore-dev eudev-dev"
+SPLIT="eeze-dev"
+
+compile_rules() {
 	CFLAGS="$CFLAGS -fvisibility=hidden"
 	LDFLAGS="$LDFLAGS -fvisibility=hidden"
 	export LDFLAGS
 
-	./configure --disable-doc $CONFIGURE_ARGS &&
+	./configure \
+		--disable-doc \
+		$CONFIGURE_ARGS &&
 	make $MAKEFILE && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		eeze)
+			copy @std
+			DEPENDS="ecore eudev"
+			TAGS="e enlightenment efl"
+			;;
+		eeze-dev)
+			copy @dev
+			DEPENDS="ecore-dev eudev-dev pkg-config"
+			;;
+	esac
 }
