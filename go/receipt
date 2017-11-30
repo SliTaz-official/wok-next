@@ -1,21 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="go"
-VERSION="1.2.1"
+VERSION="1.9.2"
 CATEGORY="development"
-SHORT_DESC="The Go programming language (R.Griesemer R.Pike K.Thompson)"
+SHORT_DESC="The Go programming language"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.golang.org"
-TARBALL="$PACKAGE$VERSION.src.tar.gz"
-WGET_URL="https://go.googlecode.com/files/$TARBALL"
+WEB_SITE="http://golang.org/"
 
-BUILD_DEPENDS="bash bison make ed wget"
-SPLIT="go emacs-pkg-go-mode go-sources"
+TARBALL="$PACKAGE$VERSION.tar.gz"
+WGET_URL="https://go.googlesource.com/go/+archive/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="go-bin bash bison make ed"
+SPLIT="go-sources emacs-pkg-go-mode go"
+
+compile_rules() {
 	cd $src/src
 
 	# Setting up environnment before building go.
@@ -23,6 +22,7 @@ compile_rules()
 
 	# Go tree, binaries and scripts locations.
 	export GOROOT_FINAL=/usr/lib/go
+	export GOROOT_BOOTSTRAP=/usr/lib/go
 
 	# Support all x86 chips (Pentium MMX or later)
 	# or optionaly only Pentium 4/Opteron/Athlon 64 or later.
@@ -39,11 +39,9 @@ compile_rules()
 			# (registerizer) and generates good code (although gccgo can do
 			# noticeably better sometimes).
 			export GOARCH="amd64" ;;
-
 		i486)
 			# Comparable to the amd64
 			export GOARCH="386" ;;
-
 		arm)
 			# Supports Linux, FreeBSD and NetBSD binaries. Less widely used
 			# than the other ports.
@@ -53,74 +51,74 @@ compile_rules()
 	esac
 
 	# Build go
-	/bin/bash make.bash --no-banner
+	/bin/bash make.bash --no-clean || return 1
+
+	# Installation
+	mkdir -p $install$GOROOT_FINAL/src
+	# bin
+	cp -a $src/bin $install/usr
+	# go tree
+	cp -a $src/pkg $install$GOROOT_FINAL
+	# lib
+	cp -a $src/lib $install$GOROOT_FINAL
+	# include
+	cp -a $src/include $install$GOROOT_FINAL
+	# pkg
+	cp -a $src/src/pkg  $install$GOROOT_FINAL/src
+	cp -a $src/src/cmd  $install$GOROOT_FINAL/src
+	cp -a $src/src/lib9 $install$GOROOT_FINAL/src
+
+	mkdir -p $install/usr/share/emacs/site-lisp/site-start.d
+	cp -a $stuff/80-go-init.el $install/usr/share/emacs/site-lisp/site-start.d
+	mkdir -p $install/usr/share/emacs/site-lisp/go-mode
+	cp -a $src/misc/emacs/* $install/usr/share/emacs/site-lisp/go-mode
+
+	# misc
+	mkdir -p $install$GOROOT_FINAL/misc
+	for dir in arm cgo goplay swig; do
+		cp -a $src/misc/$dir $install$GOROOT_FINAL/misc
+	done
+
+	# test
+	cp -a $src/test/ $install$GOROOT_FINAL
+
+	# doc
+	cp -a $src/doc/ $install$GOROOT_FINAL
+
+	# tools
+	mkdir -p $install$GOROOT_FINAL/src
+	cp -a $src/src/*.bash $install$GOROOT_FINAL/src
+	cp -a $src/src/*.rc   $install$GOROOT_FINAL/src
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	go)
-		TAGS="go"
-		DEPENDS=""
-		mkdir -p $fs/usr/lib/go/src
-		# bin
-		cp -a $src/bin $fs/usr
-		# go tree
-		cp -a $src/pkg $fs/usr/lib/go
-		# lib
-		cp -a $src/lib $fs/usr/lib/go
-		# include
-		cp -a $src/include $fs/usr/lib/go
-		# pkg
-		cp -a $src/src/pkg $fs/usr/lib/go/src
-		cp -a $src/src/cmd $fs/usr/lib/go/src
-		cp -a $src/src/lib9 $fs/usr/lib/go/src
-		;;
-	emacs-pkg-go-mode)
-		CAT="development|An Emacs major mode for editing Go code."
-		TAGS="emacs go"
-		DEPENDS="emacs"
-		echo -n "Installing start file"
-		mkdir -p $fs/usr/share/emacs/site-lisp/site-start.d && \
-		cp -a stuff/80-go-init.el $fs/usr/share/emacs/site-lisp/site-start.d
-		status
-
-		echo -n "Installing go-mode"
-		mkdir -p $fs/usr/share/emacs/site-lisp/go-mode && \
-		cp -a $src/misc/emacs/* $fs/usr/share/emacs/site-lisp/go-mode
-		status
-		;;
-	go-sources)
-		CAT="development|The Go programming language - Sources files."
-		TAGS="go"
-		DEPENDS="go"
-		# misc
-		mkdir -p $fs/usr/lib/go/misc
-		for dir in arm cgo goplay swig; do
-			cp -a $src/misc/$dir $fs/usr/lib/go/misc
-		done
-
-		# test
-		cp -a $src/test/ $fs/usr/lib/go
-
-		# doc
-		cp -a $src/doc/ $fs/usr/lib/go
-
-		# tools
-		mkdir -p $fs/usr/lib/go/src
-		cp -a $src/src/*.bash $fs/usr/lib/go/src
-		cp -a $src/src/*.rc $fs/usr/lib/go/src
-		;;
+		go-sources)
+			copy /usr/lib/go/misc/ \
+			     /usr/lib/go/test/ \
+			     /usr/lib/go/src/
+			CAT="development|sources files"
+			TAGS="go"
+			DEPENDS="go"
+			;;
+		emacs-pkg-go-mode)
+			copy 80-go-init.el go-mode/
+			CAT="development|an Emacs major mode for editing Go code"
+			TAGS="emacs go"
+			DEPENDS="emacs"
+			;;
+		go)
+			copy @std @rm
+			TAGS="go"
+			DEPENDS=""
+			;;
 	esac
 }
 
-post_install_emacs_pkg_go_mode()
-{
+post_install_emacs_pkg_go_mode() {
 	chroot "$1/" tazpkg reconfigure emacs
 }
 
-post_remove_emacs_pkg_go_mode()
-{
+post_remove_emacs_pkg_go_mode() {
 	chroot "$1/" tazpkg reconfigure emacs
 }
