@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="openvas-cli"
+VERSION="1.4.5"
+CATEGORY="network"
+SHORT_DESC="OpenVAS commandline interface"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://www.openvas.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://wald.intevation.org/frs/download.php/2397/$TARBALL"
+
+BUILD_DEPENDS="cmake openvas-libraries-dev glib-dev gnutls-dev"
+
+compile_rules() {
+	mkdir -p build
+	cd       build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib libgnutls openvas-libraries"
+}

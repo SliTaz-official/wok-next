@@ -3,11 +3,12 @@
 PACKAGE="openvas-libraries"
 VERSION="8.0.9"
 CATEGORY="network"
-SHORT_DESC="Network security scanner (libraries)."
+SHORT_DESC="Network security scanner"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 LGPL2 BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.openvas.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://wald.intevation.org/frs/download.php/2433/$TARBALL"
 
 BUILD_DEPENDS="gpgme-dev libgcrypt-dev pkg-config glib-dev gnutls-dev \
@@ -15,40 +16,37 @@ libpcap-dev bison flex cmake util-linux-uuid-dev zlib-dev libssh-dev \
 hiredis-dev"
 SPLIT="openvas-libraries openvas-libraries-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/builtin_functions_ntlmssp/{NNNNNd}' nasl/iconv.c
 	sed -i '/islocalhost/{Ns/\n/ /}' nasl/nasl_builtin_synscan.c
-	[ -d build ] || mkdir build
-	cd build &&
-	cmake	-DCMAKE_INSTALL_PREFIX=/usr \
+
+	mkdir -p build
+	cd       build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DSYSCONF_INSTALL_DIR=/etc \
 		-DLOCALSTATEDIR=/var \
-		-DBUILD_STATIC=0 -DBUILD_SHARED=1 .. &&
+		-DBUILD_STATIC=0 \
+		-DBUILD_SHARED=1 \
+		-DCMAKE_BUILD_TYPE=Release \
+		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	rm -r $install/usr/share/openvas/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	openvas-libraries)
-		DEPENDS="glib libgnutls libgcrypt zlib libgpg-error gpgme \
-			libtasn1 libpcap libssh hiredis util-linux-uuid"
-		mkdir -p $fs/usr/lib $fs/usr/share $fs/usr/bin
-		cp -a $install/usr/share/openvas $fs/usr/share
-		cp -a $install/etc $fs
-		cp -a $install/var $fs
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	openvas-libraries-dev)
-		DEPENDS="openvas-libraries pkg-config"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		openvas-libraries)
+			copy @std
+			CAT="network|libraries"
+			DEPENDS="glib gpgme hiredis libassuan libgcrypt libgnutls \
+			libgpg-error libpcap libssh util-linux-uuid zlib"
+			;;
+		openvas-libraries-dev)
+			copy @dev
+			DEPENDS="openvas-libraries glib-dev gnutls-dev libgcrypt-dev"
+			;;
 	esac
 }

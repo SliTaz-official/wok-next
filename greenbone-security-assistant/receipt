@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="greenbone-security-assistant"
+VERSION="6.0.12"
+CATEGORY="network"
+SHORT_DESC="Greenbone Security Assistant"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://www.openvas.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://wald.intevation.org/frs/download.php/2442/$TARBALL"
+
+BUILD_DEPENDS="cmake libmicrohttpd-dev libxml2-dev glib-dev libxslt-dev \
+openvas-libraries-dev gettext doxygen tzdata"
+
+compile_rules() {
+	mkdir -p build
+	cd       build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DSYSCONFDIR=/etc \
+		-DCMAKE_BUILD_TYPE=Release \
+		-Wno-dev \
+		.. &&
+	make &&
+	make doc &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="glib libgcrypt libgnutls libgpg-error liblzma libmicrohttpd \
+	libxml2 libxslt openvas-libraries zlib"
+	CONFIG_FILES="/etc/openvas/gsad_log.conf"
+}

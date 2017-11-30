@@ -1,0 +1,35 @@
+Unsuccessful attempt to redefine G_LOG_FATAL_MASK:
+
+In file included from /usr/include/glib-2.0/glib.h:62:0,
+                 from ${src}/src/gsad.c:62:
+/usr/include/glib-2.0/glib/gmessages.h:70:0: error: "G_LOG_FATAL_MASK" redefined [-Werror]
+ #define G_LOG_FATAL_MASK        (G_LOG_FLAG_RECURSION | G_LOG_LEVEL_ERROR)
+ 
+${src}/src/gsad.c:54:0: note: this is the location of the previous definition
+ #define G_LOG_FATAL_MASK G_LOG_LEVEL_ERROR
+ 
+
+--- a/src/gsad.c
++++ b/src/gsad.c
+@@ -47,12 +47,6 @@
+  * \verbinclude COPYING
+  */
+ 
+-/**
+- * @brief The Glib fatal mask, redefined to leave out G_LOG_FLAG_RECURSION.
+- */
+-#undef G_LOG_FATAL_MASK
+-#define G_LOG_FATAL_MASK G_LOG_LEVEL_ERROR
+-
+ #define _GNU_SOURCE /* for strcasecmp */
+ 
+ #include <arpa/inet.h>
+@@ -5095,7 +5089,7 @@
+   setup_log_handlers (log_config);
+   /* Set to ensure that recursion is left out, in case two threads log
+    * concurrently. */
+-  g_log_set_always_fatal (G_LOG_FATAL_MASK);
++  g_log_set_always_fatal (G_LOG_LEVEL_ERROR);
+ 
+   /* Finish processing the command line options. */
+ 

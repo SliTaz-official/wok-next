@@ -1,30 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openvas-client"
-VERSION="3.0.1"
+VERSION="3.0.3"
 CATEGORY="network"
-SHORT_DESC="Network security scanner (client)."
+SHORT_DESC="Network security scanner (client)"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.openvas.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://wald.intevation.org/frs/download.php/757/$TARBALL"
-CONFIG_FILES="/etc/openvas"
 
-DEPENDS="openvas-libraries gtk+"
-BUILD_DEPENDS="util-linux-uuid libpcap openvas-libraries openvas-libraries-dev \
-libgd-dev libpng-dev pkg-config gtk+-dev gnutls-dev"
+#BUILD_DEPENDS="util-linux-uuid libpcap openvas-libraries openvas-libraries-dev \
+#libgd-dev libpng-dev pkg-config gtk+-dev gnutls-dev"
+BUILD_DEPENDS="libgd-dev libpng16-dev glib-dev openvas-libraries-dev \
+gnutls-dev gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --sysconfdir=/etc \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS || return 1
+compile_rules() {
+	cp -a $stuff/libopenvas-config /usr/bin
+
+	./configure \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS || return 1
 	find -name Makefile | xargs sed -i 's|uname -o|echo GNU/Linux|'
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -33,4 +33,6 @@ genpkg_rules()
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/etc $fs
+	DEPENDS="openvas-libraries gtk+"
+	CONFIG_FILES="/etc/openvas/"
 }
