@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fribidi"
 VERSION="0.19.7"
@@ -12,17 +12,22 @@ HOST_ARCH="i486 arm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://fribidi.org/download/$TARBALL"
 
-DEPENDS="glib pcre"
 BUILD_DEPENDS="glib-dev"
+SPLIT="fribidi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy fribidi *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		fribidi)
+			copy @std
+			DEPENDS="glib pcre"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="fribidi glib-dev pcre-dev"
+			;;
+	esac
 }
