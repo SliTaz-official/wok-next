@@ -1,28 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="htmldoc"
-VERSION="1.8.27"
+VERSION="1.9.1"
 CATEGORY="utilities"
 SHORT_DESC="Convert HTML pages into a PDF document."
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-source.tar.bz2"
-WEB_SITE="http://www.htmldoc.org"
-WGET_URL="http://ftp.easysw.com/pub/$PACKAGE/$VERSION/$TARBALL"
+TARBALL="$PACKAGE-$VERSION-source.tar.gz"
+WEB_SITE="https://michaelrsweet.github.io/htmldoc"
+WGET_URL="https://github.com/michaelrsweet/htmldoc/releases/download/v$VERSION/$TARBALL"
 
 DEPENDS="jpeg libpng fltk"
-BUILD_DEPENDS="jpeg-dev libpng-dev fltk-dev"
+BUILD_DEPENDS="jpeg-dev libpng-dev fltk-dev libjpeg-turbo"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-
 	# make sure not to use the libs htmldoc ships with
 	mkdir foo ; mv jpeg foo/ ; mv png foo/ ; mv zlib foo/
 
 	{ ./configure && \
-	sed -i 's|^bindir.*$|bindir  = ${prefix}/bin|' Makedefs && \
 	make && make prefix=$DESTDIR/usr install; } || return 1
 
 	# fix freedesktop stuff
