@@ -1,26 +1,26 @@
 #!/bin/sh -e
 
+. /lib/libtaz.sh # SliTaz base functions
+
 ROOT="$1"
 PACKAGE="rar"
-WEB_SITE="http://www.rarlab.com/"
+WEB_SITE="https://www.rarlab.com/"
 WGET_URL="${WEB_SITE}download.htm"
 
-if test $(id -u) != 0 ; then
-	echo -e "\nYou must be root to run `basename $0`."
-	echo -e "Please type 'su' and root password to become super-user.\n"
-	exit 0
-fi
+check_root
 
-if [ -d $ROOT/var/lib/tazpkg/installed/$PACKAGE ]; then
-  [ -n "$ROOT" ] && exit 1
-  tazpkg remove $PACKAGE
-  [ -d /var/lib/tazpkg/installed/$PACKAGE ] && exit 1
-fi
+title "$PACKAGE installer"
 
-WGET_URL=$WEB_SITE$(wget -O - $WGET_URL | grep 'rarlinux-[0-9]' | sed 's/.*href="\(.*\)".*/\1/' | head -n1)
+echo "You should remove old version (if any) before installing the new one."
+tazpkg -r $PACKAGE --root="$ROOT"
+
+newline
+action "Determining the version..."
+
+WGET_URL=${WEB_SITE%/}$(wget -O - $WGET_URL 2>/dev/null | sed '/rarlinux-[0-9]/!d; s/.*href="\(.*\)".*/\1/' | head -n1)
 TARBALL=$(basename $WGET_URL || true)
 VERSION=$(echo $TARBALL | sed 's/.*-\(.*\).tar.*/\1/')
-echo "Downloading $PACKAGE $VERSION from $WGET_URL..."
+status
 
 BASE=$PWD
 DIR=/tmp/$0-$$
@@ -28,6 +28,7 @@ mkdir -p $DIR
 cd $DIR
 
 # Download tarball
+echo -e "Downloading $PACKAGE $VERSION from $WGET_URL...\n"
 wget $WGET_URL
 if [ ! -f $TARBALL ]; then
 	cd $BASE
@@ -37,24 +38,41 @@ if [ ! -f $TARBALL ]; then
 fi
 
 # Extract
-tar xzf $TARBALL
+newline
+action "Extracting..."
+busybox tar -xf ./$TARBALL
+status
+# Extracted pkg can be removed: Save RAM
+rm -f ./$TARBALL
 
 # Install files
-dir=$PACKAGE-$VERSION/fs/usr/bin
-mkdir -p $dir
-mv rar*/rar rar*/unrar $dir
-
-# extracted pkg can be removed: Save RAM
-rm -f $TARBALL
+fs=$PACKAGE-$VERSION/fs
+mkdir -p $fs/usr/bin $fs/usr/lib $fs/etc $fs/usr/share/licenses/rar \
+         $fs/usr/share/doc/$PACKAGE-$VERSION
+mv rar*/rar \
+   rar*/unrar         $fs/usr/bin
+mv rar*/default.sfx   $fs/usr/lib
+mv rar*/rarfiles.lst  $fs/etc
+mv rar*/license.txt   $fs/usr/share/licenses/rar
+mv rar*/acknow.txt \
+   rar*/whatsnew.txt \
+   rar*/order.htm     $fs/usr/share/doc/$PACKAGE-$VERSION
 
 # Create pseudo package
+
 cat > $PACKAGE-$VERSION/receipt <<EOT
 PACKAGE="$PACKAGE"
 VERSION="$VERSION"
 CATEGORY="non-free"
-SHORT_DESC="A powerful archive manager."
+SHORT_DESC="A powerful archive manager (trial license)"
 WEB_SITE="$WEB_SITE"
 EOT
+
+# Description
+mv rar*/readme.txt $PACKAGE-$VERSION/description.txt
+
+# Permissions
+chown -R root:root $PACKAGE-$VERSION
 
 # Pack
 tazpkg pack $PACKAGE-$VERSION
@@ -63,9 +81,8 @@ tazpkg pack $PACKAGE-$VERSION
 rm -rf $PACKAGE-$VERSION
 
 # Install pseudo package
-tazpkg install $PACKAGE-$VERSION.tazpkg --root=$ROOT
+tazpkg install $PACKAGE-$VERSION.tazpkg --root="$ROOT"
 cd $BASE
 
 # Clean
 rm -rf $DIR
-

@@ -1,35 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clutter"
 VERSION="1.6.20"
 CATEGORY="x-window"
-SHORT_DESC="Animated graphical user interfaces library."
+SHORT_DESC="Animated graphical user interfaces library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-SUGGESTED="nvidia"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://clutter-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.clutter-project.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="atk glib gdk-pixbuf cairo pango json-glib mesa libdrm \
-xorg-libXcomposite"
 BUILD_DEPENDS="atk-dev glib-dev gdk-pixbuf-dev cairo-dev pango-dev \
 json-glib-dev mesa-dev libdrm-dev xorg-libXcomposite-dev \
 gobject-introspection-dev pkg-config libxml2-dev expat-dev xorg-libxshmfence-dev"
+SPLIT="clutter-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-introspection \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
+
+	ln -s clutter-1.0.pc $fs/usr/lib/pkgconfig/clutter.pc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		clutter)
+			copy @std
+			DEPENDS="atk glib gdk-pixbuf cairo pango json-glib mesa libdrm \
+			xorg-libXcomposite"
+			SUGGESTED="nvidia"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="clutter mesa-dev json-glib-dev xorg-libXcomposite-dev"
+			;;
+	esac
 }
