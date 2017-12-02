@@ -9,8 +9,9 @@ LICENSE="GPL3"
 TARBALL="${PACKAGE}_${VERSION}_src.tar.gz"
 WEB_SITE="http://e4rat.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+CONFIG_FILES="/etc/e4rat.conf"
 
-DEPENDS="e2fsprogs"
+DEPENDS="e2fsprogs libboost-system libboost-filesystem libboost-regex"
 BUILD_DEPENDS="cmake e2fsprogs-dev libboost-dev libboost-system \
 libboost-filesystem libboost-regex libboost-signals libboost-serialization \
 audit-dev perl"
@@ -18,7 +19,6 @@ audit-dev perl"
 # Rules to configure and make the package.
 compile_rules()
 {
-	patch -p0 < $stuff/e4rat-boost.u
 	cmake -DCMAKE_BUILD_TYPE=release -DCMAKE_INSTALL_PREFIX=/usr . &&
 	make && make install
 }
@@ -29,6 +29,6 @@ genpkg_rules()
 	mkdir -p $fs/usr
 	cp -a $install/etc $fs
 	cp -a $install/var $fs
-	cp -a $install/usr/sbin $fs/usr
+	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 }
