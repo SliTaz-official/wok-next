@@ -12,13 +12,13 @@ WGET_URL="http://dukeworld.duke4.net/$PACKAGE/synthesis/$VERSION/$TARBALL"
 TAGS="shooting"
 
 DEPENDS="libsdl libsdl-mixer libvorbis gtk+ eduke32-data"
-BUILD_DEPENDS="libsdl-dev libsdl-mixer-dev libvorbis-dev gtk+-dev nasm mesa-dev"
+BUILD_DEPENDS="libsdl-dev libsdl-mixer-dev libvorbis-dev gtk+-dev nasm \
+mesa-dev libglu-mesa-dev gcc49"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	make $MAKEFLAGS || return 1
+	make CC=gcc-49 CXX=g++-49 $MAKEFLAGS || return 1
     	mkdir $DESTDIR
     	cp eduke32 mapster32 $DESTDIR
 }
@@ -32,5 +32,3 @@ genpkg_rules()
 	echo "Copying package files"
 	cp -a $install/eduke32 $install/mapster32 $fs/usr/bin
 }
-
-
