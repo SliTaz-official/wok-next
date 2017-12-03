@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libunibreak"
+VERSION="4.0"
+CATEGORY="libs"
+SHORT_DESC="Implementation of the line breaking algorithm"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="zlib/libpng"
+WEB_SITE="https://github.com/adah1972/libunibreak/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/adah1972/libunibreak/releases/download/libunibreak_${VERSION//./_}/$TARBALL"
+
+SPLIT="libunibreak-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install || return 1
+
+	# fix broken link
+	ln -sf libunibreak.a $install/usr/lib/liblinebreak.a
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libunibreak) copy @std;;
+		*-dev)       copy @dev;;
+	esac
+}

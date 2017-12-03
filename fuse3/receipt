@@ -1,0 +1,55 @@
+# SliTaz package receipt v2.
+
+PACKAGE="fuse3"
+VERSION="3.1.1"		# next releases require 'meson' currently unpackaged
+CATEGORY="system-tools"
+SHORT_DESC="FUSE Filsystem in Userspace"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/libfuse/libfuse"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/fuse.html"
+HOST_ARCH="i486 arm"
+
+TARBALL="fuse-$VERSION.tar.gz"
+WGET_URL="https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$TARBALL"
+
+BUILD_DEPENDS="util-linux-mount"
+SPLIT="fuse-common fuse3 fuse3-dev"
+
+compile_rules() {
+	export MOUNT_FUSE_PATH=/usr/bin
+	./configure \
+		--sysconfdir=/etc \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	rm -rf $install/etc/init.d
+	# handled by udev
+	rm -rf $install/dev
+
+	cook_pick_docs doc/html/ doc/kernel.txt
+
+	cp $stuff/fuse.conf $install/etc
+}
+
+# packaging notes: https://github.com/libfuse/libfuse/releases/tag/fuse-3.0.0
+genpkg_rules() {
+	case $PACKAGE in
+		fuse-common)
+			copy fuse.conf *.rules
+			DEPENDS="util-linux-mount"
+			CAT="system-tools|common files"
+			CONFIG_FILES="/etc/fuse.conf"
+			;;
+		fuse3)
+			copy @std @rm
+			DEPENDS="fuse-common"
+			TAGS="filesystem"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

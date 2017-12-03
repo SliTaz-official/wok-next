@@ -1,0 +1,49 @@
+# SliTaz package receipt v2.
+
+PACKAGE="fuse2"
+VERSION="2.9.7"
+CATEGORY="system-tools"
+SHORT_DESC="FUSE Filsystem in Userspace, compatible with GVFS"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/libfuse/libfuse"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/fuse2.html"
+HOST_ARCH="i486 arm"
+
+TARBALL="fuse-$VERSION.tar.gz"
+WGET_URL="https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$TARBALL"
+
+BUILD_DEPENDS="util-linux-mount"
+SPLIT="fuse2-dev"
+
+compile_rules() {
+	export MOUNT_FUSE_PATH=/usr/bin
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	rm -rf $install/etc/init.d
+	# -> fuse-common
+	rm -rf $install/etc/udev
+	rm     $install/usr/bin/mount.fuse
+	# handled by udev
+	rm -rf $install/dev
+
+	cook_pick_docs doc/how-fuse-works doc/kernel.txt
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		fuse2)
+			copy @std
+			DEPENDS="fuse-common"
+			TAGS="filesystem"
+			;;
+		*-dev)
+			copy @dev
+			PROVIDE="fuse-dev"
+			;;
+	esac
+}
