@@ -2,24 +2,31 @@
 
 PACKAGE="gnome-games"
 VERSION="2.32.1"
-CATEGORY="games"
-SHORT_DESC="A set of of simple games from Gnome."
+CATEGORY="meta"
+SHORT_DESC="Simple games from GNOME"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Apps/Games"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.gnome.org/"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Games: aisleriot need guile. glchess use pygtk/mesa and is splitted
-BUILD_DEPENDS="GConf-dev librsvg-dev libcroco-dev mesa-dev clutter-dev \
-clutter-gtk-dev python-dev pygtk-dev libcanberra-dev gnome-doc-utils-dev \
-libvorbis-dev libogg-dev util-linux-uuid-dev seed-dev libtool guile-dev \
-libffi-dev"
-SPLIT="gnome-games-glchess gnome-games-icons gnome-games-sudoku"
+BUILD_DEPENDS="libcroco-dev mesa-dev python-dev libvorbis-dev libogg-dev util-linux-uuid-dev seed-dev libtool libffi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="glib-dev gtk+-dev GConf-dev librsvg-dev clutter-dev \
+clutter-gtk-dev pygtk-dev libcanberra-dev intltool guile-dev \
+gnome-doc-utils-dev"
+
+gg='gnome-games'
+SPLIT="\
+$gg-aisleriot  $gg-glchess $gg-glines    $gg-gnect     $gg-gnibbles \
+$gg-gnobots2   $gg-sudoku  $gg-gnomine   $gg-gnotravex $gg-gnotski \
+$gg-gtali      $gg-iagno   $gg-lightsoff $gg-mahjongg  $gg-quadrapassel \
+$gg-swell-foop $gg-common  $gg-help      $gg           $gg-dev"
+
+compile_rules() {
+	addgroup -S games # for high score logging
+
 	./configure \
 		--sysconfdir=/etc \
 		--bindir=/usr/games \
@@ -31,68 +38,150 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	COOKOPTS="!menus"
+	game=${PACKAGE/gnome-games-/}
+	case $game in
+		aisleriot) bin='sol';;
+		glchess)   bin='glchess gnome-gnuchess';;
+		sudoku)    bin='gnome-sudoku';;
+		*)         bin="$game";;
+	esac
+	case $game in
+		glchess) py='site-packages/glchess/';;
+		sudoku)  py='site-packages/gnome_sudoku/';;
+		*)       py='';;
+	esac
+	case $game in
+		aisleriot) desktop='freecell.desktop sol.desktop';;
+		sudoku)    desktop='gnome-sudoku.desktop';;
+		*)         desktop="$game.desktop";;
+	esac
+	case $game in
+		aisleriot) icon='gnome-freecell.png gnome-aisleriot.png';;
+		gnotski)   icon='gnome-klotski.png';;
+		gnomine)   icon='gnome-mines.png';;
+		gnobots2)  icon='gnome-robots.png';;
+		gtali)     icon='gnome-tali.png';;
+		gnotravex) icon='gnome-tetravex.png';;
+		*)         icon="gnome-$game.png";;
+	esac
+	case $game in
+		glchess) share='share/glchess/';;
+		sudoku)  share='share/gnome-sudoku/';;
+		*)       share="share/gnome-games/$game/";;
+	esac
+	case $game in
+		glines|gnibbles|gnobots2|gnomine|gnotravex|gnotski|gtali|mahjongg|quadrapassel)
+			scores="var/games/$game*.scores";;
+		*)	scores='';;
+	esac
+	case $game in
+		sudoku) schemas='gnome-sudoku.schemas';;
+		*)      schemas="$game.schemas";;
+	esac
+
+	case $game in
+		gnome-games) ;;
+		dev)    copy @dev;;
+		help)   copy gnome/help/ omf/;;
+		common) copy sounds/ gnome-games-common/ \
+		        share/gnome-games/icons/ share/gnome-games/pixmaps/ \
+		        lib/gnome-games/ar-cards-renderer lib/gnome-games/*.so* ;;
+		*)      copy $bin $py $desktop $icon ${icon//.png/.svg} $share $scores \
+		        $schemas;;
+	esac
+
+	DEPENDS="gnome-games-common"
 	case $PACKAGE in
-	gnome-games)
-		DEPENDS="clutter-gtk GConf guile libcanberra librsvg seed xorg-libXi"
-		mkdir -p $fs/usr/lib $fs/usr/share/$PACKAGE-common
-
-		cp -a $install/usr/games $fs/usr
-		cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-		cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
-		cp -a $install/usr/share/$PACKAGE $fs/usr/share
-		cp -a $install/usr/share/$PACKAGE-common/cards \
-			$fs/usr/share/$PACKAGE-common
-		cp -a $install/usr/share/gir-1.0 $fs/usr/share
-
-		# Remove splitted games files
-		rm -f $fs/usr/games/glchess
-		rm -f $fs/usr/games/gnome-sudoku
-		rm -f $fs/usr/share/*/glchess.desktop
-		rm -f $fs/usr/share/*/gnome-sudoku.desktop
-
-		cp -a $install/var $fs
-		chmod a+w $fs/var/games/*
-		;;
-	gnome-games-glchess)
-		CAT="games|Chess game using GL/Mesa."
-		TAGS="chess"
-		DEPENDS="mesa python gnuchess gnome-games-icons"
-		game=glchess
-		mkdir -p \
-			$fs/usr/games $fs/usr/lib \
-			$fs/usr/share/applications
-
-		cp -a $install/usr/games/$game $fs/usr/games
-		cp -a $install/usr/lib/python* $fs/usr/lib
-		rm -rf $fs/usr/lib/python*/*/gnome_sudoku
-		cp -a $install/usr/share/$game $fs/usr/share
-
-		cp $src/$game/$game.desktop $fs/usr/share/applications
-		;;
-	gnome-games-icons)
-		CAT="games|Gnome games icons set."
-		DEPENDS="gnome-games"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/icons $fs/usr/share
-		rm -rf $fs/usr/share/icons/hicolor/scalable
-		;;
-	gnome-games-sudoku)
-		CAT="games|Gnome sudoku game."
-		DEPENDS="python pygtk python-gconf gnome-games-icons"
-		game=gnome-sudoku
-		mkdir -p \
-			$fs/usr/games $fs/usr/lib \
-			$fs/usr/share/applications
-
-		cp -a $install/usr/games/$game $fs/usr/games
-		cp -a $install/usr/lib/python* $fs/usr/lib
-		rm -rf $fs/usr/lib/python*/*/glchess
-		cp -a $install/usr/share/$game $fs/usr/share
-
-		cp $src/$game/$game.desktop $fs/usr/share/applications
-		;;
+		*-common)
+			CAT="games|common files"
+			DEPENDS="GConf atk bzlib cairo fontconfig freetype gdk-pixbuf glib \
+			gtk+ libcanberra libcanberra-gtk2 libcroco libffi libharfbuzz \
+			libltdl liblzma libogg libpng16 librsvg libvorbis libxml2 orbit2 \
+			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
+			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			;;
+		*-aisleriot)
+			CAT="games|collection of over 80 card games"
+			DEPENDS="gnome-games-common gmp guile"
+			;;
+		*-glchess)
+			CAT="games|classic board game of chess"
+			DEPENDS="gnome-games-common pygtk   mesa17"
+			TAGS="chess"
+			;;
+		*-glines)
+			CAT="games|Five or More"
+			;;
+		*-gnect)
+			CAT="games|Four-in-a-Row"
+			;;
+		*-gnibbles)
+			CAT="games|Nibbles"
+			DEPENDS="gnome-games-common clutter clutter-gtk cogl json-glib \
+			libdrm mesa17-libegl mesa17-libgbm mesa17-libwayland-egl wayland \
+			xorg-libXcomposite xorg-libXdamage xorg-libXfixes xorg-libXrandr"
+			;;
+		*-gnobots2)
+			CAT="games|Robots"
+			;;
+		*-sudoku)
+			CAT="games|Sudoku"
+			DEPENDS="gnome-games-common pygtk"
+			;;
+		*-gnomine)
+			CAT="games|Mines"
+			;;
+		*-gnotravex)
+			CAT="games|Tetravex"
+			;;
+		*-gnotski)
+			CAT="games|Klotski"
+			;;
+		*-gtali)
+			CAT="games|Tali"
+			;;
+		*-iagno)
+			CAT="games|Reversi"
+			;;
+		*-lightsoff)
+			CAT="games|Lights Off"
+			DEPENDS="gnome-games-common   seed"
+			;;
+		*-mahjongg)
+			CAT="games|Mahjongg"
+			;;
+		*-quadrapassel)
+			CAT="games|Quadrapassel"
+			DEPENDS="gnome-games-common clutter clutter-gtk cogl json-glib \
+			libdrm mesa17-libegl mesa17-libgbm mesa17-libwayland-egl wayland \
+			xorg-libXcomposite xorg-libXdamage xorg-libXfixes xorg-libXrandr"
+			;;
+		*-swell-foop)
+			CAT="games|Swell Foop"
+			DEPENDS="gnome-games-common   seed"
+			;;
+		*-help)
+			CAT="gnome|help files"
+			;;
+		gnome-games)
+			CAT="meta|full set"
+			DEPENDS="$gg-aisleriot $gg-glchess $gg-glines $gg-gnect \
+			$gg-gnibbles $gg-gnobots2 $gg-sudoku $gg-gnomine $gg-gnotravex \
+			$gg-gnotski $gg-gtali $gg-iagno $gg-lightsoff $gg-mahjongg \
+			$gg-quadrapassel $gg-swell-foop"
+			;;
+		*-dev)
+			DEPENDS="GConf-dev atk-dev bzip2-dev cairo-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
+			libcanberra-dev libcroco-dev libffi-dev libogg-dev libpng16-dev \
+			librsvg-dev libtool libvorbis-dev libxml2-dev orbit2-dev pango-dev \
+			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
 	esac
 }

@@ -1,53 +1,46 @@
 # SliTaz package receipt v2.
 
 PACKAGE="seed"
-VERSION="3.2.0"
+VERSION="3.8.1"
 CATEGORY="system-tools"
-SHORT_DESC="Gnome JavaScript REPL/Interpreter."
+SHORT_DESC="GObject JavaScriptCore bridge"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/Seed"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.gnome.org/"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="libffi-dev libwebkit-dev gobject-introspection-dev dbus-dev \
-dbus-glib-dev readline-dev mpfr-dev gmp-dev libxslt-dev util-linux-uuid-dev \
-cairo-dev gnome-js-common intltool gtk+-dev xorg-libXt-dev bash"
+BUILD_DEPENDS="gettext libtool webkitgtk-dev intltool \
+gobject-introspection-dev gnome-js-common readline-dev dbus-dev dbus-glib-dev \
+mpfr-dev"
 SPLIT="seed-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--with-webkit=1.0 \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	seed)
-		DEPENDS="libffi libwebkit gobject-introspection dbus dbus-glib \
-			readline mpfr gmp libxslt util-linux-uuid cairo \
-			gnome-js-common"
-		mkdir -p $fs/usr/lib/seed $fs/usr/share
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/seed/*.so* $fs/usr/lib/seed
-		cp -a $install/usr/share/seed $fs/usr/share
-		;;
-	seed-dev)
-		DEPENDS="libffi-dev libwebkit-dev gobject-introspection-dev \
-			dbus-dev dbus-glib-dev readline-dev mpfr-dev gmp-dev \
-			libxslt-dev util-linux-uuid-dev cairo-dev \
-			gnome-js-common pkg-config"
-		mkdir -p $fs/usr/lib/seed
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/seed/*.*a $fs/usr/lib/seed
-		;;
+		seed)
+			copy @std
+			DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
+			glib gmp gobject-introspection gtk+ libffi libsqlite3 webkitgtk \
+			libxml2 mpfr ncurses pango readline"
+			;;
+		seed-dev)
+			copy @dev
+			DEPENDS="seed atk-dev bzip2-dev cairo-dev dbus-dev dbus-glib-dev \
+			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gmp-dev \
+			gobject-introspection-dev gtk+-dev harfbuzz-dev icu-dev libffi-dev \
+			libpng16-dev webkitgtk-dev libxml2-dev mpfr-dev pango-dev pcre-dev \
+			readline-dev sqlite3-dev util-linux-blkid-dev util-linux-mount-dev \
+			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
 	esac
 }

@@ -1,0 +1,66 @@
+# SliTaz package receipt v2.
+
+PACKAGE="cogl"
+VERSION="1.22.2"
+CATEGORY="x-window"
+SHORT_DESC="Object oriented GL/GLES abstraction/utility layer"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://blogs.gnome.org/clutter/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/cogl.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev mesa17-dev xorg-libXcomposite-dev xorg-libXrandr-dev \
+gdk-pixbuf-dev gettext cairo-dev pango-dev gobject-introspection-dev"
+SPLIT="cogl cogl-dev"
+
+compile_rules() {
+	sed -i 's/^#if COGL/#ifdef COGL/' cogl/winsys/cogl-winsys-egl.c
+
+	# --enable-kms-egl-platform, --enable-wayland-egl-platform,
+	# --enable-wayland-egl-server: for GNOME Wayland support.
+	# This added mesa17-libwayland-egl to DEPENDS.
+	# --enable-xlib-egl-platform is default option.
+	./configure \
+		--enable-gles1 \
+		--enable-gles2 \
+		--enable-kms-egl-platform \
+		--enable-wayland-egl-platform \
+		--enable-xlib-egl-platform \
+		--enable-wayland-egl-server \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	# remove /usr/share/cogl/examples-data/crate.jpg with folder: no examples anyway
+	rm -r $install/usr/share/cogl
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		cogl)
+			copy @std
+			DEPENDS="bzlib cairo expat fontconfig freetype gdk-pixbuf glib \
+			libatomic libdrm libffi libharfbuzz liblzma libpng16 libxml2 \
+			mesa17-libegl mesa17-libgbm mesa17-libwayland-egl pango pcre \
+			util-linux-blkid util-linux-mount util-linux-uuid wayland \
+			xorg-libX11 xorg-libXau xorg-libxcb xorg-libXcomposite \
+			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+			xorg-libXrandr xorg-libXrender xorg-libxshmfence xorg-pixman zlib"
+			;;
+		cogl-dev)
+			copy @dev
+			DEPENDS="cogl bzip2-dev cairo-dev expat-dev fontconfig-dev \
+			freetype-dev gdk-pixbuf-dev glib-dev harfbuzz-dev libdrm-dev \
+			libffi-dev libpng16-dev libxml2-dev mesa17-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			wayland-dev xorg-libX11-dev xorg-libXau-dev xorg-libxcb-dev \
+			xorg-libXcomposite-dev xorg-libXdamage-dev xorg-libXdmcp-dev \
+			xorg-libXext-dev xorg-libXfixes-dev xorg-libXrandr-dev \
+			xorg-libXrender-dev xorg-libxshmfence-dev xorg-pixman-dev xz-dev \
+			zlib-dev"
+			;;
+	esac
+}
