@@ -25,8 +25,6 @@ $gg-gtali      $gg-iagno   $gg-lightsoff $gg-mahjongg  $gg-quadrapassel \
 $gg-swell-foop $gg-common  $gg-help      $gg           $gg-dev"
 
 compile_rules() {
-	addgroup -S games # for high score logging
-
 	./configure \
 		--sysconfdir=/etc \
 		--bindir=/usr/games \
@@ -35,7 +33,9 @@ compile_rules() {
 		--enable-introspection \
 		--enable-sound \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
+
+	chmod a+w $install/var/games/*.scores
 }
 
 genpkg_rules() {
