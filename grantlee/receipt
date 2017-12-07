@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="grantlee"
+VERSION="5.1.0"
+CATEGORY="libdevel"
+SHORT_DESC="Libraries for text templating with Qt"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/steveire/grantlee"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/grantlee.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://downloads.grantlee.org/$TARBALL"
+
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev"
+SPLIT="grantlee-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+
+	fix ld
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		grantlee)
+			copy @std
+			DEPENDS="qt5-base qt5-script"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

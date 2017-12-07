@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="exempi"
-VERSION="2.4.2"
+VERSION="2.4.3"
 CATEGORY="utilities"
 LICENSE="GPL3"
 SHORT_DESC="An implementation of XMP (Adobe's Extensible Metadata Platform)"
 MAINTAINER="yuripourre@gmail.com"
 WEB_SITE="https://libopenraw.freedesktop.org/wiki/Exempi/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/exempi.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://libopenraw.freedesktop.org/download/$TARBALL"
@@ -14,21 +15,23 @@ WGET_URL="https://libopenraw.freedesktop.org/download/$TARBALL"
 BUILD_DEPENDS="expat-dev zlib-dev libboost-dev libboost-unit-test-framework"
 SPLIT="exempi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		exempi) copy @std; DEPENDS="expat zlib";;
-		*-dev)  copy @dev; DEPENDS="expat-dev zlib-dev";;
+		exempi)
+			copy @std
+			DEPENDS="expat zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="exempi expat-dev zlib-dev"
+			;;
 	esac
 }

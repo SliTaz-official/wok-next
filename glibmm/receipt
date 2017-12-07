@@ -13,36 +13,34 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev libsigc++-dev"
-SPLIT="libgiomm libgiomm-dev glibmm-dev"
+SPLIT="libgiomm glibmm-dev"
 
 compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|glibmm-$VERSION|" docs/Makefile.in
 
-	./configure $CONFIGURE_ARGS && make && make install
+	fix ld &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		glibmm)
+			copy libglibmm*.so*
+			DEPENDS="glib libsigc++"
+			;;
 		libgiomm)
 			copy libgiomm*.so*
 			DEPENDS="glib glibmm libsigc++"
 			CAT="x-window|GIO Framework"
 			;;
-		libgiomm-dev)
-			copy giomm-2.4/ libgiomm*.la giomm-2.4.pc
-			DEPENDS="libgiomm glib-dev glibmm-dev libffi-dev libsigc++-dev \
-			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev zlib-dev"
-			CAT="development|GIO Framework development files"
-			;;
-		glibmm)
-			copy libglibmm*.so*
-			DEPENDS="glib libsigc++"
-			;;
 		glibmm-dev)
-			copy glibmm-2.4/ libglibmm*.la glibmm-2.4.pc
-			DEPENDS="glibmm libgiomm-dev \
-			glib-dev libffi-dev libsigc++-dev pcre-dev perl"
+			copy @dev
+			DEPENDS="glibmm libgiomm \
+			glib-dev libffi-dev libsigc++-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev perl"
+			PROVIDE="libgiomm-dev" # single dev package now
 			;;
 	esac
 }

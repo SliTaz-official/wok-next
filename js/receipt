@@ -1,45 +1,64 @@
 # SliTaz package receipt v2.
 
 PACKAGE="js"
-VERSION="17.0.0"
+VERSION="38.2.1"
 CATEGORY="libdevel"
 SHORT_DESC="Mozilla's JavaScript engine written in C/C++"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MPL2"
 WEB_SITE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/js38.html"
 
-TARBALL="mozjs$VERSION.tar.gz"
-WGET_URL="http://ftp.mozilla.org/pub/mozilla.org/js/$TARBALL"
+TARBALL="mozjs-$VERSION.rc0.tar.bz2"
+#WGET_URL="https://people.mozilla.org/~sstangl/$TARBALL"
+# SpiderMonkey no more released separately, URL is wrong, see:
+# https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/38
+# Use BLFS 8.1 source mirror:
+WGET_URL="http://ftp.osuosl.org/pub/blfs/8.1/m/$TARBALL"
 
-BUILD_DEPENDS="perl python nspr-dev zlib-dev"
+BUILD_DEPENDS="autoconf213 xorg-libXt-dev python-dev xorg-libX11-dev nspr-dev \
+zlib-dev icu-dev"
 SPLIT="js-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd js/src &&
+compile_rules() {
+	cd js/src
 
-	sed -i 's/(defined\((@TEMPLATE_FILE)\))/\1/' config/milestone.pl &&
+	autoconf-2.13 &&
 
 	./configure \
-		--enable-readline \
-		--enable-threadsafe \
+		--with-intl-api \
+		--with-system-zlib \
 		--with-system-ffi \
 		--with-system-nspr \
+		--with-system-icu \
+		--enable-threadsafe \
+		--enable-readline \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
-	find $install/usr/include/js-${VERSION%.*}/ \
-		 $install/usr/lib/libmozjs-${VERSION%.*}.a \
-		 $install/usr/lib/pkgconfig/mozjs-${VERSION%.*}.pc \
+	cd $install/usr/include/mozjs-38
+	for link in $(find . -type l); do
+		header=$(readlink $link)
+		rm -f $link
+		cp -pv $header $link
+		chmod 644 $link
+	done
+	cd - >/dev/null
+
+	find $install/usr/include/ \
+		 $install/usr/lib/pkgconfig/ \
 		-type f -exec chmod -v 644 '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		js)     copy @std; DEPENDS="ncurses nspr readline zlib";;
-		js-dev) copy @dev; DEPENDS="js nspr-dev";;
+		js)
+			copy @std
+			DEPENDS="icu libicu ncurses nspr readline zlib"
+			;;
+		js-dev)
+			copy @dev
+			DEPENDS="js nspr-dev"
+			;;
 	esac
 }

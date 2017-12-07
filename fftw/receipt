@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fftw"
 VERSION="3.3.6-pl2"
@@ -7,13 +7,14 @@ SHORT_DESC="A library for computing the discrete Fourier transform (DFT)"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.fftw.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/fftw.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.fftw.org/$TARBALL"
 
 BUILD_DEPENDS="gfortran"
+SPLIT="fftw-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
 	# build double precision
 	./configure \
@@ -44,8 +45,9 @@ compile_rules() {
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy @std
+genpkg_rules() {
+	case $PACKAGE in
+		fftw)  copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

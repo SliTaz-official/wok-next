@@ -1,27 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gsl"
-VERSION="2.3"
+VERSION="2.4"
 CATEGORY="libdevel"
 SHORT_DESC="GNU Scientific Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gsl/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/gsl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS &&
+SPLIT="gsl-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
-	find $fs -name gsl-config -delete
+genpkg_rules() {
+	case $PACKAGE in
+		gsl)   copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

@@ -7,30 +7,22 @@ SHORT_DESC="Enchant spell checking library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://abiword.github.io/enchant/"
-TAGS="spell check"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/enchant.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/AbiWord/enchant/releases/download/enchant-${VERSION//./-}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev hunspell-dev aspell-dev"
-SPLIT="enchant-aspell enchant-hunspell enchant-dev"
+SPLIT="enchant-aspell enchant-hunspell enchant enchant-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	fix ld &&
+	./configure $CONFIGURE_ARGS && fix libtool && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		enchant)
-			copy @std
-			find $fs \( -name libenchant_aspell.so -o -name libenchant_myspell.so \) -delete
-			SUGGESTED="aspell"
-			;;
 		enchant-aspell)
 			copy libenchant_aspell.so
 			CAT="text|aspell backend"
@@ -41,6 +33,12 @@ genpkg_rules()
 			CAT="text|hunspell backend"
 			DEPENDS="enchant hunspell"
 			;;
+		enchant)
+			copy @std @rm
+			DEPENDS="glib"
+			SUGGESTED="aspell"
+			TAGS="spell check"
+			;;
 		enchant-dev)
 			copy @dev
 			DEPENDS="enchant enchant-aspell enchant-hunspell aspell hunspell \
@@ -48,4 +46,3 @@ genpkg_rules()
 			;;
 	esac
 }
-

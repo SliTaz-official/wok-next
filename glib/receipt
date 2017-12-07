@@ -1,32 +1,32 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glib"
-VERSION="2.50.3"
+VERSION="2.52.3"
 CATEGORY="x-window"
 SHORT_DESC="C routines"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/glib/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/glib2.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
+BUILD_DEPENDS_arm="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev"
 BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
 pcre-dev gtk-doc libxslt libxml2-tools dbus-dev util-linux-mount-dev"
-BUILD_DEPENDS_arm="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev"
 SPLIT="glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	case "$ARCH" in
 		i?86)
 			./configure \
-			--sysconfdir=/etc \
-			--with-pcre=system \
-			--enable-static \
-			$CONFIGURE_ARGS ;;
+				--sysconfdir=/etc \
+				--with-pcre=system \
+				--enable-static \
+				$CONFIGURE_ARGS ;;
 		arm*)
 			# Native ARM build --> if ARCH != SLITAZ_ARCH ?
 			export LD_LIBRARY_PATH=/cross/$ARCH/sysroot/usr/lib:/usr/lib:/lib
@@ -50,6 +50,7 @@ compile_rules()
 				--enable-static=yes \
 				--disable-rpath ;;
 	esac &&
+	fix libtool &&
 	make &&
 	make DESTDIR=/ install &&
 	make DESTDIR=$DESTDIR install
@@ -60,9 +61,7 @@ compile_rules()
 	# Installing into / is safe since we working in the Aufs layer...
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		glib)
 			copy @std
@@ -70,13 +69,11 @@ genpkg_rules()
 			cd $fs/usr/bin
 			rm gdbus-codegen gtester* glib-mkenums glib-gettextize
 			rm -r $fs/usr/share
-			DEPENDS="elfutils libffi pcre util-linux-blkid util-linux-mount \
-			util-linux-uuid zlib"
+			DEPENDS="elfutils libffi pcre util-linux-mount zlib"
 			PROVIDE="libgio"	# deprecated
 			;;
 		glib-dev)
-			copy @std @dev
-			remove_already_packed
+			copy @std @dev @rm
 			DEPENDS="glib glibc-dev libffi-dev pcre-dev util-linux-blkid-dev \
 			util-linux-mount-dev util-linux-uuid-dev zlib-dev perl python"
 			PROVIDE="libgio-dev"	# deprecated

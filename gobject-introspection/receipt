@@ -1,52 +1,48 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gobject-introspection"
-VERSION="1.50.0"
+VERSION="1.52.1"
 CATEGORY="development"
 SHORT_DESC="Introspection system for GObject-based libraries"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2 MIT"
 WEB_SITE="https://wiki.gnome.org/Projects/GObjectIntrospection"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/gobject-introspection.html"
 #HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev util-linux-mount-dev"
 BUILD_DEPENDS_arm="glib-dev libffi-dev cairo-dev dbus-dev"
+BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev util-linux-mount-dev"
 SPLIT="gobject-introspection-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm*)
-		export   CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-		export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-		export    PKG_CONFIG_PATH="/cross/$ARCH/sysroot/usr/pkgconfig"
-		;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm*)
+			export   CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib"
+			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
+			export    PKG_CONFIG_PATH="/cross/$ARCH/sysroot/usr/pkgconfig"
+			;;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
+	fix ld
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gobject-introspection)
 			copy @std *.typelib
 			rm -r $fs/usr/share
-			DEPENDS="glib libffi pcre util-linux-blkid util-linux-mount \
-			util-linux-uuid zlib"
+			DEPENDS="glib libffi python"
 			;;
 		*-dev)
-			copy @std @dev
-			remove_already_packed
+			copy @std @dev @rm
 			DEPENDS="gobject-introspection glib-dev libffi-dev \
 			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
 			util-linux-uuid-dev zlib-dev"

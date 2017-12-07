@@ -7,47 +7,50 @@ SHORT_DESC="GLib interfaces to the D-Bus API"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/DBusBindings/#dbus-glibobsoleteunmaintained"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/dbus-glib.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dbus.freedesktop.org/releases/dbus-glib/$TARBALL"
 
-BUILD_DEPENDS="dbus-dev glib-dev expat-dev gettext gtk-doc"
 BUILD_DEPENDS_arm="dbus-dev glib-dev expat-dev"
+BUILD_DEPENDS="dbus-dev glib-dev expat-dev gettext gtk-doc"
 SPLIT="dbus-glib-dev"
 
-# Handle cross compilation. Host pkg-config/gettext are used
-case "$ARCH" in
-	arm*)
-		export ac_cv_have_abstract_sockets=${ac_cv_have_abstract_sockets=yes} ;;
-esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case "$ARCH" in
+		arm*) export ac_cv_have_abstract_sockets=${ac_cv_have_abstract_sockets=yes} ;;
+	esac
+
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--disable-static \
-		$CONFIGURE_ARGS &&
+		--disable-bash-completion \
+		$CONFIGURE_ARGS || return 1
+
 	case "$ARCH" in
 		arm)
 			patch -p1 < $stuff/dbus-glib.patch &&
 			patch -p0 < $stuff/dbus.patch ;;
-	esac &&
+	esac
+
+	fix libtool
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		dbus-glib)
-			copy bin/ *.so* # exclude bash completion
-			DEPENDS="dbus glib expat"
+			copy @std
+			DEPENDS="dbus expat glib"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="dbus-glib dbus-dev glib-dev"
+			DEPENDS="dbus-glib dbus-dev glib-dev libffi-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			zlib-dev"
 			;;
 	esac
 }

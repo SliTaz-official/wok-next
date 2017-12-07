@@ -7,7 +7,7 @@ SHORT_DESC="GNU spell checker"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://aspell.net/"
-TAGS="spell check"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/aspell.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -16,24 +16,31 @@ WGET_URL="$GNU_MIRROR/aspell/$TARBALL"
 BUILD_DEPENDS="perl gettext ncurses-dev"
 SPLIT="aspell-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	# fix some problems identified by gcc7:
+	sed -i '/ top.do_check ==/s/top.do_check/*&/' modules/filter/tex.cpp
+	sed -i '/word ==/s/word/*&/'                  prog/check_funs.cpp
+
+	./configure $CONFIGURE_ARGS && make && make install || return 1
 
 	ln -svfn aspell-0.60 $install/usr/lib/aspell
+
 	docdir="$install/usr/share/doc/aspell-$VERSION"
-	install -v -m755 -d $docdir/aspell.html &&
-	install -v -m755 -d $docdir/aspell-dev.html &&
-	install -v -m644 manual/aspell.html/*		$docdir/aspell.html &&
-	install -v -m644 manual/aspell-dev.html/*	$docdir/aspell-dev.html
+	install -v -m755 -d $docdir/aspell.html
+	install -v -m755 -d $docdir/aspell-dev.html
+	install -v -m644 manual/aspell.html/*     $docdir/aspell.html
+	install -v -m644 manual/aspell-dev.html/* $docdir/aspell-dev.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		aspell) 	copy @std; DEPENDS="ncurses" ;;
-		aspell-dev) copy @dev ;;
+		aspell)
+			copy @std
+			DEPENDS="ncurses"
+			TAGS="spell check"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

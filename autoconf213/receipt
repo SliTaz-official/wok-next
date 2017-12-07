@@ -7,15 +7,14 @@ SHORT_DESC="A GNU tool for automatically configuring source code"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/autoconf/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/autoconf213.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ftpmirror.gnu.org/autoconf/autoconf-$VERSION.tar.gz"
+TARBALL="autoconf-$VERSION.tar.gz"
+WGET_URL="http://ftpmirror.gnu.org/autoconf/$TARBALL"
 
 BUILD_DEPENDS="m4 perl sed"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--program-suffix=-2.13 &&
@@ -23,9 +22,7 @@ compile_rules()
 	make prefix="$DESTDIR/usr" install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="m4 perl"
 }

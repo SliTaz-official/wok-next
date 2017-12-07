@@ -1,34 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gmime"
-VERSION="2.6.7"
+VERSION="2.6.23"
 CATEGORY="development"
-SHORT_DESC="library for parsing messages using MIME"
+SHORT_DESC="Parsing messages using MIME"
 MAINTAINER="allan316@gmail.com"
 LICENSE="LGPL2.1"
+WEB_SITE="http://spruce.sourceforge.net/gmime/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/gmime.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://spruce.sourceforge.net/gmime"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:3}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib gpgme zlib"
-BUILD_DEPENDS="glib-dev gpgme-dev zlib-dev"
+BUILD_DEPENDS="gtk-doc zlib-dev glib-dev gpgme-dev gobject-introspection-dev \
+vala"
+SPLIT="gmime-dev"
+COOKOPTS="skip-log-errors"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
+	fix ld
 	./configure \
-		--enable-smime \
-		--disable-mono \
 		--disable-static \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM 2>&1 | grep -v "can't remove" &&
-	make && make DESTDIR=$DESTDIR install
+		--enable-smime \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		gmime)
+			copy @std
+			DEPENDS="glib gpgme zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gmime glib-dev gpgme-dev libassuan-dev libffi-dev \
+			libgpg-error-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
+			;;
+	esac
 }
