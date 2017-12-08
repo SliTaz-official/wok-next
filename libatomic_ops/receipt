@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libatomic_ops"
+VERSION="7.4.6"
+CATEGORY="system-tools"
+SHORT_DESC="Atomic memory update operations portable implementation"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/ivmai/libatomic_ops"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libatomic_ops.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/ivmai/libatomic_ops/releases/download/v$VERSION/$TARBALL"
+
+SPLIT="libatomic_ops-dev"
+
+compile_rules() {
+	./configure \
+		--enable-shared \
+		--disable-static \
+		--docdir=/usr/share/doc/$PACKAGE-$VERSION \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libatomic_ops) copy @std;;
+		*-dev)         copy @dev;;
+	esac
+}

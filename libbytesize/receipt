@@ -16,9 +16,12 @@ BUILD_DEPENDS="automake libtool gettext gmp-dev mpfr-dev"
 SPLIT="libbytesize-python libbytesize libbytesize-dev"
 
 compile_rules() {
+	fix ld
 	./autogen.sh &&
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
 genpkg_rules() {
@@ -29,13 +32,13 @@ genpkg_rules() {
 			CAT="libs|python bindings"
 			;;
 		libbytesize)
-			copy @std; remove_already_packed
+			copy @std @rm
 			DEPENDS="gmp mpfr pcre"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libbytesize libbytesize-python glib-dev gmp-dev mpfr-dev \
-			pcre-dev"
+			DEPENDS="libbytesize libbytesize-python \
+			glib-dev gmp-dev mpfr-dev pcre-dev"
 			;;
 	esac
 }

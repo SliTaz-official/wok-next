@@ -1,30 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libgusb"
-VERSION="0.2.9"
+VERSION="0.2.11"
 CATEGORY="libdevel"
 SHORT_DESC="GUsb is a GObject wrapper for libusb1"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/hughsie/libgusb"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libgusb.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://people.freedesktop.org/~hughsient/releases/$TARBALL"
+WGET_URL="https://people.freedesktop.org/~hughsient/releases/$TARBALL"
 
-DEPENDS="eudev glib libffi libusb pcre zlib"
 BUILD_DEPENDS="gobject-introspection-dev libxslt gtk-doc glib-dev libusb-dev"
+SPLIT="libgusb-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		libgusb)
+			copy @std
+			DEPENDS="glib libusb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libgusb eudev-dev glib-dev libffi-dev libusb-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev zlib"
+			;;
+	esac
 }

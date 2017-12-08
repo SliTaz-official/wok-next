@@ -15,31 +15,32 @@ WGET_URL="https://github.com/storaged-project/libblockdev/archive/$TARBALL"
 BUILD_DEPENDS="automake libtool python glib-dev eudev-dev cryptsetup-dev \
 nss-dev coreutils-file-special libdevmapper-dev kmod-dev parted-dev \
 util-linux-mount-dev util-linux-blkid-dev libbytesize-dev volume_key-dev"
-SPLIT="libblockdev-python libblockdev-dev"
+SPLIT="libblockdev-python libblockdev libblockdev-dev"
 
 compile_rules() {
+	fix ld
 	./autogen.sh &&
 
 	./configure \
 		--without-dm \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libblockdev)
-			copy @std; rm -r $fs/usr/lib/python2.7/
-			DEPENDS="cryptsetup eudev glib gmp gpgme kmod libassuan \
-			libbytesize libdevmapper libffi libgcrypt libgpg-error liblzma \
-			mpfr nspr nss parted pcre util-linux-blkid util-linux-mount \
-			util-linux-uuid volume_key zlib"
-			;;
 		*-python)
 			copy *.py
 			CAT="libs|python bindings"
 			DEPENDS="libblockdev python"
+			;;
+		libblockdev)
+			copy @std @rm
+			DEPENDS="cryptsetup eudev glib kmod libbytesize libdevmapper \
+			liblzma nss parted util-linux-blkid util-linux-mount volume_key \
+			zlib"
 			;;
 		*-dev)
 			copy @dev

@@ -7,16 +7,15 @@ SHORT_DESC="A portable foreign function interface library"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="MIT"
 WEB_SITE="https://sourceware.org/libffi/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libffi.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://sourceware.org/pub/$PACKAGE/$TARBALL"
+WGET_URL="https://sourceware.org/ftp/libffi/$TARBALL"
 
 SPLIT="libffi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
 		-i include/Makefile.in
 	sed -e '/^includedir/ s/=.*$/=@includedir@/' \
@@ -25,15 +24,13 @@ compile_rules()
 
 	./configure \
 		--disable-static \
-		$CONFIGURE_ARGS  &&
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libffi) copy @std;;
-		*-dev) copy @dev;;
+		*-dev)  copy @dev;;
 	esac
 }

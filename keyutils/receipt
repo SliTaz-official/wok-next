@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="keyutils"
+VERSION="1.5.10"
+CATEGORY="system-tools"
+SHORT_DESC="Linux key management utilities"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 LGPL2.1"
+WEB_SITE="http://people.redhat.com/~dhowells/keyutils/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/keyutils.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://people.redhat.com/~dhowells/keyutils/$TARBALL"
+
+BUILD_DEPENDS="file"
+SPLIT="keyutils-dev"
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
+	make &&
+	make NO_ARLIB=1 DESTDIR=$install install || return 1
+
+	ln -sf libkeyutils.so.1.6 $install/lib/libkeyutils.so
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		keyutils)
+			copy @std
+			CONFIG_FILES="/etc/request-key.conf /etc/request-key.d/"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

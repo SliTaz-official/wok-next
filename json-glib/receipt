@@ -16,15 +16,17 @@ BUILD_DEPENDS="glib-dev gtk-doc libxslt-dev gobject-introspection-dev gettext"
 SPLIT="json-glib-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		json-glib)
 			copy @std
-			DEPENDS="glib libffi pcre util-linux-blkid util-linux-mount \
-			util-linux-uuid zlib"
+			DEPENDS="glib"
 			TAGS="javascript"
 			;;
 		*-dev)

@@ -7,6 +7,7 @@ SHORT_DESC="GNOME Structured File Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/gsf/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libgsf.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -15,19 +16,14 @@ BUILD_DEPENDS="intltool gtk-doc glib-dev libxml2-dev zlib-dev bzip2-dev \
 gdk-pixbuf-dev gobject-introspection-dev"
 SPLIT="libgsf-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/general/libgsf.html
+compile_rules() {
 	./configure \
 		--enable-introspection \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libgsf)
 			copy @std

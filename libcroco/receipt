@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libcroco"
-VERSION="0.6.11"
+VERSION="0.6.12"
 CATEGORY="system-tools"
-SHORT_DESC="Cascading Style Sheet (CSS) parsing and manipulation toolkit"
+SHORT_DESC="Cascading Style Sheet (CSS2) parsing and manipulation toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://developer.gnome.org/libcroco/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libcroco.html"
 HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
@@ -15,10 +16,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="libxml2-dev glib-dev zlib-dev gtk-doc"
 SPLIT="libcroco-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/general/libcroco.html
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
@@ -26,9 +24,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libcroco)
 			copy @std

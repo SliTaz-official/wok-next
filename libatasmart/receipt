@@ -7,6 +7,7 @@ SHORT_DESC="Disk reporting library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://0pointer.de/blog/projects/being-smart.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libatasmart.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://0pointer.de/public/$TARBALL"
@@ -14,20 +15,15 @@ WGET_URL="http://0pointer.de/public/$TARBALL"
 BUILD_DEPENDS="eudev-dev"
 SPLIT="libatasmart-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/general/libatasmart.html
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make docdir=/usr/share/doc/libatasmart-$VERSION install
+	make docdir=/usr/share/doc/$PACKAGE-$VERSION install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libatasmart)
 			copy @std

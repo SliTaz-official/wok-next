@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="json-c"
+VERSION="0.12.1"
+CATEGORY="libs"
+SHORT_DESC="Reference counting object model"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://github.com/json-c/json-c"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/json-c.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://s3.amazonaws.com/json-c_releases/releases/$TARBALL"
+
+BUILD_DEPENDS="automake"
+SPLIT="json-c-dev"
+
+compile_rules() {
+	sed -i 's|-Werror||' Makefile.in tests/Makefile.in
+
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		json-c) copy @std;;
+		*-dev)  copy @dev;;
+	esac
+}

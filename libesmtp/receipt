@@ -1,30 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libesmtp"
 VERSION="1.0.6"
 CATEGORY="network"
-SHORT_DESC="A Library for Posting Electronic Mai"
+SHORT_DESC="A Library for posting electronic mail"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.stafford.uklinux.net/libesmtp/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libesmtp.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.stafford.uklinux.net/libesmtp/$TARBALL"
 
-DEPENDS="libltdl libssl"
-BUILD_DEPENDS="openssl-dev"
+BUILD_DEPENDS="automake libtool openssl-dev"
+SPLIT="libesmtp-dev"
+COOKOPTS="skip-log-errors"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	# fix a build issue with OpenSSL-1.1.0
+	sed 's@SSL_library_init@SSL_new@g' -i configure.ac
+	autoreconf -fi &&
+
+	./configure $CONFIGURE_ARGS &&
+	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	
-	find $fs -name "*.*a" -exec rm -f {} \;
+genpkg_rules() {
+	case $PACKAGE in
+		libesmtp)
+			copy @std
+			DEPENDS="libcrypto libssl"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libesmtp openssl-dev"
+			;;
+	esac
 }
