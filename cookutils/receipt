@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cookutils"
-VERSION="1019"
+VERSION="1020"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz packages builder new generation"
 MAINTAINER="pankso@slitaz.org"
@@ -14,18 +14,14 @@ WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
 SPLIT="cookutils-daemon"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make DESTDIR=$install install
 
 	#Symlink cooker to busybox httpd server root
 	ln -s cgi-bin/cooker $install/var/www/cooker
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	TAGS="slitaz"
 	case $PACKAGE in
 		cookutils)
@@ -40,9 +36,7 @@ genpkg_rules()
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_cookutils()
-{
+post_install_cookutils() {
 	case "$(cat "$1/etc/hostname" 2>/dev/null)" in
 		tank*)
 			if ! chroot "$1/" tazpkg list | grep -q aufs ; then

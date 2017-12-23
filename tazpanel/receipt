@@ -1,45 +1,58 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tazpanel"
-VERSION="613"
+VERSION="622"
 CATEGORY="system-tools"
-SHORT_DESC="SliTaz administration and configuration panel."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz administration and configuration panel"
+MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.slitaz.org/"
 HOST_ARCH="i486 arm"
-CONFIG_FILES="/etc/slitaz/tazpanel.conf /etc/slitaz/httpd.conf"
-SUGGESTED="tazinst-gui tazinst"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/tazpanel/archive/$VERSION.tar.bz2"
 
-DEPENDS="busybox gettext-base sundown"
 BUILD_DEPENDS="gettext jsmin tidy-html5"
-SIBLINGS="tazpanel-extra"
+SPLIT="tazpanel tazpanel-extra:extra"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make && make DESTDIR=$DESTDIR VERSION=$VERSION install
+compile_rules() {
+	case $SET in
+		'')
+			make && make DESTDIR=$DESTDIR VERSION=$VERSION install
+			mkdir -p $install/etc/init.d
+			# Init script use tazpanel cmdline
+			ln -s ../../usr/bin/tazpanel $install/etc/init.d/tazpanel
+			;;
+		extra)
+			make && make DESTDIR=$DESTDIR VERSION=$VERSION install_extra
+			;;
+	esac
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/etc/init.d
-	cp -a $install/* $fs
-	# Init script use tazpanel cmdline
-	cd $fs/etc/init.d && ln -s ../../usr/bin/tazpanel .
+genpkg_rules() {
+	copy @std *.mo
+	case $PACKAGE in
+		tazpanel)
+			DEPENDS="busybox gettext-base sundown"
+			CONFIG_FILES="/etc/slitaz/tazpanel.conf /etc/slitaz/httpd.conf"
+			SUGGESTED="tazinst-gui tazinst"
+			;;
+		tazpanel-extra)
+			CAT="system-tools|extra modules"
+			DEPENDS="tazpanel"
+			;;
+	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
-	rm -f "$1"/var/cache/tazpanel/* 2> /dev/null
+post_install_tazpanel() {
+	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null
 	grep -qs tazpanel "$1"/etc/hosts ||
 		sed -i 's/^127.0.0.1.*/& tazpanel/' "$1"/etc/hosts
 
 	# Do we need TazPanel restart? It freezes when updating using web interface.
 	#[ -z "$1" ] && tazpanel restart
+}
+
+post_install_tazpanel_extra() {
+	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null || true
 }
