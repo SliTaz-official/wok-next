@@ -7,6 +7,7 @@ SHORT_DESC="Read/write NTFS driver"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2"
 WEB_SITE="https://www.tuxera.com/community/open-source-ntfs-3g/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/ntfs-3g.html"
 
 TARBALL="ntfs-3g_ntfsprogs-$VERSION.tgz"
 WGET_URL="https://tuxera.com/opensource/$TARBALL"
@@ -14,11 +15,7 @@ WGET_URL="https://tuxera.com/opensource/$TARBALL"
 BUILD_DEPENDS="util-linux-uuid-dev libtool"
 SPLIT="ntfsprogs ntfsprogs-extra ntfs-3g ntfs-3g-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/ntfs-3g.html
-
+compile_rules() {
 	touch $src/libtoolT
 
 	./configure \
@@ -33,9 +30,7 @@ compile_rules()
 	ln -s mount.ntfs-3g $install/sbin/mount.ntfs
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	TAGS="windows"
 	case $PACKAGE in
 		ntfsprogs)
@@ -50,8 +45,7 @@ genpkg_rules()
 			DEPENDS="ntfs-3g"
 			;;
 		ntfs-3g)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			CONFIG_FILES="/etc/filesystems"
 			DEPENDS=" "
 			;;

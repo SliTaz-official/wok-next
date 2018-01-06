@@ -13,7 +13,7 @@ DEPENDS="compton-conf libfm-qt liblxqt libqtxdg libsysstat lximage-qt \
 lxqt-about lxqt-admin lxqt-config lxqt-globalkeys lxqt-l10n lxqt-notificationd \
 lxqt-openssh-askpass lxqt-panel lxqt-policykit lxqt-powermanagement \
 lxqt-qtplugin lxqt-runner lxqt-session lxqt-sudo lxqt-themes pavucontrol-qt \
-pcmanfm-qt qterminal qtermwidget   \
+pcmanfm-qt qterminal qtermwidget lxmenu-data   \
 gvfs gvfs-udisks2 openbox qlipper xorg-xprop xorg-xset"
 # still Qt4: obconf-qt lxqt-config-randr lxqt-appswitcher
 
@@ -33,9 +33,9 @@ post_install() {
 	done
 
 	for a in lxpanel pcmanfm tazpkg-notify xcompmgr; do
-		if [ -e "$1/etc/xdg/autostart/$a.desktop" -a \
-			! grep -q LXQt "$1/etc/xdg/autostart/$a.desktop" ]; then
-			sed '/NotShowIn=/s|;$|&LXQt;|' -i "$1/etc/xdg/autostart/$a.desktop"
+		if [ -e "$1/etc/xdg/autostart/$a.desktop" ]; then
+			grep -q LXQt "$1/etc/xdg/autostart/$a.desktop" ||
+			sed -i '/NotShowIn=/ s|;$|&LXQt;|' "$1/etc/xdg/autostart/$a.desktop"
 		fi
 	done
 }

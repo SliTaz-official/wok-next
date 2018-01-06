@@ -7,6 +7,7 @@ SHORT_DESC="LXDE standard icon theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL3"
 WEB_SITE="http://www.lxde.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/lxde-icon-theme.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
@@ -14,25 +15,20 @@ WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 BUILD_DEPENDS="coreutils-operations"
 SPLIT="lxde-icon-theme-base lxde-icon-theme"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/x/lxde-icon-theme.html
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	TAGS="LXDE"
 	case $PACKAGE in
 		*-base)
 			copy 16x16/ 48x48/ icon.theme
 			CAT="customization|16 and 48 sizes only"
+			DEPENDS="hicolor-icon-theme"
 			;;
 		*-theme)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="lxde-icon-theme-base"
 			;;
 	esac
