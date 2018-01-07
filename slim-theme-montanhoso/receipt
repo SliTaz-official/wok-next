@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slim-theme-montanhoso"
 VERSION="20150526"
@@ -6,34 +6,29 @@ CATEGORY="customization"
 SHORT_DESC="Montanhoso - theme for SLiM"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PublicDomain"
-WEB_SITE="http://desktopstylish.tumblr.com/post/120406192590/montanhoso-theme-for-the-slim-login-manager"
+WEB_SITE="http://desktopstylish.tumblr.com/post/120406192590/montanhoso-theme-for-the-slim-login-manager"		# missing
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlTXZZRDJWaFI4NkE"
-TAGS="hackdorte slim"
 
-DEPENDS="slim"
-BUILD_DEPENDS=""
+COOKOPTS="!pngquant"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $install/usr/share/slim/themes/Montanhoso
-	cp -a $src/* $install/usr/share/slim/themes/Montanhoso
-	chown -R root:root $install
+compile_rules() {
+	theme="$install/usr/share/slim/themes/Montanhoso"
+	mkdir -p $theme
+	cp -r $src/* $theme
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="slim"
+	TAGS="hackdorte slim"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" slim-theme -s Montanhoso
 }
 
-pre_remove()
-{
+pre_remove() {
 	chroot "$1/" slim-theme -f Montanhoso
 }

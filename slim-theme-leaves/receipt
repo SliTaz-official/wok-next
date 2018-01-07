@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slim-theme-leaves"
 VERSION="20150602"
@@ -6,39 +6,29 @@ CATEGORY="customization"
 SHORT_DESC="Leaves - theme for SLiM"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PublicDomain"
-WEB_SITE="http://desktopstylish.tumblr.com/post/120510224250/leaves-slim-theme-download"
+WEB_SITE="http://desktopstylish.tumblr.com/post/120510224250/leaves-slim-theme-download"		# missing
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqldkFkbmRCRFZVQ0k"
-TAGS="hackdorte slim"
 
-DEPENDS="slim"
-BUILD_DEPENDS="imagemagick"
+COOKOPTS="!pngquant"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $install/usr/share/slim/themes/Leaves
-	cp -a $src/* $install/usr/share/slim/themes/Leaves
-	(
-		cd $install/usr/share/slim/themes/Leaves
-		convert background.png background.jpg
-		rm background.png
-	)
-	chown -R root:root $install
+compile_rules() {
+	theme="$install/usr/share/slim/themes/Leaves"
+	mkdir -p $theme
+	cp -r $src/* $theme
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="slim"
+	TAGS="hackdorte slim"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" slim-theme -s Leaves
 }
 
-pre_remove()
-{
+pre_remove() {
 	chroot "$1/" slim-theme -f Leaves
 }

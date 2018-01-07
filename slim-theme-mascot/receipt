@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slim-theme-mascot"
 VERSION="20130527"
@@ -8,35 +8,31 @@ MAINTAINER="al.bobylev@gmail.com"
 LICENSE="CC-BY"
 WEB_SITE="http://www.slitaz.org/"
 
-DEPENDS="slim slitaz-configs-base"
-BUILD_DEPENDS="inkscape optipng"
+BUILD_DEPENDS="rsvg-convert"
+COOKOPTS="!pngquant"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $install
-	inkscape -f $stuff/slitaz_spider.svg -e $install/panel.png
-	optipng -zc1-9 -zm1-9 -zs0-3 -f0-5 $install/panel.png
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	theme=$fs/usr/share/slim/themes/mascot
+compile_rules() {
+	theme="$install/usr/share/slim/themes/mascot"
 	mkdir -p $theme
-	# link SLiM background to SliTaz desktop background;
-	# system is almost here...
+
+	# convert vector art to bitmap
+	rsvg-convert $stuff/slitaz_spider.svg -o $theme/panel.png
+
+	# link SLiM background to SliTaz desktop background; system is almost here...
 	cp -s /usr/share/images/slitaz-background.jpg $theme/background.jpg
-	cp -a $install/panel.png $theme
-	cp -a $stuff/slim.theme $theme
+
+	cp $stuff/slim.theme $theme
 }
 
-post_install()
-{
+genpkg_rules() {
+	copy @std
+	DEPENDS="slim slitaz-configs-base"
+}
+
+post_install() {
 	chroot "$1/" slim-theme -smascot
 }
 
-pre_remove()
-{
+pre_remove() {
 	chroot "$1/" slim-theme -fmascot
 }

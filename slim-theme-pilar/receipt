@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slim-theme-pilar"
 VERSION="1.0-20130609"
@@ -8,23 +8,23 @@ MAINTAINER="holkfoor@gmail.com"
 LICENSE="CC-BY"
 WEB_SITE="http://www.slitaz.org/"
 
-DEPENDS="slim slitaz-configs-base"
-BUILD_DEPENDS=""
+COOKOPTS="!pngquant"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	theme=$fs/usr/share/slim/themes/pilar
+compile_rules() {
+	theme="$install/usr/share/slim/themes/pilar"
 	mkdir -p $theme
-	cp -a $stuff/* $theme
+	cp -r $stuff/* $theme
 }
 
-post_install()
-{
+genpkg_rules() {
+	copy @std
+	DEPENDS="slim slitaz-configs-base"
+}
+
+post_install() {
 	chroot "$1/" slim-theme -spilar
 }
 
-pre_remove()
-{
+pre_remove() {
 	chroot "$1/" slim-theme -fpilar
 }
