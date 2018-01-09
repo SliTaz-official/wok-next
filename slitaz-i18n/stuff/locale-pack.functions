@@ -1,169 +1,192 @@
-get_locale()
-{
-	LOCALE="$1"; LOCALE_DEPENDS="$2"; LOCALEDEF="$3"
-	KBD="$4"; KB_FLAGS="$5"; GCONV="$6"
+get_locale() {
+	LOCALE="$1"
+	LOCALE_DEPENDS="$2"
+	LOCALEDEF="$3"
+	KBD="$4"
+	KB_FLAGS="$5"
+	GCONV="$6"
 	[ -z "$CHARMAP" ] && CHARMAP='UTF-8'
 
-	case "$SLITAZ_ARCH" in
-		arm*) ;;
-		i?86)
-			# Get translated Openbox menu from SliTaz sub project slitaz-configs
-			obmenu="$WOK/slitaz-configs/install/etc/xdg/openbox/menu.$LOCALE.xml"
-			if [ -f "$obmenu" ]; then
-				mkdir -p $fs/etc/xdg/openbox
-				echo "* Found $LOCALE translations for: openbox menu"
-				cp $obmenu $fs/etc/xdg/openbox
+
+	case "$option" in
+		base)
+			# for locale-*-base packages =======================================
+			# (locale-related files shared across all the flavors, for example LXQt flavor)
+
+			case "$SLITAZ_ARCH" in
+				arm*) ;;
+				i?86)
+					# Get translated Openbox menu from SliTaz sub project slitaz-configs
+					obmenu="$WOK/slitaz-configs/install/etc/xdg/openbox/menu.$LOCALE.xml"
+					if [ -f "$obmenu" ]; then
+						mkdir -p $fs/etc/xdg/openbox
+						echo "* Found $LOCALE translations for: openbox menu"
+						cp $obmenu $fs/etc/xdg/openbox
+					fi
+					;;
+			esac
+
+			# List of available locales
+			if [ -d "$WOK/glibc/install/usr/share/i18n/locales" ]; then
+				cd $WOK/glibc/install/usr/share/i18n/locales
+				locales=$(ls -1 | sed -n '/^'$LOCALE'$/p; /^'$LOCALE'_.*/p' | sed '/translit/d')
+			else
+				locales=''
 			fi
+			[ -n "$LOCALEDEF" ] && locales="$LOCALEDEF"
+
+			# Get X11 locale
+			for def in $locales; do
+				x11_locale="$WOK/xorg-libX11/install/usr/share/X11/locale/$def.$CHARMAP"
+				case "$def.$CHARMAP" in
+					en_US.UTF-8)
+						# belongs to "xorg-libX11" package, skip it
+						;;
+					*)
+						if [ -d "$x11_locale" ]; then
+							echo "* Found $def.$CHARMAP locale for: X11"
+							mkdir -p $fs/usr/share/X11/locale
+							cp -a $x11_locale $fs/usr/share/X11/locale
+						fi
+						;;
+				esac
+			done
+
+			# Get locale definition files
+			if [ -d "$WOK/glibc/install" ]; then
+				for def in $locales; do
+					case $def in
+						en_US|en_GB)
+							# already in glibc-base
+							;;
+						*)
+							echo "* Copying $def locale files"
+							mkdir -p $fs/usr/share/i18n/locales
+							cp -a $WOK/glibc/install/usr/share/i18n/locales/$def \
+								$fs/usr/share/i18n/locales
+							;;
+					esac
+				done
+
+				if [ -n "$LOCALE_DEPENDS" ]; then
+					for dep in $LOCALE_DEPENDS; do
+						echo "* Copying additional $dep locale files"
+						cp -a $WOK/glibc/install/usr/share/i18n/locales/$dep \
+							$fs/usr/share/i18n/locales
+					done
+				fi
+			fi
+
+			#grep -r 'include' $fs/usr/share/i18n/locales	# test includes in locales
+
+			# Get timezones from tzdata
+			if [ -d "$WOK/tzdata/install" ]; then
+				countries=$(echo $locales | \
+					sed 's|@[^ ]*||g; s|[^ _]*_||g' | tr ' ' '\n' | sort -u)
+				echo "* Copy timezone info for countries: "$countries
+				locations=''
+				for country in $countries; do
+					location=$(grep '^'$country \
+						$WOK/tzdata/install/usr/share/zoneinfo/zone.tab | awk '{ print $3}')
+					locations="$locations $location"
+				done
+				for location in $locations; do
+					for tz in $location; do
+						install -Dm644 $WOK/tzdata/install/usr/share/zoneinfo/$tz \
+							$fs/usr/share/zoneinfo/$tz
+					done
+				done
+			fi
+
+			# Gconv modules for encodings other than default
+			if [ -n "$GCONV" -a -d "$WOK/glibc/install" ]; then
+				mkdir -p $fs/usr/lib/gconv
+				for enc in $GCONV; do
+					case $enc in
+						ISO8859-1|ISO8859-15)
+							# already in glibc-base
+							;;
+						*)
+							if [ -e "$WOK/glibc/install/usr/lib/gconv/$enc.so" ]; then
+								echo "* Copying $enc gconv module"
+								cp -a $WOK/glibc/install/usr/lib/gconv/$enc.so $fs/usr/lib/gconv
+							fi
+							;;
+					esac
+				done
+				#ldd $fs/usr/lib/gconv/*	# test depends in gconv modules
+			fi
+
+			# Console keyboard layouts
+			if [ -n "$KBD" -a -d "$WOK/kbd/install" ]; then
+				cd $WOK/kbd/install
+				for map in $KBD; do
+					mapfiles=$(find . -type f -name $map.map.gz)
+					if [ -n "$mapfiles" ]; then
+						echo "* Copying $map kbd map"
+						for mapfile in $mapfiles; do
+							mkdir -p "$fs/$(dirname "${mapfile#./}")"
+							cp "$WOK/kbd/install/${mapfile#./}" "$fs/${mapfile#./}"
+						done
+					fi
+				done
+			fi
+
+			# Get country flags
+			if [ -d "$WOK/flag-icons/install" ]; then
+				echo "* Copy flag icons for countries: "$countries
+				for country in $countries; do
+					for size in 16x16 48x48; do
+						install -Dm644 \
+							$WOK/flag-icons/install/usr/share/icons/hicolor/$size/intl/$country.png \
+							$fs/usr/share/icons/hicolor/$size/intl/$country.png
+					done
+				done
+				# above icons credits
+				mkdir -p $fs/usr/share/licenses
+				cp $WOK/flag-icons/install/usr/share/licenses/gosquared.txt \
+					$fs/usr/share/licenses
+			fi
+
+			;;
+
+		'')
+			# for locale-* packages ============================================
+			# (locale-related files for only main LXDE-based SliTaz flavor)
+
+			# Get the core packages translations.
+			case "$SLITAZ_ARCH" in
+				arm*) CORE_PKGS="$CORE_PKGS_ARM" ;;
+			esac
+			mkdir -p $fs/usr/share/locale/$LOCALE
+			for app in $CORE_PKGS; do
+				app_locale="$WOK/$app/install/usr/share/locale/$LOCALE"
+				if [ -d "$app_locale" ]; then
+					echo "* Found $LOCALE translations for: $app"
+					cp -a $app_locale $fs/usr/share/locale
+				fi
+			done
+
+			case "$SLITAZ_ARCH" in
+				arm*) return 0 ;;
+			esac
+
+			# Keyboard flags for default LXPanel keyboard applet
+			if [ -n "$KB_FLAGS" -a -d "$WOK/flag-icons/install" ]; then
+				uslix='usr/share/lxpanel/images/xkb-flags'
+				mkdir -p $fs/usr/share/lxpanel/images/xkb-flags
+				for i in $KB_FLAGS; do
+					install -Dm644 \
+						$WOK/flag-icons/install/usr/share/icons/hicolor/16x16/intl/${i%%:*}.png \
+						$fs/usr/share/icons/hicolor/16x16/intl/${i%%:*}.png
+					ln -s ../../../icons/hicolor/16x16/intl/${i%%:*}.png \
+						$fs/usr/share/lxpanel/images/xkb-flags/${i##*:}.png
+				done
+			fi
+
 			;;
 	esac
 
-	# Get the core packages messages.
-	case "$SLITAZ_ARCH" in
-		arm*) CORE_PKGS="$CORE_PKGS_ARM" ;;
-	esac
-	mkdir -p $fs/usr/share/locale/$LOCALE
-	for app in $CORE_PKGS; do
-		app_locale="$WOK/$app/install/usr/share/locale/$LOCALE"
-		if [ -d "$app_locale" ]; then
-			echo "* Found $LOCALE translations for: $app"
-			cp -a $app_locale $fs/usr/share/locale
-		fi
-	done
-
-	# List of available locales
-	if [ -d "$WOK/glibc/install" ]; then
-		cd $WOK/glibc/install/usr/share/i18n/locales
-		locales=$(ls -1 | sed -n '/^'$LOCALE'$/p; /^'$LOCALE'_.*/p' | sed '/translit/d')
-	else
-		locales=''
-	fi
-	[ -n "$LOCALEDEF" ] && locales="$LOCALEDEF"
-
-	# Get X11 locale
-	for def in $locales; do
-		x11_locale="$WOK/xorg-libX11/install/usr/share/X11/locale/$def.$CHARMAP"
-		case "$def.$CHARMAP" in
-			en_US.UTF-8)
-				# belongs to "xorg-libX11" package, skip it
-				;;
-			*)
-				if [ -d "$x11_locale" ]; then
-					echo "* Found $def.$CHARMAP locale for: X11"
-					mkdir -p $fs/usr/share/X11/locale
-					cp -a $x11_locale $fs/usr/share/X11/locale
-				fi
-				;;
-		esac
-	done
-
-	# Get locale definition files
-	if [ -d "$WOK/glibc/install" ]; then
-		for def in $locales; do
-			case $def in
-				en_US|en_GB)
-					# already in glibc-base
-					;;
-				*)
-					echo "* Copying $def locale files"
-					mkdir -p $fs/usr/share/i18n/locales
-					cp -a $WOK/glibc/install/usr/share/i18n/locales/$def \
-						$fs/usr/share/i18n/locales
-					;;
-			esac
-		done
-
-		if [ -n "$LOCALE_DEPENDS" ]; then
-			for dep in $LOCALE_DEPENDS; do
-				echo "* Copying additional $dep locale files"
-				cp -a $WOK/glibc/install/usr/share/i18n/locales/$dep \
-					$fs/usr/share/i18n/locales
-			done
-		fi
-	fi
-
-	#grep -r 'include' $fs/usr/share/i18n/locales	# test includes in locales
-
-	# Get timezones from tzdata
-	if [ -d "$WOK/tzdata/install" ]; then
-		countries=$(echo $locales | \
-			sed 's|@[^ ]*||g; s|[^ _]*_||g' | tr ' ' '\n' | sort -u)
-		echo "* Copy timezone info for countries: "$countries
-		locations=''
-		for country in $countries; do
-			location=$(grep '^'$country \
-				$WOK/tzdata/install/usr/share/zoneinfo/zone.tab | awk '{ print $3}')
-			locations="$locations $location"
-		done
-		for location in $locations; do
-			for tz in $location; do
-				install -Dm644 $WOK/tzdata/install/usr/share/zoneinfo/$tz \
-					$fs/usr/share/zoneinfo/$tz
-			done
-		done
-	fi
-
-	case "$SLITAZ_ARCH" in
-		arm*) return 0 ;;
-	esac
-
-	# Get country flags
-	if [ -d "$WOK/flag-icons/install" ]; then
-		echo "* Copy flag icons for countries: "$countries
-		for country in $countries; do
-			for size in 16x16 48x48; do
-				install -Dm644 \
-					$WOK/flag-icons/install/usr/share/icons/hicolor/$size/intl/$country.png \
-					$fs/usr/share/icons/hicolor/$size/intl/$country.png
-			done
-		done
-		# above icons credits
-		mkdir -p $fs/usr/share/licenses
-		cp $WOK/flag-icons/install/usr/share/licenses/gosquared.txt \
-			$fs/usr/share/licenses
-	fi
-
-	# Gconv modules for encodings other than default
-	if [ -n "$GCONV" -a -d "$WOK/glibc/install" ]; then
-		mkdir -p $fs/usr/lib/gconv
-		for enc in $GCONV; do
-			case $enc in
-				ISO8859-1|ISO8859-15)
-					# already in glibc-base
-					;;
-				*)
-					echo "* Copying $enc gconv module"
-					cp -a $WOK/glibc/install/usr/lib/gconv/$enc.so $fs/usr/lib/gconv
-					;;
-			esac
-		done
-		#ldd $fs/usr/lib/gconv/*	# test depends in gconv modules
-	fi
-
-	# Console keyboard layouts
-	if [ -n "$KBD" -a -d "$WOK/kbd/install" ]; then
-		cd $WOK/kbd/install
-		for map in $KBD; do
-			echo "* Copying $map kbd map"
-			mapfiles=$(find . -type f -name $map.map.gz)
-			for mapfile in $mapfiles; do
-				mkdir -p "$fs/$(dirname "${mapfile#./}")"
-				cp "$WOK/kbd/install/${mapfile#./}" "$fs/${mapfile#./}"
-			done
-		done
-	fi
-
-	# Keyboard flags for default lxpanel keyboard applet
-	if [ -n "$KB_FLAGS" -a -d "$WOK/flag-icons/install" ]; then
-		uslix='usr/share/lxpanel/images/xkb-flags'
-		mkdir -p $fs/usr/share/lxpanel/images/xkb-flags
-		for i in $KB_FLAGS; do
-			install -Dm644 \
-				$WOK/flag-icons/install/usr/share/icons/hicolor/16x16/intl/${i%%:*}.png \
-				$fs/usr/share/icons/hicolor/16x16/intl/${i%%:*}.png
-			ln -s ../../../icons/hicolor/16x16/intl/${i%%:*}.png \
-				$fs/usr/share/lxpanel/images/xkb-flags/${i##*:}.png
-		done
-	fi
 
 	# exit code OK
 	echo
