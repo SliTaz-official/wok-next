@@ -1,49 +1,105 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="audacious-plugins"
-VERSION="3.4.3"
+VERSION="3.9"
 CATEGORY="multimedia"
-SHORT_DESC="Plugins for audacious music player"
-MAINTAINER="mimas@slitaz.org"
-LICENSE="MIT"
-SUGGESTED="lame neon libmms"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+SHORT_DESC="A lightweight and versatile audio player"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
 WEB_SITE="http://audacious-media-player.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://distfiles.audacious-media-player.org/$TARBALL"
 
-DEPENDS="libxml2 libogg libvorbis alsa-lib flac dbus-glib libsndfile \
- libcdio libmad curl taglib libcomerr3 mpg123 faad2 neon gtk+"
-BUILD_DEPENDS="audacious-dev audacious neon-dev flac-dev libogg-dev \
-libvorbis-dev libmowgli-dev alsa-lib-dev lame-dev libmad-dev dbus-glib-dev \
-libmcs-dev libsamplerate-dev mpg123-dev faad2-dev curl-dev \
-libxml2-dev gtk+3-dev mesa-dev gettext-tools"
+BUILD_DEPENDS="glib-dev gtk+-dev gettext audacious-dev libcdio-dev \
+libcdio-paranoia-dev libcddb-dev flac-dev libogg-dev libvorbis-dev \
+fluidsynth-dev mpg123-dev faad2-dev wavpack-dev libsndfile-dev libmodplug-dev \
+libsamplerate-dev alsa-lib-dev jack-dev pulseaudio-dev neon-dev libmms-dev \
+dbus-dev dbus-glib-dev libnotify-dev gdk-pixbuf-dev lirc-dev curl-dev \
+xorg-libXrender-dev xorg-libXcomposite-dev ffmpeg-dev qt5-dev mesa17-dev \
+audacious-qt-dev"
+SPLIT="audacious-skins \
+audacious-plugins        audacious-plugins-extra \
+audacious-plugins-qt:qt  audacious-plugins-qt-extra:qt \
+audacious-plugins-common audacious-plugins-common-extra"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i "s/touch -t 0001010000 /touch /g" configure
-#XML_CFLAGS=-I/usr/include/libxml2 
+compile_rules() {
+	case $SET in
+		'') SET_ARGS='';;
+		qt) SET_ARGS='--disable-gtk --enable-qt';;
+	esac
+
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--disable-sse2 \
-		--enable-chardet \
-		--disable-esd --disable-pulse --disable-icecast \
-		--disable-jack --disable-timidity --disable-evdevplug \
-		--disable-rocklight  --disable-lirc  \
-		--disable-bluetooth --disable-paranormal \
-		--disable-projectm --disable-projectm-1.0 \
-		--disable-ffaudio --disable-mtp_up \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
+	sed -i 's|-shared|& -Wl,-Os,--as-needed|g' buildsys.mk m4/buildsys.m4 &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	if [ "$SET" == 'qt' ]; then
+		# leave only one, in the default set; remove in the 'qt' set
+		rm -r $install/usr/share/audacious/Skins/
+	fi
+
+	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
+genpkg_rules() {
+	case $PACKAGE in
+		audacious-skins)
+			copy Skins/
+			DEPENDS="audacious-common"
+			CAT="multimedia|skins"
+			;;
+		audacious-plugins)
+			copy albumart.so aosd.so delete-files.so gtkui.so hotkey.so \
+			notify.so playlist-manager.so search-tool.so skins.so \
+			statusicon.so
+			DEPENDS="audacious-plugins-common audacious \
+			cairo gdk-pixbuf glib gtk+ libnotify pango xorg-libX11 \
+			xorg-libXcomposite xorg-libXrender"
+			CAT="multimedia|GTK+2 based plugins"
+			;;
+		audacious-plugins-extra)
+			copy ladspa.so alarm.so gnomeshortcuts.so lyricwiki.so \
+			amidi-plug.so vtx.so blur_scope.so cairo-spectrum.so gl-spectrum.so
+			DEPENDS="audacious-plugins-common-extra audacious \
+			cairo dbus-glib fluidsynth gdk-pixbuf glib gtk+ libxml2 mesa17 \
+			pango xorg-libX11"
+			CAT="multimedia|GTK+2 based extra plugins"
+			;;
+
+		audacious-plugins-qt)
+			copy albumart-qt.so delete-files.so notify.so \
+			playlist-manager-qt.so qtui.so search-tool-qt.so skins-qt.so \
+			song-info-qt.so statusicon-qt.so qtaudio.so
+			DEPENDS="audacious-plugins-common audacious-qt \
+			gdk-pixbuf glib libnotify qt5-base qt5-multimedia"
+			CAT="multimedia|Qt5 based plugins"
+			;;
+		audacious-plugins-qt-extra)
+			copy gnomeshortcuts.so lyricwiki-qt.so amidi-plug.so vtx.so \
+			gl-spectrum-qt.so
+			DEPENDS="audacious-plugins-common-extra audacious-qt \
+			dbus-glib fluidsynth glib libxml2 mesa17 qt5-base"
+			CAT="multimedia|Qt5 based extra plugins"
+			;;
+
+		audacious-plugins-common)
+			copy audpl.so m3u.so pls.so xspf.so song_change.so aac-raw.so \
+			flacng.so madplug.so vorbis.so alsa.so filewriter.so \
+			pulse_audio.so mms.so neon.so
+			DEPENDS="audacious-common \
+			alsa-lib faad2 flac glib lame libmms libogg libvorbis libxml2 \
+			mpg123 neon pulseaudio"
+			CAT="multimedia|common plugins"
+			;;
+		audacious-plugins-common-extra)
+			copy @std @rm
+			DEPENDS="audacious-common \
+			ffmpeg glib jack libcddb libcdio libcdio-paranoia libcurl \
+			libmodplug libsamplerate libsndfile libxml2 lirc wavpack zlib"
+			CAT="multimedia|common extra plugins"
+			;;
+	esac
 }
