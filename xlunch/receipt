@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xlunch"
+VERSION="3.2.6"
+CATEGORY="x-window"
+SHORT_DESC="Graphical app launcher for X with minimal dependencies"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="http://xlunch.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Tomas-M/xlunch/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="xorg-libX11-dev findutils imlib2-dev"
+
+compile_rules() {
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="imlib2 xorg-libX11   bash"
+	CONFIG_FILES="/etc/xlunch/entries.dsv"
+}
+
+post_install() {
+	chroot "$1/" genentries -p '/usr/share/xlunch/svgicons' > "$1/etc/xlunch/entries.dsv"
+}

@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mdiedit"
+VERSION="20171204"
+COMMIT="3351b94"
+CATEGORY="text"
+SHORT_DESC="Simple text editor with MDI interface"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://github.com/selairi/mdiedit"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/selairi/mdiedit/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="cmake qt5-dev mesa17-dev"
+
+compile_rules() {
+	cd mdiedit
+
+	mkdir build; cd build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="qt5-base"
+}
