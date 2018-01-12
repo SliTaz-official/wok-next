@@ -1,30 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="p11-kit"
-VERSION="0.23.2"
+VERSION="0.23.8"
 CATEGORY="security"
-LICENSE="BSD"
 SHORT_DESC="Library to work with PKCS#11 modules"
 MAINTAINER="slaxemulator@gmail.com"
+LICENSE="BSD"
 WEB_SITE="https://p11-glue.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/p11-kit.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://p11-glue.freedesktop.org/releases/$TARBALL"
+WGET_URL="https://github.com/p11-glue/p11-kit/releases/download/$VERSION/$TARBALL"
 
-DEPENDS="libffi libtasn1"
 BUILD_DEPENDS="gettext libtasn1-dev gtk-doc libxslt cacerts"
+SPLIT="libp11-kit p11-kit p11-kit-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
+		--with-trust-paths=/etc/pki/anchors \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy etc/ bin/ p11-kit/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		libp11-kit)
+			copy libp11-kit.so* /usr/lib/p11-kit-proxy.so
+			DEPENDS="libffi"
+			;;
+		p11-kit)
+			copy @std @rm
+			DEPENDS="libffi libp11-kit libtasn1"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="p11-kit libffi-dev libtasn1-dev"
+			;;
+	esac
 }

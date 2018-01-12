@@ -1,28 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qarma"
-GITHASH="cdb5319c6e90a045012b9b2059e507b6721e67ba"
-VERSION=${GITHASH:0:7}
+VERSION="171125"
+COMMIT="27606a8"
 CATEGORY="utilities"
-SHORT_DESC="Zenity Clone for Qt4/Qt5"
+SHORT_DESC="Zenity Clone for Qt"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/luebking/qarma"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/luebking/qarma/archive/$GITHASH.tar.gz"
+WGET_URL="https://github.com/luebking/qarma/archive/$COMMIT.tar.gz"
 
-DEPENDS="libQtDBus libQtGui"
-BUILD_DEPENDS="Qt4-dev qmake xorg-libX11-dev wget"
+BUILD_DEPENDS="qt5-dev xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	qmake
-	make
+compile_rules() {
+	qmake &&
+	# size 191236 -> 187140
+	sed -i 's|-O1|-Os|' Makefile &&
+	make &&
+	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	install -Dm755 $src/qarma $fs/usr/bin/qarma
+genpkg_rules() {
+	copy @std
+	DEPENDS="libatomic mesa17 qt5-base qt5-x11extras xorg-libX11"
+}
+
+post_install() {
+	[ -e "$1/usr/bin/zenity" ] || ln -s qarma "$1/usr/bin/zenity"
+}
+post_remove() {
+	[ ! -h "$1/usr/bin/zenity" ] || rm "$1/usr/bin/zenity"
 }
