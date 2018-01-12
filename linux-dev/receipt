@@ -125,7 +125,30 @@ CONFIG_NETDEVICES=y
 CONFIG_TUN=y
 EOF
 	make ARCH=um allnoconfig KCONFIG_ALLCONFIG=mini.config &&
-	make ARCH=um
+	make ARCH=um || return 1
+
+	mkdir -p $install/boot
+	cp $src/linux $install/boot/linux-uml-$VERSION
+	cat > $install/boot/vm-uml <<EOT
+#!/bin/sh
+
+# /etc/inittab: "tty21::respawn:/bin/su -c '/boot/vm-uml 1 /boot/guests/slitaz.img 2 512m' nobody"
+n=\${1:-0}
+tap=tap\$n
+args="rw root=/dev/null"
+dev="initrd=\$(ls -r /boot/rootfs*.gz | sed q)"
+if [ -n "\$2" ]; then
+	args="ro root=620\${3:-1} screen=text sound=noconf"
+	dev="ubd0=\$2"
+fi
+
+cd \$(dirname \$0)
+ifconfig \$tap 192.168.\$n.1
+./linux-uml-$VERSION \$dev mem=\${4:-512m} fakehd fake_ide ubd=3 con0=fd:0,fd:1 \\
+	con=pts ssl=pts eth0=tuntap,\$tap,fe:f0:00:00:00:0\$n,192.168.\$n.1 \\
+	\$args cpuinfo=\$(sed '/model name/!d;s/.*: //;s/ /_/g;q' /proc/cpuinfo)
+EOT
+	chmod 755 $install/boot/vm-uml
 }
 
 
@@ -147,28 +170,7 @@ genpkg_rules()
 		PROVIDE="linux-headers linux64-api-headers linux64-headers"
 		;;
 	linux-uml)
-		mkdir -p $fs/boot
-		cp $src/linux $fs/boot/linux-uml-$VERSION
-		cat > $fs/boot/vm-uml <<EOT
-#!/bin/sh
-
-# /etc/inittab: "tty21::respawn:/bin/su -c '/boot/vm-uml 1 /boot/guests/slitaz.img 2 512m' nobody"
-n=\${1:-0}
-tap=tap\$n
-args="rw root=/dev/null"
-dev="initrd=\$(ls -r /boot/rootfs*.gz | sed q)"
-if [ -n "\$2" ]; then
-	args="ro root=620\${3:-1} screen=text sound=noconf"
-	dev="ubd0=\$2"
-fi
-
-cd \$(dirname \$0)
-ifconfig \$tap 192.168.\$n.1
-./linux-uml-$VERSION \$dev mem=\${4:-512m} fakehd fake_ide ubd=3 con0=fd:0,fd:1 \\
-	con=pts ssl=pts eth0=tuntap,\$tap,fe:f0:00:00:00:0\$n,192.168.\$n.1 \\
-	\$args cpuinfo=\$(sed '/model name/!d;s/.*: //;s/ /_/g;q' /proc/cpuinfo)
-EOT
-		chmod 755 $fs/boot/vm-uml
+		copy boot/
 		;;
 	esac
 }
