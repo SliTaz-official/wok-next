@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="aufs"
-VERSION="5b18dc7"
+VERSION="57e03f4"	# AUFS_VERSION 4.9-20171218
 EXTRAVERSION="_$kvers"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Kernel 4.9 aufs module"
@@ -43,14 +43,16 @@ compile_rules()
 
 	make -j 1 KDIR=/usr/src/linux
 	xz -f fs/aufs/aufs.ko
+
+	mkdir -p $install/lib/modules/${kvers}-slitaz/kernel/fs/aufs
+	install -o root -m 0644 $src/fs/aufs/aufs.ko.xz \
+		$install/lib/modules/${kvers}-slitaz/kernel/fs/aufs/aufs.ko.xz
+	install -D -o root -m 0644 $src/include/uapi/linux/aufs_type.h \
+		$install/usr/include/uapi/linux/aufs_type.h
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/lib/modules/${kvers}-slitaz/kernel/fs/aufs
-	install -o root -m 0644 $src/fs/aufs/aufs.ko.xz \
-		$fs/lib/modules/${kvers}-slitaz/kernel/fs/aufs/aufs.ko.xz
-	install -D -o root -m 0644 $src/include/uapi/linux/aufs_type.h \
-		$fs/usr/include/uapi/linux/aufs_type.h
+	copy @std @dev
 }
