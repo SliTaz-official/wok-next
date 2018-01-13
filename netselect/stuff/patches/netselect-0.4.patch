@@ -1,0 +1,31 @@
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+-PREFIX = /usr/local
++PREFIX = /usr
+ BINDEST = ${PREFIX}/bin
+-MANDEST = ${PREFIX}/man/man1
++MANDEST = ${PREFIX}/share/man/man1
+ 
+ CC = gcc
+ CFLAGS = -O2 -Wall -I. -g
+@@ -29,13 +29,13 @@
+ 	chown root netselect && chmod u+s netselect
+ endif
+ 	
+-	-install -d ${BINDEST}
+-	-install -d ${MANDEST}
++	-install -d ${DESTDIR}${BINDEST}
++	-install -d ${DESTDIR}${MANDEST}
+ 	install -o root -g root -m 4755 \
+-		netselect${BINSUFFIX} ${BINDEST}
+-	install -o root -g root -m 0755 netselect-apt ${BINDEST}
+-	install -o root -g root -m 0644 netselect.1 ${MANDEST}
+-	install -o root -g root -m 0644 netselect-apt.1 ${MANDEST}
++		netselect${BINSUFFIX} ${DESTDIR}${BINDEST}
++	install -o root -g root -m 0755 netselect-apt ${DESTDIR}${BINDEST}
++	install -o root -g root -m 0644 netselect.1 ${DESTDIR}${MANDEST}
++	install -o root -g root -m 0644 netselect-apt.1 ${DESTDIR}${MANDEST}
+ 
+ 	
+ uninstall:

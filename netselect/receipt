@@ -1,0 +1,22 @@
+# SliTaz package receipt v2.
+
+PACKAGE="netselect"
+VERSION="0.4"
+CATEGORY="network"
+SHORT_DESC="Choose the fastest server automatically"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://github.com/apenwarr/netselect"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/apenwarr/netselect/archive/$TARBALL"
+
+compile_rules() {
+	make && make install &&
+	# weird but `install -m 4755 ...` in Makefile didn't work
+	chmod u+s $install/usr/bin/netselect
+}
+
+genpkg_rules() {
+	copy netselect
+}
