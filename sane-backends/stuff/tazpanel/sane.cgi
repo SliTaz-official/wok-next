@@ -2,7 +2,7 @@
 #
 # Scanner CGI interface - Scan documents via a browser
 #
-# (C) 2015 SliTaz GNU/Linux - BSD License
+# (C) 2018 SliTaz GNU/Linux - BSD License
 #
 
 # Common functions from libtazpanel
@@ -24,6 +24,7 @@ echo ' data-root')>$(_ 'Scanner')</a></li>
 EOT
 		export TEXTDOMAIN=$TEXTDOMAIN_original
 		exit
+		;;
 esac
 
 TITLE="$(_ 'TazPanel - Hardware') - $(_ 'Scanner')"
@@ -34,19 +35,20 @@ inrange() {
 	[ $1 -gt $3 ] && n=$3
 	echo $n
 }
-    
+
 getgeometry() {
 	CMD=""
 	ARGS=""
-	for i in x y l t ; do
+	for i in x y l t; do
 		j=$(inrange $(xPOST geometry_$i) $(xPOST ${i}_min) $(xPOST ${i}_max))
 		eval "geometry_$i=$j"
 		CMD="$CMD -$i $j"
 		ARGS="$ARGS $j"
 	done
-	for i in mode source contrast brightness ; do
+	for i in mode source contrast brightness; do
 		[ "$(xPOST $i)" ] && CMD="$CMD --$i '$(xPOST $i)'"
 	done
+
 	resolution=${1:-0}
 	if [ $resolution -eq 0 ]; then
 		resolution=$(xPOST res_min)
@@ -56,21 +58,27 @@ getgeometry() {
 			resolution=$(($resolution * 2))
 		done
 	fi
+
 	case "$(xPOST mode)" in
-	*lack*|*ineart*) mode="-monochrome" ;;
-	*ray*) mode="-colorspace gray" ;;
-	*) mode="" ;;
+		*lack*|*ineart*) mode="-monochrome";;
+		*ray*)           mode="-colorspace gray";;
+		*)               mode="";;
 	esac
+
 	[ -d tmp ] || ln -s /tmp tmp
+
 	case "$device" in
-	fake*)	f=/usr/share/images/slitaz-banner.png
-		c="$(echo $ARGS $(identify $f | sed \
-		    's/.* \([0-9]*\)x.*/\1/') $(GET width) $(POST x_max) | awk '
-function a(x) { return int(($x * $5)/ $7); }
-{ printf "%dx%d+%d+%d -resize %dx%d",a(1),a(2),a(3),a(4),$6,int(($2*$6)/$1)}
-')"
-		suf="png"; [ "$1" ] && suf="pnm"
-		cat <<EOT
+		fake*)
+			f=$(ls fake-sane/*.png | sed q)
+			[ -s "$f" ] || f=/usr/share/images/slitaz-banner.png
+			c="$(echo $ARGS $(identify $f \
+			| sed 's/.* \([0-9]*\)x.*/\1/') $(GET width) $(POST x_max) \
+			| awk '
+				function a(x) { return int(($x * $5)/ $7); }
+				{ printf "%dx%d+%d+%d -resize %dx%d",a(1),a(2),a(3),a(4),$6,int(($2*$6)/$1)}
+				')"
+			suf="png"; [ "$1" ] && suf="pnm"
+			cat <<EOT
 if convert -crop $c $mode $f /tmp/sane$$.$suf 2> /dev/null ; then
 	cat /tmp/sane$$.$suf
 	rm -f /tmp/sane$$.$suf
@@ -78,57 +86,68 @@ else
 	cat $f
 fi
 EOT
-		;;
-	*)	echo -n "scanimage -d '$(echo $device | sed 's/,.*//')' --resolution '$(inrange $resolution $(xPOST res_min) $(xPOST res_max))dpi'$CMD"
-		if [ -z "$1" -a "$(which convert)" ]; then
-			echo -n "> /tmp/sane$$.pnm ; convert -resize "
-			echo $ARGS $(GET width) | awk '{ printf "%dx%d",$5,int(($2*$5)/$1)}'
-			echo -n " /tmp/sane$$.pnm /tmp/sane$$.png ;"
-			echo -n "cat /tmp/sane$$.png ; rm -f /tmp/sane$$.pn?"
-		fi
+			;;
+		*)
+			echo -n "scanimage -d '$(echo $device \
+			| sed 's/,.*//')' --resolution '$(inrange $resolution $(xPOST res_min) $(xPOST res_max))dpi'$CMD"
+			if [ -z "$1" -a "$(which convert)" ]; then
+				echo -n "> /tmp/sane$$.pnm ; convert -resize "
+				echo $ARGS $(GET width) | awk '{ printf "%dx%d",$5,int(($2*$5)/$1)}'
+				echo -n " /tmp/sane$$.pnm /tmp/sane$$.png ;"
+				echo -n "cat /tmp/sane$$.png ; rm -f /tmp/sane$$.pn?"
+			fi
+			;;
 	esac
 }
 
 imgformat() {
-tmp=$(mktemp -u -t tazsane.XXXXXX)
-while read key name type exe pkg cmd ; do
-	case "$key" in
-	\#*)	continue
-	esac
-	case "$1" in
-	list)
-		echo -n "<option value=\"$key\""
-		[ "$(which $exe 2> /dev/null)" ] || 
-		echo -n " disabled title=\"$exe not found: install $pkg\""
-		[ "$key" == "pnm" ] &&
-		echo -n " title=\"not supported by most browsers\""
-		echo ">$key" ;;
-	*)
+	tmp=$(mktemp -u -t tazsane.XXXXXX)
+	while read key name type exe pkg cmd; do
 		case "$key" in
-		$(xPOST format)|'*')
-			case "$HTTP_USER_AGENT" in
+			\#*)	continue
+		esac
 
-			# Tazweb has no download support
-			TazWe*)	rm -f /tmp/$name
-				eval "$(getgeometry $(xPOST resolution)) $cmd >/tmp/$name" 2> $tmp.err
-				if [ -s /tmp/$name ]; then
-					info="Stored in /tmp/$name ($(stat -c %s /tmp/$name) bytes)."
-				else
-					error="$(sed 's|$|<br />|' $tmp.err)"
-					[ "$error" ] || error="I/O error"
-				fi
-				rm -f $tmp.* ;;
+		case "$1" in
+			list)
+				echo -n "<option value=\"$key\""
+				[ "$(which $exe 2>/dev/null)" ] ||
+				echo -n " disabled title=\"$exe not found: install $pkg\""
+				[ "$key" == "pnm" ] &&
+				echo -n " title=\"not supported by most browsers\""
+				echo ">$key"
+				;;
+			*)
+				case "$key" in
+					$(xPOST format)|'*')
+						case "$HTTP_USER_AGENT" in
 
-			# Others should work
-			*)	header	"Content-Type: $type" \
-					"Content-Disposition: attachment; filename=$name" \
+							# Tazweb has no download support
+							TazWe*)
+								rm -f /tmp/$name
+								eval "$(getgeometry $(xPOST resolution)) $cmd >/tmp/$name" 2> $tmp.err
+								if [ -s /tmp/$name ]; then
+									info="Stored in /tmp/$name ($(stat -c %s /tmp/$name) bytes)."
+								else
+									error="$(sed 's|$|<br />|' $tmp.err)"
+									[ "$error" ] || error="I/O error"
+								fi
+								rm -f $tmp.*
+								;;
 
-				eval "$(getgeometry $(xPOST resolution)) $cmd"
-				rm -f $tmp.*
-				exit ;;
-			esac ;;
-		esac ;;
-	esac
+							# Others should work
+							*)
+								header	"Content-Type: $type" \
+									"Content-Disposition: attachment; filename=$name" \
+
+								eval "$(getgeometry $(xPOST resolution)) $cmd"
+								rm -f $tmp.*
+								exit
+								;;
+						esac
+						;;
+				esac
+				;;
+		esac
 done <<EOT
 png		tazsane.png		image/png		convert		imagemagick 	> $tmp.pnm; convert $tmp.pnm png:-
 jpeg		tazsane.jpg		image/jpeg		convert		imagemagick 	> $tmp.pnm; convert $tmp.pnm jpg:-
@@ -155,23 +174,26 @@ info=""
 error=""
 
 case " $(POST) " in
-*\ reset\ *)
-	unset device tmpreview
-	preview="reset" ;;
-*\ preview\ *)
-	[ "$tmpreview" ] || tmpreview=$(mktemp -u -t tazsane.XXXXXX).png
-	tmp=$(mktemp -u -t tazsane.XXXXXX)
-	eval "$(getgeometry)" > $tmp.pnm 2> $tmp.err
-	if [ -s "$tmp.pnm" ]; then
-		convert $tmp.pnm $tmpreview > /dev/null 2>&1 ||
-		cp $tmp.pnm $tmpreview
-	else
-		error="$(sed 's|$|<br />|' $tmp.err)"
-		rm -f $tmpreview
-	fi
-	rm -f $tmp.pnm $tmp.err ;;
-*\ scan\ *)
-	imgformat download ;;
+	*\ reset\ *)
+		unset device tmpreview
+		preview="reset"
+		;;
+	*\ preview\ *)
+		[ "$tmpreview" ] || tmpreview=$(mktemp -u -t tazsane.XXXXXX).png
+		tmp=$(mktemp -u -t tazsane.XXXXXX)
+		eval "$(getgeometry)" > $tmp.pnm 2> $tmp.err
+		if [ -s "$tmp.pnm" ]; then
+			convert $tmp.pnm $tmpreview > /dev/null 2>&1 ||
+			cp $tmp.pnm $tmpreview
+		else
+			error="$(sed 's|$|<br />|' $tmp.err)"
+			rm -f $tmpreview
+		fi
+		rm -f $tmp.pnm $tmp.err
+		;;
+	*\ scan\ *)
+		imgformat download
+		;;
 esac
 
 header
@@ -179,62 +201,59 @@ xhtml_header
 [ -n "$error" ] && msg warn "$error"
 [ -n "$info" ] && msg tip "$info"
 if [ -z "$device" ]; then
-	all="$(scanimage -f '%d,%v %m|'|cat - sane-fake.log|sed 's/|/\n/g')"
+	all="$(\
+		scanimage -f '%d,%v %m|' \
+		| cat - sane-fake.log fake-sane/sane-fake.log \
+		| sed 's/|/\n/g')"
 	case "$(echo "$all" | wc -l)" in
-	1)	if [ -z "$all" ]; then
-			msg warn "$(_ "No scanner found")"
-			msg tip "$(_ "You can test this GUI with ")\
+		1)
+			if [ -z "$all" ]; then
+				msg warn "$(_ "No scanner found")"
+				msg tip "$(_ "You can test this GUI with ")\
 <a href=\"/user/pkgs.cgi?info=fake-sane\">fake-sane</a>"
-			xhtml_footer
-			exit 0
-		fi
-		device="${all%|}" ;;
-	*)
-		suggested=""
-		while read exe pkg msg; do
-			[ "$(which $exe 2> /dev/null)" ] && continue
-			suggested="$suggested
+				xhtml_footer
+				exit 0
+			fi
+			device="${all%|}"
+			;;
+		*)
+			suggested=""
+			while read exe pkg msg; do
+				[ "$(which $exe 2> /dev/null)" ] && continue
+				suggested="$suggested
 <li><a href=\"/user/pkgs.cgi?info=$pkg\">$pkg</a>&nbsp;$msg</li>"
-		done <<EOT
+			done <<EOT
 convert		imagemagick	$(_ "to preview images and support more image formats")
 gocr		gocr		$(_ "a basic optical character recognition")
 tesseract	tesseract-ocr	$(_ "a better optical character recognition")
 EOT
-		[ "$suggested" ] &&
-		msg tip "$(_ "You may need to install:") <ol>$suggested</ol>"
-		cat <<EOT
+			[ "$suggested" ] &&
+			msg tip "$(_ "You may need to install:") <ol>$suggested</ol>"
+			cat <<EOT
 <section>
 	<header>
 		<form name="scanner" method="post">
 			Scanner
 			<select name="device" size=1>
 EOT
-		echo "$all" | awk -F, '{ if (NF > 0) print "<option value=\"" $0 "\">" 1+i++ " - " $2 }'
-		cat <<EOT
+			echo "$all" \
+			| awk -F, '{ if (NF > 0) print "<option value=\"" $0 "\">" 1+i++ " - " $2 }'
+			cat <<EOT
 			</select>
 			<button data-icon="start">$(_ "Continue")</button>
 		</form>
 	</header>
 </section>
 EOT
-		xhtml_footer
-		exit 0 ;;
+			xhtml_footer
+			exit 0
+			;;
 	esac
 fi
 
 cat <<EOT
 <section>
-<form name="parameters" method="post">
-<script language="JavaScript" type="text/javascript">
-<!--
-function new_width() {
-	document.parameters.action = "?width="+(document.width-30)
-}
-
-window.onresize = new_width
-new_width()
--->
-</script>
+<form name="parameters" method="post" style="width:100%">
 
 <header>
 $(echo $device | sed 's/.*,//')
@@ -245,7 +264,7 @@ $(echo $device | sed 's/.*,//')
 </div>
 </header>
 
-<table class="wide">
+<table style="width:100%">
 <tr>
 <td>
 <fieldset><legend>$(_ 'Format')</legend>
@@ -258,7 +277,7 @@ EOT
 
 if [ "$(xPOST params)" ]; then
 	params="$(xPOST params | uudecode)"
-else 
+else
 	params="$({
 cat "$(echo $device | sed 's/,.*//').log" 2> /dev/null ||
 scanimage --help -d "$(echo $device | sed 's/,.*//')"
@@ -297,7 +316,7 @@ function enum()
 ')"
 fi
 output="$(n=$(echo "$params" | wc -l); echo "$params" | \
-while read name def min max ; do
+while read name def min max; do
 	name="${name##*-}"
 	def="${def//=/ }"
 	if [ "$min" == "enum" ]; then
@@ -327,43 +346,52 @@ while read name def min max ; do
 		f="$(_ "$name") <input name=\"$name\" value=\"$def\""
 		u=""
 		case "$name" in
-		x|y|l|t) cat <<EOT
+			x|y|l|t)
+				cat <<EOT
 :${name}_max=$max
 <input type="hidden" name="${name}_min" value="$min">
 <input type="hidden" name="${name}_max" value="$max">
 EOT
-			while read name2 n2 id val; do
-				[ "$name" == "$name2" ] || continue
-				[ "$(xPOST geometry_$name)" ] &&
-				val="$(xPOST geometry_$name)"
-				f="<fieldset><legend>$(_ "$n2")</legend><input name=\"geometry_$name\" id=\"$id\" value=\"$val\""
-				u="&nbsp;mm"
-				break
-			done <<EOT
+				while read name2 n2 id val; do
+					[ "$name" == "$name2" ] || continue
+					[ "$(xPOST geometry_$name)" ] &&
+					val="$(xPOST geometry_$name)"
+					f="<fieldset><legend>$(_ "$n2")</legend><input name=\"geometry_$name\" id=\"$id\" value=\"$val\""
+					u="&nbsp;mm"
+					break
+				done <<EOT
 l	X-Offset	x	0
 t	Y-Offset	y	0
 x	Width		width	$max
 y	Height		height	$max
 EOT
+				;;
 		esac
 		[ "$name" == "resolution" ] && f="$f onchange=showGeometry()"
 		echo "<td>$f type=\"text\" title=\"$min .. $max\" size=4 maxlength=4>$u"
 		res_min=$min
 		res_max=$max
 	fi
+
 	case "$name" in
-	resolution) cat <<EOT
+		resolution)
+			cat <<EOT
 <input type="hidden" name="res_min" value="$res_min">
 <input type="hidden" name="res_max" value="$res_max">
 &nbsp;dpi
 EOT
+			;;
 	esac
+
 	echo "</filedset></td>"
+
 	n=$(($n - 2))
 	case "$n" in
-	1|2) echo "</tr><tr>"
+		1|2) echo "</tr><tr>";;
 	esac
+
 done)"
+
 echo "$output" | sed '/^:/d'
 
 org_x=$(xPOST geometry_x); [ "$org_x" ] || org_x=$(echo "$output" | sed '/^:x_max=/!d;s/.*=//')
