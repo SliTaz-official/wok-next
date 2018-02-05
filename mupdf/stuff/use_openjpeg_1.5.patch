@@ -11,28 +11,19 @@ diff --git a/source/fitz/load-jpx.c b/source/fitz/load-jpx.c
 index dfb89f4..d27b5de 100644
 --- a/source/fitz/load-jpx.c
 +++ b/source/fitz/load-jpx.c
-@@ -27,119 +27,51 @@ static void fz_opj_info_callback(const char *msg, void *client_data)
+@@ -605,41 +605,6 @@
  	/* fz_warn("openjpeg info: %s", msg); */
  }
  
--typedef struct stream_block_s
--{
--	unsigned char *data;
--	int size;
--	int pos;
--} stream_block;
--
 -static OPJ_SIZE_T fz_opj_stream_read(void * p_buffer, OPJ_SIZE_T p_nb_bytes, void * p_user_data)
 -{
 -	stream_block *sb = (stream_block *)p_user_data;
--	int len;
+-	OPJ_SIZE_T len;
 -
 -	len = sb->size - sb->pos;
--	if (len < 0)
--		len = 0;
 -	if (len == 0)
--		return (OPJ_SIZE_T)-1;  /* End of file! */
--	if ((OPJ_SIZE_T)len > p_nb_bytes)
+-		return (OPJ_SIZE_T)-1; /* End of file! */
+-	if (len > p_nb_bytes)
 -		len = p_nb_bytes;
 -	memcpy(p_buffer, sb->data + sb->pos, len);
 -	sb->pos += len;
@@ -43,8 +34,8 @@ index dfb89f4..d27b5de 100644
 -{
 -	stream_block *sb = (stream_block *)p_user_data;
 -
--	if (skip > sb->size - sb->pos)
--		skip = sb->size - sb->pos;
+-	if (skip > (OPJ_OFF_T)(sb->size - sb->pos))
+-		skip = (OPJ_OFF_T)(sb->size - sb->pos);
 -	sb->pos += skip;
 -	return sb->pos;
 -}
@@ -53,17 +44,19 @@ index dfb89f4..d27b5de 100644
 -{
 -	stream_block *sb = (stream_block *)p_user_data;
 -
--	if (seek_pos > sb->size)
+-	if (seek_pos > (OPJ_OFF_T)sb->size)
 -		return OPJ_FALSE;
 -	sb->pos = seek_pos;
 -	return OPJ_TRUE;
 -}
 -
- fz_pixmap *
- fz_load_jpx(fz_context *ctx, unsigned char *data, int size, fz_colorspace *defcs, int indexed)
+ static int
+ l2subfactor(fz_context *ctx, unsigned int max_w, unsigned int w)
+ {
+@@ -656,10 +621,11 @@
+ jpx_read_image(fz_context *ctx, fz_jpxd *state, unsigned char *data, size_t size, fz_colorspace *defcs, int onlymeta)
  {
  	fz_pixmap *img;
- 	fz_colorspace *origcs;
 +	opj_event_mgr_t evtmgr;
  	opj_dparameters_t params;
 -	opj_codec_t *codec;
@@ -71,15 +64,10 @@ index dfb89f4..d27b5de 100644
  	opj_image_t *jpx;
 -	opj_stream_t *stream;
 +	opj_cio_t *stream;
- 	fz_colorspace *colorspace;
  	unsigned char *p;
  	OPJ_CODEC_FORMAT format;
  	int a, n, w, h, depth, sgnd;
- 	int x, y, k, v;
--	stream_block sb;
- 
- 	if (size < 2)
- 		fz_throw(ctx, FZ_ERROR_GENERIC, "not enough data to determine image format");
+@@ -677,55 +643,30 @@
  
  	/* Check for SOC marker -- if found we have a bare J2K stream */
  	if (data[0] == 0xFF && data[1] == 0x4F)
@@ -88,14 +76,14 @@ index dfb89f4..d27b5de 100644
  	else
 -		format = OPJ_CODEC_JP2;
 +		format = CODEC_JP2;
-+
+ 
 +	memset(&evtmgr, 0, sizeof(evtmgr));
 +	evtmgr.error_handler = fz_opj_error_callback;
 +	evtmgr.warning_handler = fz_opj_warning_callback;
 +	evtmgr.info_handler = fz_opj_info_callback;
- 
++
  	opj_set_default_decoder_parameters(&params);
- 	if (indexed)
+ 	if (fz_colorspace_is_indexed(ctx, defcs))
  		params.flags |= OPJ_DPARAMETERS_IGNORE_PCLR_CMAP_CDEF_FLAG;
  
  	codec = opj_create_decompress(format);
@@ -104,23 +92,25 @@ index dfb89f4..d27b5de 100644
 -	opj_set_error_handler(codec, fz_opj_error_callback, ctx);
 -	if (!opj_setup_decoder(codec, &params))
 -	{
+-		opj_destroy_codec(codec);
 -		fz_throw(ctx, FZ_ERROR_GENERIC, "j2k decode failed");
 -	}
--
++	opj_set_event_mgr((opj_common_ptr)codec, &evtmgr, ctx);
++	opj_setup_decoder(codec, &params);
+ 
 -	stream = opj_stream_default_create(OPJ_TRUE);
 -	sb.data = data;
 -	sb.pos = 0;
 -	sb.size = size;
-+	opj_set_event_mgr((opj_common_ptr)codec, &evtmgr, ctx);
-+	opj_setup_decoder(codec, &params);
++	stream = opj_cio_open((opj_common_ptr)codec, data, size);
  
 -	opj_stream_set_read_function(stream, fz_opj_stream_read);
 -	opj_stream_set_skip_function(stream, fz_opj_stream_skip);
 -	opj_stream_set_seek_function(stream, fz_opj_stream_seek);
--	opj_stream_set_user_data(stream, &sb);
+-	opj_stream_set_user_data(stream, &sb, NULL);
 -	/* Set the length to avoid an assert */
 -	opj_stream_set_user_data_length(stream, size);
-+	stream = opj_cio_open((opj_common_ptr)codec, data, size);
++	jpx = opj_decode(codec, stream);
  
 -	if (!opj_read_header(stream, codec, &jpx))
 -	{
@@ -128,7 +118,9 @@ index dfb89f4..d27b5de 100644
 -		opj_destroy_codec(codec);
 -		fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to read JPX header");
 -	}
--
++	opj_cio_close(stream);
++	opj_destroy_decompress(codec);
+ 
 -	if (!opj_decode(codec, stream, jpx))
 -	{
 -		opj_stream_destroy(stream);
@@ -136,18 +128,15 @@ index dfb89f4..d27b5de 100644
 -		opj_image_destroy(jpx);
 -		fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to decode JPX image");
 -	}
-+	jpx = opj_decode(codec, stream);
- 
+-
 -	opj_stream_destroy(stream);
 -	opj_destroy_codec(codec);
-+	opj_cio_close(stream);
-+	opj_destroy_decompress(codec);
- 
+-
 -	/* jpx should never be NULL here, but check anyway */
  	if (!jpx)
  		fz_throw(ctx, FZ_ERROR_GENERIC, "opj_decode failed");
  
-@@ -173,8 +105,8 @@ fz_load_jpx(fz_context *ctx, unsigned char *data, int size, fz_colorspace *defcs
+@@ -733,8 +674,8 @@
  	depth = jpx->comps[0].prec;
  	sgnd = jpx->comps[0].sgnd;
  
