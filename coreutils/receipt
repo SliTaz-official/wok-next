@@ -1,171 +1,239 @@
 # SliTaz package receipt v2.
 
 PACKAGE="coreutils"
-VERSION="8.25"
+VERSION="8.29"
 CATEGORY="meta"
 SHORT_DESC="Utilities for using and setting the basic system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/coreutils/coreutils.html"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter05/coreutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-SIBLINGS="coreutils-multicall"
-BUILD_DEPENDS="automake autoconf gettext xz libcap-dev gmp-dev patch"
-SPLIT="coreutils-character coreutils-command coreutils-conditions coreutils-\
-context-system coreutils-context-user coreutils-context-working coreutils-\
-directory coreutils-disk coreutils-file-attributes coreutils-file-format \
-coreutils-file-output-full coreutils-file-output-part coreutils-file-sort \
-coreutils-file-special coreutils-file-summarize coreutils-line coreutils-\
-numeric coreutils-operations coreutils-path coreutils-print coreutils-\
-redirection"
+BUILD_DEPENDS="automake autoconf gettext xz libcap-dev gmp-dev patch texinfo \
+openssl-dev"
+SPLIT="\
+coreutils-character      coreutils-command          coreutils-conditions \
+coreutils-context-system coreutils-context-user     coreutils-context-working \
+coreutils-directory      coreutils-disk             coreutils-file-attributes \
+coreutils-file-format    coreutils-file-output-full coreutils-file-output-part \
+coreutils-file-sort      coreutils-file-special     coreutils-file-summarize \
+coreutils-line           coreutils-numeric          coreutils-operations \
+coreutils-path           coreutils-print            coreutils-redirection \
+coreutils-multicall:multi"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $SET in
+		multi) SET_ARGS='--enable-single-binary=symlinks';;
+		*)     SET_ARGS='';;
+	esac
 	# Rebuild fixed translations
 	msgfmt po/nb.po -o po/nb.gmo
 	msgfmt po/sl.po -o po/sl.gmo
 
 	autoreconf -fi
 
-	FORCE_UNSAFE_CONFIGURE=1 ./configure $CONFIGURE_ARGS &&
-	make && make install
+	FORCE_UNSAFE_CONFIGURE=1 \
+	./configure \
+		--with-openssl \
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
 
 	# LFS: Move programs to the locations specified by the FHS
 	mkdir -p \
 		$install/bin \
 		$install/usr/sbin \
 		$install/usr/share/man/man8
-	for i in cat chgrp chmod chown cp date dd df echo false ln ls mkdir \
-		mknod mv pwd rm rmdir stty sync true uname; do
-		mv $install/usr/bin/$i $install/bin
-	done
-	mv  $install/usr/bin/chroot $install/usr/sbin
+
+	while read from to; do
+		case $SET in
+			multi)
+				rm $install$from
+				# make relative symlinks
+				case $to in
+					/bin/*) ln -s ../../usr/bin/coreutils $install$to;;
+					*)      ln -s        ../bin/coreutils $install$to;;
+				esac
+				;;
+			*)
+				mv $install$from $install$to
+				;;
+		esac
+	done <<EOT
+/usr/bin/cat    /bin/cat
+/usr/bin/chgrp  /bin/chgrp
+/usr/bin/chmod  /bin/chmod
+/usr/bin/chown  /bin/chown
+/usr/bin/cp     /bin/cp
+/usr/bin/date   /bin/date
+/usr/bin/dd     /bin/dd
+/usr/bin/df     /bin/df
+/usr/bin/echo   /bin/echo
+/usr/bin/false  /bin/false
+/usr/bin/kill   /bin/kill
+/usr/bin/ln     /bin/ln
+/usr/bin/ls     /bin/ls
+/usr/bin/mkdir  /bin/mkdir
+/usr/bin/mknod  /bin/mknod
+/usr/bin/mv     /bin/mv
+/usr/bin/pwd    /bin/pwd
+/usr/bin/rm     /bin/rm
+/usr/bin/rmdir  /bin/rmdir
+/usr/bin/stty   /bin/stty
+/usr/bin/sync   /bin/sync
+/usr/bin/true   /bin/true
+/usr/bin/uname  /bin/uname
+/usr/bin/chroot /usr/sbin/chroot
+EOT
 	mv  $install/usr/share/man/man1/chroot.1 \
 		$install/usr/share/man/man8/chroot.8
 	sed -i 's|"1"|"8"|' $install/usr/share/man/man8/chroot.8
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	DEPENDS="glibc-base" # default
 	case $PACKAGE in
 		coreutils)
-			DEPENDS="$SPLIT" ;;
-		coreutils-character)
+			DEPENDS=${SPLIT/coreutils-multicall:multi} # all but coreutils-multicall
+			TAGS="LFS"
+			;;
+		*-character)
 			copy expand tr unexpand
 			CAT="system-tools|operate on characters"
-			DEPENDS="glibc-base" ;;
-		coreutils-command)
+			;;
+		*-command)
 			copy env kill nice nohup sleep stdbuf timeout libstdbuf.so chroot
 			CAT="system-tools|commands"
-			DEPENDS="glibc-base" ;;
-		coreutils-conditions)
+			;;
+		*-conditions)
 			copy false true [ expr test
 			CAT="system-tools|conditions"
 			DEPENDS="glibc-base gmp" ;;
-		coreutils-context-system)
+		*-context-system)
 			copy date uname chcon hostid nproc runcon uptime
 			CAT="system-tools|system context"
-			DEPENDS="glibc-base" ;;
-		coreutils-context-user)
+			;;
+		*-context-user)
 			copy groups id logname pinky users who whoami
 			CAT="system-tools|user context"
-			DEPENDS="glibc-base" ;;
-		coreutils-context-working)
+			;;
+		*-context-working)
 			copy pwd stty printenv tty
 			CAT="system-tools|working context"
-			DEPENDS="glibc-base" ;;
-		coreutils-directory)
+			;;
+		*-directory)
 			copy ls dir dircolors vdir
 			CAT="system-tools|list directories"
-			DEPENDS="glibc-base attr libcap" ;;
-		coreutils-disk)
+			DEPENDS="glibc-base libcap" ;;
+		*-disk)
 			copy df sync du stat truncate
 			CAT="system-tools|work with disks"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-attributes)
+			;;
+		*-file-attributes)
 			copy chgrp chmod chown touch
 			CAT="system-tools|change file attributes"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-format)
+			;;
+		*-file-format)
 			copy fmt fold pr
 			CAT="system-tools|format file contents"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-output-full)
+			;;
+		*-file-output-full)
 			copy cat base32 base64 nl od tac
 			CAT="system-tools|output entire files"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-output-part)
+			;;
+		*-file-output-part)
 			copy csplit head split tail
 			CAT="system-tools|output file parts"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-sort)
+			;;
+		*-file-sort)
 			copy comm ptx shuf sort tsort uniq
 			CAT="system-tools|operate on sorted files"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-special)
+			DEPENDS="glibc-base openssl" # openssl for `sort`
+			;;
+		*-file-special)
 			copy ln mkdir mknod rmdir link mkfifo mktemp readlink realpath unlink
 			CAT="system-tools|work with special file types"
-			DEPENDS="glibc-base" ;;
-		coreutils-file-summarize)
-			copy cksum md5sum sha1sum sha224sum sha256sum sha384sum sha512sum sum wc
+			;;
+		*-file-summarize)
+			copy b2sum cksum md5sum sha1sum sha224sum sha256sum sha384sum sha512sum sum wc
 			CAT="system-tools|summarize files"
-			DEPENDS="glibc-base" ;;
-		coreutils-line)
+			DEPENDS="glibc-base openssl"
+			;;
+		*-line)
 			copy cut join paste
 			CAT="system-tools|operate on fields within a line"
-			DEPENDS="glibc-base" ;;
-		coreutils-numeric)
+			;;
+		*-numeric)
 			copy factor seq
 			CAT="system-tools|numeric"
 			DEPENDS="glibc-base gmp" ;;
-		coreutils-operations)
+		*-operations)
 			copy cp dd mv install rm shred
 			CAT="system-tools|perform basic operations"
 			DEPENDS="glibc-base acl attr" ;;
-		coreutils-path)
+		*-path)
 			copy basename dirname pathchk
 			CAT="system-tools|perform path manipulation"
-			DEPENDS="glibc-base" ;;
-		coreutils-print)
+			;;
+		*-print)
 			copy echo numfmt printf yes
 			CAT="system-tools|print text"
-			DEPENDS="glibc-base" ;;
-		coreutils-redirection)
+			;;
+		*-redirection)
 			copy tee
 			CAT="system-tools|redirection"
-			DEPENDS="glibc-base" ;;
+			;;
+		*-multicall)
+			copy @std
+			CAT="system-tools|packed in single binary like Busybox"
+			DEPENDS="glibc-base acl attr gmp libcap openssl"
+			;;
 	esac
 }
 
 # Remove Busybox applets in order to not clash with ("/bin", "/sbin",
 # "/usr/bin" and "/usr/sbin" conflicts with the same filename)
-post_install_coreutils_command()
-{
-	rm "$1/bin/kill"     # for /usr/bin/kill
-	rm "$1/bin/nice"     # for /usr/bin/nice
-	rm "$1/bin/sleep"    # for /usr/bin/sleep
+
+# for /usr/bin/nice /usr/bin/sleep
+post_install_coreutils_command() {
+	for i in nice sleep; do
+		readlink "$1/bin/$i" | grep -q busybox && rm "$1/bin/$i"
+	done
+	:
 }
-post_install_coreutils_context_working()
-{
-	rm "$1/bin/printenv" # for /usr/bin/printenv
+# for /usr/bin/printenv
+post_install_coreutils_context_working() {
+	readlink "$1/bin/printenv" | grep -q busybox && rm "$1/bin/printenv"
+	:
 }
-post_install_coreutils_disk()
-{
-	rm "$1/bin/stat"     # for /usr/bin/stat
+# for /usr/bin/stat
+post_install_coreutils_disk() {
+	readlink "$1/bin/stat" | grep -q busybox && rm "$1/bin/stat"
+	:
 }
-post_install_coreutils_file_attributes()
-{
-	rm "$1/bin/touch"    # for /usr/bin/touch
+# for /usr/bin/touch
+post_install_coreutils_file_attributes() {
+	readlink "$1/bin/touch" | grep -q busybox && rm "$1/bin/touch"
+	:
 }
-post_install_coreutils_file_output_full()
-{
-	rm "$1/bin/base64"   # for /usr/bin/base64
+# for /usr/bin/base64
+post_install_coreutils_file_output_full() {
+	readlink "$1/bin/base64" | grep -q busybox && rm "$1/bin/base64"
+	:
 }
-post_install_coreutils_file_special()
-{
-	rm "$1/bin/mktemp"   # for /usr/bin/mktemp
+# for /usr/bin/mktemp
+post_install_coreutils_file_special() {
+	readlink "$1/bin/mktemp" | grep -q busybox && rm "$1/bin/mktemp"
+	:
+}
+# for /usr/bin/base64 /usr/bin/mktemp /usr/bin/nice /usr/bin/printenv
+# /usr/bin/sleep /usr/bin/stat /usr/bin/touch
+post_install_coreutils_multicall() {
+	for i in base64 mktemp nice printenv sleep stat touch; do
+		readlink "$1/bin/$i" | grep -q busybox && rm "$1/bin/$i"
+	done
+	:
 }

@@ -7,19 +7,17 @@ SHORT_DESC="Manage display on terminals"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.gnu.org/software/ncurses/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/ncurses.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.gnu.org/gnu/ncurses/$TARBALL"
-HOST_ARCH="i486 arm"
 
+BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="flex"
-BUILD_DEPENDS_arm=""
 SPLIT="ncurses-libform ncurses-libmenu ncurses-libpanel ncurses-extra \
 ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in
 
 	./configure \
@@ -61,14 +59,13 @@ compile_rules()
 	ln -s xterm-256color $install/usr/share/terminfo/x/xterm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		ncurses)
 			copy clear tset reset libncursesw.so* tabset/ \
 			linux xterm xterm-256color
 			# ansi rxvt vt100 vt102* xterm-color xterm-new xterm-vt220
+			TAGS="LFS"
 			;;
 		ncurses-libform)
 			copy libformw.so*
@@ -86,8 +83,7 @@ genpkg_rules()
 			DEPENDS="ncurses"
 			;;
 		ncurses-extra)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			CAT="base-system|extra files"
 			DEPENDS="ncurses"
 			;;

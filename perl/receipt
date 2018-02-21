@@ -1,68 +1,91 @@
 # SliTaz package receipt v2.
 
 PACKAGE="perl"
-VERSION="5.24.1"
+VERSION="5.26.1"
 CATEGORY="development"
 SHORT_DESC="Perl interpreter and modules"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://www.perl.org/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/perl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.cpan.org/src/5.0/$TARBALL"
 
 COOKOPTS="!perlz"
 BUILD_DEPENDS="zlib-dev bzip2-dev less gdbm-dev"
-SPLIT="perl-core perl-dev"
-SIBLINGS="microperl perl-thread"
+#SPLIT="perl-core perl perl-dev microperl:micro"
+SPLIT="perl-core perl perl-dev"
+# microperl: waiting for 5.26.2: https://rt.perl.org/Public/Bug/Display.html?id=132255
+# sv.c:(.text+0x1aa95): undefined reference to `Perl_fp_class_denorm'
 
 # Rules to compile & install the temporary toolchain.
-cook_tmp_toolchain()
-{
+cook_tmp_toolchain() {
 	cd $src
-	{ sh Configure -des -Dprefix=/tools \
+	sh Configure -des \
+		-Dprefix=/tools \
 		-Dstatic_ext='Data/Dumper Fcntl IO' &&
-	
+
 	# Only few tools are needed in the tmp toolchain.
-	make perl utilities ext/Errno/pm_to_blib
-	} || return 1
+	make perl utilities ext/Errno/pm_to_blib || return 1
+
 	cp perl pod/pod2man /tools/bin
 	mkdir -p /tools/lib/perl5/$VERSION
 	cp -R lib/* /tools/lib/perl5/$VERSION
 }
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	export BUILD_ZLIB=False
-	export BUILD_BZIP2=0
-	sh Configure -des \
-		-Dprefix=/usr \
-		-Dvendorprefix=/usr \
-		-Dman1dir=/usr/share/man/man1 \
-		-Dman3dir=/usr/share/man/man3 \
-		-Dpager="/usr/bin/less -isR" \
-		-Duseshrplib &&
-	make && make install
+compile_rules() {
+	case $SET in
+		micro)
+				patch -p1 -i $stuff/microperl.patch
+				sed -i.orig "s|usr/local|usr|;
+					s|perl5/${VERSION%.*}|perl5/$VERSION|;
+					s|unknown|$HOST_SYSTEM|" uconfig.sh uconfig64.sh
+
+				case $ARCH in
+					x86_64) make -f Makefile.micro regen_uconfig64;;
+					*)      make -f Makefile.micro regen_uconfig;;
+				esac &&
+				make -f Makefile.micro &&
+				install -Dm755 microperl $install/usr/bin/microperl
+				;;
+		*)
+			export BUILD_ZLIB=False
+			export BUILD_BZIP2=0
+			sh Configure -des \
+				-Dprefix=/usr \
+				-Dvendorprefix=/usr \
+				-Dman1dir=/usr/share/man/man1 \
+				-Dman3dir=/usr/share/man/man3 \
+				-Dpager="/usr/bin/less -isR" \
+				-Duseshrplib \
+				-Dusethreads &&
+			make && make install
+			;;
+	esac
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		perl)
-			copy @std
-			find $fs \( -name perl -o -name perl$VERSION -o -name libperl.so \) -delete
-			DEPENDS="bzlib gdbm zlib perl-core"
-			PROVIDE="microperl"
-			;;
 		perl-core)
-			# perl binary depends on libperl.so
 			copy perl perl$VERSION libperl.so
 			DEPENDS="glibc-base"
 			CAT="development|minimal interpreter"
 			;;
-		*-dev) copy @dev;;
+		perl)
+			copy @std @rm
+			DEPENDS="bzlib gdbm zlib perl-core"
+			PROVIDE="microperl perl-thread"
+			TAGS="LFS"
+			;;
+		*-dev)
+			copy @dev
+			;;
+		microperl)
+			copy @std
+			CAT="development|micro version"
+			DEPENDS="glibc-base"
+			;;
 	esac
 }
 

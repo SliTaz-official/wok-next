@@ -7,6 +7,7 @@ SHORT_DESC="The on-line manual database"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.nongnu.org/man-db/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/man-db.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://download.savannah.gnu.org/releases/man-db/$TARBALL"
@@ -15,11 +16,8 @@ BUILD_DEPENDS="groff bzip2-dev xz-dev gettext libpipeline-dev gdbm-dev \
 zlib-dev"
 SPLIT="man-db-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--docdir=/usr/share/doc/$PACKAGE-$VERSION \
 		--sysconfdir=/etc \
 		--disable-setuid \
 		--with-browser=/usr/bin/lynx \
@@ -31,13 +29,12 @@ compile_rules()
 	sed -i "s:man root:root root:g" $install/usr/lib/tmpfiles.d/man-db.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		man-db)
 			copy @std
 			DEPENDS="gdbm libpipeline zlib"
+			TAGS="LFS"
 			;;
 		*-dev) copy @dev;;
 	esac

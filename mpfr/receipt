@@ -7,7 +7,7 @@ SHORT_DESC="Multiple-precision floating-point computations"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.mpfr.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/mpfr.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.mpfr.org/$PACKAGE-$VERSION/$TARBALL"
@@ -15,30 +15,31 @@ WGET_URL="http://www.mpfr.org/$PACKAGE-$VERSION/$TARBALL"
 BUILD_DEPENDS="gmp-dev texinfo"
 SPLIT="mpfr-dev"
 
+compile_rules() {
 #--with-gmp-lib=/cross/$ARCH/sysroot/usr/lib
 #--with-gmp-include=/cross/$ARCH/sysroot/usr/include
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
 		--disable-static \
 		--enable-thread-safe \
-		--docdir=/usr/share/doc/mpfr-$VERSION \
 		$CONFIGURE_ARGS &&
 	make && make html && make install && make install-html
 }
 
-testsuite()
-{
-	case "$ARCH" in i?86) make check;; esac
+testsuite() {
+	case "$ARCH" in
+		arm*) ;;
+		*) make check;;
+	esac
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		mpfr) copy @std; DEPENDS="gmp";;
+		mpfr)
+			copy @std
+			DEPENDS="gmp"
+			TAGS="LFS"
+			;;
 		*-dev) copy @dev;;
 	esac
 }

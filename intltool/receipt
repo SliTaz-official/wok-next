@@ -7,27 +7,23 @@ SHORT_DESC="Internationalization tool"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/intltool/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/intltool.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://launchpad.net/intltool/trunk/$VERSION/+download/$TARBALL"
 
-BUILD_DEPENDS="perl perl-xml-parser wget"
+BUILD_DEPENDS="perl perl-xml-parser"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's:\\\${:\\\$\\{:' intltool-update.in
 
 	./configure $CONFIGURE_ARGS && make && make install
 
-	docdir="$install/usr/share/doc/intltool-$VERSION"
-	mkdir -p $docdir; cp doc/I18N-HOWTO $docdir
+	cook_pick_docs doc/I18N-HOWTO
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="perl-xml-parser gettext"
+	TAGS="LFS"
 }

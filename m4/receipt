@@ -7,22 +7,17 @@ SHORT_DESC="GNU traditional Unix macro processor"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/m4/m4.html"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/m4.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base"
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy m4
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibc-base"
+	TAGS="LFS"
 }

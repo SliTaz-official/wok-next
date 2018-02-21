@@ -1,23 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="grub2"
-SOURCE="grub"
 VERSION="2.02"
 CATEGORY="base-system"
 SHORT_DESC="GRUB2 boot loader"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="http://www.gnu.org/software/grub/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/grub.html"
+
+TARBALL="grub-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.gnu.org/gnu/grub/$TARBALL"
 
 BUILD_DEPENDS="flex bison zlib-dev xz-dev freetype-dev ncurses-dev \
 libusb-compat-dev libusb-dev libdevmapper-dev"
-SPLIT="grub2 grub2-efi"
+SPLIT="grub2 grub2-efi:efi"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|sys/types.h>|&\n#include <sys/sysmacros.h>|' \
 		util/getroot.c grub-core/kern/emu/hostdisk.c
 
@@ -25,64 +24,73 @@ compile_rules()
 	sed -i "s/'.b'/& \\&\\& cur_len/" grub-core/lib/crypto.c grub-core/normal/auth.c
 
 	# Fixes for flex 2.5.37
-	export CFLAGS="-Wno-error=sign-compare -Wno-error=unused-value"       
+	export CFLAGS="-Wno-error=sign-compare -Wno-error=unused-value"
 	sed -i '/#undef gets/{N;s/.*/#ifdef gets\n&\n#endif/}' grub-core/gnulib/stdio*h
 	sed -i 's/YY_FATAL_ERROR/REMOVED_&/' grub-core/script/yylex.l
-	
-	#chmod +x install-sh
-	./configure --prefix=/usr --sysconfdir=/etc \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
 
-	export EFI_ARCH=i386
-	./configure --prefix=/usr --sysconfdir=/etc \
-		--with-platform=efi --target=${EFI_ARCH} --program-prefix="" \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make clean &&
-	make $MAKEFLAGS
-	cd grub-core
-	../grub-mkimage -d . -o ../bootia32.efi -O i386-efi -p /boot/grub \
-		ntfs hfs appleldr boot cat efi_gop efi_uga elf fat hfsplus \
-		iso9660 linux keylayouts memdisk minicmd part_apple ext2 extcmd \
-		xfs xnu part_bsd part_gpt search search_fs_file chain btrfs \
-		loadbios loadenv lvm minix minix2 reiserfs memrw mmap msdospart \
-		scsi loopback normal configfile gzio all_video efi_gop efi_uga \
-		gfxterm gettext echo boot chain
-}
+	case $SET in
+		'')
+			#chmod +x install-sh
+			./configure $CONFIGURE_ARGS &&
+			make $MAKEFLAGS &&
+			make DESTDIR=$DESTDIR install || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	case $PACKAGE in
-	grub2)
-		DEPENDS="zlib freetype ncurses libusb-compat grep libusb libdevmapper"
-		mkdir -p $fs/boot/grub $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/usr/share $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/etc $fs
-		
-		# Example config file (grub.cfg).
-		cp stuff/example-grub.cfg $fs/boot/grub
-		;;
-	grub2-efi)
-		mkdir -p $fs/boot/efi/boot
-		cp $src/bootia32.efi $fs/boot/efi/boot
-		;;
+			# Example config file (grub.cfg)
+			install -Dm0644 $stuff/example-grub.cfg $install/boot/grub/example-grub.cfg
+			;;
+		efi)
+			export EFI_ARCH=i386
+			./configure \
+				--with-platform=efi \
+				--target=$EFI_ARCH \
+				--program-prefix="" \
+				$CONFIGURE_ARGS &&
+			make clean &&
+			make $MAKEFLAGS || return 1
+
+			cd grub-core
+			../grub-mkimage \
+				-d . \
+				-o ../bootia32.efi \
+				-O i386-efi \
+				-p /boot/grub \
+				ntfs hfs appleldr boot cat efi_gop efi_uga elf fat hfsplus \
+				iso9660 linux keylayouts memdisk minicmd part_apple ext2 extcmd \
+				xfs xnu part_bsd part_gpt search search_fs_file chain btrfs \
+				loadbios loadenv lvm minix minix2 reiserfs memrw mmap msdospart \
+				scsi loopback normal configfile gzio all_video efi_gop efi_uga \
+				gfxterm gettext echo boot chain || return 1
+
+				install -Dm644 $src/bootia32.efi $install/boot/efi/boot/bootia32.efi
+				;;
 	esac
 }
 
-post_install_grub2()
-{
-	cat <<EOT
-# To install grub to your sda MBR
-grub-install /dev/sda
+genpkg_rules() {
+	case $PACKAGE in
+		grub2)
+			copy @std
+			DEPENDS="zlib freetype ncurses libusb-compat grep libusb libdevmapper"
+			TAGS="LFS"
+			;;
+		grub2-efi)
+			copy @std
+			DEPENDS=" "
+			;;
+	esac
+}
 
-# To generate a configuration file
-grub-mkconfig -o /boot/grub/grub.cfg
+post_install_grub2() {
+	[ -n "$quiet" ] || cat <<EOT
 
-# You can learn from /boot/grub/example-grub.cfg too.
+	.-------------------------------------------------------.
+	| # To install grub to your sda MBR                     |
+	|   grub-install /dev/sda                               |
+	|-------------------------------------------------------|
+	| # To generate a configuration file                    |
+	|   grub-mkconfig -o /boot/grub/grub.cfg                |
+	|-------------------------------------------------------|
+	| # You can learn from /boot/grub/example-grub.cfg too. |
+	'-------------------------------------------------------'
 EOT
 }

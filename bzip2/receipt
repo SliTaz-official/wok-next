@@ -7,43 +7,45 @@ SHORT_DESC="A program and library for data compression"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.bzip.org/"
-TAGS="compression archive"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/bzip2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.bzip.org/$VERSION/$TARBALL"
 
 SPLIT="bzlib bzip2-apps bzip2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# No configure script, we must used CC, AR and RANLIB set by cook.
+compile_rules() {
 	case "$ARCH" in
 		arm*)
-			make -f Makefile-libbz2_so CC=${CC} AR=${AR} RANLIB=${RANLIB} &&
-			make clean && make CC=${CC} AR=${AR} RANLIB=${RANLIB} ;;
+			# No configure script, we must used CC, AR and RANLIB set by cook.
+			make -f Makefile-libbz2_so CC=$CC AR=$AR RANLIB=$RANLIB &&
+			make clean && make CC=$CC AR=$AR RANLIB=$RANLIB ;;
 		*)
+			# add large-file support
+			sed -i 's/^CFLAGS=\(.*\)$/CFLAGS=\1 \$(BIGFILES)/' ./Makefile-libbz2_so
+
 			make -f Makefile-libbz2_so &&
 			make clean && make ;;
-	esac
+	esac &&
 
-	make install
+	make install || return 1
+
+	rm $install/usr/bin/bunzip2 $install/usr/bin/bzcat
+	ln -s bzip2 $install/bin/bunzip2
+	ln -s bzip2 $install/bin/bzcat
 }
 
 # Just to be sure when cross-compiling.
-testsuite()
-{
+testsuite() {
 	readelf -h $src/bzip2-shared
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		bzip2)
 			copy bzip2 bunzip2 bzcat
 			DEPENDS="bzlib"
+			TAGS="LFS compression archive"
 			;;
 		bzlib)
 			copy *.so*
@@ -51,8 +53,7 @@ genpkg_rules()
 			CAT="libs|library"
 			;;
 		bzip2-apps)
-			copy bin/
-			remove_already_packed
+			copy bin/ @rm
 			DEPENDS="bzlib"
 			CAT="utilities|apps"
 			;;

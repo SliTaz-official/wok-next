@@ -1,24 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="man-pages"
-VERSION="4.09"
+VERSION="$(. $WOK/linux/receipt; echo $KBASEVER)"
 CATEGORY="doc"
 SHORT_DESC="Linux manual pages"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="unknown"
 WEB_SITE="https://www.kernel.org/doc/man-pages/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/man-pages.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/docs/man-pages/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy man/
+	TAGS="LFS"
 }

@@ -7,29 +7,27 @@ SHORT_DESC="GNU stream editor"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/sed/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/sed.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="acl-dev gettext texinfo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Rebuild after patching
 	msgfmt po/ru.po -o po/ru.gmo
 
 	./configure \
 		--bindir=/bin \
-		--htmldir=/usr/share/doc/sed-$VERSION \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make html && make install && make -C doc install-html
+	make $MAKEFLAGS && make html && make install || return 1
+
+	cook_pick_docs doc/sed.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="acl"
+	TAGS="LFS"
 }

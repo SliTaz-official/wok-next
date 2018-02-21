@@ -3,23 +3,20 @@
 PACKAGE="acl"
 VERSION="2.2.52"
 CATEGORY="system-tools"
-SHORT_DESC="Commands for Manipulating POSIX Access Control Lists"
+SHORT_DESC="Commands for manipulating POSIX Access Control Lists"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="LGPL2.1 GPL2"
 WEB_SITE="http://savannah.nongnu.org/projects/acl/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/acl.html"
 
 TARBALL="$PACKAGE-$VERSION.src.tar.gz"
-WGET_URL="http://download.savannah.gnu.org/releases/$PACKAGE/$TARBALL"
+WGET_URL="http://download.savannah.gnu.org/releases/acl/$TARBALL"
 
 BUILD_DEPENDS="attr-dev bash libtool gettext"
-BUILD_DEPENDS_arm="attr-dev"
 SPLIT="acl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	rm /bin/rpm
+compile_rules() {
+	rm /bin/rpm 2>/dev/null
 	sed -i -e 's|/@pkg_name@|&-@pkg_version@|' include/builddefs.in
 	sed -i -e "/TABS-1;/a if (x > (TABS-1)) x = (TABS-1);" \
 		libacl/__acl_to_any_text.c
@@ -30,24 +27,23 @@ compile_rules()
 		--libexecdir=/usr/lib \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install install-lib install-dev DIST_ROOT=$DESTDIR
+	make install install-lib install-dev DIST_ROOT=$DESTDIR || return 1
 
-	mkdir $install/lib
+	mkdir -p $install/lib
 	mv -v $install/usr/lib/libacl.so.* $install/lib
 	ln -sfv ../../lib/$(readlink $install/usr/lib/libacl.so) \
 		$install/usr/lib/libacl.so
+
 	find $install -type f \( -name '*.so*' -o -name '*.la' \) \
 		-exec chmod 755 \{\} \;
-
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		acl)
 			copy @std
 			DEPENDS="attr"
+			TAGS="LFS"
 			;;
 		acl-dev)
 			copy @dev

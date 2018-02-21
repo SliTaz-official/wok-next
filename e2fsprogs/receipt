@@ -1,25 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="e2fsprogs"
-VERSION="1.43.4"
+VERSION="1.43.5"
 CATEGORY="base-system"
 SHORT_DESC="Filesystem utilities for use with ext2 and ext3"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://e2fsprogs.sourceforge.net/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/e2fsprogs.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
+BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="util-linux-uuid-dev util-linux-blkid-dev gettext attr-dev \
 acl-dev texinfo"
-BUILD_DEPENDS_arm=" "
-SPLIT="libcomerr libcomerr-dev e2fsprogs-dev e2fsprogs-fsck"
+SPLIT="libcomerr-dev e2fsprogs-dev e2fsprogs-fsck libcomerr e2fsprogs"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i -e 's:\[\.-\]::' tests/filter.sed
 	mkdir ../build && cd ../build
 
@@ -33,7 +31,7 @@ compile_rules()
 		--disable-uuidd \
 		--disable-fsck \
 		$CONFIGURE_ARGS &&
-	make && make install && make install-libs
+	make && make install && make install-libs || return 1
 
 	for i in libcom_err libe2p libext2fs libss; do
 		chmod u+w $install/usr/lib/$i.a
@@ -45,7 +43,7 @@ compile_rules()
 		$install/usr/share/info/libext2fs.info
 
 	# Additional documentation
-	makeinfo -o      $src/doc/com_err.info $src/lib/et/com_err.texinfo
+	makeinfo -o   $src/doc/com_err.info $src/lib/et/com_err.texinfo
 	install -m644 $src/doc/com_err.info $install/usr/share/info
 	install-info --dir-file=$install/usr/share/info/dir \
 		$install/usr/share/info/com_err.info
@@ -55,43 +53,36 @@ compile_rules()
 	msgfmt $src/po/de.po -o $src/po/de.gmo
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		e2fsprogs)
-			copy bin/ sbin/ etc/ *.so*
-			find $fs -name '*com_err*' -delete
-			# Remove fsck provided by Busybox.
-			rm $fs/sbin/fsck*
-			DEPENDS="libcomerr util-linux-blkid util-linux-uuid"
+		libcomerr-dev)
+			copy libcom_err.a com_err.h com_err.pc
+			CAT="development|libcomerr development files"
+			DEPENDS="pkg-config"
 			;;
 		e2fsprogs-dev)
-			copy @dev *.awk *.sed
-			find $fs \( -name com_err.h -o -name libcom_err.a -o -name com_err.pc \) -delete
+			copy @dev *.sed *.awk @rm
 			DEPENDS="libcomerr-dev pkg-config"
+			;;
+		e2fsprogs-fsck)
+			copy sbin/fsck.*
+			CAT="system-tools|fsck tools"
+			DEPENDS="e2fsprogs libcomerr util-linux-blkid util-linux-uuid"
 			;;
 		libcomerr)
 			copy libcom_err.so*
 			CAT="base-system|libcomerr library"
 			DEPENDS=" "
 			;;
-		libcomerr-dev)
-			copy libcom_err.a com_err.h com_err.pc
-			CAT="development|libcomerr development files"
-			DEPENDS="pkg-config"
-			;;
-		e2fsprogs-fsck)
-			copy fsck.*
-			rm -r $fs/usr
-			CAT="system-tools|fsck tools"
-			DEPENDS="e2fsprogs libcomerr util-linux-blkid util-linux-uuid"
+		e2fsprogs)
+			copy @std @rm
+			DEPENDS="libcomerr util-linux-blkid util-linux-uuid"
+			TAGS="LFS"
 			;;
 	esac
 }
 
 # Overlap busybox
-pre_install_e2fsprogs()
-{
+pre_install_e2fsprogs() {
 	rm -f $1/sbin/tune2fs
 }

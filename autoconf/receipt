@@ -6,22 +6,21 @@ CATEGORY="development"
 SHORT_DESC="A GNU tool for automatically configuring source code"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://www.gnu.org/software/autoconf/autoconf.html"
+WEB_SITE="https://www.gnu.org/software/autoconf/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/autoconf.html"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="m4 perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="m4 perl"
+	TAGS="LFS"
 }

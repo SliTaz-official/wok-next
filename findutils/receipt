@@ -7,13 +7,12 @@ SHORT_DESC="GNU utilities and tools to find/locate"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/findutils/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/findutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--localstatedir=/var/lib/locate \
 		$CONFIGURE_ARGS &&
@@ -21,9 +20,8 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="glibc-base slitaz-base-files"
+	TAGS="LFS"
 }

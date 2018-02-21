@@ -1,33 +1,39 @@
 # SliTaz package receipt v2.
 
 PACKAGE="linux-dev"
-VERSION="4.9.76"
-KBASEVER="4.9"
+VERSION="$(. $WOK/linux/receipt; echo $VERSION)"
+KBASEVER="$(. $WOK/linux/receipt; echo $KBASEVER)"
 CATEGORY="development"
 SHORT_DESC="The Linux Kernel"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.kernel.org/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/linux-headers.html"
 
 TARBALL="linux-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
-DEPENDS="ncurses"
-BUILD_DEPENDS="python-sphinx perl xmlto util-linux-getopt docbook-xsl \
-coreutils-operations findutils ncurses-dev patch bash bc"
-SPLIT="linux-dev linux-man linux-api-headers linux-uml"
+case $ARCH in
+	i*86)
+		SPLIT="linux-dev linux-api-headers linux-uml"
+		BUILD_DEPENDS="python-sphinx perl xmlto util-linux-getopt docbook-xsl \
+		coreutils-operations findutils ncurses-dev patch bash bc"
+		;;
+	x86_64)
+		SPLIT="linux-dev linux-api-headers"
+		BUILD_DEPENDS="perl patch ncurses-dev"
+		;;
+esac
 SIBLINGS="linux"
-COOKOPTS="!pngz !svgz !uiz"
+COOKOPTS="!pngz !svgz !uiz !strip"
 
 if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 	PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz"
 	EXTRA_SOURCE_FILES="$(basename $PATCH)"
 fi
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Update sources to the $VERSION using base sources ($KBASEVER) and patch
+compile_rules() {
+	# Update sources to the $VERSION using base sources ($KBASEVER) and patches
 	if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 		[ -s $SRC/$(basename $PATCH) ] || wget $PATCH -O $SRC/$(basename $PATCH)
 		# don't patch twice for `cook $PACKAGE --continue`
@@ -47,7 +53,7 @@ compile_rules()
 	. $WOK/linux/stuff/tools/aufs-patches
 
 	make defconfig
-	sed -i 's/^menuconfig:.*/z&\n\techo menuconfig is ready\n\n&/' \
+	sed -i 's/^menuconfig:.*/z&\n\t@echo menuconfig is ready\n\n&/' \
 		scripts/kconfig/Makefile
 	make zmenuconfig
 
@@ -57,120 +63,44 @@ compile_rules()
 
 	mkdir -p $install/usr/bin
 	mv $p/scripts/kconfig/mconf $install/usr/bin
-	cat > $install/usr/bin/menuconfig <<EOT
-#!/bin/sh
-p=\$PWD
-cd ../src/linux-$VERSION-slitaz
-SRCARCH=x86 ARCH=i386 KERNELVERSION=$VERSION \$p/mconf Kconfig
-EOT
+	sed "s|@VERSION@|$VERSION|; s|@ARCH@|$ARCH|" $stuff/menuconfig.in \
+		> $install/usr/bin/menuconfig
 	chmod a+x $install/usr/bin/menuconfig
 
-	patch -p1 -i $stuff/installmandocs.patch
 
-	make mandocs && make installmandocs
+	if [ "$ARCH" == 'i386' ]; then
+		sed -i 's|uname -m|echo i386|; s|/bin/bash|/bin/ash|g' Makefile
+		make ARCH=um mrproper
+		cp $stuff/mini.config .
+		make ARCH=um allnoconfig KCONFIG_ALLCONFIG=mini.config &&
+		make ARCH=um || return 1
 
-	sed -i 's/uname -m/echo i386/;s|/bin/bash|/bin/ash|g' Makefile
-	make ARCH=um mrproper	
-	cat > mini.config << EOF &&
-CONFIG_BINFMT_ELF=y
-CONFIG_LBD=y
-CONFIG_BLK_DEV=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_STDERR_CONSOLE=y
-CONFIG_SSL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PROC_FS=y
-CONFIG_SYSFS_FS=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_UML_NET=y
-CONFIG_UML_NET_TUNTAP=y
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_PTY_CHAN=y
-CONFIG_TTY_CHAN=y
-CONFIG_NET=y
-CONFIG_INET=y
-CONFIG_UML_NET=y
-CONFIG_UML_NET_TUNTAP=y
-CONFIG_BLK_DEV_UBD=y
-CONFIG_EXT4_FS=y
-CONFIG_EXT4_USE_FOR_EXT23=y
-CONFIG_EXT4_FS_XATTR=y
-CONFIG_EXT4_FS_POSIX_ACL=y
-CONFIG_FUSE_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSVIPC_SYSCTL=y
-CONFIG_SYSVIPC_COMPAT=y
-CONFIG_PACKET=y            
-CONFIG_UNIX=y              
-CONFIG_NETFILTER=y        
-CONFIG_NETFILTER_ADVANCED=y
-CONFIG_NF_CONNTRACK=y
-CONFIG_NETFILTER_XTABLES=y
-CONFIG_NF_DEFRAG_IPV4=y
-CONFIG_NF_CONNTRACK_IPV4=y
-CONFIG_NF_CONNTRACK_PROC_COMPAT=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_NF_NAT=y
-CONFIG_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_NETDEVICES=y
-CONFIG_TUN=y
-EOF
-	make ARCH=um allnoconfig KCONFIG_ALLCONFIG=mini.config &&
-	make ARCH=um || return 1
-
-	mkdir -p $install/boot
-	cp $src/linux $install/boot/linux-uml-$VERSION
-	cat > $install/boot/vm-uml <<EOT
-#!/bin/sh
-
-# /etc/inittab: "tty21::respawn:/bin/su -c '/boot/vm-uml 1 /boot/guests/slitaz.img 2 512m' nobody"
-n=\${1:-0}
-tap=tap\$n
-args="rw root=/dev/null"
-dev="initrd=\$(ls -r /boot/rootfs*.gz | sed q)"
-if [ -n "\$2" ]; then
-	args="ro root=620\${3:-1} screen=text sound=noconf"
-	dev="ubd0=\$2"
-fi
-
-cd \$(dirname \$0)
-ifconfig \$tap 192.168.\$n.1
-./linux-uml-$VERSION \$dev mem=\${4:-512m} fakehd fake_ide ubd=3 con0=fd:0,fd:1 \\
-	con=pts ssl=pts eth0=tuntap,\$tap,fe:f0:00:00:00:0\$n,192.168.\$n.1 \\
-	\$args cpuinfo=\$(sed '/model name/!d;s/.*: //;s/ /_/g;q' /proc/cpuinfo)
-EOT
-	chmod 755 $install/boot/vm-uml
+		mkdir -p $install/boot
+		cp $src/linux $install/boot/linux-uml-$VERSION
+		sed "s|@VERSION@|$VERSION|" $stuff/vm-uml.in > $install/boot/vm-uml
+		chmod 755 $install/boot/vm-uml
+	fi
 }
 
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	linux-dev)
-		copy Kconfig* mconf menuconfig .config
-		CAT="development|menu based configuration tool"
-		;;
-	linux-man)
-		copy /usr/share/man/
-		CAT="doc|manual pages"
-		;;
-	linux-api-headers)
-		copy @dev
-		CAT="development|headers sanitized for use in userspace"
-		PROVIDE="linux-headers linux64-api-headers linux64-headers"
-		;;
-	linux-uml)
-		copy boot/
-		;;
+		linux-dev)
+			copy Kconfig* mconf menuconfig .config
+			CAT="development|menu based configuration tool"
+			DEPENDS="ncurses"
+			TAGS="LFS"
+			;;
+		linux-api-headers)
+			copy @dev
+			DEPENDS=" "
+			CAT="development|headers sanitized for use in userspace"
+			PROVIDE="linux-headers linux64-api-headers linux64-headers"
+			;;
+		linux-uml)
+			copy boot/
+			CAT="development|UML"
+			DEPENDS=" "
+			;;
 	esac
 }

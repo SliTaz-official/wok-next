@@ -7,13 +7,12 @@ SHORT_DESC="Kernel and system logging daemons"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.infodrom.org/projects/sysklogd/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/sysklogd.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/Error loading kernel symbols/{n;n;d}' ksym_mod.c
 	sed -i 's/union wait/int/' syslogd.c
 	mkdir -p $install/sbin $install/usr/share/man/man5 $install/usr/share/man/man8
@@ -24,8 +23,7 @@ compile_rules()
 	cp $stuff/syslog.conf $install/etc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	TAGS="LFS"
 }

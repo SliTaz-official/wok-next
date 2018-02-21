@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="util-linux"
-VERSION="2.30.0"
+VERSION="2.30.1"
 CATEGORY="meta"
 SHORT_DESC="Random collection of Linux utilities"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2.1 BSD PublicDomain"
 WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/util-linux.html"
 
 TARBALL="$PACKAGE-${VERSION%.0}.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/util-linux/v${VERSION%.*}/$TARBALL"
@@ -23,9 +23,7 @@ util-linux-mount util-linux-mount-dev util-linux-partx util-linux-setterm \
 util-linux-sfdisk util-linux-smartcols util-linux-smartcols-dev \
 util-linux-uuid util-linux-uuid-dev util-linux-whereis util-linux-misc"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Fix undeclared 'LINE_MAX'
 	case "$ARCH" in
 		arm) sed -i s'|LINE_MAX|25|' text-utils/*.c ;;
@@ -44,9 +42,7 @@ compile_rules()
 	cp $stuff/cfdisk.desktop $install/usr/share/applications
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case ${PACKAGE#util-linux-} in
 		bash-completion)
 			copy bash-completion/
@@ -182,9 +178,11 @@ genpkg_rules()
 			DEPENDS="glibc-base"
 			;;
 		misc)
-			copy @std @dev
-			remove_already_packed
+			copy @std @dev @rm
 			CAT="system-tools|misc utilities"
+			;;
+		util-linux)
+			TAGS="LFS"
 			;;
 	esac
 

@@ -7,25 +7,24 @@ SHORT_DESC="Utilities for the GNU Translation Project"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gettext/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gettext.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="libcroco-dev libxml2-dev glib-dev acl-dev"
 BUILD_DEPENDS_arm="attr-dev ncurses-dev libxml2-tools libxml2-dev"
+BUILD_DEPENDS="libcroco-dev libxml2-dev glib-dev acl-dev"
 SPLIT="gettext-base gettext-tools gettext"
 
-# Handle cross compilation. Glibc-locale are installed in cross chroot.
-case "$ARCH" in
-	arm) ARCH_ARGS="--disable-acl" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm) ARCH_ARGS="--disable-acl";;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install
+	fix ld
+	./configure $CONFIGURE_ARGS $ARCH_ARGS && make && make install || return 1
+
+	chmod 0755 $install/usr/lib/preloadable_libintl.so
 
 	# stripped gettext.sh
 	rm $install/usr/bin/gettext.sh
@@ -33,14 +32,11 @@ compile_rules()
 }
 
 # Just to be sure when cross compiling, gettext is part of base system.
-testsuite()
-{
+testsuite() {
 	readelf -h $install/usr/bin/gettext
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gettext-base)
 			copy gettext gettext.sh envsubst ngettext
@@ -51,13 +47,16 @@ genpkg_rules()
 			copy msgcat msgfmt msgmerge xgettext \
 			libgettextlib*.so* libgettextsrc*.so*
 			CAT="libs|tools"
-			DEPENDS="acl attr glib libcroco libgomp liblzma libxml2 pcre zlib"
+			DEPENDS="acl attr glib libcroco libgomp liblzma libxml2 ncurses \
+			pcre zlib"
 			;;
 		gettext)
 			copy @std @dev @rm
+			rm -rf $fs/usr/share/doc/ # @dev files here
 			# Runtime depends, then dev-depends
 			DEPENDS="gettext-base gettext-tools libcroco liblzma libxml2 \
 			acl-dev attr-dev libcroco-dev libxml2-dev glib-dev pcre-dev m4"
+			TAGS="LFS"
 			;;
 	esac
 }

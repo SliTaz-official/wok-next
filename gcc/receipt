@@ -1,20 +1,26 @@
 # SliTaz package receipt v2.
 
+# Note, currently first pass is broken. Sorry.
 PACKAGE="gcc"
-VERSION="6.3.0"
+VERSION="7.3.0"
 CATEGORY="development"
 SHORT_DESC="The GNU Compiler Collection"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gcc.gnu.org/"
-#HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gcc.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://gcc.gnu.org/pub/gcc/releases/gcc-$VERSION/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
 SPLIT="gcc-lib-base gcc-lib-math libgfortran gfortran libgomp libobjc \
 libatomic gcc"
+
+if [ "$2" == "--first-pass" -o "$3" == "--first-pass" ]; then
+	STAGE='first'
+	SPLIT=''
+fi
 
 compile_rules() {
 	# Handle cross compilation (native i486/ARM gcc)
@@ -22,66 +28,72 @@ compile_rules() {
 		i?86)
 			ARCH_ARGS="--with-tune=$ARCH"
 			pkgversion="SliTaz"
-			languages="c,c++,objc,fortran" ;;
+			languages="c,c++,objc,fortran"
+			sed -i 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in
+			;;
+		x86_64)
+			ARCH_ARGS=""
+			pkgversion="SliTaz64"
+			languages="c,c++,objc,fortran"
+			sed -i.orig '/m64=/ s|lib64|lib|' gcc/config/i386/t-linux64
+			;;
 		arm*)
+			ARCH_ARGS=""
 			pkgversion="SliTaz ARM"
-			languages="c,c++" ;;
+			languages="c,c++"
+			;;
 	esac
-
-	# Package slitaz-toolchain use 'cook --options' when rebuilding
-	# the full SliTaz toolchain.
-	[ "$2" == "--first-pass" ] && opt=$2
-	[ "$3" == "--first-pass" ] && opt=$3
 
 	# Use libiberty.a from binutils.
 	sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in || return 1
 
-	case "$ARCH" in
-		i?86) sed -i 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in ;;
-	esac
-
-	#sed -i 's@\./fixinc\.sh@-c true@' gcc/Makefile.in
-
-	mkdir -p ../gcc-build && cd ../gcc-build
-
-	# This is the default GCC and we want a native build to cross compile after.
-	# SliTaz target i486 host so we need a native i486 build for GCC.
-	case "$opt" in
-		--first-pass)
-			# Used by slitaz-toolchain when rebuilding the full toolchain.
+	case "$STAGE" in
+		first)
 			echo "cook: configure GCC for: toolchain first pass"
-			$src/configure \
-				--libexecdir=/usr/lib \
+
+			mkdir build
+			cd    build
+			../configure \
+				--with-newlib \
+				--without-headers \
 				--disable-nls \
-				--enable-shared \
+				--disable-shared \
+				--disable-multilib \
+				--disable-decimal-float \
+				--disable-threads \
+				--disable-libatomic \
+				--disable-libgomp \
+				--disable-libmpx \
+				--disable-libquadmath \
+				--disable-libssp \
+				--disable-libvtv \
+				--disable-libstdcxx \
 				--enable-languages=c,c++ \
-				--disable-libstdcxx-pch \
-				--enable-__cxa_atexit \
-				--enable-clocale=gnu \
-				--enable-threads=posix \
-				--disable-bootstrap \
-				${CONFIGURE_ARGS}
+				$CONFIGURE_ARGS
 				;;
 		*)
-			# Used by default to produce a full featured X86 GCC compiler.
 			echo "cook: configure GCC for: final/full build"
-			$src/configure \
-				--libexecdir=/usr/lib \
-				--enable-nls \
-				--enable-languages=${languages} \
-				--enable-shared \
-				--with-system-zlib \
-				--enable-clocale=gnu \
-				--enable-objc-gc \
-				--enable-__cxa_atexit \
-				--enable-lto \
-				--enable-threads=posix \
+
+			mkdir build
+			cd    build
+			SED=sed \
+			../configure \
+				--enable-languages=$languages \
+				--disable-multilib \
 				--disable-bootstrap \
+				--with-system-zlib \
 				--with-pkgversion="$pkgversion" \
-				${CONFIGURE_ARGS} ${ARCH_ARGS}
+				$CONFIGURE_ARGS $ARCH_ARGS
 				;;
 	esac &&
-	make && make install
+	make && make install || return 1
+
+	ln -sv ../usr/bin/cpp $install/lib
+	ln -sv gcc $install/usr/bin/cc
+	install -v -dm755 $install/usr/lib/bfd-plugins
+	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/$VERSION/liblto_plugin.so \
+		$install/usr/lib/bfd-plugins/
+
 
 	# ARM packages use another libs...
 	case "$ARCH" in
@@ -93,16 +105,38 @@ compile_rules() {
 			;;
 	esac
 
-	# Remove build directory.
-	rm -rf $WOK/$PACKAGE/source/$PACKAGE-build
-	rm -rf $WOK/$PACKAGE/$PACKAGE-build
+
+	# Place the debugging symbols for selected libraries in separate files.
+	# This debugging information is needed if running regression tests that use valgrind or gdb.
+	# http://www.linuxfromscratch.org/lfs/view/stable/chapter06/strippingagain.html
+
+	[ "$STAGE" == 'first' ] ||
+	for i in libquadmath.so.0.0.0 libstdc++.so.6.0.24 libmpx.so.2.0.1 \
+		libmpxwrappers.so.2.0.1 libitm.so.1.0.0 libcilkrts.so.5.0.0 \
+		libatomic.so.1.2.0; do
+		cd $install/usr/lib/
+		objcopy --only-keep-debug $i $i.dbg
+		strip   --strip-unneeded  $i
+		objcopy --add-gnu-debuglink=$i.dbg $i
+	done
 }
 
 genpkg_rules() {
+	case $STAGE in
+		first)
+			# single package 'gcc' on the first stage
+			copy @std @dev
+			DEPENDS="glibc-base gmp mpc-library mpfr zlib binutils elfutils"
+			CAT="development|first pass"
+			TAGS="LFS compiler C"
+			return 0
+			;;
+	esac
+
 	case $PACKAGE in
 		gcc-lib-base)
 			copy libgcc_s.so* libstdc++.so*
-			rm $fs/usr/lib/*.py
+			rm $fs/usr/lib*/*.py
 			CAT="libs|base libraries"
 			DEPENDS="glibc-base"
 			;;
@@ -138,11 +172,11 @@ genpkg_rules() {
 			DEPENDS=" "
 			;;
 		gcc)
-			copy bin/ lib/ include/ *.py @rm
+			copy @std @dev @rm
 			DEPENDS="gcc-lib-base libgomp libobjc libatomic \
 			glibc-base gmp mpc-library mpfr zlib   binutils elfutils"
 			SUGGESTED="python"
-			TAGS="compiler C"
+			TAGS="LFS compiler C"
 			;;
 	esac
 }

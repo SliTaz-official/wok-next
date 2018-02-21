@@ -1,18 +1,18 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glibc"
-VERSION="2.25"
+VERSION="2.26"
 CATEGORY="meta"
 SHORT_DESC="The GNU C libraries"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/libc/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/glibc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="linux-api-headers autoconf bash gawk gettext bison \
-texinfo"
+BUILD_DEPENDS="linux-api-headers autoconf bash gawk gettext bison texinfo"
 # slitaz-i18n should present in wok
 SPLIT="glibc-base glibc-locale nscd glibc-dev"
 
@@ -21,83 +21,97 @@ DEFAULT_LOCALE="en_US en_GB"
 
 # Handle multiarch compilation.
 case "$ARCH" in
-	arm*|x86_64) VERSION="2.13";;
+	arm*) VERSION="2.13";;
 esac
 
 # Handle multiarch installation.
 case "$SLITAZ_ARCH" in
-	arm*|x86_64) VERSION="2.13";;
+	arm*) VERSION="2.13";;
 esac
 
 
 # Rules to compile & install the temporary toolchain.
-cook_tmp_toolchain()
-{
+cook_tmp_toolchain() {
 	unset CFLAGS CXXFLAGS
-	echo "CFLAGS += -O2 -march=${ARCH/i386/i486} -mtune=${ARCH/i386/i486}" > configparms
+	case $ARCH in
+		i386)   Arch='i486';;
+		x86_64) Arch='nocona';;
+		*)      Arch="$ARCH";;
+	esac
+	echo "CFLAGS += -O2 -march=$Arch -mtune=$Arch" > configparms
 
-	{
-		# Build in a separate directory.
-		mkdir glibc-build
-		cd    glibc-build
+	# Build in a separate directory.
+	mkdir build
+	cd    build
 
-		../configure \
-			--host=$HOST_SYSTEM \
-			--build=$($src/scripts/config.guess) \
-			--disable-profile \
-			--enable-add-ons \
-			--enable-kernel=2.6.32 \
-			--with-headers=/tools/include \
-			libc_cv_forced_unwind=yes \
-			libc_cv_c_cleanup=yes &&
-		make -j1 &&
-		make install
-	} || return 1
+	../configure \
+		--host=$HOST_SYSTEM \
+		--build=$($src/scripts/config.guess) \
+		--disable-profile \
+		--enable-add-ons \
+		--enable-kernel=3.2 \
+		--with-headers=/tools/include \
+		libc_cv_forced_unwind=yes \
+		libc_cv_c_cleanup=yes &&
+	make -j1 &&
+	make install || return 1
 
 	# Link compiler to this new glibc.
 	SPECS=$(dirname $($HOST_SYSTEM-gcc -print-libgcc-file-name))/specs
-	$HOST_SYSTEM-gcc -dumpspecs | sed \
+	$HOST_SYSTEM-gcc -dumpspecs \
+	| sed \
 		-e 's@/lib\(64\)\?/ld@/tools&@g' \
 		-e "/^\*cpp:$/{n;s,$, -isystem /tools/include,}" > $SPECS
 	unset SPECS
 }
 
 # Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Glibc needs ld.so.conf in the install destdir.
 	mkdir -p $install/etc
 	touch    $install/etc/ld.so.conf
 
 	# Read the INSTALL file in glibc. Also Glibc don't build with -Os flag.
-	# --enale-kernel use latest SliTaz Kernel version. From Glibc INSTALL:
-	# "The higher the VERSION number is, the less compatibility code is
-	# added, and the faster the code gets."
 	unset CFLAGS CXXFLAGS
-	echo "CFLAGS += -O2 -march=${ARCH/i386/i486} -mtune=${ARCH/i386/i486}" > configparms
+	case $ARCH in
+		i386)   Arch='i486';;
+		x86_64) Arch='nocona';;
+		*)      Arch="$ARCH";;
+	esac
+	echo "CFLAGS += -O2 -march=$Arch -mtune=$Arch" > configparms
 
-	{
-		mkdir build
-		cd    build
-		$src/configure \
-			--disable-profile \
-			--enable-add-ons \
-			--enable-obsolete-rpc \
-			--enable-kernel=2.6.32 \
-			--libexecdir=/usr/lib/glibc \
-			--build=$HOST_SYSTEM \
-			--host=$HOST_SYSTEM \
-			--target=$BUILD_SYSTEM &&
-		make -j1 && make install_root=$DESTDIR install
-	} || return 1
+	# Remove a file that may be left over from a previous build attempt
+	rm -f /usr/include/limits.h 2>/dev/null
+
+	mkdir build
+	cd    build
+	# --enale-kernel: please respect Kernel version of the build host,
+	# put the exact or lower numbers. From Glibc INSTALL:
+	# > The higher the VERSION number is, the less compatibility code is
+	# > added, and the faster the code gets.
+	CC="gcc -isystem /usr/lib/gcc/$BUILD_SYSTEM/$(. $WOK/gcc/receipt; echo $VERSION)/include \
+	-isystem /usr/include" \
+	../configure \
+		--disable-werror \
+		--enable-kernel=3.2 \
+		--enable-stack-protector=strong \
+		libc_cv_slibdir=/lib \
+		&&
+	make -j1 &&
+	touch $install/etc/ld.so.conf &&
+	sed '/test-installation/s@$(PERL)@echo not running@' -i ../Makefile &&
+	make install_root=$install install || return 1
 
 	# nscd
-	mkdir -p $install/etc/init.d $install/var/db
-	cp $stuff/nscd $install/etc/init.d
-	chmod +x $install/etc/init.d/nscd
+	cp ../nscd/nscd.conf $install/etc/nscd.conf
+	mkdir -p $install/var/cache/nscd $install/var/db
+	install -Dm755 $stuff/nscd $install/etc/init.d/nscd
 
 	# nsswitch.conf
 	cp $stuff/nsswitch.conf $install/etc
+
+	# ld.so.conf
+	install -Dm644 $stuff/ld.so.conf $install/etc/ld.so.conf
 
 	# If temporary toolchain was previously used, switch to regular toolchain.
 	if [ -d /tools ]; then
@@ -105,45 +119,44 @@ compile_rules()
 		mv /tools/$(gcc -dumpmachine)/bin/ld /tools/$(gcc -dumpmachine)/bin/ld-old
 		mv /tools/bin/ld-new /tools/bin/ld
 		ln -s /tools/bin/ld /tools/$(gcc -dumpmachine)/bin/ld
-		gcc -dumpspecs | sed -e 's@/tools@@g' \
+		gcc -dumpspecs \
+		| sed -e 's@/tools@@g' \
 			-e '/\*startfile_prefix_spec:/{n;s@.*@/usr/lib/ @}' \
 			-e '/\*cpp:/{n;s@$@ -isystem /usr/include@}' > \
 			$(dirname $(gcc --print-libgcc-file-name))/specs
 	fi
-}
 
-# i18n
-get_locales()
-{
-	local path=$1
-	for i in $DEFAULT_LOCALE; do
-		cp $install/$path/i18n/locales/$i $fs/usr/share/i18n/locales
+	# Create symlinks to the dynamic loader for LSB compliance.
+	case $ARCH in
+		i?86)
+			ln -sf ld-linux.so.2 $install/lib/ld-lsb.so.3
+			;;
+		x86_64)
+			mkdir -p $install/lib64
+			ln -sf ../lib/ld-$VERSION.so $install/lib64/ld-linux-x86-64.so.2
+			ln -sf ../lib/ld-$VERSION.so $install/lib64/ld-lsb-x86-64.so.3
+			;;
+	esac
+
+	# Place the debugging symbols for selected libraries in separate files.
+	# This debugging information is needed if running regression tests that use valgrind or gdb.
+	# http://www.linuxfromscratch.org/lfs/view/stable/chapter06/strippingagain.html
+
+	for i in ld-$VERSION.so libc-$VERSION.so libpthread-$VERSION.so libthread_db-1.0.so; do
+		cd $install/lib/
+		objcopy --only-keep-debug $i $i.dbg
+		strip   --strip-unneeded  $i
+		objcopy --add-gnu-debuglink=$i.dbg $i
 	done
 }
 
-mk_dirs()
-{
-	mkdir -p \
-		$fs/etc \
-		$fs/lib \
-		$fs/usr/bin \
-		$fs/usr/lib/gconv \
-		$fs/usr/lib/locale \
-		$fs/usr/share/zoneinfo/America \
-		$fs/usr/share/zoneinfo/Europe \
-		$fs/usr/share/i18n/locales \
-		$fs/usr/share/i18n/charmaps \
-		$fs/usr/share/locale
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		glibc)
 			LOCALE=""
 			CAT="meta|meta-package"
 			DEPENDS="glibc-base glibc-locale glibc-dev"
+			TAGS="LFS"
 			;;
 		glibc-base)
 			case "$ARCH" in
@@ -152,13 +165,6 @@ genpkg_rules()
 					# use these files instead of recooking it. ARM use Eglibc
 					echo "Using cross compiled Eglibc..."
 					install="/cross/$ARCH/sysroot"
-					copy libc_nonshared.a libpthread_nonshared.a
-					;;
-				x86_64)
-					# EXPERIMENTAL: Glibc is cross compiled by cross to have a
-					# toolchain so we can use these files instead of recooking it.
-					echo "Using cross compiled Glibc..."
-					install="/usr/cross/$ARCH"
 					copy libc_nonshared.a libpthread_nonshared.a
 					;;
 			esac
@@ -192,20 +198,13 @@ genpkg_rules()
 				nsswitch.conf \
 				$DEFAULT_LOCALE
 
-			case "$ARCH" in
-				x86_64)
-					# Fix libraries search path
-					sed -i "s|/usr/cross/$ARCH||g" $fs/lib/libc.so
-					sed -i "s|/usr/cross/$ARCH||g" $fs/lib/libpthread.so
-					;;
-			esac
+			find $fs -type f -name '*.so.dbg' -delete
+
 			CAT="base-system|minimal libraries and UTF-8 support for SliTaz"
 			DEPENDS=" "
 			;;
 		glibc-locale)
-			copy gconv/ locale/ i18n/ iconv tzselect
-			# Remove glibc-base files
-			remove_already_packed
+			copy gconv/ locale/ i18n/ iconv tzselect @rm # Remove glibc-base files
 
 			# Remove files provided by locale-pack.
 			. $WOK/slitaz-i18n/stuff/locale-pack.conf
@@ -219,13 +218,12 @@ genpkg_rules()
 			DEPENDS="glibc-base"
 			;;
 		nscd)
-			copy /var/db/ nscd getent nscd.conf
+			copy /var/db/ /var/cache/nscd/ nscd getent nscd.conf
 			CAT="base-system|name-server caching daemon"
 			DEPENDS=" "
 			;;
 		glibc-dev)
-			copy @std @dev
-			remove_already_packed
+			copy @std @dev @rm
 			DEPENDS="glibc-base"
 			;;
 	esac

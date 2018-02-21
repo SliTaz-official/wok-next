@@ -1,40 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="binutils"
-VERSION="2.27"
+VERSION="2.29"
 CATEGORY="development"
 SHORT_DESC="GNU assembler, linker and binary utilities"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2 GPL3 LGPL3"
 WEB_SITE="http://www.gnu.org/software/binutils/"
-TAGS="assembler linker"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/binutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="glibc-dev zlib-dev texinfo bison flex gettext-tools"
 BUILD_DEPENDS_arm=" "
-SPLIT="libbfd"
+BUILD_DEPENDS="glibc-dev zlib-dev texinfo bison flex gettext-tools"
+SPLIT="libbfd binutils"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	case "$ARCH" in
-		i?86) ARCH_ARGS="--disable-werror" ;;
-	esac
-
-	mkdir build; cd build
+compile_rules() {
+	mkdir build
+	cd    build
 
 	$src/configure \
 		--enable-gold \
 		--enable-ld=default \
 		--enable-plugins \
 		--enable-shared \
+		--disable-werror \
 		--with-system-zlib \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS &&
 	make tooldir=/usr &&
-	make tooldir=/usr install
+	make tooldir=/usr install || return 1
 
 	# Create prefixed version of the tools.
 	cd $install/usr/bin
@@ -44,27 +39,21 @@ compile_rules()
 		ln -s $TOOLPREFIX$i $i
 	done
 
-	# Remove prefix from manpages name
-	for i in $(find $install/usr/share/man/man1 -type f); do
-		mv $i ${i/$TOOLPREFIX/}
-	done
-
 #	# Install libiberty (-liberty flag): dependency described in *.la files
 #	install -o root -g root -m 644 $src/include/libiberty.h $install/usr/include
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		binutils)
-			copy @std @dev
-			DEPENDS="glibc zlib flex libbfd"
-			;;
 		libbfd)
 			copy libbfd*.so
 			CAT="system-tools|Binary File Descriptor library"
 			DEPENDS="zlib"
+			;;
+		binutils)
+			copy @std @dev @rm
+			DEPENDS="flex libbfd   glibc"
+			TAGS="LFS assembler linker"
 			;;
 	esac
 }

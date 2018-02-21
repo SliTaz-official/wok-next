@@ -7,6 +7,7 @@ SHORT_DESC="Programs for monitoring processes"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 LGPL2"
 WEB_SITE="https://gitlab.com/procps-ng/procps"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/procps-ng.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -14,17 +15,15 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="gettext ncurses-dev"
 SPLIT="procps-ng-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+#		--docdir=/usr/share/doc/procps-ng-$VERSION \
 	./configure \
 		--exec-prefix= \
 		--libdir=/usr/lib \
-		--docdir=/usr/share/doc/procps-ng-$VERSION \
 		--disable-static \
 		--disable-kill \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
 
 	mkdir -p $install/lib
 	mv $install/usr/lib/libprocps.so.* $install/lib
@@ -32,13 +31,12 @@ compile_rules()
 		$install/usr/lib/libprocps.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		procps-ng)
 			copy @std
 			DEPENDS="gettext-base ncurses"
+			TAGS="LFS"
 			;;
 		*-dev) copy @dev;;
 	esac

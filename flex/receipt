@@ -7,33 +7,31 @@ SHORT_DESC="Flex is a fast lexical analyser generator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://github.com/westes/flex"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/flex.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/releases/download/v$VERSION/$TARBALL"
+TARBALL_MD5="2882e3179748cc9f9c23ec593d6adc8d"
 
 BUILD_DEPENDS="bison gettext help2man indent"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
 		arm*)
 			export ac_cv_func_malloc_0_nonnull=yes
 			export ac_cv_func_realloc_0_nonnull=yes
 	esac
 
-	./configure \
-		--docdir=/usr/share/doc/flex-$VERSION \
-		$CONFIGURE_ARGS &&
-	make && make install
+	# Fix a problem introduced with glibc-2.26
+	sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
+
+	./configure $CONFIGURE_ARGS && make && make install || return 1
 
 	ln -s flex $install/usr/bin/lex
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="bison"
+	TAGS="LFS"
 }

@@ -7,19 +7,17 @@ SHORT_DESC="Compression library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="zlib/libpng"
 WEB_SITE="http://www.zlib.net/"
-HOST_ARCH="i486 arm x86_64"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/zlib.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
 SPLIT="zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr &&
-	make && make install
+	make && make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libz.so.* $install/lib
@@ -28,17 +26,13 @@ compile_rules()
 }
 
 # Important cross compiled package so run readelf.
-testsuite()
-{
-	cd $install
-	readelf -h lib/*.so.$VERSION
+testsuite() {
+	readelf -h $install/lib/libz.so.$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		zlib) copy @std ;;
-		zlib-dev) copy @dev ;;
+		zlib)  copy @std; TAGS="LFS";;
+		*-dev) copy @dev;;
 	esac
 }

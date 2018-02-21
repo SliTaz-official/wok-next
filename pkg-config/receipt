@@ -1,23 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pkg-config"
-VERSION="0.29.1"
+VERSION="0.29.2"
 CATEGORY="development"
 SHORT_DESC="Free desktop packages manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/pkg-config/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/pkg-config.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://pkg-config.freedesktop.org/releases/$TARBALL"
 
-BUILD_DEPENDS="gcc libtool perl"
 BUILD_DEPENDS_arm=" "
+BUILD_DEPENDS="gcc libtool perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
 		arm)
 			./configure \
@@ -27,13 +25,9 @@ compile_rules()
 				--cache-file=arm-linux.cache ;;
 		*)
 			./configure \
-				--prefix=/usr \
 				--with-internal-glib \
-				--disable-compile-warnings \
 				--disable-host-tool \
-				--docdir=/usr/share/doc/pkg-config-$VERSION \
-				--build=$HOST_SYSTEM \
-				--host=$HOST_SYSTEM
+				$CONFIGURE_ARGS
 				;;
 	esac &&
 	make && make install
@@ -43,9 +37,8 @@ compile_rules()
 	ln -s ${TOOLPREFIX}pkg-config pkg-config
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="glibc-base"
+	TAGS="LFS"
 }

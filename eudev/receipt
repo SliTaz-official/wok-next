@@ -8,7 +8,6 @@ MAINTAINER="tcg.thegamer@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://dev.gentoo.org/~blueness/eudev/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/eudev.html"
-PROVIDE="udev"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
@@ -17,9 +16,7 @@ TARBALL_MD5="66acef4c6094aab4aced7ae83b74b0d2"
 BUILD_DEPENDS="gobject-introspection-dev util-linux-blkid-dev gperf kmod-dev"
 SPLIT="eudev-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -r -i 's|/usr(/bin/test)|\1|' test/udev-test.pl
 	sed -i '/keyboard_lookup_key/d' src/udev/udev-builtin-keyboard.c
 	cat > config.cache <<"EOF"
@@ -58,14 +55,13 @@ EOF
 	# in /lib/udev/rules.d.
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		eudev)
 			copy @std
 			DEPENDS="kmod liblzma util-linux-blkid util-linux-uuid zlib   dbus"
 			PROVIDE="udev"
+			TAGS="LFS"
 			;;
 		eudev-dev)
 			copy @dev

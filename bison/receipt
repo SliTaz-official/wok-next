@@ -7,26 +7,20 @@ SHORT_DESC="GNU parser generator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/bison/"
-TAGS="parser language"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/bison.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="m4 perl libxslt gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--docdir=/usr/share/doc/bison-$VERSION \
-		$CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ lib/ aclocal/ bison/
+genpkg_rules() {
+	copy @std @dev
+	rm -rf $fs/usr/share/doc # one *.h file copied here with @dev
 	DEPENDS="m4"
+	TAGS="LFS parser language"
 }

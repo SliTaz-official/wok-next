@@ -6,8 +6,8 @@ CATEGORY="system-tools"
 SHORT_DESC="GNU readline"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html"
-HOST_ARCH="i486 arm"
+WEB_SITE="https://www.gnu.org/software/readline"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/readline.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
@@ -15,9 +15,7 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="ncurses-dev flex"
 SPLIT="readline-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
 		arm*) export bash_cv_wcwidth_broken=true ;;
 	esac
@@ -27,30 +25,31 @@ compile_rules()
 
 	./configure \
 		--disable-static \
-		--libdir=/lib \
-		--docdir=/usr/share/doc/readline-$VERSION \
 		$CONFIGURE_ARGS &&
-	make SHLIB_LIBS=-lncurses &&
-	make DESTDIR=$install install
+	make SHLIB_LIBS="-lncursesw" &&
+	make SHLIB_LIBS="-lncurses" DESTDIR=$install install || return 1
 
-	# *.so.* -> /lib
-	# *.so   -> /usr/lib
-	mkdir -p $install/usr/lib
-	ln -sfv ../../lib/$(readlink $install/lib/libreadline.so) \
-		$install/usr/lib/libreadline.so
-	ln -sfv ../../lib/$(readlink $install/lib/libhistory.so ) \
-		$install/usr/lib/libhistory.so
-	rm $install/lib/*.so
+	mkdir -p $install/lib
+	for i in readline history; do
+		mv -v $install/usr/lib/lib$i.so.* $install/lib
+		ln -sf ../../lib/$(readlink $install/usr/lib/lib$i.so) \
+			$install/usr/lib/lib$i.so
+	done
+
+	find $install -type f -name '*.so*' -exec chmod 755 '{}' \;
+	rmdir --ignore-fail-on-non-empty $install/usr/bin/
 
 	# install the documentation
-	cp doc/*.pdf doc/*.html $install/usr/share/doc/readline-7.0
+	cook_pick_docs doc/*.pdf doc/*.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		readline) copy @std; DEPENDS="ncurses";;
+		readline)
+			copy @std
+			DEPENDS="ncurses"
+			TAGS="LFS"
+			;;
 		*-dev) copy @dev;;
 	esac
 }

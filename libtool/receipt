@@ -3,37 +3,34 @@
 PACKAGE="libtool"
 VERSION="2.4.6"
 CATEGORY="development"
-SHORT_DESC="The GNU Portable Library Tool."
+SHORT_DESC="The GNU Portable Library Tool"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnu.org/software/libtool/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/libtool.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="automake autoconf gfortran"
 BUILD_DEPENDS_arm=" "
-SPLIT="libltdl"
+BUILD_DEPENDS="automake autoconf gfortran"
+SPLIT="libltdl libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		libtool)
-			copy bin/ include/ aclocal/ libtool/ *.*a
-			DEPENDS="libltdl automake autoconf"
-			;;
 		libltdl)
 			copy *.so*
 			CAT="system-tools|library"
 			DEPENDS="glibc-base"
+			;;
+		libtool)
+			copy @std @dev @rm
+			DEPENDS="libltdl automake autoconf"
+			TAGS="LFS"
 			;;
 	esac
 }

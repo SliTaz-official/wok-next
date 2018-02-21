@@ -7,18 +7,16 @@ SHORT_DESC="Keyboard mapping definitions and tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://kbd-project.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/kbd.html"
 
 TARBALL="kbd-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
 
-BUILD_DEPENDS="check-dev bison flex gettext patch pam-dev busybox"
 BUILD_DEPENDS_arm="flex check-dev"
+BUILD_DEPENDS="check-dev bison flex gettext patch pam-dev busybox"
 SPLIT="kbd-base kbd-vlock kbd-busybox kbd"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure
 	sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
 
@@ -28,6 +26,11 @@ compile_rules()
 		sed -i 's|	| |g; s|  *| |g; s|^ ||; s| $||; /^#/d; /^!/d; /^$/d' $i
 	done
 
+	# Unicode range is limited by 0xf000 here with error "Unicode keysym out of range",
+	# but de_alt_UTF-8.map has the symbols U+FB01, U+F8FF, U+FB02
+	# And due to this error zero-sized file .kmap is produced.
+	sed -i 's|0xf000|0xfffe|' src/libkeymap/analyze.c src/libkeymap/analyze.l
+
 	./configure \
 		--datadir=/usr/share/kbd \
 		$CONFIGURE_ARGS &&
@@ -35,8 +38,7 @@ compile_rules()
 
 	mv $install/usr/share/kbd/locale $install/usr/share
 
-	mkdir -p $install/usr/share/doc/kbd-$VERSION
-	cp -R docs/doc/* $install/usr/share/doc/kbd-$VERSION
+	cook_pick_docs docs/doc/*
 
 	# X11 keyboard aliases
 	ln -s croat.map.gz $install/usr/share/kbd/keymaps/i386/qwertz/hr.map.gz
@@ -50,16 +52,13 @@ compile_rules()
 	done
 }
 
-# Make sure it will run on host or no keyboard support...
-testsuite()
-{
+# Make sure it will run on target or no keyboard support...
+testsuite() {
 	readelf -h $install/usr/bin/loadkeys
 	readelf -h $install/usr/bin/setfont
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		kbd-base)
 			copy loadkeys setfont \
@@ -94,10 +93,9 @@ genpkg_rules()
 			CAT="base-system|mappings for busybox"
 			;;
 		kbd)
-			copy bin/ kbd/
-			remove_already_packed
+			copy bin/ kbd/ @rm
 			DEPENDS="kbd-base"
-			TAGS="keyboard"
+			TAGS="LFS keyboard"
 			;;
 	esac
 }

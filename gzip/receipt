@@ -7,6 +7,8 @@ SHORT_DESC="GNU compression utilities"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gzip/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gzip.html"
+HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
@@ -14,25 +16,21 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="glibc-dev"
 SPLIT="gzip-full"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 
 	mkdir -p $install/bin
 	mv -v $install/usr/bin/gzip $install/bin
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gzip)
 			copy gzip gunzip zgrep
+			TAGS="LFS"
 			;;
 		gzip-full)
-			copy bin/
-			remove_already_packed
+			copy bin/ @rm
 			CAT="system-tools|full set"
 			DEPENDS="gzip"
 			;;
@@ -41,14 +39,18 @@ genpkg_rules()
 
 # Removing Busybox gunzip applet
 # as we have /usr/bin/gunzip in this package
-pre_install_gzip()
-{
-	rm -f "$1/bin/gzip" "$1/bin/gunzip"
+pre_install_gzip() {
+	for i in gzip gunzip; do
+		readlink "$1/bin/$i" | grep -q busybox && rm "$1/bin/$i"
+	done
+	:
 }
 
 # Removing Busybox uncompress and zcat applets
 # as we have /usr/bin/uncompress and /usr/bin/zcat in this package
-pre_install_gzip_full()
-{
-	rm -f "$1/bin/uncompress" "$1/bin/zcat"
+pre_install_gzip_full() {
+	for i in uncompress zcat; do
+		readlink "$1/bin/$i" | grep -q busybox && rm "$1/bin/$i"
+	done
+	:
 }

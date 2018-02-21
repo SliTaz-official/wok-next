@@ -7,16 +7,14 @@ SHORT_DESC="GNU tar archiving tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/tar/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/tar.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="acl-dev gettext texinfo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	FORCE_UNSAFE_CONFIGURE=1 \
 	./configure \
 		--bindir=/bin \
@@ -25,10 +23,8 @@ compile_rules()
 	make -C doc install-html docdir=/usr/share/doc/tar-$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="acl attr"
-	TAGS="archive compression"
+	TAGS="LFS archive compression"
 }

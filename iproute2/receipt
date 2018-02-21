@@ -1,31 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="iproute2"
-VERSION="4.9.0"
+VERSION="4.12.0"
 CATEGORY="network"
 SHORT_DESC="Utilites for networking and traffic control"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.linuxfoundation.org/collaborate/workgroups/networking/iproute2"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/iproute2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/net/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="bison flex iptables-dev db-dev libmnl-dev elfutils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure /usr/include $CONFIGURE_ARGS &&
 	sed -i 's|tc-skbmod\.8||' $src/man/man8/Makefile &&
 	make &&
 	make DOCDIR=/usr/share/doc/$PACKAGE-$VERSION DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	TAGS="network route"
+	TAGS="LFS network route"
 	DEPENDS="iptables db"
 }
