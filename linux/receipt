@@ -1,8 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="linux"
-VERSION="4.9.76"
-KBASEVER="4.9"
+VERSION="4.14.16"
+KBASEVER="4.14"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Kernel"
 MAINTAINER="devel@slitaz.org"
@@ -13,23 +13,36 @@ HOST_ARCH="i486 arm x86_64"
 TARBALL="$PACKAGE-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
-BUILD_DEPENDS="slitaz-toolchain perl xz lzma patch kmod bc" # git
-SPLIT="lguest linux-acpi linux-agp linux-aoe linux-appletalk linux-arcnet \
-linux-autofs linux-bluetooth linux-bridge linux-btrfs linux-cifs linux-coda \
-linux-cpufreq linux-cramfs linux-crypto linux-cryptoloop linux-dialup \
-linux-dlm linux-drm linux-ecryptfs linux-efi linux-ethernet linux-exofs \
-linux-firewire linux-firmware linux-gfs2 linux-hfs linux-hfsplus linux-hid \
-linux-hwmon linux-ide linux-input-misc linux-input-tablet \
-linux-input-touchscreen linux-ipv6 linux-irda linux-isdn linux-jfs \
-linux-joystick linux-kvm linux-logfs linux-md linux-media linux-memstick \
-linux-minix linux-mmc linux-module-headers linux-mwave linux-nbd linux-ncpfs \
-linux-netfilter linux-nfc linux-nfs linux-nfsd linux-ocfs2 linux-orangefs \
-linux-radio linux-reiserfs linux-romfs linux-sched linux-scsi linux-sound \
-linux-source linux-speakup linux-squashfs linux-staging linux-toshiba \
-linux-usb-gadget linux-usb-misc linux-usbdsl linux-usbip linux-uwb linux-video \
-linux-wan linux-watchdog linux-wimax linux-wireless linux-without-modules \
-linux-zram"
-SIBLINGS="linux-api-headers linux-dev linux-man"
+BUILD_DEPENDS_arm="xz"
+BUILD_DEPENDS_x86_64="perl xz patch kmod bc elfutils-dev"
+BUILD_DEPENDS="perl xz lzma patch kmod bc elfutils-dev" # git
+# Removed: lguest, linux-firmware, linux-logfs, linux-toshiba
+SPLIT="\
+linux-acpi            linux-agp               linux-aoe \
+linux-appletalk       linux-arcnet            linux-autofs \
+linux-bluetooth       linux-bridge            linux-btrfs \
+linux-cifs            linux-coda              linux-cpufreq \
+linux-cramfs          linux-crypto            linux-cryptoloop \
+linux-dialup          linux-dlm               linux-drm \
+linux-ecryptfs        linux-efi               linux-ethernet \
+linux-exofs           linux-firewire          linux-gfs2 \
+linux-hfs             linux-hfsplus           linux-hid \
+linux-hwmon           linux-ide               linux-input-misc \
+linux-input-tablet    linux-input-touchscreen linux-ipv6 \
+linux-irda            linux-isdn              linux-jfs \
+linux-joystick        linux-kvm               linux-md \
+linux-media           linux-memstick          linux-minix \
+linux-mmc             linux-module-headers    linux-mwave \
+linux-nbd             linux-ncpfs             linux-netfilter \
+linux-nfc             linux-nfs               linux-nfsd \
+linux-ocfs2           linux-orangefs          linux-radio \
+linux-reiserfs        linux-romfs             linux-sched \
+linux-scsi            linux-sound             linux-source \
+linux-speakup         linux-squashfs          linux-staging \
+linux-usb-gadget      linux-usb-misc          linux-usbdsl \
+linux-usbip           linux-uwb               linux-video \
+linux-wan             linux-watchdog          linux-wimax \
+linux-wireless        linux-without-modules   linux-zram"
 
 if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 	PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz"
@@ -37,20 +50,12 @@ if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 fi
 
 #
-# The Linux receipt handle cross compilation. For x86_64 we actually use
-# the uclibc-cross-compiler-x86_64 and for ARM we use a real cross env.
-# Please discuss any change and keep it simple, don't play with VERSION
-# string or Kernel SUBLEVEL because depmod and Pankso don't like that!
+# The Linux receipt handle cross compilation; for ARM we use a real cross env.
+# Please discuss any change and try to keep it simple.
 #
-# The receipt also handle some cook options for faster build:
+# The receipt handle cook option for faster build:
 # --nonomods : Skip bzImage without modules build
 #
-
-# Handle multiarch compilation. Less bdeps when cross-compiling for ARM
-case "$ARCH" in
-	arm)    BUILD_DEPENDS="xz" ;;
-	x86_64) BUILD_DEPENDS="xz" ;;
-esac
 
 # Handle multiarch installation. ARM use Busybox modutils, so avoid any
 # deps on kmod. SLITAZ_ARCH can have also custom post_install commands
@@ -62,8 +67,13 @@ if [ -f $root/etc/slitaz/slitaz.conf ]; then
 fi
 
 # Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $ARCH in
+		i?86)   ConfigFile="$stuff/linux-slitaz.config";;
+		x86_64) ConfigFile="$stuff/linux-slitaz64.config";;
+		arm*)   ConfigFile="$stuff/arm/linux-arm.config";;
+	esac
+
 	# Update sources to the $VERSION using base sources ($KBASEVER) and patch
 	if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 		[ -s $SRC/$(basename $PATCH) ] || wget $PATCH -O $SRC/$(basename $PATCH)
@@ -84,8 +94,8 @@ compile_rules()
 		arm)
 			echo "Compiling: $ARCH Kernel"
 			make mrproper
-			patch -Np1 < $stuff/$ARCH/linux-arm.patch || exit 1
-			cp -f $stuff/$ARCH/linux-arm.config .config
+			patch -Np1 < $stuff/arm/linux-arm.patch || exit 1
+			cp -f $ConfigFile .config
 			yes '' | make ARCH=$ARCH oldconfig
 			make ARCH=$ARCH CROSS_COMPILE=${HOST_SYSTEM}- bzImage &&
 			make ARCH=$ARCH CROSS_COMPILE=${HOST_SYSTEM}- modules &&
@@ -95,10 +105,6 @@ compile_rules()
 			cp -a arch/arm/boot/zImage \
 				$DESTDIR/boot/linux-$VERSION-slitaz-$ARCH
 			#$stuff/tools/gztazmod.sh $DESTDIR/lib/modules/$VERSION-slitaz
-			return 0 ;;
-		x86_64)
-			echo "TODO: Maybe use default? But cross compile in x86_64 chroot"
-			echo "so we can remove the 64 build by uclibc-cross-compiler-x86_64"
 			return 0 ;;
 	esac
 
@@ -118,21 +124,17 @@ compile_rules()
 		touch done.$patch_file
 	done < $stuff/patches/patch.order
 
-	# Mrproper and lguest
-	echo "Making kernel proper and then build lguest..."
+	echo "Making kernel proper..."
 	make mrproper
-	cd tools/lguest
-	make lguest || return 1
-	cd $src
 
 	#
 	# Linux Arch i386 - GCC arch i486
 	#
-	echo "Making x86 Kernel..."
+	echo "Making $ARCH Kernel..."
 
 	# Build bzImage without modules first
 	if [ -z "$nonomods" ]; then
-		cp -f $stuff/$PACKAGE-slitaz.config .config
+		cp -f $ConfigFile .config
 		sed -i 's/CONFIG_MODULES=y/# CONFIG_MODULES is not set/' .config
 		# We can't keep every driver in staging???
 		sed -i \
@@ -141,10 +143,10 @@ compile_rules()
 			-e 's/^CONFIG_RT2870/#&/' .config
 
 		title 'Configure bzImage without modules...'
-		yes '' | make ARCH=i386 oldconfig
+		yes '' | make ARCH=$ARCH oldconfig
 
 		title 'Building bzImage without modules...'
-		make ARCH=i386 -j 4 bzImage || exit 1
+		make ARCH=$ARCH -j4 bzImage || exit 1
 
 		mkdir -p $DESTDIR
 		mv arch/x86/boot/bzImage $DESTDIR
@@ -152,17 +154,17 @@ compile_rules()
 	fi
 
 	# Build bzImage with modules
-	cp -f $stuff/$PACKAGE-slitaz.config .config
+	cp -f $ConfigFile .config
 
 	title 'Configure bzImage with modules...'
-	yes '' | make ARCH=i386 oldconfig
+	yes '' | make ARCH=$ARCH oldconfig
 
 
 	title 'Building bzImage with modules...'
-	make ARCH=i386 -j 4 bzImage &&
-	make ARCH=i386 -j 4 modules &&
-	make ARCH=i386 INSTALL_MOD_PATH=$DESTDIR     modules_install &&
-	make ARCH=i386 INSTALL_HDR_PATH=$DESTDIR/usr headers_install &&
+	make ARCH=$ARCH -j4 bzImage &&
+	make ARCH=$ARCH -j4 modules &&
+	make ARCH=$ARCH INSTALL_MOD_PATH=$DESTDIR     modules_install &&
+	make ARCH=$ARCH INSTALL_HDR_PATH=$DESTDIR/usr headers_install &&
 
 	[ -s arch/x86/boot/bzImage ] || return 1
 	mkdir -p $DESTDIR/boot
@@ -175,17 +177,13 @@ compile_rules()
 
 	# for linux-zram package
 	mkdir -p $install/etc/init.d
-	install -o root -m 755 $stuff/compcache $install/etc/init.d/
-	install -o root -m 644 $stuff/compcache.conf $install/etc/
-
-	# for lguest package
-	mkdir -p $install/usr/sbin
-	cp -a $src/tools/lguest/lguest $install/usr/sbin
+	install -o root -m755 $stuff/compcache      $install/etc/init.d/
+	install -o root -m644 $stuff/compcache.conf $install/etc/
 }
 
+
 # Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	DEPENDS="linux"				# default, may be subject to change later
 
 	case $PACKAGE in
@@ -278,9 +276,6 @@ genpkg_rules()
 					cp -a $install/* $fs
 					rm -f $fs/lib/modules/*/build $fs/lib/modules/*/source
 					return 0 ;;
-				x86_64)
-					echo "TODO: use default or custom x86_64 packing"
-					return 0 ;;
 			esac
 
 			# Copy the Kernel
@@ -289,8 +284,8 @@ genpkg_rules()
 			# Copy base modules
 			. $stuff/tools/copy_modules.sh
 
-			# We only need module.{order,builtin} because other map files are
-			# generated by depmod in post_install
+			# We only need modules.{order,builtin} because other map files are
+			# generated by depmod in post_install()
 			copy modules.order modules.builtin
 			rm -rf $fs/usr
 
@@ -360,11 +355,12 @@ genpkg_rules()
 			sed -i "s|=XXX|=$VERSION|g" $fs/usr/bin/get-linux-source
 
 			# Copy Aufs4 source files
-			if [ -d $WOK/$WANTED/$AUFSDIR ]; then
+			if [ -d $WOK/aufs/$AUFSDIR ]; then
 				mkdir $fs/usr/src/kernel-patches/slitaz/aufs4
-				cp -a $WOK/$WANTED/$AUFSDIR/Documentation \
-					$WOK/$WANTED/$AUFSDIR/fs $WOK/$WANTED/$AUFSDIR/include \
-					$fs/usr/src/kernel-patches/slitaz/aufs4
+				cp -a $WOK/aufs/$AUFSDIR/Documentation \
+				      $WOK/aufs/$AUFSDIR/fs \
+				      $WOK/aufs/$AUFSDIR/include \
+				      $fs/usr/src/kernel-patches/slitaz/aufs4
 			fi
 
 			ln -s ../../../usr/src/linux-$VERSION $fs/lib/modules/$VERSION-slitaz/source
@@ -376,11 +372,6 @@ genpkg_rules()
 			PROVIDE="linux"
 			mkdir -p $fs/boot
 			cp -a $install/bzImage $fs/boot/vmlinuz-$VERSION-slitaz-without-modules
-			;;
-		lguest)
-			CAT="base-system|paravirtualization tool"
-			DEPENDS=" "
-			copy lguest
 			;;
 		*)
 			. $stuff/tools/copy_modules.sh

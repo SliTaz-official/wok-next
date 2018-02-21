@@ -1,32 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="aufs"
-VERSION="57e03f4"	# AUFS_VERSION 4.9-20171218
+VERSION="a9aa303"	# AUFS_VERSION 4.14-20171216
 EXTRAVERSION="_$kvers"
 CATEGORY="base-system"
-SHORT_DESC="The Linux Kernel 4.9 aufs module"
+SHORT_DESC="The Linux Kernel 4.14 aufs module"
 MAINTAINER="godane@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://aufs.sourceforge.net/"
-PROVIDE="linux-aufs"
+HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/sfjro/aufs4-standalone/archive/$VERSION.tar.gz"
 
-DEPENDS="linux"
 BUILD_DEPENDS="linux-module-headers xz"
 SIBLINGS="linux64-aufs"
 
 # How to update:
 # 1. Go to https://github.com/sfjro/aufs4-standalone/
-# 2. Select "aufs4.9" for the Linux Kernel-4.9.x in the "Branch:" dropdown
+# 2. Select "aufs4.14" for the Linux Kernel-4.14.x in the "Branch:" dropdown
 # 3. Copy 7 hex digits after the "Latest commit": it's $VERSION
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cp config.mk config.mk.orig
-	sed -i \
+compile_rules() {
+	sed -i.orig \
 		-e 's|CONFIG_AUFS_BRANCH_MAX_127 =.*|CONFIG_AUFS_BRANCH_MAX_127 =|' \
 		-e 's|#CONFIG_AUFS_BRANCH_MAX_32767 =.*|CONFIG_AUFS_BRANCH_MAX_32767 = y|' \
 		-e 's|CONFIG_AUFS_HNOTIFY =.*|CONFIG_AUFS_HNOTIFY = y|' \
@@ -37,11 +33,17 @@ compile_rules()
 		-e 's|CONFIG_AUFS_BR_RAMFS =.*|CONFIG_AUFS_BR_RAMFS = y|' \
 		-e 's|CONFIG_AUFS_DEBUG =.*|CONFIG_AUFS_DEBUG =|' config.mk
 
-	# The sed fixes are from gentoo portage build.
-	sed -i "s:aufs.ko usr/include/linux/aufs_type.h:aufs.ko:g" Makefile
-	sed -i "s:__user::g" include/uapi/linux/aufs_type.h
+	case $ARCH in
+		x86_64) inot64=" y";;
+		*)      inot64="";;
+	esac
+	sed -i "s|CONFIG_AUFS_INO_T_64 =.*|CONFIG_AUFS_INO_T_64 =$inot64|" config.mk
 
-	make -j 1 KDIR=/usr/src/linux
+	# The sed fixes are from gentoo portage build.
+	sed -i.orig "s:aufs.ko usr/include/linux/aufs_type.h:aufs.ko:g" Makefile
+	sed -i.orig "s:__user::g" include/uapi/linux/aufs_type.h
+
+	make -j 1 KDIR=/usr/src/linux || return 1
 	xz -f fs/aufs/aufs.ko
 
 	mkdir -p $install/lib/modules/${kvers}-slitaz/kernel/fs/aufs
@@ -51,8 +53,8 @@ compile_rules()
 		$install/usr/include/uapi/linux/aufs_type.h
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
+	DEPENDS="linux"
+	PROVIDE="linux-aufs"
 }
