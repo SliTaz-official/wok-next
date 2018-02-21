@@ -2,7 +2,7 @@
 
 # This receipt will follow actual version on each recook
 PACKAGE="cacerts"
-VERSION="20170928"
+VERSION="20180212"
 CATEGORY="security"
 SHORT_DESC="Certificate Authority Certificates"
 MAINTAINER="al.bobylev@gmail.com"
@@ -13,11 +13,9 @@ HOST_ARCH="any"
 wget_url="https://hg.mozilla.org/releases/mozilla-release/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt"
 #wget_url="http://anduin.linuxfromscratch.org/BLFS/other/certdata.txt"
 
-BUILD_DEPENDS="perl openssl locale-en"
+BUILD_DEPENDS="perl openssl locale-en-base"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Determine date of certdata.txt
 	# FIXME: please point me to elegant way to determine this file timestamp
 	#        in Mercurial.
@@ -78,9 +76,7 @@ compile_rules()
 	ln -s ../ca-bundle.crt   $install/etc/ssl/certs/ca-certificates.crt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="openssl"
 }
