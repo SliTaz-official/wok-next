@@ -74,9 +74,9 @@ compile_rules() {
 	# Read the INSTALL file in glibc. Also Glibc don't build with -Os flag.
 	unset CFLAGS CXXFLAGS
 	case $ARCH in
-		i386)   Arch='i486';;
-		x86_64) Arch='nocona';;
-		*)      Arch="$ARCH";;
+		i?86)   Arch='i486';   ARCH_ARGS='-m32';;
+		x86_64) Arch='nocona'; ARCH_ARGS='-m64';;
+		*)      Arch="$ARCH";  ARCH_ARGS='';;
 	esac
 	echo "CFLAGS += -O2 -march=$Arch -mtune=$Arch" > configparms
 
@@ -89,7 +89,7 @@ compile_rules() {
 	# put the exact or lower numbers. From Glibc INSTALL:
 	# > The higher the VERSION number is, the less compatibility code is
 	# > added, and the faster the code gets.
-	CC="gcc -isystem /usr/lib/gcc/$BUILD_SYSTEM/$(. $WOK/gcc/receipt; echo $VERSION)/include \
+	CC="gcc $ARCH_ARGS -isystem /usr/lib/gcc/$BUILD_SYSTEM/$(. $WOK/gcc/receipt; echo $VERSION)/include \
 	-isystem /usr/include" \
 	../configure \
 		--disable-werror \
