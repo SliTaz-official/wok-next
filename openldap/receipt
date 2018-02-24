@@ -1,22 +1,26 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openldap"
-VERSION="2.4.44"
+VERSION="2.4.45"
 CATEGORY="misc"
 SHORT_DESC="LDAP database system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.openldap.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/server/openldap.html"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://mirror.eu.oneandone.net/software/openldap/openldap-release/$TARBALL"
 
-BUILD_DEPENDS="util-linux-uuid-dev openssl-dev libtool groff"
-SPLIT="libldap openldap-dev"
+BUILD_DEPENDS="automake util-linux-uuid-dev openssl-dev libtool groff"
+SPLIT="libldap openldap openldap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	addgroup -g 84 -S ldap
+	adduser  -h /var/lib/openldap  -g "OpenLDAP Daemon Owner" \
+		-u 84  -s /bin/false  -S  -D  -G ldap  ldap
+
+	autoconf &&
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -30,39 +34,50 @@ compile_rules()
 		--disable-hdb \
 		$CONFIGURE_ARGS &&
 	sed -i 's|@VERSION_OPTION@||' $src/libraries/*/Makefile &&
-	make depend && make && make install
+	make depend && make && make install || return 1
 
-	mkdir -p $install/etc/init.d
-	install -m0755 $stuff/etc/init.d/openldap $install/etc/init.d
+	install -Dm0755 $stuff/etc/init.d/openldap $install/etc/init.d/openldap
+
+	cook_pick_docs doc/drafts doc/rfc doc/guide
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
+		libldap)
+			copy *.so*
+			CAT="libs|libraries"
+			DEPENDS="openssl"
+			;;
 		openldap)
-			copy @std
-			find $fs -name '*.so*' -delete
-			DEPENDS="libldap libcrypto libssl util-linux-uuid"
+			copy @std @rm
+			DEPENDS="libldap openssl util-linux-uuid"
 			CONFIG_FILES="/etc/openldap/"
 			DATABASE_FILES="/var/openldap-*"
 			TAZPANEL_DAEMON="man::slapd|help::/usr/libexec/slapd|edit::/etc/openldap/slapd.conf|options::LDAP_OPTIONS|web::$WEB_SITE"
 			;;
-		libldap)
-			copy *.so*
-			CAT="libs|libraries"
-			DEPENDS="libcrypto libssl"
-			;;
 		*-dev)
 			copy @dev
-			DEPENDS="openldap libldap libcrypto-dev openssl-dev";;
+			DEPENDS="openldap libldap openssl-dev";;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_openldap()
-{
+post_install_openldap() {
+	if ! grep -q ldap "$1/etc/passwd"; then
+		action "Adding user/group ldap..."
+		chroot "$1/" addgroup -g 84 -S ldap
+		chroot "$1/" adduser  -h /var/lib/openldap  -g "OpenLDAP Daemon Owner" \
+			-u 84  -s /bin/false  -S  -D  -G ldap  ldap
+		status
+	fi
+
 	chmod 700 "$1/etc/openldap"
+	chroot "$1/" install -dm700 -o ldap -g ldap /var/lib/openldap
+
+	chroot "$1/" install -dm700 -o ldap -g ldap /etc/openldap/slapd.d
+	chroot "$1/" chmod      640                 /etc/openldap/slapd.conf
+	chroot "$1/" chmod      640                 /etc/openldap/slapd.ldif
+	chroot "$1/" chown             root:ldap    /etc/openldap/slapd.conf
+	chroot "$1/" chown             root:ldap    /etc/openldap/slapd.ldif
 
 	( cd "$1/$INSTALLED/"; grep -l /etc/openldap/slapd.conf */receipt ) | \
 	while read file; do

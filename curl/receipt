@@ -1,41 +1,42 @@
 # SliTaz package receipt v2.
 
 PACKAGE="curl"
-VERSION="7.54.0"
+VERSION="7.55.1"
 CATEGORY="network"
 SHORT_DESC="Tool and libs for transferring files with URL syntax"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://curl.haxx.se/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/curl.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.lzma"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://curl.haxx.se/download/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev openssl-dev libssh2-dev libidn2-dev"
 SPLIT="libcurl curl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		--enable-threaded-resolver \
+		--with-ca-path=/etc/ssl/certs \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
+
+	rm -rf docs/examples/.deps
+	find docs \( -name Makefile\* -o -name \*.1 -o -name \*.3 \) -exec rm {} \;
+	cook_pick_docs docs/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		curl)
 			copy curl
-			DEPENDS="libcrypto libcurl libssl zlib"
+			DEPENDS="libcurl openssl zlib"
 			;;
 		libcurl)
 			copy *.so*
-			DEPENDS="libcrypto libidn2 libssh2 libssl zlib"
+			DEPENDS="libidn2 libssh2 openssl zlib"
 			CAT="network|library"
 			;;
 		curl-dev)

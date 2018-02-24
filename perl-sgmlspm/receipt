@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-sgmlspm"
 VERSION="1.1"
@@ -12,23 +12,19 @@ WEB_SITE="http://www.linuxfromscratch.org/blfs/view/stable/general/perl-modules.
 TARBALL="SGMLSpm-$VERSION.tar.gz"
 WGET_URL="http://anduin.linuxfromscratch.org/BLFS/perl-modules/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	chmod 644 MYMETA.yml
 
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make && make DESTDIR=$install install || return 1
 
 	ln -sv sgmlspl.pl $install/usr/bin/sgmlspl
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

@@ -7,17 +7,18 @@ SHORT_DESC="Tiny versions of UNIX utilities"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://busybox.net/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
 BUILD_DEPENDS_arm="bzip2"
 BUILD_DEPENDS="patch bzip2 gettext perl pam-dev" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
-#SPLIT="busybox-boot busybox-pam busybox-static ssfs-busybox"
-SPLIT="busybox-pam ssfs-busybox"
+case "$ARCH" in
+	arm*)   SPLIT='';;
+	x86_64) SPLIT="busybox busybox-pam:pam";;
+	*)      SPLIT="busybox busybox-pam:pam ssfs-busybox:ssfs busybox-boot:boot busybox-static:static";;
+esac
 
-# Rules to configure and make the package.
 compile_rules() {
 	case "$ARCH" in
 		arm*)
@@ -26,29 +27,100 @@ compile_rules() {
 			make oldconfig &&
 			make && make install || return 1
 			chmod 4755 $src/_install/bin/busybox
+			return 0
 			;;
-		x86_64)
-			echo "TODO"
-			;;
-		i?86)
-			echo 'Making busybox'
-			cp $stuff/.config $src &&
+	esac
+
+alias ar=/usr/bin/ar
+
+	# Next both for i?86 and x86_64 native compilation
+	case "$SET" in
+		'')
+			cp $stuff/.config $src
 			make oldconfig &&
-			make &&
-			make install || return 1
+			make AR=/usr/bin/ar &&
+			make AR=/usr/bin/ar install || return 1
 			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr \
 				$src/_install/bin/busybox
-			mv docs/busybox.1 docs/busybox.base.1
 
-			# prepare busybox-pam package
-			echo 'Making busybox-pam'
-			sed -i 's|# CONFIG_PAM is not set|CONFIG_PAM=y|' $src/.config
+			# Making translations
+			make -C $stuff/po install
+
+			cook_pick_manpages $src/docs/busybox.1
+			cook_pick_docs \
+				$src/docs/*.txt \
+				$src/docs/*.htm* \
+				$src/docs/cgi
+
+			cp -a $src/_install/* $install; rm -rf $src/_install
+
+			[ -e $install/sbin/ip ] && ln -s busybox $install/bin/ip
+			rm -f $install/bin/bbconfig $install/usr/bin/ar
+			mkdir -p \
+				$install/etc/init.d \
+				$install/var/spool/cron/crontabs \
+				$install/var/spool/lpd \
+				$install/var/lib/misc \
+				$install/etc/modprobe.d \
+				$install/usr/share/udhcpc
+
+			# Busybox config files
+			cp -a $stuff/etc/* $install/etc
+			chown -R 0.0 $install/etc
+			chmod 600 $install/etc/busybox.conf
+
+			# Daemon scripts
+			cp $stuff/daemon $install/etc/init.d
+			for i in crond dnsd ftpd httpd inetd lpd klogd ntpd syslogd \
+			         telnetd tftpd udhcpd zcip; do
+				grep -qi "config_$i=y" $stuff/.config &&
+				ln -s daemon $install/etc/init.d/$i
+			done
+			rm $install/linuxrc
+
+			# Udhcpc stuff
+			install -m755 $stuff/udhcp.script $install/usr/share/udhcpc/default.script
+
+			# Httpd stuff (httphelper.sh found in slitaz-base-files package)
+			ln -s /usr/lib/slitaz/httphelper.sh $install/usr/bin/httpd_helper.sh
+			cp -r $stuff/www $install/var
+
+			# Update copyright year
+			grep -rl 'YEAR' $install/var/www | xargs sed -i "s|YEAR|$(date +%Y)|"
+			;;
+
+		pam)
+			sed 's|# CONFIG_PAM is not set|CONFIG_PAM=y|' $stuff/.config > $src/.config
 			make oldconfig &&
-			make || return 1
+			make AR=/usr/bin/ar || return 1
 			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr busybox
-			mv busybox busybox-pam
-			mv docs/busybox.1 docs/busybox.pam.1
 
+#			mv docs/busybox.1 docs/busybox.pam.1
+			mkdir -p \
+				$install/bin/ \
+				$install/etc/pam.d/
+			cp -a $src/busybox $install/bin
+			cp $stuff/login $install/etc/pam.d/
+			;;
+
+		ssfs)
+			# WARNING! This branch not tested yet!
+			#
+			rootfs="$src/ssfs-busybox/usr/share/ssfs/rootfs"
+			mkdir -p $rootfs/etc
+			cp $stuff/.config-ssfs $src/.config
+			make oldconfig &&
+			make busybox &&
+			make CONFIG_PREFIX=$rootfs install || return 1
+			cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
+			chown -R 0.0 $rootfs/etc
+			chmod 0600 $rootfs/etc/busybox.conf
+			chmod 4755 $rootfs/bin/busybox
+			;;
+
+		static)
+			# WARNING! This branch not tested yet!
+			#
 			# prepare busybox-static package
 			if [ -n "$(/usr/bin/uclibc-i486-gcc --version 2>/dev/null)" ]; then
 				echo 'Making busybox-uclibc'
@@ -85,82 +157,41 @@ compile_rules() {
 				mv busybox busybox-diet
 				mv -f docs/busybox.1 docs/busybox.static.1
 			fi
-
-			# prepare ssfs-busybox package
-			echo 'Making busybox-ssfs'
-			rootfs="$src/ssfs-busybox/usr/share/ssfs/rootfs"
-			mkdir -p $rootfs/etc
-			cp $stuff/.config-ssfs $src/.config
-			make oldconfig &&
-			make busybox &&
-			make CONFIG_PREFIX=$rootfs install || return 1
-			cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
-			chown -R 0.0 $rootfs/etc
-			chmod 0600 $rootfs/etc/busybox.conf
-			chmod 4755 $rootfs/bin/busybox
-
-			echo 'Making translations'
-			make -C $stuff/po install
-			cp docs/busybox.base.1 docs/busybox.1
 			;;
-
 	esac
-
-	cook_pick_manpages $src/docs/busybox.1
-	cook_pick_docs \
-		$src/docs/*.txt \
-		$src/docs/*.htm* \
-		$src/docs/cgi
 }
 
 # Cross compilation check.
 testsuite() {
-	readelf -h $src/_install/bin/busybox
+	readelf -h $install/bin/busybox
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		busybox)
+			copy @std *.mo
 			DEPENDS="slitaz-base-files glibc-base ncurses"
 			CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf \
 			/etc/resolv.conf /etc/httpd.conf"
-			cp -a $src/_install/* $fs
-			[ -e $fs/sbin/ip ] && ln -s busybox $fs/bin/ip
-			rm -f $fs/bin/bbconfig $fs/usr/bin/ar
-			mkdir -p \
-				$fs/etc/init.d \
-				$fs/var/spool/cron/crontabs \
-				$fs/var/spool/lpd \
-				$fs/var/lib/misc \
-				$fs/etc/modprobe.d \
-				$fs/usr/share/udhcpc
+			;;
+		busybox-pam)
+			copy @std
+			CAT="base-system|with PAM support"
+			DEPENDS="busybox pam"
+			CONFIG_FILES="/etc/pam.d"
+			PROVIDE="busybox:pam"
+			;;
+		ssfs-busybox)
+			# NOTE: We install files in Ssfs data directory to always have ready
+			# to create chroot on the server and provide an easy way to update
+			# the vdisk. We don't do a static build, we need some shared lib in
+			# the chroot anyway. Busybox is configured to not use /usr and with
+			# a minimal set of applets.
 
-			# Busybox config files
-			cp -a $stuff/etc/* $fs/etc
-			chown -R 0.0 $fs/etc
-			chmod 600 $fs/etc/busybox.conf
-
-			# Daemon scripts
-			cp $stuff/daemon $fs/etc/init.d
-			for i in crond dnsd ftpd httpd inetd lpd klogd ntpd syslogd \
-			         telnetd tftpd udhcpd zcip; do
-				grep -qi "config_$i=y" $stuff/.config &&
-				ln -s daemon $fs/etc/init.d/$i
-			done
-			rm $fs/linuxrc
-
-			# Udhcpc stuff
-			cp $stuff/udhcp.script $fs/usr/share/udhcpc/default.script
-			chmod +x $fs/usr/share/udhcpc/default.script
-
-			# Httpd stuff (httphelper.sh found in slitaz-base-files package)
-			ln -s /usr/lib/slitaz/httphelper.sh $fs/usr/bin/httpd_helper.sh
-			cp -r $stuff/www $fs/var
-
-			# Update copyright year
-			grep -rl 'YEAR' $fs/var/www | xargs sed -i "s|YEAR|$(date +%Y)|"
-			:
+			CAT="base-system|for Ssfs virtual disk minimal chroot"
+			rootfs=$fs/usr/share/ssfs/rootfs
+			cp -a $src/ssfs-busybox/* $fs
 			;;
 		busybox-boot)
 			jslinux=false
@@ -201,17 +232,6 @@ genpkg_rules() {
 				$fs/usr/share/boot/dev \
 				$fs/usr/share/boot/init
 			;;
-		busybox-pam)
-			CAT="base-system|with PAM support"
-			DEPENDS="busybox pam"
-			CONFIG_FILES="/etc/pam.d"
-			PROVIDE="busybox:pam"
-			mkdir -p \
-				$fs/bin/ \
-				$fs/etc/pam.d/
-			cp -a $src/busybox-pam $fs/bin/busybox
-			cp $stuff/login $fs/etc/pam.d/
-			;;
 		busybox-static)
 			CAT="base-system|static version"
 			DEPENDS=" "
@@ -227,17 +247,6 @@ genpkg_rules() {
 				CHOICE="$i"
 			done
 			cp -a $src/busybox-$CHOICE $fs/usr/share/boot/busybox-static
-			;;
-		ssfs-busybox)
-			# NOTE: We install files in Ssfs data directory to always have ready
-			# to create chroot on the server and provide an easy way to update
-			# the vdisk. We don't do a static build, we need some shared lib in
-			# the chroot anyway. Busybox is configured to not use /usr and with
-			# a minimal set of applets.
-
-			CAT="base-system|for Ssfs virtual disk minimal chroot"
-			rootfs=$fs/usr/share/ssfs/rootfs
-			cp -a $src/ssfs-busybox/* $fs
 			;;
 	esac
 }

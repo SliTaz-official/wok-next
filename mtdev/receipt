@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mtdev"
 VERSION="1.1.5"
@@ -7,22 +7,23 @@ SHORT_DESC="Multitouch Protocol Translation Library"
 MAINTAINER="mojo@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://bitmath.org/code/mtdev/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/mtdev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="mtdev-dev"
+
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		mtdev) copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

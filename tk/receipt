@@ -15,25 +15,29 @@ WGET_URL="$SF_MIRROR/tcl/$TARBALL"
 BUILD_DEPENDS="tcl-dev xorg-libX11-dev"
 SPLIT="tk-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
-	cd unix &&
+	case $ARCH in
+		x86_64) ARCH_ARGS='--enable-64bit';;
+		*)      ARCH_ARGS='';;
+	esac
+
+	cd unix
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
-		$([ $(uname -m) = x86_64 ] && echo --enable-64bit) &&
+		$ARCH_ARGS &&
 	make &&
 	sed -e "s@^\(TK_SRC_DIR='\).*@\1/usr/include'@" \
 		-e "/TK_B/s@='\(-L\)\?.*unix@='\1/usr/lib@" \
 		-i tkConfig.sh &&
 	make install &&
-	make install-private-headers &&
-	ln -v -sf wish${VERSION:0:3} $install/usr/bin/wish &&
-	chmod -v 755 $install/usr/lib/libtk${VERSION:0:3}.so &&
+	make install-private-headers || return 1
+
+	ln -v -sf wish${VERSION:0:3} $install/usr/bin/wish
+	chmod -v 755 $install/usr/lib/libtk${VERSION:0:3}.so
 	find $install -name '*.sh' -exec chmod -v 755 '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		tk)

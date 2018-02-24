@@ -16,10 +16,12 @@ mesa17-dev expat-dev xorg-libxshmfence-dev wayland-dev"
 SPLIT="libva-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -28,15 +30,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		libva)
 			copy @std
-			DEPENDS="libdrm mesa17 mesa17-libegl wayland xorg-libX11 \
-			xorg-libXext xorg-libXfixes"
+			DEPENDS="libdrm mesa17 wayland xorg-libX11 xorg-libXext \
+			xorg-libXfixes"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libva expat-dev libdrm-dev libffi-dev mesa17-dev \
-			wayland-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
-			xorg-libXxf86vm-dev xorg-libxcb-dev xorg-libxshmfence-dev"
+			DEPENDS="libva wayland-dev"
 			;;
 	esac
 }

@@ -7,29 +7,26 @@ SHORT_DESC="Session Management library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libSM-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-libICE-dev xorg-xtrans util-linux-uuid-dev"
 SPLIT="xorg-libSM-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libSM)
 			copy @std
@@ -37,7 +34,8 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libSM util-linux-uuid-dev xorg-libICE-dev xorg-xproto"
+			DEPENDS="xorg-libSM \
+			xorg-libICE-dev xorg-xproto"
 			;;
 	esac
 }

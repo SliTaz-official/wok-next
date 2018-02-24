@@ -8,22 +8,21 @@ MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/dbus/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/dbus.html"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://dbus.freedesktop.org/releases/dbus/$TARBALL"
 
 BUILD_DEPENDS="expat-dev xorg-libX11-dev glib-dev xorg-libICE-dev \
-xorg-libSM-dev libxslt xmlto libxml2-tools docbook-xsl"
+xorg-libSM-dev libxslt xmlto libxml2-tools" # docbook-xsl
 SPLIT="dbus-helper dbus-introspect dbus dbus-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	# temporarily: --disable-xml-docs
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-doxygen-docs \
+		--disable-xml-docs \
 		--disable-static \
 		--docdir=/usr/share/doc/dbus-$VERSION \
 		--with-console-auth-dir=/run/console/ \

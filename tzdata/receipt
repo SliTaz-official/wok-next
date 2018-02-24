@@ -1,22 +1,19 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tzdata"
-VERSION="2017c"
+VERSION="2018c"
 CATEGORY="base-system"
 SHORT_DESC="Time Zone Database"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PublicDomain"
 WEB_SITE="https://www.iana.org/time-zones"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE$VERSION.tar.gz"
 WGET_URL="ftp://ftp.iana.org/tz/releases/$TARBALL"
 
 BUILD_DEPENDS="glibc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	ZONEINFO=$install/usr/share/zoneinfo
 	mkdir -p $ZONEINFO/posix $ZONEINFO/right
 
@@ -32,9 +29,7 @@ australasia backward pacificnew systemv"
 	cook_pick_docs CONTRIBUTING LICENSE NEWS README theory.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 
 	. $WOK/slitaz-i18n/stuff/locale-pack.conf

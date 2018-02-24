@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lvm2"
-VERSION="2.02.173"
+VERSION="2.02.177"
 CATEGORY="system-tools"
 SHORT_DESC="Linux Logical Volume Manager"
 MAINTAINER="guillaume.michon@laposte.net"
 LICENSE="GPL2"
 WEB_SITE="http://sourceware.org/lvm2/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/lvm2.html"
 
 TARBALL="LVM2.$VERSION.tgz"
 WGET_URL="ftp://sources.redhat.com/pub/lvm2/$TARBALL"
@@ -14,11 +15,7 @@ WGET_URL="ftp://sources.redhat.com/pub/lvm2/$TARBALL"
 BUILD_DEPENDS="readline-dev eudev-dev ncurses-dev coreutils-file-format"
 SPLIT="dmsetup libdevmapper libdevmapper-dev lvm2 lvm2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/lvm2.html
-
+compile_rules() {
 	./configure \
 		--exec-prefix= \
 		--enable-applib \
@@ -41,9 +38,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		dmsetup)
 			copy dmsetup dmstats
@@ -63,8 +58,7 @@ genpkg_rules()
 			DEPENDS="libdevmapper eudev-dev"
 			;;
 		lvm2)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="eudev libdevmapper ncurses readline   linux-md"
 			;;
 		lvm2-dev)

@@ -7,39 +7,35 @@ SHORT_DESC="Composite Extension"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXcomposite-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-compositeproto xorg-libXfixes-dev"
 SPLIT="xorg-libXcomposite-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXcomposite)
 			copy @std
-			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp"
+			DEPENDS="xorg-libX11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXcomposite xorg-libxcb-dev xorg-compositeproto \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXfixes-dev xorg-xproto"
+			DEPENDS="xorg-libXcomposite \
+			xorg-compositeproto xorg-libX11-dev xorg-libXfixes-dev xorg-xproto"
 			;;
 	esac
 }

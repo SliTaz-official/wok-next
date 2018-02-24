@@ -7,38 +7,33 @@ SHORT_DESC="Startup notification protocol"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/startup-notification/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.freedesktop.org/software/startup-notification/releases/$TARBALL"
 
-BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev libxcb-dev xcb-util-dev"
+BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev xorg-libxcb-dev \
+xorg-xcb-util-dev"
 SPLIT="startup-notification-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	fix libtool &&
+	make && make install || return 1
 
-	install -v -m644 -D doc/startup-notification.txt \
-		$install/usr/share/doc/startup-notification-$VERSION/startup-notification.txt
+	cook_pick_docs doc/startup-notification.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		startup-notification)
 			copy @std
-			DEPENDS="libxcb xcb-util xorg-libX11"
+			DEPENDS="xorg-libX11 xorg-libxcb xorg-xcb-util"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="startup-notification glibc-dev libxcb-dev xcb-util-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev"
 			;;
 	esac
 }

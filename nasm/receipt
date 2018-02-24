@@ -1,28 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nasm"
 VERSION="2.12.02"
 CATEGORY="development"
-SHORT_DESC="The netwide assembler."
+SHORT_DESC="The netwide assembler"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.nasm.us/"
-TAGS="assembler"
-HOST_ARCH="i486 arm"
+HOST_ARCH="i486 arm x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}pub/nasm/releasebuilds/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make INSTALLROOT=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy bin/
+	TAGS="assembler"
 }

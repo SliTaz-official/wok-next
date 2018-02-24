@@ -3,43 +3,37 @@
 PACKAGE="libfm"
 VERSION="1.2.5"
 CATEGORY="system-tools"
-SHORT_DESC="File management support (core library)"
+SHORT_DESC="File management support"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/Libfm"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pcmanfm/files/$TARBALL"
 
-BUILD_DEPENDS="vala intltool gtk+-dev menu-cache-dev libexif-dev gtk-doc"
 BUILD_DEPENDS_arm="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
 xorg-libxcb-dev xcb-util-dev menu-cache-dev expat-dev glib-dev \
 shared-mime-info-dev"
+BUILD_DEPENDS="vala intltool gtk+-dev menu-cache-dev libexif-dev"
 SIBLINGS="libfm-extra"
 SPLIT="libfm-gtk libfm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm.html
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--disable-static \
-		--enable-gtk-doc \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
 	# remove useless file
-	rm -r $install/usr/share/mime/ &&
+	rm -r $install/usr/share/mime/
 	# remove libfm-extra package files
 	find $install \( -name 'libfm-extra*' -o -name 'fm-extra.h' -o \
 		-name 'fm-version.h' -o -name 'fm-xml-file.h' \) -delete
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libfm)
 			copy etc/ libfm.so* vfs*.so *.list

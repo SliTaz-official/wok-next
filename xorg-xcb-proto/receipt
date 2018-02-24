@@ -7,18 +7,15 @@ SHORT_DESC="X protocol descriptions for XCB"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-proto.html"
 
 TARBALL="xcb-proto-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 
 BUILD_DEPENDS="patch python-dev libxml2-tools"
 BUILD_DEPENDS_arm=" "
-PKG_RULE="std+dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -27,9 +24,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="python"
 	PROVIDE="xcb-proto"

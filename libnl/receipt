@@ -7,7 +7,6 @@ SHORT_DESC="Netlink protocol library suite"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.infradead.org/~tgr/libnl/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/thom311/libnl/releases/download/libnl${VERSION//./_}/$TARBALL"
@@ -15,9 +14,7 @@ WGET_URL="https://github.com/thom311/libnl/releases/download/libnl${VERSION//./_
 BUILD_DEPENDS="flex"
 SPLIT="libnl-tools libnl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--disable-static \
@@ -25,17 +22,14 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libnl)
 			copy etc/ *.so*
 			CONFIG_FILES="/etc/libnl/classid /etc/libnl/pktloc"
 			;;
 		libnl-tools)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			CAT="network|tiny tools"
 			;;
 		*-dev) copy @dev;;

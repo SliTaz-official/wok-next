@@ -15,43 +15,43 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="zlib-dev"
 SPLIT="tcl-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
-	export SRCDIR=$(pwd) &&
+	case "$ARCH" in
+		x86_64) ARCH_ARGS='--enable-64bit';;
+		*)      ARCH_ARGS='';;
+	esac
 
-	cd unix &&
+	cd unix
 
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
-		$([ $(uname -m) = x86_64 ] && echo --enable-64bit) &&
-	make &&
+		$ARCH_ARGS &&
+	make || return 1
 
-	sed -e "s|$SRCDIR/unix|/usr/lib|" \
-		-e "s|$SRCDIR|/usr/include|" \
-		-i tclConfig.sh &&
+	sed -e "s|$src/unix|/usr/lib|" \
+		-e "s|$src|/usr/include|" \
+		-i tclConfig.sh
 
-	sed -e "s|$SRCDIR/unix/pkgs/tdbc1.0.5|/usr/lib/tdbc1.0.5|" \
-		-e "s|$SRCDIR/pkgs/tdbc1.0.5/generic|/usr/include|" \
-		-e "s|$SRCDIR/pkgs/tdbc1.0.5/library|/usr/lib/tcl8.6|" \
-		-e "s|$SRCDIR/pkgs/tdbc1.0.5|/usr/include|" \
-		-i pkgs/tdbc1.0.5/tdbcConfig.sh &&
+	sed -e "s|$src/unix/pkgs/tdbc1.0.5|/usr/lib/tdbc1.0.5|" \
+		-e "s|$src/pkgs/tdbc1.0.5/generic|/usr/include|" \
+		-e "s|$src/pkgs/tdbc1.0.5/library|/usr/lib/tcl8.6|" \
+		-e "s|$src/pkgs/tdbc1.0.5|/usr/include|" \
+		-i pkgs/tdbc1.0.5/tdbcConfig.sh
 
-	sed -e "s|$SRCDIR/unix/pkgs/itcl4.1.0|/usr/lib/itcl4.1.0|" \
-		-e "s|$SRCDIR/pkgs/itcl4.1.0/generic|/usr/include|" \
-		-e "s|$SRCDIR/pkgs/itcl4.1.0|/usr/include|" \
-		-i pkgs/itcl4.1.0/itclConfig.sh &&
-
-	unset SRCDIR
+	sed -e "s|$src/unix/pkgs/itcl4.1.0|/usr/lib/itcl4.1.0|" \
+		-e "s|$src/pkgs/itcl4.1.0/generic|/usr/include|" \
+		-e "s|$src/pkgs/itcl4.1.0|/usr/include|" \
+		-i pkgs/itcl4.1.0/itclConfig.sh
 
 	make install &&
-	make install-private-headers &&
-	ln -v -sf tclsh${VERSION:0:3} $install/usr/bin/tclsh &&
-	chmod -v 755 $install/usr/lib/libtcl${VERSION:0:3}.so &&
-	find $install -name '*.sh' -exec chmod -v 755 '{}' \;
+	make install-private-headers || return 1
+
+	ln -v -sf tclsh${VERSION:0:3} $install/usr/bin/tclsh
+	chmod 755 $install/usr/lib/libtcl${VERSION:0:3}.so
+	find $install -name '*.sh' -exec chmod 755 '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		tcl)

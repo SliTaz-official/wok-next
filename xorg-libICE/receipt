@@ -7,31 +7,28 @@ SHORT_DESC="Inter-Client Exchange library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libICE-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-xproto xorg-xtrans"
 SPLIT="xorg-libICE-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	touch /root/missing /missing
 
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libICE)
 			copy @std

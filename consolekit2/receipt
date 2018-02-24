@@ -7,38 +7,31 @@ SHORT_DESC="ConsoleKit framework"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/Consolekit2/ConsoleKit2"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/consolekit.html"
 
 TARBALL="ConsoleKit2-$VERSION.tar.bz2"
 WGET_URL="https://github.com/Consolekit2/ConsoleKit2/releases/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="xorg-libX11-dev gettext dbus-dev glib-dev polkit-dev eudev-dev \
-xmlto libxslt docbook-xsl"
+xmlto libxslt docbook-xsl libxml2-tools"
 SPLIT="consolekit2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/consolekit.html
-
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--enable-udev-acl \
 		--enable-polkit \
 		--with-xinitrc-dir=/etc/X11/app-defaults/xinitrc.d \
-		--docdir=/usr/share/doc/ConsoleKit-$VERSION \
 		--with-systemdsystemunitdir=no \
 		--enable-docbook-docs \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
 	mv -v $install/etc/X11/app-defaults/xinitrc.d/90-consolekit \
 		  $install/etc/X11/app-defaults/xinitrc.d/90-consolekit.sh
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		consolekit2)
 			copy @std

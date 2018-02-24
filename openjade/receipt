@@ -14,9 +14,7 @@ WGET_URL="$SF_MIRROR/openjade/$TARBALL"
 BUILD_DEPENDS="patch opensp-dev automake texinfo perl"
 SPLIT="openjade-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i -e '/getopts/{N;s#&G#g#;s#do .getopts.pl.;##;}' \
 		-e '/use POSIX/ause Getopt::Std;' msggen.pl
 
@@ -43,9 +41,7 @@ compile_rules()
 		$install/usr/share/sgml/openjade-$VERSION/catalog
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		openjade) copy @std; DEPENDS="sgml-common opensp";;
 		*-dev)    copy @dev;;

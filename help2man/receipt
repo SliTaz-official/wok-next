@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="help2man"
 VERSION="1.47.4"
 CATEGORY="development"
-SHORT_DESC="Produces simple manual pages."
+SHORT_DESC="Produces simple manual pages"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/help2man/"
@@ -11,28 +11,17 @@ WEB_SITE="https://www.gnu.org/software/help2man/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="perl-locale-gettext"
 BUILD_DEPENDS="perl gettext texinfo perl-locale-gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-nls \
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$install install
-
-#	./configure --prefix=/usr --infodir=/usr/share/info \
-#	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-#	make &&
-#	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl-locale-gettext"
 }
 

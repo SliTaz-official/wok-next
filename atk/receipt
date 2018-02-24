@@ -1,33 +1,34 @@
 # SliTaz package receipt v2.
 
 PACKAGE="atk"
-VERSION="2.22.0"
+VERSION="2.24.0"
 CATEGORY="x-window"
 SHORT_DESC="Accessibility toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
-TAGS="accessibility"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/atk.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gettext gobject-introspection-dev"
 BUILD_DEPENDS_arm="glib-dev"
+BUILD_DEPENDS="glib-dev gettext gobject-introspection-dev"
 SPLIT="atk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		atk)   copy @std; DEPENDS="glib";;
-		*-dev) copy @dev;;
+		atk)
+			copy @std
+			DEPENDS="glib"
+			TAGS="accessibility"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

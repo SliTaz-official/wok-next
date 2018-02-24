@@ -16,29 +16,25 @@ libevdev-dev xorg-libXi-dev xorg-libXtst-dev"
 SPLIT="xorg-xf86-input-synaptics-dev"
 PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-synaptics)
 			copy @std
-			DEPENDS="libevdev xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXi xorg-libXtst xorg-libxcb"
+			DEPENDS="libevdev xorg-libX11 xorg-libXi xorg-libXtst"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xf86-input-synaptics libevdev-dev"
 			;;
 	esac
 }

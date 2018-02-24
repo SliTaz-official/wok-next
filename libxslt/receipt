@@ -7,42 +7,40 @@ SHORT_DESC="XSLT support for libxml2"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.xmlsoft.org/XSLT/"
-HOST_ARCH="i486 arm"
+LFS=""
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://xmlsoft.org/sources/$TARBALL"
 
-BUILD_DEPENDS="libgcrypt-dev libgpg-error-dev libxml2-dev zlib-dev python-dev"
 BUILD_DEPENDS_arm="libgcrypt-dev libgpg-error-dev libxml2-dev"
+BUILD_DEPENDS="libgcrypt-dev libgpg-error-dev libxml2-dev zlib-dev python-dev"
 SPLIT="libxslt-python libxslt-dev"
+COOKOPTS="skip-log-errors"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install 2>&1 | grep -v 'html/index.sgml'
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libxslt)
 			copy xsltproc libxslt.so* libexslt.so*
-			DEPENDS="libgcrypt libgpg-error libxml2 zlib"
+			DEPENDS="libgcrypt libgpg-error liblzma libxml2 zlib"
 			;;
 		libxslt-python)
 			copy python*/
 			find $fs -name '*.la' -delete
-			DEPENDS="libxslt python"
+			DEPENDS="libgcrypt libgpg-error liblzma libxml2 libxslt python zlib"
 			CAT="development|python module"
 			;;
 		libxslt-dev)
 			copy @dev xsltConf.sh
-			DEPENDS="libxslt libxslt-python libgcrypt-dev libxml2-dev zlib-dev"
+			DEPENDS="libxslt libxslt-python libgcrypt-dev libgpg-error-dev \
+			libxml2-dev xz-dev zlib-dev"
 			;;
 	esac
 }

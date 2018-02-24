@@ -7,27 +7,25 @@ SHORT_DESC="Device Color Characterization utility for X Color Management System"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7app.html"
 
 TARBALL="xcmsdb-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev"
-PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libX11"
 }

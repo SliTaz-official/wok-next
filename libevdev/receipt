@@ -1,29 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libevdev"
-VERSION="1.5.4"
+VERSION="1.5.7"
 CATEGORY="x-window"
 SHORT_DESC="Common functions for Xorg input drivers"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="other"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/libevdev/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7driver.html#libevdev"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.freedesktop.org/software/libevdev/$TARBALL"
 
-BUILD_DEPENDS="check-dev doxygen python"
+BUILD_DEPENDS="check-dev python" # doxygen
+SPLIT="libevdev-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		libevdev) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

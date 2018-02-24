@@ -7,39 +7,37 @@ SHORT_DESC="High speed lossless compressor"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://lz4.github.io/lz4/"
-TAGS="compression"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lz4/lz4/tarball/v$VERSION"
 
 SPLIT="lz4-dev lz4-lib lz4c"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	export AR="$HOST_SYSTEM-ar"
 	make && make PREFIX=/usr DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	lz4)
-		copy lz4 unlz4 lz4cat
-		DEPENDS=" "
-		;;
-	lz4c)
-		CAT="base-system|lz4c compressor"
-		copy lz4c
-		DEPENDS=" "
-		;;
-	lz4-lib)
-		CAT="base-system|lz4c compressor shared library"
-		copy *.so*
-		DEPENDS=" "
-		;;
-	lz4-dev)
-		copy @dev
-		;;
+		lz4)
+			copy lz4 unlz4 lz4cat
+			DEPENDS=" "
+			TAGS="compression"
+			;;
+		lz4c)
+			copy lz4c
+			CAT="base-system|lz4c compressor"
+			DEPENDS=" "
+			TAGS="compression"
+			;;
+		lz4-lib)
+			copy *.so*
+			CAT="base-system|lz4c compressor shared library"
+			DEPENDS=" "
+			;;
+		lz4-dev)
+			copy @dev
+			;;
 	esac
 }

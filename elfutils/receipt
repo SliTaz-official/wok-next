@@ -7,27 +7,22 @@ SHORT_DESC="ELF object file access library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://sourceware.org/elfutils/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://sourceware.org/elfutils/ftp/$VERSION/$TARBALL"
 TARBALL_MD5="1ce77c5315d6bba7d883c3c4f0c2697e"
 
-BUILD_DEPENDS="gettext-tools zlib-dev bzip2-dev liblzma-dev"
+BUILD_DEPENDS="gettext-tools zlib-dev bzip2-dev xz-dev"
 BUILD_DEPENDS_arm="bzip2-dev xz-dev"
 SPLIT="elfutils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		elfutils) copy @std ;;
-		elfutils-dev) copy @dev ;;
+		elfutils) copy @std;;
+		*-dev)    copy @dev;;
 	esac
 }

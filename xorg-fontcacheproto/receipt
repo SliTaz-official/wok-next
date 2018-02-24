@@ -12,22 +12,18 @@ TARBALL="fontcacheproto-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/proto/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros"
-PKG_RULE="dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @dev
-	DEPENDS="xorg-util-macros xorg-libX11-dev"
 }

@@ -15,14 +15,11 @@ BUILD_DEPENDS="automake perl gettext openssl-dev"
 SPLIT="krb5-plugins krb5-clients krb5-user libcomerr3 libkrb5 libkrb5support \
 krb5 krb5-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	CFLAGS="-march=$ARCH -O2 -pipe -fomit-frame-pointer"
+compile_rules() {
+	CFLAGS="${CFLAGS/-Os/-O2}"
 	CXXFLAGS="$CFLAGS"
 
-	cd src &&
-
+	cd src
 	sed -e "s@python2.5/Python.h@& python2.7/Python.h@g" \
 		-e "s@-lpython2.5]@&,\n  AC_CHECK_LIB(python2.7,main,[PYTHON_LIB=-lpython2.7])@g" \
 		-i configure.in &&
@@ -43,39 +40,37 @@ compile_rules()
 		--enable-dns-for-realm \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
-	make install &&
+	make install || return 1
 
 	for f in gssapi_krb5 gssrpc k5crypto kadm5clnt kadm5srv \
 		kdb5 kdb_ldap krad krb5 krb5support verto; do
 		find $install/usr/lib -type f -name "lib$f*.so*" -exec chmod -v 755 '{}' \;
-	done &&
+	done
 
-	mkdir -p $install/lib &&
-	mv -v $install/usr/lib/libkrb5.so.3*        $install/lib &&
-	mv -v $install/usr/lib/libk5crypto.so.3*    $install/lib &&
-	mv -v $install/usr/lib/libkrb5support.so.0* $install/lib &&
+	mkdir -p $install/lib
+	mv -v $install/usr/lib/libkrb5.so.3*        $install/lib
+	mv -v $install/usr/lib/libk5crypto.so.3*    $install/lib
+	mv -v $install/usr/lib/libkrb5support.so.0* $install/lib
 
-	ln -v -sf ../../lib/libkrb5.so.3.3        $install/usr/lib/libkrb5.so &&
-	ln -v -sf ../../lib/libk5crypto.so.3.1    $install/usr/lib/libk5crypto.so &&
-	ln -v -sf ../../lib/libkrb5support.so.0.1 $install/usr/lib/libkrb5support.so &&
+	ln -v -sf ../../lib/libkrb5.so.3.3        $install/usr/lib/libkrb5.so
+	ln -v -sf ../../lib/libk5crypto.so.3.1    $install/usr/lib/libk5crypto.so
+	ln -v -sf ../../lib/libkrb5support.so.0.1 $install/usr/lib/libkrb5support.so
 
-	mkdir -p $install/bin &&
-	mv -v $install/usr/bin/ksu $install/bin &&
-	chmod -v 755 $install/bin/ksu &&
+	mkdir -p $install/bin
+	mv -v $install/usr/bin/ksu $install/bin
+	chmod -v 755 $install/bin/ksu
 
-	chmod -v 755 $install/usr/lib/libcom_err.so.3.0 &&
-	find $install/usr/lib/krb5/plugins -name '*.so' -exec chmod 755 '{}' \; &&
+	chmod -v 755 $install/usr/lib/libcom_err.so.3.0
+	find $install/usr/lib/krb5/plugins -name '*.so' -exec chmod 755 '{}' \;
 
-	mkdir -p $install/etc &&
-	touch    $install/etc/krb5.conf &&
+	mkdir -p $install/etc
+	touch    $install/etc/krb5.conf
 
-	install -v -dm755 $install/usr/share/doc/krb5-$VERSION &&
+	install -v -dm755 $install/usr/share/doc/krb5-$VERSION
 	cp -vfr ../doc/*  $install/usr/share/doc/krb5-$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		krb5-plugins)
 			copy plugins/
@@ -121,15 +116,14 @@ genpkg_rules()
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
 post_install_krb5() {
 	[ -n "$quiet" ] || cat <<EOF
-----
-To start krb5 server you can run:
 
-    /etc/init.d/krb5 start
-
-Or add krb5 to RUN_DAEMONS in /etc/rcS.conf
-----
+	.---------------------------------------------.
+	| To start krb5 server you can run:           |
+	|     /etc/init.d/krb5 start                  |
+	|                                             |
+	| Or add krb5 to RUN_DAEMONS in /etc/rcS.conf |
+	'---------------------------------------------'
 EOF
 }

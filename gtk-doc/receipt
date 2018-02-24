@@ -1,36 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-doc"
-VERSION="1.25"
+VERSION="1.26"
 CATEGORY="development"
-SHORT_DESC="Generate API documentation from comments added to C code."
+SHORT_DESC="Generate API documentation from comments added to C code"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gtk.org/gtk-doc/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/gtk-doc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
-DEPENDS="docbook-xsl"
 BUILD_DEPENDS="docbook-xml docbook-xsl libxslt python perl itstool gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--build=$HOST_SYSTEM --host=$HOST_SYSTEM &&
-	make &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std @dev gtk-doc/
+	DEPENDS="docbook-xsl python-six"
 }
 
-post_install()
-{
+post_install() {
 	mkdir -p "$1/usr/share/gtk-doc/html"
 }

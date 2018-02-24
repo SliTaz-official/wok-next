@@ -7,21 +7,16 @@ SHORT_DESC="Implements the Point-to-Point Protocol (PPP)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD GPL"
 WEB_SITE="http://ppp.samba.org/"
-CONFIG_FILES="/etc/ppp/options /etc/ppp/*secrets"
-HOST_ARCH="i486 arm"
-SUGGESTED="tazpanel"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/paulusmack/ppp/tarball/ppp-$VERSION"
+
 BUILD_DEPENDS="pam-dev"
 SPLIT="ppp ppp-pam ppp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
-		arm*)
-			export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH
+		arm*) export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH;;
 	esac
 
 	cp -a $src $src-pam
@@ -36,39 +31,39 @@ compile_rules()
 	make DESTDIR=$DESTDIR-pam/usr install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	ppp|ppp-pam)
-		if [ $PACKAGE == 'ppp-pam' ]; then
-			DEPENDS="pam"
-			PROVIDE="ppp:pam"
-			CAT="network|with PAM support"
-			install=$install-pam
-		fi
-		mkdir -p $fs/usr $fs/var/www/tazpanel/menu.d/network/VPN
-		cp -a $install/usr/sbin $fs/usr
-		[ -d "$install/usr/lib" ] && cp -a $install/usr/lib $fs/usr
-		cp -a   $stuff/ppp.cgi $fs/var/www/tazpanel
-		ln -s    ../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/ppp
-		ln -s ../../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/VPN/ppp
+		ppp|ppp-pam)
+			if [ $PACKAGE == 'ppp-pam' ]; then
+				DEPENDS="pam"
+				PROVIDE="ppp:pam"
+				CAT="network|with PAM support"
+				install=$install-pam
+			fi
+			SUGGESTED="tazpanel"
+			CONFIG_FILES="/etc/ppp/options /etc/ppp/*secrets"
+			mkdir -p $fs/usr $fs/var/www/tazpanel/menu.d/network/VPN
+			cp -a $install/usr/sbin $fs/usr
+			[ -d "$install/usr/lib" ] && cp -a $install/usr/lib $fs/usr
+			cp -a   $stuff/ppp.cgi $fs/var/www/tazpanel
+			ln -s    ../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/ppp
+			ln -s ../../../ppp.cgi $fs/var/www/tazpanel/menu.d/network/VPN/ppp
 
-		# Config files.
-		mkdir -p $fs/etc/ppp/scripts $fs/etc/ppp/ip-up.d $fs/etc/ppp/ip-down.d
-		cp $stuff/README.scripts $fs/etc/ppp
-		cp -a $src/etc.ppp/* $fs/etc/ppp
+			# Config files.
+			mkdir -p $fs/etc/ppp/scripts $fs/etc/ppp/ip-up.d $fs/etc/ppp/ip-down.d
+			cp $stuff/README.scripts $fs/etc/ppp
+			cp -a $src/etc.ppp/* $fs/etc/ppp
 
-		# PPP scripts.
-		cp -a $src/scripts/ppp-on $fs/etc/ppp/scripts
-		cp -a $src/scripts/ppp-on-dialer $fs/etc/ppp/scripts
-		sed -i 's:ppp/ppp-on-dialer:ppp/scripts/ppp-on-dialer:' \
-			$fs/etc/ppp/scripts/ppp-on
+			# PPP scripts.
+			cp -a $src/scripts/ppp-on $fs/etc/ppp/scripts
+			cp -a $src/scripts/ppp-on-dialer $fs/etc/ppp/scripts
+			sed -i 's:ppp/ppp-on-dialer:ppp/scripts/ppp-on-dialer:' \
+				$fs/etc/ppp/scripts/ppp-on
 
-		cp -a $src/scripts/ppp-off $fs/etc/ppp/scripts
-		cp -a $src/scripts/callback $fs/etc/ppp/scripts
-		cp -a $src/scripts/redialer $fs/etc/ppp/scripts
-		cat >> $fs/etc/ppp/ip-up <<EOT
+			cp -a $src/scripts/ppp-off $fs/etc/ppp/scripts
+			cp -a $src/scripts/callback $fs/etc/ppp/scripts
+			cp -a $src/scripts/redialer $fs/etc/ppp/scripts
+			cat >> $fs/etc/ppp/ip-up <<EOT
 #!/bin/sh
 
 if [ -x /etc/ppp/ip-up.d/\$6 ]; then
@@ -87,7 +82,7 @@ elif [ -n "\$USEPEERDNS" -a -f /etc/ppp/resolv.conf ]; then
 	fi
 fi
 EOT
-		cat >> $fs/etc/ppp/ip-down <<EOT
+			cat >> $fs/etc/ppp/ip-down <<EOT
 #!/bin/sh
 
 if [ -x /etc/ppp/ip-down.d/\$6 ]; then
@@ -101,21 +96,21 @@ elif [ -n "\$USEPEERDNS" -a -f /etc/ppp/resolv.conf ]; then
 	fi
 fi
 EOT
-		# cp -a $src/scripts/ip-up.local.add $fs/etc/ppp/ip-up
-		# cp -a $src/scripts/ip-down.local.add $fs/etc/ppp/ip-down
-		chmod 711 $fs/etc/ppp/ip-up $fs/etc/ppp/ip-down
+			# cp -a $src/scripts/ip-up.local.add $fs/etc/ppp/ip-up
+			# cp -a $src/scripts/ip-down.local.add $fs/etc/ppp/ip-down
+			chmod 711 $fs/etc/ppp/ip-up $fs/etc/ppp/ip-down
 
-		# insert #!/bin/sh  on top line in ip* scripts
-		sed -i '1i\#!/bin/sh' $fs/etc/ppp/ip* 2>/dev/null
-		# add empty peers dir
-		mkdir -p $fs/etc/ppp/peers
-		# hide login/pass from regular users
-		chmod go-rwx $fs/etc/ppp/*secrets
-		chmod go-rwx $fs/etc/ppp/options
-		chmod 711 $fs/etc/ppp/scripts/*
-		;;
-	ppp-dev)
-		copy include/
-		;;
+			# insert #!/bin/sh  on top line in ip* scripts
+			sed -i '1i\#!/bin/sh' $fs/etc/ppp/ip* 2>/dev/null
+			# add empty peers dir
+			mkdir -p $fs/etc/ppp/peers
+			# hide login/pass from regular users
+			chmod go-rwx $fs/etc/ppp/*secrets
+			chmod go-rwx $fs/etc/ppp/options
+			chmod 711 $fs/etc/ppp/scripts/*
+			;;
+		ppp-dev)
+			copy include/
+			;;
 	esac
 }

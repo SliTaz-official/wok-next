@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="docbook-xml-43"
 VERSION="4.3"
@@ -11,19 +11,14 @@ WEB_SITE="http://www.oasis-open.org/docbook/"
 TARBALL="docbook-xml-$VERSION.zip"
 WGET_URL="http://www.docbook.org/xml/$VERSION/$TARBALL"
 
-DEPENDS="libxml2-tools libxml2"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr/share/xml/docbook/xml-dtd-${VERSION}
 	cp -dRf docbook.cat *.dtd ent/ *.mod \
 		$DESTDIR/usr/share/xml/docbook/xml-dtd-${VERSION}
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/usr $fs
+	DEPENDS="libxml2-tools libxml2"
 }

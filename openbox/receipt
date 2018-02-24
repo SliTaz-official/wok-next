@@ -7,7 +7,6 @@ SHORT_DESC="Small-footprint and standard compliant Window Manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://openbox.org/"
-HOST_ARCH="i486 arm"
 
 TARBALL="openbox-$VERSION.tar.gz"
 WGET_URL="http://openbox.org/dist/openbox/$TARBALL"
@@ -15,15 +14,16 @@ WGET_URL="http://openbox.org/dist/openbox/$TARBALL"
 BUILD_DEPENDS="glib-dev pango-dev \
 gettext xorg-libXcursor-dev xorg-libICE-dev xorg-libSM-dev xorg-libXrandr-dev \
 xorg-libXinerama-dev startup-notification-dev automake libtool docbook-utils \
-xorg-libXi-dev"
-BUILD_DEPENDS_arm="pango-dev glib-dev xorg-libXft-dev util-linux-uuid-dev \
-libxml2-dev xcb-util-dev"
-SPLIT="openbox-themes openbox-python openbox-dev"
-SIBLINGS="openbox-max"
+xorg-libXi-dev xorg-xcb-util-dev imlib2-dev librsvg-dev"
+SPLIT="openbox openbox-light:light openbox-themes openbox-python openbox-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $SET in
+		light) SET_ARGS='--disable-imlib2 --disable-librsvg';;
+		*)     SET_ARGS='';;
+	esac
+
+	fix ld
 	# openbox required reconfiguration after patching...
 	autoreconf -fi &&
 
@@ -31,33 +31,42 @@ compile_rules()
 		--sysconfdir=/etc \
 		--libexecdir=/usr/lib/openbox \
 		--disable-static \
-		--docdir=/usr/share/doc/openbox-$VERSION \
-		$CONFIGURE_ARGS &&
+		$ARCH_ARGS $SET_ARGS $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -j1 DESTDIR=$DESTDIR install &&
 
 	# Pipe menu.
-	cp $stuff/open-folder-menu.sh $install/usr/lib/openbox/
+	install -m755 $stuff/open-folder-menu.sh \
+		$install/usr/lib/openbox/open-folder-menu.sh
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		openbox)
 			copy obxprop openbox openbox-session *.so* openbox-autostart \
 			pixmaps/ Clearlooks/ Onyx*/ xsessions/openbox.desktop \
 			open-folder-menu.sh
 			# SliTaz /etc/xdg/openbox/* files are in 'slitaz-configs' package
+			DEPENDS="cairo glib imlib2 librsvg libxml2 pango \
+			startup-notification xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXcursor xorg-libXext xorg-libXft xorg-libXi \
+			xorg-libXinerama xorg-libXrandr   slitaz-configs"
+			SUGGESTED="obconf pcmanfm hsetroot"
 			TAGS="window-manager"
+			;;
+		openbox-light)
+			copy obxprop openbox openbox-session *.so* openbox-autostart \
+			pixmaps/ Clearlooks/ Onyx*/ xsessions/openbox.desktop \
+			open-folder-menu.sh
+			# SliTaz /etc/xdg/openbox/* files are in 'slitaz-configs' package
+			CAT="x-window|without imlib2 and SVG support"
+			DEPENDS="glib libxml2 pango startup-notification xorg-libICE \
+			xorg-libSM xorg-libX11 xorg-libXcursor xorg-libXext xorg-libXft \
+			xorg-libXi xorg-libXinerama xorg-libXrandr   slitaz-configs"
+			PROVIDE="openbox"
 			SUGGESTED="obconf spacefm pcmanfm hsetroot wbar2 conky"
-			DEPENDS="pango xorg-libSM xorg-libXcursor xorg-libXi \
-			xorg-libXinerama xorg-libXrandr slitaz-configs"
-			# Handle SliTaz arch: /etc/slitaz/slitaz.conf
-			case "$SLITAZ_ARCH" in
-				i?86) DEPENDS="$DEPENDS startup-notification";;
-				arm*) DEPENDS="$DEPENDS hsetroot tint2";;
-			esac
+			TAGS="window-manager"
 			;;
 		openbox-python)
 			copy openbox-xdg-autostart
@@ -70,13 +79,9 @@ genpkg_rules()
 			;;
 		openbox-dev)
 			copy @dev
-			DEPENDS="openbox openbox-themes bzip2-dev \
-			fontconfig-dev freetype-dev glib-dev harfbuzz-dev libffi-dev \
-			liblzma-dev libpng16-dev libxcb-dev libxml2-dev pango-dev pcre-dev \
-			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXft-dev \
-			xorg-libXi-dev xorg-libXinerama-dev xorg-libXrandr-dev \
-			xorg-libXrender-dev zlib-dev"
+			DEPENDS="openbox openbox-themes \
+			glib-dev imlib2-dev librsvg-dev libxml2-dev pango-dev \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXft-dev"
 			;;
 	esac
 }

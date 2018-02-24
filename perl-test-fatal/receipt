@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-test-fatal"
 VERSION="0.014"
@@ -12,20 +12,16 @@ WEB_SITE="https://metacpan.org/release/Test-Fatal"
 TARBALL="Test-Fatal-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
 
-DEPENDS="perl-try-tiny"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-try-tiny"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-try-tiny"
 }

@@ -15,27 +15,24 @@ BUILD_DEPENDS="python-dev pycairo-dev pygobject-dev expat-dev gtk+-dev \
 libglade-dev libxml2-dev libffi-dev python-numpy"
 SPLIT="pygtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --disable-docs $CONFIGURE_ARGS &&
+compile_rules() {
+	fix ld
+	./configure \
+		--disable-docs \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		pygtk)
 			copy @std
-			DEPENDS="python pycairo pygobject expat gtk+ libglade libxml2 \
-			xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXcursor \
-			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
-			xorg-libXrandr xorg-libXrender xorg-libXdamage libffi python-numpy"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libglade pango python"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="pygtk gtk+-dev pygobject-dev pycairo-dev"
+			DEPENDS="pygtk gtk+-dev pygobject-dev"
 			;;
 	esac
 }

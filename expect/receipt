@@ -1,32 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="expect"
 VERSION="5.45"
 CATEGORY="utilities"
-SHORT_DESC="A tool for automating interactive applications."
+SHORT_DESC="A tool for automating interactive applications"
 MAINTAINER="samuel_trassare@yahoo.com"
 LICENSE="PublicDomain"
 WEB_SITE="http://expect.sourceforge.net"
+
 TARBALL="$PACKAGE$VERSION.tar.gz"
 WGET_URL="http://sourceforge.net/projects/$PACKAGE/files/Expect/$VERSION/$TARBALL"
 
-DEPENDS="tcl"
 BUILD_DEPENDS="tcl-dev"
+COOKOPTS="!skip-log-errors" # for:
+# chmod: cannot access './install-sh': No such file or directory
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS 2>&1 | grep -v /install-sh &&
-	make &&
-	make DESTDIR=$install install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin \
-		$fs/usr/lib
-		
-	cp -a $install/usr/bin/expect  $fs/usr/bin
-	cp -a $install/usr/lib/* $fs/usr/lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="tcl"
 }

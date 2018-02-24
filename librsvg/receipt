@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="librsvg"
-VERSION="2.40.16"
+VERSION="2.40.18"
 CATEGORY="graphics"
 SHORT_DESC="Rendering SVG"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.gnome.org/Projects/LibRsvg"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/librsvg.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -16,54 +16,43 @@ BUILD_DEPENDS="glib-dev gdk-pixbuf-dev libxml2-dev pango-dev libcroco-dev \
 gtk-doc gobject-introspection-dev vala gtk+3-dev"
 SPLIT="rsvg-convert rsvg-view librsvg-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--enable-vala \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		librsvg)
 			copy *.so*
 			CAT="graphics|library"
-			DEPENDS="bzlib cairo fontconfig freetype gdk-pixbuf glib libcroco \
-			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
-			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
-			xorg-pixman zlib"
+			DEPENDS="cairo gdk-pixbuf glib libcroco libxml2 pango"
 			;;
 		rsvg-convert)
 			copy rsvg-convert
 			CAT="graphics|converter"
+			DEPENDS="cairo glib librsvg"
 			;;
 		rsvg-view)
 			copy rsvg-view*
 			CAT="graphics|viewer"
-			DEPENDS="librsvg atk gtk+3"
+			DEPENDS="cairo glib gtk+3 librsvg"
 			;;
 		librsvg-dev)
 			copy @dev
 			DEPENDS="librsvg rsvg-convert rsvg-view \
-			bzip2-dev cairo-dev fontconfig-dev freetype-dev gdk-pixbuf-dev \
-			glib-dev harfbuzz-dev libcroco-dev libffi-dev libpng16-dev \
-			libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			cairo-dev gdk-pixbuf-dev glib-dev"
 			;;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
 post_install_librsvg() {
 	[ -n "$cookmode" ] && return 0
-	[ -z "$quiet" ] && echo -en "\nUpdating gdk pixbuf loaders cache file..."
+	action 'Updating gdk pixbuf loaders cache file...'
 	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders --update-cache
 	status
 }

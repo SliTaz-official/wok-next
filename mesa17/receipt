@@ -18,6 +18,7 @@ xorg-libxcb-dev xorg-libxshmfence-dev xorg-libX11-dev xorg-libXext-dev \
 xorg-libXdamage-dev xorg-libXfixes-dev xorg-libXxf86vm-dev expat-dev \
 elfutils-dev llvm-dev xorg-libpciaccess-dev wayland-dev libva-dev libvdpau-dev \
 wayland-protocols-dev libatomic zlib-dev"
+#BUILD_DEPENDS="${BUILD_DEPENDS/libva-dev/}"
 SPLIT="mesa17-dri mesa17-libegl mesa17-libgbm mesa17-osmesa mesa17-libswrAVX \
 mesa17-libwayland-egl mesa17-libxatracker mesa17-vdpau mesa17 mesa17-dev"
 
@@ -27,6 +28,7 @@ compile_rules() {
 	GLL_DRV="i915,nouveau,r300,r600,radeonsi,svga,swrast,swr,virgl,etnaviv,imx"
 
 	sed -i "/pthread_stubs_possible=/s/yes/no/" configure.ac
+	fix ld
 	./autogen.sh \
 		CFLAGS='-O2' CXXFLAGS='-O2' \
 		--prefix=/usr \
@@ -40,14 +42,12 @@ compile_rules() {
 		--enable-glx-tls \
 		--with-platforms="drm,x11,wayland" \
 		--with-gallium-drivers=$GLL_DRV &&
-
 	unset GLL_DRV &&
+	fix libtool &&
+	make && make install || return 1
 
-	make && make install &&
-	cook_pick_docs docs/* &&
-
-	mkdir -p $install/etc/X11/xorg.conf.d &&
-	cp $stuff/90-DRI.conf $install/etc/X11/xorg.conf.d
+	cook_pick_docs docs/*
+	install -Dm644 $stuff/90-DRI.conf $install/etc/X11/xorg.conf.d/90-DRI.conf
 }
 
 genpkg_rules() {
@@ -57,21 +57,20 @@ genpkg_rules() {
 			CAT="x-window|Direct Rendering Infrastructure"
 			DEPENDS="elfutils expat libdrm libdrm-amdgpu libdrm-etnaviv \
 			libdrm-intel libdrm-nouveau libdrm-radeon llvm-libs mesa17 \
-			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libpciaccess \
-			xorg-libxcb xorg-libxshmfence zlib"
+			xorg-libX11 xorg-libxcb xorg-libxshmfence zlib"
 			PROVIDE="mesa-dri"
 			;;
 		*-libegl)
 			copy libEGL.so*
 			CAT="x-window|EGL library"
-			DEPENDS="expat libdrm libffi mesa17-libgbm wayland xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libxcb xorg-libxshmfence"
+			DEPENDS="expat libdrm mesa17-libgbm wayland xorg-libX11 \
+			xorg-libxcb xorg-libxshmfence zlib"
 			PROVIDE="libegl libegl-mesa mesa-libegl"
 			;;
 		*-libgbm)
 			copy libgbm.so*
 			CAT="x-window|Graphics Buffer Manager library"
-			DEPENDS="expat libdrm libffi wayland"
+			DEPENDS="expat libdrm wayland"
 			PROVIDE="mesa-libgbm"
 			;;
 		*-osmesa)
@@ -89,30 +88,27 @@ genpkg_rules() {
 		*-libxatracker)
 			copy libxatracker.so*
 			CAT="x-window|Xorg Gallium3D acceleration library"
-			DEPENDS="expat libdrm libdrm-intel libdrm-nouveau llvm-libs \
-			xorg-libpciaccess zlib"
+			DEPENDS="expat libdrm libdrm-intel libdrm-nouveau llvm-libs zlib"
 			PROVIDE="mesa-libxatracker"
 			;;
 		*-vdpau)
 			copy lib/vdpau/
 			CAT="x-window|VDPAU drivers"
 			DEPENDS="elfutils expat libdrm libdrm-amdgpu libdrm-nouveau \
-			libdrm-radeon llvm-libs xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libxcb xorg-libxshmfence zlib"
+			libdrm-radeon llvm-libs xorg-libX11 xorg-libxcb xorg-libxshmfence \
+			zlib"
 			PROVIDE="mesa-vdpau"
 			;;
 		*-libswrAVX)
 			copy libswrAVX*so*
 			CAT="x-window|Fast software rendering driver for CPU with AVX"
-			DEPENDS="mesa17 llvm-libs"
+			DEPENDS=" "
 			;;
 		mesa17)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			CAT="x-window|main OpenGL libraries"
-			DEPENDS="expat libdrm xorg-libX11 xorg-libXau \
-			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
-			xorg-libXxf86vm xorg-libxcb xorg-libxshmfence zlib"
+			DEPENDS="expat libdrm xorg-libX11 xorg-libXdamage xorg-libXext \
+			xorg-libXfixes xorg-libXxf86vm xorg-libxcb xorg-libxshmfence"
 			SUGGESTED="nvidia"
 			PROVIDE="libgl mesa"
 			CONFIG_FILES="/etc/drirc"
@@ -122,11 +118,9 @@ genpkg_rules() {
 			DEPENDS="mesa17 mesa17-dri mesa17-libegl mesa17-libgbm \
 			mesa17-osmesa mesa17-libwayland-egl mesa17-libxatracker \
 			mesa17-vdpau \
-			expat-dev libdrm-dev libffi-dev llvm-dev wayland-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
-			xorg-libXxf86vm-dev xorg-libpciaccess-dev xorg-libxcb-dev \
-			xorg-libxshmfence-dev zlib-dev"
+			libdrm-dev wayland-dev xorg-libX11-dev xorg-libXdamage-dev \
+			xorg-libXext-dev xorg-libXfixes-dev xorg-libXxf86vm-dev \
+			xorg-libxcb-dev"
 			PROVIDE="mesa-dev"
 			;;
 	esac

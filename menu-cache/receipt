@@ -8,7 +8,6 @@ MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/lxde/menu-cache"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/menu-cache.html"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
@@ -16,9 +15,7 @@ WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 BUILD_DEPENDS="glib-dev libfm-extra-dev gtk-doc"
 SPLIT="menu-cache-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		--enable-gtk-doc \
@@ -26,9 +23,7 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-cache)
 			copy @std
@@ -36,9 +31,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="menu-cache glib-dev libffi-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			zlib-dev"
+			DEPENDS="menu-cache glib-dev"
 			;;
 	esac
 	TAGS="LXDE"

@@ -7,41 +7,34 @@ SHORT_DESC="Xorg server module"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
 
 TARBALL="libXaw3d-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-libXmu-dev util-linux-uuid-dev"
 SPLIT="xorg-libXaw3d-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXaw3d)
 			copy @std
-			DEPENDS="xorg-libxcb util-linux-uuid xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXmu \
-			xorg-libXt"
+			DEPENDS="xorg-libX11 xorg-libXext xorg-libXmu xorg-libXt"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXaw3d xorg-libxcb-dev util-linux-uuid-dev \
-			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXmu-dev xorg-libXt-dev \
+			DEPENDS="xorg-libXaw3d \
+			xorg-libX11-dev xorg-libXext-dev xorg-libXmu-dev xorg-libXt-dev \
 			xorg-xproto"
 			;;
 	esac

@@ -7,7 +7,7 @@ SHORT_DESC="Module that implements the XCB cursor library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-util-cursor.html"
 
 TARBALL="xcb-util-cursor-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
@@ -15,22 +15,19 @@ WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 BUILD_DEPENDS="xorg-libxcb-dev xorg-xcb-util-dev xorg-xcb-util-renderutil-dev \
 xorg-xcb-util-image-dev"
 SPLIT="xorg-xcb-util-cursor-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-xcb-util-cursor)
 			copy @std
@@ -39,9 +36,8 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xcb-util-cursor xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libxcb-dev xorg-xcb-util-dev xorg-xcb-util-image-dev \
-			xorg-xcb-util-renderutil-dev"
+			DEPENDS="xorg-xcb-util-cursor \
+			xorg-libxcb-dev xorg-xcb-util-image-dev xorg-xcb-util-renderutil-dev"
 			PROVIDE="xcb-util-cursor-dev"
 			;;
 	esac

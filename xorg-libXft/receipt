@@ -7,42 +7,35 @@ SHORT_DESC="Client side font rendering library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXft-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-libXrender-dev freetype-dev fontconfig-dev libxml2-dev"
 SPLIT="xorg-libXft-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXft)
 			copy @std
-			DEPENDS="bzlib fontconfig freetype glib libharfbuzz liblzma \
-			libpng16 xorg-libxcb libxml2 pcre xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXrender zlib"
+			DEPENDS="fontconfig freetype xorg-libX11 xorg-libXrender"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXft bzip2-dev fontconfig-dev freetype-dev \
-			glib-dev harfbuzz-dev libpng16-dev xorg-libxcb-dev libxml2-dev \
-			pcre-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXrender-dev xorg-xproto xz-dev zlib-dev"
+			DEPENDS="xorg-libXft \
+			fontconfig-dev freetype-dev xorg-libXrender-dev xorg-xproto"
 			;;
 	esac
 }

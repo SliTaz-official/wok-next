@@ -14,33 +14,28 @@ WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 BUILD_DEPENDS="xorg-util-macros xorg-xproto xorg-libX11-dev xorg-xextproto \
 xorg-libXext-dev xorg-xf86miscproto"
 SPLIT="xorg-libXxf86misc-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXxf86misc)
 			copy @std
-			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext"
+			DEPENDS="xorg-libX11 xorg-libXext"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXxf86misc xorg-libxcb-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-xf86miscproto"
+			DEPENDS="xorg-libXxf86misc \
+			xorg-libX11-dev xorg-libXext-dev xorg-xf86miscproto"
 			;;
 	esac
 }

@@ -1,36 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libglade"
 VERSION="2.6.4"
 CATEGORY="x-window"
-SHORT_DESC="The Glade libs."
+SHORT_DESC="The Glade libs"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://developer.gnome.org/libglade/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libxml2 \
-pango"
 BUILD_DEPENDS="gtk+-dev"
+SPLIT="libglade-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/DG_DISABLE_DEPRECATED/d' glade/Makefile.in || exit 1
 	mkdir po; touch po/POTFILES.in
 
+	fix ld
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy *.so* libglade-convert
+genpkg_rules() {
+	case $PACKAGE in
+		libglade)
+			copy @std
+			DEPENDS="atk gdk-pixbuf glib gtk+ libxml2 pango"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libglade gtk+-dev libxml2-dev"
+			;;
+	esac
 }

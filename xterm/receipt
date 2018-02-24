@@ -7,7 +7,6 @@ SHORT_DESC="X terminal emulator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://invisible-island.net/xterm/"
-HOST_ARCH="i486 arm"
 COOKOPTS="!pixmaps"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
@@ -17,9 +16,7 @@ BUILD_DEPENDS="ncurses-dev xorg-libXpm-dev xorg-libXinerama-dev \
 xorg-libXaw3d-dev xorg-libXcursor-dev freetype-dev expat-dev fontconfig-dev \
 xorg-libXft-dev xorg-libXt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 	./configure \
 		--prefix=/usr \
@@ -69,9 +66,7 @@ testsuite() {
 	readelf -h $install/usr/bin/xterm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy xterm resize XTerm XTerm-color *.png
 	TAGS="terminal"
 	DEPENDS="fontconfig ncurses xorg-libICE xorg-libX11 xorg-libXaw3d \

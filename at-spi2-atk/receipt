@@ -7,35 +7,31 @@ SHORT_DESC="Bridges ATK to At-Spi2 D-Bus service"
 MAINTAINER="yuripourre@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnome.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/at-spi2-atk.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="dbus-dev glib-dev atk-dev at-spi2-core-dev"
+BUILD_DEPENDS="dbus-dev glib-dev atk-dev at-spi2-core-dev xorg-libSM-dev \
+xorg-libX11-dev"
 SPLIT="at-spi2-atk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/x/at-spi2-atk.html
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		at-spi2-atk)
 			copy @std
-			DEPENDS="at-spi2-core atk dbus glib libffi pcre util-linux-uuid \
-			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libxcb"
+			DEPENDS="at-spi2-core atk dbus glib"
 			;;
-		at-spi2-atk-dev)
+		*-dev)
 			copy @dev
-			DEPENDS="at-spi2-atk \
-			at-spi2-core-dev atk-dev dbus-dev glib-dev libffi-dev pcre-dev \
-			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev"
+			DEPENDS="at-spi2-atk at-spi2-core-dev glib-dev"
 			;;
 	esac
 }

@@ -7,6 +7,7 @@ SHORT_DESC="Display information utility for X"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7app.html"
 
 TARBALL="xdpyinfo-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
@@ -15,22 +16,19 @@ BUILD_DEPENDS="xorg-util-macros xorg-libXext-dev xorg-libX11-dev \
 xorg-libXtst-dev xorg-libxcb-dev xorg-xproto xorg-libXxf86vm-dev \
 xorg-libXxf86dga-dev xorg-libXrender-dev xorg-libXcomposite-dev \
 xorg-libXinerama-dev xorg-libdmx-dev xorg-libXxf86misc-dev"
-PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libX11 xorg-libXcomposite xorg-libXext xorg-libXi \
 	xorg-libXinerama xorg-libXrender xorg-libXtst xorg-libXxf86dga \

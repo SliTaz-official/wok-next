@@ -14,17 +14,13 @@ WGET_URL="http://ftp.de.debian.org/debian/pool/main/liba/libaio/libaio_$VERSION.
 
 SPLIT="libaio-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	CFLAGS="-march=${ARCH/_/-} -mtune=generic -O2 -pipe" &&
 	make &&
 	make prefix="$install/usr" install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libaio) copy @std;;
 		*-dev)  copy @dev;;

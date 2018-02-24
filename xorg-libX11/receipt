@@ -1,29 +1,28 @@
- # SliTaz package receipt v2.
+# SliTaz package receipt v2.
 
 PACKAGE="xorg-libX11"
-VERSION="1.6.3"
+VERSION="1.6.5"
 CATEGORY="x-window"
 SHORT_DESC="X11 Client library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libX11-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
-BUILD_DEPENDS="xorg-xtrans libxcb-dev xorg-kbproto xorg-xf86bigfontproto \
+BUILD_DEPENDS="xorg-xtrans xorg-libxcb-dev xorg-kbproto xorg-xf86bigfontproto \
 xorg-inputproto xorg-xextproto xorg-libXau-dev xorg-libXdmcp-dev perl"
 SPLIT="xorg-libX11-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 
@@ -33,21 +32,18 @@ compile_rules()
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libX11)
 			copy *.so* XErrorDB Xcms.txt compose.dir locale.alias locale.dir \
 			C/ en_US.UTF-8/
 			# split -> locale-* packages
-			DEPENDS="xorg-libxcb xorg-libXau xorg-libXdmcp"
+			DEPENDS="xorg-libxcb"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libX11 xorg-xtrans xorg-libxcb-dev xorg-kbproto \
-			xorg-inputproto xorg-xextproto xorg-xproto xorg-libXau-dev \
-			xorg-libXdmcp-dev"
+			DEPENDS="xorg-libX11 \
+			xorg-kbproto xorg-libxcb-dev xorg-xproto"
 			;;
 	esac
 }

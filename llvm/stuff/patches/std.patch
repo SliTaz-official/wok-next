@@ -1,0 +1,29 @@
+${src}/lib/Support/NativeFormatting.cpp: In function 'void llvm::write_double(llvm::raw_ostream&, double, llvm::FloatStyle, llvm::Optional<long unsigned int>)':
+${src}/lib/Support/NativeFormatting.cpp:166:12: error: '__builtin_isnan' is not a member of 'std'
+   if (std::isnan(N)) {
+            ^
+${src}/lib/Support/NativeFormatting.cpp:166:12: note: suggested alternative:
+<built-in>: note:   '__builtin_isnan'
+${src}/lib/Support/NativeFormatting.cpp:169:19: error: '__builtin_isinf_sign' is not a member of 'std'
+   } else if (std::isinf(N)) {
+                   ^
+${src}/lib/Support/NativeFormatting.cpp:169:19: note: suggested alternative:
+<built-in>: note:   '__builtin_isinf_sign'
+make[2]: *** [lib/Support/CMakeFiles/LLVMSupport.dir/build.make:1263: lib/Support/CMakeFiles/LLVMSupport.dir/NativeFormatting.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:545: lib/Support/CMakeFiles/LLVMSupport.dir/all] Error 2
+
+--- a/lib/Support/NativeFormatting.cpp
++++ b/lib/Support/NativeFormatting.cpp
+@@ -163,10 +163,10 @@
+                         Optional<size_t> Precision) {
+   size_t Prec = Precision.getValueOr(getDefaultPrecision(Style));
+ 
+-  if (std::isnan(N)) {
++  if (isnan(N)) {
+     S << "nan";
+     return;
+-  } else if (std::isinf(N)) {
++  } else if (isinf(N)) {
+     S << "INF";
+     return;
+   }

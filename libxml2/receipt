@@ -7,29 +7,26 @@ SHORT_DESC="XML C parser and toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://xmlsoft.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libxml2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://xmlsoft.org/libxml2/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev xz-dev python-dev ncurses-dev readline-dev"
 BUILD_DEPENDS_arm=" "
+BUILD_DEPENDS="zlib-dev xz-dev python-dev ncurses-dev readline-dev"
 SPLIT="libxml2-tools libxml2-python libxml2-dev"
 
-# When cross compiling Python is installed in chroot and is used
-# by cross tools, cook don't need to install it in /usr/cross/arm
-# Building with LZMA support is buggy and build fails
-case "$ARCH" in
-	arm) ARCH_ARGS="--without-lzma" ;;
-esac
-
-# Rules to configure and make the package.
-#
 # Note: libxml2 can be build using option --with-minimum
 # and binaries are splited into libxml2-tools
-compile_rules()
-{
-#	autoreconf -fi
+compile_rules() {
+	# When cross compiling Python is installed in chroot and is used
+	# by cross tools, cook don't need to install it in /usr/cross/arm
+	# Building with LZMA support is buggy and build fails
+	case "$ARCH" in
+		arm) ARCH_ARGS="--without-lzma" ;;
+	esac
+
+	#	autoreconf -fi
 	./configure \
 		--disable-static \
 		--with-html-dir=/usr/share/doc \
@@ -42,13 +39,11 @@ compile_rules()
 	find $install -name '*.sh' -exec chmod +x \{\} \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libxml2)
 			copy libxml2.so*
-			DEPENDS="zlib liblzma"
+			DEPENDS="liblzma zlib"
 			case "$ARCH" in
 				arm) DEPENDS="zlib" ;;
 			esac
@@ -56,15 +51,16 @@ genpkg_rules()
 		libxml2-tools)
 			copy xmllint xmlcatalog
 			CAT="system-tools|xmllint tester and xmlcatalog parser utility"
+			DEPENDS="liblzma libxml2 ncurses readline zlib"
 			;;
 		libxml2-python)
 			copy python2.7/; find $fs -name '*.la' -delete
 			CAT="development|adapter for the Python"
-			DEPENDS="python libxml2 libxslt"
+			DEPENDS="liblzma libxml2 python zlib   libxslt"
 			;;
 		libxml2-dev)
 			copy @dev *.sh
-			DEPENDS="libxml2-tools pkg-config   zlib-dev liblzma-dev"
+			DEPENDS="xz-dev zlib-dev   libxml2-tools"
 			;;
 	esac
 }

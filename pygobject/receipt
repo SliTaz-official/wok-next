@@ -15,16 +15,14 @@ BUILD_DEPENDS="python python-dev pkg-config glib-dev pycairo-dev \
 cairo-dev libffi-dev util-linux-mount-dev"
 SPLIT="pygobject-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --disable-introspection $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--disable-introspection \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		pygobject)
 			copy @std

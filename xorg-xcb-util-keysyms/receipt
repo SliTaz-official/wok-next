@@ -7,29 +7,26 @@ SHORT_DESC="Utility libraries for XC Binding"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-util-keysyms.html"
 
 TARBALL="xcb-util-keysyms-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 
 BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros"
 SPLIT="xorg-xcb-util-keysyms-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-keysyms)
 			copy @std
@@ -38,8 +35,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xcb-util-keysyms xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libxcb-dev"
+			DEPENDS="xorg-xcb-util-keysyms xorg-libxcb-dev"
 			PROVIDE="xcb-util-keysyms-dev"
 			;;
 	esac

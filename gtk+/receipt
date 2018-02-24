@@ -7,7 +7,7 @@ SHORT_DESC="The GIMP Toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gtk.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/gtk2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
@@ -20,14 +20,11 @@ BUILD_DEPENDS="paper-icon-theme rsvg-convert optipng-static pngquant-static \
 symlinks \
 glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
 gobject-introspection-dev gtk-doc automake gettext xorg-libXinerama-dev"
+BUILD_DEPENDS="glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
+gobject-introspection-dev gtk-doc gettext xorg-libXinerama-dev"
 SPLIT="gtk+-demo gtk+ gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/x/gtk2.html
-
-	# Handle cross compilation.
+compile_rules() {
 	case "$ARCH" in
 		arm*)
 			BUILD_DEPENDS=$BUILD_DEPENDS_arm
@@ -39,26 +36,25 @@ compile_rules()
 			;;
 	esac
 
-	. $stuff/replace-icons-paper; cd $src
+#	. $stuff/replace-icons-paper; cd $src
 
+#	find $src -type f -name 'Makefile.in' -exec sed -i 's|1.15|1.15.1|' '{}' \;
+# or
+#	autoreconf -fi && # fix 'version mismatch' between 1.15 and 1.15.1
 	./configure \
-		--sysconfdir=/etc \
-		--with-html-dir=/usr/share/doc \
 		--enable-debug=no \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make $MAKEFLAGS $LIBTOOL &&
-	make install &&
+	make install || return 1
 
 	ln -s /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache \
-		$install/etc/gtk-2.0/gdk-pixbuf.loaders &&
+		$install/etc/gtk-2.0/gdk-pixbuf.loaders
 
-	mkdir -p $install/usr/share/applications &&
+	mkdir -p $install/usr/share/applications
 	cp $stuff/*.desktop $install/usr/share/applications
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gtk+-demo)
 			copy gtk-demo demo/ *.desktop
@@ -71,8 +67,7 @@ genpkg_rules()
 			;;
 		gtk+)
 			COOKOPTS="!menus"
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib \
 			libcups libffi libgnutls libharfbuzz liblzma libpng16 libxml2 \
 			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
@@ -95,7 +90,6 @@ genpkg_rules()
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
 post_install_gtk_() {
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 --update-cache
 }

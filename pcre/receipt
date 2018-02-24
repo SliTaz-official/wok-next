@@ -7,7 +7,7 @@ SHORT_DESC="Perl 5 Compatible Regular Expression"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.pcre.org/"
-HOST_ARCH="i486 arm"
+HOST_ARCH="i486 arm x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
@@ -15,9 +15,7 @@ WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
 BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev valgrind-dev"
 SPLIT="pcre-apps pcre-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# http://www.linuxfromscratch.org/blfs/view/stable/general/pcre.html
 	./configure \
 		--docdir=/usr/share/doc/pcre-$VERSION \
@@ -39,17 +37,14 @@ compile_rules()
 		$install/usr/lib/libpcre.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		pcre)
 			copy *.so*
 			CAT="system-tools|library"
 			;;
 		*-apps)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="pcre bzlib ncurses readline zlib"
 			CAT="development|applications"
 			;;

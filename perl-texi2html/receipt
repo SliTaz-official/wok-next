@@ -1,7 +1,6 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-texi2html"
-SOURCE="texi2html"
 VERSION="1.82"
 CATEGORY="utilities"
 SHORT_DESC="Converts texinfo documents to HTML"
@@ -9,22 +8,18 @@ MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.nongnu.org/texi2html/"
 
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="http://download.savannah.gnu.org/releases/$SOURCE/$TARBALL"
+TARBALL="texi2html-$VERSION.tar.bz2"
+WGET_URL="http://download.savannah.gnu.org/releases/texi2html/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install || return 1
 
 	sed -i 's|bin/env perl|bin/perl|' $install/usr/bin/texi2html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

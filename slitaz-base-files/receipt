@@ -1,22 +1,19 @@
 # SliTaz package receipt v2.
 
 PACKAGE="slitaz-base-files"
-VERSION="333"
+VERSION="336"
 CATEGORY="base-system"
 SHORT_DESC="Linux tree and the necessary files for the base system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD GPL3"
 WEB_SITE="http://www.slitaz.org/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
 BUILD_DEPENDS="gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make DESTDIR=$install install
 
 	for i in /bin /dev /home /media/cdrom /media/flash /media/usbdisk /mnt \
@@ -53,9 +50,7 @@ compile_rules()
 	chmod 0750 $install/root
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	DEPENDS="gettext-base"
 	CONFIG_FILES="/etc/adduser.conf /etc/daemons.conf /etc/fstab /etc/group \

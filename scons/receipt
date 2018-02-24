@@ -1,21 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="scons"
 VERSION="2.3.4"
 CATEGORY="development"
-SHORT_DESC="SCons is an Open Source software construction tool."
+SHORT_DESC="SCons is an Open Source software construction tool"
 MAINTAINER="chadi.elahmad@gmail.com"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.scons.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="python"
 BUILD_DEPENDS="python python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr/share
 	python setup.py install \
 		--standard-lib \
@@ -23,10 +21,7 @@ compile_rules()
 	mv $DESTDIR/usr/man $DESTDIR/usr/share
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

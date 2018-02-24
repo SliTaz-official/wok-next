@@ -7,7 +7,6 @@ SHORT_DESC="Script-interpreter which provides a set of curses widgets"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://invisible-island.net/dialog/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="ftp://ftp.invisible-island.net/dialog/$TARBALL"
@@ -15,9 +14,7 @@ WGET_URL="ftp://ftp.invisible-island.net/dialog/$TARBALL"
 BUILD_DEPENDS="ncurses-dev gettext"
 SPLIT="dialog-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -25,16 +22,14 @@ compile_rules()
 		--enable-nls \
 		--enable-widec \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$DESTDIR install || return 1
 
 	# Config file.
 	mkdir -p $install/etc
 	cp $stuff/dialogrc $install/etc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		dialog)
 			copy @std

@@ -14,23 +14,19 @@ WGET_URL="${WEB_SITE}download/$TARBALL"
 BUILD_DEPENDS="openssl-dev zlib-dev"
 SPLIT="libssh2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libssh2)
 			copy @std
-			DEPENDS="libssl libcrypto zlib"
+			DEPENDS="openssl zlib"
 			;;
 		libssh2-dev)
 			copy @dev
-			DEPENDS="libssh2 openssl-dev libcrypto-dev zlib-dev"
+			DEPENDS="libssh2 openssl-dev zlib-dev"
 			;;
 	esac
 }

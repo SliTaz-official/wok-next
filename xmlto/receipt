@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xmlto"
 VERSION="0.0.28"
@@ -7,16 +7,14 @@ LICENSE="GPL"
 SHORT_DESC="Tool for converting XML files to various formats"
 MAINTAINER="yuripourre@gmail.com"
 WEB_SITE="http://cyberelk.net/tim/software/xmlto/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/pst/xmlto.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://fedorahosted.org/releases/x/m/$PACKAGE/$TARBALL"
+WGET_URL="https://releases.pagure.org/xmlto/$TARBALL"
 
-DEPENDS="libxslt perl-yaml-syck perl-test-pod bash"
 BUILD_DEPENDS="docbook-xsl util-linux-getopt flex"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
@@ -27,9 +25,7 @@ compile_rules()
 	done
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/xmlto
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/xmlto/format $fs/usr/share/xmlto
+genpkg_rules() {
+	copy @std
+	DEPENDS="libxslt perl-yaml-syck perl-test-pod bash"
 }

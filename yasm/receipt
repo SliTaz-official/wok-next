@@ -7,24 +7,23 @@ SHORT_DESC="The Yasm Modular Assembler"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="BSD GPL2 LGPL2"
 WEB_SITE="http://yasm.tortall.net/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/yasm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.tortall.net/projects/yasm/releases/$TARBALL"
 
 SPLIT="yasm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	# prevent compiling vsyasm and ytasm that are only of use on MS Windows
+	sed -i 's#) ytasm.*#)#' Makefile.in
+
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		yasm) copy @std ;;
-		yasm-dev) copy @dev ;;
+		yasm)  copy @std;;
+		*-dev) copy @dev;;
 	esac
 }

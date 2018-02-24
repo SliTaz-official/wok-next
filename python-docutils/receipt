@@ -1,34 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-docutils"
-SOURCE="docutils"
-VERSION="0.11"
-CATEGORY="development"
-SHORT_DESC="Text processing system."
+VERSION="0.14"
+CATEGORY="python"
+SHORT_DESC="Text processing system"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="PublicDomain GPL3 BSD"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://docutils.sourceforge.net"
-WGET_URL="http://switch.dl.sourceforge.net/project/$SOURCE/$SOURCE/$VERSION/$TARBALL"
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
-SUGGESTED="python-pil"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+BUILD_DEPENDS="python-pip"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR docutils
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
-}
-
-# Remove old package.
-post_install()
-{
-	[ ! -d "$1/var/lib/tazpkg/installed/docutils" ] ||
-	rm -rf "$1/var/lib/tazpkg/installed/docutils"
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
+	SUGGESTED="python-pil"
 }

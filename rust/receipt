@@ -1,19 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="rust"
-VERSION="1.20.0"
+VERSION="1.23.0"
 CATEGORY="development"
 SHORT_DESC="The Rust programming language"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT Apache BSD"
 WEB_SITE="https://www.rust-lang.org/"
+HOST_ARCH="i486 x86_64"
 
-TARBALL="rust-$VERSION-i686-unknown-linux-gnu.tar.gz"
+TARBALL="rust-$VERSION-${ARCH/i486/i686}-unknown-linux-gnu.tar.gz"
 WGET_URL="https://static.rust-lang.org/dist/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+# Available targets we interest in: https://forge.rust-lang.org/platform-support.html
+#   i686-unknown-linux-gnu       | 32-bit Linux
+# x86_64-unknown-linux-gnu       | 64-bit Linux
+#    arm-unknown-linux-gnueabi   | ARMv6 Linux
+#    arm-unknown-linux-gnueabihf | ARMv6 Linux, hardfloat
+#  armv7-unknown-linux-gnueabihf | ARMv7 Linux
+
+compile_rules() {
 	./install.sh \
 		--prefix=$install/usr \
 		--sysconfdir=$install/etc \
@@ -21,8 +27,6 @@ compile_rules()
 		--without=rust-docs
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

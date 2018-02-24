@@ -1,34 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-jinja2"
-SOURCE="Jinja2"
-VERSION="2.7"
-CATEGORY="development"
-SHORT_DESC="Stand-alone template engine."
+VERSION="2.10"
+CATEGORY="python"
+SHORT_DESC="Stand-alone template engine"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="BSD"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://jinja.pocoo.org"
-WGET_URL="https://pypi.python.org/packages/source/J/$SOURCE/$TARBALL"
 
-DEPENDS="python python-markupsafe"
-BUILD_DEPENDS="setuptools wget"
+BUILD_DEPENDS="python-pip python-markupsafe"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR Jinja2
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs/usr
-}
-
-# Remove old package.
-post_install()
-{
-	[ ! -d "$1/var/lib/tazpkg/installed/jinja2" ] ||
-	rm -rf "$1/var/lib/tazpkg/installed/jinja2"
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-markupsafe"
 }

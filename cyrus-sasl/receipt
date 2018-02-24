@@ -12,81 +12,43 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.cyrusimap.org/cyrus-sasl/$TARBALL"
 
 BUILD_DEPENDS="automake libtool openldap-dev db-dev openssl-dev krb5-dev pam-dev"
-SPLIT="libsasl libsasl-without-ldap libsasl-modules cyrus-sasl cyrus-sasl-pam \
-cyrus-sasl-dev"
+SPLIT="libsasl libsasl-modules cyrus-sasl cyrus-sasl-dev \
+cyrus-sasl-pam:pam libsasl-without-ldap:wo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi || return 1
 
 	mkdir -p $src/saslauthd/cmulocal
-	cp -a $src $src-pam
-	cp -a $src $src-without-ldap
+
+	case "$SET" in
+		'')  SET_ARGS='--enable-auth-sasldb --without-pam --with-ldap';;
+		pam) SET_ARGS='--enable-auth-sasldb --with-pam    --with-ldap';;
+		wo)  SET_ARGS="--without-pam --disable-anon --disable-cram \
+			--disable-digest --disable-gssapi --enable-login --disable-otp \
+			--enable-plain";;
+	esac
 
 	./configure \
 		--sysconfdir=/etc \
-		--enable-auth-sasldb \
 		--with-dbpath=/var/lib/sasl/sasldb2 \
 		--with-saslauthd=/var/run/saslauthd \
-		--without-pam \
 		--with-devrandom=/dev/urandom \
-		--with-ldap \
 		--with-openssl \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make && make install || return 1
 
-	cd $src-pam
-	./configure \
-		--sysconfdir=/etc \
-		--enable-auth-sasldb \
-		--with-dbpath=/var/lib/sasl/sasldb2 \
-		--with-saslauthd=/var/run/saslauthd \
-		--with-pam \
-		--with-devrandom=/dev/urandom \
-		--with-ldap \
-		--with-openssl \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-pam install || return 1
+	cp -a $stuff/etc $install
+	chown -R root:root $inst/etc
 
-	for inst in $install $install-pam; do
-		docdir="$inst/usr/share/doc/cyrus-sasl-$VERSION"
-		mkdir -p $docdir &&
-		cd $src/doc &&
-		cp *.html *.txt ONEWS TODO ../saslauthd/LDAP_SASLAUTHD $docdir &&
-		cp -a $stuff/etc $inst &&
-		chown -R root:root $inst/etc
-	done
-
-	cd $src-without-ldap
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--without-pam \
-		--disable-anon \
-		--disable-cram \
-		--disable-digest \
-		--disable-gssapi \
-		--enable-login \
-		--disable-otp \
-		--enable-plain \
-		--with-openssl \
-		--with-devrandom=/dev/urandom \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-without-ldap install
+	cook_pick_docs doc/*.html doc/*.txt doc/ONEWS doc/TODO \
+		saslauthd/LDAP_SASLAUTHD
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libsasl)
 			copy libsasl2*.so*
-			CAT="system-tools|library"
-			DEPENDS=" "
-			;;
-		libsasl-without-ldap)
-			install=$install-without-ldap copy libsasl2*.so*
 			CAT="system-tools|library"
 			DEPENDS=" "
 			;;
@@ -97,21 +59,25 @@ genpkg_rules()
 			DEPENDS="libcomerr3 libcrypto libdb libkrb5"
 			;;
 		cyrus-sasl)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="libcomerr3 libcrypto libdb libkrb5 libldap \
 			libsasl libsasl-modules libssl"
 			;;
+		*-dev)
+			copy @dev
+			DEPENDS="db-dev krb5-dev libcrypto-dev"
+			;;
 		cyrus-sasl-pam)
-			install=$install-pam copy @std
+			copy @std
 			rm -rf $fs/usr/lib
 			CAT="network|using PAM"
 			DEPENDS="libcomerr3 libcrypto libdb libkrb5 libldap \
 			libsasl libsasl-modules libssl pam"
 			;;
-		*-dev)
-			copy @dev
-			DEPENDS="db-dev krb5-dev libcrypto-dev"
+		libsasl-without-ldap)
+			copy libsasl2*.so*
+			CAT="system-tools|library"
+			DEPENDS=" "
 			;;
 	esac
 }

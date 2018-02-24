@@ -1,46 +1,42 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xorg-libXrandr"
-VERSION="1.5.0"
+VERSION="1.5.1"
 CATEGORY="x-window"
 SHORT_DESC="Xrandr extension library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/libraries/libxrandr/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXrandr-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-randrproto xorg-libXext-dev xorg-libXrender-dev"
 SPLIT="xorg-libXrandr-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXrandr)
 			copy @std
-			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXrender"
+			DEPENDS="xorg-libX11 xorg-libXext xorg-libXrender"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXrandr xorg-libxcb-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-randrproto xorg-xproto"
+			DEPENDS="xorg-libXrandr \
+			xorg-libX11-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-randrproto xorg-xproto"
 			;;
 	esac
 }

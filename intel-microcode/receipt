@@ -9,25 +9,57 @@ LICENSE="other"
 WEB_SITE="https://downloadcenter.intel.com/search?keyword=processor+microcode+data+file"
 # See also: https://wiki.archlinux.org/index.php/Microcode
 # and https://www.archlinux.org/packages/extra/any/intel-ucode/
+# https://www.kernel.org/doc/Documentation/x86/early-microcode.txt
+# http://linuxfromscratch.org/blfs/view/svn/postlfs/firmware.html#early-microcode
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://downloadmirror.intel.com/27431/eng/microcode-$VERSION.tgz"
 TARBALL_SHA1="2392dcf585a9d6313cd00d8b21cb2f54ae1d8ce3"
+SPLIT="intel-microcode-initrd"
 
 compile_rules() {
 	mkdir -p $install/lib/firmware/
 	cp -r $src/intel-ucode/ $install/lib/firmware/
 
+	gcc -Wall $CFLAGS -o intel-microcode2ucode $stuff/intel-microcode2ucode.c
+	./intel-microcode2ucode ./microcode.dat
+	mkdir -p $install/boot
+	mkdir -p kernel/x86/microcode
+	mv microcode.bin kernel/x86/microcode/GenuineIntel.bin
+	echo kernel/x86/microcode/GenuineIntel.bin \
+	| cpio -o -H newc \
+	> $install/boot/intel-ucode.img
+
 	install -Dm644 $stuff/LICENSE $install/usr/share/licenses/$PACKAGE/LICENSE
+
+	cook_pick_docs releasenote
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="linux"
+	case $PACKAGE in
+		intel-microcode)
+			copy lib/ LICENSE
+			DEPENDS="linux"
+			;;
+		intel-microcode-initrd)
+			copy boot/ LICENSE
+			CAT="kernel|initrd for early loading"
+			DEPENDS="linux"
+			;;
+	esac
 }
 
-post_install() {
+post_install_intel_microcode() {
 	if [ -z "$1" -a -e /sys/devices/system/cpu/microcode/reload ]; then
 		echo 1 > /sys/devices/system/cpu/microcode/reload
+	fi
+}
+post_install_intel_microcode_initrd() {
+	if [ -n "$quiet" ]; then
+		cat <<EOT
+In order to update the Intel CPU microcode on boot, add the file
+  /boot/intel-ucode.img
+as the first initrd to your bootloader.
+EOT
 	fi
 }

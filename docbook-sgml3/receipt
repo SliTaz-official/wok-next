@@ -12,9 +12,7 @@ HOST_ARCH="any"
 TARBALL="docbk31.zip"
 WGET_URL="http://www.docbook.org/sgml/3.1/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i -e '/ISO 8879/d' \
 		-e 's|DTDDECL "-//OASIS//DTD DocBook V3.1//EN"|SGMLDECL|g' \
 		docbook.cat
@@ -37,9 +35,7 @@ EOF
 	touch $install/etc/sgml/catalog
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="sgml-common"
 	CONFIG_FILES="/etc/sgml/catalog"

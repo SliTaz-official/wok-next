@@ -16,9 +16,7 @@ DEPENDS="postgresql-client slitaz-base-files"
 BUILD_DEPENDS="readline-dev zlib-dev perl-dev python-dev"
 SPLIT="libpostgresqlclient postgresql-client postgresql-dev postgresql-doc"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/DEFAULT_PGSOCKET_DIR/s@/tmp@/run/postgresql@' src/include/pg_config_manual.h &&
 
 	./configure \
@@ -32,9 +30,7 @@ compile_rules()
 	make -C doc/src/sgml DESTDIR=$DESTDIR install-html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 	postgresql)
 		copy bin/ postgresql/ *.so*
@@ -105,8 +101,7 @@ Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
 EOF
 }
 
-post_remove_postgresql()
-{
+post_remove_postgresql() {
 	# when both user and group have the same id# and name
 	# both group and user will get removed with either delusr/delgroup
 	chroot "$1/" deluser postgres

@@ -1,33 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libtasn1"
-VERSION="4.9"
+VERSION="4.12"
 CATEGORY="security"
 SHORT_DESC="Library for ASN.1 and DER manipulation"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3 LGPL2.1"
 WEB_SITE="https://www.gnu.org/software/libtasn1/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libtasn1.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="libtasn1-dev"
+
+compile_rules() {
 	# Package failed to build when optimized for size
 	export CFLAGS=${CFLAGS/-Os/-O2}
 
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
 
 	make -C doc/reference install-data-local
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		libtasn1) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

@@ -14,9 +14,7 @@ WGET_URL="${WEB_SITE}releases/$VERSION/$TARBALL"
 BUILD_DEPENDS="cmake zlib-dev libffi-dev python"
 SPLIT="llvm-dev llvm-libs"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir build && cd build &&
 	CC=gcc CXX=g++ \
 	cmake \
@@ -30,22 +28,20 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	llvm)
-		DEPENDS="libffi gcc-lib-base llvm-libs"
-		copy bin/
-		;;
-	llvm-dev)
-		DEPENDS="llvm"
-		copy include/ cmake/
-		;;
-	llvm-libs)
-		CAT="libs|libraries"
-		DEPENDS="libffi gcc-lib-base"
-		copy *.so*
-		;;
+		llvm)
+			DEPENDS="libffi gcc-lib-base llvm-libs"
+			copy bin/
+			;;
+		llvm-dev)
+			DEPENDS="llvm"
+			copy include/ cmake/
+			;;
+		llvm-libs)
+			CAT="libs|libraries"
+			DEPENDS="libffi gcc-lib-base"
+			copy *.so*
+			;;
 	esac
 }

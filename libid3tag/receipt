@@ -1,30 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libid3tag"
 VERSION="0.15.1b"
 CATEGORY="multimedia"
-SHORT_DESC="ID3 tag manipulation library."
+SHORT_DESC="ID3 tag manipulation library"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.underbit.com/products/mad/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.sourceforge.net/mad/$TARBALL"
-HOST_ARCH="i486 arm"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="zlib-dev gfortran"
+SPLIT="libid3tag-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	# libid3tag.pc
+	mkdir -p $install/usr/lib/pkgconfig/
+	sed "s|@VERSION@|$VERSION|" $stuff/id3tag.pc.in > $install/usr/lib/pkgconfig/id3tag.pc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-} 
-
+genpkg_rules() {
+	case $PACKAGE in
+		libid3tag)
+			copy @std
+			DEPENDS="zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libid3tag zlib-dev"
+			;;
+	esac
+}

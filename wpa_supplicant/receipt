@@ -7,7 +7,7 @@ SHORT_DESC="WPA Supplicant with support for WPA and WPA2"
 MAINTAINER="0dddba11@googlemail.com"
 LICENSE="GPL2"
 WEB_SITE="http://w1.fi/wpa_supplicant/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/wpa_supplicant.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://w1.fi/releases/$TARBALL"
@@ -15,10 +15,7 @@ WGET_URL="http://w1.fi/releases/$TARBALL"
 BUILD_DEPENDS_arm="openssl-dev libcrypto-dev libnl-dev"
 BUILD_DEPENDS="libnl-dev dbus-dev openssl-dev readline-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
-	# http://www.linuxfromscratch.org/blfs/view/stable/basicnet/wpa_supplicant.html
-
 	cd $src/wpa_supplicant
 	cp -a defconfig .config
 
@@ -36,19 +33,19 @@ CONFIG_BGSCAN_SIMPLE=y
 EOT
 	# Don't use DBUS on ARM arch
 	case "$ARCH" in
-		i?86)
-			cat >> .config <<EOT
-CFLAGS += -I/usr/include/libnl3
-CONFIG_CTRL_IFACE_DBUS=y
-CONFIG_CTRL_IFACE_DBUS_NEW=y
-CONFIG_CTRL_IFACE_DBUS_INTRO=y
-EOT
-			;;
 		arm)
 			cat >> .config <<EOT
 CFLAGS += -I${sysroot}/usr/include/libnl3
 CFLAGS += -I${sysroot}/usr/include/openssl
 LIBS += -L${sysroot}/usr/lib
+EOT
+			;;
+		i?86|x86_64)
+			cat >> .config <<EOT
+CFLAGS += -I/usr/include/libnl3
+CONFIG_CTRL_IFACE_DBUS=y
+CONFIG_CTRL_IFACE_DBUS_NEW=y
+CONFIG_CTRL_IFACE_DBUS_INTRO=y
 EOT
 			;;
 	esac
@@ -80,7 +77,6 @@ EOT
 	chown -R root:root $install/etc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	copy @std
 	DEPENDS="dbus libcrypto libnl libssl ncurses readline"
@@ -91,7 +87,6 @@ genpkg_rules() {
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
 post_install() {
 	grep -qs ^WPA_OPTIONS= $1/etc/daemons.conf || cat >> "$1/etc/daemons.conf" <<"EOT"
 

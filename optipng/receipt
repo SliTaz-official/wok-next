@@ -13,39 +13,36 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libpng16-dev zlib-dev"
-SPLIT="optipng-static"
+SPLIT="optipng optipng-static:static"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|prefix)/man|prefix)/share/man|' configure
 
-	# make statically linked binary
-	LDFLAGS='-static' \
-	./configure \
-		-prefix=/usr \
-		-bindir=/usr/sbin \
-		-with-system-libpng &&
-	make && make install &&
+	case "$SET" in
+		static)
+			LDFLAGS='-static' \
+			./configure \
+				-prefix=/usr \
+				-with-system-libpng
+			;;
+		*)
+			./configure \
+				-prefix=/usr \
+				-with-system-libpng
+			;;
+	esac &&
 
-	# make dynamically linked binary
-	make clean &&
-	./configure \
-		-prefix=/usr \
-		-with-system-libpng &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		optipng)
-			copy bin/optipng
+			copy @std
 			DEPENDS="libpng16 zlib"
 			;;
 		optipng-static)
-			copy sbin/optipng
+			copy @std
 			CAT="graphics|static binary"
 			PROVIDE="optipng"
 			DEPENDS=" "

@@ -14,12 +14,10 @@ WGET_URL="$SF_MIRROR/openjade/$TARBALL"
 BUILD_DEPENDS="perl gfortran gettext docbook-sgml"
 SPLIT="opensp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/32,/253,/' lib/Syntax.cxx &&
+compile_rules() {
+	sed -i 's/32,/253,/' lib/Syntax.cxx
 	sed -i 's/LITLEN          240 /LITLEN          8092/' \
-		unicode/gensyntax.pl unicode/unicode.syn &&
+		unicode/gensyntax.pl unicode/unicode.syn
 
 	./configure \
 		--disable-static \
@@ -32,18 +30,16 @@ compile_rules()
 	make pkgdatadir=/usr/share/sgml/OpenSP-$VERSION &&
 	make pkgdatadir=/usr/share/sgml/OpenSP-$VERSION \
 		docdir=/usr/share/doc/OpenSP-$VERSION \
-		install &&
+		install || return 1
 
 	for i in nsgmls sgmlnorm spam spcat spent sx; do
 		ln -vsf o$i $install/usr/bin/$i
-	done &&
-	ln -vsf osx       $install/usr/bin/sgml2xml &&
+	done
+	ln -vsf osx       $install/usr/bin/sgml2xml
 	ln -vsf libosp.so $install/usr/lib/libsp.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		opensp) copy @std;;
 		*-dev)  copy @dev;;

@@ -1,27 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="setuptools"
 VERSION="4.0.1"
-CATEGORY="misc"
-SHORT_DESC="Python package installation tool."
+CATEGORY="python"
+SHORT_DESC="Python package installation tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="PSL"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://pypi.python.org/pypi/setuptools"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://bitbucket.org/pypa/setuptools/get/$VERSION.tar.bz2"
-HOST_ARCH="i486 arm"
 
-DEPENDS="python"
-BUILD_DEPENDS="python wget"
+BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	python setup.py install --no-compile --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

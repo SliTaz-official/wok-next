@@ -15,9 +15,7 @@ EXTRA_SOURCE_FILES="cdrkit-1.1.9-efi-boot.patch"
 BUILD_DEPENDS="cmake libcap-dev zlib-dev bzip2-dev attr-dev"
 SPLIT="cdrkit cdrkit-audio cdrkit-isoinfo readom"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i -e '/USE_MAGIC/d' -e '/(MAGICLIBS magic)/d' \
 		genisoimage/CMakeLists.txt
 	[ -s $SOURCES_REPOSITORY/cdrkit-1.1.9-efi-boot.patch ] ||
@@ -26,44 +24,42 @@ compile_rules()
 	make PREFIX=/usr && make install PREFIX=/usr
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	cdrkit)
-		DEPENDS="libcap zlib bzlib attr"
-		mkdir -p $fs/usr/bin
-		cp $install/usr/bin/genisoimage $fs/usr/bin
-		cp $install/usr/bin/wodim $fs/usr/bin	
-		# Make symlinks for cdrtools compatibility
-		cd $fs/usr/bin
-		ln -s wodim cdrecord
-		ln -s genisoimage mkisofs
-		ln -s genisoimage mkhybrid
-		;;
-	cdrkit-audio)
-		CAT="multimedia|Icedax, cdda2ogg and other tools for extracting audio files."
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/cdda* $fs/usr/bin
-		cp $install/usr/bin/icedax $fs/usr/bin
-		cp $install/usr/bin/pitchplay $fs/usr/bin
-		# Make symlinks for cdrtools compatibility
-		cd $fs/usr/bin
-		ln -s icedax cdda2wav 
-		;;
-	cdrkit-isoinfo)
-		CAT="multimedia|Isoinfo Utility programs for iso9660 images"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/isoinfo $fs/usr/bin	
-		;;
-	readom)
-		CAT="utilities|readom as readcd for use with graveman"
-		mkdir -p $fs/usr/bin
-		cp $install/usr/bin/readom $fs/usr/bin
+		cdrkit)
+			DEPENDS="libcap zlib bzlib attr"
+			mkdir -p $fs/usr/bin
+			cp $install/usr/bin/genisoimage $fs/usr/bin
+			cp $install/usr/bin/wodim $fs/usr/bin	
+			# Make symlinks for cdrtools compatibility
+			cd $fs/usr/bin
+			ln -s wodim cdrecord
+			ln -s genisoimage mkisofs
+			ln -s genisoimage mkhybrid
+			;;
+		cdrkit-audio)
+			CAT="multimedia|Icedax, cdda2ogg and other tools for extracting audio files."
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/cdda* $fs/usr/bin
+			cp $install/usr/bin/icedax $fs/usr/bin
+			cp $install/usr/bin/pitchplay $fs/usr/bin
+			# Make symlinks for cdrtools compatibility
+			cd $fs/usr/bin
+			ln -s icedax cdda2wav 
+			;;
+		cdrkit-isoinfo)
+			CAT="multimedia|Isoinfo Utility programs for iso9660 images"
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/isoinfo $fs/usr/bin	
+			;;
+		readom)
+			CAT="utilities|readom as readcd for use with graveman"
+			mkdir -p $fs/usr/bin
+			cp $install/usr/bin/readom $fs/usr/bin
 
-		# Make symlinks for cdrtools compatibility
-		cd $fs/usr/bin
-		ln -s readom readcd
-		;;
+			# Make symlinks for cdrtools compatibility
+			cd $fs/usr/bin
+			ln -s readom readcd
+			;;
 	esac
 }

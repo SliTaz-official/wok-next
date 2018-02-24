@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="posixovl"
 VERSION="1.2"
@@ -7,17 +7,13 @@ SHORT_DESC="FUSE file system that provides POSIX functionality"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://sourceforge.net/projects/posixovl/"
-TAGS="filesystem"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="fuse"
-BUILD_DEPENDS="autoconf automake fuse-dev attr-dev"
+BUILD_DEPENDS="autoconf automake fuse2-dev attr-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mv $PACKAGE $src 2>/dev/null
 	cd $src
 	grep -q 'else if (!S_ISREG' posixovl.c ||
@@ -28,8 +24,8 @@ compile_rules()
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy sbin/
+	DEPENDS="fuse2"
+	TAGS="filesystem"
 }

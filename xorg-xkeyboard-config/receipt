@@ -7,19 +7,16 @@ SHORT_DESC="Keyboard configuration database for the X Window System"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xkeyboard-config.html"
 
 TARBALL="xkeyboard-config-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/data/xkeyboard-config/$TARBALL"
 
-BUILD_DEPENDS="libxslt xorg-xproto xorg-libX11-dev intltool"
 BUILD_DEPENDS_arm="xorg-xproto xorg-libX11-dev"
+BUILD_DEPENDS="libxslt xorg-xproto xorg-libX11-dev intltool"
 SPLIT="xorg-xkeyboard-config-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -30,9 +27,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-config) copy @std;;
 		*-dev)    copy @dev;;

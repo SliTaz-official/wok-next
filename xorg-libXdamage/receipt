@@ -7,40 +7,35 @@ SHORT_DESC="Damage extension"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXdamage-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-damageproto xorg-libXfixes-dev"
 SPLIT="xorg-libXdamage-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXdamage)
 			copy @std
-			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXfixes"
+			DEPENDS="xorg-libX11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXdamage xorg-libxcb-dev xorg-damageproto \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXfixes-dev xorg-xproto"
+			DEPENDS="xorg-libXdamage \
+			xorg-damageproto xorg-libX11-dev xorg-libXfixes-dev xorg-xproto"
 			;;
 	esac
 }

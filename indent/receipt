@@ -1,26 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="indent"
-VERSION="2.2.10"
+VERSION="2.2.11"
 CATEGORY="utilities"
-SHORT_DESC="A tool for formatting C code."
+SHORT_DESC="A tool for formatting C code"
 MAINTAINER="lufeng369@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.gnu.org/software/indent/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://www.gnu.org/software/indent/"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	rm -f man/indent.1
-	sed -i 's|/doc/|/share&|' doc/Makefile*
-	./configure $CONFIGURE_ARGS && make -j 1 && make install
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+#WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="http://ftp.de.debian.org/debian/pool/main/i/indent/${PACKAGE}_$VERSION.orig.tar.gz"
+
+BUILD_DEPENDS="gettext perl-texi2html"
+
+compile_rules() {
+#	rm -f man/indent.1 # remove zero-size file to force rebuild it
+#	sed -i 's|/doc/|/share&|' doc/Makefile*
+
+	sed -i 's/-number/-number-sections/' doc/Makefile.in
+
+	export CFLAGS="$CFLAGS -std=gnu90"
+	./configure $CONFIGURE_ARGS &&
+	make -j 1 &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/indent $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }

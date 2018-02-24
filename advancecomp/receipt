@@ -1,51 +1,48 @@
 # SliTaz package receipt v2.
 
 PACKAGE="advancecomp"
-VERSION="2.0"
-COMMIT="4e04906"
+VERSION="2.1"
+COMMIT="ea4f30c"
 CATEGORY="system-tools"
 SHORT_DESC="Recompression utilities for .ZIP, .PNG, .MNG and .GZ"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.advancemame.it/comp-readme"
-TAGS="compression archive"
+HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.gz"
 WGET_URL="$GITHUB/amadvance/advancecomp/tarball/${COMMIT:-v$VERSION}"
 
 BUILD_DEPENDS="automake zlib-dev"
-SPLIT="advancecomp-static"
+SPLIT="advancecomp advancecomp-static:static"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh &&
 
-	# make statically linked tools
-	./configure \
-		LDFLAGS='-static' \
-		--bindir=/usr/sbin \
-		$CONFIGURE_ARGS &&
-	make && make install &&
+	case "$SET" in
+		static)
+			./configure \
+				LDFLAGS='-static' \
+				$CONFIGURE_ARGS;;
+		*)
+			./configure $CONFIGURE_ARGS;;
+	esac &&
 
-	# make dynamically linked tools
-	make clean &&
-	./configure $CONFIGURE_ARGS && make && make install
+	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		advancecomp)
-			copy bin/
+			copy @std
 			DEPENDS="zlib"
 			;;
 		*-static)
-			copy sbin/
+			copy @std
 			CAT="system-tools|static binary"
 			DEPENDS=" "
 			PROVIDE="advancecomp"
 			;;
 	esac
+	TAGS="compression archive"
 }

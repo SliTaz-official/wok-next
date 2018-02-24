@@ -7,19 +7,15 @@ SHORT_DESC="Layout and rendering of internationalized text"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.pango.org/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev gobject-introspection-dev"
 BUILD_DEPENDS_arm="cairo-dev libxml2-dev xorg-libXft-dev"
+BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev gobject-introspection-dev"
 SPLIT="pango-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Handle cross compilation
+compile_rules() {
 	case "$ARCH" in
 		arm*)
 			export LIBTOOL=${HOST_SYSTEM}-libtool
@@ -32,9 +28,7 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		pango)
 			copy bin/ *.so*

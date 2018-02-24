@@ -1,0 +1,50 @@
+# SliTaz package receipt v2.
+
+PACKAGE="js185"
+VERSION="1.0.0"
+CATEGORY="libdevel"
+SHORT_DESC="JavaScript interpreter and libraries (legacy)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/1.8.5"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/js38.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://ftp.mozilla.org/pub/js/$TARBALL"
+
+BUILD_DEPENDS="perl zip nspr-dev libffi-dev"
+SPLIT="js185-dev"
+
+compile_rules() {
+	cd js/src
+	unset CPPFLAGS
+
+	./configure \
+		--with-system-nspr \
+		--disable-tests \
+		--enable-ctypes \
+		--enable-threadsafe \
+		--enable-system-ffi \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	install -Dm755 shell/js -t $install/usr/bin/
+	rm $install/usr/lib/libmozjs185-1.0.a
+
+	find $install -type f \
+		\( -name '*.h' -o -name '*.tbl' -o -name '*.msg' -o -name '*.a' \) \
+		-exec chmod 644 '{}' \;
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		js185)
+			copy @std
+			DEPENDS="libffi nspr"
+			;;
+		js185-dev)
+			copy @dev
+			DEPENDS="js185 nspr-dev"
+			;;
+	esac
+}

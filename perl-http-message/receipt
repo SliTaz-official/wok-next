@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-http-message"
 VERSION="6.11"
@@ -11,21 +11,17 @@ WEB_SITE="https://metacpan.org/release/HTTP-Message"
 TARBALL="HTTP-Message-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
 
-DEPENDS="perl-encode-locale perl-http-date perl-io-html perl-lwp-mediatypes \
-perl-uri"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-encode-locale perl-http-date perl-io-html \
+perl-lwp-mediatypes perl-uri"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="$BUILD_DEPENDS"
 }

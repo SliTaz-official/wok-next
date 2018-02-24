@@ -1,56 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mercurial"
-VERSION="3.5.1"
+VERSION="4.3.1"
 CATEGORY="development"
-SHORT_DESC="Revision tools system."
+SHORT_DESC="Revision tools system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.mercurial-scm.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/mercurial.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://mercurial.selenic.com/"
-WGET_URL="http://www.selenic.com/mercurial/release/$TARBALL"
-CONFIG_FILES="/etc/mercurial/hgweb.config"
-HOST_ARCH="i486 arm"
+WGET_URL="https://www.mercurial-scm.org/release/$TARBALL"
 
-DEPENDS="python patch libssl"
-BUILD_DEPENDS="python-dev patch openssl-dev"
-PROVIDE="hg"
+BUILD_DEPENDS="python-dev patch openssl-dev glib-dev gettext python-docutils"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Cross compilation hack to avoid using compiler wich build python 
-	# itself.
-	case "$ARCH" in
-		arm*)
-			mv /usr/bin/i486-slitaz-linux-gcc /tmp &&
-			ln -s /cross/${ARCH}/tools/bin/${HOST_SYSTEM}-gcc \
-				/usr/bin/i486-slitaz-linux-gcc ;;
-	esac &&
-	python setup.py install --root="$DESTDIR" --optimize=1 &&
-	mkdir -p $DESTDIR/usr/share/examples/mercurial &&
-	cp -a $src/hgweb.cgi $DESTDIR/usr/share/examples/mercurial &&
-	case "$ARCH" in
-		arm*) 
-			rm /usr/bin/i486-slitaz-linux-gcc &&
-			mv /tmp/i486-slitaz-linux-gcc /usr/bin ;;
-	esac
-}
+compile_rules() {
+	make build &&
+	make doc &&
+	make PREFIX=/usr install-bin install-doc || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/examples/mercurial
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+	install -dm0755 $install/etc/mercurial
+	cat > $install/etc/mercurial/hgrc <<EOF
+[web]
+cacerts = /etc/ssl/ca-bundle.crt
+EOF
 
 	# Examples
-	cp -a $stuff/hgwebdir.cgi $fs/usr/share/examples/mercurial
-	cp -a $stuff/lighttpd-hg-vhost.conf $fs/usr/share/examples/mercurial
+	install -Dm0755 $src/hgweb.cgi                $install/usr/share/examples/mercurial/hgweb.cgi
+	install -Dm0755 $stuff/hgwebdir.cgi           $install/usr/share/examples/mercurial/hgwebdir.cgi
+	install -Dm0644 $stuff/lighttpd-hg-vhost.conf $install/usr/share/examples/mercurial/lighttpd-hg-vhost.conf
 
 	# Config file for hgweb
-	mkdir -p $fs/etc/mercurial
-	cp -a $stuff/hgweb.config $fs/etc/mercurial
-	
-	chown -R root.root $fs
+	install -Dm0644 $stuff/hgweb.config           $install/etc/mercurial/hgweb.config
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="python patch openssl   cacerts"
+	CONFIG_FILES="/etc/mercurial/hgweb.config"
+	PROVIDE="hg"
 }

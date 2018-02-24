@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cookutils"
-VERSION="1024"
+VERSION="1032"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz packages builder new generation"
 MAINTAINER="pankso@slitaz.org"
@@ -16,6 +16,11 @@ SPLIT="cookutils-daemon"
 compile_rules() {
 	make DESTDIR=$install install
 
+	# Set correct architecture
+	sed -i "/^ARCH=/ s|.*|ARCH=\"$ARCH\"|" $install/etc/slitaz/cook.conf
+	# FIXME: is 'thunk-extern' supported?
+	sed -i 's|thunk-extern|thunk|' $install/etc/slitaz/cook.conf
+
 	#Symlink cooker to busybox httpd server root
 	ln -s cgi-bin/cooker $install/var/www/cooker
 }
@@ -25,7 +30,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		cookutils)
 			copy '*/'; rm -r $fs/etc/init.d
-			DEPENDS="sdft lzma bzip2 tazpkg cacerts openssl"
+			DEPENDS="sdft xz bzip2 tazpkg cacerts openssl"
 			;;
 		cookutils-daemon)
 			COOKOPTS="!menus"

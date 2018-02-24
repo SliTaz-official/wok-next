@@ -7,21 +7,18 @@ SHORT_DESC="GNU Transport Layer Security Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://gnutls.org/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.gnutls.org/gcrypt/gnutls/v${VERSION%.*}/$TARBALL"
 TARBALL_MD5="0ab25eb6a1509345dd085bc21a387951"
 
-BUILD_DEPENDS="nettle-dev libtasn1-dev libunistring-dev gettext libcrypto-dev \
-libidn-dev unbound-dev p11-kit-dev"
 BUILD_DEPENDS_arm="libtasn1-dev ncurses-dev readline-dev nettle-dev \
 libgpg-error-dev libgcrypt-dev libcrypto-dev gmp-dev lzip"
+BUILD_DEPENDS="nettle-dev libtasn1-dev libunistring-dev gettext libcrypto-dev \
+libidn-dev unbound-dev p11-kit-dev"
 SPLIT="libgnutls gnutls-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Handle cross compilation.
 	case "$ARCH" in
 		arm*)
@@ -38,9 +35,7 @@ compile_rules()
 	make -C doc/reference install-data-local
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gnutls)
 			copy bin/

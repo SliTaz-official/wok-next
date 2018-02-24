@@ -7,7 +7,6 @@ SHORT_DESC="Desktop-independent graphical login manager for X11"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://sourceforge.net/projects/slim.berlios/"
-HOST_ARCH="i486 arm"
 COOKOPTS="!pngquant op8"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -23,12 +22,12 @@ SPLIT="slim-theme-default slim slim-pam:pam"
 compile_rules() {
 	# Handle cross compilation
 	case "$ARCH" in
-		i?86)
-			INCL=/usr/include
-			LIBS=/usr/lib ;;
 		arm*)
 			INCL=/cross/$ARCH/sysroot/usr/include
 			LIBS=/cross/$ARCH/sysroot/usr/lib ;;
+		i?86|x86_64)
+			INCL=/usr/include
+			LIBS=/usr/lib ;;
 	esac
 
 	case "$SET" in
@@ -59,7 +58,6 @@ compile_rules() {
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		slim-theme-default)

@@ -14,22 +14,19 @@ WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 BUILD_DEPENDS="gfortran xorg-libX11-dev xorg-libXext-dev xorg-xextproto \
 xorg-fontcacheproto"
 SPLIT="xorg-libXfontcache-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXfontcache)
 			copy @std
@@ -37,8 +34,8 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXfontcache xorg-libxcb-dev xorg-fontcacheproto \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev"
+			DEPENDS="xorg-libXfontcache \
+			xorg-fontcacheproto xorg-libX11-dev xorg-libXext-dev"
 			;;
 	esac
 }

@@ -7,40 +7,35 @@ SHORT_DESC="Cursor extension"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXcursor-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-libXrender-dev xorg-libXfixes-dev"
 SPLIT="xorg-libXcursor-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXcursor)
 			copy @std
-			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXfixes xorg-libXrender"
+			DEPENDS="xorg-libX11 xorg-libXfixes xorg-libXrender"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXcursor xorg-libxcb-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXfixes-dev \
-			xorg-libXrender-dev xorg-xproto"
+			DEPENDS="xorg-libXcursor \
+			xorg-libX11-dev xorg-libXfixes-dev xorg-libXrender-dev xorg-xproto"
 			;;
 	esac
 }

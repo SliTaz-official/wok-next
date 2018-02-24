@@ -7,7 +7,6 @@ SHORT_DESC="Imlib2 graphic library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL LGPL2"
 WEB_SITE="https://sourceforge.net/projects/enlightenment/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/enlightenment/$TARBALL"
@@ -19,40 +18,31 @@ SPLIT="imlib2-test imlib2-dev"
 # ARM: jpeg-dev must be installed in build chroot and libjpeg.la must
 # be modified manually
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make && make install || return 1
 
-	install -v -m755 -d $install/usr/share/doc/imlib2-$VERSION &&
-	install -v -m644 doc/*.gif doc/index.html \
-		$install/usr/share/doc/imlib2-$VERSION
+	cook_pick_docs doc/*.gif doc/index.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		imlib2)
 			copy *.so* imlib2_conv imlib2_grab imlib2_view
-			DEPENDS="bzlib freetype giflib glib harfbuzz libid3tag \
-			libjpeg-turbo libpng16 libxcb pcre tiff xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext zlib"
+			DEPENDS="bzlib freetype giflib libid3tag libjpeg-turbo libpng16 \
+			tiff xorg-libX11 xorg-libXext zlib"
 			;;
 		imlib2-test)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			CAT="development|testing utilities"
+			DEPENDS="imlib2 xorg-libX11"
 			;;
 		imlib2-dev)
 			copy @dev
-			DEPENDS="imlib2 imlib2-test bzip2-dev freetype-dev giflib-dev \
-			glib-dev harfbuzz-dev libid3tag-dev libjpeg-turbo-dev libpng16-dev \
-			libxcb-dev pcre-dev tiff-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev zlib-dev"
 			;;
 	esac
 }

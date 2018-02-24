@@ -7,17 +7,13 @@ SHORT_DESC="Berkeley database system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.oracle.com/database/berkeley-db/db.html"
-TAGS="database"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.oracle.com/berkeley-db/$TARBALL"
 
 SPLIT="libdb libdb-cxx db-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/build_unix
 	../dist/configure \
 		--enable-cxx \
@@ -29,13 +25,12 @@ compile_rules()
 	make docdir=/usr/share/doc/$PACKAGE-$VERSION install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		db)
 			copy bin/
 			DEPENDS="libdb"
+			TAGS="database"
 			;;
 		libdb)
 			copy libdb-*so libdb.so

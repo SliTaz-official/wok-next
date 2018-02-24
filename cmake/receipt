@@ -15,9 +15,7 @@ WGET_URL="http://www.cmake.org/files/v${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev xz-dev libarchive-dev \
 expat-dev ncurses-dev gfortran"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/CMAKE_USE_LIBUV 1/s/1/0/' CMakeLists.txt &&
 	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake &&
 
@@ -32,9 +30,7 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
 	DEPENDS="expat libarchive libcurl ncurses-libform zlib"
 }

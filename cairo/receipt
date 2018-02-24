@@ -7,39 +7,44 @@ SHORT_DESC="2D graphics library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MPL LGPL2.1"
 WEB_SITE="https://www.cairographics.org/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
 BUILD_DEPENDS="pkg-config glib-dev libpng16-dev zlib-dev fontconfig-dev \
-freetype-dev xorg-libX11-dev xorg-libXext-dev pixman-dev xorg-libXau-dev \
-xorg-libXdmcp-dev xorg-libXrender-dev xcb-util-dev libxcb-dev expat-dev \
-libxml2-dev"
-SPLIT="cairo-tools cairo-dev"
-SIBLINGS="cairo-gl"
+freetype-dev xorg-libX11-dev xorg-libXext-dev xorg-pixman-dev xorg-libXau-dev \
+xorg-libXdmcp-dev xorg-libXrender-dev xorg-xcb-util-dev xorg-libxcb-dev \
+expat-dev libxml2-dev"
+SPLIT="cairo cairo-tools cairo-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm*) export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib" ;;
-esac
+#BUILD_DEPENDS="$BUILD_DEPENDS mesa-dev eudev-dev xorg-libXxf86vm-dev \
+#libdrm-dev libegl-mesa xorg-libxshmfence-dev"
+#SPLIT="$SPLIT cairo-gl:gl cairo-gl-tools:gl cairo-gl-dev:gl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case "$ARCH" in
+		arm*) export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib";;
+	esac
+
+	case "$SET" in
+		gl) SET_ARGS='--enable-gl';;
+		*)  SET_ARGS='--disable-gl';;
+	esac
+
+	fix ld
 	./configure \
+		--disable-silent-rules \
 		--enable-xcb \
 		--enable-xlib-xcb \
 		--enable-tee \
 		--disable-static \
-		$CONFIGURE_ARGS &&
+		$SET_ARGS $ARCH_ARGS $CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		cairo)
 			copy libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*
@@ -58,6 +63,30 @@ genpkg_rules()
 			glib-dev harfbuzz-dev libffi-dev libpng16-dev libxcb-dev \
 			libxml2-dev pcre-dev pixman-dev xorg-libX11-dev xorg-libXau-dev \
 			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev"
+			;;
+
+		cairo-gl)
+			copy usr/lib/*.so*
+			CAT="x-window|with GL support"
+			DEPENDS="bzlib fontconfig freetype glib glibc-base harfbuzz libdrm \
+			libffi libpng16 libxcb libxml2 mesa libegl-mesa pcre pixman eudev \
+			xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp xorg-libXext \
+			xorg-libXfixes xorg-libXrender xorg-libXxf86vm zlib"
+			;;
+		cairo-gl-tools)
+			copy usr/bin/ usr/lib/cairo/*.so*
+			CAT="development|development tools with GL support"
+			DEPENDS="cairo-gl libbfd wayland"
+			;;
+		cairo-gl-dev)
+			copy @dev
+			CAT="development|development files with GL support"
+			DEPENDS="cairo-gl cairo-gl-tools fontconfig-dev freetype-dev \
+			glib-dev harfbuzz-dev libdrm-dev libffi-dev libpng-dev libxcb-dev \
+			libxml2-dev mesa-wayland-dev pcre-dev pixman-dev udev-dev \
+			wayland-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
+			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
+			xorg-libXrender-dev xorg-libXxf86vm-dev"
 			;;
 	esac
 }

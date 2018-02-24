@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nano"
 VERSION="2.6.3"
@@ -7,31 +7,17 @@ SHORT_DESC="Nano Text Editor"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://nano-editor.org/"
-TAGS="text-editor"
-HOST_ARCH="i486 arm"
-SUGGESTED="gpm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}dist/v${VERSION%.*}/$TARBALL"
 
-DEPENDS="ncurses zlib"
-BUILD_DEPENDS="gettext ncurses-dev zlib-dev groff"
 BUILD_DEPENDS_arm="ncurses-dev zlib-dev"
+BUILD_DEPENDS="gettext ncurses-dev zlib-dev groff libmagic-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm*) BUILD_DEPENDS=$BUILD_DEPENDS_arm ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
-
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--docdir=/usr/share/doc/nano-$VERSION \
 		--disable-wrapping-as-root \
 		--enable-utf8 \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
@@ -44,13 +30,14 @@ compile_rules()
 	install -v -m644 doc/texinfo/nano.html $install/usr/share/doc/nano-$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy etc/ bin/ nano/
 
 	# Shrink
 	for i in $fs/usr/share/nano/*.nanorc; do
 		sed -i '/^#/d;/^$/d' $i
 	done
+	DEPENDS="libmagic ncurses zlib"
+	TAGS="text-editor"
+	SUGGESTED="gpm"
 }

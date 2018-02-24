@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="docbook-xml"
 VERSION="4.5"
@@ -14,17 +14,13 @@ WGET_URL="http://www.docbook.org/xml/$VERSION/$TARBALL"
 DEPENDS="libxml2-tools libxml2 docbook-xml-412 docbook-xml-42 docbook-xml-43 \
 docbook-xml-44"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr/share/xml/docbook/xml-dtd-$VERSION
 	cp -dRf docbook.cat *.dtd ent/ *.mod \
 		$DESTDIR/usr/share/xml/docbook/xml-dtd-$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/usr $fs
 }
@@ -39,7 +35,7 @@ post_install()
 	fi
 
 	if [ "$1" ]; then
-		mv -f "$1/etc/resolv.conf" "$1/etc/recolv.conf.$$" 2> /dev/null
+		mv -f "$1/etc/resolv.conf" "$1/etc/recolv.conf.$$" 2>/dev/null
 		cp /etc/resolv.conf "$1/etc/resolv.conf"
 	fi
 
@@ -288,11 +284,10 @@ post_install()
 		"file:///etc/xml/docbook-xml" \
 		"/etc/xml/catalog"
 	if [ -n "$1" ]; then
-		mv -f "$1/etc/resolv.conf.$$" "$1/etc/recolv.conf" 2> /dev/null
+		mv -f "$1/etc/resolv.conf.$$" "$1/etc/recolv.conf" 2>/dev/null
 	fi
 }
 
-post_remove()
-{
+post_remove() {
 	xmlcatalog --noout --del file:///etc/xml/docbook-xml "$1/etc/xml/catalog"
 }

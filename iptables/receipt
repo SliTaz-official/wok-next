@@ -8,28 +8,36 @@ SHORT_DESC="Packet filtering framework (Firewall)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.netfilter.org/projects/iptables/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/iptables.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="${WEB_SITE}files/$TARBALL"
+WGET_URL="http://www.netfilter.org/projects/iptables/files/$TARBALL"
 TARBALL_SHA1="b2592490ca7a6c2cd0f069e167a4337c86acdf91"
 
 BUILD_DEPENDS="linux-module-headers libmnl-dev libnftnl-dev"
 SPLIT="iptables-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Set the right Kernel path to compile.
-	KERNEL_PATH="/usr/src/linux"
+	KERNEL_PATH="/usr/src/linux"	# TODO: KERNEL_DIR? (see INSTALL)
 	./configure \
-		--libexecdir=/usr/lib/iptables \
+		--sbindir=/sbin \
+		--disable-nftables \
+		--enable-libipq \
+		--with-xtlibdir=/lib/xtables \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make && make install || return 1
+
+	ln -sfv ../../sbin/xtables-multi $install/usr/bin/iptables-xml
+
+	for file in ip4tc ip6tc ipq iptc xtables; do
+		mv -v $install/usr/lib/lib$file.so.* $install/lib
+		ln -sfv ../../lib/$(readlink $install/usr/lib/lib$file.so) \
+			$install/usr/lib/lib$file.so
+	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		iptables)
 			copy @std

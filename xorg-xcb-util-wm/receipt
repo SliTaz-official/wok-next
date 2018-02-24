@@ -8,29 +8,26 @@ helpers for ICCCM"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-util-wm.html"
 
 TARBALL="xcb-util-wm-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 
 BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros"
 SPLIT="xorg-xcb-util-wm-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-wm)
 			copy @std
@@ -39,8 +36,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xcb-util-wm xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libxcb-dev"
+			DEPENDS="xorg-xcb-util-wm xorg-libxcb-dev"
 			PROVIDE="xcb-util-wm-dev"
 			;;
 	esac

@@ -1,24 +1,56 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="p7zip"
 VERSION="16.02"
 CATEGORY="utilities"
-SHORT_DESC="A file archiver with a high compression ratio (supports only 7z archives)"
+SHORT_DESC="File archiver with high compression ratio"
 MAINTAINER="milka@konstelacioj.info"
 LICENSE="LGPL2.1"
+#WEB_SITE="http://p7zip.sourceforge.net/"
+WEB_SITE="https://sourceforge.net/projects/sevenzip/"
+
 TARBALL="${PACKAGE}_${VERSION}_src_all.tar.bz2"
-WEB_SITE="http://p7zip.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make 7zr
+BUILD_DEPENDS="yasm"
+SPLIT="p7zip p7zip-full"
+
+compile_rules() {
+	case $ARCH in
+		arm)    cp makefile.linux_cross_arm       makefile.machine;;
+		i?86)   cp makefile.linux_x86_asm_gcc_4.X makefile.machine;;
+		x86_64) cp makefile.linux_amd64_asm       makefile.machine;;
+	esac
+	sed -i 's|HOME)/man|HOME)/share/man|' makefile.common
+
+	make all3 OPTFLAGS="$CFLAGS" &&
+	make install \
+		DEST_DIR="$install" \
+		DEST_HOME=/usr \
+		DEST_SHARE_DOC=/usr/share/doc/p7zip-$VERSION \
+		DEST_MAN=/usr/share/man || return 1
+
+#	# Remove documentation for the GUI file manager
+#	rm -r "$install/usr/share/doc/p7zip/DOC/MANUAL/fm"
+
+#	install -d $install/usr/share/licenses/p7zip
+#	ln -s -t   $install/usr/share/licenses/p7zip/ \
+#		/usr/share/doc/p7zip/DOC/License.txt \
+#		/usr/share/doc/p7zip/DOC/unRarLicense.txt
+
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $src/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		p7zip)
+			copy 7zr
+			CAT="utilities|supports only 7z archives"
+			DEPENDS="gcc-lib-base glibc-base"
+			;;
+		p7zip-full)
+			copy @std @rm
+			CAT="utilities|full version with restricted codecs"
+			DEPENDS="p7zip"
+			;;
+	esac
 }

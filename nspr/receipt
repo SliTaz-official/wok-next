@@ -14,24 +14,25 @@ WGET_URL="https://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v$VERSION/src/$T
 BUILD_DEPENDS="perl"
 SPLIT="nspr-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd nspr &&
-	sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in &&
-	sed -i 's#$(LIBRARY) ##' config/rules.mk &&
+compile_rules() {
+	cd nspr
+	sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in
+	sed -i 's#$(LIBRARY) ##' config/rules.mk
+
+	case $ARCH in
+		x86_64) ARCH_ARGS='--enable-64bit';;
+		*)      ARCH_ARGS='';;
+	esac
 
 	./configure \
 		--with-mozilla \
 		--with-pthreads \
-		$([ $(uname -m) = x86_64 ] && echo --enable-64bit) \
+		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		nspr)  copy @std;;
 		*-dev) copy @dev;;

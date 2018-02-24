@@ -7,32 +7,29 @@ SHORT_DESC="Xorg video driver for framebuffer device"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/fbdev/"
-HOST_ARCH="i486 arm"
 
 TARBALL="xf86-video-fbdev-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
-xorg-libXrender-dev xorg-libXv-dev xorg-xproto xorg-fontsproto"
 # ARM use build system xorg-server-dev or manually install it in sysroot
 BUILD_DEPENDS_arm=" "
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
+xorg-libXrender-dev xorg-libXv-dev xorg-xproto xorg-fontsproto"
 SPLIT="xorg-xf86-video-fbdev-dev"
 PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-fbdev)
 			copy @std

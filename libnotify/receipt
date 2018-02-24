@@ -7,7 +7,6 @@ SHORT_DESC="Notification library"
 MAINTAINER="fabrice.thiroux@free.fr"
 LICENSE="LGPL2.1"
 WEB_SITE="https://developer.gnome.org/libnotify/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -17,9 +16,7 @@ gtk-doc xmlto"
 BUILD_DEPENDS_arm="dbus-dev gtk+-dev dbus-glib dbus-glib-dev expat-dev"
 SPLIT="libnotify-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -e 's/REQ_GTK_VERSION=2.90/REQ_GTK_VERSION=2.24/' \
 	-e 's/tests_modules="gtk+-3.0 >= $REQ_GTK_VERSION"/tests_modules="gtk+-2.0 >= $REQ_GTK_VERSION"/' \
 	-i configure
@@ -27,9 +24,7 @@ compile_rules()
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libnotify)
 			copy @std #notify-send *.so*

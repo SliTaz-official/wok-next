@@ -7,6 +7,7 @@ SHORT_DESC="X Resource extension"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXres-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
@@ -14,31 +15,27 @@ WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-libXext-dev \
 xorg-resourceproto"
 SPLIT="xorg-libXres-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXres)
 			copy @std
-			DEPENDS="xorg-libxcb xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext"
+			DEPENDS="xorg-libX11 xorg-libXext"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXres xorg-libxcb-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-xproto"
+			DEPENDS="xorg-libXres \
+			xorg-libX11-dev xorg-libXext-dev xorg-xproto"
 			;;
 	esac
 }

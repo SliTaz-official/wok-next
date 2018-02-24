@@ -7,7 +7,6 @@ SHORT_DESC="DejaVu TrueType fonts"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="other"
 WEB_SITE="https://dejavu-fonts.github.io/"
-HOST_ARCH="i486 arm"
 
 TARBALL="dejavu-fonts-ttf-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/dejavu/$TARBALL"
@@ -15,9 +14,7 @@ WGET_URL="$SF_MIRROR/dejavu/$TARBALL"
 BUILD_DEPENDS="shared-mime-info fontforge"
 SPLIT="ttf-dejavu-extra"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Install/repack fonts
 
 	f=$install/usr/share/fonts/truetype/ttf-dejavu
@@ -67,9 +64,7 @@ compile_rules()
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		ttf-dejavu)
 			copy DejaVuSans.ttf DejaVuSans-Bold.ttf DejaVuSansMono.ttf \
@@ -77,8 +72,7 @@ genpkg_rules()
 			TAGS="font"
 			;;
 		ttf-dejavu-extra)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			CAT="fonts|extra font styles"
 			TAGS="font"
 			;;

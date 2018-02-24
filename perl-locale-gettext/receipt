@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-locale-gettext"
 VERSION="1.07"
@@ -11,20 +11,16 @@ WEB_SITE="https://metacpan.org/release/gettext"
 TARBALL="gettext-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/P/PV/PVANDRY/$TARBALL"
 
-DEPENDS="perl gettext-base"
-BUILD_DEPENDS="$DEPENDS perl-dev"
+BUILD_DEPENDS="perl-dev gettext-base"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl gettext-base"
 }

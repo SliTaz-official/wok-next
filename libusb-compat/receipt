@@ -1,34 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libusb-compat"
-VERSION="0.1.4"
+VERSION="0.1.5"
 CATEGORY="system-tools"
-SHORT_DESC="Compatibility layer to converts libusb 0.1 calls into 1.0 equivalents."
+SHORT_DESC="Compatibility layer to converts libusb 0.1 calls into 1.0 equivalents"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://libusb.sourceforge.net/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libusb-compat.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/libusb/$TARBALL"
-HOST_ARCH="i486 arm"
 
-DEPENDS="libusb"
-BUILD_DEPENDS="libusb-dev udev-dev"
+BUILD_DEPENDS="libusb-dev eudev-dev"
+SPLIT="libusb-compat-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libusb-compat)
+			copy @std
+			DEPENDS="libusb"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libusb-compat eudev-dev"
+			;;
+	esac
 }
 

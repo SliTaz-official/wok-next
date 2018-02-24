@@ -7,46 +7,41 @@ SHORT_DESC="X Toolkit Intrinsics library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libXt-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-libSM-dev xorg-libX11-dev glib-dev util-linux-uuid-dev"
 SPLIT="xorg-libXt-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Handle cross compilation.
 	case "$ARCH" in
 		arm) unset CFLAGS ;;
 	esac
 
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--with-appdefaultdir=/etc/X11/app-defaults \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libXt)
 			copy @std
-			DEPENDS="xorg-libxcb util-linux-uuid xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXdmcp"
+			DEPENDS="xorg-libICE xorg-libSM xorg-libX11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libXt xorg-libxcb-dev util-linux-uuid-dev \
-			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-xproto"
+			DEPENDS="xorg-libXt \
+			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-xproto"
 			;;
 	esac
 }

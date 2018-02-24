@@ -7,6 +7,7 @@ SHORT_DESC="Lossy compression of PNG images"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://pngquant.org/"
+HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/pornel/pngquant/tarball/$VERSION"
@@ -15,40 +16,39 @@ EXTRA_TARBALL="libimagequant-$VERSION"
 EXTRA_WGET_URL="$GITHUB/ImageOptim/libimagequant/tarball/$VERSION"
 
 BUILD_DEPENDS="lcms2-dev libpng16-dev zlib-dev"
-SPLIT="pngquant-static"
+SPLIT="pngquant pngquant-static:static"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	if [ ! -e "$SRC/$EXTRA_TARBALL" ]; then
 		wget -O $SRC/$EXTRA_TARBALL $EXTRA_WGET_URL
 	fi
 	tar -xf $SRC/$EXTRA_TARBALL -C $src
 	mv $src/ImageOptim-*/* $src/lib/
 
-	# make statically linked binary
-	./configure \
-		LDFLAGS='-static -pthread' \
-		--prefix=/usr \
-		--with-openmp=static &&
-	make && make BINPREFIX=$install/usr/sbin install &&
+	case $SET in
+		static)
+			./configure \
+				--prefix=/usr \
+				LDFLAGS='-static -pthread' \
+				--with-openmp=static
+			;;
+		*)
+			./configure \
+				--prefix=/usr
+			;;
+	esac &&
 
-	# make dynamically linked binary
-	./configure \
-		--prefix=/usr &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		pngquant)
-			copy bin/pngquant
+			copy pngquant
 			DEPENDS="lcms2 libpng16 zlib"
 			;;
 		pngquant-static)
-			copy sbin/pngquant
+			copy pngquant
 			CAT="graphics|static binary"
 			PROVIDE="pngquant"
 			DEPENDS=" "

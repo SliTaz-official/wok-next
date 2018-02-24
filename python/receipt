@@ -7,8 +7,7 @@ SHORT_DESC="The Python programming language"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="PSL"
 WEB_SITE="https://www.python.org/"
-HOST_ARCH="i486 arm"
-COOKOPTS="!menus !zip"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/python2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.xz"
@@ -16,10 +15,9 @@ WGET_URL="https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.xz"
 BUILD_DEPENDS="openssl-dev bzip2-dev readline-dev sqlite3-dev zlib-dev \
 ncurses-dev tcl-dev tk-dev db-dev gdbm-dev libffi-dev expat-dev"
 SPLIT="python-idle python-tcltk python python-dev"
+COOKOPTS="!menus !zip"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Temporary workaround for FS#22322
 	# See http://bugs.python.org/issue10835 for upstream report
 	sed -i "/progname =/s/python/python${_pybasever}/" Python/pythonrun.c
@@ -33,7 +31,7 @@ compile_rules()
 			unset CFLAGS CXXFLAGS
 			cp -f $CONFIG_SITE .
 			CONFIG_SITE="$(pwd)/cook.site"
-			cat >> $CONFIG_SITE << EOT
+			cat >> $CONFIG_SITE <<EOT
 ac_cv_have_long_long_format=yes
 EOT
 			./configure CC=gcc \
@@ -49,7 +47,7 @@ EOT
 			. /etc/slitaz/cook.conf
 			cp -f $CONFIG_SITE .
 			CONFIG_SITE="$(pwd)/cook.site"
-			cat >> $CONFIG_SITE << EOT
+			cat >> $CONFIG_SITE <<EOT
 ac_cv_have_long_long_format=yes
 ac_cv_buggy_getaddrinfo=no
 ac_cv_file__dev_ptmx=yes
@@ -69,7 +67,7 @@ EOT
 				BUILDARCH=${BUILD_SYSTEM} || exit 1
 			make DESTDIR=$DESTDIR install || exit 1
 			;;
-		i?86)
+		i?86|x86_64)
 			./configure \
 				--prefix=/usr \
 				--enable-shared \
@@ -85,9 +83,7 @@ EOT
 	esac
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-idle)
 			copy idle idlelib/ python-idle.desktop
@@ -100,15 +96,13 @@ genpkg_rules()
 			DEPENDS="python tcl tk xorg-libX11"
 			;;
 		python)
-			# pyconfig.h needed for mercurial to work now
-			copy @std pyconfig.h
-			remove_already_packed
-			DEPENDS="bzlib expat gdbm libcrypto libffi libsqlite3 libssl \
-			ncurses ncurses-libpanel readline zlib"
+			# Now pyconfig.h is required for Mercurial.
+			copy @std pyconfig.h @rm
+			DEPENDS="bzlib expat gdbm libffi libsqlite3 ncurses \
+			ncurses-libpanel openssl readline zlib"
 			;;
 		*-dev)
-			copy @dev
-			remove_already_packed
+			copy @dev @rm
 			;;
 	esac
 }

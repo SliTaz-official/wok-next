@@ -7,38 +7,35 @@ SHORT_DESC="Xorg DMX library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7lib.html"
 
 TARBALL="libdmx-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
 
 BUILD_DEPENDS="xorg-dmxproto xorg-libX11-dev xorg-libXext-dev xorg-xextproto"
 SPLIT="xorg-libdmx-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libdmx)
 			copy @std
-			DEPENDS="xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-			xorg-libxcb"
+			DEPENDS="xorg-libX11 xorg-libXext"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-libdmx xorg-dmxproto xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libxcb-dev"
+			DEPENDS="xorg-libdmx \
+			xorg-dmxproto xorg-libX11-dev xorg-libXext-dev"
 			;;
 	esac
 }

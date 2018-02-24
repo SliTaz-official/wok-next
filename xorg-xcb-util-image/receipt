@@ -8,28 +8,26 @@ XShmImage functions"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-util-image.html"
 
 TARBALL="xcb-util-image-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 
 BUILD_DEPENDS="xorg-libxcb-dev xorg-xcb-util-dev xorg-util-macros"
 SPLIT="xorg-xcb-util-image-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-image)
 			copy @std
@@ -38,8 +36,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xcb-util-image xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libxcb-dev xorg-xcb-util-dev"
+			DEPENDS="xorg-xcb-util-image xorg-libxcb-dev"
 			PROVIDE="xcb-util-image-dev"
 			;;
 	esac

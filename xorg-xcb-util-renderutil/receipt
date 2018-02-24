@@ -7,29 +7,26 @@ SHORT_DESC="Additional extension to the XCB library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-util-renderutil.html"
 
 TARBALL="xcb-util-renderutil-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 
 BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros"
 SPLIT="xorg-xcb-util-renderutil-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-renderutil)
 			copy @std
@@ -38,8 +35,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xcb-util-renderutil xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libxcb-dev"
+			DEPENDS="xorg-xcb-util-renderutil xorg-libxcb-dev"
 			PROVIDE="xcb-util-renderutil-dev"
 			;;
 	esac

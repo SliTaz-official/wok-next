@@ -1,38 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="valgrind"
 VERSION="3.12.0"
 CATEGORY="development"
-SHORT_DESC="Memory debugger and profiler."
+SHORT_DESC="Memory debugger and profiler"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="perl"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://valgrind.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://valgrind.org/downloads/$TARBALL"
-TAGS="profiler"
 
-DEPENDS=""
 BUILD_DEPENDS="sed autoconf"
+SPLIT="valgrind-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	autoconf
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	autoconf &&
+
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/valgrind
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/valgrind/* $fs/usr/lib/valgrind
-	# remove static libraries
-	rm $fs/usr/lib/valgrind/*.*a	
+genpkg_rules() {
+	case $PACKAGE in
+		valgrind)
+			copy @std
+			SUGGESTED="perl"
+			TAGS="profiler"
+			;;
+		*-dev) copy @dev;;
+	esac
 }

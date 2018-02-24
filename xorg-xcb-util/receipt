@@ -7,7 +7,7 @@ SHORT_DESC="XCB Utilites"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xcb-util.html"
 
 TARBALL="xcb-util-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
@@ -15,11 +15,8 @@ WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 BUILD_DEPENDS="xorg-libxcb-dev gperf"
 BUILD_DEPENDS_arm="xorg-libxcb-dev xorg-libXdmcp-dev"
 SPLIT="xorg-xcb-util-dev"
-PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -28,9 +25,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-util)
 			copy @std
@@ -39,8 +34,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xorg-xcb-util xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libxcb-dev"
+			DEPENDS="xorg-xcb-util xorg-libxcb-dev"
 			PROVIDE="xcb-util-dev"
 			;;
 	esac

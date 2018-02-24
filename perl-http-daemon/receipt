@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-http-daemon"
 VERSION="6.01"
@@ -11,20 +11,16 @@ WEB_SITE="https://metacpan.org/release/HTTP-Daemon"
 TARBALL="HTTP-Daemon-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
 
-DEPENDS="perl-http-date perl-http-message perl-lwp-mediatypes"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-http-date perl-http-message perl-lwp-mediatypes"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="$BUILD_DEPENDS"
 }

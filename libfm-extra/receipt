@@ -7,6 +7,7 @@ SHORT_DESC="Library and other files required by menu-cache-gen"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/Libfm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm-extra.html"
 
 TARBALL="libfm-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pcmanfm/$TARBALL"
@@ -15,10 +16,7 @@ BUILD_DEPENDS="intltool gtk-doc"
 SPLIT="libfm-extra-dev"
 SIBLINGS="libfm"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm-extra.html
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--with-extra-only \
@@ -28,9 +26,7 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-extra)
 			copy @std
@@ -38,9 +34,7 @@ genpkg_rules()
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libfm-extra glib-dev libffi-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			zlib-dev"
+			DEPENDS="libfm-extra glib-dev"
 			;;
 	esac
 }

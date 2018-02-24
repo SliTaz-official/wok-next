@@ -8,7 +8,6 @@ MAINTAINER="rcx@zoominternet.net"
 LICENSE="MIT"
 WEB_SITE="https://sourceware.org/libffi/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libffi.html"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://sourceware.org/ftp/libffi/$TARBALL"
@@ -23,8 +22,11 @@ compile_rules() {
 		-i libffi.pc.in
 
 	./configure \
+		--libdir=/usr/lib \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+#	sed -i 's|^\(toolexeclibdir = \).*|\1/usr/lib|' Makefile \
+#		$HOST_SYSTEM-gnu/Makefile &&
 	make && make install
 }
 

@@ -7,17 +7,16 @@ SHORT_DESC="PNG images library 1.6 series with APNG support"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://www.libpng.org/pub/png/libpng.html"
-HOST_ARCH="i486 arm"
+HOST_ARCH="i486 arm x86_64"
 
 TARBALL="libpng-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/libpng/$TARBALL"
 
-BUILD_DEPENDS="gawk zlib-dev"
+#BUILD_DEPENDS="gawk zlib-dev"
+BUILD_DEPENDS="zlib-dev"
 SPLIT="libpng16-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	LIBS=-lpthread \
 	./configure $CONFIGURE_ARGS && make && make install &&
 
@@ -31,9 +30,7 @@ compile_rules()
 	cp -a png2pnm pnm2png $DESTDIR/usr/bin
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libpng16)
 			copy @std

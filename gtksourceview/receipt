@@ -1,38 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtksourceview"
 VERSION="2.10.5"
 CATEGORY="x-window"
-SHORT_DESC="Extends GTK+ framework for multiline text editing."
+SHORT_DESC="Extends GTK+ framework for multiline text editing"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://projects.gnome.org/gtksourceview/"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="expat gtk+ libxml2 xorg-libX11 xorg-libXau xorg-libXcomposite \
-xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
-xorg-libXrandr xorg-libXrender xorg-libXdamage"
-BUILD_DEPENDS="intltool pkg-config gtk+-dev libxml2-dev expat-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+BUILD_DEPENDS="intltool gtk+-dev libxml2-dev expat-dev"
+SPLIT="gtksourceview-dev"
+
+compile_rules() {
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/gtksourceview* $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		gtksourceview)
+			copy @std
+			DEPENDS="cairo gdk-pixbuf glib gtk+ libxml2 pango python"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gtksourceview gtk+-dev libxml2-dev"
+			;;
+	esac
 }
 

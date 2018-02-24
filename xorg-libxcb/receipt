@@ -7,7 +7,7 @@ SHORT_DESC="A C binding to the X11 protocol"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/libxcb.html"
 
 TARBALL="libxcb-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
@@ -15,7 +15,6 @@ WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 BUILD_DEPENDS="libxslt-dev xorg-xcb-proto xorg-libXau-dev xorg-libXdmcp-dev \
 autoconf automake libtool"
 SPLIT="xorg-libxcb-dev"
-PKG_RULE="std-dev"
 
 # Handle SliTaz arch
 case "$SLITAZ_ARCH" in
@@ -30,26 +29,24 @@ case "$ARCH" in
 		;;
 esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Package "libpthread-stubs" no more needed:
 	# our platform already supply all the necessary pthread stubs.
 	sed -i "s|pthread-stubs||" $src/configure.ac
 
+	fix ld
 	autoreconf -fi &&
 	./configure \
 		--enable-xinput \
 		--enable-xprint \
 		--docdir='${datadir}'/doc/$PACKAGE-$VERSION \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-libxcb)
 			copy @std

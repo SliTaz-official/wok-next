@@ -1,29 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-pyparsing"
-SOURCE="pyparsing"
-VERSION="2.0.3"
+VERSION="2.2.0"
 CATEGORY="development"
 SHORT_DESC="Python parsing module"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://pyparsing.wikispaces.com/"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$SOURCE/$TARBALL"
+WEB_SITE="https://pypi.python.org/pypi/pyparsing"
 
-DEPENDS="python"
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python-pip"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR pyparsing
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }
-

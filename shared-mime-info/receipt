@@ -7,18 +7,15 @@ SHORT_DESC="Core database of common types"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/shared-mime-info/"
-HOST_ARCH="i486 arm"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://freedesktop.org/~hadess/$TARBALL"
 
-BUILD_DEPENDS="intltool"
 BUILD_DEPENDS_arm="glib-dev libxml2-dev"
+BUILD_DEPENDS="intltool"
 SPLIT="shared-mime-info-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Remove unsupported locales
 	for i in $(grep '^-[a-z]' $stuff/patches/slitaz-locales.patch); do
 		rm $src/po/${i#-}.po
@@ -36,9 +33,7 @@ compile_rules()
 	sed -i 's|^ *||' "$install/usr/share/mime/packages/freedesktop.org.xml"
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		shared-mime-info)
 			copy bin/ packages/
