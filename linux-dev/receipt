@@ -13,17 +13,8 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/linux-headers.htm
 TARBALL="linux-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
-case $ARCH in
-	i*86)
-		SPLIT="linux-dev linux-api-headers linux-uml"
-		BUILD_DEPENDS="python-sphinx perl xmlto util-linux-getopt docbook-xsl \
-		coreutils-operations findutils ncurses-dev patch bash bc"
-		;;
-	x86_64)
-		SPLIT="linux-dev linux-api-headers"
-		BUILD_DEPENDS="perl patch ncurses-dev"
-		;;
-esac
+BUILD_DEPENDS="perl patch ncurses-dev"
+SPLIT="linux-dev linux-api-headers" # linux-uml
 SIBLINGS="linux"
 COOKOPTS="!pngz !svgz !uiz !strip"
 
@@ -43,6 +34,11 @@ compile_rules() {
 		fi
 	fi
 
+	case $ARCH in
+		i?86) Arch='i386';; # i486 for system -> i386 for kernel
+		*)    Arch="$ARCH";;
+	esac
+
 	make mrproper &&
 	make headers_check &&
 	make INSTALL_HDR_PATH=$DESTDIR/usr headers_install
@@ -52,10 +48,10 @@ compile_rules() {
 	# Get and apply Aufs patches
 	. $WOK/linux/stuff/tools/aufs-patches
 
-	make defconfig
+	make ARCH=$Arch defconfig
 	sed -i 's/^menuconfig:.*/z&\n\t@echo menuconfig is ready\n\n&/' \
 		scripts/kconfig/Makefile
-	make zmenuconfig
+	make ARCH=$Arch zmenuconfig
 
 	p="$install/usr/src/linux-$VERSION-slitaz"
 	mkdir -p $p
@@ -64,17 +60,13 @@ compile_rules() {
 	mkdir -p $install/usr/bin
 	mv $p/scripts/kconfig/mconf $install/usr/bin
 
-	case $ARCH in
-		i?86) Arch='i386';; # i486 for system -> i386 for kernel
-		*)    Arch="$ARCH";;
-	esac
 	sed "s|@VERSION@|$VERSION|; s|@ARCH@|$Arch|" $stuff/menuconfig.in \
 		> $install/usr/bin/menuconfig
 	chmod a+x $install/usr/bin/menuconfig
 
 
 	case "$ARCH" in
-		i?86)
+		i?86-refuse-too)
 			sed -i 's|uname -m|echo i386|; s|/bin/bash|/bin/ash|g' Makefile
 			make ARCH=um mrproper
 			cp $stuff/mini.config .
