@@ -63,23 +63,30 @@ compile_rules() {
 
 	mkdir -p $install/usr/bin
 	mv $p/scripts/kconfig/mconf $install/usr/bin
-	sed "s|@VERSION@|$VERSION|; s|@ARCH@|$ARCH|" $stuff/menuconfig.in \
+
+	case $ARCH in
+		i?86) Arch='i386';; # i486 for system -> i386 for kernel
+		*)    Arch="$ARCH";;
+	esac
+	sed "s|@VERSION@|$VERSION|; s|@ARCH@|$Arch|" $stuff/menuconfig.in \
 		> $install/usr/bin/menuconfig
 	chmod a+x $install/usr/bin/menuconfig
 
 
-	if [ "$ARCH" == 'i386' ]; then
-		sed -i 's|uname -m|echo i386|; s|/bin/bash|/bin/ash|g' Makefile
-		make ARCH=um mrproper
-		cp $stuff/mini.config .
-		make ARCH=um allnoconfig KCONFIG_ALLCONFIG=mini.config &&
-		make ARCH=um || return 1
+	case "$ARCH" in
+		i?86)
+			sed -i 's|uname -m|echo i386|; s|/bin/bash|/bin/ash|g' Makefile
+			make ARCH=um mrproper
+			cp $stuff/mini.config .
+			make ARCH=um allnoconfig KCONFIG_ALLCONFIG=mini.config &&
+			make ARCH=um || return 1
 
-		mkdir -p $install/boot
-		cp $src/linux $install/boot/linux-uml-$VERSION
-		sed "s|@VERSION@|$VERSION|" $stuff/vm-uml.in > $install/boot/vm-uml
-		chmod 755 $install/boot/vm-uml
-	fi
+			mkdir -p $install/boot
+			cp $src/linux $install/boot/linux-uml-$VERSION
+			sed "s|@VERSION@|$VERSION|" $stuff/vm-uml.in > $install/boot/vm-uml
+			chmod 755 $install/boot/vm-uml
+			;;
+	esac
 }
 
 
