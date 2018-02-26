@@ -1,33 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdrm-mach64"
-VERSION="20130130"
+VERSION="20180107"
 CATEGORY="x-window"
-SHORT_DESC="DRM Library for mach64 (deprecated but no alternative)."
+SHORT_DESC="DRM Library for mach64"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://dri.freedesktop.org/wiki/DRM"
-SOURCE="mach64"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+
+TARBALL="mach64-$VERSION.tar.gz"
 WGET_URL="http://trya.alwaysdata.net/linux/$TARBALL"
 
-DEPENDS="linux"
 BUILD_DEPENDS="linux-module-headers"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	#DESTDIR="$DESTDIR/lib/modules/`uname -r`/kernel/"
+compile_rules() {
 	find -name Makefile | xargs sed -i \
 		"s|/lib/modules/\`uname -r\`/build|/usr/src/linux|"
-	KERN_DIR=/usr/src/linux make
+	KERN_DIR=/usr/src/linux make || return 1
+
+	KERNEL_VERSION=$(. $WOK/linux/receipt; echo $VERSION)
+	install -Dm644 $src/mach64.ko \
+	"$install/lib/modules/$KERNEL_VERSION-slitaz/kernel/drivers/gpu/drm/mach64/mach64.ko"
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	KERNEL_VERSION=`grep ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
-	install -D -m644 $src/mach64.ko \
-	"$fs/lib/modules/$KERNEL_VERSION-slitaz/kernel/drivers/gpu/drm/mach64/mach64.ko"
+genpkg_rules() {
+	copy @std
+	DEPENDS="linux"
 }

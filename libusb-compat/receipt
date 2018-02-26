@@ -6,16 +6,21 @@ CATEGORY="system-tools"
 SHORT_DESC="Compatibility layer to converts libusb 0.1 calls into 1.0 equivalents"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://libusb.sourceforge.net/"
+WEB_SITE="http://libusb.info/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libusb-compat.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/libusb/$TARBALL"
+#TARBALL="$PACKAGE-$VERSION.tar.bz2"
+#WGET_URL="$SF_MIRROR/libusb/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/libusb/libusb-compat-0.1/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="libusb-dev eudev-dev"
+
+BUILD_DEPENDS="automake libtool libusb-dev eudev-dev"
 SPLIT="libusb-compat-dev"
 
 compile_rules() {
+	./bootstrap.sh || return 1
+
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
