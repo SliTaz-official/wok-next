@@ -16,7 +16,8 @@ BUILD_DEPENDS="patch bzip2 gettext perl pam-dev" # uclibc-cross-compiler-i486 mu
 case "$ARCH" in
 	arm*)   SPLIT='';;
 	x86_64) SPLIT="busybox busybox-pam:pam";;
-	*)      SPLIT="busybox busybox-pam:pam ssfs-busybox:ssfs busybox-boot:boot busybox-static:static";;
+	*)      SPLIT="busybox busybox-pam:pam ssfs-busybox:ssfs" # busybox-boot:boot busybox-static:static
+	        ;;
 esac
 
 compile_rules() {
@@ -31,15 +32,13 @@ compile_rules() {
 			;;
 	esac
 
-alias ar=/usr/bin/ar
-
 	# Next both for i?86 and x86_64 native compilation
 	case "$SET" in
 		'')
 			cp $stuff/.config $src
 			make oldconfig &&
-			make AR=/usr/bin/ar &&
-			make AR=/usr/bin/ar install || return 1
+			make &&
+			make install || return 1
 			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr \
 				$src/_install/bin/busybox
 
@@ -92,7 +91,7 @@ alias ar=/usr/bin/ar
 		pam)
 			sed 's|# CONFIG_PAM is not set|CONFIG_PAM=y|' $stuff/.config > $src/.config
 			make oldconfig &&
-			make AR=/usr/bin/ar || return 1
+			make || return 1
 			strip --strip-unneeded -R .eh_frame -R .eh_frame_hdr busybox
 
 #			mv docs/busybox.1 docs/busybox.pam.1
@@ -151,7 +150,7 @@ alias ar=/usr/bin/ar
 				sed -i 's|uclibc-i486-||;
 						s|CFLAGS="|&-D_BSD_SOURCE |;
 						s|LDFLAGS="|&-Wl,--allow-multiple-definition |;
-						s|LDLIBS="|&compat rpc |' $src/.config
+						s|LDLIBS="|&compat tirpc |' $src/.config
 				make oldconfig &&
 				make CC="/usr/lib/diet/bin/diet gcc" || return 1
 				mv busybox busybox-diet
@@ -163,7 +162,7 @@ alias ar=/usr/bin/ar
 
 # Cross compilation check.
 testsuite() {
-	readelf -h $install/bin/busybox
+	readelf -h $WOK/busybox/install/bin/busybox
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
@@ -171,14 +170,14 @@ genpkg_rules() {
 	case $PACKAGE in
 		busybox)
 			copy @std *.mo
-			DEPENDS="slitaz-base-files glibc-base ncurses"
+			DEPENDS="slitaz-base-files glibc-base ncurses libtirpc"
 			CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf \
 			/etc/resolv.conf /etc/httpd.conf"
 			;;
 		busybox-pam)
 			copy @std
 			CAT="base-system|with PAM support"
-			DEPENDS="busybox pam"
+			DEPENDS="busybox libtirpc pam"
 			CONFIG_FILES="/etc/pam.d"
 			PROVIDE="busybox:pam"
 			;;

@@ -12,7 +12,7 @@ HOST_ARCH="i486 arm x86_64"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.linux-pam.org/library/Linux-PAM-$VERSION.tar.bz2"
 
-BUILD_DEPENDS="db-dev" # gettext"
+BUILD_DEPENDS="db-dev libtirpc-dev gettext"
 SPLIT="pam-dev"
 
 compile_rules() {
@@ -23,15 +23,15 @@ compile_rules() {
 		--enable-securedir=/lib/security \
 		--docdir=/usr/share/doc/Linux-PAM-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
-	mkdir -p $install/etc/pam.d &&
-	cp $stuff/other $install/etc/pam.d &&
+	mkdir -p $install/etc/pam.d
+	cp $stuff/other $install/etc/pam.d
 
-	chmod -v 4755 $install/sbin/unix_chkpwd &&
+	chmod -v 4755 $install/sbin/unix_chkpwd
 
 	for file in pam pam_misc pamc; do
-		mv -v $install/usr/lib/lib$file.so.* $install/lib &&
+		mv -v $install/usr/lib/lib$file.so.* $install/lib
 		ln -sfv ../../lib/$(readlink $install/usr/lib/lib$file.so) \
 			$install/usr/lib/lib$file.so
 	done
@@ -39,8 +39,8 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		pam)   copy @std; DEPENDS="libdb";;
-		*-dev) copy @dev; DEPENDS="pam db-dev";;
+		pam)   copy @std; DEPENDS="libdb libtirpc";;
+		*-dev) copy @dev; DEPENDS="pam db-dev libtirpc-dev";;
 	esac
 }
 

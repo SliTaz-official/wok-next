@@ -88,8 +88,11 @@ compile_rules() {
 	esac &&
 	make && make install || return 1
 
+	mkdir -p $install/lib
 	ln -sv ../usr/bin/cpp $install/lib
+
 	ln -sv gcc $install/usr/bin/cc
+
 	install -v -dm755 $install/usr/lib/bfd-plugins
 	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/$VERSION/liblto_plugin.so \
 		$install/usr/lib/bfd-plugins/
@@ -179,9 +182,4 @@ genpkg_rules() {
 			TAGS="LFS compiler C"
 			;;
 	esac
-}
-
-post_install_gcc() {
-	[ -f "$1/lib/cpp" ]    || ln -s ../usr/bin/cpp "$1/lib"
-	[ -f "$1/usr/bin/cc" ] || ln -s gcc "$1/usr/bin/cc"
 }

@@ -1,27 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libtirpc"
-VERSION="0.2.1"
+VERSION="1.0.2"
 CATEGORY="system-tools"
-SHORT_DESC="Transport-Independent RPC library."
+SHORT_DESC="Transport-Independent RPC library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://libtirpc.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/libtirpc.html"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+SPLIT="libtirpc-dev"
+
+compile_rules() {
+	# Fix a build issue with glibc-2.26:
+	sed -i '/stdlib.h/a#include <stdint.h>' src/xdr_sizeof.c
+
+	# Fix a symbol name needed by NIS libraries:
+	sed -i '/key_secret_is/s|secret|secretkey|' src/libtirpc.map
+
+	./configure \
+		--sysconfdir=/etc \
+		--disable-static \
+		--disable-gssapi \
+		$CONFIGURE_ARGS &&
+	make && make install || return 1
+
+	mkdir -p $install/lib
+	mv -v $install/usr/lib/libtirpc.so.* $install/lib
+	ln -sfv ../../lib/$(readlink $install/lib/libtirpc.so.3) $install/usr/lib/libtirpc.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/etc $fs
+genpkg_rules() {
+	case $PACKAGE in
+		libtirpc) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }
