@@ -11,7 +11,7 @@ WEB_SITE="https://www.openssh.com/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/$TARBALL"
 
-BUILD_DEPENDS="libcrypto-dev zlib-dev openssl-dev perl mdocml-dev pam-dev" # groff
+BUILD_DEPENDS="openssl-dev zlib-dev openssl-dev perl mdocml-dev pam-dev" # groff
 SPLIT="sftp-server openssh openssh-pam"
 
 # Rules to configure and make the package.
@@ -83,11 +83,11 @@ genpkg_rules()
 			copy sftp-server
 			CAT="security|secure FTP server"
 			TAGS="ssh"
-			DEPENDS="libcrypto zlib"
+			DEPENDS="openssl zlib"
 			;;
 		openssh)
 			copy @std sshd/
-			DEPENDS="sftp-server libcrypto zlib"
+			DEPENDS="sftp-server openssl zlib"
 			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config /etc/ssh/sshd_config \
 			/etc/inetd.conf"
 			TAGS="ssh security"
@@ -98,7 +98,7 @@ genpkg_rules()
 			install=$install-pam copy @std sshd/
 			sed -i 's/.*UsePAM.*/UsePAM yes/' $fs/etc/ssh/sshd_config
 			CAT="security|with PAM support"
-			DEPENDS="sftp-server libcrypto zlib pam"
+			DEPENDS="sftp-server openssl zlib pam"
 			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config /etc/ssh/sshd_config \
 			/etc/inetd.conf"
 			TAGS="ssh security"

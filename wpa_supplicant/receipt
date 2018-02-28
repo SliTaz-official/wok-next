@@ -12,7 +12,7 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/wpa_supplicant.ht
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://w1.fi/releases/$TARBALL"
 
-BUILD_DEPENDS_arm="openssl-dev libcrypto-dev libnl-dev"
+BUILD_DEPENDS_arm="openssl-dev libnl-dev"
 BUILD_DEPENDS="libnl-dev dbus-dev openssl-dev readline-dev"
 
 compile_rules() {
@@ -79,11 +79,11 @@ EOT
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="dbus libcrypto libnl libssl ncurses readline"
+	DEPENDS="dbus openssl libnl ncurses readline"
 	CONFIG_FILES="/etc/wpa/wpa_supplicant.conf"
 	TAGS="wireless wifi network"
 	case "$SLITAZ_ARCH" in
-		arm*) DEPENDS="libssl libcrypto libnl";;
+		arm*) DEPENDS="openssl libnl";;
 	esac
 }
 
