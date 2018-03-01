@@ -1,32 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="alsa-plugins"
-VERSION="1.0.27"
+VERSION="1.1.5"
 CATEGORY="multimedia"
-SHORT_DESC="Alsa sound system additionnal plugins."
+SHORT_DESC="ALSA sound system additionnal plugins"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.alsa-project.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/alsa-plugins.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.alsa-project.org/pub/plugins/$TARBALL"
 
-DEPENDS="alsa-lib libsamplerate speex"
-BUILD_DEPENDS="pkg-config alsa-lib-dev libsamplerate-dev speex-dev"
+BUILD_DEPENDS="alsa-lib-dev libsamplerate-dev speex-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make -j1 DESTDIR=$DESTDIR install
+	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/alsa-lib
-	cp -a $install/usr/lib/alsa-lib/*.so $fs/usr/lib/alsa-lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib libsamplerate speex"
 }

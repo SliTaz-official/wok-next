@@ -1,80 +1,142 @@
 # SliTaz package receipt v2.
 
 PACKAGE="alsa-tools"
-VERSION="1.0.26.1"
+VERSION="1.1.5"
 CATEGORY="meta"
-SHORT_DESC="Alsa sound system additionnal tools (meta package)."
+SHORT_DESC="ALSA sound system advanced tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.alsa-project.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/alsa-tools.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://alsa.cybermirror.org/tools/$TARBALL"
-GENERIC_MENUS="no"
+WGET_URL="ftp://ftp.alsa-project.org/pub/tools/$TARBALL"
 
-# We don't want all card mixer as dep.
-DEPENDS="alsa-lib alsa-tools-ac3dec"
-BUILD_DEPENDS="alsa-lib-dev gtk+-dev fltk-dev autoconf automake"
-SPLIT="alsa-tools-ac3dec alsa-tools-echomixer alsa-tools-envy24control \
-alsa-tools-hdsp alsa-tools-hwmixvolume alsa-tools-rmedigicontrol"
+BUILD_DEPENDS="alsa-lib-dev gtk+-dev fltk-dev autoconf automake gtk+3-dev"
+at='alsa-tools'
+# skip qlo10k1: it requre old Qt
+# skip hdajacksensetest: sysfs-pin-configs.h: No such file or directory
+SPLIT="\
+$at-as10k1      $at-echomixer      $at-envy24control $at-hda-verb \
+$at-hdajack     $at-hdsp           $at-hwmixvolume   $at-ld10k1 \
+$at-ld10k1-dev  $at-mixartloader   $at-pcxhrloader   $at-rmedigicontrol \
+$at-sb16_csp    $at-seq            $at-sscape_ctl    $at-us428control \
+$at-usx2yloader $at-vxloader"
+#COOKOPTS="!menus"
 
-# List of tools we want to build, then splited into individual packages
-TOOLS="ac3dec envy24control hwmixvolume hdsploader hdspconf hdspmixer \
-rmedigicontrol echomixer"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	for tool in $TOOLS; do
-		cd $src/$tool
-		./configure $CONFIGURE_ARGS
-		make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	fix ld
+	for i in *; do
+		case $i in
+			seq) cd $src/seq/sbiload;;
+			*)   cd $src/$i;;
+		esac
+		./configure $CONFIGURE_ARGS &&
+		make &&
+		make install
+		cp $stuff/*.desktop $install/usr/share/applications/
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	alsa-tools-ac3dec)
-		CAT="multimedia|A free AC-3 stream decoder."
-		DEPENDS="alsa-lib"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/ac3dec $fs/usr/bin
-		cp -a $install/usr/bin/extract_ac3 $fs/usr/bin
-		;;
-	alsa-tools-echomixer)
-		CAT="multimedia|Control all the features of any Echoaudio soundcard."
-		DEPENDS="alsa-lib gtk+"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/echomixer $fs/usr/bin
-		;;
-	alsa-tools-envy24control)
-		CAT="multimedia|Control tool for Envy24 (ice1712) based soundcards."
-		DEPENDS="alsa-lib gtk+"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/envy24control $fs/usr/bin
-		;;
-	alsa-tools-hdsp)
-		CAT="multimedia|RME Hammerfall DSP cards firmware loader, mixer and config tool."
-		DEPENDS="alsa-lib fltk"
-		mkdir -p $fs/usr/bin $fs/usr/share/applications $fs/usr/share/pixmaps
-		cp -a $install/usr/bin/hdsp* $fs/usr/bin
-		cp -a $install/usr/share/applications/hdsp*.desktop \
-			$fs/usr/share/applications
-		cp -a $install/usr/share/pixmaps/hdsp*.png \
-			$fs/usr/share/pixmaps
-		;;
-	alsa-tools-hwmixvolume)
-		CAT="multimedia|Control the volume of sound cards using hardware mixing."
-		DEPENDS="alsa-lib python pygtk"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/hwmixvolume $fs/usr/bin
-		;;
-	alsa-tools-rmedigicontrol)
-		CAT="multimedia|Control tool for RME Digi32 and RME Digi96 soundcards."
-		DEPENDS="alsa-lib gtk+"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/rmedigicontrol $fs/usr/bin
-		;;
+		alsa-tools)
+			COOKOPTS="!menus"
+			CAT="meta|meta package"
+			DEPENDS="alsa-lib"	# We don't want all card mixer as dep.
+			;;
+		*-as10k1)
+			copy as10k1
+			CAT="multimedia|assembler for emu10k1 DSP chip"
+			DEPENDS=" "
+			;;
+		*-echomixer)
+			copy echomixer echomixer.desktop
+			CAT="multimedia|control all the features of any Echoaudio soundcard"
+			DEPENDS="alsa-lib glib gtk+"
+			;;
+		*-envy24control)
+			copy envy24control envy24control.desktop
+			CAT="multimedia|control tool for Envy24 (ice1712) based soundcards"
+			DEPENDS="alsa-lib glib gtk+"
+			;;
+		*-hda-verb)
+			copy hda-verb
+			CAT="multimedia|send a HD-audio command"
+			DEPENDS=" "
+			;;
+		*-hdajack)
+			copy hdajackretask hdajacksensetest
+			CAT="multimedia|HDA Intel tools"
+			DEPENDS="glib gtk+3"
+			;;
+		*-hdsp)
+			copy hdspconf hdspconf.desktop hdspconf.png \
+			hdsploader \
+			hdspmixer hdspmixer.desktop hdspmixer.png
+			CAT="multimedia|RME Hammerfall DSP cards firmware loader, mixer and config tool"
+			DEPENDS="alsa-lib fltk"
+			;;
+		*-hwmixvolume)
+			copy hwmixvolume
+			CAT="multimedia|control the volume of sound cards using hardware mixing"
+			DEPENDS="alsa-lib python pygtk" #?
+			;;
+		*-ld10k1)
+			copy init_audigy init_audigy_eq10 init_live lo10k1 liblo10k1.so* \
+			dl10k1 ld10k1 ld10k1d ld10k1/effects/
+			CAT="multimedia|emu10k1 (emu10k2) patch loader"
+			DEPENDS="alsa-lib"
+			;;
+		*-ld10k1-dev)
+			copy lo10k1/ liblo10k1.la ld10k1.m4
+			CAT="development|ld10k1 development files"
+			DEPENDS="alsa-tools-ld10k1"
+			;;
+		*-mixartloader)
+			copy mixartloader
+			CAT="multimedia|firmware loader for Digigram miXart soundcards"
+			DEPENDS="alsa-lib"
+			;;
+		*-pcxhrloader)
+			copy pcxhrloader
+			CAT="multimedia|firmware loader for Digigram pcxhr compatible soundards"
+			DEPENDS="alsa-lib"
+			;;
+		*-rmedigicontrol)
+			copy rmedigicontrol rmedigicontrol.desktop
+			CAT="multimedia|control tool for RME Digi32 and RME Digi96 soundcards"
+			DEPENDS="alsa-lib glib gtk+"
+			;;
+		*-sb16_csp)
+			copy cspctl
+			CAT="multimedia|Sound Blaster 16 ASP/CSP control program"
+			DEPENDS="alsa-lib"
+			;;
+		*-seq)
+			copy sbiload opl3/
+			CAT="multimedia|OPL2/3 FM instrument loader"
+			DEPENDS="alsa-lib"
+			;;
+		*-sscape_ctl)
+			copy sscape_ctl
+			CAT="multimedia|SoundScape control utility"
+			DEPENDS="alsa-lib"
+			;;
+		*-us428control)
+			copy us428control
+			CAT="multimedia|controller for Tascam US-X2Y"
+			DEPENDS="alsa-lib"
+			;;
+		*-usx2yloader)
+			copy usx2yloader /etc/hotplug/usb/
+			CAT="multimedia|firmware loader for Tascam USX2Y USB soundcards"
+			DEPENDS="alsa-lib"
+			;;
+		*-vxloader)
+			copy vxloader
+			CAT="multimedia|firmware loader for Digigram VX soundcards"
+			DEPENDS="alsa-lib"
+			;;
 	esac
 }

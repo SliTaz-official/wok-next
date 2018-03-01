@@ -7,26 +7,20 @@ SHORT_DESC="OGG library from Xiph.org project"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.xiph.org/"
-HOST_ARCH="i486 arm"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libogg.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://downloads.xiph.org/releases/ogg/$TARBALL"
 
 SPLIT="libogg-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--docdir=/usr/share/doc/libogg-$VERSION \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make -j1 DESTDIR=$DESTDIR install
+	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libogg) copy @std;;
 		*-dev)  copy @dev;;

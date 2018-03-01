@@ -1,13 +1,12 @@
 # SliTaz package receipt v2.
 
 PACKAGE="alsa-utils"
-VERSION="1.1.4"
+VERSION="1.1.5"
 CATEGORY="multimedia"
 SHORT_DESC="Command line utilities for the ALSA project"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.alsa-project.org/"
-HOST_ARCH="i486 arm"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/alsa-utils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
@@ -16,9 +15,7 @@ WGET_URL="ftp://ftp.alsa-project.org/pub/utils/$TARBALL"
 BUILD_DEPENDS="alsa-lib-dev ncurses-dev gettext eudev-dev"
 SPLIT="alsa-utils-test alsa-info alsa-utils"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-alsaconf \
 		--disable-bat \
@@ -30,21 +27,17 @@ compile_rules()
 	# Remove empty dir
 	rmdir $install/usr/share/man/man7
 
-	appdir=$install/usr/share/applications
-	mkdir -p $appdir
-	cp $stuff/alsamixer.desktop $appdir
+	install -Dm644 $stuff/alsamixer.desktop \
+		$install/usr/share/applications/alsamixer.desktop
 
 	# Declare asound.state
 	touch $install/var/lib/alsa/asound.state
 
 	# For conf we need /var/tmp
-	mkdir -p $install/var/tmp
-	chmod 1777 $install/var/tmp
+	install -dm1777 $install/var/tmp
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		alsa-utils-test)
 			copy speaker-test speaker-test/ *.wav
@@ -57,8 +50,7 @@ genpkg_rules()
 			DEPENDS="alsa-utils bash dialog ncurses-extra pciutils wget"
 			;;
 		alsa-utils)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			DEPENDS="alsa-lib ncurses ncurses-libform ncurses-libmenu \
 			ncurses-libpanel"
 			CONFIG_FILES="/var/lib/alsa/asound.state"

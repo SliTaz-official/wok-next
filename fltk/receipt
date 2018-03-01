@@ -1,130 +1,121 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fltk"
-VERSION="1.3.3"
+VERSION="1.3.4"
 CATEGORY="system-tools"
-SHORT_DESC="Fast Light Tool Kit (provide fluid)."
+SHORT_DESC="Fast Light Tool Kit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION-source.tar.gz"
 WEB_SITE="http://www.fltk.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/fltk.html"
+
+TARBALL="$PACKAGE-$VERSION-source.tar.gz"
 WGET_URL="http://fltk.org/pub/fltk/$VERSION/$TARBALL"
-HOST_ARCH="i486 arm"
 
-BUILD_DEPENDS="jpeg-dev libpng16-dev libglu-mesa libglu-mesa-dev mesa mesa-dev \
-xorg-libXinerama-dev xorg-libXft-dev \
-xorg-libXft fontconfig xorg-libX11-dev xorg-libXinerama \
-xorg-libXfixes"
-SPLIT="fltk-dev fltk-doc fltk-blocks fltk-checkers fltk-colbrowser fltk-editor \
-fltk-sudoku"
+BUILD_DEPENDS_arm="jpeg-dev libpng16-dev xorg-libXft-dev"
+BUILD_DEPENDS="alsa-lib-dev libjpeg-turbo-dev zlib-dev libpng16-dev \
+xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev mesa17-dev xorg-libXinerama-dev \
+freetype-dev xorg-libXft-dev xorg-libXcursor-dev xorg-xprop"
+SPLIT="fltk-blocks fltk-checkers fltk-sudoku fltk-colbrowser fltk-editor \
+fltk-doc fltk fltk-dev"
+COOKOPTS="!menus"
 
-# Handle cross compilation.
-case "$ARCH" in
-	#i?86) 
-	#	ARCH_ARGS="--with-archflags=i386" ;;
-	arm) 
-		BUILD_DEPENDS="jpeg-dev libpng16-dev xorg-libXft-dev" 
-		ARCH_ARGS="--x-includes=/cross/$ARCH/sysroot/usr/include \
-		--x-libraries=/cross/$ARCH/sysroot/usr/lib" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm) ARCH_ARGS="--x-includes=/cross/$ARCH/sysroot/usr/include \
+			--x-libraries=/cross/$ARCH/sysroot/usr/lib";;
+		*) ARCH_ARGS='';;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	patch -p0 < $stuff/Fl_XFont_On_Demand.patch
-	./configure ${ARCH_ARGS} \
+	sed -i -e '/cat./d' documentation/Makefile
+
+	fix ld
+	./configure \
 		--enable-shared \
 		--enable-xft \
 		--enable-threads \
+		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
-	make lib $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install &&
-	cd test
-	[ -x ./blocks ] || make blocks
-	[ -x ./checkers ] || make checkers
-	rm -f colbrowser
-	sed -i s'#"rgb.txt"#"/usr/share/fltk/rgb.txt"#' colbrowser.cxx &&
-	make colbrowser
-	[ -x ./editor ] || make editor
-	[ -x ./sudoku ] || make sudoku
+	sed -i 's| -shared | -Wl,-Os,--as-needed\0|g' makeinclude &&
+	sed -i s'#"rgb.txt"#"/usr/share/fltk/rgb.txt"#' test/colbrowser.cxx &&
+	make $MAKEFLAGS &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	sed -i '/mimelnk/d' fluid/Makefile
+	make -C fluid install-linux || return 1
+
+	make -C test  install-linux || return 1
+
+	for game in blocks checkers sudoku; do
+		for file in \
+		/usr/bin/$game \
+		/usr/share/icons/hicolor/128x128/apps/$game.png \
+		/usr/share/icons/hicolor/32x32/apps/$game.png \
+		/usr/share/applications/$game.desktop; do
+			mv $install$file $install${file/$game/fltk-$game}
+		done
+		sed -i 's|Exec=|Exec=fltk-|; s|Icon=|Icon=fltk-|; /TryExec/d' \
+			$install/usr/share/applications/fltk-$game.desktop
+	done
+
+	install -m755  $src/test/colbrowser $install/usr/bin/fltk-colbrowser
+	install -m755  $src/test/editor     $install/usr/bin/fltk-editor
+	install -Dm644 $src/test/rgb.txt    $install/usr/share/fltk/rgb.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	fltk)
-		# Handle SliTaz arch
-		case "$SLITAZ_ARCH" in
-		arm*) DEPENDS="expat fontconfig freetype jpeg libpng16 \
-				xorg-libXft" ;;
-		*) DEPENDS="expat fontconfig freetype libpng16 jpeg xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXft \
-			xorg-libXrender zlib gcc-lib-base mesa libglu-mesa"
-		esac
-		mkdir -p $fs/usr/bin $fs/usr/lib $fs/usr/share/pixmaps
-		cp -a $install/usr/bin/fluid $fs/usr/bin
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp $src/fluid/icons/fluid-32.png $fs/usr/share/pixmaps/fluid.png
-		;;
-	fltk-dev)
-		CAT="development|Fast Light Tool Kit devel files."
-		DEPENDS="fltk xorg-libX11-dev xorg-libXinerama"
-		mkdir -p $fs/usr/bin $fs/usr/lib
-		cp -a $install/usr/bin/fltk-config $fs/usr/bin
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
-	fltk-doc)
-		CAT="development|Fast Light Tool Kit documentation and examples."
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/doc $fs/usr/share
-		;;
-	fltk-blocks)
-		CAT="games|FLTK Blocks game."
-		DEPENDS="fltk"
-		mkdir -p $fs/usr/games $fs/usr/share/pixmaps \
-			$fs/usr/share/applications
-		cp -a ${src}/test/blocks $fs/usr/games/$PACKAGE
-		cp ${src}/test/desktop/blocks-32.png \
-			$fs/usr/share/pixmaps/$PACKAGE.png
-		cp $stuff/$PACKAGE.desktop $fs/usr/share/applications
-		;;
-	fltk-checkers)
-		CAT="games|FLTK Checkers game."
-		DEPENDS="fltk"
-		mkdir -p $fs/usr/games $fs/usr/share/pixmaps \
-			$fs/usr/share/applications
-		cp -a ${src}/test/checkers $fs/usr/games/$PACKAGE
-		cp ${src}/test/desktop/checkers-32.png \
-			$fs/usr/share/pixmaps/$PACKAGE.png
-		cp $stuff/$PACKAGE.desktop $fs/usr/share/applications
-		;;
-	fltk-colbrowser)
-		CAT="graphics|FLT Color browser."
-		DEPENDS="fltk xorg-libXinerama"
-		mkdir -p $fs/usr/bin $fs/usr/share/fltk \
-			$fs/usr/share/applications
-		cp -a ${src}/test/colbrowser ${fs}/usr/bin/$PACKAGE
-		cp ${src}/test/rgb.txt ${fs}/usr/share/fltk
-		cp $stuff/$PACKAGE.desktop $fs/usr/share/applications
-		;;
-	fltk-editor)
-		CAT="development|Fast Light Tool Kit text editor."
-		DEPENDS="fltk"
-		mkdir -p $fs/usr/bin $fs/usr/share/applications
-		cp -a ${src}/test/editor $fs/usr/bin/$PACKAGE
-		cp $stuff/$PACKAGE.desktop $fs/usr/share/applications
-		;;
-	fltk-sudoku)
-		CAT="games|FLTK Sudoku game."
-		DEPENDS="fltk"
-		mkdir -p $fs/usr/games $fs/usr/share/pixmaps \
-			$fs/usr/share/applications
-		cp -a ${src}/test/sudoku $fs/usr/games/$PACKAGE
-		cp ${src}/test/desktop/sudoku-32.png \
-			$fs/usr/share/pixmaps/$PACKAGE.png
-		cp $stuff/$PACKAGE.desktop $fs/usr/share/applications
-		;;
+		fltk-blocks)
+			copy $PACKAGE*
+			CAT="games|FLTK Blocks game"
+			DEPENDS="alsa-lib fontconfig xorg-libX11 xorg-libXcursor \
+			xorg-libXext xorg-libXfixes xorg-libXft xorg-libXinerama \
+			xorg-libXrender"
+			;;
+		fltk-checkers)
+			copy $PACKAGE*
+			CAT="games|FLTK Checkers game"
+			DEPENDS="fontconfig xorg-libX11 xorg-libXcursor xorg-libXext \
+			xorg-libXfixes xorg-libXft xorg-libXinerama xorg-libXrender"
+			;;
+		fltk-sudoku)
+			copy $PACKAGE*
+			CAT="games|FLTK Sudoku game"
+			DEPENDS="alsa-lib fontconfig libjpeg-turbo libpng16 xorg-libX11 \
+			xorg-libXcursor xorg-libXext xorg-libXfixes xorg-libXft \
+			xorg-libXinerama xorg-libXrender"
+			;;
+		fltk-colbrowser)
+			copy $PACKAGE* rgb.txt
+			CAT="graphics|FLTK Color browser"
+			DEPENDS="fontconfig xorg-libX11 xorg-libXcursor xorg-libXext \
+			xorg-libXfixes xorg-libXft xorg-libXinerama xorg-libXrender"
+			;;
+		fltk-editor)
+			copy $PACKAGE*
+			CAT="development|FLTK text editor"
+			DEPENDS="fontconfig xorg-libX11 xorg-libXcursor xorg-libXext \
+			xorg-libXfixes xorg-libXft xorg-libXinerama xorg-libXrender"
+			;;
+		fltk-doc)
+			copy doc/
+			CAT="development|FLTK documentation and examples"
+			;;
+		fltk)
+			copy @std @rm
+			case "$SLITAZ_ARCH" in
+				arm*)
+					DEPENDS="expat fontconfig freetype jpeg libpng16 \
+					xorg-libXft" ;;
+				*)
+					DEPENDS="fontconfig libjpeg-turbo libpng16 mesa17 \
+					xorg-libX11 xorg-libXcursor xorg-libXext xorg-libXfixes \
+					xorg-libXft xorg-libXinerama xorg-libXrender"
+			esac
+			;;
+		fltk-dev)
+			copy @dev @rm # remove examples in doc
+			DEPENDS="fltk"
+			;;
 	esac
 }
