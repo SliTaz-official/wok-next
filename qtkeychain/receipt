@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qtkeychain"
 VERSION="0.5.0"
@@ -7,23 +7,27 @@ SHORT_DESC="Platform-independent Qt API for storing passwords securely"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
 WEB_SITE="https://github.com/frankosterfeld/qtkeychain"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 
-DEPENDS="libQtDBus"
 BUILD_DEPENDS="cmake Qt4-dev qmake"
+SPLIT="qtkeychain-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir build; cd build
 	cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		qtkeychain)
+			copy @std
+			DEPENDS="libQtDBus"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

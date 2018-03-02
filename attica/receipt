@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="attica"
 VERSION="0.4.2"
 CATEGORY="system-tools"
-SHORT_DESC="Qt library that implements the Open Collaboration Services API."
+SHORT_DESC="Qt library that implements the Open Collaboration Services API"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.kde.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.kde.org/pub/kde/stable/attica/$TARBALL"
 
-DEPENDS="libQtCore libQtNetwork"
 BUILD_DEPENDS="cmake qmake Qt4-dev"
+SPLIT="attica-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	mkdir -p build && cd build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
@@ -25,9 +23,14 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		attica)
+			copy @std
+			DEPENDS="libQtCore libQtNetwork"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

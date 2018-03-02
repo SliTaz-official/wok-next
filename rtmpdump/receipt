@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rtmpdump"
 VERSION="2.3"
@@ -6,16 +6,15 @@ CATEGORY="multimedia"
 SHORT_DESC="rtmpdump is a toolkit for RTMP streams"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://rtmpdump.mplayerhq.hu/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://rtmpdump.mplayerhq.hu/download/$TARBALL"
 
-DEPENDS="openssl"
 BUILD_DEPENDS="openssl-dev zlib-dev"
+SPLIT="rtmpdump-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr/lib
 	make &&  make \
 		prefix="/usr" \
@@ -24,10 +23,15 @@ compile_rules()
 		DESTDIR="$DESTDIR" install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		rtmpdump)
+			copy @std
+			DEPENDS="openssl"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="rtmpdump openssl-dev"
+			;;
+	esac
 }

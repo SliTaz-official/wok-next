@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="marlin"
 VERSION="0.5"
@@ -7,19 +7,17 @@ SHORT_DESC="A sleek and fast GTK3 file manager"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 GPL3"
 WEB_SITE="https://launchpad.net/marlin"
+
 BRANCH="879"
 TARBALL="$PACKAGE-$BRANCH.tar.bz2"
 WGET_URL="bzr|lp:marlin"
 
-DEPENDS="dbus-glib gtk+3 libgee libnotify-gtk3 libsqlite3 varka dconf"
-SUGGESTED="tumbler ffmpegthumbnailer granite extended-actions"
 BUILD_DEPENDS="bazaar cmake vala varka-dev gtk+3-dev libgee-dev sqlite3-dev \
 dbus-glib-dev libnotify-gtk3-dev dconf-dev tumbler-dev ffmpegthumbnailer-dev \
 granite-dev"
+SPLIT="marlin-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# gee-1.0 is old while gee-0.8 is latest ;)
 	sed -i 's|gee-1.0|gee-0.8|g' $(grep -l gee-1.0 $(find . -type f))
 
@@ -35,32 +33,40 @@ compile_rules()
 	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p \
-		$fs/usr/bin \
-		$fs/usr/lib \
-		$fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/marlin $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/dbus* $fs/usr/share
-	cp -a $install/usr/share/glib* $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/marlin $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		marlin)
+			mkdir -p \
+				$fs/usr/bin \
+				$fs/usr/lib \
+				$fs/usr/share/locale
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/marlin $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/share/applications $fs/usr/share
+			cp -a $install/usr/share/dbus* $fs/usr/share
+			cp -a $install/usr/share/glib* $fs/usr/share
+			cp -a $install/usr/share/icons $fs/usr/share
+			cp -a $install/usr/share/marlin $fs/usr/share
+			cp -a $install/usr/share/pixmaps $fs/usr/share
 
-	# localization
-	. $WOK/slitaz-i18n/stuff/locale-pack.conf
-	for lang in $LOCALE_PACK; do
-		langf=$install/usr/share/locale/$lang
-		[ -d $langf ] && cp -a $langf $fs/usr/share/locale
-	done
+			# localization
+			. $WOK/slitaz-i18n/stuff/locale-pack.conf
+			for lang in $LOCALE_PACK; do
+				langf=$install/usr/share/locale/$lang
+				[ -d $langf ] && cp -a $langf $fs/usr/share/locale
+			done
 
-	# icons
-	mkdir -p $fs/usr/share/icons/hicolor/16x16
-	cp -a $stuff/apps $fs/usr/share/icons/hicolor/16x16
-	cp -a $stuff/marlin.png $fs/usr/share/pixmaps
+			# icons
+			mkdir -p $fs/usr/share/icons/hicolor/16x16
+			cp -a $stuff/apps $fs/usr/share/icons/hicolor/16x16
+			cp -a $stuff/marlin.png $fs/usr/share/pixmaps
+			DEPENDS="dbus-glib gtk+3 libgee libnotify-gtk3 libsqlite3 varka \
+			dconf"
+			SUGGESTED="tumbler ffmpegthumbnailer granite extended-actions"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

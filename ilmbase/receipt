@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ilmbase"
 VERSION="2.2.0"
@@ -6,20 +6,20 @@ CATEGORY="x-window"
 SHORT_DESC="IlmThread is a thread abstraction library for use with OpenEXR"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.openexr.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://savannah.nongnu.org/download/openexr/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+SPLIT="ilmbase-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		ilmbase) copy @std;;
+		*-dev)   copy @dev;;
+	esac
 }

@@ -1,49 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mplayer"
 VERSION="1.1.1"
 CATEGORY="multimedia"
-SHORT_DESC="The Ultimate Movie Player For Linux."
+SHORT_DESC="The Ultimate Movie Player For Linux"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="MPlayer"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="http://www.mplayerhq.hu/design7/news.html"
-WGET_URL="http://www1.mplayerhq.hu/MPlayer/releases/$TARBALL"
-HOST_ARCH="i486 arm"
 
-# Dont forget to update all related pkgs
-RELATED="mplayer-codecs mencoder" 
-DEPENDS="gtk+ cdparanoia-III libmad xorg-libXv libtheora alsa-lib ncurses \
-lame xorg-libXdamage giflib enca lirc xorg-libXxf86vm esound libmng \
-audiofile libvorbis libogg zlib xvidcore x264 xorg-libXScrnSaver"
+TARBALL="MPlayer-$VERSION.tar.xz"
+WGET_URL="http://www1.mplayerhq.hu/MPlayer/releases/$TARBALL"
+
+BUILD_DEPENDS_arm="gtk+-dev libmad-dev xorg-libXv-dev libtheora-dev \
+alsa-lib-dev ncurses-dev lame-dev xorg-libXdamage-dev giflib-dev \
+xorg-libXxf86vm-dev esound-dev audiofile-dev libogg-dev libvorbis-dev \
+xvidcore-dev zlib-dev xorg-xextproto pkg-config yasm  libsdl-dev"
 BUILD_DEPENDS="gtk+-dev libmad-dev xorg-libXv-dev libtheora-dev \
 alsa-lib-dev ncurses-dev lame-dev xorg-libXdamage-dev giflib-dev \
 xorg-libXxf86vm-dev esound-dev audiofile-dev libogg-dev libvorbis-dev \
-xvidcore-dev zlib-dev xorg-xextproto pkg-config yasm"
+xvidcore-dev zlib-dev xorg-xextproto pkg-config yasm cdparanoia-III-dev \
+x264-dev enca-dev libmng-dev lirc-dev"
+SPLIT="mencoder"
 
-# Handle arch package install. Less deps and no GTK gui for ARM
-case "$SLITAZ_ARCH" in
-	arm*) 
-		DEPENDS="alsa-lib zlib libmad xorg-libXv xorg-libXxf86vm libogg \
-		libvorbis libtheora libsdl xvidcore lame esound gtk+" ;;
-esac
+compile_rules() {
+	# Handle cross compilation. Host coreutils-file-* are used
+	case "$ARCH" in
+		i?86)
+			ARCH_ARGS="--target=i386-linux --disable-sdl --enable-runtime-cpudetection"
+			;;
+		arm*)
+			export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH
+			ARCH_ARGS="--target=arm-linux --enable-cross-compile --enable-sdl"
+			;;
+	esac
 
-# Handle cross compilation. Host coreutils-file-* are used
-case "$ARCH" in
-	i?86) 
-		ARCH_ARGS="--target=i386-linux --disable-sdl --enable-runtime-cpudetection" 
-		BUILD_DEPENDS="$BUILD_DEPENDS cdparanoia-III-dev x264-dev enca-dev \
-		libmng-dev lirc-dev" ;;
-	arm*) 
-		export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH
-		BUILD_DEPENDS="$BUILD_DEPENDS libsdl-dev" 
-		ARCH_ARGS="--target=arm-linux --enable-cross-compile --enable-sdl" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
 		--prefix=/usr \
 		--confdir=/etc/mplayer \
@@ -66,28 +56,55 @@ compile_rules()
 	make DESTDIR=$DESTDIR install | sed '/install: strip: .*/'d
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/mplayer/skins
-	cp -a $install/usr/bin $fs/usr
-	# Mencoder goes in a splited package.
-	rm $fs/usr/bin/mencoder
-	[ -d "$install/usr/share/mplayer" ] && \
-		cp -a $install/usr/share/mplayer $fs/usr/share
-	cp -a $install/etc $fs
-	cp $src/etc/example.conf $fs/etc/mplayer
-	# Config to use Xv by default.
-	cp $stuff/mplayer.conf $fs/etc/mplayer
-	# default skin
-	tar xjf $stuff/productive-1.0.tar.bz2 -C $fs/usr/share/mplayer/skins
-	cd $fs/usr/share/mplayer/skins && ln -s productive default
-	# Font
-	cd .. && ln -s ../fonts/truetype/ttf-dejavu/DejaVuSans.ttf subfont.ttf
-	# Xv support dont work for ARM and gmplayer symlink not created
-	case "$ARCH" in
-		arm*)
-			cp -f $stuff/mplayer-arm.conf $fs/etc/mplayer/mplayer.conf 
-			cd $fs/usr/bin && ln -s mplayer gmplayer ;;
+genpkg_rules() {
+	case $PACKAGE in
+		mplayer)
+			mkdir -p $fs/usr/share/mplayer/skins
+			cp -a $install/usr/bin $fs/usr
+			# Mencoder goes in a splited package.
+			rm $fs/usr/bin/mencoder
+			[ -d "$install/usr/share/mplayer" ] && \
+				cp -a $install/usr/share/mplayer $fs/usr/share
+			cp -a $install/etc $fs
+			cp $src/etc/example.conf $fs/etc/mplayer
+			# Config to use Xv by default.
+			cp $stuff/mplayer.conf $fs/etc/mplayer
+			# default skin
+			tar xjf $stuff/productive-1.0.tar.bz2 -C $fs/usr/share/mplayer/skins
+			cd $fs/usr/share/mplayer/skins && ln -s productive default
+			# Font
+			cd .. && ln -s ../fonts/truetype/ttf-dejavu/DejaVuSans.ttf subfont.ttf
+			# Xv support dont work for ARM and gmplayer symlink not created
+			case "$ARCH" in
+				arm*)
+					cp -f $stuff/mplayer-arm.conf $fs/etc/mplayer/mplayer.conf 
+					cd $fs/usr/bin && ln -s mplayer gmplayer ;;
+			esac
+			DEPENDS="gtk+ cdparanoia-III libmad xorg-libXv libtheora alsa-lib \
+			ncurses lame xorg-libXdamage giflib enca lirc xorg-libXxf86vm \
+			esound libmng audiofile libvorbis libogg zlib xvidcore x264 \
+			xorg-libXScrnSaver"
+			# Handle arch package install. Less deps and no GTK gui for ARM
+			case "$SLITAZ_ARCH" in
+				arm*)
+					DEPENDS="alsa-lib zlib libmad xorg-libXv xorg-libXxf86vm \
+					libogg libvorbis libtheora libsdl xvidcore lame esound gtk+"
+					;;
+			esac
+			;;
+		mencoder)
+			copy /usr/bin/mencoder
+			CAT="multimedia|video and movie encoder"
+			DEPENDS="libtheora alsa-lib cdparanoia-III expat libogg libvorbis \
+			fontconfig freetype x264 xvidcore jpeg libmad ncurses zlib lame \
+			libpng16 giflib enca lirc"
+			# Handle arch package install
+			case "$SLITAZ_ARCH" in
+				arm*)
+					DEPENDS="alsa-lib zlib libmad xorg-libXv xorg-libXxf86vm \
+					libogg libvorbis libtheora xvidcore lame esound"
+					;;
+			esac
+			;;
 	esac
 }

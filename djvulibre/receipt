@@ -1,28 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="djvulibre"
 VERSION="3.5.27"
 CATEGORY="office"
-SHORT_DESC="A web-centric format and software platform for distributing documents and images."
+SHORT_DESC="A web-centric format and software platform for distributing documents and images"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://djvu.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/djvu/$TARBALL"
 
-#HOST_ARCH="i486 arm"
-
-DEPENDS="gcc-lib-base tiff jpeg libpng12"
+BUILD_DEPENDS_arm="tiff-dev jpeg-dev"
 BUILD_DEPENDS="tiff-dev jpeg-dev xdg-utils bash rsvg-convert wget libpng12-dev"
+SPLIT="djvulibre-dev"
 
-# Handle cross compilation. Build host must have: xdg-utils bash librsvg-apps
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="tiff-dev jpeg-dev " ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
@@ -30,11 +23,20 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/djvu $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		djvulibre)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/lib/*so* $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/share/djvu $fs/usr/share
+			DEPENDS="gcc-lib-base tiff jpeg libpng12"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

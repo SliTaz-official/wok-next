@@ -3,55 +3,68 @@
 PACKAGE="gdb"
 VERSION="8.0.1"
 CATEGORY="development"
-SHORT_DESC="The GNU Project Debugger."
+SHORT_DESC="The GNU Project Debugger"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gnu.org/software/gdb/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-HOST_ARCH="i486 arm"
 
-BUILD_DEPENDS="ncurses-dev readline-dev perl-dev texinfo"
-SPLIT="gdb-dev"
+BUILD_DEPENDS="ncurses-dev python-dev readline-dev perl-dev texinfo"
+SPLIT="gdb-python:python gdb-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $SET in
+		'')     SET_ARGS='--with-python=no';;
+		python) SET_ARGS='';;
+	esac
+
 	./configure \
-		--with-python=no \
 		--disable-werror \
-		$CONFIGURE_ARGS && \
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gdb)
-		DEPENDS="ncurses expat glibc-dev"
-		mkdir -p $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		;;
-	gdb-dev)
-		CAT="development|The GNU Project Debugger dev files."
-		DEPENDS="gdb"
-		mkdir -p $fs/usr
-	
-		# Copying include dir if exists
-		if [ -d "$install/usr/include" ]; then
-			cp -a $install/usr/include $fs/usr
-		fi
-	
-		# Copying pkgconfig dir if exists
-		if [ -d "$install/usr/lib/pkgconfig" ]; then
-			test -d $fs/usr/lib/ || mkdir -p $fs/usr/lib/
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		fi
-	
-		# Do not copy static libs, as they are all part of binutils
-		# binutils includes libbdf.*a, libiberty.a, and libopcodes.*a
-		# Copying static libs if exists
-		;;
+		gdb)
+			mkdir -p $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			DEPENDS="ncurses expat glibc-dev"
+			;;
+		gdb-python)
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			cp -a $install/usr/share/gdb $fs/usr/share
+			CAT="development|with Python support"
+			DEPENDS="ncurses expat glibc-dev python"
+			PROVIDE="gdb"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+
+			# Copying include dir if exists
+			if [ -d "$install/usr/include" ]; then
+				cp -a $install/usr/include $fs/usr
+			fi
+
+			# Copying pkgconfig dir if exists
+			if [ -d "$install/usr/lib/pkgconfig" ]; then
+				test -d $fs/usr/lib/ || mkdir -p $fs/usr/lib/
+				cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			fi
+
+			# Do not copy static libs, as they are all part of binutils
+			# binutils includes libbdf.*a, libiberty.a, and libopcodes.*a
+			# Copying static libs if exists
+			#if ( find $install/usr/lib -name "*.*a" > /dev/null ); then
+			#	test -d $fs/usr/lib || mkdir -p $fs/usr/lib
+			#	cp -a $install/usr/lib/*.*a $fs/usr/lib
+			#fi
+			DEPENDS="gdb"
+			;;
 	esac
 }

@@ -1,23 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="freetype-infinality"
-PROVIDE="freetype"
 VERSION="2.4.11"
 CATEGORY="x-window"
 SHORT_DESC="Freetype font engine with infinality patches"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD GPL2"
-SOURCE="freetype"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.freetype.org/"
-WGET_URL="http://download.savannah.gnu.org/releases/$SOURCE/$TARBALL"
 
-DEPENDS="slitaz-base-files zlib"
+TARBALL="freetype-$VERSION.tar.bz2"
+WGET_URL="http://download.savannah.gnu.org/releases/freetype/$TARBALL"
+
 BUILD_DEPENDS="bzip2-dev"
+SPLIT="freetype-infinality-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# http://www.infinality.net/blog/infinality-freetype-patches/
 	# http://www.infinality.net/forum/viewtopic.php?f=2&t=77#p794
 	mkdir -p $src/patch
@@ -33,24 +30,35 @@ compile_rules()
 	make install 2>&1 | grep -v rmdir
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p \
-		$fs/etc/profile.d \
-		$fs/usr/lib/freetype-infinality
-	# profile settings
-	install -m644 $src/patch/infinality-settings.sh $fs/etc/profile.d
-	# binary & libs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib/freetype-infinality
+genpkg_rules() {
+	case $PACKAGE in
+		freetype-infinality)
+			mkdir -p \
+				$fs/etc/profile.d \
+				$fs/usr/lib/freetype-infinality
+			# profile settings
+			install -m644 $src/patch/infinality-settings.sh $fs/etc/profile.d
+			# binary & libs
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib/freetype-infinality
+			DEPENDS="slitaz-base-files zlib"
+			PROVIDE="freetype"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/share $fs/usr
+			DEPENDS="freetype-infinality libzip-dev bzip2-dev pkg-config"
+			;;
+	esac
 }
 
 
-post_install()
-{
+post_install_freetype_infinality() {
 	# SliTaz not support /etc/profile.d/ by default, but use /etc/profile file
-	cat >> "$1/etc/profile" << EOT
+	cat >> "$1/etc/profile" <<EOT
 
 # freetype-infinality profile settings
 . /etc/profile.d/infinality-settings.sh
@@ -62,8 +70,7 @@ EOT
 	echo 'Now you can log out/in to take effect on all your apps'
 }
 
-post_remove()
-{
+post_remove_freetype_infinality() {
 	sed -i '/infinality/d' "$1/etc/profile"
 	sed -i '/freetype-infinality/d' "$1/etc/ld.so.conf"
 	chroot "$1/" ldconfig

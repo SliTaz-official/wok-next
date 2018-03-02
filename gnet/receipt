@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnet"
 VERSION="2.0.8"
 CATEGORY="network"
-SHORT_DESC="GNet is a simple network library."
+SHORT_DESC="GNet is a simple network library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnetlibrary.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/GNOME/sources/gnet/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib"
-BUILD_DEPENDS="glib-dev util-linux-uuid-dev xorg-libXt" 
+BUILD_DEPENDS="glib-dev util-linux-uuid-dev xorg-libXt"
+SPLIT="gnet-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lXt"
 	./configure \
@@ -27,9 +26,14 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		gnet)
+			copy @std
+			DEPENDS="glib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

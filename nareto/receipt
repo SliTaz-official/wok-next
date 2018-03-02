@@ -1,57 +1,57 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nareto"
 VERSION="1.1.6"
 CATEGORY="network"
-SHORT_DESC="Nagios reporting tool."
+SHORT_DESC="Nagios reporting tool"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nareto.org/"
-WGET_URL="${WEB_SITE}srcs/$TARBALL"
-CONFIG_FILES="/etc/nagios"
 BUGS="s/oreon/centreon/"
 
-DEPENDS="nagios apache php php-cli mysql perl-dbd-mysql perl-dbi"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="${WEB_SITE}srcs/$TARBALL"
+CONFIG_FILES="/etc/nagios"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+DEPENDS="nagios apache php php-cli mysql perl-dbd-mysql perl-dbi"
+SPLIT="nareto-doc"
+
+compile_rules() {
 	chown -R www.www *
 	chmod -R 755 *
 	chmod u+x scripts/*.pl
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/etc/mysql.d $fs/etc/initcron.d $fs/etc/nagios
-	
-	cp -a $src $fs/usr/share/nareto
-	cp -a stuff/* $fs
-	sed -i 's/oreon.jpg/centreon.png/' $fs/usr/share/nareto/index.php
-	sed -i -e 's/oreon/centreon/g' -e 's/Oreon/Centreon/g' \
-		 $fs/usr/share/nareto/index.php \
-		 $fs/usr/share/nareto/administration/gestion_auto.php
-	find $fs/usr/share/nareto -type f | while read file; do
-		case "$file" in
-		*.jpg|*.png|*.gif|*.pdf|*.ttf|*.xls|*.html) continue;;
-		esac
-		dos2unix "$file"
-		sed -i 's/<?/<?php /g' "$file"
-		sed -i 's/<?php xml/<?xml/g' "$file"
-		sed -i 's/<?php php/<?php/g' "$file"
-		sed -i 's/<?php =/<?php echo /g' "$file"
-	done
-	mv $fs/usr/share/nareto/include/config.ini.php \
-		 $fs/etc/nagios/nareto.init.php
-	ln -s /etc/nagios/nareto.init.php \
-		$fs/usr/share/nareto/include/config.ini.php
-	sed -i -e 's/user$/nareto/' -e 's/password$/nareto/' \
-		 $fs/etc/nagios/nareto.init.php
-	chmod 700 $fs/etc/nagios/nareto.init.php
-	cat > $fs/etc/mysql.d/nareto <<EOM
+genpkg_rules() {
+	case $PACKAGE in
+		nareto)
+			mkdir -p $fs/usr/share $fs/etc/mysql.d $fs/etc/initcron.d $fs/etc/nagios
+
+			cp -a $src $fs/usr/share/nareto
+			cp -a stuff/* $fs
+			sed -i 's/oreon.jpg/centreon.png/' $fs/usr/share/nareto/index.php
+			sed -i -e 's/oreon/centreon/g' -e 's/Oreon/Centreon/g' \
+				$fs/usr/share/nareto/index.php \
+				$fs/usr/share/nareto/administration/gestion_auto.php
+			find $fs/usr/share/nareto -type f \
+			| while read file; do
+				case "$file" in
+					*.jpg|*.png|*.gif|*.pdf|*.ttf|*.xls|*.html) continue;;
+				esac
+				dos2unix "$file"
+				sed -i 's/<?/<?php /g' "$file"
+				sed -i 's/<?php xml/<?xml/g' "$file"
+				sed -i 's/<?php php/<?php/g' "$file"
+				sed -i 's/<?php =/<?php echo /g' "$file"
+			done
+			mv $fs/usr/share/nareto/include/config.ini.php \
+				$fs/etc/nagios/nareto.init.php
+			ln -s /etc/nagios/nareto.init.php \
+				$fs/usr/share/nareto/include/config.ini.php
+			sed -i -e 's/user$/nareto/' -e 's/password$/nareto/' \
+				$fs/etc/nagios/nareto.init.php
+			chmod 700 $fs/etc/nagios/nareto.init.php
+			cat > $fs/etc/mysql.d/nareto <<EOM
 #!/bin/sh
 
 mysqldump nareto > /dev/null 2>&1 || mysql <<EOT
@@ -66,8 +66,8 @@ FLUSH PRIVILEGES;
 EOT
 chmod -x /etc/mysql.d/nareto
 EOM
-	chmod +x $fs/etc/mysql.d/nareto
-	cat > $fs/etc/initcron.d/nareto <<EOT
+			chmod +x $fs/etc/mysql.d/nareto
+			cat > $fs/etc/initcron.d/nareto <<EOT
 # Reporting
 #FIXME LEAK?#*/5 * * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_5min.php > /dev/null 2>&1
 #FIXME LEAK?#2 * * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_1h.php > /dev/null 2>&1
@@ -78,20 +78,27 @@ EOM
 #FIXME LEAK?#0 1 * * * root /usr/bin/perl /usr/share/nareto/scripts/nagios_alert_agregation.pl > /dev/null 2>&1
 
 EOT
-	chmod +x $fs/etc/initcron.d/nareto
-	
-	# Move doc in nareto-doc package.
-	rm -rf $fs/usr/share/nareto/docs
+			chmod +x $fs/etc/initcron.d/nareto
+
+			# Move doc in nareto-doc package.
+			rm -rf $fs/usr/share/nareto/docs
+			;;
+		nareto-doc)
+			mkdir -p $fs/usr/share/nareto
+			cp -a $src/docs $fs/usr/share/nareto
+			CAT="network|documentation"
+			DEPENDS="nareto"
+			;;
 }
 
-post_install()
-{
+post_install_nareto() {
 	[ -s "$1/usr/share/nagios/.htaccess" ] &&
 	cp "$1/usr/share/nagios/.htaccess" "$1/usr/share/nareto/"
+
 	# Configure lighttpd server
 	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
 		if ! grep -q /usr/share/nareto/ "$1/etc/lighttpd/lighttpd.conf"; then
-	    		sed -e 's|.*"/examples/" => "/usr/share/examples/",|    "/examples/" => "/usr/share/examples/",\n    "/nareto/" => "/usr/share/nareto",|g' -i "$1/etc/lighttpd/lighttpd.conf"
+			sed -e 's|.*"/examples/" => "/usr/share/examples/",|    "/examples/" => "/usr/share/examples/",\n    "/nareto/" => "/usr/share/nareto",|g' -i "$1/etc/lighttpd/lighttpd.conf"
 			if [ -z "$1" ]; then
 				# Start Web server.
 				/etc/init.d/lighttpd stop
@@ -99,7 +106,7 @@ post_install()
 			fi
 		fi
 	fi
-	
+
 	# Configure apache server
 	if [ -f "$1/etc/apache/httpd.conf" ]; then
 		sed -i 's/lighttpd/apache/' "$1/etc/rcS.conf"
@@ -121,4 +128,3 @@ EOT
 		fi
 	fi
 }
-

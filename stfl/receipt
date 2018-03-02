@@ -12,11 +12,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev swig python-dev"
-SPLIT="stfl-python stfl-dev"
+SPLIT="python-stfl stfl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/usr/local|/usr|' Makefile.cfg
 	sed -i 's|ncursesw/ncurses.h|ncurses.h|' stfl_internals.h
 	sed -i 's|^include Makefile.deps|-&|' Makefile
@@ -27,17 +25,16 @@ compile_rules()
 	ln -s libstfl.so.$VERSION $install/usr/lib/libstfl.so.0
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		stfl)
 			copy libstfl.so*
 			DEPENDS="ncurses"
 			;;
-		*-python)
+		python-stfl)
 			copy python*/
-			DEPENDS="ncurses python"
+			CAT="development|Python bindings"
+			DEPENDS="ncurses python   stfl"
 			;;
 		*-dev)
 			copy @dev

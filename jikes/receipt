@@ -1,23 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jikes"
 VERSION="1.22"
 CATEGORY="development"
-SHORT_DESC="An Open Source compiler for Java."
+SHORT_DESC="An Open Source compiler for Java"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="EPL"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://jikes.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="java"
 
-DEPENDS="gcc-lib-base"
 BUILD_DEPENDS="slitaz-toolchain"
+SPLIT="jikes-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -27,10 +24,17 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		jikes)
+			mkdir -p $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			DEPENDS="gcc-lib-base"
+			TAGS="java"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
-

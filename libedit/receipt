@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libedit"
 VERSION="3.0"
@@ -6,17 +6,15 @@ CATEGORY="misc"
 SHORT_DESC="Berkeley-style licensed command line editor library"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="BSD"
-SOURCE="libedit-20100424"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.thrysoee.dk/editline/"
+
+TARBALL="libedit-20100424-$VERSION.tar.gz"
 WGET_URL="http://www.thrysoee.dk/editline/$TARBALL"
-TAGS="cli editor library"
 
 BUILD_DEPENDS="gettext"
+SPLIT="libedit-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
@@ -26,9 +24,14 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libedit)
+			copy @std
+			TAGS="cli editor library"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

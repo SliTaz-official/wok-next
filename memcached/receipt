@@ -1,28 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="memcached"
 VERSION="1.4.14"
 CATEGORY="system-tools"
-SHORT_DESC="High-performance, distributed memory object caching system, "
+SHORT_DESC="High-performance, distributed memory object caching system"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://memcached.org"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://memcached.googlecode.com/files/$TARBALL"
 
-DEPENDS="libevent"
 BUILD_DEPENDS="libevent-dev"
+SPLIT="memcached-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		memcached)
+			copy @std
+			DEPENDS="libevent"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="memcached libevent-dev"
+			;;
+	esac
 }

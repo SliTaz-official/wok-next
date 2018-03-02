@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libtar"
 VERSION="1.2.11"
 CATEGORY="development"
-SHORT_DESC="C library for manipulating POSIX tar files."
+SHORT_DESC="C library for manipulating POSIX tar files"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.feep.net/libtar/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.feep.net/pub/software/$PACKAGE/$TARBALL"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="zlib-dev"
+SPLIT="libtar-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -25,10 +23,14 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libtar)
+			copy @std
+			DEPENDS="zlib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

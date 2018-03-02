@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sylpheed"
 VERSION="3.5.1"
@@ -6,18 +6,15 @@ CATEGORY="network"
 SHORT_DESC="Simple, lightweight but featureful, and easy-to-use e-mail client"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://sylpheed.sraoss.jp/en/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://sylpheed.sraoss.jp/sylpheed/v${VERSION%.*}/$TARBALL"
-TAGS="mail internet"
 
-DEPENDS="gtk+ openssl libffi"
 BUILD_DEPENDS="gtk+-dev openssl-dev"
+SPLIT="sylpheed-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--disable-gtkspell \
 		--disable-updatecheck \
@@ -25,11 +22,21 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/applications
-	cp -a $stuff/applications/sylpheed*.desktop $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		sylpheed)
+			mkdir -p $fs/usr/lib $fs/usr/share/applications
+			cp -a $stuff/applications/sylpheed*.desktop $fs/usr/share/applications
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="gtk+ openssl libffi"
+			TAGS="mail internet"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			DEPENDS="gtk+ openssl gpgme gnupg xorg-libXdamage"
+			;;
+	esac
 }

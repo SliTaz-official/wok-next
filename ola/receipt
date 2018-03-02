@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ola"
 VERSION="0.9.8"
@@ -6,17 +6,16 @@ CATEGORY="network"
 SHORT_DESC="Open Lighting Architecture"
 MAINTAINER="kult-ex@aon.at"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://www.openlighting.org/ola/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/OpenLightingProject/ola/archive/$VERSION.tar.gz"
 
-DEPENDS="libftdi liblo libmicrohttpd ncurses protobuf"
 BUILD_DEPENDS="libtool flex protobuf-dev util-linux-uuid-dev cppunit-dev \
 libmicrohttpd-dev libftdi-dev libusb-dev liblo-dev ncurses-dev"
+SPLIT="ola-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -i
 	./configure \
 		--prefix=/usr \
@@ -24,11 +23,21 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/olad
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		ola)
+			mkdir -p $fs/usr/lib/olad
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/share $fs/usr
+			DEPENDS="libftdi liblo libmicrohttpd ncurses protobuf"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			DEPENDS="ola protobuf-dev"
+			;;
+	esac
 }

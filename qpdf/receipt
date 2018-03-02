@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qpdf"
 VERSION="6.0.0"
@@ -11,12 +11,10 @@ WEB_SITE="http://qpdf.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="pcre zlib"
 BUILD_DEPENDS="zlib-dev pcre-dev"
+SPLIT="qpdf-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		--docdir=/usr/share/doc/qpdf-$VERSION \
@@ -24,8 +22,14 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/ *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		qpdf)
+			copy bin/ *.so*
+			DEPENDS="pcre zlib"
+			;;
+		*-dev)
+			copy *.h *.hh *.la *.pc
+			;;
+	esac
 }

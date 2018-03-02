@@ -1,23 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libquicktime"
 VERSION="1.2.4"
 CATEGORY="multimedia"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2.1"
-SHORT_DESC="A library for reading and writing quicktime files."
+SHORT_DESC="A library for reading and writing quicktime files"
 WEB_SITE="http://libquicktime.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk+ ffmpeg alsa-lib xorg-libXv mesa xorg-libXaw x264"
-BUILD_DEPENDS="gtk+-dev ffmpeg-dev alsa-lib-dev xorg-libXv-dev xorg-libXaw-dev x264-dev zlib-dev mesa-dev"
+BUILD_DEPENDS="gtk+-dev ffmpeg-dev alsa-lib-dev xorg-libXv-dev xorg-libXaw-dev \
+x264-dev zlib-dev mesa-dev"
+SPLIT="libquicktime-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -p0 < $stuff/ffmpeg.u
-	./configure --prefix=/usr  \
+	./configure \
+		--prefix=/usr \
 		--enable-gpl \
 		--with-ffmpeg \
 		--with-x264 \
@@ -26,12 +27,15 @@ compile_rules()
 	make &&
 	make DESTDIR=$DESTDIR install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/$PACKAGE
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*so* $fs/usr/lib/
-	cp -a $install/usr/lib/$PACKAGE/*so* $fs/usr/lib/$PACKAGE
+
+genpkg_rules() {
+	case $PACKAGE in
+		libquicktime)
+			copy @std
+			DEPENDS="gtk+ ffmpeg alsa-lib xorg-libXv mesa xorg-libXaw x264"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

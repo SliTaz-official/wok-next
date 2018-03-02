@@ -1,67 +1,142 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
-PACKAGE="boxbackup-server"
+PACKAGE="boxbackup"
 VERSION="0.11.1"
-CATEGORY="network"
-SHORT_DESC="Server for the BoxBackup on-line backup system"
+CATEGORY="meta"
+SHORT_DESC="BoxBackup on-line backup system"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.boxbackup.org/"
-SOURCE="boxbackup"
-TARBALL="$SOURCE-$VERSION.tgz"
+
+TARBALL="boxbackup-$VERSION.tgz"
 # stable
-# WGET_URL="$SF_MIRROR/$SOURCE/$TARBALL"
+# WGET_URL="$SF_MIRROR/boxbackup/$TARBALL"
 #WGET_URL="http://www.boxbackup.org/svn/box/packages/$TARBALL"
 WGET_URL="http://www.boxbackup.org/export/3106/box/packages/$TARBALL"
-TAGS="backup automatic server network"
 
-DEPENDS="db libedit openssl perl zlib gcc-lib-base"
 BUILD_DEPENDS="db-dev libedit-dev openssl-dev zlib-dev perl"
+SPLIT="boxbackup-client boxbackup-server"
 
 # Configuration variables
-HOSTNAME=$(ifconfig | awk -F ":" '/cast/ {print substr($2,0, index($2," ")-1) }')
-CONF_DIR="/etc/boxbackup"
-DATA_DIR="/var/lib/bbstored"
-CA_DIR="${CONF_DIR}/ca"
-BBUSER="bbstored"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make -j1 && {
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	{
 		mkdir -p $DESTDIR
-		cp -a parcels/boxbackup-${VERSION}-backup-client-linux-gnu $DESTDIR
-		cp -a parcels/boxbackup-${VERSION}-backup-server-linux-gnu $DESTDIR
-		rm -f $DESTDIR/boxbackup-${VERSION}-backup-server-linux-gnu/*.*
+		cp -a  parcels/boxbackup-$VERSION-backup-client-linux-gnu $DESTDIR
+		cp -a  parcels/boxbackup-$VERSION-backup-server-linux-gnu $DESTDIR
+		rm -f $DESTDIR/boxbackup-$VERSION-backup-server-linux-gnu/*.*
 	}
 
 	cook_pick_manpages $src/docs/man/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/boxbackup-${VERSION}-backup-server-linux-gnu/bb* $fs/usr/bin
-	cp -a $install/boxbackup-${VERSION}-backup-server-linux-gnu/ra* $fs/usr/bin
-	mkdir -p $fs/etc/init.d
-	cp -a $stuff/bbstored $fs/etc/init.d
+genpkg_rules() {
+	case $PACKAGE in
+		boxbackup)
+			DEPENDS="$SPLIT"
+			;;
+		*-client)
+			mkdir -p $fs/usr/bin
+			cp -a $install/boxbackup-$VERSION-backup-client-linux-gnu/bb* $fs/usr/bin
+			rm -f $fs/usr/bin/*.*
+			mkdir -p $fs/etc/init.d
+			cp -a $stuff/bbackupd $fs/etc/init.d
+			CAT="network|client"
+			DEPENDS="db libedit openssl perl zlib gcc-lib-base"
+			TAGS="backup automatic client"
+			;;
+		*-server)
+			mkdir -p $fs/usr/bin
+			cp -a $install/boxbackup-$VERSION-backup-server-linux-gnu/bb* $fs/usr/bin
+			cp -a $install/boxbackup-$VERSION-backup-server-linux-gnu/ra* $fs/usr/bin
+			mkdir -p $fs/etc/init.d
+			cp -a $stuff/bbstored $fs/etc/init.d
+			CAT="network|server"
+			DEPENDS="db libedit openssl perl zlib gcc-lib-base"
+			TAGS="backup automatic server network"
+			;;
+	esac
+}
+
+pre_install_boxbackup_client() {
+	RUN_DMON=0
+
+	# Stop daemon
+	if [ -z "$1" -a -e /var/run/bbackupd.pid ]; then
+		/etc/init.d/bbackupd stop
+		RUN_DMON=1
+	fi
+}
+
+post_install_boxbackup_client() {
+	CONF_DIR="/etc/boxbackup"
+	DATA_DIR="/var/lib/bbackupd"
+
+	# Creating conf dir
+	if [ ! -e "$1/$CONF_DIR" ]; then
+		mkdir -p "$1/$CONF_DIR" && chmod 755 "$1/$CONF_DIR"
+	fi
+	if [ ! -e "$1/$DATA_DIR" ]; then
+		mkdir -p "$1/$DATA_DIR" && chmod 700 "$1/$DATA_DIR"
+	fi
+	if [ -z "$1" ]; then
+		# Start daemon (if stopped by install)
+		if [ $RUN_DMON -eq 1 ]; then
+			/etc/init.d/bbackupd start
+		fi
+	fi
+	true
+}
+
+pre_remove_boxbackup_client() {
+	# Stop daemon
+	if [ -z "$1" ]; then
+		if [ -e /var/run/bbackupd.pid ]; then
+			/etc/init.d/bbackupd stop
+		fi
+	fi
+}
+
+post_remove_boxbackup_client() {
+	CONF_DIR="/etc/boxbackup"
+	DATA_DIR="/var/lib/bbackupd"
+
+	# Delete DATA directory
+	rm -rf "$1/$DATA_DIR"
+
+	# Delete Client config files
+	rm -rf "$1/$CONF_DIR"/bbackupd*
+
+	# Delete CONF dir (if empty)
+	if [ $(ls -lA "$1/$CONF_DIR" | wc -l) -eq 0 ]; then
+		echo
+		action "Removing $CONF_DIR..."
+		rm -rf "$1/$CONF_DIR"
+		status
+	fi
+	# Delete PID, sock files
+	rm -f "$1/var/run/bbackupd".*
 }
 
 
-# Pre and post install commands for Tazpkg.
-
-pre_install()
-{
+pre_install_boxbackup_server() {
 	# Stop daemon
 	if [ -z "$1" -a -e /var/run/bbstored.pid ]; then
 		/etc/init.d/bbstored stop
 	fi
 }
 
-post_install()
-{
+post_install_boxbackup_server() {
+	HOSTNAME=$(ifconfig | awk -F ":" '/cast/ {print substr($2,0, index($2," ")-1) }')
+	CONF_DIR="/etc/boxbackup"
+	DATA_DIR="/var/lib/bbstored"
+	CA_DIR="${CONF_DIR}/ca"
+	BBUSER="bbstored"
+
 	# default conf dir is now /etc/boxbackup
 	if [ ! -e "$1/etc/box/bbstored.conf" ]; then
 		mv "$1/etc/box" "$1$CONF_DIR"
@@ -159,15 +234,16 @@ post_install()
 	fi
 }
 
-# Pre and post remove commands for Tazpkg
-
-pre_remove()
-{
+pre_remove_boxbackup_server() {
 	/etc/init.d/bbstored stop
 }
 
-post_remove()
-{
+post_remove_boxbackup_server() {
+	CONF_DIR="/etc/boxbackup"
+	DATA_DIR="/var/lib/bbstored"
+	CA_DIR="${CONF_DIR}/ca"
+	BBUSER="bbstored"
+
 	echo
 	if  grep -q $BBUSER /etc/passwd; then
 		action "Removing $BBUSER user..."
@@ -203,3 +279,4 @@ post_remove()
 	# Delete PID, sock files
 	rm -f /var/run/bbstored.*
 }
+

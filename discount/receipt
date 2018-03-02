@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="discount"
 VERSION="2.1.8"
 CATEGORY="utilities"
-SHORT_DESC="a C implementation of the markdown spec"
+SHORT_DESC="C implementation of the markdown spec"
 MAINTAINER="necrophcodr@necrophcodr.me"
 LICENSE="BSD3"
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
 WEB_SITE="http://www.pell.portland.or.us/~orc/Code/markdown"
-WGET_URL="${WEB_SITE}/${TARBALL}"
-HOST_ARCH="i486 arm"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="discount-dev"
+
+compile_rules() {
 	./configure.sh --prefix=/usr &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr/
+genpkg_rules() {
+	case $PACKAGE in
+		discount) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

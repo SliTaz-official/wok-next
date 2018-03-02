@@ -1,24 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="obby"
 VERSION="0.4.7"
 CATEGORY="network"
-SHORT_DESC="Realtime collaborative text-editing functionality."
+SHORT_DESC="Realtime collaborative text-editing functionality"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gobby.0x539.de/trac/"
-WGET_URL="http://releases.0x539.de/obby/$TARBALL"
-TAGS="collaboration text"
 
-DEPENDS="gnutls libgpg-error libgcrypt net6 libsigc++ zlib gcc-lib-base libtasn1"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://releases.0x539.de/obby/$TARBALL"
+
 BUILD_DEPENDS="$DEPENDS gnutls-dev libgpg-error-dev libgcrypt-dev net6-dev \
 libsigc++-dev"
+SPLIT="obby-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -28,9 +25,16 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		obby)
+			copy @std
+			DEPENDS="gnutls libgpg-error libgcrypt net6 libsigc++ zlib \
+			gcc-lib-base libtasn1"
+			TAGS="collaboration text"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

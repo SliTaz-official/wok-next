@@ -1,42 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="udev"
 VERSION="182"
-BUILD_WARNING="Install new udev package and rebuild hal"
 CATEGORY="base-system"
-SHORT_DESC="Udev creat automaticly right devices in /dev."
+SHORT_DESC="Udev creat automaticly right devices in /dev"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/software/systemd/man/udev.html"
 HOST_ARCH="i486 arm"
+BUILD_WARNING="Install new udev package and rebuild hal"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kernel/hotplug/$TARBALL"
 
-DEPENDS="util-linux-blkid pciids usbids acl kmod"
+BUILD_DEPENDS_arm="util-linux-blkid-dev kmod-dev acl-dev glib-dev"
 BUILD_DEPENDS="util-linux-blkid-dev gperf pkg-config pciids acl-dev \
 usbutils-dev libusb-dev glib-dev pciids usbids kmod-dev \
 libgudev-dev pcre-dev xz-dev util-linux-uuid-dev"
+SPLIT="udev-dev"
 
-# Use build host: gperf
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="util-linux-blkid-dev kmod-dev acl-dev glib-dev"
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
-		arm*) 
-			# ARM Hack
-			for la in libgthread-2.0.la libglib-2.0.la
-			do
-				if grep -q "^libdir='/usr/lib'" /usr/lib/${la}; then
+		arm*) # ARM Hack
+			for la in libgthread-2.0.la libglib-2.0.la; do
+				if grep -q "^libdir='/usr/lib'" /usr/lib/$la; then
 					sed -i s"#/usr/lib#/cross/$ARCH/sysroot/usr/lib#" \
-						/usr/lib/${la}
-				fi 
+						/usr/lib/$la
+				fi
 			done ;;
 	esac
+
 	sed -i 's/.*mtd-user.*/&\n#include <stdint.h>/' src/mtd_probe/mtd_probe.h
 	export LDFLAGS="$LDFLAGS -lrt"
 	./configure \
@@ -57,50 +50,59 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/lib/firmware
+genpkg_rules() {
+	case $PACKAGE in
+		udev)
+			mkdir -p $fs/lib/firmware
 
-	cp -a $install/sbin $fs
-	cp -a $install/etc $fs
-	cp -a $install/lib/libudev*so* $fs/lib
-	cp -a $install/lib/udev $fs/lib
+			cp -a $install/sbin $fs
+			cp -a $install/etc $fs
+			cp -a $install/lib/libudev*so* $fs/lib
+			cp -a $install/lib/udev $fs/lib
 
-	# Have udevd in PATH
-	mv $fs/lib/udev/udevd $fs/sbin
+			# Have udevd in PATH
+			mv $fs/lib/udev/udevd $fs/sbin
 
-	# Copy rules files to udev conf dir
-	mv -f $fs/lib/udev/rules.d $fs/etc/udev
-	cp $stuff/udev.conf $fs/etc/udev
-	cp $stuff/*.rules $fs/etc/udev/rules.d
+			# Copy rules files to udev conf dir
+			mv -f $fs/lib/udev/rules.d $fs/etc/udev
+			cp $stuff/udev.conf $fs/etc/udev
+			cp $stuff/*.rules $fs/etc/udev/rules.d
 
-	# Create some devices and directories that Udev cannot handle
-	# due to them being required very early in the boot process
-	mkdir -p $fs/lib/udev/devices/pts
-	mkdir -p $fs/lib/udev/devices/shm
-	mknod -m 0666 $fs/lib/udev/devices/null c 1 3
+			# Create some devices and directories that Udev cannot handle
+			# due to them being required very early in the boot process
+			mkdir -p $fs/lib/udev/devices/pts
+			mkdir -p $fs/lib/udev/devices/shm
+			mknod -m 0666 $fs/lib/udev/devices/null c 1 3
 
-	# Fix permissions
-	chmod +x $fs/lib/udev/*
-	chown -R root.root $fs
+			# Fix permissions
+			chmod +x $fs/lib/udev/*
+			chown -R root.root $fs
+			DEPENDS="util-linux-blkid pciids usbids acl kmod"
+			;;
+		*-dev)
+			mkdir -p $fs/lib $fs/usr/lib/pkgconfig $fs/usr/include
+			cp -a $install/lib/libudev*a $fs/lib
+			cp -a $install/lib/pkgconfig/libudev.pc $fs/usr/lib/pkgconfig
+			cp -a $install/usr/share/pkgconfig/* $fs/usr/lib/pkgconfig
+			cp -a $install/usr/include/libudev.h $fs/usr/include
+			;;
+	esac
 }
 
-list_udev_group()
-{
-	object=${2:-GROUP}
-	grep $object "$1/etc/udev/rules.d/"* | \
-	sed "s|.*$object=\"\([a-zA-Z0-9]*\)\".*|\1|" | sort | uniq
-}
-
-post_install()
-{
+post_install_udev() {
 	# Sanity check for udev+ldap boot
-	list_udev_group "$1" GROUP | \
-	while read x; do
+	grep GROUP "$1/etc/udev/rules.d/"* \
+	| sed "s|.*$object=\"\([a-zA-Z0-9]*\)\".*|\1|" \
+	| sort \
+	| uniq \
+	| while read x; do
 		grep -q ^$x: "$1/etc/group" || chroot "$1/" addgroup -S $x
 	done
-	list_udev_group "$1" OWNER | \
+
+	grep OWNER "$1/etc/udev/rules.d/"* \
+	| sed "s|.*$object=\"\([a-zA-Z0-9]*\)\".*|\1|" \
+	| sort \
+	| uniq \
 	while read x; do
 		grep -q ^$x: "$1/etc/passwd" || chroot "$1/" adduser -S -D -H $x
 	done

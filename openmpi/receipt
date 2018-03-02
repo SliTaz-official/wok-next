@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openmpi"
 VERSION="1.5.3"
@@ -6,39 +6,44 @@ CATEGORY="development"
 SHORT_DESC="High performance message passing library (MPI)"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.open-mpi.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.open-mpi.org/software/ompi/v${VERSION%.*}/downloads/$TARBALL"
 
-DEPENDS="gcc gfortran libtool openssh valgrind"
-BUILD_DEPENDS="$DEPENDS valgrind-dev"
+BUILD_DEPENDS="gcc gfortran libtool openssh valgrind valgrind-dev"
+SPLIT="openmpi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-   ./configure --sysconfdir=/etc/${PACKAGE} \
-               --enable-mpi-f90 \
-               --libdir=/usr/lib/${pkgname} \
-               --with-threads=posix \
-               --enable-mpi-threads \
-               --enable-smp-locks \
-               --with-valgrind \
-               --enable-pretty-print-stacktrace \
-               --without-slurm \
-               --with-libltdl=/usr \
-               FC=/usr/bin/gfortran \
-               LDFLAGS='-Wl,-z,noexecstack' &&
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc/openmpi \
+		--enable-mpi-f90 \
+		--libdir=/usr/lib/openmpi \
+		--with-threads=posix \
+		--enable-mpi-threads \
+		--enable-smp-locks \
+		--with-valgrind \
+		--enable-pretty-print-stacktrace \
+		--without-slurm \
+		--with-libltdl=/usr \
+		FC=/usr/bin/gfortran \
+		LDFLAGS='-Wl,-z,noexecstack' &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/$PACKAGE
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/$PACKAGE/*.so* $fs/usr/lib/$PACKAGE
-	cp -a $install/usr/lib/mpi.mod $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		openmpi)
+			mkdir -p $fs/usr/lib/$PACKAGE
+			cp -a $install/etc $fs
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/lib/$PACKAGE/*.so* $fs/usr/lib/$PACKAGE
+			cp -a $install/usr/lib/mpi.mod $fs/usr/lib
+			DEPENDS="gcc gfortran libtool openssh valgrind"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

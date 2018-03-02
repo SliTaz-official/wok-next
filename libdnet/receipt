@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdnet"
 VERSION="1.12"
@@ -6,17 +6,15 @@ CATEGORY="network"
 SHORT_DESC="A simplified, portable interface to serveral low-level networking routines"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://code.google.com/p/libdnet/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://libdnet.googlecode.com/files/$TARBALL"
 
-DEPENDS="python"
 BUILD_DEPENDS="python python-dev"
+SPLIT="libdnet-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -25,12 +23,14 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/libdnet $fs/usr/lib
-	cp -a $install/usr/lib/*.1* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libdnet)
+			copy @std
+			DEPENDS="python"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

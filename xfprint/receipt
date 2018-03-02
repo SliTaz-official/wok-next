@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfprint"
 VERSION="4.6.1"
@@ -6,38 +6,34 @@ CATEGORY="x-window"
 SHORT_DESC="Xfce Printer manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/xfce/$VERSION/src/$TARBALL"
 
-DEPENDS="libxfcegui4 libxfce4util cups dbus-glib startup-notification \
-libcomerr3 util-linux-uuid"
 BUILD_DEPENDS="libxfcegui4-dev libxfce4util-dev cups-dev intltool xfconf-dev \
- dbus-glib-dev startup-notification-dev util-linux-uuid-dev gtk+-dev"
+dbus-glib-dev startup-notification-dev util-linux-uuid-dev gtk+-dev"
+SPLIT="xfprint-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	patch -p1 < $stuff/xfprint-4.6.1-cups-1.6.patch
-	./configure --prefix=/usr $CONFIGURE_ARGS && \
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	
-	# Remove unecessary files
-	find $fs/ -name "*.*a" -exec rm -f {} \;
-	rm -rf $fs/usr/lib/pkgconfig
-	# Remove SVG icons
-	rm -rf $fs/usr/share/icons/hicolor/scalable
-		
-		
+genpkg_rules() {
+	case $PACKAGE in
+		xfprint)
+			copy @std
+			# Remove SVG icons
+			rm -rf $fs/usr/share/icons/hicolor/scalable
+			DEPENDS="libxfcegui4 libxfce4util cups dbus-glib \
+			startup-notification libcomerr3 util-linux-uuid"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

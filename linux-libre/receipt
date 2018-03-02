@@ -26,7 +26,7 @@ linux-libre-netfilter linux-libre-nfsd linux-libre-reiserfs linux-libre-sched \
 linux-libre-scsi linux-libre-sound linux-libre-source linux-libre-speakup \
 linux-libre-squashfs linux-libre-toshiba linux-libre-udf linux-libre-usbdsl \
 linux-libre-usbip linux-libre-usb-misc linux-libre-uwb linux-libre-video \
-linux-libre-wimax linux-libre-wireless linux-libre-without-modules"
+linux-libre-wimax linux-libre-wireless linux-libre-without-modules lguest-libre"
 
 # Rules to configure and make the package.
 compile_rules()
@@ -1324,6 +1324,12 @@ genpkg_rules()
 			cp -a $install/bzImage $fs/boot/vmlinuz-$VERSION-slitaz-without-modules
 			CAT="base-system|without module support"
 			PROVIDE="linux-without-modules"
+			;;
+		lguest-libre)
+			mkdir -p $fs/usr/sbin
+			cp $src/Documentation/lguest/lguest $fs/usr/sbin
+			CAT="base-system|paravirtualization tool"
+			PROVIDE="lguest"
 			;;
 	esac
 }

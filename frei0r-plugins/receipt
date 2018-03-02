@@ -1,31 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="frei0r-plugins"
 VERSION="1.3"
 CATEGORY="multimedia"
+SHORT_DESC="frei0r is a minimalistic plugin API for video sources and filters"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="frei0r is a minimalistic plugin API for video sources and filters."
 WEB_SITE="http://www.piksel.org/frei0r"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.dyne.org/frei0r/releases/$TARBALL"
-TAGS="multimedia"
 
-DEPENDS="gcc-lib-base gavl"
 BUILD_DEPENDS="gavl-dev"
-
-# Rules to configure and make the package.
+SPLIT="frei0r-plugins-dev"
 
 compile_rules() {
-  cd $src
-  ./configure $CONFIGURE_ARGS && 
-  make && make install
+	./configure $CONFIGURE_ARGS && make && make install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/frei0r-1 
-	cp -a $install/usr/lib/frei0r-1/*so* $fs/usr/lib/frei0r-1
 
+genpkg_rules() {
+	case $PACKAGE in
+		frei0r-plugins)
+			copy @std
+			DEPENDS="gcc-lib-base gavl"
+			TAGS="multimedia"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

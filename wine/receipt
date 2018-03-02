@@ -1,48 +1,58 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wine"
 VERSION="2.5"
 CATEGORY="misc"
-SHORT_DESC="Windows API for Linux."
+SHORT_DESC="Windows API for Linux"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.winehq.org/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="windows emulator" # wine is not an emulator
 
-DEPENDS="alsa-lib libxml2 libxslt mesa libglu-mesa lcms freetype"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="alsa-lib-dev flex bison mesa-dev freetype-dev libtool \
 libglu-mesa-dev libxml2-dev libxslt-dev lcms-dev prelink cups-dev dbus-dev \
-jpeg-dev libpng16-dev libv4l-dev gnutls-dev libgphoto2-dev xorg-dev zlib-dev "
+jpeg-dev libpng16-dev libv4l-dev gnutls-dev libgphoto2-dev xorg-dev zlib-dev"
+SPLIT="wine-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/wine $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		wine)
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			cp -a $install/usr/share/wine $fs/usr/share
+			DEPENDS="alsa-lib libxml2 libxslt mesa libglu-mesa lcms freetype"
+			TAGS="windows"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib/wine $fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/wine/*.a $fs/usr/lib/wine
+			cp -a $install/usr/lib/wine/*.def* $fs/usr/lib/wine
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_wine() {
 	[ "$1" ] || modprobe snd-seq 2>/dev/null
 
 	# Enable unicode filenames and localized keyboard layouts input
 	. "$1/etc/locale.conf"
 	case $LANG in
-		(C|POSIX|*UTF-8) echo $LANG - skip modifying /etc/locale.conf ;;
-		(*)
-    		echo "$LANG changed to ${LANG}.UTF-8 in /etc/locale.conf"
-		echo "Restart/ReLogin required."
-		sed -i 's/$/&.UTF-8/' "$1/etc/locale.conf" ;;
+		C|POSIX|*UTF-8)
+			echo "$LANG - skip modifying /etc/locale.conf"
+			;;
+		*)
+			echo "$LANG changed to $LANG.UTF-8 in /etc/locale.conf"
+			echo "Restart/ReLogin required."
+			sed -i 's/$/&.UTF-8/' "$1/etc/locale.conf"
+			;;
 	esac
 }

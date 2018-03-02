@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libglademm"
 VERSION="2.6.7"
 CATEGORY="system-tools"
-SHORT_DESC="A C++ wrapper for libglade."
+SHORT_DESC="A C++ wrapper for libglade"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://gtkmm.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtkmm libglade glibmm"
 BUILD_DEPENDS="gtkmm-dev libglade-dev cairomm-dev libxml2-dev glibmm-dev"
+SPLIT="libglademm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's|gtkmm/main|gtkmm|' examples/variablesmap/main.cc
 	./configure \
 		--prefix=/usr \
@@ -26,10 +24,14 @@ compile_rules()
 	make $MAKEFLAGS && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libglademm)
+			copy @std
+			DEPENDS="gtkmm libglade glibmm"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

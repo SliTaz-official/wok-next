@@ -1,27 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gf2x"
 VERSION="1.2"
 CATEGORY="misc"
-SHORT_DESC="gf2x is a library for multiplying polynomials over the binary field"
+SHORT_DESC="Library for multiplying polynomials over the binary field"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://gforge.inria.fr/projects/gf2x/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://gforge.inria.fr/frs/download.php/file/36934/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="wget"
+SPLIT="gf2x-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		gf2x)  copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

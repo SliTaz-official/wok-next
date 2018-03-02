@@ -15,6 +15,7 @@ BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
 xorg-libXext-dev gtk+-dev libxfce4util-dev libxfce4ui-dev libwnck2-dev \
 libdrm-dev xorg-libXrandr-dev xorg-libXcomposite-dev xorg-libXfixes-dev \
 xorg-libXdamage-dev"
+SPLIT="xfwm4-themes xfwm4"
 
 compile_rules() {
 	./configure \
@@ -27,10 +28,19 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk+ \
-	libwnck2 libxfce4ui libxfce4util pango startup-notification xfconf \
-	xorg-libICE xorg-libSM xorg-libX11 xorg-libXcomposite xorg-libXdamage \
-	xorg-libXext xorg-libXfixes xorg-libXrandr xorg-libXrender"
-	TAGS="Xfce window-manager"
+	case $PACKAGE in
+		xfwm4-themes)
+			copy themes/
+			DEPENDS="xfwm4"
+			;;
+		xfwm4)
+			copy @std @rm
+			DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
+			glib gtk+ libwnck2 libxfce4ui libxfce4util pango \
+			startup-notification xfconf xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXcomposite xorg-libXdamage xorg-libXext xorg-libXfixes \
+			xorg-libXrandr xorg-libXrender"
+			TAGS="Xfce window-manager"
+			;;
+	esac
 }

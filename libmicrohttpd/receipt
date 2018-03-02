@@ -1,22 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmicrohttpd"
 VERSION="0.9.33"
 CATEGORY="network"
-SHORT_DESC="A small C library that is supposed to make it easy to run an HTTP server as part of another application."
+SHORT_DESC="A small C library that is supposed to make it easy to run an HTTP \
+server as part of another application"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/libmicrohttpd/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libgcrypt libgnutls"
 BUILD_DEPENDS="libgcrypt-dev gmp-dev gnutls-dev libtasn1-dev"
+SPLIT="libmicrohttpd-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -27,18 +26,23 @@ compile_rules()
 		--enable-messages \
 		--with-pic \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$DESTDIR install || return 1
+
 	mkdir -p $DESTDIR/usr/include/$PACKAGE
 	cp -a src/include/platform.h $DESTDIR/usr/include/$PACKAGE
 	cp -a src/include/plibc/plibc.h $DESTDIR/usr/include/$PACKAGE
 	sed -i 's#Cflags: -I${includedir}#Cflags: -I${includedir} -I{includedir}/libmicrohttpd#' $DESTDIR/usr/lib/pkgconfig/libmicrohttpd.pc
-
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libmicrohttpd)
+			copy @std
+			DEPENDS="libgcrypt libgnutls"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libmicrohttpd libgcrypt-dev gnutls-dev libtasn1-dev"
+			;;
+	esac
 }
-

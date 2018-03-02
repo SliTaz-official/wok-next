@@ -1,27 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="freeglut"
 VERSION="2.6.0"
 CATEGORY="x-window"
-SHORT_DESC="OpenGL utility toolkit."
+SHORT_DESC="OpenGL utility toolkit"
 MAINTAINER="b1+slitaz@nagel.org"
 LICENSE="GPL"
-SUGGESTED="nvidia"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://freeglut.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base libdrm mesa libglu-mesa \
-xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp \
-xorg-libXext xorg-libXi xorg-libXfixes xorg-libXxf86vm"
 BUILD_DEPENDS="mesa-dev mesa libglu-mesa-dev libglu-mesa xorg-inputproto \
 xorg-xproto xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
 xorg-libXdmcp-dev xorg-libXext-dev xorg-libXi-dev xorg-libXfixes-dev \
 xorg-libXxf86vm-dev xorg-libxcb-dev expat-dev xorg-libxshmfence-dev"
+SPLIT="freeglut-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 	
@@ -40,9 +36,20 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		freeglut)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="glibc-base libdrm mesa libglu-mesa \
+			xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp \
+			xorg-libXext xorg-libXi xorg-libXfixes xorg-libXxf86vm"
+			SUGGESTED="nvidia"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
