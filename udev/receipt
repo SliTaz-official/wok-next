@@ -103,7 +103,7 @@ post_install_udev() {
 	| sed "s|.*$object=\"\([a-zA-Z0-9]*\)\".*|\1|" \
 	| sort \
 	| uniq \
-	while read x; do
+	| while read x; do
 		grep -q ^$x: "$1/etc/passwd" || chroot "$1/" adduser -S -D -H $x
 	done
 }

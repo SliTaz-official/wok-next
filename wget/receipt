@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wget"
 VERSION="1.19.1"
@@ -7,24 +7,18 @@ SHORT_DESC="GNU Wget - the non-interactive network downloader"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/wget/"
-HOST_ARCH="i486 arm"
-CONFIG_FILES="/etc/wgetrc"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="openssl libidn pcre util-linux-uuid zlib"
 BUILD_DEPENDS="openssl-dev libidn-dev util-linux-uuid-dev gettext zlib-dev \
 perl pcre-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm) ARCH_ARGS="--with-libssl-prefix=/cross/$ARCH/sysroot/usr/lib" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm) ARCH_ARGS="--with-libssl-prefix=/cross/$ARCH/sysroot/usr/lib" ;;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
 		--with-ssl=openssl \
 		--with-openssl \
@@ -33,8 +27,8 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy wget wgetrc
+	DEPENDS="openssl libidn pcre util-linux-uuid zlib"
+	CONFIG_FILES="/etc/wgetrc"
 }
