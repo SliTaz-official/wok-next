@@ -1,34 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="compiz-plugins-main"
 VERSION="0.8.12.2"
 CATEGORY="x-window"
-SHORT_DESC="Compiz main plugins."
+SHORT_DESC="Compiz main plugins"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://github.com/compiz-reloaded"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="xorg-libX11 compiz-core librsvg"
 BUILD_DEPENDS="xorg-dev compiz-core-dev libnotify-dev libxslt-dev \
 startup-notification-dev mesa-dev gtk+-dev intltool librsvg-dev \
 compiz-libcompizconfig compiz-libcompizconfig-dev compiz-bcop libglu-mesa-dev \
 util-linux-uuid-dev libtool util-linux-getopt xorg-libxshmfence-dev expat-dev"
+SPLIT="compiz-plugins-main-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --sysconfdir=/etc
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/locale
-	cp -a $install/usr/lib/compiz $fs/usr/lib
-	cp -a $install/usr/share/compiz $fs/usr/share
-	cp -a $install/usr/share/locale/ru $fs/usr/share/locale
-	cd $fs/usr/lib/compiz; rm -f *.a *.la
+genpkg_rules() {
+	case $PACKAGE in
+		compiz-plugins-main)
+			mkdir -p $fs/usr/lib $fs/usr/share/locale
+			cp -a $install/usr/lib/compiz $fs/usr/lib
+			cp -a $install/usr/share/compiz $fs/usr/share
+			cp -a $install/usr/share/locale/ru $fs/usr/share/locale
+			cd $fs/usr/lib/compiz; rm -f *.a *.la
+			DEPENDS="xorg-libX11 compiz-core librsvg"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib/compiz
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/compiz/*a $fs/usr/lib/compiz
+			;;
+	esac
 }

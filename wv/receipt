@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wv"
 VERSION="1.2.9"
 CATEGORY="x-window"
-SHORT_DESC="MS document manipulation library."
+SHORT_DESC="MS document manipulation library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.abisource.com/projects/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.abisource.com/downloads/wv/$VERSION/$TARBALL"
 
-DEPENDS="glib libgsf libpng16 libxml2 zlib"
 BUILD_DEPENDS="libgsf libgsf-dev glib-dev libxml2-dev libpng16-dev"
+SPLIT="wv-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's|.ac_install_sh -d|mkdir -p|' configure
 	./configure \
 		--prefix=/usr \
@@ -26,12 +24,21 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	chmod +x $fs/usr/bin/*
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/wv $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		wv)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			chmod +x $fs/usr/bin/*
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/share/wv $fs/usr/share
+			DEPENDS="glib libgsf libpng16 libxml2 zlib"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

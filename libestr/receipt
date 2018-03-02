@@ -1,25 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libestr"
 VERSION="0.1.2"
 CATEGORY="system-tools"
-SHORT_DESC="some essentials for string handling "
+SHORT_DESC="Some essentials for string handling"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://libestr.adiscon.com/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://libestr.adiscon.com/files/download/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+SPLIT="libestr-dev"
+
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libestr)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.a* $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

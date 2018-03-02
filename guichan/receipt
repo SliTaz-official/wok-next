@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="guichan"
 VERSION="0.8.2"
@@ -6,25 +6,35 @@ CATEGORY="development"
 SHORT_DESC="A portable C++ GUI library designed for games using Allegro, SDL and/or OpenGL"
 MAINTAINER="devl547@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://guichan.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
 
-DEPENDS="libsdl libsdl-image"
 BUILD_DEPENDS="libsdl-dev libsdl-image-dev mesa-dev"
+SPLIT="guichan-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS \
-	--enable-sdl &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--enable-sdl \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		guichan)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="libsdl libsdl-image"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

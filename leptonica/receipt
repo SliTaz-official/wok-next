@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="leptonica"
 VERSION="1.74.4"
 CATEGORY="graphics"
-SHORT_DESC="Software for image processing and image analysis applications."
+SHORT_DESC="Software for image processing and image analysis applications"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.leptonica.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.leptonica.org/source/$TARBALL"
 
-DEPENDS="giflib jpeg libpng16 tiff xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libxcb"
 BUILD_DEPENDS="giflib-dev jpeg-dev libpng16-dev tiff-dev xorg-dev"
+SPLIT="leptonica-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
 	./configure \
 		--prefix=/usr \
@@ -23,10 +22,20 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		leptonica)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="giflib jpeg libpng16 tiff xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libxcb"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

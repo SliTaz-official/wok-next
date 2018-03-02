@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clamav"
 VERSION="0.98.1"
@@ -6,17 +6,15 @@ CATEGORY="security"
 SHORT_DESC="Antivirus."
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.clamav.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="antivirus"
 
-DEPENDS="zlib gmp bzip2 slitaz-base-files ncurses libltdl"
 BUILD_DEPENDS="zlib-dev gmp gmp-dev bzip2-dev ncurses-dev bash"
+SPLIT="clamav-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	grep -rl 'alignof(' * | xargs sed -i 's|alignof(|alignof_(|'
 	grep -rl 'alignof<' * | xargs sed -i 's|alignof<|alignof_<|'
 	grep -rl '__alignof_' * | xargs sed -i 's|__alignof_|__alignof|'
@@ -37,33 +35,44 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/etc/init.d $fs/var/lib/clamav \
-		$fs/var/log/clamav $fs/run/clamav
-	cp -a $install/usr/bin $fs/usr
-	rm -f $fs/usr/bin/clamav-config
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/etc $fs
-	mv $fs/etc/clamav/clamd.conf* $fs/etc/clamav/clamd.conf
-	mv $fs/etc/clamav/freshclam.conf* $fs/etc/clamav/freshclam.conf
-	# Copy only shared lib (.so)
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	# Copy daemon from /$stuff
-	cp $stuff/daemon-clamd $fs/etc/init.d/clamd
+genpkg_rules() {
+	case $PACKAGE in
+		clamav)
+			mkdir -p $fs/usr/lib $fs/etc/init.d $fs/var/lib/clamav \
+				$fs/var/log/clamav $fs/run/clamav
+			cp -a $install/usr/bin $fs/usr
+			rm -f $fs/usr/bin/clamav-config
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/etc $fs
+			mv $fs/etc/clamav/clamd.conf* $fs/etc/clamav/clamd.conf
+			mv $fs/etc/clamav/freshclam.conf* $fs/etc/clamav/freshclam.conf
+			# Copy only shared lib (.so)
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			# Copy daemon from /$stuff
+			cp $stuff/daemon-clamd $fs/etc/init.d/clamd
 
-	# Customize config
-	sed -i -e "s/^Example/#Example/" \
-		-e "s|^#LogFile /tmp/clamd.log|LogFile /var/log/clamav/clamav.log|" \
-		-e "s|^#PidFile.*|PidFile /run/clamav/clamd.pid|" \
-		-e "s|^#LocalSocket /tmp/clamd.socket|LocalSocket /run/clamav/clamd-socket|" \
-		$fs/etc/clamav/clamd.conf
-		
+			# Customize config
+			sed -i -e "s/^Example/#Example/" \
+				-e "s|^#LogFile /tmp/clamd.log|LogFile /var/log/clamav/clamav.log|" \
+				-e "s|^#PidFile.*|PidFile /run/clamav/clamd.pid|" \
+				-e "s|^#LocalSocket /tmp/clamd.socket|LocalSocket /run/clamav/clamd-socket|" \
+				$fs/etc/clamav/clamd.conf
+			DEPENDS="zlib gmp bzip2 slitaz-base-files ncurses libltdl"
+			TAGS="antivirus"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib \
+				$fs/usr/bin
+
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/bin/clamav-config $fs/usr/bin
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_clamav() {
 	local user=clamav
 	local group=clamav
 
@@ -89,8 +98,6 @@ post_install()
 		/run/clamav /var/lib/clamav
 }
 
-# Del user clamav when pkg is removed.
-post_remove()
-{
+post_remove_clamav() {
 	chroot "$1/" deluser clamav
 }

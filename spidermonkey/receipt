@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="spidermonkey"
 VERSION="1.8.0-rc1"
@@ -6,18 +6,15 @@ CATEGORY="multimedia"
 SHORT_DESC="Mozilla C implementation of Javascript"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MPL GPL2 LGPL2.1"
-SOURCE="js"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.mozilla.org/js/spidermonkey/" 
+WEB_SITE="http://www.mozilla.org/js/spidermonkey/"
+
+TARBALL="js-$VERSION.tar.gz"
 WGET_URL="http://ftp.mozilla.org/pub/mozilla.org/js/$TARBALL"
-TAGS="javascript"
 
-DEPENDS="nspr"
 BUILD_DEPENDS="nspr-dev"
+SPLIT="spidermonkey-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
 
 	# Fix from Archlinux
@@ -33,11 +30,20 @@ compile_rules()
 		DIST=$DESTDIR/usr all export 2>&1 | grep -v 'OBJ/nspr/Version'
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	
-	cp -a $install/usr/bin $fs/usr	
-	cp -a $install/usr/lib/*so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		spidermonkey)
+			mkdir -p $fs/usr/lib
+
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*so* $fs/usr/lib
+			DEPENDS="nspr"
+			TAGS="javascript"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib $fs/usr/include/js
+			cp -a $install/usr/include/js/* $fs/usr/include/js
+			cp -a $install/usr/lib/*.*a $fs/usr/lib/
+			;;
+	esac
 }

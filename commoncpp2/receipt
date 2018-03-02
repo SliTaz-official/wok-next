@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="commoncpp2"
 VERSION="1.8.1"
 CATEGORY="development"
-SHORT_DESC="A very portable and highly optimized class framework for writing C++ applications."
+SHORT_DESC="A very portable and highly optimized class framework for writing \
+C++ applications"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/commoncpp/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/commoncpp/$TARBALL"
 
-DEPENDS="glibc-base gcc-lib-base zlib"
+SPLIT="commoncpp2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i -e '50 a\#include <sys/stat.h>' inc/cc++/applog.h
 	./configure \
 		--sysconfdir=/etc \
@@ -23,9 +22,20 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		commoncpp2)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="glibc-base gcc-lib-base zlib"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/share/aclocal $fs/usr/share
+			;;
+	esac
 }

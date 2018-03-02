@@ -1,22 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dssi"
 VERSION="1.1.1"
 CATEGORY="multimedia"
-SHORT_DESC="An audio plugin API for soft synths and effects."
+SHORT_DESC="An audio plugin API for soft synths and effects"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://dssi.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gcc-lib-base"
 BUILD_DEPENDS="pkg-config alsa-lib-dev ladspa-dev"
+SPLIT="dssi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
+		--prefix=/usr \
 		--localstatedir=/var \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
@@ -24,11 +24,20 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/dssi
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/dssi $fs/usr/lib
-	rm -f $fs/usr/lib/dssi/*a
+genpkg_rules() {
+	case $PACKAGE in
+		dssi)
+			mkdir -p $fs/usr/lib/dssi
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/dssi $fs/usr/lib
+			rm -f $fs/usr/lib/dssi/*a
+			DEPENDS="gcc-lib-base"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib/dssi
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/dssi/*a $fs/usr/lib/dssi
+			;;
+	esac
 }

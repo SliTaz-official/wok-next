@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libtorrent"
 VERSION="0.13.3"
@@ -6,26 +6,34 @@ CATEGORY="network"
 SHORT_DESC="Torrent library for rtorrent"
 MAINTAINER="mimas@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://libtorrent.rakshasa.no/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://libtorrent.rakshasa.no/downloads/$TARBALL"
 
 CROSS_BUGS="bug: can not run test program"
 
-DEPENDS="curl libsigc++ openssl"
 BUILD_DEPENDS="curl-dev libsigc++-dev openssl-dev"
+SPLIT="libtorrent-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libtorrent)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="curl libsigc++ openssl"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib/pkgconfig
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig
+			;;
+	esac
 }

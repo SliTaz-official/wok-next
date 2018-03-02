@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="phonon"
 VERSION="4.7.2"
@@ -6,16 +6,16 @@ CATEGORY="libs"
 SHORT_DESC="kde libphonon"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://phonon.kde.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://download.kde.org/stable/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="libQtCore libQtDBus libQtGui libQtXml"
 BUILD_DEPENDS="cmake qmake automoc4 Qt4-dev"
+SPLIT="phonon-dev"
 
-compile_rules()
-{
-		mkdir build; cd build
+compile_rules() {
+	mkdir build; cd build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -28,8 +28,16 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/lib* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		phonon)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/lib* $fs/usr/lib
+			DEPENDS="libQtCore libQtDBus libQtGui libQtXml"
+			;;
+		*-dev)
+			cp -a $install/* $fs
+			rm -f $fs/usr/lib/lib*
+			;;
+	esac
 }

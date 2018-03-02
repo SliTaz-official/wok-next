@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="liblrdf"
 VERSION="0.4.0"
@@ -7,28 +7,36 @@ MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 SHORT_DESC="A library for the manipulation of RDF file in LADSPA plugins"
 WEB_SITE="http://sourceforge.net/projects/lrdf"
+
 TARBALL="${PACKAGE}-${VERSION}.tar.gz"
 WGET_URL="$SF_MIRROR/lrdf/$TARBALL"
 
-DEPENDS="raptor ladspa libcurl libxslt"
 BUILD_DEPENDS="raptor-dev ladspa-dev curl-dev libxslt-dev \
 autoconf automake libtool"
+SPLIT="liblrdf-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	patch -Np1 -i $stuff/md5.patch
 	patch -Np0 -i $stuff/raptor2.diff
 	patch -Np1 -i $stuff/pkgconfig-raptor.patch
 	autoreconf -vfi
 	./configure $CONFIGURE_ARGS && make && make install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*so* $fs/usr/lib/
-	cp -a $install/usr/share/ladspa $fs/usr/share
+
+genpkg_rules() {
+	case $PACKAGE in
+		liblrdf)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/lib/*so* $fs/usr/lib/
+			cp -a $install/usr/share/ladspa $fs/usr/share
+			DEPENDS="raptor ladspa libcurl libxslt"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			DEPENDS="liblrdf raptor-dev pkg-config"
+			;;
+	esac
 }
