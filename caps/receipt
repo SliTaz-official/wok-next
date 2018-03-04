@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="caps"
 VERSION="0.4.4"
 CATEGORY="multimedia"
-SHORT_DESC="The CAPS Audio Plugin Suite."
+SHORT_DESC="The CAPS Audio Plugin Suite"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://quitte.de/dsp/caps.html"
+
 TARBALL="${PACKAGE}_${VERSION}.tar.gz"
 WGET_URL="http://quitte.de/dsp/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure.py 
-	make rdf
-	make caps.so
+compile_rules() {
+	./configure.py &&
+	make rdf &&
+	make caps.so || return 1
+
+	install -Dm644 $src/caps.rdf $install/usr/share/ladspa/rdf/caps.rdf
+	install -Dm755 $src/caps.so  $install/usr/lib/ladspa/caps.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/ladspa $fs/usr/share/ladspa/rdf
-	cp $src/caps.rdf $fs/usr/share/ladspa/rdf
-	cp -a $src/caps.so $fs/usr/lib/ladspa
+genpkg_rules() {
+	copy @std
 }

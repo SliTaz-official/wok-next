@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cpuspeed"
 VERSION="1.5"
@@ -7,22 +7,17 @@ CATEGORY="system-tools"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.carlthompson.net/Software/CPUSpeed"
-CONFIG_FILES="etc/default/cpufreq"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.carlthompson.net/downloads/$PACKAGE/$TARBALL"
-TAGS="power-management"
-
-# Rules to configure and make the package.
 
 compile_rules() {
-  cd $src  
-  make 
+	make &&
+	install -Dm755 $src/cpuspeed $install/sbin/cpuspeed
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/sbin
-	cp -a $src/cpuspeed $fs/sbin
-	
+
+genpkg_rules() {
+	copy @std
+	CONFIG_FILES="etc/default/cpufreq"
+	TAGS="power-management"
 }
