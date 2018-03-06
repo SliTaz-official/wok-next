@@ -1,34 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="telepathy-glib"
 VERSION="0.99.11"
 CATEGORY="network"
-SHORT_DESC="A D-Bus framework for unifying real time communication."
+SHORT_DESC="A D-Bus framework for unifying real time communication"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://telepathy.freedesktop.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://telepathy.freedesktop.org/releases/$PACKAGE/$TARBALL"
 
-DEPENDS="glib gobject-introspection dbus dbus-glib libffi"
 BUILD_DEPENDS="glib-dev gobject-introspection-dev \
 dbus-dev dbus-glib-dev intltool diffutils libffi libxslt gtk-doc"
+SPLIT="telepathy-glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
+		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/usr/lib
-	cp -a $install/usr/share/gir* $fs/usr/share
-	cp -a $install/usr/share/glib* $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/gir* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		telepathy-glib)
+			mkdir -p $fs/usr/share $fs/usr/lib
+			cp -a $install/usr/share/gir* $fs/usr/share
+			cp -a $install/usr/share/glib* $fs/usr/share
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/lib/gir* $fs/usr/lib
+			DEPENDS="glib gobject-introspection dbus dbus-glib libffi"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

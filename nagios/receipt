@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nagios"
 VERSION="3.5.0"
@@ -6,26 +6,15 @@ CATEGORY="network"
 SHORT_DESC="Host and network monitoring"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nagios.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-SUGGESTED="nagios-nrpe"
 
-DEPENDS="apache nagios-plugins libpng16 libjpeg libltdl"
 BUILD_DEPENDS="libgd-dev libpng16-dev jpeg-dev libtool"
+SPLIT="nagios-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	while read patch_file; do
-		if [ ! -f done.$patch_file ]; then
-			patch -p1 < $stuff/$patch_file || return 1
-			touch done.$patch_file
-		fi
-	done <<EOT
-$PACKAGE-$VERSION-Makefiles.u
-EOT
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -40,79 +29,90 @@ EOT
 		--sbindir=/usr/lib/nagios/cgi \
 		--datadir=/usr/share/nagios \
 		--localstatedir=/var/lib/nagios \
-		$CONFIGURE_ARGS 
-		
-	sed -i s!HTMLDIR=.*!HTMLDIR=/usr/share/nagios! html/Makefile
-	
+		$CONFIGURE_ARGS &&
+	sed -i 's!HTMLDIR=.*!HTMLDIR=/usr/share/nagios!' html/Makefile &&
+
 	#~ make all && make DESTDIR=$DESTDIR fullinstall \
 	#~ && make DESTDIR=$DESTDIR install-config
-	make all && make install \
-	&& make install-config \
-	&& make install-commandmode \
-	&& make install-webconf \
-	&& make install-classicui 
-	
+	make all &&
+	make install &&
+	make install-config &&
+	make install-commandmode &&
+	make install-webconf &&
+	make install-classicui
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc/init.d \
-	  $fs/var/lib/nagios/rw \
-	  $fs/var/log/nagios \
-	  $fs/var/spool/nagios/checkresults \
-	  $fs/etc/apache
-		
-	cp -a $install/etc/apache $fs/etc
-	cp -a $install/etc/nagios $fs/etc
-	cp -a $stuff/nagios  $fs/etc/init.d
-	install -o root -g root -m 644 $stuff/htpasswd.users  $fs/etc/nagios/
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
-	
-	# Put doc in separate package
-	rm -rf $fs/usr/share/nagios/docs
-	
-	# Fix Apache config for Nagvis
-	sed -i 's/Options None/Options FollowSymLinks/' $fs/etc/apache/conf.d/nagios.conf
-	
-	# Fix permissions 
-	chmod 755 $fs/usr/bin/nagios*
+genpkg_rules() {
+	case $PACKAGE in
+		nagios)
+			mkdir -p $fs/usr $fs/etc/init.d \
+				$fs/var/lib/nagios/rw \
+				$fs/var/log/nagios \
+				$fs/var/spool/nagios/checkresults \
+				$fs/etc/apache
+
+			cp -a $install/etc/apache $fs/etc
+			cp -a $install/etc/nagios $fs/etc
+			cp -a $stuff/nagios  $fs/etc/init.d
+			install -m644 $stuff/htpasswd.users $fs/etc/nagios/
+
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			cp -a $install/usr/share $fs/usr
+
+			# Put doc in separate package
+			rm -rf $fs/usr/share/nagios/docs
+
+			# Fix Apache config for Nagvis
+			sed -i 's/Options None/Options FollowSymLinks/' $fs/etc/apache/conf.d/nagios.conf
+
+			# Fix permissions 
+			chmod 755 $fs/usr/bin/nagios*
+			DEPENDS="apache nagios-plugins libpng16 libjpeg libltdl"
+			SUGGESTED="nagios-nrpe"
+			;;
+		nagios-dev)
+			mkdir -p $fs/usr
+			cp -pa $src/include $fs/usr
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_nagios() {
 	if ! grep -q nagios "$1/etc/passwd"; then
 		echo -n "Adding user/group nagios..."
 		chroot "$1/" addgroup -S nagios
 		chroot "$1/" adduser -S -D -H -G nagios nagios
 		status
 	fi
-	
+
 	# Fix perms for files and directories
 	chroot "$1/" chown -R nagios.nagios /var/log/nagios \
-	  /var/spool/nagios \
-	  /var/lib/nagios \
-	  /usr/share/nagios \
-	  /etc/nagios/*
-	  
-	
+		/var/spool/nagios \
+		/var/lib/nagios \
+		/usr/share/nagios \
+		/etc/nagios/*
+
 	chmod 2775 "$1/var/lib/nagios/rw"
 	chroot "$1/" addgroup www nagios
-	
+
 	# Start Nagios daemon if we are  on running system
 	[ "$1" ] || /etc/init.d/nagios start
-	
-	# post_install messges
-	echo -e "\nTo starts $PACKAGE server you can run :\n"
-	echo "/etc/init.d/$PACKAGE start"
-	echo -e "Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf\n"
-	echo -e "Default login/password for the Web GUI is nagiosadmin/nagios"
+
+	# post_install messages
+	[ -n "$quiet" ] || cat <<EOT
+
+	.--------------------------------------------------------------.
+	| To starts nagios server you can run:                         |
+	| /etc/init.d/$PACKAGE start                                   |
+	|                                                              |
+	| Or add nagios to RUN_DAEMONS in /etc/rcS.conf                |
+	|--------------------------------------------------------------|
+	| Default login/password for the Web GUI is nagiosadmin/nagios |
+	'--------------------------------------------------------------'
+EOT
 }
 
-pre_remove()
-{
+pre_remove_nagios() {
 	[ "$1" ] || /etc/init.d/nagios stop
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="oniguruma"
 VERSION="6.2.0"
@@ -12,19 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="automake libtool"
+SPLIT="oniguruma-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -vfi &&
-	./configure $CONFIGURE_ARGS && make && make install &&
+	./configure $CONFIGURE_ARGS && make && make install || return 1
 
-	docdir=$install/usr/share/doc/oniguruma-$VERSION &&
-	mkdir -p $docdir && cp doc/* $docdir && rm $docdir/*.ja
+	cook_pick_docs doc/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		oniguruma) copy @std;;
+		*-dev)     copy @dev;;
+	esac
 }

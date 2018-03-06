@@ -1,28 +1,52 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libdvdcss"
 VERSION="1.2.12"
 CATEGORY="system-tools"
-SHORT_DESC="Accessing DVDs like a block device."
+SHORT_DESC="Accessing DVDs like a block device"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.videolan.org/developers/libdvdcss.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.videolan.org/pub/videolan/libdvdcss/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS
-	make
+SPLIT="libdvdcss-dev"
+
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libdvdcss)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+
+			# Copying include dir if existes
+			if [ -d "$install/usr/include" ]; then
+				cp -a $install/usr/include $fs/usr
+			fi
+
+			# Copying pkgconfig dir if existes
+			if [ -d "$install/usr/lib/pkgconfig" ]; then
+				mkdir -p $fs/usr/lib/
+				cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			fi
+
+			# Copying static libs if existes
+			if ( find $install/usr/lib -name "*.*a" > /dev/null ); then
+				mkdir -p $fs/usr/lib
+				cp -a $install/usr/lib/*.*a $fs/usr/lib
+			fi
+			;;
+	esac
 }
 

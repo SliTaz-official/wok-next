@@ -1,19 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libirman"
 VERSION="0.4.5"
 CATEGORY="utilities"
-SHORT_DESC="Library for Irman."
+SHORT_DESC="Library for Irman"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.lirc.org/html/install.html"
-WGET_URL="http://www.lirc.org/software/snapshots/$TARBALL"
-CONFIG_FILES="/etc/irman.conf"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.lirc.org/software/snapshots/$TARBALL"
+
+SPLIT="libirman-dev"
+
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -21,11 +21,19 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
+genpkg_rules() {
+	case $PACKAGE in
+		libirman)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/etc $fs
+			CONFIG_FILES="/etc/irman.conf"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

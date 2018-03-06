@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libee"
 VERSION="0.3.2"
@@ -7,27 +7,35 @@ SHORT_DESC="An Event Expression Library inspired by CEE"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.libee.org/download/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.libee.org/files/download/$TARBALL"
 
-DEPENDS="libestr"
 BUILD_DEPENDS="libestr-dev automake"
+SPLIT="libee-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	# Patch from http://www.gossamer-threads.com/lists/rsyslog/users/4600
 	patch -p 1 < $stuff/libee-build-fix.patch
-	./configure $CONFIGURE_ARGS \
-		--disable-testbench && make -j 1 && make install
+	./configure \
+		--disable-testbench \
+		$CONFIGURE_ARGS &&
+	make -j 1 && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libee)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/sbin $fs/usr
+			DEPENDS="libestr"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

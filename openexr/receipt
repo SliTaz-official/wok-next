@@ -1,30 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openexr"
 VERSION="2.2.0"
 CATEGORY="x-window"
-SHORT_DESC="openexr library for EXR images"
+SHORT_DESC="Library for EXR images"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.openexr.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://savannah.nongnu.org/download/$PACKAGE/$TARBALL"
 
-DEPENDS="zlib ilmbase"
 BUILD_DEPENDS="zlib zlib-dev ilmbase-dev"
+SPLIT="openexr-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		openexr)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="zlib ilmbase"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/share/aclocal $fs/usr/share
+			;;
+	esac
 }

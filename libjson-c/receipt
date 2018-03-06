@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libjson-c"
 VERSION="0.12-20140410"
@@ -6,27 +6,35 @@ CATEGORY="development"
 SHORT_DESC="A JSON implementation in C"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/json-c/json-c"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/json-c-$VERSION.tar.gz"
 
-DEPENDS=""
 BUILD_DEPENDS="wget bash automake autoconf libtool"
+SPLIT="libjson-c-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/-Werror /&-Wno-error=unused-but-set-variable /' Makefile*
 	./autogen.sh
-	./configure --prefix=/usr \
+	./configure \
+		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
 	make -j 1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libjson-c)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr/
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

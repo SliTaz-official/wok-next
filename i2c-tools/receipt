@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="i2c-tools"
 VERSION="3.1.1"
@@ -7,20 +7,27 @@ SHORT_DESC="The i2c-tools provide a heterogeneous set of I2C tools for Linux"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.lm-sensors.org/wiki/I2CTools"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://dl.lm-sensors.org/$PACKAGE/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="i2c-tools-dev"
+
+compile_rules() {
 	sed -i s"#^prefix	=.*#prefix	= /usr#" Makefile &&
 	make && make DESTDIR=${DESTDIR} install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		i2c-tools)
+			mkdir -p $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

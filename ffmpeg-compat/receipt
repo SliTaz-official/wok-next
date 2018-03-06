@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ffmpeg-compat"
 VERSION="0.10.12"
@@ -7,32 +7,27 @@ SHORT_DESC="Record, convert and stream audio and video (compatible libs version)
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="http://ffmpeg.org/"
-SOURCE="ffmpeg"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
+
+TARBALL="ffmpeg-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
-DEPENDS="alsa-lib libsdl bzip2"
+BUILD_DEPENDS_arm="zlib-dev bzip2-dev yasm libsdl-dev"
 BUILD_DEPENDS="libsdl-dev zlib-dev bzip2-dev coreutils-file-format \
 coreutils-file-special yasm"
+SPLIT="ffmpeg-compat-dev"
 
-# Handle cross compilation. Host coreutils-file-* are used
-case "$ARCH" in
-	i?86) 
-		ARCH_ARGS="--arch=$ARCH --cpu=$ARCH" ;;
-	arm*) 
-		BUILD_DEPENDS="zlib-dev bzip2-dev yasm libsdl-dev" 
-		ARCH_ARGS="--enable-cross-compile --arch=armel --target-os=linux \
---cross-prefix=$HOST_SYSTEM-" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		i?86)
+			ARCH_ARGS="--arch=$ARCH --cpu=$ARCH";;
+		arm*)
+			ARCH_ARGS="--enable-cross-compile --arch=armel --target-os=linux \
+			--cross-prefix=$HOST_SYSTEM-";;
+		x86_64)
+			ARCH_ARGS="" #???
+			;;
+	esac
 
-# Handle arch package install
-case "$SLITAZ_ARCH" in
-	arm*) DEPENDS="alsa-lib bzip2" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
 		--prefix=/usr \
 		--incdir=/usr/include/ffmpeg-compat \
@@ -56,23 +51,32 @@ compile_rules()
 		--disable-encoder=msmpeg4v3 \
 		--disable-symver \
 		--disable-debug \
-		--disable-doc ${ARCH_ARGS} &&
+		--disable-doc \
+		$ARCH_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/ffmpeg-compat $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		ffmpeg-compat)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/ffmpeg-compat $fs/usr/lib
+			DEPENDS="alsa-lib libsdl bzip2"
+			case "$SLITAZ_ARCH" in
+				arm*) DEPENDS="alsa-lib bzip2";;
+			esac
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
 
-post_install() 
-{
+post_install_ffmpeg_compat() {
 	echo "/usr/lib/ffmpeg-compat" >> "$1/etc/ld.so.conf"
 }
 
-post_remove() 
-{
-	 sed -i '#/usr/lib/ffmpeg-compat#'d "$1/etc/ld.so.conf"
+post_remove_ffmpeg_compat() {
+	sed -i '#/usr/lib/ffmpeg-compat#'d "$1/etc/ld.so.conf"
 }

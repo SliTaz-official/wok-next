@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="goffice"
 VERSION="0.10.32"
@@ -6,27 +6,35 @@ CATEGORY="libs"
 SHORT_DESC="GOffice is a library of document-centric objects and utilities"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://developer.gnome.org/goffice/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="at-spi2 at-spi2-atk atk bzlib cairo dbus fontconfig freetype \
-gdk-pixbuf glib glibc-base gtk+3 harfbuzz libcroco libffi libgsf libpng16 \
-librsvg xorg-libxcb libxml2 libxslt pango pcre xorg-pixman util-linux-uuid xorg-libICE \
-xorg-libSM xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXcursor \
-xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXi \
-xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
 BUILD_DEPENDS="cairo-dev gtk+3-dev libgsf-dev librsvg-dev libxslt-dev gtk-doc \
 intltool"
+SPLIT="goffice-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy *.so* *.xml *.xsl README
+genpkg_rules() {
+	case $PACKAGE in
+		goffice)
+			copy *.so* *.xml *.xsl README
+			DEPENDS="at-spi2 at-spi2-atk atk bzlib cairo dbus fontconfig \
+			freetype gdk-pixbuf glib glibc-base gtk+3 harfbuzz libcroco libffi \
+			libgsf libpng16 librsvg xorg-libxcb libxml2 libxslt pango pcre \
+			xorg-pixman util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 \
+			xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdamage \
+			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXi \
+			xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
+			;;
+		*-dev)
+			copy *.h *.la *.pc
+			DEPENDS="goffice glib-dev libgsf-dev libxml2-dev gtk+3-dev \
+			cairo-dev pango-dev librsvg-dev libxslt-dev"
+			;;
+	esac
 }

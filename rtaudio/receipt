@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rtaudio"
 VERSION="4.0.11"
 CATEGORY="multimedia"
-SHORT_DESC="Common API for realtime audio input/output (C++ classes)."
+SHORT_DESC="Common API for realtime audio input/output (C++ classes)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
 WEB_SITE="http://www.music.mcgill.ca/~gary/rtaudio/"
+
+TARBALL="${PACKAGE}-${VERSION}.tar.gz"
 WGET_URL="http://www.music.mcgill.ca/~gary/rtaudio/release/$TARBALL"
 
-DEPENDS="alsa-lib jack"
 BUILD_DEPENDS="alsa-lib-dev jack-dev"
+SPLIT="rtaudio-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--with-alsa \
@@ -28,13 +27,27 @@ compile_rules()
 	#python setup.py build
 	#python setup.py install --root="$DESTDIR"
 	echo "Continuing, any error will remine in pkg build..."
+
+	mkdir -p $install/usr/lib
+	cp -a $src/librtaudio.so* $install/usr/lib
+	ln -s librtaudio.so.$VERSION $install/usr/lib/librtaudio.so.4
+
+	mkdir -p $install/usr/bin $install/usr/include/rtaudio
+	cp -a $src/rtaudio-config $install/usr/bin
+	cp -a $src/*.h $install/usr/include/rtaudio
+	cp -a $src/include/*.h $install/usr/include/rtaudio
+	# GCC fix
+	sed -i '/inline/ s|;$||' $install/usr/include/rtaudio/RtAudio.h
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $src/librtaudio.so* $fs/usr/lib
-	cd $fs/usr/lib
-	ln -s librtaudio.so.$VERSION librtaudio.so.4
+genpkg_rules() {
+	case $PACKAGE in
+		rtaudio)
+			copy @std
+			DEPENDS="alsa-lib jack"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

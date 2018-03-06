@@ -1,22 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-vfs-monikers"
 VERSION="2.15.3"
 CATEGORY="x-window"
-SHORT_DESC="GNOME Bonobo monikers "
+SHORT_DESC="GNOME Bonobo monikers"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gnome-vfs libbonobo"
 BUILD_DEPENDS="gnome-vfs-dev libbonobo-dev glib-dev orbit2-dev dbus-glib-dev \
 perl-xml-parser libxml2-dev"
+SPLIT="gnome-vfs-monikers-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export CFLAGS="-I/usr/include/libbonobo-2.0 -I/usr/include/glib-2.0 \
 -I/usr/lib/glib-2.0/include -I/usr/include/bonobo-activation-2.0 \
 -I/usr/include/orbit-2.0 -I/usr/include/gnome-vfs-2.0"
@@ -28,16 +27,26 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/
-	cp -a $install/usr/lib $fs/usr
-	
-	# Clean unwated files
-	cd $fs/usr/lib ; find . -name "*.*a" -exec rm -f {} \;
-		
-	# Strip all
-	find . -name "*.so" -exec strip -s {} \;
-}
+genpkg_rules() {
+	case $PACKAGE in
+		gnome-vfs-monikers)
+			mkdir -p $fs/usr/
+			cp -a $install/usr/lib $fs/usr
 
+			# Clean unwated files
+			cd $fs/usr/lib ; find . -name "*.*a" -exec rm -f {} \;
+
+			# Strip all
+			find . -name "*.so" -exec strip -s {} \;
+			DEPENDS="gnome-vfs libbonobo"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/lib $fs/usr
+
+			# Clean unwated files
+			cd $fs/usr/lib ; find . -name "*.so*" -exec rm -f {} \;
+			DEPENDS="gnome-vfs-monikers gnome-vfs libbonobo"
+			;;
+	esac
+}

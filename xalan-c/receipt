@@ -1,40 +1,52 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xalan-c"
 VERSION="1.10.0-r705082"
 CATEGORY="development"
-SHORT_DESC="An XSLT processor for transforming XML documents into HTML, text, or other XML document types."
+SHORT_DESC="An XSLT processor for transforming XML documents into HTML, text, \
+or other XML document types"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="Apache"
-TARBALL="Xalan-C_r705082-src.tar.gz"
 WEB_SITE="http://xalan.apache.org/"
+
+TARBALL="Xalan-C_r705082-src.tar.gz"
 # Need to use the patched r705082 version on Gentoo's mirrors
 # Normal WGET_URL would be "http://www.apache.org/dist/xml/$PACKAGE/source/$TARBALL"
 WGET_URL="http://www.gtlib.gatech.edu/pub/gentoo/distfiles/$TARBALL"
 
-DEPENDS="glibc-base gcc-lib-base xerces-c libcurl openssl icu"
 BUILD_DEPENDS="xerces-c-dev"
+SPLIT="xalan-c-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mv c/* . && rm -r c
 	sed -i 's/isnan/std::&/' src/xalanc/PlatformSupport/DoubleSupport.hpp
 	sed -i 's/mutable MemoryManager/MemoryManager/' src/xalanc/*/*.hpp
-	
+
 	export XERCESCROOT=/usr
 	export XALANCROOT=$src
-	
-	./runConfigure -p linux -c gcc -x g++ -P /usr \
-		-C --build=$HOST_SYSTEM -C --host=$HOST_SYSTEM &&
+
+	./runConfigure \
+		-p linux \
+		-c gcc \
+		-x g++ \
+		-P /usr \
+		-C --build=$HOST_SYSTEM \
+		-C --host=$HOST_SYSTEM &&
 	make -j1 &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		xalan-c)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			DEPENDS="glibc-base gcc-lib-base xerces-c libcurl openssl icu"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

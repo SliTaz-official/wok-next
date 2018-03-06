@@ -1,68 +1,72 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wine-rt"
 VERSION="1.7.16"
 CATEGORY="misc"
-SHORT_DESC="Windows API for Linux."
+SHORT_DESC="Windows API for Linux"
 MAINTAINER="xj@wp.pl"
 LICENSE="LGPL2.1"
-TARBALL="${PACKAGE%-rt}-$VERSION.tar.bz2"
 WEB_SITE="http://www.winehq.org/"
-WGET_URL="$SF_MIRROR/${PACKAGE%-rt}/$TARBALL"
-TAGS="windows"
-PROVIDE="wine"
 
-DEPENDS="alsa-lib libxml2 libxslt mesa libglu-mesa xorg-dev lcms freetype jpeg \
-libpng16 tiff"
+TARBALL="wine-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/wine/$TARBALL"
+
 BUILD_DEPENDS="alsa-lib-dev flex bison mesa-dev libglu-mesa-dev freetype-dev \
 libtool libxml2-dev libxslt-dev lcms-dev jpeg-dev libpng16-dev tiff-dev prelink"
+SPLIT="wine-rt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	patch -s -Np1 -i $stuff/wine-rt-101107.patch
-	
-CONFIGURE_ARGS='
-  --prefix=/usr 
-  --disable-tests
-  --without-capi
-  --without-cms
-  --without-coreaudio
-  --without-cups
-  --without-gphoto
-  --without-gnutls
-  --without-gsm
-  --without-ldap
-  --without-mpg123
-  --without-openal
-  --without-opencl
-  --without-openssl
-  --without-oss
-  --without-sane
-  --without-v4l
-  --disable-win16
-  --with-x
-'
-  CFLAGS="$CFLAGS -O2 -funroll-loops -frounding-math -mfpmath=sse -msse2 \
-     -fsignaling-nans -pipe"
-	
-  ./configure $CONFIGURE_ARGS &&
-  make $MAKEFLAGS && make install
+compile_rules() {
+	CFLAGS="$CFLAGS -O2 -funroll-loops -frounding-math -mfpmath=sse -msse2 \
+	-fsignaling-nans -pipe"
+
+	./configure \
+		--prefix=/usr \
+		--disable-tests \
+		--without-capi \
+		--without-cms \
+		--without-coreaudio \
+		--without-cups \
+		--without-gphoto \
+		--without-gnutls \
+		--without-gsm \
+		--without-ldap \
+		--without-mpg123 \
+		--without-openal \
+		--without-opencl \
+		--without-openssl \
+		--without-oss \
+		--without-sane \
+		--without-v4l \
+		--disable-win16 \
+		--with-x \
+		$CONFIGURE_ARGS &&
+	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/wine $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/wine $fs/usr/share
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/lib/lib* $fs/usr/lib
-	cp -a $install/usr/lib/wine/*.so $fs/usr/lib/wine
+genpkg_rules() {
+	case $PACKAGE in
+		wine-rt)
+			mkdir -p $fs/usr/lib/wine $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/share/wine $fs/usr/share
+			cp -a $install/usr/share/applications $fs/usr/share
+			cp -a $install/usr/lib/lib* $fs/usr/lib
+			cp -a $install/usr/lib/wine/*.so $fs/usr/lib/wine
+			DEPENDS="alsa-lib libxml2 libxslt mesa libglu-mesa xorg-dev lcms \
+			freetype jpeg libpng16 tiff"
+			PROVIDE="wine"
+			TAGS="windows"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib/wine $fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/wine/*.a $fs/usr/lib/wine
+			cp -a $install/usr/lib/wine/*.def* $fs/usr/lib/wine
+			PROVIDE="wine-dev"
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_wine_rt() {
 	[ "$1" ] || modprobe snd-seq 2>/dev/null
 }

@@ -1,23 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtkballs"
 VERSION="3.1.5"
 CATEGORY="games"
-SHORT_DESC="Clone of DOS Lines."
+SHORT_DESC="Clone of DOS Lines"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="gtkballs-themes"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gtkballs.antex.ru/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://gtkballs.antex.ru/dist/$TARBALL"
 
-DEPENDS="gtk+ xorg-libXdamage"
 BUILD_DEPENDS="gtk+-dev"
+SPLIT="gtkballs=themes"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--bindir=/usr/games \
@@ -28,21 +25,32 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/gtkballs/themes $fs/usr/share/pixmaps
-	cp -a $install/usr/games $fs/usr
-	# Themes
-	#cp -a $install/usr/share/gtkballs/themes/Default \
-	#	$fs/usr/share/gtkballs/themes
-	cp -a $install/usr/share/gtkballs/themes/klines \
-		$fs/usr/share/gtkballs/themes/Default
-	cp -a stuff/cell.xpm $fs/usr/share/gtkballs/themes/Default
-	# Pixmaps
-	cp -a $install/usr/share/gtkballs/gtkballs_16x16.png \
-		$fs/usr/share/pixmaps/gtkballs.png
-	cp -a $install/var $fs
-	chmod 666 $fs/var/games/gtkballs-scores
+genpkg_rules() {
+	case $PACKAGE in
+		gtkballs)
+			mkdir -p $fs/usr/share/gtkballs/themes $fs/usr/share/pixmaps
+			cp -a $install/usr/games $fs/usr
+			# Themes
+			#cp -a $install/usr/share/gtkballs/themes/Default \
+			#	$fs/usr/share/gtkballs/themes
+			cp -a $install/usr/share/gtkballs/themes/klines \
+				$fs/usr/share/gtkballs/themes/Default
+			cp -a stuff/cell.xpm $fs/usr/share/gtkballs/themes/Default
+			# Pixmaps
+			cp -a $install/usr/share/gtkballs/gtkballs_16x16.png \
+				$fs/usr/share/pixmaps/gtkballs.png
+			cp -a $install/var $fs
+			chmod 666 $fs/var/games/gtkballs-scores
+			DEPENDS="gtk+ xorg-libXdamage"
+			SUGGESTED="gtkballs-themes"
+			;;
+		gtkballs-themes)
+			CAT="games|game themes"
+			mkdir -p $fs/usr/share/gtkballs
+			cp -a $install/usr/share/gtkballs/themes $fs/usr/share/gtkballs
+			rm -rf $fs/usr/share/gtkballs/themes/klines
+			mv $fs/usr/share/gtkballs/themes/Default \
+				$fs/usr/share/gtkballs/themes/Original
+			;;
+	esac
 }
-

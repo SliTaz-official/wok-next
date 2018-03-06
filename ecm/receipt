@@ -1,19 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ecm"
 VERSION="1.03"
 CATEGORY="misc"
-SHORT_DESC="Converts CD image files into a lossless format optimized for compression tools"
+SHORT_DESC="Converts CD image files into a lossless format optimized for \
+compression tools"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL3"
-SOURCE="cmdpack"
-TARBALL="$SOURCE-${VERSION}-src.tar.gz"
 WEB_SITE="http://www.neillcorlett.com/ecm/"
+
+TARBALL="cmdpack-$VERSION-src.tar.gz"
 WGET_URL="http://www.neillcorlett.com/downloads/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="ecm-extras"
+
+compile_rules() {
 	cd $src/src
 	sed -i 's/uint8_t saved_address.4./& = {0,0,0,0}/' cdpatch.c
 	mkdir -p $DESTDIR/usr/bin
@@ -24,11 +25,19 @@ compile_rules()
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/ecm $fs/usr/bin
-	ln -sf ecm $fs/usr/bin/unecm
+genpkg_rules() {
+	case $PACKAGE in
+		ecm)
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/ecm $fs/usr/bin
+			ln -sf ecm $fs/usr/bin/unecm
+			;;
+		ecm-extras)
+			mkdir -p $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			[ -f $fs/usr/bin/ecm ] && rm -f $fs/usr/bin/ecm
+			CAT="misc|extra tools"
+			;;
+	esac
 }
 

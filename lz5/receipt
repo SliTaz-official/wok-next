@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lz5"
 VERSION="1.5"
 CATEGORY="base-system"
-SHORT_DESC="A modification of LZ4 with a better ratio but slower."
+SHORT_DESC="A modification of LZ4 with a better ratio but slower"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD GPL2"
 WEB_SITE="https://github.com/inikep/lz5"
@@ -11,15 +11,20 @@ WEB_SITE="https://github.com/inikep/lz5"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/inikep/lz5/tarball/v$VERSION"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="lz5-dev"
+
+compile_rules() {
 	make &&
 	make PREFIX=/usr DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy bin/
+genpkg_rules() {
+	case $PACKAGE in
+		lz5)
+			copy bin/
+			;;
+		*-dev)
+			copy include/ lib/
+			;;
+	esac
 }

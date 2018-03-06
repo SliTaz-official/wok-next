@@ -1,45 +1,68 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dev86"
 VERSION="0.16.21"
 CATEGORY="development"
-SHORT_DESC="Linux 8086 development environment."
+SHORT_DESC="Linux 8086 development environment"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.debath.co.uk/"
-TAGS="compiler C assembler 8086"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lkundrak/dev86/tarball/v$VERSION"
 
 BUILD_DEPENDS="coreutils-file-output-full" # for `cat -v`
+SPLIT="elksemu"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/usr/man|/usr/share/man|' man/Makefile
 	sed -i 's|REFIX)/man|REFIX)/share/man|' Makefile */Makefile
 	make -j 1 PREFIX=/usr &&
 	make -j 1 DIST=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $stuff/com2exe $fs/usr/bin
+genpkg_rules() {
+	case $PACKAGE in
+		dev86)
+			mkdir -p $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			cp -a $stuff/com2exe $fs/usr/bin
+			TAGS="compiler C assembler 8086"
+			;;
+		elksemu)
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/elksemu $fs/usr/bin
+			CAT="system-tools|ELKS binary format support"
+			TAGS="virtual 8086 vm86"
+			;;
+	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install_dev86() {
 	[ "$1" ] && return
 	register=/proc/sys/fs/binfmt_misc/register
-	[ -f $register ] || modprobe binfmt_misc 2> /dev/null || true
+	[ -f $register ] || modprobe binfmt_misc 2>/dev/null || true
 	[ -f $register ] && cat > $register <<EOT
 :i86-elks:M::\x01\x03\x20\x00:\xff\xff\xff\x83:/usr/bin/elksemu:
 EOT
 	true
+}
+
+post_install_elksemu() {
+	fmt="binfmt_misc"
+	proc="/proc/sys/fs/binfmt_misc"
+	cat > /tmp/runelks$$ <<EOT
+[ ! -e $proc/register ] && modprobe $fmt && mount -t $fmt $fmt $proc
+echo ':i86-elks:M::\x01\x03\x20\x00:\xff\xff\xff\x83:/usr/bin/elksemu:' >$proc/register
+EOT
+	rc="$1/etc/init.d/local.sh"
+	grep -q ':i86-elks:M:' $rc || cat /tmp/runelks$$ >> $rc
+	[ -n "$1" ] || . /tmp/runelks$$
+	rm -f /tmp/runelks$$
+}
+
+pre_remove_elksemu() {
+	echo -1 > /proc/sys/fs/binfmt_misc/i86-elks
+	sed -i '/binfmt_misc/{N;/:i86-elks:M:/d}' "$1/etc/init.d/local.sh"
 }

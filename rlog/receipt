@@ -1,30 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rlog"
 VERSION="1.4"
 CATEGORY="misc"
-SHORT_DESC="C++ logging library."
+SHORT_DESC="C++ logging library"
 MAINTAINER="b1+slitaz@nagel.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.arg0.net/rlog"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://rlog.googlecode.com/files/$TARBALL"
-TAGS="C++ log"
 
-DEPENDS="gcc-lib-base"
+SPLIT="rlog-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		rlog)
+			copy @std
+			DEPENDS="gcc-lib-base"
+			TAGS="C++ log"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
