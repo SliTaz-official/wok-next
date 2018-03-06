@@ -11,19 +11,25 @@ WEB_SITE="http://freecode.com/projects/compface"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.xemacs.org/pub/xemacs/aux/$TARBALL"
 
-SPLIT="compface-dev"
+SPLIT="xbm2xface compface compface-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install || return 1
+
+	install -Dm755 $src/xbm2xface.pl $install/usr/bin/xbm2xface.pl
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		compface) copy @std ;;
-		compface-dev) copy @dev ;;
+		xbm2xface)
+			copy xbm2xface.pl
+			DEPENDS="compface perl"
+			;;
+		compface)
+			copy @std @rm
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

@@ -1,33 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmikmod"
 VERSION="3.3.6"
 CATEGORY="development"
-SHORT_DESC="Mikmod module player library."
+SHORT_DESC="Mikmod module player library"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2 LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mikmod.shlomifish.org/"
-WGET_URL="http://downloads.sourceforge.net/project/mikmod/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/mikmod/$TARBALL"
+
 BUILD_DEPENDS="bash"
+SPLIT="libmikmod-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	touch macintosh/_libmikmodversion.r
 	sed -i 's|\$(SHELL)|/bin/bash|' configure
-	./configure --prefix=/usr \
+	./configure \
+		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* /$fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libmikmod)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* /$fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a* $fs/usr/lib
+			cp -a $install/usr/share/aclocal $fs/usr/share
+			;;
+	esac
 }
 

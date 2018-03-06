@@ -1,31 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="radiusclient-ng"
 VERSION="0.5.6"
 CATEGORY="system-tools"
-SHORT_DESC="RADIUS Client Library."
+SHORT_DESC="RADIUS Client Library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://developer.berlios.de/projects/$PACKAGE/"
-WGET_URL="http://download.berlios.de/$PACKAGE/$TARBALL"
+WEB_SITE="http://developer.berlios.de/projects/radiusclient-ng/"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--sysconfdir=/etc \
-	--mandir=/usr/share/man $CONFIGURE_ARGS
-	make
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.berlios.de/radiusclient-ng/$TARBALL"
+
+SPLIT="radiusclient-ng-dev"
+
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make &&
 	make -j 1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		radiusclient-ng)
+			mkdir -p $fs/usr/lib
+			cp -a $install/etc $fs
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
 

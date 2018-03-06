@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmcrypt"
 VERSION="2.5.8"
@@ -6,15 +6,14 @@ CATEGORY="security"
 SHORT_DESC="Encryption Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mcrypt.sourceforge.net/"
-WGET_URL="http://downloads.sourceforge.net/project/mcrypt/Libmcrypt/$VERSION/$TARBALL"
 
-DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/mcrypt/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="libmcrypt-dev"
+
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -23,10 +22,19 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/libmcrypt  $fs/usr/lib
-	cp -a $install/usr/lib/*.so*  $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libmcrypt)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libmcrypt  $fs/usr/lib
+			cp -a $install/usr/lib/*.so*  $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/lib/*.*a  $fs/usr/lib
+			cp -a $install/usr/share/aclocal  $fs/usr/share
+			cp -a $install/usr/include  $fs/usr
+			cp -a $install/usr/bin  $fs/usr
+			;;
+	esac
 }

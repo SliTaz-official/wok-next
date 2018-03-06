@@ -7,38 +7,28 @@ SHORT_DESC="GNU parted partition editor"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.gnu.org/software/parted/index.shtml"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/parted.html"
 
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gettext util-linux-uuid-dev readline-dev check-dev texinfo"
 SPLIT="parted-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-#	grep -qs 'define u8' libparted/arch/linux.c ||
-#	sed -i 's|#include <scsi/scsi.h>|#define u8 __u8\n&|' libparted/arch/linux.c
-
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/parted.html
+compile_rules() {
 	./configure \
 		--disable-static \
-		--disable-device-mapper \
 		$CONFIGURE_ARGS &&
 	make &&
 	make -C doc html &&
 	makeinfo --html      -o doc/html       doc/parted.texi &&
 	makeinfo --plaintext -o doc/parted.txt doc/parted.texi &&
-	make install &&
-	docdir="$install/usr/share/doc/parted-$VERSION" &&
-	mkdir -p $docdir/html &&
-	install -v -m644 doc/html/* $docdir/html &&
-	install -v -m644 doc/FAT doc/API doc/parted.txt doc/parted.html $docdir
+	make install || return 1
+
+	cook_pick_docs doc/html/ doc/FAT doc/API doc/parted.txt doc/parted.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		parted)
 			copy *.so* sbin/

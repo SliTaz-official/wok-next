@@ -1,31 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="matio"
 VERSION="1.5.2"
 CATEGORY="development"
-SHORT_DESC="MAT File I/O Library."
+SHORT_DESC="MAT File I/O Library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://sourceforge.net/projects/matio/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="zlib"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
+SPLIT="matio-dev"
+
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		matio)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="zlib"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

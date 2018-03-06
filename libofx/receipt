@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libofx"
 VERSION="0.9.8"
@@ -6,17 +6,15 @@ CATEGORY="misc"
 SHORT_DESC="OFX parser library"
 MAINTAINER="remyhr@free.fr"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://libofx.sourceforge.net/"
-WGET_URL="http://sourceforge.net/projects/$PACKAGE/files/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="opensp"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="opensp-dev"
+SPLIT="libofx-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
@@ -24,11 +22,22 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/include /usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libofx)
+			mkdir -p $fs/usr/bin $fs/usr/include /usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			DEPENDS="opensp"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/share $fs/usr/lib
+			cp -a $install/usr/share/libofx $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			DEPENDS="libofx opensp-dev"
+			;;
+	esac
 }

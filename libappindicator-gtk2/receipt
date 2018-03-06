@@ -3,7 +3,7 @@
 PACKAGE="libappindicator-gtk2"
 VERSION="12.10.0"
 CATEGORY="x-window"
-SHORT_DESC="Allow applications to extend a menu via Ayatana indicators (GTK+2)"
+SHORT_DESC="Allow applications to extend a menu via Ayatana indicators"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1 LGPL3"
 WEB_SITE="https://launchpad.net/libappindicator"
@@ -13,17 +13,22 @@ WGET_URL="https://launchpad.net/libappindicator/${VERSION%.*}/$VERSION/+download
 
 BUILD_DEPENDS="glib-dev gtk-doc gtk+-dev libindicator-gtk2-dev \
 libdbusmenu-gtk2-dev dbus-glib-dev gobject-introspection-dev vala python-dev \
-pygtk-dev pygobject-dev"
-SPLIT="libappindicator-gtk2-python libappindicator-gtk2-dev"
-SIBLINGS="libappindicator-gtk3"
+pygtk-dev pygobject-dev gtk+3-dev libindicator-gtk3-dev libdbusmenu-gtk3-dev"
+SPLIT="libappindicator-gtk2 libappindicator-gtk2-python \
+libappindicator-gtk2-dev libappindicator-gtk3:3 libappindicator-gtk3-dev:3"
 
 compile_rules() {
+	case $SET in
+		'') SET_ARGS='--with-gtk=2';;
+		3)  SET_ARGS='--with-gtk=3';;
+	esac
+
 	sed -i 's|example ||g' Makefile.in
 	export CFLAGS="$CFLAGS -Wno-deprecated-declarations"
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
-		--with-gtk=2 \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
@@ -33,15 +38,16 @@ genpkg_rules() {
 	case $PACKAGE in
 		libappindicator-gtk2)
 			copy libappindicator.so*
+			CAT="x-window|GTK+2"
 			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
 			libdbusmenu-gtk2 libindicator-gtk2 pango"
 			;;
-		*-python)
+		libappindicator-gtk2-python)
 			copy @std @rm
 			DEPENDS="libappindicator-gtk2 python"
-			CAT="python|Python bindings"
+			CAT="python|GTK+2 Python bindings"
 			;;
-		*-dev)
+		libappindicator-gtk2-dev)
 			copy @dev
 			DEPENDS="libappindicator-gtk2 libappindicator-gtk2-python \
 			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
@@ -51,6 +57,24 @@ genpkg_rules() {
 			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
 			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
 			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			;;
+
+		libappindicator-gtk3)
+			copy @std
+			CAT="x-window|GTK+3"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libdbusmenu-gtk3 \
+			libindicator-gtk3 pango"
+			;;
+		libappindicator-gtk3-dev)
+			copy @dev
+			DEPENDS="libappindicator-gtk3 \
+			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
+			libdbusmenu-gtk3-dev libffi-dev libindicator-gtk3-dev libpng16-dev \
+			libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
+			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
+			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
 			;;
 	esac
 }

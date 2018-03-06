@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libftdi"
 VERSION="0.18"
 CATEGORY="system-tools"
-SHORT_DESC="A library to talk to FTDI chips using libusb."
+SHORT_DESC="A library to talk to FTDI chips using libusb"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="BSD GPL2 LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.intra2net.com/en/developer/libftdi/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.intra2net.com/en/developer/libftdi/download/$TARBALL"
 
-DEPENDS="glibc-base libusb libusb-compat gcc-lib-base"
 BUILD_DEPENDS="slitaz-toolchain libusb-dev libusb libusb-compat-dev udev-dev"
+SPLIT="libftdi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
@@ -23,10 +22,19 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		libftdi)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			DEPENDS="glibc-base libusb libusb-compat gcc-lib-base"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

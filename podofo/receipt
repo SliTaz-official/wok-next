@@ -1,33 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="podofo"
 VERSION="0.9.1"
 CATEGORY="office"
-SHORT_DESC="PDF library."
+SHORT_DESC="PDF library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://podofo.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-DEPENDS="fontconfig freetype zlib jpeg tiff gcc-lib-base libpng16"
+
 BUILD_DEPENDS="cmake fontconfig-dev freetype-dev zlib-dev jpeg-dev tiff-dev \
 libpng16-dev"
+SPLIT="podofo-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RELEASE \
-	      -DFREETYPE_INCLUDE_DIR=/usr/include/freetype2 \
-	      -DPODOFO_BUILD_STATIC:BOOL=TRUE \
-	      -DPODOFO_BUILD_SHARED:BOOL=TRUE . &&
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=RELEASE \
+		-DFREETYPE_INCLUDE_DIR=/usr/include/freetype2 \
+		-DPODOFO_BUILD_STATIC:BOOL=TRUE \
+		-DPODOFO_BUILD_SHARED:BOOL=TRUE \
+		.. &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		podofo)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="fontconfig freetype zlib jpeg tiff gcc-lib-base libpng16"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			;;
+	esac
 }

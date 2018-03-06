@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mlt"
 VERSION="0.7.2"
@@ -7,32 +7,40 @@ MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2.1"
 SHORT_DESC="An open source multimedia framework"
 WEB_SITE="http://www.mltframework.org"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="multimedia"
 
-DEPENDS="libsdl-image libsamplerate libdv qt4 sox libxml2 gtk+ ffmpeg frei0r-plugins"
-
-# Rules to configure and make the package.
+SPLIT="mlt-dev"
 
 compile_rules() {
-  cd $src
-  ./configure --prefix=/usr \
-			  --enable-gpl \
-			  --disable-mmx \
-			  --qimage-libdir=/usr/lib/ \
-			  --qimage-includedir=/usr/include/Qt \
-			  --avformat-swscale &&
-  make &&
-  make install 
+	./configure \
+		--prefix=/usr \
+		--enable-gpl \
+		--disable-mmx \
+		--qimage-libdir=/usr/lib/ \
+		--qimage-includedir=/usr/include/Qt \
+		--avformat-swscale &&
+	make &&
+	make install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/$PACKAGE $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*so* $fs/usr/lib/
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/lib/$PACKAGE/*so* $fs/usr/lib/$PACKAGE
+
+genpkg_rules() {
+	case $PACKAGE in
+		mlt)
+			mkdir -p $fs/usr/lib/$PACKAGE $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*so* $fs/usr/lib/
+			cp -a $install/usr/share/$PACKAGE $fs/usr/share
+			cp -a $install/usr/lib/$PACKAGE/*so* $fs/usr/lib/$PACKAGE
+			DEPENDS="libsdl-image libsamplerate libdv qt4 sox libxml2 gtk+ \
+			ffmpeg frei0r-plugins"
+			TAGS="multimedia"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

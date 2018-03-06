@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="thunar-vfs"
 VERSION="1.2.0"
@@ -6,21 +6,19 @@ CATEGORY="x-window"
 SHORT_DESC="Thunar File Manager Libraries"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/xfce/4.8/src/$TARBALL"
 
-DEPENDS="libpng16 jpeg libxfce4util dbus startup-notification xfce4-panel \
-gamin pcre libexif util-linux-uuid-dev hal"
-BUILD_DEPENDS="libpng16-dev jpeg-dev libxfce4util-dev dbus-dev 
- startup-notification-dev xfce4-panel-dev zlib-dev intltool exo-dev dbus-glib-dev \
- util-linux-uuid-dev hal-dev"
- 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr \
+BUILD_DEPENDS="libpng16-dev jpeg-dev libxfce4util-dev dbus-dev \
+startup-notification-dev xfce4-panel-dev zlib-dev intltool exo-dev \
+dbus-glib-dev util-linux-uuid-dev hal-dev"
+SPLIT="thunar-vfs-dev"
+
+compile_rules() {
+	./configure \
+		--prefix=/usr \
 		--sysconfdir=/etc \
 		--enable-dbus \
 		--enable-startup-notification \
@@ -30,22 +28,33 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	
-	mkdir -p $fs/usr \
-		$fs/usr/share/locale \
-		$fs/usr/lib/ \
-		$fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		thunar-vfs)
+			mkdir -p $fs/usr \
+				$fs/usr/share/locale \
+				$fs/usr/lib/ \
+				$fs/usr/share
 
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/thunar-vfs-1 $fs/usr/lib
-	
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	cp -a $install/usr/share/thumbnailers $fs/usr/share
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/lib/thunar-vfs-1 $fs/usr/lib
 
-	# Strip all
-	find $fs/usr/lib -exec strip -s {} 2> /dev/null \;
+			cp -a $install/usr/share/locale/fr $fs/usr/share/locale
+			cp -a $install/usr/share/thumbnailers $fs/usr/share
+
+			# Strip all
+			find $fs/usr/lib -exec strip -s {} 2> /dev/null \;
+			DEPENDS="libpng16 jpeg libxfce4util dbus startup-notification \
+			xfce4-panel gamin pcre libexif util-linux-uuid-dev hal"
+			;;
+		*-dev)
+			mkdir -p $fs/usr \
+				$fs/usr/lib/ \
+
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }
 

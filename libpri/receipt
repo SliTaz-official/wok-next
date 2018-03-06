@@ -1,27 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libpri"
 VERSION="1.4.11.4"
 CATEGORY="system-tools"
-SHORT_DESC="C implementation of the Primary Rate ISDN specification (with BRI support)."
+SHORT_DESC="C implementation of the Primary Rate ISDN specification (with BRI \
+support)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.asterisk.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.asterisk.org/pub/telephony/libpri/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+SPLIT="libpri-dev"
+
+compile_rules() {
 	export CFLAGS="-Wno-error=unused-but-set-variable"
 	sed -i 's|tei = (h->u.data|// &|;s/int tei;/int tei = tei;/' q921.c
-	make
+	make || return 1
+
+	mkdir -p $install/lib
+	cp -a $src/*.so* $install/lib
+
+	mkdir -p $install/usr/lib $install/usr/include
+	cp -a $src/*.*a $install/usr/lib
+	cp -a $src/libpri.h $install/usr/include
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/lib
-	cp -a $src/*.so* $fs/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libpri) copy @std;;
+		*-dev)  copy @dev;;
+	esac
 }

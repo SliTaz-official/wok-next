@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmediainfo"
 VERSION="0.7.79"
@@ -7,15 +7,14 @@ SHORT_DESC="Library reading metadata from media files"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://mediaarea.net/"
+
 TARBALL="${PACKAGE}_$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}download/source/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="libcurl libmms"
 BUILD_DEPENDS="libzen libtool automake autoconf curl-dev libmms-dev"
+SPLIT="libmediainfo-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd Project/GNU/Library
 	./autogen.sh
 	./configure \
@@ -26,7 +25,7 @@ compile_rules()
 		--with-libcurl \
 		--with-libmms \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
 
 	mkdir -p $install/usr/bin
 	cp -a libmediainfo-config $install/usr/bin
@@ -34,9 +33,16 @@ compile_rules()
 		$install/usr/bin/libmediainfo-config
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libmediainfo)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="libcurl libmms"
+			;;
+		*-dev)
+			cp -a $install/* $fs
+			rm $fs/usr/lib/*.so*
+			;;
+	esac
 }

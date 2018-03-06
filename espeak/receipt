@@ -1,42 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="espeak"
 VERSION="1.45.05"
 CATEGORY="misc"
-SHORT_DESC="Speech synthesizer."
+SHORT_DESC="Speech synthesizer"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION-source.zip"
 WEB_SITE="http://espeak.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION-source.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="speech synthesis"
 
-DEPENDS="portaudio jack"
-BUILD_DEPENDS="$DEPENDS portaudio-dev jack-dev"
+BUILD_DEPENDS="portaudio-dev jack-dev"
+SPLIT="espeak-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	[ -d $src-source ] && mv $src-source $PACKAGE-$VERSION 2>/dev/null
 	cd $src/src
-	
+
 	# Using portaudio v19
 	cp portaudio19.h portaudio.h
-	
+
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share $fs/usr
-	
-	# Make symlink
-	#cd $fs/usr/lib
-	#ln -s libespeak.so.1.1.42 libespeak.so.1
-}
+genpkg_rules() {
+	case $PACKAGE in
+		espeak)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/share $fs/usr
 
+			# Make symlink
+			#cd $fs/usr/lib
+			#ln -s libespeak.so.1.1.42 libespeak.so.1
+			DEPENDS="portaudio jack"
+			TAGS="speech synthesis"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.a* $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
+}

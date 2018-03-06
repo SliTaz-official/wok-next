@@ -1,21 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libasyncns"
 VERSION="0.8"
 CATEGORY="development"
-SHORT_DESC="A C library for Linux/Unix for executing name service queries asynchronously."
+SHORT_DESC="A C library for Linux/Unix for executing name service queries \
+asynchronously"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://0pointer.de/lennart/projects/libasyncns"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="glibc-base"
+SPLIT="libasyncns-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -25,10 +24,18 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libasyncns)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="glibc-base"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }
-

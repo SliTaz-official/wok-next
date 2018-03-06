@@ -1,21 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libhangul"
 VERSION="0.1.0"
 CATEGORY="misc"
-SHORT_DESC="library for Hangul"
+SHORT_DESC="Library for Hangul"
 MAINTAINER="allan316@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://kldp.net/projects/hangul"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://libhangul.googlecode.com/files/$TARBALL"
 
-DEPENDS=""
+SPLIT="libhangul-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -25,11 +23,20 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/libhangul $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libhangul)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/lib/libhangul $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.a $fs/usr/lib
+			cp -a $install/usr/lib/*.la $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
 

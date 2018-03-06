@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="esound"
 VERSION="0.2.41"
@@ -7,16 +7,14 @@ SHORT_DESC="Enlightened Sound Daemon"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.tux.org/~ricdude/EsounD.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.acc.umu.se/pub/GNOME/sources/esound/${VERSION%.*}/$TARBALL"
-TAGS="audio sound"
 
-DEPENDS="audiofile alsa-lib"
 BUILD_DEPENDS="audiofile-dev alsa-lib-dev"
+SPLIT="esound-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
@@ -24,11 +22,22 @@ compile_rules()
 	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		esound)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/etc $fs
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="audiofile alsa-lib"
+			TAGS="audio sound"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.la $fs/usr/lib
+			cp -a $install/usr/lib/*.a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

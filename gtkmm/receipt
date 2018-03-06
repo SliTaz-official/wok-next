@@ -1,24 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtkmm"
 VERSION="2.24.5"
 CATEGORY="x-window"
-SHORT_DESC="C++ interface for the popular GUI library GTK+."
+SHORT_DESC="C++ interface for the popular GUI library GTK+"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gtkmm.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
-DEPENDS="gtk+ atkmm glibmm cairomm libsigc++ xorg-libXdamage libgiomm pangomm \
-gcc-lib-base"
 BUILD_DEPENDS="doxygen gtk+-dev atkmm-dev glibmm-dev cairomm-dev libsigc++-dev \
 pangomm-dev glibmm-dev mm-common"
+SPLIT="gtkmm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--disable-documentation \
 		$CONFIGURE_ARGS &&
@@ -26,9 +23,23 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		gtkmm)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="gtk+ atkmm glibmm cairomm libsigc++ xorg-libXdamage \
+			libgiomm pangomm gcc-lib-base"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/gtkmm-2.4 $fs/usr/lib
+			cp -a $install/usr/lib/gdkmm-2.4 $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			DEPENDS="gtkmm gtk+-dev atkmm-dev glibmm-dev libgiomm-dev \
+			pangomm-dev"
+			;;
+	esac
 }

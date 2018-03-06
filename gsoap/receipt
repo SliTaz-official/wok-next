@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gsoap"
 VERSION="2.8.7"
@@ -7,26 +7,37 @@ SHORT_DESC="XML language binding to develop SOAP/XML services in C/C++"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.cs.fsu.edu/~engelen/soap.html"
+
 TARBALL="${PACKAGE}_${VERSION}.zip"
 WGET_URL="$SF_MIRROR/gsoap2/$TARBALL"
 
-DEPENDS="openssl zlib"
 BUILD_DEPENDS="autoconf automake openssl-dev zlib-dev flex"
+SPLIT="gsoap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/aclocal-.{am__api_version}/aclocal/' configure
 	sed -i 's/automake-.{am__api_version}/automake/' configure
-	CXXFLAGS=-fPIC CFLAGS=-fPIC LDFLAGS=-fPIC ./configure \
-	$CONFIGURE_ARGS && make -j1 && make install
+	CXXFLAGS=-fPIC \
+	CFLAGS=-fPIC \
+	LDFLAGS=-fPIC \
+	./configure \
+		$CONFIGURE_ARGS &&
+	make -j1 && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/gsoap $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		gsoap)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/share/gsoap $fs/usr/share
+			DEPENDS="openssl zlib"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

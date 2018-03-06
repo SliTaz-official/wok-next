@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="i3"
 VERSION="4.5.1"
@@ -7,24 +7,32 @@ SHORT_DESC="i3 tiling window manager"
 MAINTAINER="ybringler@gmail.com"
 LICENSE="BSD"
 WEB_SITE="http://i3wm.org"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/downloads/$TARBALL"
 
-DEPENDS="xorg-libxcb xorg-libXcursor xorg-libX11 yajl libev dmenu \
-startup-notification xorg-xcb-util"
 BUILD_DEPENDS="make gcc pkg-config xorg-xcb-proto xorg-libxcb-dev xorg-xcb-util-dev \
 libev-dev flex bison yajl t2 docbook-xml xorg-libXcursor-dev xorg-libX11-dev \
 pcre-dev startup-notification-dev xorg-xcb-util-keysyms-dev xorg-xcb-util-wm-dev pango-dev"
+SPLIT="i3-man"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	case $PACKAGE in
+		i3)
+			cp -a $install/* $fs
+			DEPENDS="xorg-libxcb xorg-libXcursor xorg-libX11 yajl libev dmenu \
+			startup-notification xorg-xcb-util"
+			;;
+		i3-man)
+			CAT="x-window|man pages"
+			mkdir -p $fs/usr/share/man
+			for i in $src/man/*.man; do
+				cp $i $fs/usr/share/man/raw-${i##*/}
+			done
+			;;
+	esac
 }
