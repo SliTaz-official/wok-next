@@ -1,46 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="TiMidity++"
 VERSION="2.14.0"
 CATEGORY="multimedia"
-SHORT_DESC="TiMidity++ is an open source MIDI to WAVE converter and player."
+SHORT_DESC="TiMidity++ is an open source MIDI to WAVE converter and player"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://timidity.sourceforge.net/"
-WGET_URL="http://sourceforge.net/projects/timidity/files/latest/download"
 
-DEPENDS="alsa-lib portaudio jack libao libvorbis libogg \
-flac gtk+ xorg-libXaw"
-BUILD_DEPENDS="alsa-lib-dev portaudio-dev jack-dev \
-libao-dev libvorbis-dev libogg-dev flac-dev gtk+-dev xorg-libXaw-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/timidity/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--enable-audio=alsa,portaudio,jack,ao,vorbis,flac \
+BUILD_DEPENDS="alsa-lib-dev portaudio-dev jack-dev libao-dev libvorbis-dev \
+libogg-dev flac-dev speex-dev gtk+-dev xorg-libXaw-dev"
+
+compile_rules() {
+	./configure \
+		--enable-audio=alsa,portaudio,jack,ao,vorbis,flac,speex \
 		--enable-interface=gtk,xaw \
-		--enable-alsaseq
+		--enable-alsaseq \
+		--disable-libOggFLACtest \
+		--with-default-path=/etc/timidity++/ \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $stuff/timidity.cfg $install/etc/timidity++/timidity.cfg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-}
-
-post_install()
-{
-	# create config file
-	mkdir "$1/usr/share/timidity"
-	touch "$1/usr/share/timidity/timidity.cfg"
-}
-
-post_remove()
-{
-	rm -rf "$1/usr/share/timidity"
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib portaudio jack libao libvorbis libogg \
+	flac gtk+ xorg-libXaw"
 }

@@ -15,25 +15,26 @@ BUILD_DEPENDS="automake libtool \
 db-dev libsndfile-dev libsamplerate-dev alsa-lib-dev readline-dev doxygen"
 SPLIT="jack-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi &&
 	sed -i 's|md5 -q|md5sum|' jackd/Makefile.in
 
+	# --libdir=/usr/lib to avoid lib64 on x86_64 arch
 	./configure \
-		--docdir=/usr/share/doc/$PACKAGE-$VERSION \
+		--libdir=/usr/lib \
 		--enable-optimization-by-compiler \
 		--enable-optimize \
-		--disable-coreaudio --disable-oss --disable-sun --disable-sndio \
-			--disable-freebob --disable-firewire \
+		--disable-coreaudio \
+		--disable-oss \
+		--disable-sun \
+		--disable-sndio \
+		--disable-freebob \
+		--disable-firewire \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		jack)
 			copy @std

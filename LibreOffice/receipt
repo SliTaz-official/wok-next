@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="LibreOffice"
-VERSION="5.4.0"
+VERSION="6.0.2"
 CATEGORY="office"
 SHORT_DESC="Powerful office suite"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,7 +10,7 @@ WEB_SITE="https://www.libreoffice.org/"
 HOST_ARCH="i486 x86_64"
 
 case $ARCH in
-	i486)   lo_arch="x86"   ; lo_arch2="x86"   ;;
+	i?86)   lo_arch="x86"   ; lo_arch2="x86"   ;;
 	x86_64) lo_arch="x86_64"; lo_arch2="x86-64";;
 esac
 
@@ -23,9 +23,7 @@ LibreOffice LibreOffice-extra"
 
 sizes() { du -chs ${1:-$fs} | awk 'END{print $1}'; }
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	echo 'Checking language packages...'
 	for i in de es fr it pt-BR ru; do
 		TARBALL="LibreOffice_${VERSION}_Linux_${lo_arch2}_deb_langpack_$i.tar.gz"
@@ -49,9 +47,7 @@ compile_rules()
 		s|X-MandrivaLinux-[^;]*;||' $install/usr/share/applications/*.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		LibreOffice-langpack-*)
 			lang=${PACKAGE#*langpack-}
@@ -127,10 +123,8 @@ genpkg_rules()
 			# remove unneded desktop integration
 			rm -r $fs/usr/lib/
 			cd $fs/usr/share/
-			rm -r mimelnk/ mime-info/ application-registry/ appdata/
-			rm -r icons/locolor/ icons/gnome/
-			cd icons/hicolor/
-			rm -r scalable/ 512x512/ 256x256/ 128x128/ 32x32/
+			rm -r mime-info/ application-registry/ icons/locolor/ icons/gnome/
+			rm -r icons/hicolor/scalable/
 
 			# remove other files
 			rm -r $fs/opt/libreoffice${VERSION%.*}/readmes/
