@@ -19,7 +19,6 @@ compile_rules() {
 		--enable-audio=alsa,portaudio,jack,ao,vorbis,flac,speex \
 		--enable-interface=gtk,xaw \
 		--enable-alsaseq \
-		--disable-libOggFLACtest \
 		--with-default-path=/etc/timidity++/ \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -32,14 +31,4 @@ genpkg_rules() {
 	copy @std
 	DEPENDS="alsa-lib portaudio jack libao libvorbis libogg \
 	flac gtk+ xorg-libXaw"
-}
-
-post_install() {
-	# create config file
-	mkdir "$1/usr/share/timidity"
-	touch "$1/usr/share/timidity/timidity.cfg"
-}
-
-post_remove() {
-	rm -rf "$1/usr/share/timidity"
 }

@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="alsaequal"
 VERSION="0.6"
 CATEGORY="multimedia"
-SHORT_DESC="Real-time adjustable equalizer plugin for ALSA."
+SHORT_DESC="Real-time adjustable equalizer plugin for ALSA"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2.1"
+WEB_SITE="https://web.archive.org/web/20161105202833/http://thedigitalmachine.net/alsaequal.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.thedigitalmachine.net/alsaequal.html"
 WGET_URL="http://www.thedigitalmachine.net/tools/$TARBALL"
 
-DEPENDS="alsa-utils caps"
 BUILD_DEPENDS="caps alsa-lib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make 
+compile_rules() {
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/alsa-lib
-	cp -a $src/*.so* $fs/usr/lib/alsa-lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-utils caps"
 }
-
