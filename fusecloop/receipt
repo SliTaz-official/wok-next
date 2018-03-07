@@ -1,26 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fusecloop"
 VERSION="0.20.1"
 CATEGORY="system-tools"
-SHORT_DESC="Mount cloop image in user space with fuse."
+SHORT_DESC="Mount cloop image in user space with FUSE"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://fusecloop.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 ADVANCECOMP_VERSION="1.23"
 ADVANCECOMP_TARBALL="advancecomp-$ADVANCECOMP_VERSION.tar.gz"
 ADVANCECOMP_URL="$SF_MIRROR/advancemame/$ADVANCECOMP_TARBALL"
 EXTRA_SOURCE_FILES="$ADVANCECOMP_TARBALL"
 
-DEPENDS="fuse zlib gcc-lib-base"
 BUILD_DEPENDS="fuse-dev zlib-dev automake"
-SUGGESTED="fuseiso cloop-utils"
+SPLIT="fusecloop cloop-utils"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	[ -s $SOURCES_REPOSITORY/$ADVANCECOMP_TARBALL ] ||
 		wget -P $SOURCES_REPOSITORY $ADVANCECOMP_URL
 	tar xzf $SOURCES_REPOSITORY/$ADVANCECOMP_TARBALL
@@ -31,21 +30,42 @@ compile_rules()
 	cp create_compressed_fs.c $ADVANCECOMP/redef.cc
 	sed -i 's/Z_BEST_COMPRESSION/Z_BEST_SPEED/' create_compressed_fs.c
 	sed -i 's/def FIND_BEST_COMPRESSION/ 1/' $ADVANCECOMP/redef.cc
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
+
 	cd $ADVANCECOMP &&
 	./autogen.sh
 	automake --add-missing
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make advdef
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make advdef || return 1
+
+	mkdir -p $install/usr/bin
+	cp $src/fusecloop             $install/usr/bin
+	cp $src/extract_compressed_fs $install/usr/bin
+	cp $src/create_compressed_fs  $install/usr/bin/create_compressed_fs_fast
+	cp $src/advancecomp-*/advdef  $install/usr/bin/create_compressed_fs
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/fusecloop $fs/usr/bin
+genpkg_rules() {
+	case $PACKAGE in
+		fusecloop)
+			copy fusecloop
+			DEPENDS="fuse zlib gcc-lib-base"
+			SUGGESTED="fuseiso cloop-utils"
+			;;
+		cloop-utils)
+			copy @std @rm
+			CAT="system-tools|image creation & extraction tools"
+			DEPENDS="zlib gcc-lib-base"
+			;;
+	esac
 }
 

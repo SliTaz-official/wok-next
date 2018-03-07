@@ -1,37 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="compiz-plugins-unsupported"
-SOURCE="compiz-plugins-experimental"
 VERSION="0.8.12"
 CATEGORY="x-window"
-SHORT_DESC="Compiz extra plugins."
+SHORT_DESC="Compiz extra plugins"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="https://github.com/compiz-reloaded"
-WGET_URL="$WEB_SITE/$SOURCE/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="xorg-libX11 compiz-core compiz-libcompizconfig gtk+ librsvg \
-libnotify compiz-plugins-main"
+TARBALL="compiz-plugins-experimental-$VERSION.tar.xz"
+WGET_URL="$WEB_SITE/compiz-plugins-experimental/releases/download/v$VERSION/$TARBALL"
+
 BUILD_DEPENDS="xorg-dev compiz-core-dev compiz-libcompizconfig-dev cmake \
 libxslt-dev startup-notification-dev mesa-dev gtk+-dev intltool librsvg-dev \
 libnotify-dev compiz-bcop util-linux-uuid-dev compiz-plugins-main-dev \
 compiz-plugins-extra compiz-plugins-extra-dev libtool util-linux-getopt \
-xorg-libxshmfence-dev libglu-mesa-dev expat-dev "
+xorg-libxshmfence-dev libglu-mesa-dev expat-dev"
+SPLIT="compiz-plugins-unsupported-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr
+compile_rules() {
+	./configure --prefix=/usr &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/locale
-	cp -a $install/usr/lib/compiz $fs/usr/lib
-	cp -a $install/usr/share/compiz $fs/usr/share
-	cp -a $install/usr/share/locale/ru $fs/usr/share/locale
-	cd $fs/usr/lib/compiz; rm -f *.a *.la
+genpkg_rules() {
+	case $PACKAGE in
+		compiz-plugins-unsupported)
+			mkdir -p $fs/usr/lib $fs/usr/share/locale
+			cp -a $install/usr/lib/compiz $fs/usr/lib
+			cp -a $install/usr/share/compiz $fs/usr/share
+			cp -a $install/usr/share/locale/ru $fs/usr/share/locale
+			cd $fs/usr/lib/compiz; rm -f *.a *.la
+			DEPENDS="xorg-libX11 compiz-core compiz-libcompizconfig gtk+ \
+			librsvg libnotify compiz-plugins-main"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

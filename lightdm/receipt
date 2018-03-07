@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lightdm"
 VERSION="1.5.3"
@@ -7,19 +7,17 @@ SHORT_DESC="A lightweight display manager"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3 LGPL3"
 WEB_SITE="https://launchpad.net/lightdm"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://launchpad.net/$PACKAGE/1.6/$VERSION/+download/$TARBALL"
+
 HELP="https://wiki.archlinux.org/index.php/LightDM"
-CONFIG_FILES="/etc/init/lightdm.conf /etc/lightdm/keys.conf \
-/etc/lightdm/lightdm.conf /etc/lightdm/users.conf"
 
-DEPENDS="libgcrypt glib libxklavier pam xorg-libX11"
 BUILD_DEPENDS="gobject-introspection-dev pam-dev itstool libxklavier-dev \
-libgcrypt-dev wget intltool"
+libgcrypt-dev intltool"
+SPLIT="lightdm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--libexecdir=/usr/lib \
 		--sysconfdir=/etc \
@@ -33,22 +31,39 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p \
-		$fs/usr/lib \
-		$fs/usr/share/locale
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/lightdm $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		lightdm)
+			mkdir -p \
+				$fs/usr/lib \
+				$fs/usr/share/locale
+			cp -a $install/etc $fs
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/lightdm $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/sbin $fs/usr
 
-	# localization
-	. $WOK/slitaz-i18n/stuff/locale-pack.conf
-	for lang in $LOCALE_PACK; do
-		langf=$install/usr/share/locale/$lang
-		[ -d $langf ] && cp -a $langf $fs/usr/share/locale
-	done
+			# localization
+			. $WOK/slitaz-i18n/stuff/locale-pack.conf
+			for lang in $LOCALE_PACK; do
+				langf=$install/usr/share/locale/$lang
+				[ -d $langf ] && cp -a $langf $fs/usr/share/locale
+			done
+			DEPENDS="libgcrypt glib libxklavier pam xorg-libX11"
+			CONFIG_FILES="/etc/init/lightdm.conf /etc/lightdm/keys.conf \
+			/etc/lightdm/lightdm.conf /etc/lightdm/users.conf"
+			;;
+		*-dev)
+			mkdir -p \
+				$fs/usr/lib \
+				$fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/girepository* $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.la $fs/usr/lib
+			cp -a $install/usr/share/gir* $fs/usr/share
+			cp -a $install/usr/share/vala $fs/usr/share
+			DEPENDS="lightdm glib-dev libxklavier-dev xorg-libX11-dev"
+			;;
+	esac
 }

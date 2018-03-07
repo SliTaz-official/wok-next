@@ -1,26 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="guile"
 VERSION="1.8.8"
 CATEGORY="development"
-SHORT_DESC="Project GNU's extension language."
+SHORT_DESC="Project GNU's extension language"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/guile/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gmp readline ncurses libltdl"
 BUILD_DEPENDS="libtool gmp-dev"
+SPLIT="guile-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-
-	# http://bugs.gentoo.org/show_bug.cgi?id=317175
-	patch -p1 < $stuff/guile-1.8.7-gcc45.u || return 1
-
+compile_rules() {
 	./configure \
 		--disable-error-on-warning \
 		$CONFIGURE_ARGS &&
@@ -28,11 +22,22 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/guile $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		guile)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/share/guile $fs/usr/share
+			DEPENDS="gmp readline ncurses libltdl"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/share/aclocal $fs/usr/share
+			DEPENDS="guile gmp-dev"
+			;;
+	esac
 }

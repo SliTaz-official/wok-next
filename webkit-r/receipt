@@ -1,30 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="webkit-r"
 VERSION="99690"
 CATEGORY="network"
-SHORT_DESC="xHTML render library."
+SHORT_DESC="xHTML render library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD LGPL"
-TARBALL="WebKit-r${VERSION}.tar.bz2"
 WEB_SITE="http://webkit.org/"
+
+TARBALL="WebKit-r${VERSION}.tar.bz2"
 WGET_URL="http://nightly.webkit.org/files/trunk/src/$TARBALL"
 
-DEPENDS="libxslt expat gtk+ icu jpeg libcurl libxml2 openssl sqlite3 \
-         xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXcomposite \
-         xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes \
-         xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libXt \
-         xorg-libXdamage gcc-lib-base"
 BUILD_DEPENDS="icu icu-dev gperf libxslt-dev glib-dev autoconf automake \
-               sqlite3-dev libtool m4 bison flex curl-dev gtk-doc libsoup-dev \
-               gst0-plugins-base-dev gstreamer0-dev util-linux-uuid-dev \
-               jpeg-dev libjpeg libpng16-dev pango-dev gtk+-dev orc-dev \
-               xorg-libXt-dev"
+sqlite3-dev libtool m4 bison flex curl-dev gtk-doc libsoup-dev \
+gst0-plugins-base-dev gstreamer0-dev util-linux-uuid-dev jpeg-dev libjpeg \
+libpng16-dev pango-dev gtk+-dev orc-dev xorg-libXt-dev"
+SPLIT="webkit-r-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mv WebKit-r${VERSION} $PACKAGE-$VERSION 2>/dev/null
+compile_rules() {
+	mv WebKit-r$VERSION $PACKAGE-$VERSION 2>/dev/null
 	cd $src
 	patch -p0 < $stuff/bison26.u
 	patch -p1 < $stuff/CSSParser.cpp.u
@@ -37,9 +31,22 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		webkit-r)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="libxslt expat gtk+ icu jpeg libcurl libxml2 openssl \
+			sqlite3 xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext \
+			xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender \
+			xorg-libXt xorg-libXdamage gcc-lib-base"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

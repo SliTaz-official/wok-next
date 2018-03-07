@@ -1,20 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ode"
 VERSION="0.11.1"
 CATEGORY="misc"
-SHORT_DESC="An open source, high performance library for simulating rigid body dynamics."
+SHORT_DESC="An open source, high performance library for simulating rigid body \
+dynamics"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1 BSD"
-DEPENDS=""
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.ode.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/opende/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+SPLIT="ode-dev"
+
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -24,9 +24,9 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		ode)   copy @std;;
+		*-dev) copy @dev;;
+	esac
 }

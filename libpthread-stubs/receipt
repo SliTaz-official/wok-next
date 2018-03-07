@@ -1,26 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libpthread-stubs"
 VERSION="0.2"
 CATEGORY="x-window"
-SHORT_DESC="Weak aliases for pthread functions."
+SHORT_DESC="Weak aliases for pthread functions"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://xcb.freedesktop.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/dist/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="libpthread-stubs-dev"
+
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make && make -j 1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libpthread-stubs) copy @std;;
+		*-dev)            copy @dev;;
+	esac
 }
-

@@ -1,26 +1,24 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="giblib"
 VERSION="1.2.4"
 CATEGORY="graphics"
-SHORT_DESC="Giblib graphic library."
+SHORT_DESC="Giblib graphic library"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://linuxbrit.co.uk/feh/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://linuxbrit.co.uk/downloads/$TARBALL"
 
-DEPENDS="imlib2 freetype xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext"
 BUILD_DEPENDS="imlib2-dev imlib2 xorg-xproto freetype-dev xorg-libXext-dev"
+SPLIT="giblib-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm*) export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm*) export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib" ;;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	sed -i 's|/doc|/share&|' Makefile*
 	./configure \
 		--prefix=/usr \
@@ -29,11 +27,15 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	rm -f $fs/usr/lib/*a
+genpkg_rules() {
+	case $PACKAGE in
+		giblib)
+			copy @std
+			DEPENDS="imlib2 freetype xorg-libX11 xorg-libXau xorg-libXdmcp \
+			xorg-libXext"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

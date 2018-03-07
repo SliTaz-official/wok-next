@@ -1,33 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gpa"
 VERSION="0.9.9"
 CATEGORY="security"
-SHORT_DESC="Gnu Privacy Assistant"
+SHORT_DESC="GNU Privacy Assistant"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnupg.org/related_software/gpa/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gpa/$TARBALL"
+# Integrity check: https://www.gnupg.org/download/integrity_check.html
+TARBALL_SHA1="1cf86c9e38aa553fdb880c55cbc6755901ad21a4"
 
-DEPENDS="gpgme gtk+ pinentry-gtk"
 BUILD_DEPENDS="gtk+-dev libgpg-error-dev libassuan-dev gpgme-dev"
 SPLIT="gpa-langpack"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Integrity check: https://www.gnupg.org/download/integrity_check.html
-	echo "1cf86c9e38aa553fdb880c55cbc6755901ad21a4  $SRC/$TARBALL" | sha1sum -c || exit 1
-
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install || return 1
 
 	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -r $fs/usr/share/locale
+genpkg_rules() {
+	case $PACKAGE in
+		gpa)
+			cp -a $install/* $fs
+			rm -r $fs/usr/share/locale
+			DEPENDS="gpgme gtk+ pinentry-gtk"
+			;;
+		gpa-langpack)
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/share/locale $fs/usr/share
+			CAT="localization|locale files"
+			;;
+	esac
 }

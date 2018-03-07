@@ -1,20 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mgetty"
 VERSION="1.1.37"
 CATEGORY="network"
-SHORT_DESC="reliable and proven fax send and receive solution."
+SHORT_DESC="Reliable and proven fax send and receive solution"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE$VERSION-Jun05.tar.gz"
 WEB_SITE="http://mgetty.greenie.net/"
-WGET_URL="ftp://mgetty.greenie.net/pub/$PACKAGE/source/${VERSION%.*}/$TARBALL"
-DEPENDS="slitaz-base-files"
-CONFIG_FILES="/etc/mgetty+sendfax"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+TARBALL="$PACKAGE$VERSION-Jun05.tar.gz"
+WGET_URL="ftp://mgetty.greenie.net/pub/$PACKAGE/source/${VERSION%.*}/$TARBALL"
+
+SPLIT="mgetty-voicetools"
+
+compile_rules() {
 	[ -f Makefile.dist ] && mv -f Makefile.dist Makefile
 	cp Makefile Makefile.dist
 	cp Makefile Makefile.install
@@ -39,21 +38,29 @@ compile_rules()
 	make -k install.bin vgetty-install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	chmod 755 $fs/var/spool/fax
+genpkg_rules() {
+	case $PACKAGE in
+		mgetty)
+			mkdir -p $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/etc $fs
+			cp -a $install/var $fs
+			chmod 755 $fs/var/spool/fax
+			DEPENDS="slitaz-base-files"
+			CONFIG_FILES="/etc/mgetty+sendfax"
+			;;
+		mgetty-voicetools)
+			mkdir -p $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			CAT="network|convertion tool set for vgetty"
+			DEPENDS="mgetty"
+			;;
+	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
-        # adduser fax if needed
+# adduser fax if needed
+post_install_mgetty() {
 	if ! grep -q fax "$1/etc/passwd"; then
 		echo -n "Adding user fax..."
 		chroot "$1/" adduser fax -D -H -S
@@ -62,7 +69,6 @@ post_install()
 	chroot "$1/" chown fax /var/spool/fax
 }
 
-post_remove()
-{
+post_remove_mgetty() {
 	chroot "$1/" deluser fax
 }

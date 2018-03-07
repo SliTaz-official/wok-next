@@ -1,40 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lesstif"
 VERSION="0.95.2"
 CATEGORY="x-window"
-SHORT_DESC="An LGPL clone of Motif, which is a set of GUI widgets."
+SHORT_DESC="An LGPL clone of Motif, which is a set of GUI widgets"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://sourceforge.net/projects/lesstif/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libXext xorg-libXt util-linux-uuid freetype xorg-libXp"
 BUILD_DEPENDS="xorg-xextproto xorg-libXt-dev xorg-libXext-dev \
 util-linux-uuid-dev automake"
+SPLIT="lesstif-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--includedir=/usr/include \
-		$CONFIGURE_ARGS  &&
-	make  &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
 	make -j 1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/LessTif $fs/usr/lib
-	cp -a $install/usr/lib/X11 $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		lesstif)
+			copy @std
+			DEPENDS="glibc-base xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+			xorg-libXdmcp xorg-libXext xorg-libXt util-linux-uuid freetype \
+			xorg-libXp"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

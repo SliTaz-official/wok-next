@@ -1,31 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lensfun"
 VERSION="0.2.5"
 CATEGORY="multimedia"
-SHORT_DESC="Database of photographic lenses and a library that allows advanced access to the database"
+SHORT_DESC="Database of photographic lenses and a library that allows advanced \
+access to the database"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL3 GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://lensfun.berlios.de/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.berlios.de/$PACKAGE/$TARBALL"
 
-DEPENDS="glib"
 BUILD_DEPENDS="python libpng16 glib-dev"
+SPLIT="lensfun-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/.*GNU Make*/# &/' configure
-	./configure --prefix=/usr --libdir=/usr/lib && 
-	make all && 
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib &&
+	make all &&
 	make INSTALL_PREFIX="$DESTDIR" install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/lensfun $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		lensfun)
+			copy @std
+			DEPENDS="glib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

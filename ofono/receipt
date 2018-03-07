@@ -1,22 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ofono"
 VERSION="1.14"
 CATEGORY="network"
-SHORT_DESC="Stack for mobile telephony (GSM/UMTS) applications."
+SHORT_DESC="Stack for mobile telephony (GSM/UMTS) applications"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://ofono.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://linux-kernel.uio.no/pub/linux/network/$PACKAGE/$TARBALL"
 
-DEPENDS="dbus glib udev bluez"
 BUILD_DEPENDS="dbus-dev udev-dev glib-dev bluez-dev \
 mobile-broadband-provider-info-dev"
+SPLIT="ofono-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -27,14 +26,21 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	# sysconfdir
-	mkdir -p $fs/etc
-	cp -a $install/etc/* $fs/etc
-	cp -a $stuff/etc/* $fs/etc
-	# sbin
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		ofono)
+			# sysconfdir
+			mkdir -p $fs/etc
+			cp -a $install/etc/* $fs/etc
+			cp -a $stuff/etc/* $fs/etc
+			# sbin
+			mkdir -p $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			DEPENDS="dbus glib udev bluez"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

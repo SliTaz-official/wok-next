@@ -1,26 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libev"
 VERSION="4.04"
 CATEGORY="system-tools"
-SHORT_DESC="A full-featured and high-performance event loop."
+SHORT_DESC="A full-featured and high-performance event loop"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://software.schmorp.de/pkg/libev.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dist.schmorp.de/libev/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+SPLIT="libev-dev"
+
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib 
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			#cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			# /usr/include/event.h conflicts with libevent-dev
+			# https://www.opencsw.org/mantis/view.php?id=4376
+			mv $fs/usr/include/event.h $fs/usr/include/ev-event.h
+			;;
+	esac
 }
 

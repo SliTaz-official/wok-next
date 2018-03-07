@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wxpython"
 VERSION="2.8.12.1"
 CATEGORY="x-window"
-SHORT_DESC="GUI toolkit for the Python programming language."
+SHORT_DESC="GUI toolkit for the Python programming language"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL"
-SOURCE="wxPython"
-TARBALL="$SOURCE-src-$VERSION.tar.bz2"
 WEB_SITE="http://www.wxpython.org/"
+
+TARBALL="wxPython-src-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/wxpython/$TARBALL"
 
-DEPENDS="python wxWidgets28"
 BUILD_DEPENDS="python-dev wxWidgets28-dev mesa-dev libglu-mesa-dev"
+SPLIT="wxpython-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export CXXFLAGS="-Wno-narrowing"
 	mv wxPython/wx/tools/Editra/editra wxPython/wx/tools/Editra/Editra
 	./configure \
@@ -38,10 +36,17 @@ compile_rules()
 	python setup.py WXPORT=gtk2 UNICODE=1 install --root=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/python* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		wxpython)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/python* $fs/usr/lib
+			DEPENDS="python wxWidgets28"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

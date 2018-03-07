@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-desktop"
 VERSION="2.28.0"
@@ -6,17 +6,16 @@ CATEGORY="x-window"
 SHORT_DESC="GNOME Desktop"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="GConf gtk+ startup-notification"
 BUILD_DEPENDS="python-dev libxml2-python GConf-dev gnome-doc-utils-dev \
 intltool gtk+-dev xorg-libXrandr-dev"
+SPLIT="gnome-desktop-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc/gnome \
@@ -30,12 +29,21 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	#cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	#cp -a $install/usr/share/dbus-1 $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		gnome-desktop)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			#cp -a $install/etc $fs
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			#cp -a $install/usr/share/dbus-1 $fs/usr/share
+			DEPENDS="GConf gtk+ startup-notification"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/*a $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			;;
+	esac
 }

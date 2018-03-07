@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cups-filters"
 VERSION="1.11.1"
@@ -11,14 +11,12 @@ WEB_SITE="https://wiki.linuxfoundation.org/openprinting/start"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.openprinting.org/download/cups-filters/$TARBALL"
 
-DEPENDS="cups dbus fontconfig freetype glib ijs lcms2 libcups libgnutls \
-libjpeg-turbo libpng16 poppler qpdf tiff zlib"
-BUILD_DEPENDS="cups-dev zlib-dev libjpeg-turbo-dev libpng16-dev tiff-dev glib-dev \
-lcms2-dev freetype-dev fontconfig-dev ijs-dev qpdf-dev poppler-dev dbus-dev"
+BUILD_DEPENDS="cups-dev zlib-dev libjpeg-turbo-dev libpng16-dev tiff-dev \
+glib-dev lcms2-dev freetype-dev fontconfig-dev ijs-dev qpdf-dev poppler-dev \
+dbus-dev"
+SPLIT="cups-filters-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -32,9 +30,16 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy etc/ bin/ sbin/ cups/ ppd/ *.so*
-	# rm -rf $fs/usr/share/cups/ppdc
+genpkg_rules() {
+	case $PACKAGE in
+		cups-filters)
+			copy etc/ bin/ sbin/ cups/ ppd/ *.so*
+			# rm -rf $fs/usr/share/cups/ppdc
+			DEPENDS="cups dbus fontconfig freetype glib ijs lcms2 libcups \
+			libgnutls libjpeg-turbo libpng16 poppler qpdf tiff zlib"
+			;;
+		*-dev)
+			copy *.h *.la *.pc
+			;;
+	esac
 }

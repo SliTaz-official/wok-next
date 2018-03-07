@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="geoip"
 VERSION="1.4.8"
 CATEGORY="network"
-SHORT_DESC="Non-DNS IP-to-country resolver C library & utils."
+SHORT_DESC="Non-DNS IP-to-country resolver C library & utils"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-SOURCE="GeoIP"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.maxmind.com/app/c"
+
+TARBALL="GeoIP-$VERSION.tar.gz"
 WGET_URL="http://www.maxmind.com/download/geoip/api/c/$TARBALL"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="zlib-dev automake autoconf libtool"
+SPLIT="geoip-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -i
 	./configure \
 		--prefix=/usr \
@@ -28,13 +26,20 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/share/GeoIP $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		geoip)
+			mkdir -p $fs/usr/lib $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/etc $fs
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/share/GeoIP $fs/usr/share
+			DEPENDS="zlib"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
-

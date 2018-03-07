@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="usbmuxd"
 VERSION="1.0.7"
@@ -6,18 +6,15 @@ CATEGORY="misc"
 SHORT_DESC="USB Multiplex Daemon"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2 GPL3 LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://marcansoft.com/blog/iphonelinux/usbmuxd/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://marcansoft.com/uploads/$PACKAGE/$TARBALL"
 
-DEPENDS="libusb libplist"
 BUILD_DEPENDS="cmake libusb-dev libplist-dev"
+SPLIT="usbmuxd-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	patch -Np1 -i $stuff/usbmuxd-udevuser.patch
+compile_rules() {
 	sed -i 's|/lib/udev/rules.d/|/etc/udev/rules.d/|g' udev/CMakeLists.txt
 	mkdir build
 	cd build
@@ -25,19 +22,26 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/etc
-	cp -a $install/etc/udev $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		usbmuxd)
+			mkdir -p $fs/usr/lib $fs/etc
+			cp -a $install/etc/udev $fs/etc
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="libusb libplist"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }
 
-post_install()
-{
-	# adduser usbmuxd if needed
+# Add user usbmuxd if needed
+post_install_usbmuxd() {
 	if ! grep -q usbmuxd "$1/etc/passwd"; then
 		echo -n "Adding user privoxy..."
 		chroot "$1/" adduser -s /bin/false -H -D -u 140 usbmuxd
@@ -51,9 +55,8 @@ post_install()
 	fi
 }
 
-# Del user usbmuxd when pkg is removed.
-post_remove()
-{
+# Del user usbmuxd when pkg is removed
+post_remove_usbmuxd() {
 	chroot "$1/" deluser usbmuxd
 	chroot "$1/" delgroup usbmuxd
 }

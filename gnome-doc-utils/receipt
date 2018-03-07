@@ -1,23 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-doc-utils"
 VERSION="0.20.10"
 CATEGORY="misc"
-SHORT_DESC="Documentation  utilities for Gnome"
+SHORT_DESC="Documentation utilities for GNOME"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.gnome.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxml2 libxslt python libxml2-python rarian docbook-xml"
 BUILD_DEPENDS="libxml2-dev libxslt-dev rarian-dev libxml2-python pkg-config \
 intltool"
+SPLIT="gnome-doc-utils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
+		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -27,12 +27,26 @@ compile_rules()
 	make -j1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/locale
-	cp -a $install/usr/bin/gnome-doc-tool $fs/usr/bin
-	cp -a $install/usr/bin/xml2po $fs/usr/bin
-	cp -a $install/usr/share/xml $fs/usr/share
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		gnome-doc-utils)
+			mkdir -p $fs/usr/bin $fs/usr/share/locale
+			cp -a $install/usr/bin/gnome-doc-tool $fs/usr/bin
+			cp -a $install/usr/bin/xml2po $fs/usr/bin
+			cp -a $install/usr/share/xml $fs/usr/share
+			cp -a $install/usr/lib $fs/usr
+			DEPENDS="libxml2 libxslt python libxml2-python rarian docbook-xml"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/bin \
+				$fs/usr/lib \
+				$fs/usr/share
+			cp -a $install/usr/share/pkgconfig $fs/usr/lib
+			cp -a $install/usr/bin/gnome-doc-prepare $fs/usr/bin
+			cp -a $install/usr/share/aclocal $fs/usr/share
+			cp -a $install/usr/share/man $fs/usr/share
+			cp -a $install/usr/share/gnome* $fs/usr/share
+			cp -a $install/usr/lib $fs/usr
+			;;
+	esac
 }

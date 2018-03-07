@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pangox-compat"
 VERSION="0.0.2"
@@ -7,15 +7,14 @@ SHORT_DESC="X Window System font support for Pango"
 MAINTAINER="yuripourre@gmail.com"
 LICENSE="LGPL2"
 WEB_SITE="http://www.gnome.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib glibc-base libffi pango pcre xorg-libX11"
 BUILD_DEPENDS="pango-dev glib-dev xorg-libX11-dev"
+SPLIT="pangox-compat-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -24,9 +23,22 @@ compile_rules()
 	make install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		pangox-compat)
+			mkdir -p $fs/usr/lib
+			cp -a $install/etc $fs
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			DEPENDS="glib glibc-base libffi pango pcre xorg-libX11"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			DEPENDS="glib-dev libffi-dev xorg-libxcb-dev pango-dev \
+			pangox-compat pcre-dev xorg-libX11-dev xorg-libXau-dev \
+			xorg-libXdmcp-dev"
+			;;
+	esac
 }

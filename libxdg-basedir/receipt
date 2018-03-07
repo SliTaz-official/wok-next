@@ -1,20 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libxdg-basedir"
 VERSION="1.2.0"
 CATEGORY="development"
-SHORT_DESC="Implements functions for the XDG Base Directory specification."
+SHORT_DESC="Implements functions for the XDG Base Directory specification"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/devnev/libxdg-basedir"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/devnev/$PACKAGE/archive/$TARBALL"
 
-BUILD_DEPENDS="wget autoconf automake libtool"
+BUILD_DEPENDS="autoconf automake libtool"
+SPLIT="libxdg-basedir-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	unset CFLAGS
 	./autogen.sh \
 		--prefix=/usr \
@@ -22,10 +22,10 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libxdg-basedir) copy @std;;
+		*-dev)          copy @dev;;
+	esac
 }
 

@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="scratch"
 VERSION="1.4.0.7"
 CATEGORY="network"
-SHORT_DESC="Create and share interactive stories, games, music and art."
+SHORT_DESC="Create and share interactive stories, games, music and art"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WEB_SITE="http://scratch.mit.edu/"
+
+TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WGET_URL="http://download.scratch.mit.edu/$TARBALL"
 
-SUGGESTED="scratch-help"
-DEPENDS="pango shared-mime-info squeak-vm"
 BUILD_DEPENDS="pango-dev shared-mime-info-dev"
+SPLIT="scratch-help"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Fix cross compilation: gcc is hardcoded
 	sed -i s"/gcc/${HOST_SYSTEM}-gcc/" src/plugins/*/Makefile &&
 	sed -i 's/-vm-sound-pulse/-vm-sound-ALSA/' src/scratch &&
@@ -43,9 +41,19 @@ compile_rules()
 		${DESTDIR}/usr/share/icons/hicolor/48x48/mimetypes
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/mime
+genpkg_rules() {
+	case $PACKAGE in
+		scratch)
+			cp -a $install/* $fs
+			rm -rf $fs/usr/share/mime
+			SUGGESTED="scratch-help"
+			DEPENDS="pango shared-mime-info squeak-vm"
+			;;
+		scratch-help)
+			CAT="development|help"
+			DEPENDS="scratch"
+			mkdir -p $fs/usr/share/scratch
+			cp -rp ${src}/Help $fs/usr/share/scratch
+			;;
+	esac
 }

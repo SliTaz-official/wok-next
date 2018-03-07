@@ -1,41 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="freeimage"
 VERSION="3141"
 CATEGORY="graphics"
-SHORT_DESC="library to support popular graphics image formats like PNG, BMP, JPEG, TIFF and others"
+SHORT_DESC="Library to support popular graphics image formats like PNG, BMP, \
+JPEG, TIFF and others"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SOURCE="FreeImage"
-TARBALL="$SOURCE$VERSION.zip"
 WEB_SITE="http://freeimage.sourceforge.net/" 
+
+TARBALL="FreeImage$VERSION.zip"
 WGET_URL="http://downloads.sourceforge.net/$PACKAGE/$TARBALL"
 
-DEPENDS="gcc-lib-base"
-BUILD_DEPENDS="gcc-lib-base"
+SPLIT="freeimage-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	patch -Np1 -i $stuff/gcc4.5_ln.patch
+compile_rules() {
 	pkgdir=$DESTDIR
 	incl=$pkgdir/usr/include
-    dest=$pkgdir/usr/lib
+	dest=$pkgdir/usr/lib
 	install -d $dest
 	install -d $incl
-	sed -e "s|INCDIR = /usr/include|INCDIR = $incl|g" -i Makefile.gnu 
-	sed -e "s|INSTALLDIR = /usr/lib|INSTALLDIR = $dest|g" -i Makefile.gnu  
-	sed -e "s|ldconfig||g" -i Makefile.gnu  
+	sed -e "s|INCDIR = /usr/include|INCDIR = $incl|g" -i Makefile.gnu
+	sed -e "s|INSTALLDIR = /usr/lib|INSTALLDIR = $dest|g" -i Makefile.gnu
+	sed -e "s|ldconfig||g" -i Makefile.gnu
 	export CXXFLAGS="-Wno-narrowing"
 	make &&
 	make DESTDIR=$pkgdir install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-
+genpkg_rules() {
+	case $PACKAGE in
+		freeimage) copy @std;;
+		*-dev)     copy @dev;;
+	esac
 }

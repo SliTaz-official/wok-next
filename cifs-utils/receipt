@@ -1,36 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cifs-utils"
 VERSION="6.1"
 CATEGORY="system-tools"
-SHORT_DESC="CIFS userland tools."
+SHORT_DESC="CIFS userland tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://wiki.samba.org/index.php/LinuxCIFS_utils"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.samba.org/pub/linux-cifs/$PACKAGE/$TARBALL"
-PROVIDE="smbfs"
 
-BUILD_DEPENDS=""
-DEPENDS="linux-cifs"
+SPLIT="cifs-utils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 
 	cook_pick_manpages *.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin
-	cp -a $install/sbin $fs
-	cd $fs/usr/sbin
-	ln -s ../../sbin/mount.cifs .
-	ln -s ../../sbin/mount.cifs umount.cifs
+genpkg_rules() {
+	case $PACKAGE in
+		cifs-utils)
+			mkdir -p $fs/usr/sbin
+			cp -a $install/sbin $fs
+			cd $fs/usr/sbin
+			ln -s ../../sbin/mount.cifs .
+			ln -s ../../sbin/mount.cifs umount.cifs
+			DEPENDS="linux-cifs"
+			PROVIDE="smbfs"
+			;;
+		*-dev)
+			mkdir -p $fs/usr
+			cp -a $install/usr/include $fs/usr
+			;;
+	esac
 }

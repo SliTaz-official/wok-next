@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="liboping"
 VERSION="1.9.0"
 CATEGORY="network"
-SHORT_DESC="Library to ping IPv4 and IPv6 hosts in parallel."
+SHORT_DESC="Library to ping IPv4 and IPv6 hosts in parallel"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://noping.cc/"
@@ -11,25 +11,28 @@ WEB_SITE="http://noping.cc/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://noping.cc/files/$TARBALL"
 
-DEPENDS="ncurses libcap"
 BUILD_DEPENDS="ncurses-dev perl-dev libcap-dev"
+SPLIT="liboping-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy oping noping *.so*
+genpkg_rules() {
+	case $PACKAGE in
+		liboping)
+			copy oping noping *.so*
+			DEPENDS="ncurses libcap"
+			;;
+		*-dev)
+			copy perl5/ *.h *.a *.la *.pc
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_liboping() {
 	chroot "$1/" setcap cap_net_raw=ep /usr/bin/oping
 	chroot "$1/" setcap cap_net_raw=ep /usr/bin/noping
 }

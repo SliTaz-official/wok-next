@@ -1,28 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsieve"
 VERSION="2.3.1"
 CATEGORY="network"
-SHORT_DESC="A library for parsing, sorting and filtering your mail."
+SHORT_DESC="A library for parsing, sorting and filtering your mail"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://libsieve.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/downloads/sodabrew/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="wget"
+SPLIT="libsieve-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		libsieve) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

@@ -1,60 +1,62 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nagios-plugins"
 VERSION="1.4.16"
 CATEGORY="network"
-SHORT_DESC="Plugins for host, service and network monitoring program."
+SHORT_DESC="Plugins for host, service and network monitoring program"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nagios.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/nagiosplug/$TARBALL"
 
-DEPENDS="openssl fping"
-BUILD_DEPENDS="openssl-dev radiusclient-ng-dev radiusclient-ng openldap-dev
- mysql-dev libmysqlclient"
+BUILD_DEPENDS="openssl-dev radiusclient-ng-dev radiusclient-ng openldap-dev \
+mysql-dev libmysqlclient"
+SPLIT="nagios-plugins-mysql"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/gets is a security hole/d' gl/stdio*.h
-	./configure --prefix=/usr \
-	--libexecdir=/usr/lib/nagios/plugins \
-	--with-nagios-user=nobody \
-	--with-nagios-group=nogroup \
-	--with-ping-command="/bin/ping -w %d -c %d %s" \
-	--with-fping-command="/usr/sbin/fping" \
-	--mandir=/usr/share/man $CONFIGURE_ARGS
-	
+	./configure \
+		--prefix=/usr \
+		--libexecdir=/usr/lib/nagios/plugins \
+		--with-nagios-user=nobody \
+		--with-nagios-group=nogroup \
+		--with-ping-command="/bin/ping -w %d -c %d %s" \
+		--with-fping-command="/usr/sbin/fping" \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install &&
 	make DESTDIR=$DESTDIR install-root
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/etc/nagios/objects
-	
-	cp -a $install/usr/lib/nagios/ $fs/usr/lib
-
-	# 
-	stuff/convertcfg $src/command.cfg commands > $fs/etc/nagios/objects/command.cfg
-	
-	# Move mySQL plugins in separate package.
-	rm -f $fs/usr/lib/nagios/plugins/*mysql*
-
+genpkg_rules() {
+	case $PACKAGE in
+		nagios-plugins)
+			mkdir -p $fs/usr/lib $fs/etc/nagios/objects
+			cp -a $install/usr/lib/nagios/ $fs/usr/lib
+			$stuff/convertcfg $src/command.cfg commands > $fs/etc/nagios/objects/command.cfg
+			# Move mySQL plugins in separate package.
+			rm -f $fs/usr/lib/nagios/plugins/*mysql*
+			DEPENDS="openssl fping"
+			;;
+		nagios-plugins-mysql)
+			mkdir -p $fs/usr/lib/nagios/plugins
+			cp -pa $install/usr/lib/nagios/plugins/*mysql* $fs/usr/lib/nagios/plugins
+			DEPENDS="nagios-plugins mysql-client"
+			CATEGORY="network|Nagios MySQL plugin"
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_nagios_plugins() {
 	if ! grep -q nagios "$1/etc/passwd"; then
-		echo -n "Adding user/group nagios..."
+		# Adding user/group nagios...
 		chroot "$1/" addgroup -S nagios
 		chroot "$1/" adduser -S -D -H -G nagios nagios
-		status
 	fi
-	
+
 	if [ -f "$1/etc/nagios/resource.cfg" ]; then
 		sed -i 's|/usr/lib/nagios|/usr/lib/nagios/plugins|' \
 		   "$1/etc/nagios/resource.cfg"

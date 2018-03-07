@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="module-init-tools"
 VERSION="3.12"
 CATEGORY="base-system"
-SHORT_DESC="Kernel modules manipulation tools."
+SHORT_DESC="Kernel modules manipulation tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.kernel.org/pub/linux/utils/kernel/module-init-tools/"
@@ -11,22 +11,10 @@ WEB_SITE="https://www.kernel.org/pub/linux/utils/kernel/module-init-tools/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-DEPENDS="glibc-base gcc-lib-base zlib lzlib depmod"
-BUILD_DEPENDS="wget zlib-dev lzlib-dev lzlib"
+BUILD_DEPENDS="zlib-dev lzlib-dev lzlib"
+SPLIT="depmod"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	for patch_file in lzlib depmod; do
-		if [ -f done.$patch_file ]; then
-			echo "Skipping $patch_file"
-			continue
-		fi
-		echo "Apply $patch_file.u"
-		patch -p1 < $stuff/$patch_file.u || return 1
-		touch done.$patch_file
-	done
-
+compile_rules() {
 	# Don't generate manpages to avoid failure.
 	echo '.so man5/modprobe.conf.5' > modprobe.d.5
 
@@ -36,30 +24,37 @@ compile_rules()
 		--bindir=/bin \
 		--sysconfdir=/etc \
 	$CONFIGURE_ARGS &&
-	make &&	make install
+	make && make install || return 1
+
+	# Create the modprobe config directory
+	mkdir -p $install/etc/modprobe.d
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/sbin $fs/etc
-	cp $install/sbin/insmod $fs/sbin
-	cp $install/sbin/modinfo $fs/sbin
-	cp $install/sbin/modprobe $fs/sbin
-	cp $install/sbin/rmmod $fs/sbin
-	# lsmod goes in /bin.
-	cp -a $install/bin $fs
-	# Create the modprobe config directory
-	mkdir -p $fs/etc/modprobe.d
+genpkg_rules() {
+	case $PACKAGE in
+		depmod)
+			copy depmod
+			CAT="base-system|Kernel modules dependancy tool"
+			DEPENDS="glibc-base gcc-lib-base zlib lzlib"
+			;;
+		module-init-tools)
+			copy @std @rm
+			DEPENDS="glibc-base gcc-lib-base zlib lzlib depmod"
+			;;
+	esac
 }
 
 # Remove Busybox symlink before installing
-pre_install()
-{
+pre_install_module_init_tools() {
 	rm -f "$1/sbin/insmod"
 	rm -f "$1/sbin/modinfo"
 	rm -f "$1/sbin/modprobe"
 	rm -f "$1/sbin/rmmod"
 	# BusyBox puts lsmod in /sbin, not /bin
 	rm -f "$1/sbin/lsmod"
+}
+
+# Overlap busybox
+pre_install_depmod() {
+	rm -f "$1/sbin/depmod"
 }

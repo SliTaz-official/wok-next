@@ -13,8 +13,8 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS_arm="attr-dev ncurses-dev libxml2-tools libxml2-dev"
-BUILD_DEPENDS="libcroco-dev libxml2-dev glib-dev acl-dev"
-SPLIT="gettext-base gettext-tools gettext"
+BUILD_DEPENDS="libcroco-dev libxml2-dev glib-dev acl-dev emacs"
+SPLIT="gettext-base gettext-tools emacs-pkg-po-mode gettext"
 
 compile_rules() {
 	case "$ARCH" in
@@ -29,6 +29,25 @@ compile_rules() {
 	# stripped gettext.sh
 	rm $install/usr/bin/gettext.sh
 	install -m755 $stuff/gettext.sh $install/usr/bin
+
+	# emacs-pkg-po-mode --------
+
+	site_lisp="$install/usr/share/emacs/site-lisp"
+	# Installing start file
+	mkdir -p $site_lisp/site-start.d
+	cp -a $src/gettext-tools/misc/start-po.el $site_lisp/site-start.d/50-start-po.el
+
+	# Installing po-mode
+	mkdir -p $site_lisp/po-mode
+	cp -a $src/gettext-tools/misc/po*.el $site_lisp/po-mode
+
+	# byte-compile files, remove src
+	for file in $site_lisp/po-mode/*.el; do
+		echo -n "Byte-compiling $(basename $file)"
+		emacs -batch -f batch-byte-compile $file 2>/dev/null; err=$?
+		status
+		[ "$err" -eq 0 ] && rm -f $file
+	done
 }
 
 # Just to be sure when cross compiling, gettext is part of base system.
@@ -50,6 +69,11 @@ genpkg_rules() {
 			DEPENDS="acl attr glib libcroco libgomp liblzma libxml2 ncurses \
 			pcre zlib"
 			;;
+		emacs-pkg-po-mode)
+			copy emacs/
+			DEPENDS="emacs"
+			CAT="development|Emacs major mode for editing or modifying PO files"
+			;;
 		gettext)
 			copy @std @dev @rm
 			rm -rf $fs/usr/share/doc/ # @dev files here
@@ -59,4 +83,12 @@ genpkg_rules() {
 			TAGS="LFS"
 			;;
 	esac
+}
+
+post_install_emacs_pkg_po_mode() {
+	chroot "$1/" tazpkg reconfigure emacs
+}
+
+post_remove_emacs_pkg_po_mode() {
+	chroot "$1/" tazpkg reconfigure emacs
 }

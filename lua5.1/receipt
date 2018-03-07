@@ -1,40 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lua5.1"
 VERSION="5.1.4"
-SOURCE="lua"
 CATEGORY="development"
-SHORT_DESC="Powerful, fast, light-weight, embeddable scripting language."
+SHORT_DESC="Powerful, fast, light-weight, embeddable scripting language"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.lua.org/"
+
+TARBALL="lua-$VERSION.tar.gz"
 WGET_URL="http://www.lua.org/ftp/$TARBALL"
 
-DEPENDS="readline ncurses"
 BUILD_DEPENDS="readline-dev"
+SPLIT="lua5.1-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	patch -p0 < $stuff/lua5.1-paths.patch || exit 1
-	sed -i "s#prefix= /usr/local#prefix= /usr#" etc/lua.pc
+compile_rules() {
+	sed -i "s#prefix= /usr/local#prefix= /usr#"     etc/lua.pc
 	sed -i "s#${prefix}/lib#${prefix}/lib/lua/5.1#" etc/lua.pc
-	sed -i "s#/include#/include/lua/5.1#g" etc/lua.pc
-	sed -i "s#/usr/local/#/usr/#" src/luaconf.h
-	sed -i "s#share/lua/5.1/#lib/lua/5.1/#" src/luaconf.h
-	sed -i s"/-O2/-Os -march=$ARCH/" src/Makefile
+	sed -i "s#/include#/include/lua/5.1#g"          etc/lua.pc
+	sed -i "s#/usr/local/#/usr/#"                   src/luaconf.h
+	sed -i "s#share/lua/5.1/#lib/lua/5.1/#"         src/luaconf.h
+	sed -i s"/-O2/-Os -march=$ARCH/"                src/Makefile
+
 	make linux &&
 	make install \
 		INSTALL_TOP=$DESTDIR/usr \
 		INSTALL_MAN=$DESTDIR/usr/share/man/man1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/lib/lua/5.1
-	cp -a $install/usr/bin/lua $fs/usr/bin/lua5.1
-	cp -a $install/usr/bin/luac $fs/usr/bin/luac5.1
+genpkg_rules() {
+	case $PACKAGE in
+		lua5.1)
+			mkdir -p $fs/usr/bin $fs/usr/lib/lua/5.1
+			cp -a $install/usr/bin/lua  $fs/usr/bin/lua5.1
+			cp -a $install/usr/bin/luac $fs/usr/bin/luac5.1
+			DEPENDS="readline ncurses"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib/pkgconfig $fs/usr/lib/lua/5.1
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/lua/5.1/liblua.a $fs/usr/lib/lua/5.1
+			ln -s liblua.a $fs/usr/lib/lua/5.1/liblua5.1.a
+			cp -a $src/etc/lua.pc $fs/usr/lib/pkgconfig/lua5.1.pc
+			;;
+	esac
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gegl"
 VERSION="0.2.0"
@@ -6,16 +6,15 @@ CATEGORY="system-tools"
 SHORT_DESC="Generic Graphics Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://gegl.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.gimp.org/pub/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="babl expat gtk+ jpeg xorg-libX11"
 BUILD_DEPENDS="babl-dev expat-dev gtk+-dev jasper-dev intltool"
+SPLIT="gegl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Keep gegl light so we can make smaller gimp LiveCD flavors
 	./configure \
 		--disable-docs \
@@ -29,12 +28,15 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/gegl-* $fs/usr/lib
-	rm $fs/usr/lib/gegl-*/*.*a
+genpkg_rules() {
+	case $PACKAGE in
+		gegl)
+			copy @std
+			DEPENDS="babl expat gtk+ jpeg xorg-libX11"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gegl libdrm-dev xorg-libXxf86vm-dev pkg-config"
+			;;
+	esac
 }

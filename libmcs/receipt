@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libmcs"
 VERSION="0.7.2"
@@ -6,30 +6,36 @@ CATEGORY="system-tools"
 SHORT_DESC="Library for configuration storage"
 MAINTAINER="mimas@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://www.atheme.org/libmcs/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://distfiles.atheme.org/$TARBALL"
 
-DEPENDS="libmowgli"
 BUILD_DEPENDS="libmowgli-dev"
+SPLIT="libmcs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/libmowgli/libmowgli-2/' configure configure.ac libmcs.pc.in
 	sed -i "s/touch -t 0001010000 /touch /g" configure
-	./configure $CONFIGURE_ARGS && 
-	make &&	
+	./configure $CONFIGURE_ARGS &&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/libmcs.so* $fs/usr/lib/
-	cp -a $install/usr/lib/mcs $fs/usr/lib/
+genpkg_rules() {
+	case $PACKAGE in
+		libmcs)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/libmcs.so* $fs/usr/lib/
+			cp -a $install/usr/lib/mcs $fs/usr/lib/
+			DEPENDS="libmowgli"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/include $fs/usr/
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			DEPENDS="libmcs libmowgli-dev"
+			;;
+	esac
 }
-

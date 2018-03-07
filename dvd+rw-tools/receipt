@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dvd+rw-tools"
 VERSION="7.1"
@@ -6,17 +6,15 @@ CATEGORY="multimedia"
 SHORT_DESC="DVD RW tools"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://fy.chalmers.se/~appro/linux/DVD+RW"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://fy.chalmers.se/~appro/linux/DVD+RW" 
 WGET_URL="$WEB_SITE/tools/$TARBALL"
 
-DEPENDS="cdrkit"
-BUILD_DEPENDS="cdrkit gcc-lib-base m4"
+BUILD_DEPENDS="cdrkit m4"
+SPLIT="dvd+rw-media-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	patch -p1 -i $stuff/build-7.1.patch
 	grep -qs 'define u8' growisofs.c ||
 	sed -i 's|#include <scsi/scsi.h>|#define u8 __u8\n&|' growisofs.c
@@ -27,10 +25,15 @@ compile_rules()
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/growisofs $fs/usr/bin
-
+genpkg_rules() {
+	case $PACKAGE in
+		dvd+rw-tools)
+			copy growisofs
+			DEPENDS="cdrkit"
+			;;
+		dvd+rw-media-tools)
+			copy @std @rm
+			CAT="multimedia|media tools"
+			;;
+	esac
 }

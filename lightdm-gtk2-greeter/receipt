@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lightdm-gtk2-greeter"
 VERSION="1.5.1"
@@ -7,52 +7,84 @@ SHORT_DESC="Reference GTK+ greeter for LightDM"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://launchpad.net/lightdm-gtk-greeter"
-SOURCE="lightdm-gtk-greeter"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="https://launchpad.net/$SOURCE/1.6/$VERSION/+download/$TARBALL"
 
-DEPENDS="gtk+ lightdm"
-BUILD_DEPENDS="gobject-introspection-dev gtk+-dev lightdm-dev libxklavier-dev \
-wget intltool"
+TARBALL="lightdm-gtk-greeter-$VERSION.tar.gz"
+WGET_URL="https://launchpad.net/lightdm-gtk-greeter/1.6/$VERSION/+download/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="gobject-introspection-dev gtk+-dev gtk+3-dev lightdm-dev \
+libxklavier-dev intltool"
+SPLIT="lightdm-gtk3-greeter:gtk3"
+
+compile_rules() {
+	case $SET in
+		'')   SET_ARGS='--with-gtk2';;
+		gtk3) SET_ARGS='';;
+	esac
+
 	./configure \
 		--sysconfdir=/etc \
 		--disable-static \
 		--enable-introspection \
-		--with-gtk2 \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/etc $fs
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share/xgreeters $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		lightdm-gtk2-greeter)
+			mkdir -p $fs/usr/share/locale
+			cp -a $install/etc $fs
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/usr/share/xgreeters $fs/usr/share
 
-	# localization
-	. $WOK/slitaz-i18n/stuff/locale-pack.conf
-	for lang in $LOCALE_PACK; do
-		langf=$install/usr/share/locale/$lang
-		[ -d $langf ] && cp -a $langf $fs/usr/share/locale
-	done
+			# localization
+			. $WOK/slitaz-i18n/stuff/locale-pack.conf
+			for lang in $LOCALE_PACK; do
+				langf=$install/usr/share/locale/$lang
+				[ -d $langf ] && cp -a $langf $fs/usr/share/locale
+			done
+			CAT="x-window|GTK+2"
+			DEPENDS="gtk+ lightdm"
+			;;
+		lightdm-gtk3-greeter)
+			mkdir -p $fs/usr/share/locale
+			cp -a $install/etc $fs
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/usr/share/xgreeters $fs/usr/share
+
+			# localization
+			. $WOK/slitaz-i18n/stuff/locale-pack.conf
+			for lang in $LOCALE_PACK; do
+				langf=$install/usr/share/locale/$lang
+				[ -d $langf ] && cp -a $langf $fs/usr/share/locale
+			done
+			CAT="x-window|GTK+3"
+			DEPENDS="gtk+3 lightdm"
+			;;
+	esac
 }
 
-post_install()
-{
+post_install_lightdm_gtk2_greeter() {
 	echo 'make lightdm-gtk2-greeter default greeter'
 	sed -i 's|^# \(greeter-session =\)|\1 lightdm-gtk2-greeter #|' \
 		"$1/etc/lightdm/lightdm.conf"
 }
 
-post_remove()
-{
+post_remove_lightdm_gtk2_greeter() {
+	echo 'back to default greeter'
+	sed -i 's|^\(greeter-session =\).*#\(.*\)|#\1\2|' \
+		"$1/etc/lightdm/lightdm.conf"
+}
+
+post_install_lightdm_gtk3_greeter() {
+	echo 'make lightdm-gtk3-greeter default greeter'
+	sed -i 's|^# \(greeter-session =\)|\1 lightdm-gtk3-greeter #|' \
+		"$1/etc/lightdm/lightdm.conf"
+}
+
+post_remove_lightdm_gtk3_greeter() {
 	echo 'back to default greeter'
 	sed -i 's|^\(greeter-session =\).*#\(.*\)|#\1\2|' \
 		"$1/etc/lightdm/lightdm.conf"

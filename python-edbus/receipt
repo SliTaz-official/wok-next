@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-edbus"
 VERSION="1.7.0"
@@ -6,27 +6,34 @@ CATEGORY="base-system"
 SHORT_DESC="Python bindings for edbus"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="LGPL2.1"
-SOURCE="python-e_dbus"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.enlightenment.org/"
-WGET_URL="http://download.enlightenment.org/releases/BINDINGS/python/$TARBALL"
-TAGS="e enlightenment python"
 
-DEPENDS="edbus dbus-python dbus-helper"
+TARBALL="python-e_dbus-$VERSION.tar.bz2"
+WGET_URL="http://download.enlightenment.org/releases/BINDINGS/python/$TARBALL"
+
 BUILD_DEPENDS="edbus-dev python-dev dbus-python-dev python-cython dbus-helper
 autoconf automake git subversion libtool"
+SPLIT="python-edbus-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh &&
 	./configure --prefix=/usr &&
-    make $MAKEFLAGS all && make install
+	make $MAKEFLAGS all && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/python2.7 $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		python-edbus)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/python2.7 $fs/usr/lib
+			DEPENDS="edbus dbus-python dbus-helper"
+			TAGS="e enlightenment python"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/lib
+			# cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			DEPENDS="edbus-dev python-dev dbus-python-dev dbus-helper"
+			;;
+	esac
 }
