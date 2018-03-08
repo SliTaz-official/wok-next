@@ -1,35 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tls"
-VERSION="1.6"
+VERSION="1.6.7"
 CATEGORY="network"
-SHORT_DESC="OpenSSL Tcl extension."
+SHORT_DESC="OpenSSL Tcl extension"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
-TARBALL="${PACKAGE}${VERSION}-src.tar.gz"
 WEB_SITE="http://tls.sourceforge.net/"
+
+TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="openssl tcl"
-BUILD_DEPENDS="openssl-dev tcl-dev"
+BUILD_DEPENDS="openssl10-dev tcl-dev"
+SPLIT="tls-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	sed -i 's|/include$|/include/openssl-1.0|' ./configure
+
+	CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0" \
 	./configure \
-		--prefix=/usr \
-		--with-ssl-dir=/usr \
-		--disable-symboles &&
-	make
+		--disable-symboles \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/tls1.6
-	cp -a $src/libtls1.6.so $fs/usr/lib/tls1.6
-	cp -a $src/pkgIndex.tcl $fs/usr/lib/tls1.6
-	cp -a $src/tls.tcl $fs/usr/lib/tls1.6
-
-	sed -i 's/dir ../dir/' $fs/usr/lib/tls1.6/pkgIndex.tcl
+genpkg_rules() {
+	case $PACKAGE in
+		tls)
+			copy @std
+			DEPENDS="openssl10 tcl"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

@@ -1,0 +1,49 @@
+# SliTaz package receipt v2.
+
+PACKAGE="v4l-utils"
+VERSION="1.14.2"
+CATEGORY="multimedia"
+SHORT_DESC="Userspace tools and conversion library for Video 4 Linux"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://linuxtv.org/wiki/index.php/V4l-utils"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://linuxtv.org/downloads/v4l-utils/$TARBALL"
+
+BUILD_DEPENDS="libjpeg-turbo-dev perl gettext alsa-lib-dev eudev-dev"
+SPLIT="v4l-utils-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make -j1 install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		v4l-utils)
+			copy @std
+			DEPENDS="eudev libjpeg-turbo"
+			PROVIDE="libv4l"
+			TAGS="webcam video"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="v4l-utils eudev-dev libjpeg-turbo-dev"
+			PROVIDE="libv4l-dev"
+			;;
+	esac
+}
+
+post_install_v4l_utils() {
+	lib='/usr/lib/libv4l/v4l1compat.so'
+	if [ -e "$1$lib" ]; then
+		grep -q "^export LD_PRELOAD=$lib$"   "$1/etc/profile" ||
+		echo     "export LD_PRELOAD=$lib" >> "$1/etc/profile"
+	fi
+}
+
+post_remove_v4l_utils() {
+	sed -i '/export LD_PRELOAD=\/usr\/lib\/libv4l\/v4l1compat.so/d' "$1/etc/profile"
+}
