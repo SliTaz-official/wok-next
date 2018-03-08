@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="rubberband"
+VERSION="1.8.1"
+CATEGORY="multimedia"
+SHORT_DESC="Time-stretching and pitch-shifting audio library and utility"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="http://www.breakfastquay.com/rubberband/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/breakfastquay/rubberband/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="libsamplerate-dev libsndfile-dev fftw-dev ladspa-dev \
+vamp-plugin-sdk-dev"
+SPLIT="rubberband-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		rubberband)
+			copy @std
+			DEPENDS="fftw libsamplerate libsndfile vamp-plugin-sdk"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

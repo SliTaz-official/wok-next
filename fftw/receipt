@@ -16,30 +16,35 @@ BUILD_DEPENDS="gfortran"
 SPLIT="fftw-dev"
 
 compile_rules() {
-	# build double precision
+	# --enable-threads: ardour need it: cannot find -lfftw3f_threads
+
+	# build double precision (fftw3)
 	./configure \
 		F77=gfortran \
 		--enable-shared \
+		--enable-threads \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 
-	# build long double precission
+	# build long double precission (fftw3l)
 	make clean
 	./configure \
 		F77=gfortran \
 		--enable-long-double \
 		--enable-shared \
+		--enable-threads \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 
-	# build single precision
+	# build single precision (fftw3f)
 	make clean
 	./configure \
 		F77=gfortran \
 		--enable-float \
 		--enable-shared \
+		--enable-threads \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install

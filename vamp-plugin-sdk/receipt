@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="vamp-plugin-sdk"
+VERSION="2.7.1"
+CATEGORY="multimedia"
+SHORT_DESC="The Vamp audio analysis plug-in system"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://www.vamp-plugins.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://code.soundsoftware.ac.uk/attachments/download/2206/$TARBALL"
+
+BUILD_DEPENDS="libsndfile-dev"
+SPLIT="vamp-plugin-sdk-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		vamp-plugin-sdk)
+			copy @std
+			DEPENDS="libsndfile"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

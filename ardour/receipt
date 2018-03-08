@@ -1,73 +1,53 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ardour"
-VERSION="2.8.14"
+VERSION="5.12.0"
 CATEGORY="multimedia"
+SHORT_DESC="A multichannel hard disk recorder and digital audio workstation"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="A multichannel hard disk recorder and digital audio workstation"
-WEB_SITE="http://ardour.org"
+WEB_SITE="http://ardour.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://ftp.archlinux.org/other/ardour/$TARBALL"
-TAGS="audio recorder mixer"
+WGET_URL="https://community.ardour.org/src/Ardour-$VERSION.tar.bz2"
 
-DEPENDS="liblrdf ladspa liblo libgnomecanvas libusb-compat aubio libsndfile \
-libsamplerate raptor fftw libxslt libgnomecanvasmm soundtouch"
-BUILD_DEPENDS="scons libboost-dev libboost-thread libboost-math \
-jack-dev alsa-lib-dev liblo-dev aubio-dev libxslt-dev \
-libsndfile-dev ladspa-dev liblrdf-dev libart_lgpl-dev libusb-dev \
-libsamplerate-dev curl-dev fftw-dev soundtouch-dev raptor-dev \
-libgnomecanvasmm-dev libgnomecanvas-dev pkg-config liblrdf-dev gtkmm-dev \
-libboost-system"
+BUILD_DEPENDS="python itstool libboost-dev \
+alsa-lib-dev glib-dev glibmm-dev libsndfile-dev curl-dev libarchive-dev \
+liblo-dev taglib-dev vamp-plugin-sdk-dev rubberband-dev eudev-dev fftw-dev \
+aubio-dev cppunit-dev libusb-dev jack-dev pangomm-dev liblrdf-dev lv2 serd-dev \
+sord-dev sratom lilv gtkmm-dev dbus-dev readline-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i '/-O3/d' SConstruct
-	mkdir -p $DESTDIR
-
-	CFLAGS="$CFLAGS -Wl,--copy-dt-needed-entries -lboost_system"
-	scons ${MAKEFLAGS} ARCH="${CFLAGS}" \
-		PREFIX=/usr \
-		NLS=1 \
-		FREEDESKTOP=0 \
-		SYSLIBS=1 \
-		VST=0 \
-		WIIMOTE=0 \
-		LV2=0 \
-		FREESOUND=1 \
-		LIBLO=1 \
-		AUBIO=1 \
-		TRANZPORT=1 \
-		DIST_LIBDIR=lib
-
-	scons ${MAKEFLAGS} ARCH="${CFLAGS}" \
-		PREFIX=/usr \
-		NLS=1 \
-		FREEDESKTOP=0 \
-		SYSLIBS=1 \
-		VST=0 \
-		WIIMOTE=0 \
-		LV2=0 \
-		FREESOUND=1 \
-		LIBLO=1 \
-		AUBIO=1 \
-		TRANZPORT=1 \
-		DIST_LIBDIR=lib \
-		DESTDIR=$DESTDIR install
-
-	cook_pick_manpages $src/ardour.1
-	for i in es fr ru; do
-		mkdir -p $install/usr/share/man/$i/man1
-		cp -a $src/ardour.1.$i $install/usr/share/man/$i/man1/ardour.1
+compile_rules() {
+	python2 waf configure \
+		--prefix=/usr \
+		--configdir=/etc \
+		--with-backends="jack,alsa,dummy" \
+		--libjack=weak \
+		--optimize \
+		--cxx11 \
+		--freedesktop \
+		--ptformat \
+		--no-phone-home \
+		&&
+	python2 waf build &&
+	python2 waf install --destdir="$install" || return 1
+	# xdg integration
+	install -vDm644 build/gtk2_ardour/ardour.xml \
+		$install/usr/share/mime/application/x-ardour.xml
+	install -vDm644 build/gtk2_ardour/ardour${VERSION%%.*}.desktop \
+		$install/usr/share/applications/ardour.desktop
+	for size in 16 22 32 48 256 512; do
+		install -vDm644 gtk2_ardour/resources/Ardour-icon_${size}px.png \
+			$install/usr/share/icons/hicolor/${size}x${size}/apps/ardour${VERSION%%.*}.png
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/ardour2 $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/ardour2/*so* $fs/usr/lib/ardour2
-	cp -a $install/usr/share/ardour2 $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib atk atkmm aubio cairo cairomm dbus fftw flac fontconfig \
+	freetype gdk-pixbuf glib glibmm gtk+ gtkmm libarchive libcurl libgiomm \
+	liblo liblrdf libogg libsamplerate libsigc++ libsndfile libusb libxml2 \
+	lilv pango pangomm readline rubberband serd sord sratom taglib \
+	vamp-plugin-sdk xorg-libX11"
+	TAGS="audio recorder mixer"
 }
