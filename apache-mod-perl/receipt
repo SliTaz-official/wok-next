@@ -1,39 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="apache-mod-perl"
-VERSION="2.0.8"
+VERSION="2.0.10"
 CATEGORY="network"
 SHORT_DESC="PERL module for Apache"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="Apache"
-SOURCE="mod_perl"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://perl.apache.org/"
-WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PH/PHRED/$TARBALL"
 
-DEPENDS="apache perl-thread"
-BUILD_DEPENDS="gdbm-dev apache-dev apr-dev apr-util-dev apache perl-thread"
+TARBALL="mod_perl-$VERSION.tar.gz"
+#WGET_URL="http://search.cpan.org/CPAN/authors/id/P/PH/PHRED/$TARBALL"
+WGET_URL="http://apache.ip-connect.vn.ua/perl/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	perl Makefile.PL MP_APXS=/usr/bin/apxs \
-			 MP_APR_CONFIG=/usr/bin/apr-1-config
-	sed -i 's/remote_ip/client_ip/;s/remote_addr/client_addr/' \
-		WrapXS/Apache2/Connection/Connection.xs
-	sed -i 's/>loglevel/>log.level/' \
-		WrapXS/Apache2/ServerRec/ServerRec.xs
+BUILD_DEPENDS="gdbm-dev apache-dev apr-dev apr-util-dev apache perl-dev"
+SPLIT="apache-mod-perl-dev"
+
+compile_rules() {
+	perl Makefile.PL \
+		MP_APXS=/usr/bin/apxs \
+		MP_APR_CONFIG=/usr/bin/apr-1-config
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/apache $fs/usr/share
-	
+genpkg_rules() {
+	case $PACKAGE in
+		apache-mod-perl)
+			copy @std
+			DEPENDS="apache perl"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
