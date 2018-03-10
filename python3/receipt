@@ -1,0 +1,50 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python3"
+VERSION="3.6.4"
+CATEGORY="development"
+SHORT_DESC="The Python 3 programming language"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL"
+WEB_SITE="https://www.python.org/download/releases/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/Python.html"
+
+TARBALL="Python-$VERSION.tar.xz"
+WGET_URL="https://www.python.org/ftp/python/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="readline-dev gdbm-dev openssl-dev sqlite3-dev zlib-dev tk-dev \
+ncurses-dev xz-dev bzip2-dev expat-dev"
+SPLIT="python3-dev"
+COOKOPTS="!zip"
+
+compile_rules() {
+	mkdir -p $install/usr/lib/pkgconfig
+
+	./configure \
+		--enable-shared \
+		--with-system-expat \
+		--with-system-ffi \
+		--with-ensurepip=yes \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	chmod 755 $install/usr/lib/libpython${VERSION%.*}m.so
+	chmod 755 $install/usr/lib/libpython${VERSION%%.*}.so
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		python3)
+			copy @std pyconfig.h
+			DEPENDS="bzlib expat gdbm liblzma libsqlite3 ncurses \
+			ncurses-libpanel openssl readline tcl tk xorg-libX11 zlib"
+			PROVIDE="py3k"
+			TAGS="LFS"
+			;;
+		*-dev)
+			copy @dev @rm
+			PROVIDE="py3k-dev"
+			;;
+	esac
+}

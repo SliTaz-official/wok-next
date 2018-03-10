@@ -18,7 +18,12 @@ BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
 SPLIT="gcc54-lib-base"
 
 compile_rules() {
-	ARCH_ARGS="--with-tune=$ARCH"
+	case $ARCH in
+		arm*)   ARCH_ARGS="--with-tune=armv6";;
+		i?86)   ARCH_ARGS="--with-tune=$ARCH";;
+		x86_64) ARCH_ARGS="--with-tune=nocona";;
+	esac
+
 	pkgversion="SliTaz"
 	languages="c,c++"
 
@@ -44,7 +49,9 @@ compile_rules() {
 		--program-suffix=-54 \
 		--libdir=/usr/libgcc54 \
 		--with-pkgversion="$pkgversion" \
-		${CONFIGURE_ARGS} ${ARCH_ARGS} &&
+		--disable-multilib \
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 

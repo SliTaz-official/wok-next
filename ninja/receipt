@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ninja"
+VERSION="1.8.2"
+CATEGORY="development"
+SHORT_DESC="Small build system with a focus on speed"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache"
+WEB_SITE="https://ninja-build.org/"
+LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/ninja.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/ninja-build/ninja/archive/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	export NINJAJOBS=4 # Should be OK for our 6x Intel(R) Xeon(R) CPU W3530 @ 2.8GHz
+
+	python configure.py --bootstrap || return 1
+
+	install -Dm755 ninja $install/usr/bin/ninja
+	install -Dm644 misc/bash-completion $install/usr/share/bash-completion/completions/ninja
+	install -Dm644 misc/zsh-completion  $install/usr/share/zsh/site-functions/_ninja
+	cook_pick_docs doc/manual.asciidoc
+}
+
+genpkg_rules() {
+	copy /usr/bin/ninja
+	TAGS="LFS"
+}

@@ -19,7 +19,11 @@ BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
 SPLIT="gcc49-lib-base"
 
 compile_rules() {
-	ARCH_ARGS="--with-tune=$ARCH"
+	case $ARCH in
+		arm*)   ARCH_ARGS="--with-tune=armv6";;
+		i?86)   ARCH_ARGS="--with-tune=$ARCH";;
+		x86_64) ARCH_ARGS="--with-tune=nocona";;
+	esac
 	pkgversion="SliTaz"
 	languages="c,c++"
 
@@ -30,7 +34,8 @@ compile_rules() {
 
 	sed -i 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in
 
-	mkdir -p ../gcc-build && cd ../gcc-build
+	mkdir build
+	cd    build
 
 	$src/configure \
 		--libexecdir=/usr/lib \
@@ -47,7 +52,9 @@ compile_rules() {
 		--program-suffix=-49 \
 		--libdir=/usr/libgcc49 \
 		--with-pkgversion="$pkgversion" \
-		${CONFIGURE_ARGS} ${ARCH_ARGS} &&
+		--disable-multilib \
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
