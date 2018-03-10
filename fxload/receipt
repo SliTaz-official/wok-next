@@ -1,26 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fxload"
 VERSION="2008_10_13"
 CATEGORY="system-tools"
-SHORT_DESC="Download firmware into FX, FX2, and FX2LP EZ-USB devices."
+SHORT_DESC="Download firmware into FX, FX2, and FX2LP EZ-USB devices"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://sourceforge.net/projects/linux-hotplug/"
-WGET_URL="$SF_MIRROR/linux-hotplug/$PACKAGE/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/linux-hotplug/$TARBALL"
+
+compile_rules() {
+	make || return 1
+
+	install -Dm755 $src/fxload     $install/usr/bin/fxload
+	install -Dm644 $src/a3load.hex $install/usr/share/usb/a3load.hex
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/usb
-	install $src/fxload $fs/usr/bin
-	install -m 0644 $src/a3load.hex $fs/usr/share/usb
+genpkg_rules() {
+	copy @std
 }
-

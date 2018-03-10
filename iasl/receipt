@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="iasl"
 VERSION="20100915"
@@ -6,16 +6,14 @@ CATEGORY="development"
 SHORT_DESC="Intel ACPI Source Language compiler"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="other"
-SOURCE="acpica-unix"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://acpica.org"
+
+TARBALL="acpica-unix-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
 
 BUILD_DEPENDS="flex bison"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Fix building.
 	sed -i -e 's/-Werror//g' compiler/Makefile tools/acpisrc/Makefile
 
@@ -25,14 +23,12 @@ compile_rules()
 	make || return 1
 	cd $src/tools/acpixtract
 	make || return 1
+
+	install -Dm755 $src/compiler/iasl               $install/usr/bin/iasl
+	install -Dm755 $src/tools/acpisrc/acpisrc       $install/usr/bin/acpisrc
+	install -Dm755 $src/tools/acpixtract/acpixtract $install/usr/bin/acpixtract
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/compiler/iasl $fs/usr/bin
-	cp -a $src/tools/acpisrc/acpisrc $fs/usr/bin
-	cp -a $src/tools/acpixtract/acpixtract $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }
-

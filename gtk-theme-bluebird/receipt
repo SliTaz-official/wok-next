@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-theme-bluebird"
 VERSION="1.2"
@@ -7,26 +7,24 @@ SHORT_DESC="Bluebird is GTK+2 and GTK+3 theme from the Shimmer Project"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 CC-BY-SA-3"
 WEB_SITE="http://shimmerproject.org/our-projects/bluebird/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/shimmerproject/Bluebird/archive/v$VERSION.tar.gz"
 
-DEPENDS="gtk2-engine-murrine"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -p1 -i $stuff/define-sizes.patch
 	dos2unix $src/gtk-2.0/bars.rc
 	dos2unix $src/gtk-2.0/gtkrc
-}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
 	T='/usr/share/themes/Bluebird'
-	mkdir -p $fs/$T
+	mkdir -p $install/$T
 	cp -a \
 		$src/gtk-2.0 \
 		$src/gtk-3.0 \
-		$fs/$T
+		$install/$T
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2-engine-murrine"
 }

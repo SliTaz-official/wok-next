@@ -1,28 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="horst"
 VERSION="4.2"
 CATEGORY="network"
-SHORT_DESC="Small, lightweight IEEE802.11 wireless LAN analyzer with a text interface."
+SHORT_DESC="Small, lightweight IEEE802.11 wireless LAN analyzer with a text \
+interface"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://br1.einfach.org/tech/horst/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://br1.einfach.org/horst_dl/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	make
+	make &&
+	install -Dm755 $src/horst $install/usr/bin/horst
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/$PACKAGE $fs/usr/bin	
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }

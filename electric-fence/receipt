@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="electric-fence"
 VERSION="2.1.13"
@@ -6,27 +6,21 @@ CATEGORY="development"
 SHORT_DESC="Memory allocation debugger"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_${VERSION}-0.1.tar.gz"
 WEB_SITE="http://perens.com/works/software/"
+
+TARBALL="${PACKAGE}_${VERSION}-0.1.tar.gz"
 WGET_URL="http://perens.com/works/software/ElectricFence/$TARBALL"
-TAGS="debugger"
 
-DEPENDS="gdb"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	
-	make 
+compile_rules() {
+	make || return 1
+	mkdir -p $install/usr/lib $install/usr/bin
+	cp -a $src/eftest $install/usr/bin
+	cp -a $src/tstheap $install/usr/bin
+	cp -a $src/*.a  $install/usr/lib
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib  $fs/usr/bin
-	cp -a $src/eftest $fs/usr/bin
-	cp -a $src/tstheap $fs/usr/bin
-	cp -a $src/*.a  $fs/usr/lib
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="gdb"
+	TAGS="debugger"
 }
-

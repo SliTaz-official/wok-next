@@ -1,28 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fbcat"
 VERSION="0.3"
 CATEGORY="misc"
-SHORT_DESC="Takes a screenshot using the framebuffer device."
+SHORT_DESC="Takes a screenshot using the framebuffer device"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://code.google.com/p/$PACKAGE/"
-WGET_URL="https://$PACKAGE.googlecode.com/files/$TARBALL"
 
-SUGGESTED="imagemagick"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://fbcat.googlecode.com/files/$TARBALL"
+
 BUILD_DEPENDS="wget"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
+
+	install -Dm755 $src/fbcat  $install/usr/bin/fbcat
+	install -Dm755 $src/fbgrab $install/usr/bin/fbgrab
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/fbcat $fs/usr/bin
-	cp -a $src/fbgrab $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	SUGGESTED="imagemagick"
 }

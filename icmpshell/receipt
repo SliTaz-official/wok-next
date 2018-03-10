@@ -1,27 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="icmpshell"
-SOURCE="ish"
 VERSION="0.2"
 CATEGORY="network"
-SHORT_DESC="A telnet-like protocol over icmp."
+SHORT_DESC="A telnet-like protocol over icmp"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-v$VERSION.tar.gz"
 WEB_SITE="http://icmpshell.sourceforge.net/"
+
+TARBALL="ish-v$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -p0 < $stuff/ishd.u
-	make -j 1 linux
+	make -j 1 linux || return 1
+
+	install -Dm755 $src/ish  $install/usr/sbin/ish
+	install -Dm755 $src/ishd $install/usr/sbin/ishd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin
-	cp $src/ish $fs/usr/sbin
-	cp $src/ishd $fs/usr/sbin
+genpkg_rules() {
+	copy @std
 }

@@ -1,33 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cocoalib"
 VERSION="0.9952"
 CATEGORY="misc"
-SHORT_DESC="CoCoALib is a GPL C++ library for doing Computations in Commutative Algebra"
+SHORT_DESC="CoCoALib is a GPL C++ library for doing Computations in \
+Commutative Algebra"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://cocoa.dima.unige.it/cocoalib/"
+
 TARBALL="CoCoALib-$VERSION.tgz"
 WGET_URL="${WEB_SITE}tgz/$TARBALL"
 
-DEPENDS="gmp gsl libboost-thread libboost-system libboost-filesystem \
-libboost-iostreams libboost-math-tr1"
 BUILD_DEPENDS="bash gmp-dev gsl-dev libboost-dev libboost-thread libboost-system \
 libboost-filesystem libboost-iostreams libboost-math-tr1"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	find | grep Makefile | sed 's/Makefile.*/Makefile_dependencies/' | \
 		xargs touch -d 197001010000
-	./configure $CONFIGURE_ARGS && make library
+	./configure $CONFIGURE_ARGS && make library || return 1
+
 	# INSTALL TARGET for CoCoALib NOT YET IMPLEMENTED
+	mkdir -p $install/usr/lib $install/usr/include
+	cp -r $src/lib/libcocoa.a /$install/usr/lib
+	cp -r $src/include/* $install/usr/include
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/include
-	cp -a $src/lib/libcocoa.a /$fs/usr/lib
-	cp -a $src/include/* $fs/usr/include
+genpkg_rules() {
+	copy @dev
+	DEPENDS="gmp gsl libboost-thread libboost-system libboost-filesystem \
+	libboost-iostreams libboost-math-tr1"
 }

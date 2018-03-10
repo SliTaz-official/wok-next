@@ -7,6 +7,7 @@ SHORT_DESC="GStreamer-0.10 Base Plugins"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gstreamer.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/7.6/multimedia/gst-plugins-base.html"
 
 TARBALL="gst-plugins-base-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gst-plugins-base/0.10/$TARBALL"
@@ -20,13 +21,9 @@ util-linux-uuid-dev cdparanoia-III-dev orc-dev gobject-introspection-dev \
 xorg-dev gettext"
 SPLIT="gst0-plugins-base-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/7.6/multimedia/gst-plugins-base.html
+compile_rules() {
 	case "$ARCH" in
-		i?86) ;;
-		*) export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include" ;;
+		arm*) export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include" ;;
 	esac
 	./configure \
 		--sysconfdir=/etc \
@@ -41,9 +38,7 @@ compile_rules()
 	make $MAKEFLAGS && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-base)
 			copy @std

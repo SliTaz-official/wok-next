@@ -7,22 +7,19 @@ SHORT_DESC="Frame buffer grabber."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://fbgrab.monells.se/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-DEPENDS="libpng16 zlib"
 BUILD_DEPENDS="libpng16-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	#sed -i '/splint/d' Makefile
-	make
+	make &&
+	install -Dm755 $src/fbgrab $install/usr/bin/fbgrab
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/fbgrab $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpng16 zlib"
 }

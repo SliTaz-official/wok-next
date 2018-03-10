@@ -1,50 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="emesene"
 VERSION="1.6"
 CATEGORY="network"
-SHORT_DESC="Instant messaging client for Windows Live Messenger (tm) network."
+SHORT_DESC="Instant messaging client for Windows Live Messenger (tm) network"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.emesene.org"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="im instant-messaging instant-messenger"
 
-DEPENDS="python pygtk pycairo python-pysqlite gst0-python"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-    cd $src
-    while read file; do
-        [ -f done.$file ] && continue
-        echo "Apply $file..."
-        patch -p1 < $stuff/$file || return 1
-        touch done.$file
-    done <<EOT
-slitaz-openbox.patch
-EOT
-    python setup.py build_ext -i || return 1
+compile_rules() {
+	python setup.py build_ext -i || return 1
+
+	mkdir -p \
+		$install/usr/bin \
+		$install/usr/share/emesene \
+		$install/usr/share/pixmaps \
+		$install/usr/share/applications
+
+	cp $stuff/emesene $install/usr/bin
+	cp -a $src/* $install/usr/share/emesene
+	cp $install/usr/share/emesene/misc/emesene.png $install/usr/share/pixmaps
+	cp $install/usr/share/emesene/misc/emesene.desktop $install/usr/share/applications
+
+	rm -rf $install/usr/share/emesene/misc
+	rm -rf $install/usr/share/emesene/po
+	rm -rf $install/usr/share/emesene/libmimic
+	rm -rf $install/usr/share/emesene/build
 }
 
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs/usr/bin \
-        $fs/usr/share/emesene \
-        $fs/usr/share/pixmaps \
-        $fs/usr/share/applications
-
-    cp stuff/emesene $fs/usr/bin
-    cp -a $src/* $fs/usr/share/emesene
-    cp $fs/usr/share/emesene/misc/emesene.png $fs/usr/share/pixmaps
-    cp $fs/usr/share/emesene/misc/emesene.desktop $fs/usr/share/applications
-
-    rm -rf $fs/usr/share/emesene/misc
-    rm -rf $fs/usr/share/emesene/po
-    rm -rf $fs/usr/share/emesene/libmimic
-    rm -rf $fs/usr/share/emesene/build
+genpkg_rules() {
+	copy @std
+	DEPENDS="python pygtk pycairo python-pysqlite gst0-python"
+	TAGS="im instant-messaging instant-messenger"
 }

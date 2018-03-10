@@ -1,27 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="epm"
 VERSION="4.2"
 CATEGORY="misc"
-SHORT_DESC="File packaging program."
+SHORT_DESC="File packaging program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-source.tar.bz2"
 WEB_SITE="http://www.msweet.org/projects.php?Z2"
+
+TARBALL="$PACKAGE-$VERSION-source.tar.bz2"
 WGET_URL="http://www.msweet.org/files/project2/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr && make -j 1
+compile_rules() {
+	./configure --prefix=/usr && make -j 1 &&
+	install -Dm755 $src/epm $install/usr/bin/epm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/epm $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="input-utils"
 VERSION="20081014-101501"
@@ -6,29 +6,25 @@ CATEGORY="system-tools"
 SHORT_DESC="Small collection of linux input layer tools"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
-SOURCE="input"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://dl.bytesex.org/cvs-snapshots/"
+
+TARBALL="input-$VERSION.tar.gz"
 WGET_URL="http://dl.bytesex.org/cvs-snapshots/$TARBALL"
-TAGS="kernel input utilities"
 
-DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/input-recv lircd.conf/input-recv/' GNUmakefile
 	prefix="/usr"
-	CFLAGS="$CFLAGS -O3 -march=$ARCH"
+
+	case $ARCH in
+		x86_64) CFLAGS="$CFLAGS -O3 -march=nocona";;
+		*)      CFLAGS="$CFLAGS -O3 -march=$ARCH";;
+	esac
+
 	export prefix CFLAGS
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	TAGS="kernel input utilities"
 }
-
