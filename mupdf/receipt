@@ -7,25 +7,24 @@ SHORT_DESC="A lightweight PDF and XPS viewer"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://mupdf.com/"
+
 TARBALL="$PACKAGE-$VERSION-source.tar.gz"
 WGET_URL="http://mupdf.com/downloads/$TARBALL"
 
-BUILD_DEPENDS="freetype-dev fontconfig-dev jbig2dec-dev jpeg-dev \
+BUILD_DEPENDS="freetype-dev fontconfig-dev jbig2dec-dev libjpeg-turbo-dev \
 openjpeg-dev zlib-dev xorg-dev"
-SPLIT="mupdf mudraw mupdf-dev"
+SPLIT="mudraw mupdf mupdf-dev"
 
-# Rules to configure and make the package.  
-compile_rules()
-{
+compile_rules() {
 	# Use system wide libraries instead of included ones
 	rm -rf $src/thirdparty
-	
+
 	case "$ARCH" in
 		arm*)
 			ARCH_ARGS='OS="slitaz-arm"'
 			unset CC CFLAGS
 			make generate
-			cat >> Makerules << EOT
+			cat >> Makerules <<EOT
 ifeq "\$(OS)" "slitaz-arm"
 SYS_FREETYPE_INC = -I/cross/$ARCH/sysroot/usr/include
 CC = ${HOST_SYSTEM}-gcc
@@ -35,37 +34,31 @@ CFLAGS += -I/cross/$ARCH/sysroot/usr/include -O2 -march=armv6 -ftree-vectorize -
 CROSSCOMPILE=yes
 endif
 EOT
-			ln -s /usr/include/freetype2/freetype/ /usr/include/freetype ;;
-			
-*)			# apply debian 1.4-1 patch
+			ln -s /usr/include/freetype2/freetype/ /usr/include/freetype
+			;;
+		*)
+			# apply debian 1.4-1 patch
 			patch -p1 < $stuff/use_openjpeg_1.5.patch
+			;;
 	esac
 	make ${ARCH_ARGS} build=release &&
 	make ${ARCH_ARGS} build=release prefix=/usr install
 	rm -rf /usr/include/freetype
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	mupdf)
-		DEPENDS="bzlib freetype fontconfig jbig2dec openjpeg xorg-libXext"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/mupdf* $fs/usr/bin
-		;;
-	mudraw)
-		CAT="development|A lightweight PDF and XPS viewer (mudraw)"
-		DEPENDS="bzlib freetype jbig2dec openjpeg"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/mudraw $fs/usr/bin
-		;;
-	mupdf-dev)
-		CAT="development|Development files for mupdf"
-		DEPENDS="mupdf mudraw"
-		mkdir -p $fs/usr
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		;;
+		mudraw)
+			copy mudraw
+			CAT="development|mudraw"
+			DEPENDS="bzlib freetype jbig2dec openjpeg"
+			;;
+		mupdf)
+			copy @std @rm
+			DEPENDS="bzlib freetype fontconfig jbig2dec openjpeg xorg-libXext"
+			;;
+		mupdf-dev)
+			copy @dev
+			;;
 	esac
 }
