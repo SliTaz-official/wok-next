@@ -1,33 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="stella"
 VERSION="3.7.5"
 CATEGORY="games"
-SHORT_DESC="A multi-platform Atari 2600 VCS emulator."
+SHORT_DESC="A multi-platform Atari 2600 VCS emulator"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WEB_SITE="http://stella.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="emulator atari"
 
-DEPENDS="gcc-lib-base libsdl libpng16"
+TARBALL="$PACKAGE-$VERSION-src.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="libsdl-dev libpng16-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr &&
-	make && make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$DESTDIR install || return 1
+
+	sed -i 's|Icon=stella.png|Icon=stella|' $install/usr/share/applications/stella.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/icons/hicolor/48x48/apps/stella.png $fs/usr/share/pixmaps
-	sed -i 's|Icon=stella.png|Icon=stella|' $install/usr/share/applications/stella.desktop
+genpkg_rules() {
+	copy @std
+	DEPENDS="gcc-lib-base libsdl libpng16"
+	TAGS="emulator atari"
 }

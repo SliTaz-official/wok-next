@@ -1,39 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xine-plugin"
 VERSION="1.0.2"
 CATEGORY="multimedia"
-SHORT_DESC="Xine media player firefox plugin."
+SHORT_DESC="Xine media player Firefox plugin"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xinehq.de/"
-WGET_URL="http://switch.dl.sourceforge.net/sourceforge/xine/$TARBALL"
 
-DEPENDS="xine-lib firefox"
-BUILD_DEPENDS="xine-lib xine-lib-dev xorg-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/xine/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="xine-lib xine-lib-dev xorg-dev gfortran"
+
+compile_rules() {
 	mkdir -p $DESTDIR/root/.mozilla/plugins
-	./configure --prefix=/usr \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	mkdir -p $install/usr/share/xine
+	mv $install/root/.mozilla/plugins/* $install/usr/share/xine/
+	rm -r $install/root/.mozilla/plugins/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/xine
-	find $install -name xineplugin.so -exec cp -a {} $fs/usr/share/xine \;
+genpkg_rules() {
+	copy *.so
+	DEPENDS="xine-lib firefox"
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install() {
 	ln -s /usr/share/xine/xineplugin.so "$1"/usr/lib/firefox-*/plugins/
 	ln -s /usr/share/xine/xineplugin.so "$1/usr/lib/mozilla/plugins/"
 }

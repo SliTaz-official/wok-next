@@ -1,34 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="syasokoban"
 VERSION="2.0.1"
 CATEGORY="games"
-SHORT_DESC="Sokoban clone."
+SHORT_DESC="Sokoban clone"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://grayskygames.com/sokoban.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://grayskygames.com/sokoban/$TARBALL"
 
-DEPENDS="libsdl gcc-lib-base glibc-base"
 BUILD_DEPENDS="libsdl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|<stdlib.h>|&\n#include <unistd.h>|' src/Main.cpp
-	if [ ! -f gcc44.u.done ]; then
-		patch -p0 < $stuff/gcc44.u
-		touch gcc44.u.done
-	fi
-	make
+	make || return 1
+
+	mkdir -p $install/usr/share/syasokoban/
+	cp -r $src/syasokoban $src/data $install/usr/share/syasokoban/
+
+	install -Dm644 $stuff/sokoban.desktop $install/usr/share/applications/sokoban.desktop
+	install -Dm755 $stuff/syasokoban      $install/usr/bin/syasokoban
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/syasokoban $fs/usr/share/applications
-	cp -a $src/syasokoban $src/data $fs/usr/share/syasokoban
-	cp -a $stuff/sokoban.desktop $fs/usr/share/applications
-	cp -a $stuff/syasokoban $fs/usr/bin/syasokoban
+genpkg_rules() {
+	copy @std
+	DEPENDS="libsdl gcc-lib-base glibc-base"
 }
