@@ -20,7 +20,12 @@ compile_rules() {
 	sed -i "s#/include#/include/lua/5.1#g"          etc/lua.pc
 	sed -i "s#/usr/local/#/usr/#"                   src/luaconf.h
 	sed -i "s#share/lua/5.1/#lib/lua/5.1/#"         src/luaconf.h
-	sed -i s"/-O2/-Os -march=$ARCH/"                src/Makefile
+
+	case $ARCH in
+		x86_64) Arch='nocona';;
+		*)      Arch="$ARCH";;
+	esac
+	sed -i s"/-O2/-Os -march=$Arch/"                src/Makefile
 
 	make linux &&
 	make install \

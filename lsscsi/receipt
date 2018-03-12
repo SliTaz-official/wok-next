@@ -1,28 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lsscsi"
 VERSION="0.21"
 CATEGORY="system-tools"
-SHORT_DESC="Lists information about SCSI devices."
+SHORT_DESC="Lists information about SCSI devices"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://sg.danny.cz/scsi/lsscsi.html"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://sg.danny.cz/scsi/$TARBALL"
 #WGET_URL="http://www.sfr-fresh.com/linux/misc/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
+	install -Dm755 $src/lsscsi $install/usr/bin/lsscsi
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/$PACKAGE $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }
-

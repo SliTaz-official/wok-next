@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="microperl"
 VERSION="5.24.0"
 CATEGORY="development"
-SHORT_DESC="A micro version of Perl."
+SHORT_DESC="A micro version of Perl"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://www.perl.org/"
@@ -11,24 +11,20 @@ WEB_SITE="https://www.perl.org/"
 TARBALL="perl-$VERSION.tar.bz2"
 WGET_URL="http://www.cpan.org/src/5.0/$TARBALL"
 
-DEPENDS="glibc-base"
 SIBLINGS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 #	cp Makefile.micro Makefile.micro.orig
 	patch -p1 -i $stuff/microperl.patch
 	sed -i "s|usr/local|usr|; s|perl5/5.24|perl5/5.24.0|; s|unknown|$HOST_SYSTEM|" \
 		uconfig.sh
 
 	make -f Makefile.micro regen_uconfig &&
-	make -f Makefile.micro
+	make -f Makefile.micro &&
+	install -Dm 755 $src/microperl $install/usr/bin/microperl
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/microperl $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibc-base"
 }

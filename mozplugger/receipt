@@ -1,34 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mozplugger"
 VERSION="1.14.3"
 CATEGORY="multimedia"
-SHORT_DESC="A Mozilla & Firefox multimedia plugin."
+SHORT_DESC="A Mozilla & Firefox multimedia plugin"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mozplugger.mozdev.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/files/$TARBALL"
 
-DEPENDS="xorg-libX11"
 BUILD_DEPENDS="xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --sysconfdir=/etc && 
-	make
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc &&
+	make || return 1
+
+	mkdir -p \
+		$install/usr/lib/mozilla/plugins \
+		$install/etc \
+		$install/usr/bin
+	cp -a $src/mozplugger.so         $install/usr/lib/mozilla/plugins
+	cp -a $src/mozpluggerrc          $install/etc
+	cp -a $src/mozplugger-helper     $install/usr/bin
+	cp -a $src/mozplugger-controller $install/usr/bin
+	cp -a $src/mozplugger-linker     $install/usr/bin
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/mozilla/plugins \
-		$fs/etc \
-		$fs/usr/bin
-	cp -a $src/mozplugger.so $fs/usr/lib/mozilla/plugins
-	cp -a $src/mozpluggerrc $fs/etc
-	cp -a $src/mozplugger-helper $fs/usr/bin
-	cp -a $src/mozplugger-controller $fs/usr/bin
-	cp -a $src/mozplugger-linker $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11"
 }

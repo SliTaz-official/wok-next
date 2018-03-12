@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://gtkballs.antex.ru/dist/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev"
-SPLIT="gtkballs=themes"
+SPLIT="gtkballs-themes gtkballs"
 
 compile_rules() {
 	./configure \
@@ -22,35 +22,32 @@ compile_rules() {
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	cp -a $stuff/cell.xpm $install/usr/share/gtkballs/themes/Default/
+	mv       $install/usr/share/gtkballs/themes/Default \
+	         $install/usr/share/gtkballs/themes/Original
+	cp -a    $install/usr/share/gtkballs/themes/klines \
+	         $install/usr/share/gtkballs/themes/Default
+	rm -rf   $install/usr/share/gtkballs/themes/klines
+
+	mkdir -p $install/usr/share/pixmaps/
+	cp -a    $install/usr/share/gtkballs/gtkballs_16x16.png \
+	         $install/usr/share/pixmaps/gtkballs.png
+
+	chmod 666 $install/var/games/gtkballs-scores
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		gtkballs-themes)
+			copy themes/
+			CAT="games|game themes"
+			;;
 		gtkballs)
-			mkdir -p $fs/usr/share/gtkballs/themes $fs/usr/share/pixmaps
-			cp -a $install/usr/games $fs/usr
-			# Themes
-			#cp -a $install/usr/share/gtkballs/themes/Default \
-			#	$fs/usr/share/gtkballs/themes
-			cp -a $install/usr/share/gtkballs/themes/klines \
-				$fs/usr/share/gtkballs/themes/Default
-			cp -a stuff/cell.xpm $fs/usr/share/gtkballs/themes/Default
-			# Pixmaps
-			cp -a $install/usr/share/gtkballs/gtkballs_16x16.png \
-				$fs/usr/share/pixmaps/gtkballs.png
-			cp -a $install/var $fs
-			chmod 666 $fs/var/games/gtkballs-scores
+			copy @std @rm
 			DEPENDS="gtk+ xorg-libXdamage"
 			SUGGESTED="gtkballs-themes"
-			;;
-		gtkballs-themes)
-			CAT="games|game themes"
-			mkdir -p $fs/usr/share/gtkballs
-			cp -a $install/usr/share/gtkballs/themes $fs/usr/share/gtkballs
-			rm -rf $fs/usr/share/gtkballs/themes/klines
-			mv $fs/usr/share/gtkballs/themes/Default \
-				$fs/usr/share/gtkballs/themes/Original
 			;;
 	esac
 }

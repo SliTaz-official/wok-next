@@ -14,19 +14,20 @@ WGET_URL="$SF_MIRROR/bastard/$TARBALL"
 BUILD_DEPENDS="gfortran"
 SPLIT="libdisasm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $ARCH in
+		i?86) ARCH_ARGS='CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32';;
+		*)    ARCH_ARGS='';;
+	esac
+
 	./configure \
-		"CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" \
+		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libdisasm) copy @std;;
 		*-dev)     copy @dev;;

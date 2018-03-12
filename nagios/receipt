@@ -15,6 +15,8 @@ BUILD_DEPENDS="libgd-dev libpng16-dev jpeg-dev libtool"
 SPLIT="nagios-dev"
 
 compile_rules() {
+	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
+
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -45,7 +47,8 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		nagios)
-			mkdir -p $fs/usr $fs/etc/init.d \
+			mkdir -p \
+				$fs/usr $fs/etc/init.d \
 				$fs/var/lib/nagios/rw \
 				$fs/var/log/nagios \
 				$fs/var/spool/nagios/checkresults \

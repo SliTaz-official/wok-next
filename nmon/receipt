@@ -1,27 +1,25 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
+
 PACKAGE="nmon"
 VERSION="14g"
 CATEGORY="system-tools"
-SHORT_DESC="Nigel's performance Monitor."
+SHORT_DESC="Nigel's performance Monitor"
 MAINTAINER="meshca@clarkson.edu"
-TARBALL="lmon$VERSION.c"
 LICENSE="GPL3"
 WEB_SITE="http://nmon.sourceforge.net/"
+
+TARBALL="lmon$VERSION.c"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="linux-api-headers ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cc -o nmon lmon$VERSION.c -g -O2 -D JFS -D GETUSER -Wall -D LARGEMEM \
-		-lncurses -g -D POWER
+		-lncurses -g -D POWER &&
+	install -Dm 755 $src/nmon $install/usr/bin/nmon
 }
-					
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin/
-	cp -a $src/nmon $fs/usr/bin/nmon
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }

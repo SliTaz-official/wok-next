@@ -7,16 +7,14 @@ SHORT_DESC="LXDE GTK+ theme switcher (plugin)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://lxde.org/"
-
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxappearance-obconf.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="intltool openbox-dev gtk+-dev lxappearance-dev"
+BUILD_DEPENDS="intltool openbox-dev gtk+-dev lxappearance-dev \
+xorg-libXrandr-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxappearance-obconf.html
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--disable-static \
@@ -24,9 +22,7 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="openbox lxappearance"
 	TAGS="LXDE"

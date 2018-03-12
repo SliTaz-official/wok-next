@@ -1,7 +1,6 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="linux-cloop"
-SOURCE="cloop"
 GITHASH="897009b4b2fe70433a1e8aea8a024aeebc32b209" # 3.4
 VERSION="${GITHASH:0:7}"
 EXTRAVERSION="_$kvers"
@@ -10,41 +9,40 @@ MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 SHORT_DESC="The read-only compressed loop device kernel module."
 WEB_SITE="http://knoppix.net/wiki/Cloop"
-TARBALL="$SOURCE-$VERSION.zip"
-#WGET_URL="http://debian-knoppix.alioth.debian.org/packages/$SOURCE/$TARBALL"
+
+TARBALL="cloop-$VERSION.zip"
+#WGET_URL="http://debian-knoppix.alioth.debian.org/packages/cloop/$TARBALL"
 #WGET_URL="https://github.com/KlausKnopper/cloop/archive/$GITHASH.zip"
 WGET_URL="https://github.com/Outernet-Project/cloop/archive/$GITHASH.zip"
 
-DEPENDS="linux"
 BUILD_DEPENDS="linux-module-headers xz"
-SUGGESTED="cloop-utils"
 
-# Rules to configure and make the package.
-
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|dev_t.*|&\n#define uint64_t loff_t|' cloop_suspend.c
 	make cloop_suspend &&
-	make KERNEL_DIR="/usr/src/linux" cloop.ko && xz cloop.ko
-}
+	make KERNEL_DIR="/usr/src/linux" cloop.ko && xz cloop.ko || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/lib/modules/$kvers-slitaz/kernel/misc $fs/dev $fs/usr/bin
-	cp $src/cloop_suspend $fs/usr/bin
-	cp $src/cloop.ko.xz $fs/lib/modules/$kvers-slitaz/kernel/misc
+	mkdir -p \
+		$install/lib/modules/$kvers-slitaz/kernel/misc \
+		$install/dev \
+		$install/usr/bin
+	cp $src/cloop_suspend $install/usr/bin
+	cp $src/cloop.ko.xz   $install/lib/modules/$kvers-slitaz/kernel/misc
 	for i in $(seq 0 7); do
-		mknod $fs/dev/cloop$i b 240 $i
+		mknod $install/dev/cloop$i b 240 $i
 	done
 }
 
-post_install()
-{
+genpkg_rules() {
+	copy @std
+	DEPENDS="linux"
+	SUGGESTED="cloop-utils"
+}
+
+post_install() {
 	chroot "$1/" depmod -a ${EXTRAVERSION#_}-slitaz
 }
 
-post_remove()
-{
+post_remove() {
 	depmod -a
 }

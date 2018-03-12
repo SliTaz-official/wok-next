@@ -1,35 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="decibel"
 VERSION="1.06"
 CATEGORY="multimedia"
-SHORT_DESC="Decibel audio player for Gnome Desktop."
+SHORT_DESC="Decibel audio player for GNOME Desktop"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-SOURCE="$PACKAGE-audio-player"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://decibel.silent-blade.org/"
+
+TARBALL="decibel-audio-player-$VERSION.tar.gz"
 WGET_URL="http://decibel.silent-blade.org/uploads/Main/$TARBALL"
 
-DEPENDS="python gst0-python notify-python pygtk dbus-python mutagen"
-BUILD_DEPENDS="gettext"
+BUILD_DEPENDS="gettext findutils"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	# needed to install locale files
-	[ -L /usr/bin/find ]; tazpkg get-install findutils --forced
-	make prefix=/usr DESTDIR=$DESTDIR install
+compile_rules() {
+	make \
+		prefix=/usr \
+		DESTDIR=$DESTDIR \
+		install || return 1
+
+	mkdir -p $install/usr/share
+	cp -a $install/usr/bin                        $install/usr
+	cp -a $install/usr/share/decibel-audio-player $install/usr/share
+	cp -a $install/usr/share/pixmaps              $install/usr/share
+	cp -a $install/usr/share/applications         $install/usr/share
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/$SOURCE $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/applications $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="python gst0-python notify-python pygtk dbus-python mutagen"
 }
-

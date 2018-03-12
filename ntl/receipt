@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ntl"
 VERSION="5.5.2"
@@ -7,25 +7,31 @@ SHORT_DESC="A Library for doing Number Theory"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
 WEB_SITE="http://shoup.net/ntl/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="gmp-dev gf2x-dev libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $ARCH in
+		x86_64) Arch='nocona';;
+		*)      Arch="$ARCH";;
+	esac
+
 	cd $src/src
-	./configure CFLAGS="-march=$ARCH -Os -pipe -fomit-frame-pointer" \
-		DEF_PREFIX=/usr NTL_STD_CXX=on NTL_GMP_LIP=on NTL_GF2X_LIB=on &&
+	./configure \
+		CFLAGS="-march=$Arch -Os -pipe -fomit-frame-pointer" \
+		DEF_PREFIX=/usr \
+		NTL_STD_CXX=on \
+		NTL_GMP_LIP=on \
+		NTL_GF2X_LIB=on \
+		&&
 	make &&
-	sed -i '/^DEF_PREFIX=\/usr$/d' makefile
+	sed -i '/^DEF_PREFIX=\/usr$/d' makefile &&
 	make DEF_PREFIX=$install/usr install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
 }

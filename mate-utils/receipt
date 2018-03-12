@@ -12,14 +12,16 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/mate-utils/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="mate-common yelp-tools gtk-doc gtk+3-dev mate-panel-dev \
-libgtop-dev libcanberra-dev itstool"
+libgtop-dev libcanberra-dev itstool xorg-libSM-dev"
 SPLIT="mate-utils-dev"
 
 compile_rules() {
+	fix ld
 	./autogen.sh \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

@@ -1,30 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="p0f"
 VERSION="3.01b"
 CATEGORY="network"
-SHORT_DESC="passive OS fingerprinting tool"
+SHORT_DESC="Passive OS fingerprinting tool"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://lcamtuf.coredump.cx/p0f.shtml"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://lcamtuf.coredump.cx/p0f${VERSION%.*}/releases/$TARBALL"
 
 BUILD_DEPENDS="libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make && cd tools && make
+compile_rules() {
+	make &&
+	cd tools && make || return 1
+
+	mkdir -p \
+		$install/usr/sbin/ \
+		$install/etc/p0f/
+	install -m744 \
+		$src/p0f \
+		$src/tools/p0f-client \
+		$src/tools/p0f-sendsyn \
+		$src/tools/p0f-sendsyn6 \
+		$install/usr/sbin/
+	install -m644 $src/p0f.fp $install/etc/p0f/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin $fs/etc/p0f
-	install -m744 $src/p0f $src/tools/p0f-client $src/tools/p0f-sendsyn \
-		$src/tools/p0f-sendsyn6 $fs/usr/sbin
-	install -m644 $src/p0f.fp $fs/etc/p0f
+genpkg_rules() {
+	copy @std
 }
-

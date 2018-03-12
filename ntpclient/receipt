@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ntpclient"
 VERSION="2015_365"
@@ -6,27 +6,23 @@ CATEGORY="system-tools"
 SHORT_DESC="Tiny NTP Client"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WEB_SITE="http://doolittle.icarus.com/ntpclient/"
+
+TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# disable debug
 	sed -i 's/\(^CFLAGS += -DENABLE_DEBUG\)/#\1/' Makefile &&
-	make
+	make &&
+	install -Dm 755 $src/ntpclient $install/usr/bin/ntpclient
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/ntpclient  $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }
 
-post_install()
-{
+post_install() {
 	[ -n "$1" -o -n "$quiet" ] && return
 	echo -en '\nDo you want to run ntpclient in automatic mode (y/N): '
 	read -t 30 anser
@@ -39,6 +35,13 @@ $(crontab -l 2>/dev/null)
 0 0 * * * /usr/bin/ntpclient -s -h $srv
 EOT
 		else
-			echo "Don't forget to run ntpclient -s -h <NTP Server>"
+			cat <<EOT
+
+	.------------------------------.
+	| Don't forget to run:         |
+	|                              |
+	| ntpclient -s -h <NTP Server> |
+	'------------------------------'
+EOT
 		fi
 }

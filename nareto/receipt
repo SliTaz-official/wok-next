@@ -14,21 +14,69 @@ WGET_URL="${WEB_SITE}srcs/$TARBALL"
 CONFIG_FILES="/etc/nagios"
 
 DEPENDS="nagios apache php php-cli mysql perl-dbd-mysql perl-dbi"
-SPLIT="nareto-doc"
+SPLIT="nareto-doc nareto"
 
 compile_rules() {
 	chown -R www.www *
 	chmod -R 755 *
 	chmod u+x scripts/*.pl
+
+	mkdir -p \
+		$install/usr/share/nareto/ \
+		$install/etc/mysql.d/ \
+		$install/etc/initcron.d/ \
+		$install/etc/nagios/
+	cp -a $src    $install/usr/share/nareto/
+	cp -a stuff/* $install
+
+	mv  $install/usr/share/nareto/include/config.ini.php \
+		$install/etc/nagios/nareto.init.php
+	ln -s /etc/nagios/nareto.init.php \
+		$install/usr/share/nareto/include/config.ini.php
+
+	cat > $install/etc/mysql.d/nareto <<EOM
+#!/bin/sh
+
+mysqldump nareto > /dev/null 2>&1 || mysql <<EOT
+create database nareto;
+use nareto;
+
+\. /usr/share/nareto/scripts/nareto.sql
+
+GRANT USAGE ON nareto.* TO 'nareto'@'localhost' IDENTIFIED BY 'nareto';
+FLUSH PRIVILEGES;
+
+EOT
+chmod -x /etc/mysql.d/nareto
+EOM
+	chmod +x $install/etc/mysql.d/nareto
+
+	cat > $install/etc/initcron.d/nareto <<EOT
+# Reporting
+#FIXME LEAK?#*/5 * * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_5min.php > /dev/null 2>&1
+#FIXME LEAK?#2 * * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_1h.php > /dev/null 2>&1
+#FIXME LEAK?#4 14 * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_1jour.php > /dev/null 2>&1
+
+# Suivi des alarmes
+#FIXME LEAK?#30 0 * * * root /usr/bin/perl /usr/share/nareto/scripts/nagios_alert.pl > /dev/null 2>&1
+#FIXME LEAK?#0 1 * * * root /usr/bin/perl /usr/share/nareto/scripts/nagios_alert_agregation.pl > /dev/null 2>&1
+
+EOT
+	chmod +x $install/etc/initcron.d/nareto
+
+	mkdir -p $install/usr/share/nareto
+	cp -a $src/docs $install/usr/share/nareto
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		nareto-doc)
+			copy docs/
+			CAT="network|documentation"
+			DEPENDS="nareto"
+			;;
 		nareto)
-			mkdir -p $fs/usr/share $fs/etc/mysql.d $fs/etc/initcron.d $fs/etc/nagios
-
-			cp -a $src $fs/usr/share/nareto
-			cp -a stuff/* $fs
+			copy @std @rm
 			sed -i 's/oreon.jpg/centreon.png/' $fs/usr/share/nareto/index.php
 			sed -i -e 's/oreon/centreon/g' -e 's/Oreon/Centreon/g' \
 				$fs/usr/share/nareto/index.php \
@@ -44,50 +92,9 @@ genpkg_rules() {
 				sed -i 's/<?php php/<?php/g' "$file"
 				sed -i 's/<?php =/<?php echo /g' "$file"
 			done
-			mv $fs/usr/share/nareto/include/config.ini.php \
-				$fs/etc/nagios/nareto.init.php
-			ln -s /etc/nagios/nareto.init.php \
-				$fs/usr/share/nareto/include/config.ini.php
 			sed -i -e 's/user$/nareto/' -e 's/password$/nareto/' \
 				$fs/etc/nagios/nareto.init.php
 			chmod 700 $fs/etc/nagios/nareto.init.php
-			cat > $fs/etc/mysql.d/nareto <<EOM
-#!/bin/sh
-
-mysqldump nareto > /dev/null 2>&1 || mysql <<EOT
-create database nareto;
-use nareto;
-
-\. /usr/share/nareto/scripts/nareto.sql
-
-GRANT USAGE ON nareto.* TO 'nareto'@'localhost' IDENTIFIED BY 'nareto';
-FLUSH PRIVILEGES;
-
-EOT
-chmod -x /etc/mysql.d/nareto
-EOM
-			chmod +x $fs/etc/mysql.d/nareto
-			cat > $fs/etc/initcron.d/nareto <<EOT
-# Reporting
-#FIXME LEAK?#*/5 * * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_5min.php > /dev/null 2>&1
-#FIXME LEAK?#2 * * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_1h.php > /dev/null 2>&1
-#FIXME LEAK?#4 14 * * * root /usr/bin/php /usr/share/nareto/scripts/nareto_dispo_cron_1jour.php > /dev/null 2>&1
-
-# Suivi des alarmes
-#FIXME LEAK?#30 0 * * * root /usr/bin/perl /usr/share/nareto/scripts/nagios_alert.pl > /dev/null 2>&1
-#FIXME LEAK?#0 1 * * * root /usr/bin/perl /usr/share/nareto/scripts/nagios_alert_agregation.pl > /dev/null 2>&1
-
-EOT
-			chmod +x $fs/etc/initcron.d/nareto
-
-			# Move doc in nareto-doc package.
-			rm -rf $fs/usr/share/nareto/docs
-			;;
-		nareto-doc)
-			mkdir -p $fs/usr/share/nareto
-			cp -a $src/docs $fs/usr/share/nareto
-			CAT="network|documentation"
-			DEPENDS="nareto"
 			;;
 	esac
 }

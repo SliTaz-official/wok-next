@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fpc"
 VERSION="2.6.4"
@@ -6,53 +6,39 @@ CATEGORY="development"
 SHORT_DESC="The Free Pascal Compiler"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2 LGPL2.1"
-SOURCE="fpcbuild"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.freepascal.org/"
-WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/source/$TARBALL"
-CONFIG_FILE="/etc/fpc.cfg"
-TAGS="compiler pascal"
 
+TARBALL="fpcbuild-$VERSION.tar.gz"
+WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/source/$TARBALL"
+
+BUILD_DEPENDS_arm=""
+BUILD_DEPENDS="fpc-bootstrap"
 CROSS_BUGS="arm-slitaz-gnueabi-as: Command not found"
 
-DEPENDS="ncurses"
-BUILD_DEPENDS="fpc-bootstrap"
-
-# Handle cross compilation. ARM: fpc-bootstrap build host must be installed
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
-	i?86)
-		make ${ARCH_ARGS} NOGDB=1 build
-		make -j1 NOGDB=1 PREFIX=$DESTDIR/usr install ;;
-	arm*)
-		make crossinstall \
-			NOGDB=1 \
-			CPU_TARGET=arm \
-			OS_TARGET=linux \
-			OPT=-dFPC_ARMEL \
-			CROSSBINDIR=/cross/$ARCH/tools/bin \
-			BINUTILSPREFIX=arm-slitaz-gnueabi- \ 
-			INSTALL_PREFIX=$DESTDIR/usr ;;
-	esac &&
+		arm*)
+			make crossinstall \
+				NOGDB=1 \
+				CPU_TARGET=arm \
+				OS_TARGET=linux \
+				OPT=-dFPC_ARMEL \
+				CROSSBINDIR=/cross/$ARCH/tools/bin \
+				BINUTILSPREFIX=arm-slitaz-gnueabi- \
+				INSTALL_PREFIX=$DESTDIR/usr
+				;;
+		*)
+			make NOGDB=1 build &&
+			make -j1 NOGDB=1 PREFIX=$DESTDIR/usr install
+			;;
+	esac || return 1
 
 	# install package license
-	install -m 755 -d $DESTDIR/usr/share/licenses/fpc &&
-	install -m 644 $src/fpcsrc/rtl/COPYING.FPC \
-		$DESTDIR/usr/share/licenses/fpc/
-
-	# move man pages to the right place
-	mv $install/usr/man $install/usr/share
+	install -Dm 644 $src/fpcsrc/rtl/COPYING.FPC \
+		$DESTDIR/usr/share/licenses/fpc/COPYING.FPC
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr $fs/etc
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
@@ -63,12 +49,14 @@ genpkg_rules()
 	# config file
 	#mkdir -p $fs/etc
 	#cp -a $fs/usr/lib/fpc/$VERSION/samplecfg $fs/etc/fpc.cfg
+	DEPENDS="ncurses"
+	CONFIG_FILE="/etc/fpc.cfg"
+	TAGS="compiler pascal"
 }
 
-post_install()
-{
+post_install() {
 	if [ ! -f "$1/etc/fpc.cfg" ]; then
-		chroot "$1/" fpcmkcfg > /etc/fpc.cfg 
+		chroot "$1/" fpcmkcfg > /etc/fpc.cfg
 	fi
 
 	# Fix units search path
