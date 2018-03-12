@@ -1,28 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="phpqrcode"
 VERSION="1.1.4"
 CATEGORY="development"
-SHORT_DESC="Library for generating QR Code, 2-dimensional barcode."
+SHORT_DESC="Library for generating QR Code, 2-dimensional barcode"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-2010100721_$VERSION.zip"
 WEB_SITE="http://phpqrcode.sourceforge.net/"
+
+TARBALL="$PACKAGE-2010100721_$VERSION.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="qrencode php-gd"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	mv phpqrcode $src 2> /dev/null
+compile_rules() {
+	mv phpqrcode $src 2>/dev/null
 	cd $src
+	mkdir -p $install/usr/share/$PACKAGE
+	cp -a $src $install/usr/share/$PACKAGE/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/$PACKAGE
-	cp -a $src $fs//usr/share/$PACKAGE/
+genpkg_rules() {
+	copy @std
+	DEPENDS="qrencode php-gd"
 }
-
