@@ -53,7 +53,14 @@ genpkg_rules() {
 }
 
 post_install_colord() {
-	chroot "$1/" /usr/sbin/addgroup -g 71 colord &&
-	chroot "$1/" /usr/sbin/adduser -g "Color Daemon Owner"  -h /var/lib/colord \
-		-u 71  -G colord  -s /bin/false  -D colord
+	if ! grep -q colord "$1/etc/group"; then
+		chroot "$1/" /usr/sbin/addgroup -g 71 colord
+		chroot "$1/" /usr/sbin/adduser -g "Color Daemon Owner"  -h /var/lib/colord \
+			-u 71  -G colord  -s /bin/false  -D colord
+	fi
+}
+
+post_remove_colord() {
+	chroot "$1/" deluser  colord
+	chroot "$1/" delgroup colord
 }

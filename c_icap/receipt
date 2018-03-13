@@ -14,29 +14,27 @@ WGET_URL="$SF_MIRROR/c-icap/$TARBALL"
 BUILD_DEPENDS="zlib-dev"
 SPLIT="c_icap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
+
 	./configure \
 		--sysconfdir=/etc/c-icap \
 		--enable-large-files \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
-	mkdir -p $install/etc/init.d/ $install/var/log/c-icap/ &&
-	install -m755 $stuff/c-icapd $install/etc/init.d &&
+	mkdir -p $install/etc/init.d/ $install/var/log/c-icap/
+	install -m755 $stuff/c-icapd $install/etc/init.d
 
 	# Fix config file
 	sed -i -e "s|YourServerName|localhost|;
 		s|/usr/var/log|/var/log/c-icap/|;
 		s|/usr/var/run/|/var/run/c-icap|;
-		s|/usr/etc|/etc/c-icap|" $install/etc/c-icap/c-icap.conf &&
+		s|/usr/etc|/etc/c-icap|" $install/etc/c-icap/c-icap.conf
 	chmod -x $install/etc/c-icap/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		c_icap)
 			copy @std var/log/c-icap/
@@ -52,13 +50,13 @@ post_install_c_icap() {
 
 	[ -n "$quiet" ] || cat <<EOF
 
-----
-To start $PACKAGE server you can run :
-
-    /etc/init.d/$PACKAGE start
-
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
-----
+	.----------------------------------------------.
+	| To start c_icap server you can run:          |
+	|                                              |
+	|    /etc/init.d/c_icap start                  |
+	|                                              |
+	|Or add c_icap to RUN_DAEMONS in /etc/rcS.conf |
+	'----------------------------------------------'
 EOF
 }
 

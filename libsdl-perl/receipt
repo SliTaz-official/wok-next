@@ -1,34 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsdl-perl"
 VERSION="2.2.6"
 CATEGORY="x-window"
-SHORT_DESC="SDL perl support."
+SHORT_DESC="SDL perl support"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2"
-SOURCE="SDL_Perl"
-TARBALL="$SOURCE-v${VERSION}.tar.gz"
 WEB_SITE="http://sdl.perl.org"
+
+TARBALL="SDL_Perl-v$VERSION.tar.gz"
 WGET_URL="http://search.cpan.org/CPAN/authors/id/K/KT/KTHAKORE/$TARBALL"
 
-DEPENDS="xorg libglu-mesa mesa libsdl libsdl-gfx libsdl-image libsdl-mixer \
-libsdl-net libsmpeg libsdl-ttf"
-BUILD_DEPENDS="perl-yaml xorg-dev libglu-mesa libglu-mesa-dev mesa-dev \
-libsdl-dev libsdl-gfx-dev libsdl-image-dev libsdl-mixer-dev libsdl-net-dev \
-libsdl-ttf-dev perl-module-build perl-dev"
+BUILD_DEPENDS="perl-module-build perl-yaml libsdl-dev perl-dev mesa17-dev \
+libglu-mesa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Build.PL destdir="$DESTDIR" &&
 	perl Build &&
 	perl Build install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libglu-mesa libsdl mesa17 perl"
 }
-

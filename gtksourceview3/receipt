@@ -12,11 +12,15 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/gtksourceview.html"
 TARBALL="gtksourceview-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gtksourceview/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev itstool gtk+3-dev libxml2-dev gettext gtk-doc vala"
+BUILD_DEPENDS="glib-dev itstool gtk+3-dev libxml2-dev gettext gtk-doc vala \
+gobject-introspection-dev"
 SPLIT="gtksourceview3-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
 genpkg_rules() {

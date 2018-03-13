@@ -75,9 +75,11 @@ genpkg_rules() {
 }
 
 post_install_polkit() {
-	chroot "$1/" /usr/sbin/addgroup -g 27 polkitd &&
-	chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
-		-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+	if ! grep -q polkitd "$1/etc/group"; then
+		chroot "$1/" /usr/sbin/addgroup -g 27 polkitd
+		chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
+			-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+	fi
 
 	mkdir -p "$1/var"
 
@@ -90,10 +92,17 @@ post_install_polkit() {
 	install -dm700 -o27 -g27 "$1/usr/share/polkit-1/rules.d"
 }
 
+post_remove_polkit() {
+	chroot "$1/" deluser  polkitd
+	chroot "$1/" delgroup polkitd
+}
+
 post_install_polkit_pam() {
-	chroot "$1/" /usr/sbin/addgroup -g 27 polkitd &&
-	chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
-		-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+	if ! grep -q polkitd "$1/etc/group"; then
+		chroot "$1/" /usr/sbin/addgroup -g 27 polkitd
+		chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
+			-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+	fi
 
 	mkdir -p "$1/var"
 
@@ -104,4 +113,9 @@ post_install_polkit_pam() {
 	chown 27:27 "$1/etc/polkit-1/rules.d/"
 
 	install -dm700 -o27 -g27 "$1/usr/share/polkit-1/rules.d"
+}
+
+post_remove_polkit_pam() {
+	chroot "$1/" deluser  polkitd
+	chroot "$1/" delgroup polkitd
 }
