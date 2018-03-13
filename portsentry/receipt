@@ -1,34 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="portsentry"
 VERSION="1.2"
 CATEGORY="network"
-SHORT_DESC="Portscan detection daemon."
+SHORT_DESC="Portscan detection daemon"
 MAINTAINER="pascal.bellard@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 LICENSE="CCPL"
 WEB_SITE="http://sentrytools.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/sentrytools/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/dot $/&\\/' portsentry.c
-	make linux
-}
+	make linux || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin $fs/etc/portsentry
-	cp -a $src/portsentry $fs/usr/sbin
-	cp -a $src/portsentry.conf $fs/etc/portsentry
-	cat > $fs/etc/portsentry/portsentry.ignore.static <<EOT
+	install -Dm 755 $src/portsentry      $install/usr/sbin/portsentry
+	install -Dm 644 $src/portsentry.conf $install/etc/portsentry/portsentry.conf
+	cat > $install/etc/portsentry/portsentry.ignore.static <<EOT
 127.0.0.1/32
 192.168.0.0/16
 10.0.0.0/8
 EOT
+}
+
+genpkg_rules() {
+	copy @std
 }

@@ -1,32 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="redis"
 VERSION="2.8.19"
 CATEGORY="database"
-SHORT_DESC="Redis is an open source, BSD licensed, advanced key-value cache and store"
+SHORT_DESC="Redis is an open source, BSD licensed, advanced key-value cache \
+and store"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://redis.io/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.redis.io/releases/$TARBALL"
-TAGS="database"
+
 BUILD_DEPENDS="libxslt"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make PREFIX=/usr
+compile_rules() {
+	make PREFIX=/usr || return 1
+
+	mkdir -p \
+		$install/usr/bin \
+		$install/etc
+	cp -a $src/src/redis-cli        $install/usr/bin/
+	cp -a $src/src/redis-server     $install/usr/bin/
+	cp -a $src/src/redis-benchmark  $install/usr/bin/
+	cp -a $src/src/redis-check-dump $install/usr/bin/
+	cp -a $src/src/redis-check-aof  $install/usr/bin/
+	cp -a $src/redis.conf           $install/etc/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	mkdir -p $fs/etc
-	cp -a $src/src/redis-cli $fs/usr/bin
-	cp -a $src/src/redis-server $fs/usr/bin
-	cp -a $src/src/redis-benchmark $fs/usr/bin
-	cp -a $src/src/redis-check-dump $fs/usr/bin
-	cp -a $src/src/redis-check-aof $fs/usr/bin
-	cp -a $src/redis.conf $fs/etc
+genpkg_rules() {
+	copy @std
+	TAGS="database"
 }

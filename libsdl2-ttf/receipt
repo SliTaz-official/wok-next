@@ -12,11 +12,14 @@ TARBALL="SDL2_ttf-$VERSION.tar.gz"
 WGET_URL="http://www.libsdl.org/projects/SDL_ttf/release/$TARBALL"
 
 BUILD_DEPENDS="freetype-dev libsdl2-dev xorg-libX11-dev xorg-libICE-dev \
-mesa17-dev expat-dev"
+mesa17-dev expat-dev xorg-libxshmfence-dev"
 SPLIT="libsdl2-ttf-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make && make install
 }
 
 genpkg_rules() {

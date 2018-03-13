@@ -1,40 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sshttp"
 VERSION="0-35s2"
 CATEGORY="network"
-SHORT_DESC="hiding a SSH server behind a HTTP server."
+SHORT_DESC="Hiding a SSH server behind a HTTP server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/stealth/$PACKAGE"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$TARBALL"
-TAGS="ssh"
 
-BUILD_DEPENDS="wget libcap libcap-dev"
-DEPENDS="libcap gcc-lib-base"
+BUILD_DEPENDS="libcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make && cp README* $WOK/$PACKAGE/description.txt
+compile_rules() {
+	make &&
+	install -Dm 755 $src/sshttpd $install/usr/sbin/sshttpd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin
-	cp -a $src/sshttpd $fs/usr/sbin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libcap gcc-lib-base"
+	TAGS="ssh"
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
-	[ "$1" ] || zcat /proc/config.gz | grep -q ^CONFIG_NETFILTER_TPROXY= || cat <<EOT
+post_install() {
+	[ -n "$1" ] ||
+	zcat /proc/config.gz | grep -q ^CONFIG_NETFILTER_TPROXY= ||
+	cat <<EOT
 
-CONFIG_NETFILTER_TPROXY not found in /proc/config.gz
-sshttp needs Linux IP_TRANSPARENT feature to work.
-You should rebuild your kernel with a new configuration.
+	.----------------------------------------------------------.
+	| CONFIG_NETFILTER_TPROXY not found in /proc/config.gz     |
+	|----------------------------------------------------------|
+	| sshttp needs Linux IP_TRANSPARENT feature to work.       |
+	| You should rebuild your kernel with a new configuration. |
+	'----------------------------------------------------------'
 
 EOT
 }

@@ -16,17 +16,12 @@ BUILD_DEPENDS="locale-de locale-en locale-fr locale-hu locale-ja locale-pt_BR \
 locale-ru locale-zh_CN gettext"
 SPLIT="slitaz-themes slitaz-configs-base"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	case "$ARCH" in
-		i?86)
-			# xcompmgr produces visual glitches on the screen
-			sed -i 's|xcompmgr|compton|' ob-menu/menu.xml.in
-			make DESTDIR=$DESTDIR menu
-			ln -s menu.en.xml $install/etc/xdg/openbox/menu.xml
-			;;
-	esac
+compile_rules() {
+	# xcompmgr produces visual glitches on the screen
+	sed -i 's|xcompmgr|compton|' ob-menu/menu.xml.in
+	make DESTDIR=$DESTDIR menu
+	ln -s menu.en.xml $install/etc/xdg/openbox/menu.xml
+
 	find /usr/share/locale -type f -name 'slitaz*'
 
 	cp -a $src/rootfs/* $install
@@ -74,15 +69,19 @@ compile_rules()
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		slitaz-configs)
 			# Special case for ARM since some (most) config files are in slitaz-arm repo.
 			# i486/arm common configs are provided by slitaz-configs-base.
 			case "$ARCH" in
-				i?86)
+				arm*)
+					copy \
+						/usr/share/applications/ \
+						/usr/share/slitaz/
+					DEPENDS="slitaz-arm-configs ttf-dejavu slim"
+					;;
+				*)
 					copy \
 						/etc/skel/.gtkrc-2.0* \
 						/etc/skel/.icons/ \
@@ -105,12 +104,6 @@ genpkg_rules()
 						/root/
 					DEPENDS="slitaz-configs-base xorg-libXcomposite \
 					xorg-libXdamage transset-df ttf-dejavu slim compton"
-					;;
-				arm)
-					copy \
-						/usr/share/applications/ \
-						/usr/share/slitaz/
-					DEPENDS="slitaz-arm-configs ttf-dejavu slim"
 					;;
 			esac
 

@@ -1,25 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rinetd"
 VERSION="0.62"
 CATEGORY="network"
-SHORT_DESC="internet ''redirection server''."
+SHORT_DESC="Internet 'redirection server'"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE.tar.gz"
 WEB_SITE="http://www.boutell.com/rinetd/"
+
+TARBALL="$PACKAGE.tar.gz"
 WGET_URL="${WEB_SITE}http/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
+	install -Dm 755 $src/rinetd $install/usr/sbin/rinetd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin
-	cp -a $src/rinetd $fs/usr/sbin
+genpkg_rules() {
+	copy @std
 }
-

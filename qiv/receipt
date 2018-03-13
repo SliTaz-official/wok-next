@@ -1,28 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
+
 PACKAGE="qiv"
 VERSION="2.2.3"
 CATEGORY="multimedia"
 SHORT_DESC="Quick Image Viewer"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://spiegl.de/qiv/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev imlib2-dev"
-DEPENDS="gtk+ imlib2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/MAGIC = -DHAVE_MAGIC/# MAGIC = -DHAVE_MAGIC/' Makefile
-	make
+	make &&
+	install -Dm 755 $src/qiv $install/usr/bin/qiv
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/qiv $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ imlib2"
 }

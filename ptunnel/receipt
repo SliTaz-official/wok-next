@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ptunnel"
 VERSION="0.72"
@@ -6,27 +6,23 @@ CATEGORY="network"
 SHORT_DESC="ptunnel tunnels TCP using ICMP echo request"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-SOURCE="PingTunnel"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.cs.uit.no/~daniels/PingTunnel/"
+
+TARBALL="PingTunnel-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="libpcap"
 BUILD_DEPENDS="libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make CC=${HOST_SYSTEM}-gcc
+compile_rules() {
+	make CC=${HOST_SYSTEM}-gcc &&
+	install -Dm 755 $src/ptunnel $install/usr/bin/ptunnel
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/ptunnel $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpcap"
 }
 
 testsuite() {
-	readelf -h ${src}/ptunnel
+	readelf -h $src/ptunnel
 }

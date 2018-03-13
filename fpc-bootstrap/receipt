@@ -1,38 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fpc-bootstrap"
-VERSION="2.6.2"
+VERSION="2.6.2" # last 2.x.x version is 2.6.4, and it lacks arm and x86_64 archs
 CATEGORY="development"
-SHORT_DESC="bootstrap to compile fpc."
+SHORT_DESC="Bootstrap to compile fpc"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2 LGPL2.1"
-TARBALL="$PACKAGE-$ARCH-$VERSION.bz2"
 WEB_SITE="http://freepascal.org/"
-BOOTSTRAP="i386-linux-ppc386"
+
+case "$ARCH" in
+	arm*)   BOOTSTRAP="arm-linux-ppcarm";;
+	x86_64) BOOTSTRAP="x86_64-linux-ppcx64";;
+	i?86)   BOOTSTRAP="i386-linux-ppc386";;
+esac
+TARBALL="$PACKAGE-$ARCH-$VERSION.bz2"
 WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/bootstrap/$BOOTSTRAP.bz2"
 
-# Handle cross compilation.
-case "$ARCH" in
-	arm*) 
-		BOOTSTRAP="arm-linux-ppcarm"
-		WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/bootstrap/$BOOTSTRAP.bz2"
-		;;
-	x86_64) 
-		BOOTSTRAP="x86_64-linux-ppcx64"
-		WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/bootstrap/$BOOTSTRAP.bz2"
-		;;
-esac
+compile_rules() {
+	[ -f $src/$TARBALL ] && bunzip2 -d $src/$TARBALL
+	install -Dm 755 $src/${TARBALL%.bz2} $install/usr/bin/${BOOTSTRAP#*linux-}
+}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $WOK/$PACKAGE/tmp
-	if [ -f $SOURCES_REPOSITORY/$TARBALL ]; then
-		cp $SOURCES_REPOSITORY/$TARBALL $WOK/$PACKAGE/tmp
-	fi
-	mv $WOK/$PACKAGE/tmp/$TARBALL $WOK/$PACKAGE/tmp/$BOOTSTRAP.bz2
-	[ -f $WOK/$PACKAGE/tmp/$BOOTSTRAP ] && rm -f $WOK/$PACKAGE/tmp/$BOOTSTRAP
-	bunzip2 -d $WOK/$PACKAGE/tmp/$BOOTSTRAP.bz2
-	cp -a $WOK/$PACKAGE/tmp/$BOOTSTRAP $fs/usr/bin/${BOOTSTRAP#*linux-}
-	chmod +x $fs/usr/bin/${BOOTSTRAP#*linux-}
+genpkg_rules() {
+	copy @std
 }

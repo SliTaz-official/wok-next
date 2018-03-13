@@ -16,18 +16,21 @@ DEPENDS="gtk+"
 BUILD_DEPENDS="autoconf213 gtk+-dev yasm zip unzip iw dbus-dev dbus-glib-dev \
 iw libpng16-dev gstreamer0 gstreamer0-dev gst0-plugins-base-dev gst0-plugins-base \
 libvpx-dev mesa17-dev virtualenv zlib-dev bzip2-dev python-dev \
-xorg-pixman xorg-pixman-dev libffi libffi-dev libjpeg-turbo libjpeg-turbo-dev \
+xorg-pixman xorg-pixman-dev libffi libffi-dev libjpeg-turbo-dev \
 xorg-libXt-dev" # sqlite sqlite-dev libevent libevent-dev
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+
 	find -type f | grep duckduckgo | xargs \
 		sed -i 's|name="t" value="palemoon"|name="t" value="slitaz"|'
 	cp $stuff/mozconfig $src
+	case $ARCH in
+		x86_64) sed -i 's|i686|nocona|' $src/mozconfig;;
+	esac
 	chmod -R +x build/autoconf/* python/*
 	find . -name '*.sh' -exec chmod +x {} \;
-	export CFLAGS=${CFLAGS/486/686} && export CXXFLAGS=${CXXFLAGS/486/686}
+	export CFLAGS=${CFLAGS/486/686}
+	export CXXFLAGS=${CXXFLAGS/486/686}
 	export MOZBUILD_STATE_PATH="$src/mozbuild"
 	export MOZCONFIG="$src/mozconfig"
 	export CPPFLAGS="$CPPFLAGS"
@@ -45,9 +48,7 @@ compile_rules()
 		$install/usr/share/applications
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	mkdir -p $fs/usr/share/pixmaps
 	rm -f  /usr/lib/$PACKAGE/$PACKAGE-bin

@@ -1,28 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="simh"
 VERSION="39-0"
 CATEGORY="misc"
-SHORT_DESC="multi-system simulator."
+SHORT_DESC="Multi-system simulator"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-TARBALL="${PACKAGE}v$VERSION.zip"
 WEB_SITE="http://simh.trailing-edge.com/"
+
+TARBALL="${PACKAGE}v$VERSION.zip"
 WGET_URL="${WEB_SITE}sources/$TARBALL"
-TAGS="emulator PDP VAX Interdata Honeywell altair nova"
 
 BUILD_DEPENDS="libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir BIN
-	make -j 1
+	make -j1 || return 1
+
+	mkdir -p         $install/usr/bin/
+	cp -a $src/BIN/* $install/usr/bin/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/BIN/* $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	TAGS="emulator PDP VAX Interdata Honeywell altair nova"
 }

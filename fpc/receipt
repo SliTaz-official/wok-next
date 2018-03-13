@@ -13,9 +13,19 @@ WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/source/$TARBALL"
 
 BUILD_DEPENDS_arm=""
 BUILD_DEPENDS="fpc-bootstrap"
+SPLIT="fpc-src fpc"
+
 CROSS_BUGS="arm-slitaz-gnueabi-as: Command not found"
 
 compile_rules() {
+	sed -i 's|/man$|/share/man|' $src/install/man/Makefile # fix man install path
+
+	case $ARCH in
+		arm*)   Arch='arm';;
+		i?86)   Arch='386';;
+		x86_64) Arch='x64';;
+	esac
+
 	case "$ARCH" in
 		arm*)
 			make crossinstall \
@@ -25,42 +35,54 @@ compile_rules() {
 				OPT=-dFPC_ARMEL \
 				CROSSBINDIR=/cross/$ARCH/tools/bin \
 				BINUTILSPREFIX=arm-slitaz-gnueabi- \
-				INSTALL_PREFIX=$DESTDIR/usr
+				INSTALL_PREFIX=$install/usr
 				;;
 		*)
-			make NOGDB=1 build &&
-			make -j1 NOGDB=1 PREFIX=$DESTDIR/usr install
+			make     NOGDB=1 FPC=/usr/bin/ppc$Arch build &&
+			make -j1 NOGDB=1 FPC=/usr/bin/ppc$Arch PREFIX=$install/usr install
 			;;
 	esac || return 1
 
 	# install package license
 	install -Dm 644 $src/fpcsrc/rtl/COPYING.FPC \
-		$DESTDIR/usr/share/licenses/fpc/COPYING.FPC
+		$install/usr/share/licenses/fpc/COPYING.FPC
+
+	# create symlink for compiler
+	ln -s ../lib/fpc/$VERSION/ppc$Arch $install/usr/bin
+
+	# config file
+	# mkdir -p $install/etc
+	# cp -a $install/usr/lib/fpc/$VERSION/samplecfg $install/etc/fpc.cfg
+
+	# FPC sources
+	mkdir -p          $install/usr/lib/fpc
+	cp -a $src/fpcsrc $install/usr/lib/fpc/src
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-
-	# create symlink for compiler
-	ln -s /usr/lib/$PACKAGE/$VERSION/ppc386 $fs/usr/bin
-
-	# config file
-	#mkdir -p $fs/etc
-	#cp -a $fs/usr/lib/fpc/$VERSION/samplecfg $fs/etc/fpc.cfg
-	DEPENDS="ncurses"
-	CONFIG_FILE="/etc/fpc.cfg"
-	TAGS="compiler pascal"
+	case $PACKAGE in
+		fpc-src)
+			copy /usr/lib/fpc/src/
+			CAT="development|sources requierd by the Lazarus IDE"
+			;;
+		fpc)
+			copy @std @rm
+			DEPENDS="ncurses"
+			CONFIG_FILE="/etc/fpc.cfg"
+			TAGS="compiler pascal"
+			;;
+	esac
 }
 
 post_install() {
-	if [ ! -f "$1/etc/fpc.cfg" ]; then
+	if [ ! -s "$1/etc/fpc.cfg" ]; then
 		chroot "$1/" fpcmkcfg > /etc/fpc.cfg
 	fi
 
 	# Fix units search path
-	sed -i -e 's!^-Fu/units/$fpctarget!-Fu/usr/lib/fpc/'$VERSION'/units/$fpctarget!' \
+	sed -i \
+	-e 's!^-Fu/units/$fpctarget!-Fu/usr/lib/fpc/'$VERSION'/units/$fpctarget!' \
 	-e 's!^-Fu/units/$fpctarget/*!-Fu/usr/lib/fpc/'$VERSION'/units/$fpctarget/*!' \
-	-e 's!^-Fu/units/$fpctarget/rtl!-Fu/usr/lib/fpc/'$VERSION'/units/$fpctarget/rtl!' "$1/etc/fpc.cfg"
+	-e 's!^-Fu/units/$fpctarget/rtl!-Fu/usr/lib/fpc/'$VERSION'/units/$fpctarget/rtl!' \
+	"$1/etc/fpc.cfg"
 }

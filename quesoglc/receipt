@@ -3,40 +3,35 @@
 PACKAGE="quesoglc"
 VERSION="0.7.2"
 CATEGORY="x-window"
-SHORT_DESC="The OpenGL Character Renderer (GLC) is a state machine that provides OpenGL programs with character rendering services via an application programming interface (API)."
+SHORT_DESC="The OpenGL Character Renderer (GLC) is a state machine that \
+provides OpenGL programs with character rendering services via an application \
+programming interface (API)"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://quesoglc.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="freetype-dev fontconfig-dev freeglut-dev fribidi-dev \
-mesa-dev expat-dev xorg-libXxf86vm-dev util-linux-uuid-dev xorg-libxcb-dev \
-libxml2-dev xorg-libxshmfence-dev"
+mesa17-dev expat-dev xorg-libXxf86vm-dev util-linux-uuid-dev xorg-libxcb-dev \
+libxml2-dev xorg-libxshmfence-dev libglu-mesa-dev"
 SPLIT="quesoglc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		quesoglc)
 			copy @std
-			DEPENDS="freetype fontconfig freeglut fribidi mesa libglu-mesa expat xorg-libXxf86vm xorg-libxcb"
+			DEPENDS="freetype fontconfig freeglut fribidi mesa17 libglu-mesa \
+			expat xorg-libXxf86vm xorg-libxcb"
 			;;
 		quesoglc-dev)
 			copy @dev
-			DEPENDS="quesoglc pkg-config"
 			;;
 	esac
 }

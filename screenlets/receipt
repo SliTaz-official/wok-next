@@ -1,43 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="screenlets"
 VERSION="0.1.6"
 CATEGORY="system-tools"
-SHORT_DESC="Desktop widgets framework."
+SHORT_DESC="Desktop widgets framework"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://screenlets.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://launchpad.net/screenlets/trunk/$VERSION/+download/$TARBALL"
 
-DEPENDS="python pygtk python-xdg beautifulsoup gnome-python-desktop \
-dbus-python gnome-icon-theme"
-BUILD_DEPENDS="python-dev wget"
+BUILD_DEPENDS="python-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$install
+compile_rules() {
+	python setup.py install --root=$install || return 1
+
+	mkdir -p      $install/etc/screenlets/
+	echo '/usr' > $install/etc/screenlets/prefix
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/icons $fs/etc/screenlets
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/screenlets* $fs/usr/share
-	cp -a $install/usr/share/icons/hicolor $fs/usr/share/icons
-	echo '/usr' > $fs/etc/screenlets/prefix
+genpkg_rules() {
+	copy @std
+	DEPENDS="python pygtk python-xdg beautifulsoup gnome-python-desktop \
+	dbus-python gnome-icon-theme"
 }
 
-# Post install/remove commands for Tazpkg.
-post_install()
-{
+post_install() {
 	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders --update-cache
 }
 
-post_remove()
-{
+post_remove() {
 	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders --update-cache
 }

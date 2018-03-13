@@ -12,14 +12,17 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/pluma/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="mate-common yelp-tools gtk-doc gobject-introspection-dev \
-enchant-dev iso-codes gtk+3-dev gtksourceview3-dev libpeas-dev itstool"
+enchant-dev iso-codes gtk+3-dev gtksourceview3-dev libpeas-dev itstool \
+xorg-libSM-dev"
 SPLIT="pluma-dev pluma-plugins pluma"
 
 compile_rules() {
+	fix ld
 	./autogen.sh \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

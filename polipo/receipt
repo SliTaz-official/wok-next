@@ -1,50 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="polipo"
 VERSION="1.1.0"
 CATEGORY="network"
-SHORT_DESC="Small and fast caching web proxy."
+SHORT_DESC="Small and fast caching web proxy"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.pps.jussieu.fr/~jch/software/polipo/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.pps.univ-paris-diderot.fr/~jch/software/files/$PACKAGE/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="texinfo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make all
+compile_rules() {
+	make all || return 1
+
+	mkdir -p \
+		$install/usr/bin/ \
+		$install/etc/polipo/ \
+		$install/usr/share/polipo/www/doc/
+	cp -a $src/polipo           $install/usr/bin
+	cp -a $src/config.sample    $install/etc/polipo/config
+	cp -a $src/forbidden.sample $install/etc/polipo/forbidden
+	cp -a $src/localindex.html  $install/usr/share/polipo/www/index.html
+	cp -a $src/html/*           $install/usr/share/polipo/www/doc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/etc/polipo $fs/usr/share/polipo/www/doc
-	cp -a $src/polipo $fs/usr/bin
-	cp -a $src/config.sample $fs/etc/polipo/config
-	cp -a $src/forbidden.sample $fs/etc/polipo/forbidden
-	cp -a $src/localindex.html $fs/usr/share/polipo/www/index.html
-	cp -a $src/html/* $fs/usr/share/polipo/www/doc
+genpkg_rules() {
+	copy @std
 }
 
-# Create a disk cache.                  
-post_install()                          
-{  
-	echo -n "Creating disk cache..."                                    
+# Create a disk cache.
+post_install() {
 	mkdir "$1/var/cache/polipo"
-	chown tux.tux "$1/var/cache/polipo"
-	status
-}  
+	chown tux.tux "$1/var/cache/polipo" # FIXME? tux?
+}
 
 # Remove disk cache.
-post_remove()
-{
-	echo -n "Removing disk cache..."
+post_remove() {
 	rm -rf "$1/var/cache/polipo"
-	status
-}                                    
-
+}

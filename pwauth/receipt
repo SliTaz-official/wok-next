@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pwauth"
 VERSION="2.3.10"
@@ -6,22 +6,16 @@ CATEGORY="security"
 SHORT_DESC="Support reasonably secure web auth using system password DB"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://code.google.com/p/pwauth/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://pwauth.googlecode.com/files/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="wget"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src && make
+compile_rules() {
+	make &&
+	install -Dm 755 $src/pwauth $install/usr/bin/pwauth
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/pwauth $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }

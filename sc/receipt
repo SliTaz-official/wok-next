@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sc"
 VERSION="7.16"
 CATEGORY="office"
-SHORT_DESC="Spreadsheet calculator."
+SHORT_DESC="Spreadsheet calculator"
 MAINTAINER="paul@slitaz.org"
 LICENSE="PublicDomain"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.ibiblio.org/pub/Linux/apps/financial/spreadsheet/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.ibiblio.org/pub/Linux/apps/financial/spreadsheet/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev bison m4"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	patch -p1 < $stuff/7.16.patch || return 1
-	make
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
+compile_rules() {
+	make || return 1
 
 	for i in sc psc scqref; do
-	cp -a $src/$i $fs/usr/bin
+		install -Dm 755 $src/$i $install/usr/bin/$i
 	done
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }
