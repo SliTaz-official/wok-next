@@ -25,16 +25,16 @@ compile_rules() {
 		$install/usr/share/postfixadmin/config.inc.php
 	sed -i 's/false/true/' $install/etc/postfixadmin/config.inc.php
 
-	# Remove unwanted files
-	rm -rf $install/usr/share/postfixadmin/debian/
-	rm -rf $install/usr/share/postfixadmin/ADDITIONS/
-
 	# Move docs
+	mv $install/usr/share/postfixadmin/ADDITIONS/*           $install/usr/lib/postfixadmin
+	mv $install/usr/share/postfixadmin/VIRTUAL_VACATION/*.pl $install/usr/lib/postfixadmin/
 	mv $install/usr/share/postfixadmin/*.TXT                 $install/usr/share/doc/postfixadmin/
 	mv $install/usr/share/postfixadmin/DOCUMENTS             $install/usr/share/doc/postfixadmin/
 	mv $install/usr/share/postfixadmin/VIRTUAL_VACATION/     $install/usr/share/doc/postfixadmin/
-	mv $install/usr/share/postfixadmin/ADDITIONS/*           $install/usr/lib/postfixadmin/
-	mv $install/usr/share/postfixadmin/VIRTUAL_VACATION/*.pl $install/usr/lib/postfixadmin/
+
+	# Remove unwanted files
+	rm -rf $install/usr/share/postfixadmin/debian/
+	rm -rf $install/usr/share/postfixadmin/ADDITIONS/
 
 	chown -R root.root $install/usr/share/postfixadmin/
 }
