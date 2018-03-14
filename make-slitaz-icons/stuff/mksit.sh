@@ -3,7 +3,7 @@
 # Aleksej Bobylev <al.bobylev@gmail.com>, 2014-2017
 # (Started in November 2014)
 
-VERSION="180313"
+VERSION="180314"
 
 . /lib/libtaz.sh
 
@@ -75,11 +75,12 @@ c() {
 					fi
 					# Multiple choice. Choose one with /$SIZE/ in the path.
 					# Or choose other with /$SIZEx$SIZE. Or choose just the first one.
-					FINDICON="$(echo "$FINDICON" | grep "/$SIZE/")"
-					if [ "$(echo "$FINDICON" | wc -l)" -ne 1 ]; then
-						FINDICON="$(echo "$FINDICON" | grep "/${SIZE}x${SIZE}/")"
-						if [ "$(echo "$FINDICON" | wc -l)" -ne 1 ]; then
-							FINDICON="$(echo "$FINDICON" | head -n1)"
+					FINDICONorig="$FINDICON"
+					FINDICON="$(echo "$FINDICONorig" | grep "/$SIZE/" | head -n1)"
+					if [ -z "$FINDICON" ]; then
+						FINDICON="$(echo "$FINDICONorig" | grep "/${SIZE}x${SIZE}/" | head -n1)"
+						if [ -z "$FINDICON" ]; then
+							FINDICON="$(echo "$FINDICONorig" | head -n1)"
 						fi
 					fi
 				fi
