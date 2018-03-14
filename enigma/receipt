@@ -1,38 +1,34 @@
 # SliTaz package receipt.
 
 PACKAGE="enigma"
-VERSION="1.01"
-REVISION="r1914"
+VERSION="1.21"
+REVISION="r2513"
 CATEGORY="games"
-SHORT_DESC="puzzle game similar to Oxyd"
+SHORT_DESC="Puzzle game similar to Oxyd"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-$REVISION.tar.gz"
 WEB_SITE="http://www.nongnu.org/enigma/"
-WGET_URL="http://download.berlios.de/enigma-game/$TARBALL"
 
-DEPENDS="libsdl libsdl-ttf libsdl-mixer libsdl-image xerces-c"
-BUILD_DEPENDS="gettext libsdl-ttf-dev libsdl-mixer-dev libsdl-image-dev libsdl-dev xerces-c-dev"
+#TARBALL="$PACKAGE-$VERSION-$REVISION.tar.gz"
+#WGET_URL="http://download.berlios.de/enigma-game/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/enigma-game/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="gettext libsdl-ttf-dev libsdl-mixer-dev libsdl-image-dev \
+libsdl-dev xerces-c-dev"
+
+compile_rules() {
 	sed -i 's/stdexcept>/&\n#include <stddef.h>/' lib-src/zipios++/src/directory.h
 	sed -i 's/#ifndef.*/&\n#include <stddef.h>/' lib-src/enigma-core/ecl_dict.hh
 	./configure \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM \
-		--enable-optimize 2>&1 | grep -v 'config.rpath: No such file' &&
+		--enable-optimize \
+		CPPFLAGS="-I/usr/include/SDL" \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/enigma $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="libsdl libsdl-ttf libsdl-mixer libsdl-image xerces-c"
 }

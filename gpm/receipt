@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gpm"
-VERSION="1.20.7"
+VERSION="1.99.7"
 CATEGORY="misc"
 SHORT_DESC="Mouse server for console."
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,67 +11,48 @@ WEB_SITE="http://www.nico.schottelius.org/software/gpm/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}archives/$TARBALL"
 
+BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="gawk bison ncurses-dev automake autoconf libtool texinfo"
 SPLIT="gpm gpm-dev gpm-extra"
 
-# When cross compiling gawk and bison build system are used.
-case "$ARCH" in
-	arm) BUILD_DEPENDS="" ;;
-esac
+compile_rules() {
+	sed -i 's|-Werror||' Makefile.include.in
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	./autogen.sh
 	ln -s headers/gpm.h src		# ???
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make && make install || return 1
+
+#	chmod a+x $install/usr/lib/*
+	cp -a $stuff/* $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gpm)
-		DEPENDS="ncurses"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		chmod a+x $fs/usr/lib/*
-		cp -a $stuff/* $fs
-		;;
-	gpm-dev)
-		CAT="development|Mouse server for console, development files."
-		DEPENDS="gpm"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*a $fs/usr/lib
-		;;
-	gpm-extra)
-		CAT="misc|Mouse server for console, extra files."
-		DEPENDS="gpm"
-		mkdir -p $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		;;
+		gpm-extra)
+			copy bin/
+			CAT="misc|extra files"
+			DEPENDS="gpm"
+			;;
+		gpm)
+			copy @std @rm
+			DEPENDS="ncurses"
+			;;
+		gpm-dev)
+			copy @dev
+			;;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-pre_remove_gpm()
-{
+pre_remove_gpm() {
 	[ -n "$1" ] || /etc/init.d/gpm stop
 }
 
-post_install_gpm()
-{
+post_install_gpm() {
 	[ -n "$1" -o -s /aufs-umount.sh ] || /etc/init.d/gpm start
 }
 
 # Just to be sure when cross-compiling.
-testsuite_gpm_extra()
-{
+testsuite_gpm_extra() {
 	readelf -h $install/usr/bin/gpm-root
 }

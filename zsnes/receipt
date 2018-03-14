@@ -1,32 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="zsnes"
 VERSION="1.51"
 CATEGORY="games"
+SHORT_DESC="Super Nintendo emulator"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-SHORT_DESC="Super Nintendo emulator"
 WEB_SITE="http://www.zsnes.com/"
+
 TARBALL="$PACKAGE${VERSION//./}src.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="emulator nintendo snes"
 
-DEPENDS="gcc-lib-base libsdl libpng16 ncurses mesa zlib"
-BUILD_DEPENDS="$DEPENDS nasm libsdl-dev libpng16-dev ncurses-dev mesa-dev \
+BUILD_DEPENDS="nasm libsdl-dev libpng16-dev ncurses-dev mesa17-dev \
 automake autoconf zlib-dev patch"
 
-# Rules to configure and make the package.
-
-compile_rules()
-{
+compile_rules() {
 	sed -i -e '/info_ptr->color_type = /d' \
 	  -e 's/info_ptr->color_type/png_get_color_type(png_ptr, info_ptr)/' \
 		src/zip/zpng.c
 	sed -i 's/cstdio.*/&\n#include <unistd.h>/' src/tools/depbuild.cpp
-	patch -p1 -i $stuff/zsnes.patch 
+	patch -p1 -i $stuff/zsnes.patch
+
 	cd $src/src
+
 	sed -i 's|/usr/man/|/usr/share/man/|' Makefile*
-	./configure --prefix=/usr \
+	./configure \
+		--prefix=/usr \
 		--x-libraries=/usr/lib \
 		--enable-release \
 		force_arch=$ARCH \
@@ -34,10 +33,11 @@ compile_rules()
 	make &&
 	make -j 1 install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/src/zsnes $fs/usr/bin
+
+genpkg_rules() {
+	copy @std
+#	mkdir -p $fs/usr/bin
+#	cp -a $src/src/zsnes $fs/usr/bin
+	DEPENDS="gcc-lib-base libsdl libpng16 ncurses mesa17 zlib"
+	TAGS="emulator nintendo snes"
 }
