@@ -11,16 +11,18 @@ WEB_SITE="http://www.xfce.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk-doc"
+BUILD_DEPENDS="intltool"
 SPLIT="libxfce4util-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -29,11 +31,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		libxfce4util)
 			copy @std
-			DEPENDS="glib pcre"
+			DEPENDS="glib"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libxfce4util glib-dev pcre-dev"
+			DEPENDS="libxfce4util glib-dev"
 			;;
 	esac
 	TAGS="Xfce"

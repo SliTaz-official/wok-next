@@ -11,15 +11,19 @@ WEB_SITE="http://goodies.xfce.org/projects/applications/xfce4-screenshooter"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool xfce4-panel-dev libsoup-dev xorg-libXfixes-dev"
+BUILD_DEPENDS="intltool xfce4-panel-dev libsoup-dev xorg-libXfixes-dev \
+libxfce4ui-dev exo-dev xorg-libSM-dev startup-notification-dev \
+xorg-xcb-util-dev"
 SPLIT="xfce4-screenshooter-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -28,25 +32,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		xfce4-screenshooter)
 			copy @std
-			DEPENDS="atk bzlib cairo exo fontconfig freetype gdk-pixbuf glib \
-			gtk+ libffi libharfbuzz liblzma libpng16 libsoup libsqlite3 \
-			libxfce4ui libxfce4util libxml2 pango pcre startup-notification \
-			util-linux-blkid util-linux-mount util-linux-uuid xfce4-panel \
-			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXfixes xorg-libXrender xorg-libxcb \
-			xorg-pixman xorg-xcb-util zlib"
+			DEPENDS="cairo exo gdk-pixbuf glib gtk+ libsoup libxfce4ui \
+			libxfce4util libxml2 xfce4-panel xorg-libX11 xorg-libXext \
+			xorg-libXfixes"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xfce4-screenshooter atk-dev bzip2-dev cairo-dev exo-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev \
-			harfbuzz-dev libffi-dev libpng16-dev libsoup-dev libxfce4ui-dev \
-			libxfce4util-dev libxml2-dev pango-dev pcre-dev sqlite3-dev \
-			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xfce4-panel-dev xorg-libICE-dev xorg-libSM-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXfixes-dev xorg-libXrender-dev xorg-libxcb-dev \
-			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
 			;;
 	esac
 	TAGS="Xfce"

@@ -12,16 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool libxfce4util-dev dbus-dev dbus-glib-dev \
-perl-extutils-depends perl-extutils-pkgconfig perl-glib perl-dev gtk-doc"
+perl-extutils-depends perl-extutils-pkgconfig perl-glib perl-dev"
 SPLIT="xfconf-dev xfconf-perl xfconf"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install || return 1
 
@@ -34,18 +36,16 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			DEPENDS="xfconf xfconf-perl \
-			dbus-dev dbus-glib-dev glib-dev libffi-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev zlib"
+			dbus-dev dbus-glib-dev glib-dev"
 			;;
 		xfconf-perl)
 			copy /usr/lib/perl5/ @rm
-			DEPENDS="xfconf perl"
+			DEPENDS="dbus dbus-glib glib perl xfconf"
 			CAT="perl|Perl bindings"
 			;;
 		xfconf)
 			copy @std @rm
-			DEPENDS="dbus dbus-glib glib libffi libxfce4util pcre \
-			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			DEPENDS="dbus dbus-glib glib libxfce4util"
 			;;
 	esac
 	TAGS="Xfce"

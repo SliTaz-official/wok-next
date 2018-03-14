@@ -11,14 +11,17 @@ WEB_SITE="http://www.xfce.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool exo-dev libgudev-dev libxfce4ui-dev libnotify-dev"
+BUILD_DEPENDS="intltool exo-dev libgudev-dev libxfce4ui-dev libnotify-dev \
+eudev-dev xorg-libSM-dev startup-notification-dev xorg-xcb-util-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

@@ -12,17 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool dbus-dev dbus-glib-dev libxfce4util-dev xfconf-dev \
-libxfce4ui-dev libxfce4ui-dev gstreamer0-dev gst0-plugins-base-dev taglib-dev \
-libnotify-dev gtk-doc"
+libxfce4ui-dev gstreamer0-dev gst0-plugins-base-dev taglib-dev libnotify-dev"
 SPLIT="parole-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -31,24 +32,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		parole)
 			copy @std
-			DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype \
-			gdk-pixbuf glib gst0-plugins-base gstreamer0 gtk+ libffi \
-			libharfbuzz liblzma libnotify libpng16 libxfce4ui libxfce4util \
-			libxml2 orc pango pcre taglib util-linux-blkid util-linux-mount \
-			util-linux-uuid xfconf xorg-libICE xorg-libSM xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
-			xorg-pixman zlib"
+			DEPENDS="cairo dbus dbus-glib gdk-pixbuf glib gst0-plugins-base \
+			gstreamer0 gtk+ libnotify libxfce4ui libxfce4util taglib xfconf \
+			xorg-libX11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="parole atk-dev bzip2-dev cairo-dev dbus-dev dbus-glib-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev \
-			harfbuzz-dev libffi-dev libnotify-dev libpng16-dev \
-			libxfce4util-dev libxml2-dev pango-dev pcre-dev taglib-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xfconf-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
-			xorg-pixman-dev xz-dev zlib-dev"
 			;;
 	esac
 	TAGS="Xfce"

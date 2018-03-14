@@ -12,27 +12,25 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev gtk+-dev \
-libxfce4ui-dev libmpd-dev"
+libxfce4ui-dev libmpd-dev xorg-libSM-dev startup-notification-dev \
+xorg-xcb-util-dev"
 
 compile_rules() {
 	sed -i 's|\\r||' po/es.po # tiny patch
 
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ libffi \
-	libharfbuzz liblzma libmpd libpng16 libxfce4ui libxfce4util libxml2 pango \
-	pcre startup-notification util-linux-blkid util-linux-mount \
-	util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-	xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman \
-	xorg-xcb-util zlib"
+	DEPENDS="gdk-pixbuf glib gtk+ libmpd libxfce4ui libxfce4util pango"
 	TAGS="Xfce"
 }

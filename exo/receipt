@@ -11,16 +11,18 @@ WEB_SITE="http://www.xfce.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/exo/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk+-dev libxfce4util-dev libxfce4ui-dev gtk-doc"
+BUILD_DEPENDS="intltool gtk+-dev libxfce4util-dev libxfce4ui-dev"
 SPLIT="exo-tools exo-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -30,23 +32,17 @@ genpkg_rules() {
 		exo)
 			COOKOPTS="!menus !pixmaps"
 			copy *.so*
-			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
-			libxfce4util pango xorg-libICE xorg-libSM xorg-libX11"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libxfce4util pango \
+			xorg-libX11"
 			;;
 		*-tools)
 			copy @std @rm
-			DEPENDS="exo libxfce4ui"
+			DEPENDS="atk exo gdk-pixbuf glib gtk+ libxfce4ui libxfce4util pango"
 			;;
 		*-dev)
 			copy @dev
 			DEPENDS="exo exo-tools \
-			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libffi-dev \
-			libpng16-dev libxfce4util-dev libxml2-dev pango-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			gtk+-dev libxfce4util-dev"
 			;;
 	esac
 	TAGS="Xfce"

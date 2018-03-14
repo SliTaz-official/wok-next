@@ -12,16 +12,19 @@ TARBALL="Thunar-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev exo-dev libxfce4ui-dev \
-libgudev-dev libnotify-dev gtk-doc libexif-dev xfce4-panel-dev"
+libgudev-dev libnotify-dev libexif-dev xfce4-panel-dev eudev-dev \
+xorg-libSM-dev startup-notification-dev xorg-xcb-util-dev"
 SPLIT="thunar-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -30,26 +33,15 @@ genpkg_rules() {
 	case $PACKAGE in
 		thunar)
 			copy @std
-			DEPENDS="atk bzlib cairo dbus dbus-glib exo fontconfig freetype \
-			gdk-pixbuf glib gtk+ libexif libffi libgudev libharfbuzz liblzma \
-			libnotify libpng16 libxfce4ui libxfce4util libxml2 pango pcre \
-			startup-notification util-linux-blkid util-linux-mount \
-			util-linux-uuid xfce4-panel xfconf xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
-			xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			DEPENDS="atk cairo dbus dbus-glib exo gdk-pixbuf glib gtk+ libexif \
+			libgudev libnotify libxfce4ui libxfce4util pango pcre xfce4-panel \
+			xfconf xorg-libICE xorg-libSM xorg-libX11"
 			TAGS="Xfce file-manager"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="thunar atk-dev bzlib cairo-dev dbus-dev dbus-glib-dev \
-			exo-dev fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
-			gtk+-dev harfbuzz-dev libexif-dev libffi-dev libpng16-dev \
-			libxfce4ui-dev libxfce4util-dev libxml2-dev pango-dev pcre-dev \
-			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xfce4-panel-dev xfconf-dev xorg-libICE-dev \
-			xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
-			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib"
+			DEPENDS="thunar \
+			glib-dev gtk+-dev"
 			TAGS="Xfce"
 			;;
 	esac

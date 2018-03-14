@@ -15,11 +15,13 @@ BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev libxfce4util-dev \
 libxfce4ui-dev libnotify-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -27,8 +29,7 @@ compile_rules() {
 genpkg_rules() {
 	# */bin/*-config usually a dev file, but not in this case
 	copy @std xfce4-notifyd-config
-	DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk+ \
-	libnotify libxfce4ui libxfce4util pango xfconf xorg-libICE xorg-libSM \
-	xorg-libX11"
+	DEPENDS="cairo dbus dbus-glib gdk-pixbuf glib gtk+ libnotify libxfce4ui \
+	libxfce4util xfconf xorg-libX11"
 	TAGS="Xfce"
 }

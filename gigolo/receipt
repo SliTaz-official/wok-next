@@ -14,6 +14,7 @@ WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="xfce4-dev-tools gtk+-dev xorg-libX11-dev"
 
 compile_rules() {
+	fix ld
 	./autogen.sh \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -24,7 +25,6 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango \
-	xorg-libX11"
+	DEPENDS="glib gtk+ xorg-libX11"
 	TAGS="Xfce"
 }

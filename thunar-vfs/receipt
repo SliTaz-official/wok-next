@@ -11,12 +11,13 @@ WEB_SITE="http://www.xfce.org"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/xfce/4.8/src/$TARBALL"
 
-BUILD_DEPENDS="libpng16-dev jpeg-dev libxfce4util-dev dbus-dev \
+BUILD_DEPENDS="libpng16-dev libjpeg-turbo-dev libxfce4util-dev dbus-dev \
 startup-notification-dev xfce4-panel-dev zlib-dev intltool exo-dev \
-dbus-glib-dev util-linux-uuid-dev hal-dev"
+dbus-glib-dev util-linux-uuid-dev hal-dev xorg-xcb-util-dev"
 SPLIT="thunar-vfs-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -25,36 +26,24 @@ compile_rules() {
 		--disable-gnome-thumbnailers \
 		--enable-debug=no \
 		$CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		thunar-vfs)
-			mkdir -p $fs/usr \
-				$fs/usr/share/locale \
-				$fs/usr/lib/ \
-				$fs/usr/share
-
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/thunar-vfs-1 $fs/usr/lib
-
-			cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-			cp -a $install/usr/share/thumbnailers $fs/usr/share
-
-			# Strip all
-			find $fs/usr/lib -exec strip -s {} 2> /dev/null \;
-			DEPENDS="libpng16 jpeg libxfce4util dbus startup-notification \
-			xfce4-panel gamin pcre libexif util-linux-uuid-dev hal"
+			copy @std
+			DEPENDS="dbus dbus-glib exo freetype gdk-pixbuf glib gtk+ hal \
+			libjpeg-turbo libpng16 libxfce4util startup-notification \
+			xorg-libX11"
 			;;
 		*-dev)
-			mkdir -p $fs/usr \
-				$fs/usr/lib/ \
-
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
+			DEPENDS="thunar-vfs \
+			exo-dev glib-dev"
 			;;
 	esac
+	TAGS="Xfce"
 }
-

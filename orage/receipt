@@ -16,11 +16,13 @@ dbus-glib-dev libnotify-dev popt-dev"
 SPLIT="orage-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -29,20 +31,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		orage)
 			copy @std
-			DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
-			glib gtk+ libical libnotify libxfce4util pango popt xfce4-panel \
-			xorg-libX11"
+			DEPENDS="dbus dbus-glib gdk-pixbuf glib gtk+ libical libnotify \
+			libxfce4util pango popt xfce4-panel xorg-libX11"
 			TAGS="Xfce office"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="orage atk-dev bzip2-dev cairo-dev fontconfig-dev \
-			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
-			libffi-dev libpng16-dev libxfce4util-dev libxml2-dev pango-dev \
-			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xfce4-panel-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
 			TAGS="Xfce"
 			;;
 	esac

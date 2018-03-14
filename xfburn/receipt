@@ -16,19 +16,20 @@ exo-dev libgudev-dev gstreamer1-dev gst1-plugins-base-dev"
 COOKOPTS="!uiz" # headers of the *.ui disappeared
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="atk cairo exo fontconfig freetype gdk-pixbuf glib \
-	gst1-plugins-base gstreamer1 gtk+ libburn libgudev libisofs libxfce4ui \
-	libxfce4util pango"
+	DEPENDS="exo gdk-pixbuf glib gst1-plugins-base gstreamer1 gtk+ libburn \
+	libgudev libisofs libxfce4ui libxfce4util"
 	TAGS="Xfce"
 }

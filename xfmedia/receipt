@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfmedia"
 VERSION="0.9.2"
@@ -6,21 +6,22 @@ CATEGORY="multimedia"
 SHORT_DESC="Xfce Media Player"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://spuriousinterrupt.org/projects/xfmedia"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://spuriousinterrupt.org/files/xfmedia/$TARBALL"
 
-DEPENDS="libxfcegui4 exo xine-lib xorg-libXScrnSaver xorg-libXtst taglib startup-notification"
-BUILD_DEPENDS="exo-dev util-linux-uuid-dev xine-lib-dev intltool libxfcegui4-dev \
- startup-notification-dev xorg-libxcb-dev xorg-libX11-dev xorg-libXt-dev"
+BUILD_DEPENDS="shared-mime-info exo-dev util-linux-uuid-dev xine-lib-dev \
+intltool libxfcegui4-dev startup-notification-dev xorg-libxcb-dev \
+xorg-libX11-dev xorg-libXt-dev xorg-libXtst-dev xorg-xcb-util-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/return xine_trick_mode.*/return 0;/' src/xfmedia-xine.c
 	patch -Np1 -i $stuff/xfmedia-dbus-0.6-support.patch
 	patch -Np1 -i $stuff/xfmedia-empty-prev-next-fix.patch
 	patch -Np1 -i $stuff/xfmedia-exo-0.6.patch
+
+	fix ld
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -28,23 +29,14 @@ compile_rules()
 		--disable-startup-notification \
 		$CONFIGURE_ARGS || return 1
 	sed -i 's/define HAVE_XSCREENSAVER_EXTENSION .*/undef HAVE_XSCREENSAVER_EXTENSION/' config.h
+	fix libtool &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs/
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-	
-	# Clean up
-	find $fs/usr/lib -name "*.*a" -exec rm -f {} \;
-	rm -f $fs/usr/bin/*-remote
-	
-	# Strip evrythings
-	find $fs/usr/lib/ -exec strip -s {} 2> /dev/null \;
+genpkg_rules() {
+	copy @std
+	rm -r $fs/usr/share/xfmedia/doc/
+	DEPENDS="exo gdk-pixbuf glib gtk+ libxfce4util libxfcegui4 pango xine-lib \
+	xorg-libX11 xorg-libXext xorg-libXtst"
+	TAGS="Xfce"
 }

@@ -13,16 +13,18 @@ WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
 gtk+-dev libxfce4util-dev startup-notification-dev xfconf-dev glade3-dev \
-gtk-doc"
+xorg-xcb-util-dev"
 SPLIT="libxfce4ui-dev libxfce4ui-glade3 libxfce4ui"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -32,29 +34,17 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			DEPENDS="libxfce4ui libxfce4ui-glade3 \
-			atk-dev bzip2-dev cairo-dev dbus-dev dbus-glib-dev fontconfig-dev \
-			freetype-dev gdk-pixbuf-dev glade3-dev glib-dev gtk+-dev \
-			harfbuzz-dev libffi-dev libpng16-dev libxfce4util-dev xfconf-dev \
-			libxml2-dev pango-dev pcre-dev startup-notification-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			gtk+-dev libxfce4util-dev xfconf-dev"
 			;;
 		*-glade3)
 			copy glade3/ @rm
-			DEPENDS="libxfce4ui glade3"
+			DEPENDS="glade3 glib gtk+ libxfce4ui"
 			CAT="x-window|Glade3 module"
 			;;
 		libxfce4ui)
 			copy @std @rm
-			DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype \
-			gdk-pixbuf glib gtk+ libffi libharfbuzz liblzma libpng16 \
-			libxfce4util libxml2 pango pcre startup-notification \
-			util-linux-blkid util-linux-mount util-linux-uuid xfconf \
-			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman xorg-xcb-util \
-			zlib"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libxfce4util pango \
+			startup-notification xfconf xorg-libICE xorg-libSM xorg-libX11"
 			;;
 	esac
 	TAGS="Xfce"

@@ -12,17 +12,19 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool xorg-libX11-dev xorg-libICE-dev gtk+-dev vte-gtk2-dev \
-libxfce4ui-dev"
+libxfce4ui-dev xorg-libSM-dev startup-notification-dev xorg-xcb-util-dev"
 
 compile_rules(){
 	# warning: internationalized messages should not contain the '\r' escape sequence
 	sed -i 's|\\r||g' po/hr.po po/sv.po
 
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

@@ -11,16 +11,19 @@ WEB_SITE="http://www.xfce.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool libxfce4util-dev gtk+-dev libxfce4ui-dev gtk-doc"
+BUILD_DEPENDS="intltool libxfce4util-dev gtk+-dev libxfce4ui-dev \
+xorg-libSM-dev startup-notification-dev xorg-xcb-util-dev"
 SPLIT="garcon-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
-		--enable-gtk-doc \
+		--disable-gtk-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -29,23 +32,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		garcon)
 			copy @std
-			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ \
-			libffi libharfbuzz liblzma libpng16 libxfce4ui libxfce4util \
-			libxml2 pango pcre startup-notification util-linux-blkid \
-			util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
-			xorg-libxcb xorg-pixman xorg-xcb-util zlib"
+			DEPENDS="gdk-pixbuf glib gtk+ libxfce4ui libxfce4util"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="garcon atk-dev bzip2-dev cairo-dev fontconfig-dev \
-			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
-			libffi-dev libpng16-dev libxfce4ui-dev libxfce4util-dev \
-			libxml2-dev pango-dev pcre-dev startup-notification-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
+			DEPENDS="garcon \
+			glib-dev gtk+-dev libxfce4ui-dev"
 			;;
 	esac
 	TAGS="Xfce"

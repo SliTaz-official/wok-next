@@ -18,11 +18,13 @@ xorg-libXdamage-dev"
 SPLIT="xfwm4-themes xfwm4"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -35,9 +37,8 @@ genpkg_rules() {
 			;;
 		xfwm4)
 			copy @std @rm
-			DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
-			glib gtk+ libwnck2 libxfce4ui libxfce4util pango \
-			startup-notification xfconf xorg-libICE xorg-libSM xorg-libX11 \
+			DEPENDS="cairo dbus-glib gdk-pixbuf glib gtk+ libwnck2 libxfce4ui \
+			libxfce4util pango startup-notification xfconf xorg-libX11 \
 			xorg-libXcomposite xorg-libXdamage xorg-libXext xorg-libXfixes \
 			xorg-libXrandr xorg-libXrender"
 			TAGS="Xfce window-manager"

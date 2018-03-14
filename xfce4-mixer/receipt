@@ -12,15 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool dbus-glib-dev gst0-plugins-base-dev gtk+-dev \
-libunique-dev libxfce4util-dev libxfce4ui-dev xfce4-panel-dev libkeybinder-dev"
+libunique-dev libxfce4util-dev libxfce4ui-dev xfce4-panel-dev libkeybinder-dev \
+startup-notification-dev xorg-xcb-util-dev"
 SPLIT="xfce4-mixer-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -29,27 +32,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		xfce4-mixer)
 			copy @std
-			DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype \
-			gdk-pixbuf glib gst0-plugins-base gstreamer0 gtk+ libffi \
-			libharfbuzz libkeybinder liblzma libpng16 libunique libxfce4ui \
-			libxfce4util libxml2 pango pcre startup-notification \
-			util-linux-blkid util-linux-mount util-linux-uuid xfce4-panel \
-			xfconf xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman \
-			xorg-xcb-util zlib"
+			DEPENDS="cairo dbus-glib gdk-pixbuf glib gst0-plugins-base \
+			gstreamer0 gtk+ libkeybinder libunique libxfce4ui libxfce4util \
+			xfce4-panel xfconf"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="xfce4-mixer atk-dev bzip2-dev cairo-dev dbus-dev \
-			dbus-glib-dev fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
-			gst0-plugins-base-dev gstreamer0-dev gtk+-dev harfbuzz-dev \
-			libffi-dev libkeybinder-dev libpng16-dev libxfce4ui-dev \
-			libxfce4util-dev libxml2-dev pango-dev pcre-dev \
-			startup-notification-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xfce4-panel-dev xfconf-dev xorg-libICE-dev \
-			xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
-			xorg-pixman-dev xorg-xcb-util-dev xz-dev zlib-dev"
 			;;
 	esac
 	TAGS="Xfce"
