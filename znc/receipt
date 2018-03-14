@@ -1,23 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="znc"
-VERSION="1.2"
+VERSION="1.6.6"
 CATEGORY="network"
-SHORT_DESC="An IRC bouncer with modules & scripts support."
+SHORT_DESC="An IRC bouncer with modules & scripts support"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="DFBSee"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://wiki.znc.in/ZNC"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://znc.in/releases/$TARBALL"
 
-SUGGESTED="tcl"
-DEPENDS="openssl zlib"
 BUILD_DEPENDS="openssl-dev tcl-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	 ./configure \
 		--enable-tcl \
 		--disable-python \
@@ -27,11 +23,8 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/znc $fs/usr/lib
-	cp -a $install/usr/share/znc $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl zlib"
+	SUGGESTED="tcl"
 }

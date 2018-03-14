@@ -12,13 +12,11 @@ TAGS="xorg display"
 TARBALL="xf86-video-amdgpu-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
-BUILD_DEPENDS="xorg-util-macros xorg-server-dev libdrm-dev"
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev libdrm-dev expat-dev"
 SPLIT="xorg-xf86-video-amdgpu-dev"
 PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
@@ -27,9 +25,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-amdgpu)
 			copy @std
