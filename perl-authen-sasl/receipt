@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-authen-sasl"
 VERSION="2.16"
@@ -11,20 +11,16 @@ WEB_SITE="https://metacpan.org/release/Authen-SASL"
 TARBALL="Authen-SASL-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/G/GB/GBARR/$TARBALL"
 
-DEPENDS="perl-digest-hmac"
-BUILD_DEPENDS="$DEPENDS perl-gssapi"
+BUILD_DEPENDS="perl-digest-hmac perl-gssapi perl-module-install"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-digest-hmac"
 }

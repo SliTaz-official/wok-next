@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="perl-yaml-tiny"
+VERSION="1.73"
+CATEGORY="perl"
+SHORT_DESC="YAML::Tiny - Read/Write YAML files with as little code as possible"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/YAML-Tiny"
+
+TARBALL="YAML-Tiny-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+
+BUILD_DEPENDS="perl"
+
+compile_rules() {
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl"
+}

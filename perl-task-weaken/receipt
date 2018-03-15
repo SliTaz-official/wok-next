@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-task-weaken"
 VERSION="1.04"
@@ -11,20 +11,16 @@ WEB_SITE="https://metacpan.org/release/Task-Weaken"
 TARBALL="Task-Weaken-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/A/AD/ADAMK/$TARBALL"
 
-DEPENDS="perl"
-BUILD_DEPENDS="perl"
+BUILD_DEPENDS="perl-module-install"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

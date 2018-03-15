@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-perl-ldap"
 VERSION="0.65"
@@ -15,11 +15,9 @@ DEPENDS="perl-convert-asn1 perl-text-soundex perl-io-socket-inet6 \
 perl-io-socket-ssl perl-authen-sasl perl-digest-hmac perl-gssapi perl-uri \
 perl-xml-sax-writer perl-xml-sax-base perl-libwww-perl perl-lwp-mediatypes \
 perl-http-negotiate perl-http-message perl-json"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="$DEPENDS perl-module-install"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# avoid interactive questions
 	PERL_MM_USE_DEFAULT=1 \
 	perl Makefile.PL &&
@@ -28,8 +26,6 @@ compile_rules()
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

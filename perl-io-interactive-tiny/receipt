@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="perl-io-interactive-tiny"
+VERSION="0.2"
+CATEGORY="perl"
+SHORT_DESC="IO::Interactive::Tiny - is_interactive() without large deps"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/IO-Interactive-Tiny"
+
+TARBALL="IO-Interactive-Tiny-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DM/DMUEY/$TARBALL"
+
+BUILD_DEPENDS="perl"
+
+compile_rules() {
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl"
+}

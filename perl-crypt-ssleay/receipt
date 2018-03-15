@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-crypt-ssleay"
 VERSION="0.72"
@@ -11,20 +11,20 @@ WEB_SITE="https://metacpan.org/release/Crypt-SSLeay"
 TARBALL="Crypt-SSLeay-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/N/NA/NANIS/$TARBALL"
 
-DEPENDS="perl openssl perl-lwp-protocol-https"
-BUILD_DEPENDS="$DEPENDS perl-dev openssl-dev perl-path-class"
+BUILD_DEPENDS="perl-lwp-protocol-https perl-dev openssl-dev perl-path-class \
+perl-io-interactive-tiny"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	sed -i 's|inc::||' Makefile.PL
+
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl openssl perl-lwp-protocol-https"
 }

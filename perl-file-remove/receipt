@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="perl-file-remove"
+VERSION="1.57"
+CATEGORY="perl"
+SHORT_DESC="File::Remove - Remove files and directories"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/File-Remove"
+
+TARBALL="File-Remove-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/$TARBALL"
+
+BUILD_DEPENDS="perl"
+
+compile_rules() {
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl"
+}
