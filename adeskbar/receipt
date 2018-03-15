@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="adeskbar"
 VERSION="0.4.3"
@@ -7,25 +7,27 @@ SHORT_DESC="ADesk Bar - application launcher for Openbox"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://launchpad.net/adeskbar"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.tuxfamily.org/$PACKAGE/sources/$TARBALL"
 
-DEPENDS="python pygtk pycairo gnome-menus python-xdg"
-SUGGESTED="python-xlib dbus-python python-pyalsaaudio"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+compile_rules() {
 	mkdir -p \
-		$fs/usr/share/adeskbar \
-		$fs/usr/bin \
-		$fs/usr/share/pixmaps \
-		$fs/usr/share/applications
-	cp -a $src/src/*  $fs/usr/share/adeskbar
-	cp $src/src/images/adeskbar.png $fs/usr/share/pixmaps
-	cp $src/adeskbar.desktop $fs/usr/share/applications
-	cp $src/adeskbar.sh $fs/usr/bin/adeskbar
-	chown -R root:root $fs
-	find $fs -type f -name '*.png' -exec chmod 644 \{\} \;
+		$install/usr/share/adeskbar/ \
+		$install/usr/bin/ \
+		$install/usr/share/pixmaps/ \
+		$install/usr/share/applications/
+	cp -r $src/src/*                $install/usr/share/adeskbar/
+	cp $src/src/images/adeskbar.png $install/usr/share/pixmaps/
+	cp $src/adeskbar.desktop        $install/usr/share/applications/
+	cp $src/adeskbar.sh             $install/usr/bin/adeskbar
+
+	find $install -type f -name '*.py'  -exec chmod 755 '{}' \;
+	find $install -type f -name '*.png' -exec chmod 644 '{}' \;
 }
 
+genpkg_rules() {
+	copy @std
+	DEPENDS="python pygtk pycairo gnome-menus python-xdg"
+	SUGGESTED="python-xlib dbus-python python-pyalsaaudio"
+}

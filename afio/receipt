@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="afio"
 VERSION="2.5.1"
 CATEGORY="system-tools"
-SHORT_DESC="Archiver program for Linux/UNIX."
+SHORT_DESC="Archiver program for Linux/UNIX"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL"
 WEB_SITE="http://members.chello.nl/~k.holtman/afio.html"
+
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://members.chello.nl/~k.holtman/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+compile_rules() {
+	make || return 1
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+	install -Dm755 $src/afio $install/usr/bin/afio
 
 	cook_pick_manpages $src/afio.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/afio $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }

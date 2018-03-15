@@ -3,29 +3,29 @@
 PACKAGE="abiword"
 VERSION="3.0.2"
 CATEGORY="office"
-SHORT_DESC="Light and speed word processing application."
+SHORT_DESC="Light and speed word processing application"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="abiword-plugins"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.abisource.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.abisource.com/downloads/abiword/$VERSION/source/$TARBALL"
-LOCALES="cs da de es fr hu id it pt ru sl sv zh"
+LOCALES="ar ca cs da de el en es fa fi fr hr hu id is it ja nb nl nn pl pt ro \
+ru sl sv tr uk vi zh"
 
 BUILD_DEPENDS="$DEPENDS gtk+3-dev pygobject-dev gobject-introspection-dev \
 pygobject3 fribidi-dev libglade-dev popt-dev libxml2-dev libart_lgpl-dev \
 libgsf-dev enchant-dev wv-dev libcroco-dev libboost-dev librsvg-dev gtk-doc \
 bison goffice-dev  intltool gettext xorg-dev zlib-dev "
-# libgnomeprint-dev libgnomeprintui-dev  libgnomecanvas-dev
-SPLIT="abiword abiword-dev abiword-plugins"
+# libgnomeprint-dev libgnomeprintui-dev libgnomecanvas-dev
+SPLIT="abiword-plugins abiword abiword-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|glib/gmacros.h|glib.h|' goffice-bits/goffice/app/goffice-app.h
 	sed -i 's|glib/gerror.h|glib.h|' src/af/util/xp/ut_go_file.h
 	sed -i 's|--no-undefined||' src/Makefile*
 	sed -i 's|cat \$(BUILTIN_STAMP)|& 2> /dev/null|' src/plugins/Makefile*
+
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -36,73 +36,44 @@ compile_rules()
 		--disable-collab-backend-sugar \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
-	
+	make DESTDIR=$DESTDIR install || return 1
+
 	cd plugins
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	abiword)
-		TAGS="word doc office"
-		DEPENDS="gtk+3 fribidi libglade popt libxml2 libart_lgpl \
+		abiword-plugins)
+			copy plugins/*.so
+			CAT="office|extra plugins: MSWord, OpenDocument, Wikidepia, etc."
+			DEPENDS="abiword glib readline xorg-libXdamage fribidi libxslt"
+			TAGS="doc odf docx"
+			;;
+		abiword)
+			copy @std @rm
+			TAGS="word doc office"
+			DEPENDS="gtk+3 fribidi libglade popt libxml2 libart_lgpl \
 			libgsf glib enchant wv xorg-libXdamage gcc-lib-base \
 			librsvg goffice glibc-locale libffi"
-		SUGGESTED="abiword-plugins"
-		mkdir -p $fs/usr/share/pixmaps $fs/usr/lib/abiword-2.8/plugins $fs/usr/share/icons
+			SUGGESTED="abiword-plugins"
 
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so $fs/usr/lib
+			# Non-standard locale use: get all official SliTaz locales
+			rm $fs/usr/share/abiword-*/strings/*
+			rm $fs/usr/share/abiword-*/system.profile-*
+			rm $fs/usr/share/abiword-*/templates/normal.awt-*
 
-		cp -a $install/usr/share/abiword-* $fs/usr/share
-
-		# Non standard pixmap
-
-		# fix error when abiword is run in command line
-		ln -sf /usr/share/pixmaps/abiword.png $fs/usr/share/icons/abiword_48.png
-
-		# Non-standard locale use: get all official SliTaz locales
-		rm $fs/usr/share/abiword-*/strings/*
-		rm $fs/usr/share/abiword-*/templates/*
-		rm $fs/usr/share/abiword-*/system.pro*
-
-		for LOCALE in $LOCALES; do
-			cp $install/usr/share/abiword-*/strings/$LOCALE*.strings \
-				 $fs/usr/share/abiword-*/strings/
-			# id locale not complete in sources
-			if [ "$LOCALE" != "id" ]; then
-				cp $install/usr/share/abiword-*/templates/normal.awt-$LOCALE* \
-					 $fs/usr/share/abiword-*/templates/
+			for LOCALE in $LOCALES; do
+				cp $install/usr/share/abiword-*/strings/$LOCALE*.strings \
+					    $fs/usr/share/abiword-*/strings/
 				cp $install/usr/share/abiword-*/system.profile-$LOCALE* \
-					 $fs/usr/share/abiword-*/
-			fi
-		done
-
-		cp $install/usr/share/abiword-*/templates/*.awt $fs/usr/share/abiword-*/templates/
-		cp $install/usr/share/abiword-*/system.profile $fs/usr/share/abiword-*/
-		;;
-	abiword-dev)
-		CAT="development|Abiword devel files"
-		DEPENDS="pkg-config"
-		mkdir -p $fs/usr/lib/abiword-2.8/plugins
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/lib/abiword-*/plugins/*.*a \
-			$fs/usr/lib/abiword-2.8/plugins
-		cp -a $install/usr/include $fs/usr
-		;;
-	abiword-plugins)
-		CAT="office|Extra plugins for Abiword (MSWord, OpenDocument, Wikidepia, etc)."
-		TAGS="doc odf docx"
-		DEPENDS="abiword glib readline xorg-libXdamage fribidi libxslt"
-		mkdir -p $fs/usr/lib/abiword-2.8/plugins $fs/usr/share
-
-		cp -a $install/usr/lib/abiword-*/plugins/*.so \
-			$fs/usr/lib/abiword-2.8/plugins
-
-		;;
+					    $fs/usr/share/abiword-*/
+				cp $install/usr/share/abiword-*/templates/normal.awt-$LOCALE* \
+					    $fs/usr/share/abiword-*/templates/
+			done 2>/dev/null
+			;;
+		abiword-dev)
+			copy @dev
+			;;
 	esac
 }

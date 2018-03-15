@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="Geomyidae"
 VERSION="0.26.1"
 CATEGORY="network"
-SHORT_DESC="Geomyidae is a daemon for serving the Gopher protocol."
+SHORT_DESC="Geomyidae is a daemon for serving the Gopher protocol"
 MAINTAINER="allan316@gmail.com"
 LICENSE="MIT"
-SOURCE="geomyidae"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.r-36.net/"
+
+TARBALL="geomyidae-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}src/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Move man page to the right place
 	sed -i 's|/man/|/share&|' $src/Makefile
 
-	make && make DESTDIR=$DESTDIR install
+	make && make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $src/index.gph $install/var/gopher/index.gph
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/var/gopher
-	cp -a $src/index.gph $fs/var/gopher/
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }

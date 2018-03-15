@@ -45,6 +45,11 @@ compile_rules() {
 	# remove useless (after processing by sdft) lines from desktop files
 	sed -i '/^#/d; /^Actions=/d; s|X-Red-Hat-Base;||;
 		s|X-MandrivaLinux-[^;]*;||' $install/usr/share/applications/*.desktop
+
+	# fix some files permissions
+	find $install -type f -name 'libpl*.so'    -exec chmod -v 755 '{}' \; # was 444
+	find $install -type f -name 'Carlito*.ttf' -exec chmod -v 644 '{}' \; # was 640
+	find $install -type f -name 'Noto*.ttf'    -exec chmod -v 644 '{}' \; # was 640
 }
 
 genpkg_rules() {
