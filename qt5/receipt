@@ -16,7 +16,7 @@ PATCH="Do-not-make-lack-of-SSE2-support-on-x86-32-fatal.patch"
 PATCH_URL="https://anonscm.debian.org/cgit/pkg-kde/qt/qtdeclarative.git/plain/debian/patches/"
 
 BUILD_DEPENDS="dbus-dev eudev-dev zlib-dev glib-dev icu-dev pcre-dev \
-openssl-dev sqlite3-dev xorg-libxcb-dev mesa17-dev freetype-dev fontconfig-dev \
+openssl-dev sqlite3-dev xorg-libxcb-dev mesa-dev freetype-dev fontconfig-dev \
 libinput-dev harfbuzz-dev libjpeg-turbo-dev libpng16-dev tslib-dev \
 xorg-libX11-dev libxkbcommon-dev xorg-libXrender-dev cups-dev \
 xorg-libXcomposite-dev alsa-lib-dev gst1-plugins-base-dev gtk+3-dev"
@@ -177,12 +177,12 @@ genpkg_rules() {
 		qt5-base-gtk3)
 			copy libqgtk3.so
 			CAT="development|GTK+3 theme support"
-			DEPENDS="qt5-base atk cairo gdk-pixbuf glib gtk+3 mesa17 pango \
+			DEPENDS="qt5-base atk cairo gdk-pixbuf glib gtk+3 mesa pango \
 			xorg-libX11 xorg-libXext";;
 		qt5-base-egl)
 			copy libQt5Egl*so*
 			CAT="development|EGL libs"
-			DEPENDS="qt5-base mesa17 mesa17-libegl mesa17-libgbm" ;;
+			DEPENDS="qt5-base mesa mesa-libegl mesa-libgbm" ;;
 		*)
 			# examine folders in $src to understand what we need to copy from $install
 			examine="$src/qt${PACKAGE#qt5-}"
@@ -213,7 +213,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		qt5-3d)
 			CAT="development|3D module"
-			DEPENDS="qt5-base qt5-declarative qt5-gamepad mesa17 zlib";;
+			DEPENDS="qt5-base qt5-declarative qt5-gamepad mesa zlib";;
 
 		qt5-base)
 			# Move binaries (that required for compiling the packages) to qt5-dev
@@ -228,66 +228,66 @@ genpkg_rules() {
 			CAT="development|Base module"
 			DEPENDS="dbus eudev fontconfig freetype glib icu openssl libcups \
 			libdrm libharfbuzz libicu libinput libjpeg-turbo libpng16 \
-			libsqlite3 libxkbcommon libxkbcommon-x11 mesa17  \
+			libsqlite3 libxkbcommon libxkbcommon-x11 mesa \
 			mtdev tslib xorg-libICE xorg-libSM xorg-libX11 xorg-libXext \
 			xorg-libXi xorg-libxcb zlib libatomic";;
 		qt5-canvas3d)
 			CAT="development|Canvas3D module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-charts)
 			CAT="development|Charts module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-connectivity)
 			CAT="development|Connectivity module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-datavis3d)
 			CAT="development|DataVisualization module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-declarative)
 			CAT="development|Declarative module"
-			DEPENDS="qt5-base qt5-remoteobjects qt5-xmlpatterns mesa17";;
+			DEPENDS="qt5-base qt5-remoteobjects qt5-xmlpatterns mesa";;
 		qt5-gamepad)
 			CAT="development|Gamepad module"
-			DEPENDS="qt5-base qt5-declarative eudev mesa17";;
+			DEPENDS="qt5-base qt5-declarative eudev mesa";;
 		qt5-graphicaleffects)
 			CAT="development|GraphicalEffects module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-imageformats)
 			CAT="development|imageformats module"
-			DEPENDS="qt5-base mesa17 tiff";;
+			DEPENDS="qt5-base mesa tiff";;
 		qt5-location)
 			CAT="development|Location module"
 			DEPENDS="qt5-base qt5-declarative icu openssl libicu openssl \
-			mesa17 zlib";;
+			mesa zlib";;
 		qt5-multimedia)
 			CAT="development|Multimedia module"
 			DEPENDS="qt5-base qt5-declarative alsa-lib glib gst1-plugins-base \
-			gstreamer1 mesa17";;
+			gstreamer1 mesa";;
 		qt5-networkauth)
 			CAT="development|NetworkAuth module"
-			DEPENDS="qt5-base mesa17";;
+			DEPENDS="qt5-base mesa";;
 		qt5-purchasing)
 			CAT="development|Purchasing module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-quickcontrols)
 			CAT="development|QuickControls module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-quickcontrols2)
 			CAT="development|QuickControls2 module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-remoteobjects)
 			rm -r $fs/usr/lib/qt5/ # interception with qt5-declarative
 			CAT="development|RemoteObjects module"
 			DEPENDS="qt5-base";;
 		qt5-script)
 			CAT="development|Script module"
-			DEPENDS="qt5-base mesa17";;
+			DEPENDS="qt5-base mesa";;
 		qt5-scxml)
 			CAT="development|SCXML module"
 			DEPENDS="qt5-base qt5-declarative";;
 		qt5-sensors)
 			CAT="development|Sensors module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-serialbus)
 			CAT="development|SerialBus module"
 			DEPENDS="qt5-base qt5-serialport";;
@@ -299,29 +299,29 @@ genpkg_rules() {
 			DEPENDS="qt5-base";;
 		qt5-svg)
 			CAT="development|SVG module"
-			DEPENDS="qt5-base mesa17 zlib";;
+			DEPENDS="qt5-base mesa zlib";;
 		qt5-tools)
 			copy applications/ pixmaps/ phrasebooks/ lconvert-qt5 lrelease-qt5 \
 			lupdate-qt5
 			CAT="development|Tools module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-virtualkeyboard)
 			CAT="development|VirtualKeyboard module"
-			DEPENDS="qt5-base qt5-declarative qt5-svg mesa17 xorg-libxcb";;
+			DEPENDS="qt5-base qt5-declarative qt5-svg mesa xorg-libxcb";;
 		qt5-wayland)
 			CAT="development|Wayland module"
 			DEPENDS="qt5-base qt5-declarative fontconfig freetype glib \
-			libxkbcommon mesa17 mesa17-libegl mesa17-libwayland-egl wayland \
+			libxkbcommon mesa mesa-libegl mesa-libwayland-egl wayland \
 			xorg-libX11 xorg-libXcomposite xorg-libXext";;
 		qt5-webchannel)
 			CAT="development|WebChannel module"
-			DEPENDS="qt5-base qt5-declarative mesa17";;
+			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-websockets)
 			CAT="development|WebSockets module"
 			DEPENDS="qt5-base qt5-declarative";;
 		qt5-x11extras)
 			CAT="development|X11Extras module"
-			DEPENDS="qt5-base mesa17";;
+			DEPENDS="qt5-base mesa";;
 		qt5-xmlpatterns)
 			CAT="development|XmlPatterns module"
 			DEPENDS="qt5-base";;

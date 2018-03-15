@@ -1,39 +1,37 @@
 # SliTaz package receipt v2.
 
-PACKAGE="libglu-mesa"
+PACKAGE="glu"
 VERSION="9.0.0"
 CATEGORY="x-window"
-SHORT_DESC="OpenGL utility library"
+SHORT_DESC="Mesa OpenGL Utility library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.mesa3d.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/glu.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://anongit.freedesktop.org/mesa/glu.git"
+WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/glu/$TARBALL"
 
 BUILD_DEPENDS="mesa-dev automake autoconf libtool expat-dev xorg-dev \
 xorg-libxshmfence-dev"
-SPLIT="libglu-mesa-dev"
+SPLIT="glu-dev"
 
 compile_rules() {
-	./autogen.sh &&
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libglu-mesa)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/libGLU*so* $fs/usr/lib
+		glu)
+			copy @std
 			DEPENDS="glibc-base gcc-lib-base mesa"
 			PROVIDE="libglu"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/libGLU*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

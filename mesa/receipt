@@ -1,40 +1,37 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mesa"
-VERSION="12.0.6"
+VERSION="17.2.4"
 CATEGORY="x-window"
-SHORT_DESC="3D Graphics Library that is an open-source implementaton of OpenGL."
-MAINTAINER="pascal.bellard@slitaz.org"
+SHORT_DESC="Open-source implementaton of OpenGL"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.mesa3d.org/"
-SUGGESTED="nvidia"
-PROVIDE="libgl"
-CONFIG_FILES="/etc/drirc"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/mesa.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/$VERSION/$TARBALL"
+TARBALL="mesa-$VERSION.tar.xz"
+WGET_URL="https://mesa.freedesktop.org/archive/$TARBALL"
 
 BUILD_DEPENDS="autoconf automake libtool python libdrm-dev libgcrypt-dev \
 eudev-dev xorg-glproto xorg-dri2proto xorg-dri3proto xorg-presentproto \
 xorg-libxcb-dev xorg-libxshmfence-dev xorg-libX11-dev xorg-libXext-dev \
 xorg-libXdamage-dev xorg-libXfixes-dev xorg-libXxf86vm-dev expat-dev \
-elfutils-dev llvm-dev xorg-libpciaccess-dev"
-SPLIT="mesa mesa-dev mesa-dri libegl-mesa"
-# libGLU is included in the package libglu-mesa
-# libGLw is included in the package libglw-mesa
-# libEGL is included in the package libegl-mesa
+elfutils-dev llvm-dev xorg-libpciaccess-dev wayland-dev libva-dev libvdpau-dev \
+wayland-protocols-dev libatomic zlib-dev"
+#BUILD_DEPENDS="${BUILD_DEPENDS/libva-dev/}"
+SPLIT="mesa-dri mesa-libegl mesa-libgbm mesa-osmesa mesa-libswrAVX \
+mesa-libwayland-egl mesa-libxatracker mesa-vdpau mesa mesa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-#	patch -p1 -i $stuff/mesa-12.0.patch
+compile_rules() {
+	# Removed from the full list: freedreno,vc4
+	# because we haven't appropriate libdrm-* packages (they are only for ARM)
+	GLL_DRV="i915,nouveau,r300,r600,radeonsi,svga,swrast,swr,virgl,etnaviv,imx"
 
-	# "swr" driver is disabled due to compilation errors
-	GLL_DRV="nouveau,r300,r600,radeonsi,svga,swrast" &&
-
-	sed -i "/pthread-stubs/d" configure.ac &&
-	sed -i "/seems to be moved/s/^/: #/" bin/ltmain.sh &&
-	./autogen.sh CFLAGS='-O2' CXXFLAGS='-O2' \
+	sed -i "/pthread_stubs_possible=/s/yes/no/" configure.ac
+	fix ld
+	./autogen.sh \
+		CFLAGS='-O2' CXXFLAGS='-O2' \
+		--prefix=/usr \
 		--sysconfdir=/etc \
 		--enable-texture-float \
 		--enable-gles1 \
@@ -43,45 +40,80 @@ compile_rules()
 		--enable-xa \
 		--enable-gbm \
 		--enable-glx-tls \
-		--with-egl-platforms="drm,x11" \
+		--with-platforms="drm,x11,wayland" \
 		--with-gallium-drivers=$GLL_DRV &&
-
 	unset GLL_DRV &&
+	fix libtool &&
+	make && make install || return 1
 
-	make && make install
+	cook_pick_docs docs/*
+	install -Dm644 $stuff/90-DRI.conf $install/etc/X11/xorg.conf.d/90-DRI.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	mesa)
-		DEPENDS="expat libdrm xorg-libXdamage xorg-libXxf86vm \
-			xorg-libXt udev xorg-libxshmfence"
-		copy etc/ libGL.so* libGLESv1_CM.so* libGLESv2.so* \
-			libOSMesa.so* libgbm.so* libglapi.so* libxatracker.so*
-		;;
-	mesa-dev)
-		CAT="development|3D Graphics Library dev files."
-		DEPENDS="mesa mesa-dri mesa-libegl libdrm-dev \
-			xorg-libXdamage-dev  xorg-libXxf86vm-dev \
-			xorg-libXt-dev xorg-glproto xorg-dri2proto pkg-config"
-		copy *.h *.la *.pc
-		;;
-	mesa-dri)
-		CAT="x-window|Mesa DRI drivers."
-		DEPENDS="elfutils expat libdrm libdrm-intel libdrm-nouveau \
-			libdrm-radeon libgcrypt libgpg-error llvm-libs \
-			xorg-libpciaccess zlib"
-		copy *_dri.so
-		mkdir -p $fs/etc/X11/xorg.conf.d
-		cp $stuff/90-DRI.conf $fs/etc/X11/xorg.conf.d
-		;;
-	libegl-mesa)
-		CAT="libs|OpenGL utility library"
-		DEPENDS="mesa"
-		PROVIDE="mesa-libegl"
-		copy libEGL*
-		;;
+		*-dri)
+			copy lib/dri/ 90-DRI.conf
+			CAT="x-window|Direct Rendering Infrastructure"
+			DEPENDS="elfutils expat libdrm libdrm-amdgpu libdrm-etnaviv \
+			libdrm-intel libdrm-nouveau libdrm-radeon llvm-libs mesa \
+			xorg-libX11 xorg-libxcb xorg-libxshmfence zlib"
+			;;
+		*-libegl)
+			copy libEGL.so*
+			CAT="x-window|EGL library"
+			DEPENDS="expat libdrm mesa-libgbm wayland xorg-libX11 \
+			xorg-libxcb xorg-libxshmfence zlib"
+			;;
+		*-libgbm)
+			copy libgbm.so*
+			CAT="x-window|Graphics Buffer Manager library"
+			DEPENDS="expat libdrm wayland"
+			;;
+		*-osmesa)
+			copy libOSMesa.so*
+			CAT="x-window|Off-screen Rendering library"
+			DEPENDS="mesa zlib"
+			;;
+		*-libwayland-egl)
+			copy libwayland-egl.so*
+			CAT="x-window|Wayland EGL library"
+			DEPENDS=" "
+			;;
+		*-libxatracker)
+			copy libxatracker.so*
+			CAT="x-window|Xorg Gallium3D acceleration library"
+			DEPENDS="expat libdrm libdrm-intel libdrm-nouveau llvm-libs zlib"
+			;;
+		*-vdpau)
+			copy lib/vdpau/
+			CAT="x-window|VDPAU drivers"
+			DEPENDS="elfutils expat libdrm libdrm-amdgpu libdrm-nouveau \
+			libdrm-radeon llvm-libs xorg-libX11 xorg-libxcb xorg-libxshmfence \
+			zlib"
+			;;
+		*-libswrAVX)
+			copy libswrAVX*so*
+			CAT="x-window|Fast software rendering driver for CPU with AVX"
+			DEPENDS=" "
+			;;
+		mesa)
+			copy @std @rm
+			CAT="x-window|main OpenGL libraries"
+			DEPENDS="expat libdrm xorg-libX11 xorg-libXdamage xorg-libXext \
+			xorg-libXfixes xorg-libXxf86vm xorg-libxcb xorg-libxshmfence"
+			SUGGESTED="nvidia"
+			PROVIDE="libgl"
+			CONFIG_FILES="/etc/drirc"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mesa mesa-dri mesa-libegl mesa-libgbm \
+			mesa-osmesa mesa-libwayland-egl mesa-libxatracker \
+			mesa-vdpau \
+			libdrm-dev wayland-dev xorg-libX11-dev xorg-libXdamage-dev \
+			xorg-libXext-dev xorg-libXfixes-dev xorg-libXxf86vm-dev \
+			xorg-libxcb-dev"
+			;;
 	esac
 }

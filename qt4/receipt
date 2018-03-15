@@ -14,14 +14,14 @@ PROVIDE="qt-x11-opensource-src Qt4"
 TAGS="qt"
 
 BUILD_DEPENDS="xorg-libX11-dev dbus-dev gstreamer0-dev gst0-python-dev libmng-dev \
-cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev libegl-mesa libglu-mesa \
-libglw-mesa postgresql-dev gst0-plugins-base-dev atk-dev autoconf automake bash \
+cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev mesa-libegl glu \
+glw postgresql-dev gst0-plugins-base-dev atk-dev autoconf automake bash \
 binutils bison bzip2-dev cairo-dev coreutils expat-dev flex fontconfig-dev \
 freetype-dev gettext glib-dev jpeg-dev libIDL libcap-dev libpng16-dev libtool \
 libxml2-dev linux-api-headers m4 make mercurial ncurses-dev openssl-dev \
 pango-dev patch pcre-dev perl perl-xml-parser perl-xml-simple xorg-pixman-dev \
 pkg-config tiff-dev xorg-dev-proto xorg-dev zip unzip gtk+-dev alsa-lib-dev \
-sqlite3-dev libglu-mesa-dev libglw-mesa-dev wayland-dev"
+sqlite3-dev glu-dev glw-dev wayland-dev"
 SPLIT="qt4 libQt3Support libQtClucene libQtCore libQtDBus libQtDeclarative \
 libQtDesigner libQtGui libQtHelp libQtMultimedia libQtNetwork libQtOpenGL \
 libQtPlugins libQtScript libQtScriptTools libQtSql libQtSvg libQtTest \
@@ -190,7 +190,7 @@ genpkg_rules()
 		;;
 	libQtOpenGL)
 		CAT="development|Qt OpenGL Library"
-		DEPENDS="libQtGui mesa libglu-mesa xorg-libXxf86vm xorg-libXdamage libdrm"
+		DEPENDS="libQtGui mesa glu xorg-libXxf86vm xorg-libXdamage libdrm"
 		mkdir -p $fs/usr/lib
 		cp -a $install/usr/lib/libQtOpenGL.so* $fs/usr/lib
 		;;
@@ -268,7 +268,7 @@ genpkg_rules()
 	Qt4-dev)
 		CAT="development|qt x11 toolkit"
 		SUGGESTED="libmng nvidia"
-		DEPENDS="QtDesigner jpeg tiff libpng16 mesa libglu-mesa \
+		DEPENDS="QtDesigner jpeg tiff libpng16 mesa glu \
 			freetds libmysqlclient libpostgresqlclient libunixODBC \
 			xorg-xcb-util libQt3Support libQtClucene libQtPlugins \
 			libQtDBus libQtHelp libQtOpenGL libQtScript libQtSql \
