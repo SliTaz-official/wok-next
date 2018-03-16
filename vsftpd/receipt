@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vsftpd"
 VERSION="2.3.5"
@@ -6,26 +6,19 @@ CATEGORY="network"
 SHORT_DESC="Secure FTP server"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://vsftpd.beasts.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://security.appspot.com/downloads/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="wget"
+compile_rules() {
+	make || return 1
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make 
-	#&& make DESTDIR=$DESTDIR install
+	install -Dm755 $src/vsftpd      $install/usr/bin/vsftpd
+	install -Dm644 $src/vsftpd.conf $install/etc/vsftpd.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/etc
-	cp -a $src/vsftpd $fs/usr/bin
-	cp -a $src/vsftpd.conf $fs/etc
+genpkg_rules() {
+	copy @std
+	CONFIG_FILES="/etc/vsftpd.conf"
 }
-

@@ -1,26 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="txt2tags"
 VERSION="2.6"
 CATEGORY="misc"
-SHORT_DESC="Document generator."
+SHORT_DESC="Document generator"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://txt2tags.org/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
-DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
+	install -Dm755 $src/txt2tags $install/usr/bin/txt2tags
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/txt2tags $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }
-

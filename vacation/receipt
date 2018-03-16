@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vacation"
 VERSION="1.2.7.0"
 CATEGORY="network"
-SHORT_DESC="automatic mail-answering program."
+SHORT_DESC="Automatic mail-answering program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.csamuel.org/software/vacation"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="email"
 
-DEPENDS="gdbm"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="gdbm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	sed -i 's/uname -m/echo i386/' Makefile
-	make
+compile_rules() {
+	make &&
+	install -Dm755 $src/vacation $install/usr/bin/vacation
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/vacation $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="gdbm"
+	TAGS="email"
 }
-

@@ -16,33 +16,29 @@ EXTRA_SOURCE_FILES="$PACKAGE-0b2a652.u"
 BUILD_DEPENDS="xorg-dev compiz-core-dev compiz-libcompizconfig-dev cmake \
 libxslt-dev startup-notification-dev mesa-dev gtk+-dev intltool librsvg-dev \
 libnotify-dev compiz-bcop util-linux-uuid-dev compiz-plugins-main-dev libtool \
-util-linux-getopt xorg-libxshmfence-dev glu-dev expat-dev"
+util-linux-getopt xorg-libxshmfence-dev glu-dev expat-dev xorg-xcb-util-dev"
 SPLIT="compiz-plugins-extra-dev"
 
 compile_rules() {
-	[ -s $SOURCES_REPOSITORY/$EXTRA_SOURCE_FILES ] || \
-		wget -O $SOURCES_REPOSITORY/$EXTRA_SOURCE_FILES $WGET_URL2
+	[ -s $SRC/$EXTRA_SOURCE_FILES ] ||
+		wget -O $SRC/$EXTRA_SOURCE_FILES $WGET_URL2
 	patch -p1 -i $SOURCES_REPOSITORY/$EXTRA_SOURCE_FILES
-	./configure --prefix=/usr &&
+
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		compiz-plugins-extra)
-			mkdir -p $fs/usr/lib $fs/usr/share/locale
-			cp -a $install/usr/lib/compiz $fs/usr/lib
-			cp -a $install/usr/share/compiz $fs/usr/share
-			cp -a $install/usr/share/locale/ru $fs/usr/share/locale
-			cd $fs/usr/lib/compiz; rm -f *.a *.la
+			copy @std
 			DEPENDS="xorg-libX11 compiz-core compiz-libcompizconfig gtk+ \
 			librsvg libnotify compiz-plugins-main"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/compiz
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/compiz/*a $fs/usr/lib/compiz
+			copy @dev
 			;;
 	esac
 }

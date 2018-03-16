@@ -1,42 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gogglesmm"
 VERSION="0.12.6"
 CATEGORY="multimedia"
-SHORT_DESC="Goggles Music Manager is nice a music collection manager and player."
+SHORT_DESC="Goggles Music Manager is nice a music collection manager and player"
 MAINTAINER="chadi.elahmad@gmail.com"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://code.google.com/p/gogglesmm/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://gogglesmm.googlecode.com/files/$TARBALL"
 
-DEPENDS="fox xine-lib dbus curl sqlite3 taglib libpng16 jpeg expat tiff \
-mesa glu"
-BUILD_DEPENDS="fox-dev sqlite3 taglib dbus-dev xine-lib-dev \
+BUILD_DEPENDS="shared-mime-info fox-dev sqlite3 taglib dbus-dev xine-lib-dev \
 sqlite3-dev taglib-dev curl-dev expat-dev xorg-xproto \
 xorg-libX11-dev libgcrypt-dev mesa-dev glu-dev pkg-config"
 
-# Rules to configure and make the package. 
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/0x80/-128/g' src/gmutils.cpp
 	# Fixed installing .mo files since busybox install commmand 
 	# doesn't have -T option
 	sed -i 's| -T||g' $src/Makefile
+
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
 		--infodir=/usr/share/info \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	mkdir -p            $install/usr/share/pixmaps/
+	cp $src/extra/*.png $install/usr/share/pixmaps/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $src/extra/*.png $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="fox xine-lib dbus curl sqlite3 taglib libpng16 jpeg expat tiff \
+	mesa glu"
 }

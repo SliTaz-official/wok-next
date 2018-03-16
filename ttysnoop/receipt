@@ -1,24 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ttysnoop"
 VERSION="0.12d.k26"
 CATEGORY="system-tools"
-SHORT_DESC="Allows you to spy on telnet+serial connections."
+SHORT_DESC="Allows you to spy on telnet+serial connections"
 LICENSE="GPL"
 MAINTAINER="pascal.bellard@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://freecode.com/projects/ttysnoop"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://sysd.org/stas/files/active/0/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
+
+	install -Dm755 $src/ttysnoop  $install/sbin/ttysnoop
+	install -Dm755 $src/ttysnoops $install/sbin/ttysnoops
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/sbin
-	cp $src/ttysnoop $src/ttysnoops $fs/sbin
+genpkg_rules() {
+	copy @std
 }

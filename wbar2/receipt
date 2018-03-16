@@ -1,48 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wbar2"
 VERSION="2.3.4"
 CATEGORY="system-tools"
-SHORT_DESC="Quick launch bar."
+SHORT_DESC="Quick launch bar"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-SOURCE="wbar"
-TARBALL="$SOURCE-$VERSION.tgz"
 WEB_SITE="http://code.google.com/p/wbar/"
+
+TARBALL="wbar-$VERSION.tgz"
 WGET_URL="http://wbar.googlecode.com/files/$TARBALL"
-CONFIG_FILES="/etc/default/wbar/wbar.cfg"
-TAGS="desktop launchbar"
 
-DEPENDS="ttf-dejavu imlib2 gtk+ libglade"
-BUILD_DEPENDS="imlib2-dev gtk+-dev libglade-dev"
+BUILD_DEPENDS_arm="imlib2-dev gtk+-dev libglade-dev xorg-libX11-dev"
+BUILD_DEPENDS="imlib2-dev gtk+-dev libglade-dev xorg-libX11-dev intltool file"
 
-# Handle cross compilation
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS intltool file" ;;
-	arm*) ARCH_ARGS="--disable-wbar-config" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm*) ARCH_ARGS="--disable-wbar-config";;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure CXXFLAGS="-Wno-error=literal-suffix" \
+	./configure \
+		CXXFLAGS="-Wno-error=literal-suffix" \
 		--exec-prefix=/usr \
 		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make && make install || return 1
+
+	mkdir -p $install/usr/share/applications/
+	mv $install/etc/wbar.d/wbar.desktop $install/usr/share/applications/
+
+	case "$ARCH" in
+		arm*) cp $stuff/wbar-arm.cfg $install/etc/wbar.d/wbar.cfg;;
+		*)    cp $stuff/wbar.cfg     $install/etc/wbar.d/wbar.cfg;;
+	esac
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/wbar $fs/usr/share
-	mv $fs/etc/wbar.d/wbar.desktop $fs/usr/share/applications
-	case "$ARCH" in
-		i?86) cp -a $stuff/wbar.cfg $fs/etc/wbar.d ;;
-		arm*) cp -a $stuff/wbar-arm.cfg $fs/etc/wbar.d/wbar.cfg ;;
-	esac
+genpkg_rules() {
+	copy @std
+	DEPENDS="ttf-dejavu imlib2 gtk+ libglade"
+	CONFIG_FILES="/etc/default/wbar/wbar.cfg"
+	TAGS="desktop launchbar"
 }

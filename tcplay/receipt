@@ -3,45 +3,45 @@
 PACKAGE="tcplay"
 VERSION="2.0"
 CATEGORY="system-tools"
-SHORT_DESC="Free TrueCrypt implementation."
+SHORT_DESC="Free TrueCrypt implementation"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/bwalex/tc-play"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/bwalex/tc-play/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="cmake wget libdevmapper-dev libgcrypt-dev util-linux-uuid-dev \
+BUILD_DEPENDS="cmake libdevmapper-dev libgcrypt-dev util-linux-uuid-dev \
 libdevmapper openssl-dev zlib-dev"
-SPLIT="tcplay libtcplay-dev libtcplay"
+SPLIT="tcplay libtcplay libtcplay-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make -f Makefile.classic
+compile_rules() {
+	make -f Makefile.classic || return 1
+
+	install -Dm755 $src/tcplay $install/usr/bin/tcplay
+	mkdir -p \
+		$install/usr/lib/ \
+		$install/usr/include/
+	cp  $src/libtcplay.so* $install/usr/lib/
+	cp  $src/libtcplay.a   $install/usr/lib/
+	cp  $src/tcplay*.h     $install/usr/include/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	tcplay)
-		DEPENDS="libgcrypt libdevmapper openssl util-linux-uuid zlib udev"
-		mkdir -p $fs/usr/bin
-		cp -a $src/tcplay $fs/usr/bin
-		;;
-	libtcplay-dev)
-		CAT="development|Free TrueCrypt implementation, development files."
-		DEPENDS="libgcrypt-dev libdevmapper-dev openssl-dev \
+		tcplay)
+			copy tcplay
+			DEPENDS="libgcrypt libdevmapper openssl util-linux-uuid zlib eudev"
+			;;
+		libtcplay)
+			copy *.so*
+			CAT="system-tools|libraries"
+			DEPENDS="libgcrypt libdevmapper openssl util-linux-uuid zlib eudev"
+			;;
+		libtcplay-dev)
+			copy @dev
+			DEPENDS="libgcrypt-dev libdevmapper-dev openssl-dev \
 			util-linux-uuid-dev zlib-dev"
-		mkdir -p $fs/usr/lib $fs/usr/include
-		cp -a $src/libtcplay.a $fs/usr/lib
-		cp -a $src/tcplay*.h $fs/usr/include
-		;;
-	libtcplay)
-		CAT="system-tools|Free TrueCrypt implementation."
-		DEPENDS="libgcrypt libdevmapper openssl util-linux-uuid zlib udev"
-		mkdir -p $fs/usr/lib
-		cp -a $src/libtcplay.so* $fs/usr/lib
-		;;
+			;;
 	esac
 }

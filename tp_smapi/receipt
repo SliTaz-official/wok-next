@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tp_smapi"
 VERSION="0.42"
@@ -6,28 +6,27 @@ CATEGORY="base-system"
 SHORT_DESC="IBM ThinkPad SMAPI BIOS driver"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/evgeni/tp_smapi"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/${PACKAGE/_/-}/$VERSION.tar.gz"
 
-BUILD_DEPENDS="linux-module-headers linux-source wget"
+BUILD_DEPENDS="linux-module-headers linux-source"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i "s/uname -r/echo $kvers-slitaz/" Makefile
-	make modules HDAPS=1
-}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+	make modules HDAPS=1 || return 1
+
 	MOD_DIR=lib/modules/$kvers-slitaz/extra
-	mkdir -p $fs/$MOD_DIR
-	cp -a $src/*.ko $fs/$MOD_DIR
+	mkdir -p        $install/$MOD_DIR/
+	cp -a $src/*.ko $install/$MOD_DIR/
 }
 
-post_install()
-{
+genpkg_rules() {
+	copy @std
+}
+
+post_install() {
 	chroot "$1/" depmod -a
 }

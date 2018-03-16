@@ -1,32 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="blender"
 VERSION="2.75a"
 CATEGORY="graphics"
-SHORT_DESC="3D content creation suite."
+SHORT_DESC="3D content creation suite"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-SUGGESTED="nvidia"
 WEB_SITE="http://www.blender.org/"
-WGET_URL="http://download.blender.org/source/$TARBALL"
-TAGS="3D creator editor"
 
-DEPENDS="py3k mesa libsdl libsamplerate libdrm jpeg glu openjpeg \
-ffmpeg lcms openexr desktop-file-utils libgomp tiff libpng16 freeglut \
-freetype openal zlib librsvg glew libboost-filesystem libboost-regex \
-libboost-thread libboost-date-time libboost-dev" #libboost-dev?
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.blender.org/source/$TARBALL"
+
 BUILD_DEPENDS="cmake xorg-libXmu ilmbase-dev yasm pkg-config coreutils-file-format \
 gettext mesa-dev freeglut-dev librsvg-dev openexr-dev tiff-dev openal-dev \
-glu libsdl-dev py3k-dev libsamplerate-dev ffmpeg-dev lcms-dev openjpeg-dev \
+glu libsdl-dev python3-dev libsamplerate-dev ffmpeg-dev lcms-dev openjpeg-dev \
 libboost-dev libboost-math libboost-math-tr1 libboost-filesystem \
 glu-dev glew-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	p3v=$(. $WOK/python3/receipt; echo ${VERSION%.*})
 	mkdir -p $WOK/$PACKAGE/source/build
 	cd $WOK/$PACKAGE/source/build
+
 	cmake $src \
 		-DCMAKE_INSTALL_PREFIX:PATH=/usr \
 		-DCMAKE_BUILD_TYPE:STRING=Release \
@@ -36,25 +31,26 @@ compile_rules()
 		-DWITH_GAMEENGINE:BOOL=ON \
 		-DWITH_CYCLES:BOOL=OFF \
 		-DWITH_PLAYER:BOOL=ON \
-		-DPYTHON_VERSION:STRING=3.4 \
+		-DPYTHON_VERSION:STRING=$p3v \
 		-DPYTHON_LIBPATH:STRING=/usr/lib \
-		-DPYTHON_LIBRARY:STRING=python3.4m \
-		-DPYTHON_INCLUDE_DIRS:STRING=/usr/include/python3.4m
+		-DPYTHON_LIBRARY:STRING=python${p3v}m \
+		-DPYTHON_INCLUDE_DIRS:STRING=/usr/include/python${p3v}m &&
 	# build
-	make $MAKEFLAGS
-	make DESTDIR=$DESTDIR install
-	python3 -m compileall "$DESTDIR/usr/share/blender"
+	make $MAKEFLAGS &&
+	make DESTDIR=$DESTDIR install &&
+	python3 -m compileall "$DESTDIR/usr/share/blender" || return 1
+
+	mv -f $install/usr/bin/blender $install/usr/bin/blender-bin
+	cp -a $stuff/blender $install/usr/bin/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	LOCALE="fr de pt_BR es zh_CN"
-	mkdir -p $fs/usr/bin $fs/usr/share/pixmaps
-	cp -a $install/usr/share/blender $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	mv -f $fs/usr/bin/blender $fs/usr/bin/blender-bin
-	cp -a $stuff/blender $fs/usr/bin
+genpkg_rules() {
+	LOCALE="fr de pt_BR es ru zh_CN"
+	copy @std
+	DEPENDS="python3 mesa libsdl libsamplerate libdrm jpeg glu openjpeg \
+	ffmpeg lcms openexr desktop-file-utils libgomp tiff libpng16 freeglut \
+	freetype openal zlib librsvg glew libboost-filesystem libboost-regex \
+	libboost-thread libboost-date-time libboost-dev" #libboost-dev?
+	SUGGESTED="nvidia"
+	TAGS="3D creator editor"
 }

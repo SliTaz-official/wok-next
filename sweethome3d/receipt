@@ -1,45 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sweethome3d"
-SOURCE="SweetHome3D"
-VERSION="4.0"
+VERSION="5.7"
 CATEGORY="misc"
-SHORT_DESC="A free interior design application."
+SHORT_DESC="An interior design application to draw house plans & arrange furniture"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION-linux-x86.tgz"
 WEB_SITE="http://www.sweethome3d.com/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$SOURCE/$SOURCE-$VERSION/$TARBALL"
+HOST_ARCH="i486 x86_64"
 
-DEPENDS="libgl"
-BUILD_DEPENDS=""
+case $ARCH in
+	i?86)   TARBALL="SweetHome3D-$VERSION-linux-x86.tgz";;
+	x86_64) TARBALL="SweetHome3D-$VERSION-linux-x64.tgz";;
+esac
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
+	mkdir -p   $install/usr/share/
+	cp -a $src $install/usr/share/sweethome3d
+
+	install -Dm755 $stuff/sweethome3d $install/usr/bin/sweethome3d
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.   
-genpkg_rules()                                      
-{
-	mkdir -p $fs/usr/share/applications $fs/usr/bin
-	cp -a $src $fs/usr/share/$PACKAGE
-	cat > $fs/usr/share/applications/$PACKAGE.desktop <<EOT
-[Desktop Entry]
-Encoding=UTF-8
-Name=Interior design
-Name[fr]=Aménagement d'intérieur
-Type=Application
-Exec=$PACKAGE
-Icon=gohome.png
-Terminal=false
-Categories=Office;
-EOT
-	cat > $fs/usr/bin/$PACKAGE <<EOT
-#!/bin/sh
-
-exec /usr/share/$PACKAGE/SweetHome3D
-EOT
-	chmod +x $fs/usr/bin/$PACKAGE
+genpkg_rules() {
+	copy @std
+	DEPENDS="mesa"
 }

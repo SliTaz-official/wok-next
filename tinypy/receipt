@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tinypy"
 VERSION="1.1"
 CATEGORY="development"
-SHORT_DESC="A minimalist implementation of Python."
+SHORT_DESC="A minimalist implementation of Python"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.tinypy.org/"
-WGET_URL="http://tinypy.googlecode.com/files/$TARBALL"
-TAGS="python"
 
-DEPENDS="glibc-base"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://tinypy.googlecode.com/files/$TARBALL"
+
 BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	python setup.py linux
+compile_rules() {
+	python setup.py linux &&
+	install -Dm755 $src/build/tinypy $install/usr/bin/tinypy
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/build/tinypy $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibc-base"
+	TAGS="python"
 }

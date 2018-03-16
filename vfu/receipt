@@ -1,31 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vfu"
 VERSION="4.12"
 CATEGORY="utilities"
-SHORT_DESC="VFU is a console (text mode) file manager for UNIX/Linux."
+SHORT_DESC="VFU is a console (text mode) file manager for UNIX/Linux"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://cade.datamax.bg/vfu/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://cade.datamax.bg/vfu/$TARBALL"
 
-DEPENDS="ncurses pcre"
 BUILD_DEPENDS="ncurses-dev pcre-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
+
+	mkdir -p \
+		$install/usr/bin/ \
+		$install/usr/lib/vfu/ \
+		$install/etc/
+	cp -a $src/vfu/vfu  $install/usr/bin/
+	cp -a $src/rx/rx_*  $install/usr/lib/vfu/
+	cp -a $src/vfu.conf $install/etc/
+	chown -R root:root  $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/lib/vfu $fs/etc
-	cp -a $src/vfu/vfu $fs/usr/bin
-	cp -a $src/rx/rx_* $fs/usr/lib/vfu
-	cp -a $src/vfu.conf $fs/etc
-	chown root:root $fs/etc/vfu.conf
-	chown -R root:root $fs/usr/lib/vfu
+genpkg_rules() {
+	copy $std
+	DEPENDS="ncurses pcre"
+	CONFIG_FILES="/etc/vfu.conf"
 }

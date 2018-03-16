@@ -1,32 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tyrian"
 VERSION="21"
 CATEGORY="non-free"
-SHORT_DESC="Tyrian is a the DOS shoot-em-up;you need open-tyrian to run it."
+SHORT_DESC="Tyrian is a the DOS shoot-em-up; you need open-tyrian to run it"
 MAINTAINER="mallory@sweetpeople.org"
-BUILD_DEPENDS="wget"
-TARBALL="$PACKAGE$VERSION.zip"
+LICENSE="other"
 WEB_SITE="http://code.google.com/p/opentyrian/"
+
+TARBALL="$PACKAGE$VERSION.zip"
 WGET_URL="https://sites.google.com/a/camanis.net/opentyrian/tyrian/$TARBALL"
 
-LICENSE="other"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	:
+compile_rules() {
+	mkdir -p  $install/usr/games/opentyrian/
+	cp $src/* $install/usr/games/opentyrian/
+	find $install -type f \( -name '*.exe' -o -name '*.doc' \) -delete
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/games/opentyrian
-	cd $src
-	for file in *; do
-		[ "$file" = "${file%.exe}" ] || continue
-		[ "$file" = "${file%.doc}" ] || continue
-		cp $file $fs/usr/games/opentyrian
-	done
+genpkg_rules() {
+	copy @std
 }
-

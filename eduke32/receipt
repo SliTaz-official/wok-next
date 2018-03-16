@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eduke32"
 VERSION="20110319-1850"
@@ -6,29 +6,34 @@ CATEGORY="games"
 SHORT_DESC="A port of the classic first-person shooter, Duke Nukem 3D"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="GPL2"
+
 TARBALL="${PACKAGE}_src_${VERSION}.tar.bz2"
 WEB_SITE="http://www.eduke32.com/"
 WGET_URL="http://dukeworld.duke4.net/$PACKAGE/synthesis/$VERSION/$TARBALL"
 TAGS="shooting"
 
-DEPENDS="libsdl libsdl-mixer libvorbis gtk+ eduke32-data"
 BUILD_DEPENDS="libsdl-dev libsdl-mixer-dev libvorbis-dev gtk+-dev nasm \
 mesa-dev glu-dev gcc49"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	make CC=gcc-49 CXX=g++-49 $MAKEFLAGS || return 1
-    	mkdir $DESTDIR
-    	cp eduke32 mapster32 $DESTDIR
+	case $ARCH in
+		x86_64) Arch='nocona';;
+		*)      Arch="$ARCH";;
+	esac
+
+	make \
+		CC=gcc-49 \
+		CXX=g++-49 \
+		CFLAGS="-march=$Arch -Os -pipe" \
+		$MAKEFLAGS || return 1
+
+	install -Dm755 eduke32   $install/usr/bin/eduke32
+	install -Dm755 mapster32 $install/usr/bin/mapster32
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	echo "Building package tree"
-	mkdir -p $fs/usr/bin 
-
-	echo "Copying package files"
-	cp -a $install/eduke32 $install/mapster32 $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libsdl libsdl-mixer libvorbis gtk+ eduke32-data"
 }

@@ -11,17 +11,15 @@ WEB_SITE="http://www.mesa3d.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/demos/$TARBALL"
 
-BUILD_DEPENDS="glew-dev mesa-dev talloc-dev mesa-libegl pkg-config udev-dev \
-expat-dev xorg-libxshmfence-dev"
+BUILD_DEPENDS="glew-dev mesa-dev talloc-dev mesa-libegl eudev-dev expat-dev \
+xorg-libxshmfence-dev freeglut-dev"
 
 compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
 
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make  &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 

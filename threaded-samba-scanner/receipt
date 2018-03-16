@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="threaded-samba-scanner"
 VERSION="3.6"
 CATEGORY="network"
-SHORT_DESC="A very fast samba scanner."
+SHORT_DESC="A very fast samba scanner"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://dalalven.dtdns.net/linux/gadmintools-webpage/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dalalven.dtdns.net/linux/$PACKAGE/$TARBALL"
 
-DEPENDS="smbclient"
-BUILD_DEPENDS=""
-
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
+	install -Dm755 $src/$PACKAGE $install/usr/bin/$PACKAGE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/threaded-samba-scanner $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="smbclient"
 }

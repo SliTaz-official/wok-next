@@ -14,31 +14,25 @@ WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 BUILD_DEPENDS="xorg-dev compiz-core-dev libnotify-dev libxslt-dev \
 startup-notification-dev mesa-dev gtk+-dev intltool librsvg-dev \
 compiz-libcompizconfig compiz-libcompizconfig-dev compiz-bcop glu-dev \
-util-linux-uuid-dev libtool util-linux-getopt xorg-libxshmfence-dev expat-dev"
+util-linux-uuid-dev libtool util-linux-getopt xorg-libxshmfence-dev expat-dev \
+xorg-xcb-util-dev"
 SPLIT="compiz-plugins-main-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc &&
+	fix ld
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		compiz-plugins-main)
-			mkdir -p $fs/usr/lib $fs/usr/share/locale
-			cp -a $install/usr/lib/compiz $fs/usr/lib
-			cp -a $install/usr/share/compiz $fs/usr/share
-			cp -a $install/usr/share/locale/ru $fs/usr/share/locale
-			cd $fs/usr/lib/compiz; rm -f *.a *.la
+			copy @std
 			DEPENDS="xorg-libX11 compiz-core librsvg"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/compiz
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/compiz/*a $fs/usr/lib/compiz
+			copy @dev
 			;;
 	esac
 }

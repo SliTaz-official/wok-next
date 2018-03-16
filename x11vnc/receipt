@@ -19,25 +19,23 @@ compile_rules() {
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make -j1 DESTDIR=$DESTDIR install &&
-	echo rm -rf $DESTDIR/usr/share/applications
+	make -j1 DESTDIR=$DESTDIR install || return 1
+
+	# rm -rf $DESTDIR/usr/share/applications
+	install -Dm755 $stuff/x11vnc $install/etc/init.d/x11vnc
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		x11vnc)
-			mkdir -p $fs/usr/bin $fs/etc/init.d
-			cp -a $install/usr/bin/x11vnc $fs/usr/bin
-			cp -a $stuff/x11vnc $fs/etc/init.d
+			copy x11vnc
 			DEPENDS="xorg-libXtst openssl jpeg xorg-libXdamage zlib"
 			TAGS="vnc server"
 			;;
-		*-dev)
-			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/x11vnc $fs/usr/share
+		x11vnc-extra)
+			copy x11vnc/
 			CAT="network|java VNC viewer"
 			TAGS="vnc"
-			DEPENDS="x11vnc"
 			;;
 	esac
 }
