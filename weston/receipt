@@ -11,38 +11,37 @@ WEB_SITE="https://wayland.freedesktop.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://wayland.freedesktop.org/releases/$TARBALL"
 
-BUILD_DEPENDS="wayland-dev mesa-wayland-dev cairo-gl-dev libxkbcommon-dev \
+BUILD_DEPENDS="wayland-dev mesa-dev cairo-gl-dev libxkbcommon-dev \
 libunwind-dev mtdev-dev xorg-libXcursor-dev pam-dev xz-dev \
-gegl-dev libdrm-dev xorg-libXxf86vm-dev udev-dev pkg-config jpeg-dev"
+gegl-dev libdrm-dev xorg-libXxf86vm-dev eudev-dev libjpeg-turbo-dev expat-dev \
+xorg-libxshmfence-dev"
 SPLIT="weston-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
 		--prefix=/usr \
 		--libexec=/usr/lib/weston \
 		--disable-documentation \
 		--enable-fbdev-compositor &&
-	make && make install
+	fix libtool &&
+	make && make install || return 1
+
+	# Custom weston-session
+	cp -f $stuff/weston-session $install/usr/bin
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		weston)
-			mkdir -p $fs/usr/lib/weston $fs/usr/share
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/weston/*.so* $fs/usr/lib/weston
-			cp -a $install/usr/lib/weston/weston-* $fs/usr/lib/weston
-			cp -a $install/usr/share/weston $fs/usr/share
-			# Custom weston-session
-			cp -f $stuff/weston-session $fs/usr/bin
-			DEPENDS="wayland mesa-wayland cairo-gl libxkbcommon libunwind \
-			mtdev xorg-libXcursor pam liblzma"
+			copy @std
+			DEPENDS="cairo-gl eudev libdrm libjpeg-turbo libpng16 libunwind \
+			libxkbcommon-wayland mesa mesa-libegl mesa-libgbm \
+			mesa-libwayland-egl mtdev pam wayland xorg-libX11 xorg-libXcursor \
+			xorg-libxcb xorg-pixman"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/weston $fs/usr/share
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/weston/*.*a $fs/usr/lib/weston
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

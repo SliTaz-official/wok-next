@@ -17,9 +17,9 @@ xorg-libXdmcp-dev xorg-libXrender-dev xorg-xcb-util-dev xorg-libxcb-dev \
 expat-dev libxml2-dev"
 SPLIT="cairo cairo-tools cairo-dev"
 
-#BUILD_DEPENDS="$BUILD_DEPENDS mesa-dev eudev-dev xorg-libXxf86vm-dev \
-#libdrm-dev mesa-libegl xorg-libxshmfence-dev"
-#SPLIT="$SPLIT cairo-gl:gl cairo-gl-tools:gl cairo-gl-dev:gl"
+BUILD_DEPENDS="$BUILD_DEPENDS mesa-dev eudev-dev xorg-libXxf86vm-dev \
+libdrm-dev mesa-libegl xorg-libxshmfence-dev"
+SPLIT="$SPLIT cairo-gl:gl cairo-gl-tools:gl cairo-gl-dev:gl"
 
 compile_rules() {
 	case "$ARCH" in
@@ -48,45 +48,42 @@ genpkg_rules() {
 	case $PACKAGE in
 		cairo)
 			copy libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*
-			DEPENDS="bzlib fontconfig freetype glib glibc-base harfbuzz libffi \
-			libpng16 xorg-libxcb libxml2 pcre xorg-pixman xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
+			DEPENDS="fontconfig freetype glib libpng16 xorg-libX11 xorg-libxcb \
+			xorg-pixman zlib"
 			;;
 		cairo-tools)
 			copy bin/ cairo-fdr.so* cairo-sphinx.so* libcairo-trace.so*
 			CAT="development|development tools"
-			DEPENDS="cairo libbfd"
+			DEPENDS="cairo glib xorg-libX11 xorg-libXrender xorg-libxcb \
+			xorg-pixman zlib"
 			;;
 		cairo-dev)
 			copy @dev
-			DEPENDS="cairo cairo-tools bzip2 fontconfig-dev freetype-dev \
-			glib-dev harfbuzz-dev libffi-dev libpng16-dev xorg-libxcb-dev \
-			libxml2-dev pcre-dev xorg-pixman-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev"
+			DEPENDS="cairo cairo-tools \
+			fontconfig-dev freetype-dev glib-dev libpng16-dev xorg-libX11-dev \
+			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
+			xorg-pixman-dev zlib-dev"
 			;;
 
 		cairo-gl)
 			copy usr/lib/*.so*
 			CAT="x-window|with GL support"
-			DEPENDS="bzlib fontconfig freetype glib glibc-base harfbuzz libdrm \
-			libffi libpng16 xorg-libxcb libxml2 mesa mesa-libegl pcre xorg-pixman eudev \
-			xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp xorg-libXext \
-			xorg-libXfixes xorg-libXrender xorg-libXxf86vm zlib"
+			DEPENDS="fontconfig freetype glib libpng16 mesa mesa-libegl \
+			xorg-libX11 xorg-libxcb xorg-pixman zlib"
 			;;
 		cairo-gl-tools)
 			copy usr/bin/ usr/lib/cairo/*.so*
 			CAT="development|development tools with GL support"
-			DEPENDS="cairo-gl libbfd wayland"
+			DEPENDS="cairo-gl glib mesa mesa-libegl xorg-libX11 \
+			xorg-libXrender xorg-libxcb xorg-pixman zlib"
 			;;
 		cairo-gl-dev)
 			copy @dev
 			CAT="development|development files with GL support"
-			DEPENDS="cairo-gl cairo-gl-tools fontconfig-dev freetype-dev \
-			glib-dev harfbuzz-dev libdrm-dev libffi-dev libpng16-dev xorg-libxcb-dev \
-			libxml2-dev mesa-wayland-dev pcre-dev xorg-pixman-dev udev-dev \
-			wayland-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
-			xorg-libXrender-dev xorg-libXxf86vm-dev"
+			DEPENDS="cairo-gl cairo-gl-tools \
+			fontconfig-dev freetype-dev glib-dev libpng16-dev mesa-dev \
+			xorg-libX11-dev xorg-libXext-dev xorg-libXrender-dev \
+			xorg-libxcb-dev xorg-pixman-dev zlib-dev"
 			;;
 	esac
 }
