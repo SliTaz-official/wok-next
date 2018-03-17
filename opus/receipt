@@ -7,25 +7,21 @@ SHORT_DESC="Totally open, royalty-free, highly versatile audio codec"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://opus-codec.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/opus.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-#WGET_URL="http://downloads.xiph.org/releases/opus/$TARBALL"
-WGET_URL="https://archive.mozilla.org/pub/opus/$TARBALL" # from official page, newer
+WGET_URL="https://archive.mozilla.org/pub/opus/$TARBALL"
 
 SPLIT="opus-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--docdir=/usr/share/doc/opus-$VERSION \
-		$CONFIGURE_ARGS && \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		opus)  copy @std;;
 		*-dev) copy @dev;;

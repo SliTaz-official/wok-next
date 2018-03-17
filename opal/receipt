@@ -3,46 +3,51 @@
 PACKAGE="opal"
 VERSION="3.10.10"
 CATEGORY="network"
-SHORT_DESC="Open Phone Abstraction library."
+SHORT_DESC="Open Phone Abstraction library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MPL"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.ekiga.org/"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
-TAGS="telephony"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/opal.html"
 
-BUILD_DEPENDS="ptlib ptlib-dev openssl-dev"
-SPLIT="opal opal-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/CODEC_ID/AV_&/;s/PIX_FMT_/AV_&/' plugins/video/*/*.cxx
-	sed -i '/<< mime.PrintContents/ s/mime/(const std::string\&)&/' \
+BUILD_DEPENDS="ptlib-dev openssl-dev"
+SPLIT="opal-dev"
+
+compile_rules() {
+	sed -i 's| abs(| std::fabs(|g' plugins/video/common/mpi.cxx
+
+	sed -i -e 's/CODEC_ID/AV_&/' -e 's/PIX_FMT_/AV_&/' \
+		plugins/video/H.263-1998/h263-1998.cxx \
+		plugins/video/common/dyna.cxx \
+		plugins/video/H.264/h264-x264.cxx \
+		plugins/video/MPEG4-ffmpeg/mpeg4.cxx
+
+	sed -i -e '/<< mime.PrintContents/ s/mime/(const std::string\&)&/' \
 		src/im/msrp.cxx
-	./configure --prefix=/usr --bindir=/bin \
-	--libexecdir=/usr/bin --mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
-	CXXFLAGS=-Wno-deprecated-declarations make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+
+	sed -i -e '/abs(/s/MPI.*)/(int)(&)/' ./plugins/video/common/mpi.cxx
+
+	./configure \
+		$CONFIGURE_ARGS &&
+	CXXFLAGS=-Wno-deprecated-declarations \
+	make $MAKEFLAGS &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	chmod 644 $install/usr/lib/libopal_s.a
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	opal)
-		DEPENDS="cyrus-sasl expat jpeg libsdl libogg libtheora \
+		opal)
+			copy @std
+			DEPENDS="cyrus-sasl expat jpeg libsdl libogg libtheora \
 			libunixODBC openssl ptlib tiff zlib"
-		mkdir -p $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		rm -f $fs/usr/lib/*.a
-		;;
-	opal-dev)
-		CAT="development|Open Phone Abstraction library devel files."
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp $install/usr/lib/*.a $fs/usr/lib
-		;;
+			TAGS="telephony"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }
