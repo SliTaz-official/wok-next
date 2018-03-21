@@ -6,37 +6,34 @@ CATEGORY="development"
 SHORT_DESC="Open source computer vision library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://opencv.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/Itseez/opencv/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="wget cmake gtk+-dev ffmpeg-dev jpeg-dev tiff-dev libpng16-dev"
+BUILD_DEPENDS="cmake gtk+-dev ffmpeg-dev libjpeg-turbo-dev tiff-dev \
+libpng16-dev"
 SPLIT="opencv opencv-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build && cd build &&
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
+compile_rules() {
+	fix math
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
+genpkg_rules() {
 	case $PACKAGE in
-	opencv)
-		DEPENDS="gtk+ ffmpeg jpeg tiff libpng16"
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/share $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	opencv-dev)
-		#cp -a $install/usr/lib/*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
+		opencv)
+			copy @std
+			DEPENDS="gtk+ ffmpeg jpeg tiff libpng16"
+			;;
+		opencv-dev)
+			copy @dev
+			;;
 	esac
 }

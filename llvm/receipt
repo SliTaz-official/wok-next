@@ -3,7 +3,8 @@
 PACKAGE="llvm"
 VERSION="5.0.0"
 CATEGORY="development"
-SHORT_DESC="LLVM (Low Level Virtual Machine): collection of modular and reusable compiler and toolchain technologies"
+SHORT_DESC="LLVM (Low Level Virtual Machine): collection of modular and \
+reusable compiler and toolchain technologies"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://llvm.org/"
@@ -15,7 +16,10 @@ BUILD_DEPENDS="cmake zlib-dev libffi-dev python"
 SPLIT="llvm-dev llvm-libs"
 
 compile_rules() {
-	mkdir build && cd build &&
+	fix math
+	mkdir build
+	cd    build
+
 	CC=gcc CXX=g++ \
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
@@ -23,7 +27,8 @@ compile_rules() {
 		-DCMAKE_BUILD_TYPE=Release \
 		-DBUILD_SHARED_LIBS=ON \
 		-DLLVM_TARGETS_TO_BUILD="host;AMDGPU" \
-		-Wno-dev .. &&
+		-Wno-dev \
+		.. &&
 	make &&
 	make install
 }
