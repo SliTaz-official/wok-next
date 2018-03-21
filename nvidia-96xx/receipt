@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nvidia-96xx"
 VERSION="96.43.23"
@@ -8,75 +8,75 @@ MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="other"
 SHORT_DESC="NVIDIA-legacy drivers (from Geforce MX200 to 7950) (non-free)"
 WEB_SITE="http://www.nvidia.com/"
-SOURCE="NVIDIA-Linux-x86-${VERSION}-pkg0"
-TARBALL="${SOURCE}.run"
-WGET_URL="http://download.nvidia.com/XFree86/Linux-x86/$VERSION/$TARBALL"
-RUN_OPTS="--extract-only"
-TAGS="drivers graphic video"
-PROVIDE="mesa"
 
-DEPENDS="linux xorg-server gtk+ cairo linux-agp linux-drm"
+TARBALL="NVIDIA-Linux-x86-${VERSION}-pkg0.run"
+WGET_URL="http://download.nvidia.com/XFree86/Linux-x86/$VERSION/$TARBALL"
+
+RUN_OPTS="--extract-only"
+TAZBB_NO_INSTALL="because this is not hardware neutral"
+
 BUILD_DEPENDS="linux-module-headers coreutils-file-summarize xz"
 
-# Rules to configure and make the package.
-
-compile_rules()
-{
+compile_rules() {
 	cd $src/usr/src/nv/
 	# Only use .unblocked_ioctl since 2.6.36
 	sed -i 's|\.ioctl|// &|' nv.c
-	make SYSSRC="/usr/src/linux" module 2>&1 | sed s'/ERROR:/error:/' &&
+	make SYSSRC="/usr/src/linux" module 2>&1 | sed s'/ERROR:/error:/' || return 1
+
 	xz nvidia.ko
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-
-	mkdir -p $fs/usr/share $fs/usr/lib/X11 $fs/usr/share/licenses/$PACKAGE
-	mkdir -p $fs/lib/modules/$kvers-slitaz/kernel/drivers/video
-	mkdir -p $fs/usr/share/doc/$PACKAGE
+	mkdir -p \
+		$install/usr/share/ \
+		$install/usr/lib/X11/ \
+		$install/usr/share/licenses/$PACKAGE/ \
+		$install/usr/share/doc/$PACKAGE/
 
 	# Compress and install module
-	cp $src/usr/src/nv/nvidia.ko.xz \
-	$fs/lib/modules/$kvers-slitaz/kernel/drivers/video/
+	install -Dm644 $src/usr/src/nv/nvidia.ko.xz \
+		$install/lib/modules/$kvers-slitaz/kernel/drivers/video/nvidia.ko.xz
 
-	chown root $fs/lib/modules/$kvers-slitaz/kernel/drivers/video/nvidia.ko.xz
-	chmod 0644 $fs/lib/modules/$kvers-slitaz/kernel/drivers/video/nvidia.ko.xz
-
-	cp -a $src/LICENSE $fs/usr/share/licenses/$PACKAGE
-	cp -a $src/usr/bin $fs/usr
-	cp -a $src/nvidia-installer $fs/usr/bin
-	cp -a $src/usr/lib/*.so* $fs/usr/lib/
-	cp -a $src/usr/lib/tls $fs/usr/lib/
-	cp -a $src/usr/share/pixmaps $fs/usr/share
-	cp -a $src/usr/share/doc/* $fs/usr/share/doc/$PACKAGE/
-	cp -a $src/usr/X11R6/lib/* $fs/usr/lib/X11	
+	cp -a $src/LICENSE           $install/usr/share/licenses/$PACKAGE/
+	cp -a $src/usr/bin           $install/usr/
+	cp -a $src/nvidia-installer  $install/usr/bin/
+	cp -a $src/usr/lib/*.so*     $install/usr/lib/
+	cp -a $src/usr/lib/tls       $install/usr/lib/
+	cp -a $src/usr/share/pixmaps $install/usr/share/
+	cp -a $src/usr/share/doc/*   $install/usr/share/doc/$PACKAGE/
+	cp -a $src/usr/X11R6/lib/*   $install/usr/lib/X11
 
 	# Links
-	for i in $(find $fs -iname *.so*); do
-		ln -s $(basename $i) $(dirname $i)/$(basename ${i/so.${VERSION}/so/})
-		ln -s $(basename $i) $(dirname $i)/$(basename ${i/so.${VERSION}/so.1/})
+	for i in $(find $install -iname *.so*); do
+		ln -s $(basename $i) $(dirname $i)/$(basename ${i/so.$VERSION/so/})
+		ln -s $(basename $i) $(dirname $i)/$(basename ${i/so.$VERSION/so.1/})
 	done
-	
-	# exclude from files.list (for tazpkg's "find-depends")
-	cd $fs/usr/lib
-	for i in $(ls libGL.so*) ; do mv -f $i ${i//./-.-} ; done
 }
 
-pre_install()
-{
+genpkg_rules() {
+	copy @std
+
+	# exclude from files.list (for tazpkg's "find-depends")
+	cd $fs/usr/lib
+	for i in $(ls libGL.so*); do
+		mv -f $i ${i//./-.-}
+	done
+
+	DEPENDS="linux xorg-server gtk+ cairo linux-agp linux-drm"
+	PROVIDE="mesa"
+	TAGS="drivers graphic video"
+}
+
+pre_install() {
 	title 'PROPRIETARY LICENSE'
 	echo 'You are installing a package with proprietary license.'
 	echo 'You must accept the license.'
 	footer
 }
 
-post_install()
-{
+post_install() {
 	# Restore excluded from files.list (for tazpkg's "find-depends")
 	cd $1/usr/lib
-	for i in $(ls libGL.so*) ; do mv -f $i ${i//-.-/.} ; done
+	for i in $(ls libGL.so*); do
+		mv -f $i ${i//-.-/.}
+	done
 
 	newline
 	chroot "$1/" depmod -a ${EXTRAVERSION#_}-slitaz
@@ -101,4 +101,3 @@ post_install()
 	fi
 }
 
-TAZBB_NO_INSTALL="because this is not hardware neutral"

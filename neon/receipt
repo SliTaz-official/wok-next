@@ -7,6 +7,7 @@ SHORT_DESC="Neon HTTP and WebDAV client library"
 MAINTAINER="lehswe@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.webdav.org/neon"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/neon.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.webdav.org/neon/$TARBALL"
@@ -14,10 +15,7 @@ WGET_URL="http://www.webdav.org/neon/$TARBALL"
 BUILD_DEPENDS="zlib-dev openssl-dev libxml2-dev"
 SPLIT="neon-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/basicnet/neon.html
+compile_rules() {
 	sed -i 's|client_set|set|; s|gnutls_retr|&2|; s|type = t|cert_&|' \
 		src/ne_gnutls.c
 
@@ -25,19 +23,17 @@ compile_rules()
 		--with-ssl \
 		--enable-shared \
 		--disable-static \
-	$CONFIGURE_ARGS &&
+		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		neon)
 			copy @std
-			TAGS="http webdav"
 			DEPENDS="openssl liblzma libxml2 zlib"
+			TAGS="http webdav"
 			;;
 		*-dev)
 			copy @dev

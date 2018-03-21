@@ -1,48 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ypserv"
 VERSION="2.27"
 CATEGORY="network"
-SHORT_DESC="Yellow pages server (v2)."
+SHORT_DESC="Yellow pages server (v2)"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.linux-nis.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/download/$PACKAGE/$TARBALL"
 
-DEPENDS="gdbm portmap"
 BUILD_DEPENDS="gdbm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	patch -Np1 -i $stuff/confpost.patch
 	./configure \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	# Copy config files
+	mkdir -p $install/etc/
+	cp etc/ypserv.conf etc/timezone etc/netmasks etc/netgroup \
+		$install/etc/
+
+	# Copy initscript
+	install -Dm755 $stuff/ypserv $install/etc/init.d/ypserv
+
+	# Copy and fix security file
+	cp $src/etc/securenets $install/var/yp/
+	sed -i 's/^0.0.0.0/#0.0.0.0/' $install/var/yp/securenets
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc/init.d
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/var $fs
-	
-	# Copy config files
-	for  file in ypserv.conf timezone netmasks netgroup
-	do 
-		cp -a $src/etc/$fle $fs/
-	done
-	
-	# Copy initscript
-	cp $stuff/ypserv $fs/etc/init.d
-	
-	# Copy and fix security file
-	cp $src/etc/securenets $fs/var/yp
-	sed -i 's/^0.0.0.0/#0.0.0.0/' $fs/var/yp/securenets
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="gdbm portmap"
 }

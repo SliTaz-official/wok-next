@@ -24,14 +24,14 @@ compile_rules()
 	make && make install-static
 
 	# download data
-	[ -s $SOURCES_REPOSITORY/$PACKAGE_DATA.tar.bz2 ] ||
-		wget -P $SOURCES_REPOSITORY $WEB_SITE/$PACKAGE_DATA.tar.bz2
+	[ -s $SRC/$PACKAGE_DATA.tar.bz2 ] ||
+		wget -P $SRC $WEB_SITE/$PACKAGE_DATA.tar.bz2
 	[ -d $PACKAGE_DATA ] ||
-		tar -xjf $SOURCES_REPOSITORY/$PACKAGE_DATA.tar.bz2
+		tar -xjf $SRC/$PACKAGE_DATA.tar.bz2
 
 	# download setup config
-	[ -s  $SOURCES_REPOSITORY/usb_modeswitch.setup ] ||
-		wget -O $SOURCES_REPOSITORY/usb_modeswitch.setup \
+	[ -s  $SRC/usb_modeswitch.setup ] ||
+		wget -O $SRC/usb_modeswitch.setup \
 			$WEB_SITE/device_reference.txt
 }
 
@@ -45,6 +45,6 @@ genpkg_rules()
 	cp -a $install/usr/sbin $fs/usr
 	cp -a $src/$PACKAGE_DATA/usb_modeswitch.d/* $fs/etc/usb_modeswitch.d
 	cp -a $src/$PACKAGE_DATA/40-usb_modeswitch.rules $fs/lib/udev/rules.d
-	cp -a $SOURCES_REPOSITORY/usb_modeswitch.setup $fs/etc/
+	cp -a $SRC/usb_modeswitch.setup $fs/etc/
 	chown -R root.root $fs
 }

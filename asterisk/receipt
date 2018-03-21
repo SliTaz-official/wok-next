@@ -42,9 +42,9 @@ compile_rules()
 	busybox sed -i 's|lua5.1/||' pbx/pbx_lua.c
 	grep -rsl '^#define AST_PBX_MAX_STACK' * | xargs busybox sed -i \
 		's/define AST_PBX_MAX_STACK.*/define AST_PBX_MAX_STACK 1024/'
-	[ -s $SOURCES_REPOSITORY/rfc3951.txt ] ||
-		wget -P $SOURCES_REPOSITORY http://www.ietf.org/rfc/rfc3951.txt
-	cp $SOURCES_REPOSITORY/rfc3951.txt codecs/ilbc ||
+	[ -s $SRC/rfc3951.txt ] ||
+		wget -P $SRC http://www.ietf.org/rfc/rfc3951.txt
+	cp $SRC/rfc3951.txt codecs/ilbc ||
 	cp $stuff/rfc3951.txt codecs/ilbc
 	[ -f codecs/ilbc/iLBC_define.h ] || ( cd codecs/ilbc &&
 		awk -f $stuff/extract-cfile.awk rfc3951.txt > /dev/null )

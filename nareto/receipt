@@ -7,14 +7,13 @@ SHORT_DESC="Nagios reporting tool"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.nareto.org/"
-BUGS="s/oreon/centreon/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}srcs/$TARBALL"
-CONFIG_FILES="/etc/nagios"
 
-DEPENDS="nagios apache php php-cli mysql perl-dbd-mysql perl-dbi"
 SPLIT="nareto-doc nareto"
+
+BUGS="s/oreon/centreon/"
 
 compile_rules() {
 	chown -R www.www *
@@ -95,6 +94,8 @@ genpkg_rules() {
 			sed -i -e 's/user$/nareto/' -e 's/password$/nareto/' \
 				$fs/etc/nagios/nareto.init.php
 			chmod 700 $fs/etc/nagios/nareto.init.php
+			DEPENDS="nagios apache php php-cli mysql perl-dbd-mysql perl-dbi"
+			CONFIG_FILES="/etc/nagios"
 			;;
 	esac
 }

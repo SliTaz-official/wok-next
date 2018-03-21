@@ -1,22 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ncdu"
 VERSION="1.12"
 CATEGORY="utilities"
-SHORT_DESC="NCurses Disk Usage."
+SHORT_DESC="NCurses Disk Usage"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://dev.yorhel.nl/ncdu"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://dev.yorhel.nl/download/$TARBALL"
 
-DEPENDS="ncurses"
-BUILD_DEPENDS="ncurses-dev wget"
+BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -25,10 +22,7 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }
-

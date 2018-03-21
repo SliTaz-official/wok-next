@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="novnc"
 VERSION="201111004"
@@ -7,35 +7,27 @@ SHORT_DESC="VNC client in HTML5/javascript."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MPL2"
 WEB_SITE="http://github.com/kanaka/noVNC"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/kanaka/noVNC.git"
-TAGS="vnc remote-desktop html5"
 
-DEPENDS="python python-numpy"
 BUILD_DEPENDS="python python-pil openssl git"
-SUGGESTED="pyopenssl openssl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	mkdir -p $DESTDIR
 	sed -i 's/bash/sh/;s/ps -p \([^ ]*\)/ps | grep "^ *\1 "/' utils/launch.sh
+
 	IMAGE=/usr/share/images/slitaz-background.jpg
 	[ -s $IMAGE ] && utils/img2js.py $IMAGE noVNC_logo > include/logo.js
 	cp -a *.html images/favicon.ico utils include $DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/novnc
-	cp -a $install/* $fs/usr/share/novnc
+genpkg_rules() {
+	copy @std
 }
 
-post_install()
-{
-	which openssl > /dev/null &&
+post_install() {
+	which openssl >/dev/null &&
 	openssl req -new -x509 -keyout "$1/usr/share/novnc/self.pem" \
 		-out "$1/usr/share/novnc/self.pem" -days 3650 -nodes <<EOT
 $(. "$1/etc/locale.conf" ; echo ${LANG#*_})
@@ -46,4 +38,7 @@ $(cat "$1/etc/hostname")
 
 
 EOT
+	DEPENDS="python python-numpy"
+	SUGGESTED="pyopenssl openssl"
+	TAGS="vnc remote-desktop html5"
 }

@@ -1,39 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nicotine+"
 VERSION="1.2.16"
 CATEGORY="network"
-SHORT_DESC="Nicotine+ is a client for the SoulSeek filesharing network."
+SHORT_DESC="Nicotine+ is a client for the SoulSeek filesharing network"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nicotine-plus.org"
-WGET_URL="http://ufpr.dl.sourceforge.net/sourceforge/nicotine-plus/$TARBALL"
-TAGS="fileshare p2p peer-to-peer"
 
-DEPENDS="gtk+ python pygtk"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/nicotine-plus/$TARBALL"
+
 BUILD_DEPENDS="python-dev pygtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python setup.py install --root=$DESTDIR || return 1
+
+	mv $install/usr/bin/nicotine.py $install/usr/bin/nicotine
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/usr/share $fs/usr/share/nicotine
-	cp -a $install/usr/bin $fs/usr
-	mv $fs/usr/bin/nicotine.py $fs/usr/bin/nicotine
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/nicotine/sounds $fs/usr/share/nicotine
-
-	for lang in de es fr pt_BR; do
-		mkdir -p $fs/usr/share/locale/$lang/LC_MESSAGES
-		cp -a $install/usr/share/locale/$lang/LC_MESSAGES/nicotine.mo \
-			$fs/usr/share/locale/$lang/LC_MESSAGES
-	done
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="gtk+ python pygtk"
+	TAGS="fileshare p2p peer-to-peer"
 }

@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ncftp"
 VERSION="3.2.5"
 CATEGORY="network"
-SHORT_DESC="A File Transfer Protocol client."
-WEB_SITE="http://www.ncftp.com/ncftp/"
+SHORT_DESC="A File Transfer Protocol client"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Artistic"
+WEB_SITE="http://www.ncftp.com/ncftp/"
+
 TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
 WGET_URL="ftp://ftp.ncftp.com/ncftp/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --sysconfdir=/etc &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }

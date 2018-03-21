@@ -1,34 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nbd"
 VERSION="3.3"
 CATEGORY="network"
-SHORT_DESC="Remote block devices over a TCP/IP network."
+SHORT_DESC="Remote block devices over a TCP/IP network"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://nbd.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/nbd/$TARBALL"
-SUGGESTED="linux-nbd"
-CONFIG_FILES="/etc/nbd-server"
 
-DEPENDS="glib pcre"
-BUILD_DEPENDS="pkg-config glib-dev pcre-dev"
+BUILD_DEPENDS="glib-dev pcre-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --sysconfdir=/etc --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--sysconfdir=/etc \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	touch $install/etc/nbd-server/config
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc/nbd-server
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	touch $fs/etc/nbd-server/config
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib pcre"
+	SUGGESTED="linux-nbd"
+	CONFIG_FILES="/etc/nbd-server/"
 }

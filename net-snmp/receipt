@@ -7,7 +7,6 @@ SHORT_DESC="snmp tools"
 MAINTAINER="allan316@gmail.com"
 LICENSE="BSD"
 WEB_SITE="http://net-snmp.sourceforge.net"
-TAGS="snmp"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -15,9 +14,7 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="perl-dev openssl-dev file"
 SPLIT="net-snmp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--with-default-snmp-version="1" \
 		--with-sys-contact="user@localhost" \
@@ -28,13 +25,12 @@ compile_rules()
 	make -j1 && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		net-snmp)
 			copy @std
 			DEPENDS="openssl"
+			TAGS="snmp"
 			;;
 		*-dev) copy @dev;;
 	esac

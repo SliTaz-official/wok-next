@@ -67,72 +67,52 @@ genpkg_rules()
 	case $PACKAGE in
 	firefox)
 		# program
-		printf "Installing program.."
 		mkdir -p $fs/usr/lib &&
 		cp -a $install/usr/lib/$PACKAGE-$VERSION $fs/usr/lib &&
 		cp -a $install/usr/lib/mozilla $fs/usr/lib &&
 		cp -a $install/usr/bin $fs/usr
-		status
 
 		# search Plugin (by: oddball)
-		printf "Installing SliTaz search plugins.."
 		cp -a $stuff/searchplugins $fs/usr/lib/$PACKAGE-$VERSION
-		status
 
 		# prefs
-		printf "Installing SliTaz preferences.."
 		mkdir -p $fs/usr/lib/$PACKAGE-$VERSION/distribution &&
 		cp -a $stuff/distribution.ini $fs/usr/lib/$PACKAGE-$VERSION/distribution
-		status
 
 		# mozilla-common files
 		# dictionaries
-		printf "Installing common dictionnaries.."
 		rm -rf $fs/usr/lib/$PACKAGE-$VERSION/dictionaries &&
 		ln -sf ../mozilla-common-$VERSION/dictionaries \
 			$fs/usr/lib/$PACKAGE-$VERSION/dictionaries
-		status
 		# plugin-container
-		printf "Installing common plugin-container"
 		rm -f $fs/usr/lib/$PACKAGE-$VERSION/plugin-container &&
 		ln -sf ../mozilla-common-$VERSION/plugin-container \
 			$fs/usr/lib/$PACKAGE-$VERSION/plugin-container
-		status
 		# mozilla-xremote-client
-		printf "Installing common mozilla-xremote-client"
 		rm -f $fs/usr/lib/$PACKAGE-$VERSION/mozilla-xremote-client &&
 		ln -sf ../mozilla-common-$VERSION/mozilla-xremote-client \
 			$fs/usr/lib/$PACKAGE-$VERSION/mozilla-xremote-client
-		status
 		# components/libdbusservice.so
 		# components/libmozgnome.so
 		for file in libdbusservice.so libmozgnome.so; do
-			printf "Installing common components/$file"
 			rm -f $fs/usr/lib/$PACKAGE-$VERSION/components/$file &&
 			ln -sf ../../mozilla-common-$VERSION/components/$file \
 				$fs/usr/lib/$PACKAGE-$VERSION/components/$file
-			status
 		done
 		# chrome.manifest
-		printf "Installing common chrome.manifest"
 		rm -f $fs/usr/lib/$PACKAGE-$VERSION/chrome.manifest &&
 		ln -sf ../mozilla-common-$VERSION/chrome.manifest \
 			$fs/usr/lib/$PACKAGE-$VERSION/chrome.manifest
-		status
 
 		# run-mozilla.sh
-		printf "Installing common run-mozilla.sh"
 		rm -f $fs/usr/lib/$PACKAGE-$VERSION/run-mozilla.sh &&
 		ln -sf ../mozilla-common-$VERSION/run-mozilla.sh \
 			$fs/usr/lib/$PACKAGE-$VERSION/run-mozilla.sh
-		status
 
 		# libmozalloc.so
-		printf "Installing common libmozalloc.so"
 		rm -f $fs/usr/lib/$PACKAGE-$VERSION/libmozalloc.so &&
 		ln -sf ../mozilla-common-$VERSION/libmozalloc.so \
 			$fs/usr/lib/$PACKAGE-$VERSION/libmozalloc.so
-		status
 
 		chown -R root.root $fs
 		;;
@@ -141,13 +121,10 @@ genpkg_rules()
 		DEPENDS="alsa-lib sqlite3 cairo dbus-glib pango atk \
 			glib xorg-libXt xorg-libXinerama \
 			xorg-libXcursor xorg-libXcomposite xorg-libXext \
-			xorg-libXdamage xorg-libxcb xorg-libSM xorg-libICE pkg-config"
-		printf "Installing include files.."
+			xorg-libXdamage xorg-libxcb xorg-libSM xorg-libICE"
 		mkdir -p $fs/usr/include/$WANTED-$VERSION &&
 		cp -rL $src/obj-firefox/dist/include/* $fs/usr/include/$WANTED-$VERSION
-		status
 
-		printf "Installing libs files.."
 		mkdir -p $fs/usr/lib/$WANTED-devel/sdk/bin/ply &&
 		cp -rL $src/obj-firefox/dist/sdk/bin/*.py \
 			$fs/usr/lib/$WANTED-devel/sdk/bin &&
@@ -156,26 +133,19 @@ genpkg_rules()
 		mkdir -p $fs/usr/lib/$WANTED-devel/sdk/lib &&
 		cp -rL $src/obj-firefox/dist/sdk/lib/* \
 			$fs/usr/lib/$WANTED-devel/sdk/lib
-		status
 
-#		printf "Installing npapi files.."
 #		mkdir -v $fs/usr/include/$WANTED-$VERSION/npapi &&
 #		cp -a $src/dom/plugins/base/*.h $fs/usr/include/$WANTED-$VERSION/npapi
-#		status
 
 		# /usr/share/idl folder should also be in firefox-dev
-		printf "Installing idl files.."
 		mkdir -p $fs/usr/share/$WANTED-$VERSION/idl &&
 		cp -rL $src/obj-firefox/dist/idl/* $fs/usr/share/$WANTED-$VERSION/idl
-		status
 
 		# copy missing *.pc files
-		printf "Installing pkgconfig files.."
 		mkdir -p $fs/usr/lib/pkgconfig &&
 		cp -a $stuff/*.pc $fs/usr/lib/pkgconfig &&
 		# fix version
 		sed -i "s/VERSION/$VERSION/" $fs/usr/lib/pkgconfig/*
-		status
 		;;
 	libfirefox)
 		CAT="network|firefox/thunderbird common files"
@@ -183,51 +153,37 @@ genpkg_rules()
 			xorg-libXdamage alsa-lib xorg-libXt"
 		# dictionaries/en-US.aff
 		# dictionaries/en-US.dic
-		printf "Installing dictionaries"
 		mkdir -p $fs/usr/lib/mozilla-common-$VERSION/dictionaries
 #		cp -a $install/usr/lib/firefox-$VERSION/dictionaries \
 #			$fs/usr/lib/mozilla-common-$VERSION
-		status
 
 		# plugin-container
-		printf "Installing common plugin-container"
 		cp -a $install/usr/lib/firefox-$VERSION/plugin-container \
 			$fs/usr/lib/mozilla-common-$VERSION
-		status
 
 		# mozilla-xremote-client
-		printf "Installing common mozilla-xremote-client"
 		cp -a $install/usr/lib/firefox-$VERSION/mozilla-xremote-client \
 			$fs/usr/lib/mozilla-common-$VERSION
-		status
 
 		# components/libdbusservice.so
 		# components/libmozgnome.so
 		mkdir -p $fs/usr/lib/mozilla-common-$VERSION/components
 		for file in libdbusservice.so libmozgnome.so; do
-			printf "Installing common components/$file"
 			cp -a $install/usr/lib/firefox-$VERSION/components/$file \
 			$fs/usr/lib/mozilla-common-$VERSION/components
-			status
 		done
 
 		# chrome.manifest
-		printf "Installing common chrome.manifest"
 		cp -a $install/usr/lib/firefox-$VERSION/chrome.manifest \
 			$fs/usr/lib/mozilla-common-$VERSION
-		status
 
 		# run-mozilla.sh
-		printf "Installing common run-mozilla.sh"
 		cp -a $install/usr/lib/firefox-$VERSION/run-mozilla.sh \
 			$fs/usr/lib/mozilla-common-$VERSION
-		status
 
 		# libmozalloc.so
-		printf "Installing common libmozalloc.so"
 		cp -a $install/usr/lib/firefox-$VERSION/libmozalloc.so \
 			$fs/usr/lib/mozilla-common-$VERSION
-		status
 		;;
 	esac
 }

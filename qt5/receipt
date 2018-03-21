@@ -63,12 +63,21 @@ compile_rules() {
 	echo "INCLUDEPATH += /usr/include/openssl-1.0" >> qtbase/src/network/network.pro
 	export OPENSSL_LIBS='-L/usr/lib/openssl-1.0 -lssl -lcrypto'
 
-	[ -s $SOURCES_REPOSITORY/$PATCH ] || \
-		wget -O $SOURCES_REPOSITORY/$PATCH ${PATCH_URL}$PATCH
+	[ -s $SRC/$PATCH ] || wget -O $SRC/$PATCH $PATCH_URL$PATCH
 	cd $src/qtdeclarative
-	cp $SOURCES_REPOSITORY/$PATCH ./$PATCH
+	cp $SRC/$PATCH ./$PATCH
 	patch -p1 -i $PATCH
 	cd ..
+
+	# Build qmake (and all following things with it) using existing CFLAGS and LDFLAGS
+	sed -i -e "s|^\(QMAKE_CFLAGS_RELEASE.*\)|\1 $CFLAGS -DQT_MATH_H_DEFINES_MACROS=1|" \
+		qtbase/mkspecs/common/gcc-base.conf
+	sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 $LDFLAGS|" \
+		qtbase/mkspecs/common/g++-unix.conf
+
+	# Fix missing private includes https://bugreports.qt.io/browse/QTBUG-37417
+	sed -e '/CMAKE_NO_PRIVATE_INCLUDES\ \=\ true/d' -i \
+		qtbase/mkspecs/features/create_cmake.prf
 
 	./configure \
 		-prefix $QT5PREFIX \

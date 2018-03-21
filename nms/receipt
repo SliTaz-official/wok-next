@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nms"
 VERSION="10122016"
 CATEGORY="utilities"
-SHORT_DESC="Decrypting effects for text."
+SHORT_DESC="Decrypting effects for text"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/bartobri/no-more-secrets"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/bartobri/no-more-secrets"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="git bzip2 ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
 	make prefix=/usr DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }
-

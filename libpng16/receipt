@@ -17,11 +17,9 @@ SPLIT="libpng16-dev"
 
 compile_rules() {
 	LIBS=-lpthread \
-	./configure $CONFIGURE_ARGS && make && make install &&
+	./configure $CONFIGURE_ARGS && make && make install || return 1
 
-	docdir=$install/usr/share/doc/libpng-$VERSION &&
-	mkdir -p $docdir &&
-	cp -v README libpng-manual.txt $docdir
+	cook_pick_docs README libpng-manual.txt
 
 	# Misc png tools
 	cd contrib/pngminus
@@ -37,7 +35,7 @@ genpkg_rules() {
 			;;
 		libpng16-dev)
 			copy @dev
-			DEPENDS="zlib-dev pkg-config"
+			DEPENDS="zlib-dev"
 			;;
 	esac
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="neonview"
 VERSION="0.8.1"
@@ -7,20 +7,18 @@ SHORT_DESC="Free, lightweight image viewer"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.tuxarena.com/neonview/"
+
 TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="http://www.tuxarena.com/$PACKAGE/files/$TARBALL"
 
-DEPENDS="gtk+3"
 BUILD_DEPENDS="gtk+3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
+	install -Dm755 $src/neonview $install/usr/bin/neonview
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	install -Dm755 $src/neonview $fs/usr/bin/neonview
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+3"
 }

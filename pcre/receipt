@@ -7,6 +7,7 @@ SHORT_DESC="Perl 5 Compatible Regular Expression"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.pcre.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pcre.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
@@ -15,7 +16,6 @@ BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev valgrind-dev"
 SPLIT="pcre-apps pcre-dev"
 
 compile_rules() {
-	# http://www.linuxfromscratch.org/blfs/view/stable/general/pcre.html
 	./configure \
 		--docdir=/usr/share/doc/pcre-$VERSION \
 		--enable-unicode-properties \
@@ -28,10 +28,10 @@ compile_rules() {
 		--enable-jit \
 		--enable-valgrind \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make && make install || return 1
 
-	mkdir -p $install/lib &&
-	mv -v $install/usr/lib/libpcre.so.* $install/lib &&
+	mkdir -p $install/lib
+	mv -v $install/usr/lib/libpcre.so.* $install/lib
 	ln -sfv ../../lib/$(readlink $install/usr/lib/libpcre.so) \
 		$install/usr/lib/libpcre.so
 }

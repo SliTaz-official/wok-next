@@ -11,7 +11,7 @@ TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.iced-tea.org/"
 WGET_URL="http://icedtea.wildebeest.org/download/source/$TARBALL"
 
-BUILD_DEPENDS="gcc+gcj autoconf automake m4 diffutils gawk cups-dev wget cpio \
+BUILD_DEPENDS="gcc+gcj autoconf automake m4 diffutils gawk cups-dev cpio \
 coreutils-file-special coreutils-file-summarize alsa-lib-dev file patch perl \
 zip unzip findutils  bzip2 tar glib-dev fastjar rhino ecj apache-ant jpeg-dev \
 xalan-xerces-j gtk+-dev giflib-dev libpng16-dev xorg-dev xorg-libXtst-dev \
@@ -53,21 +53,21 @@ compile_rules()
 	REPO=http://icedtea.classpath.org/download/drops
 	if [ -x /usr/bin/cook ]; then
 		for i in jdk6-jaxws jdk6-jaxp jdk6-jaf; do
-			[ -s $SOURCES_REPOSITORY/$i-$openjdk_version.zip ] ||
-			     wget -P $SOURCES_REPOSITORY $REPO/$i-$openjdk_version.zip
-			cp $SOURCES_REPOSITORY/$i-$openjdk_version.zip drops || return 1
+			[ -s $SRC/$i-$openjdk_version.zip ] ||
+			     wget -P $SRC $REPO/$i-$openjdk_version.zip
+			cp $SRC/$i-$openjdk_version.zip drops || return 1
 		done
 		# openjdk-6-src is in BUILD_DEPENDS and must be build like jdk6-* pkgs.
-		[ -s $SOURCES_REPOSITORY/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz ] ||
-		    wget -P $SOURCES_REPOSITORY $REPO/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz
-		cp $SOURCES_REPOSITORY/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz .
+		[ -s $SRC/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz ] ||
+		    wget -P $SRC $REPO/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz
+		cp $SRC/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz .
 	else
 		report open-bloc
 		for i in jdk6-jaxws jdk6-jaxp jdk6-jaf openjdk-6-src; do
 			tazwok get-src $i
-			cp $SOURCES_REPOSITORY/$i-$openjdk_version.zip drops
+			cp $SRC/$i-$openjdk_version.zip drops
 		done
-		cp $SOURCES_REPOSITORY/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz .
+		cp $SRC/openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz .
 		report step "Running compilation"
 	fi
 

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ola"
-VERSION="0.9.8"
+VERSION="0.10.6"
 CATEGORY="network"
 SHORT_DESC="Open Lighting Architecture"
 MAINTAINER="kult-ex@aon.at"
@@ -26,17 +26,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		ola)
-			mkdir -p $fs/usr/lib/olad
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/share $fs/usr
+			copy @std
 			DEPENDS="libftdi liblo libmicrohttpd ncurses protobuf"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			DEPENDS="ola protobuf-dev"
 			;;
 	esac

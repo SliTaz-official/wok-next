@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="notify-python"
 VERSION="0.1.1"
@@ -6,29 +6,21 @@ CATEGORY="system-tools"
 SHORT_DESC="Python binding to libnotify"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.galago-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.galago-project.org/files/releases/source/notify-python/$TARBALL"
-TAGS="python"
 
-DEPENDS="python libnotify"
-BUILD_DEPENDS="python-dev libnotify-dev pygtk pygtk-dev"
+BUILD_DEPENDS="python-dev libnotify-dev pygtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/, attach//;s/ attach[^;]*//;/GtkWidget .attach/d' src/pynotify.c
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+
+	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python libnotify"
+	TAGS="python"
 }

@@ -12,33 +12,30 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/nzbget/nzbget-stable/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="libxml2-dev openssl-dev ncurses-dev zlib-dev"
-SPLIT="nzbget-webui"
+SPLIT="nzbget-webui nzbget"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--disable-parcheck \
 		$CONFIGURE_ARGS &&
 	make &&
-	make -j 1 DESTDIR=$DESTDIR install
+	make -j1 DESTDIR=$DESTDIR install || return 1
+
+	mkdir -p $install/etc/
+	mv $install/usr/share/nzbget/nzbget.conf $install/etc/
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		nzbget)
-			mkdir -p $fs/usr/share/nzbget $fs/etc
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/share/nzbget/nzbget.conf $fs/etc
-			cp -a $install/usr/share/nzbget/scripts $fs/usr/share/nbzget
-			DEPENDS="libxml2 openssl ncurses gcc-lib-base"
-			CONFIG_FILES="/etc/nzbget.conf"
-			;;
 		nzbget-webui)
-			mkdir -p $fs/usr/share/nzbget
-			cp -a $install/usr/share/nzbget/webui $fs/usr/share/nbzget
+			copy usr/share/nzbget/webui/
 			CAT="network|web user interface"
 			DEPENDS="nzbget"
+			;;
+		nzbget)
+			copy @std @rm
+			DEPENDS="libxml2 openssl ncurses gcc-lib-base"
+			CONFIG_FILES="/etc/nzbget.conf"
 			;;
 	esac
 }

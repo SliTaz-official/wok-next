@@ -11,16 +11,13 @@ EXTRA_SOURCE_FILES="FASMARM_small.ZIP"
 WEB_SITE="http://flatassembler.net/"
 WGET_URL="$WEB_SITE$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
-
 # Rules to configure and make the package.
 compile_rules()
 {
-	[ -s $SOURCES_REPOSITORY/FASMARM_small.ZIP ] ||
-		wget -P $SOURCES_REPOSITORY \
+	[ -s $SRC/FASMARM_small.ZIP ] ||
+		wget -P $SRC \
 		http://arm.flatassembler.net/FASMARM_small.ZIP
-	unzip $SOURCES_REPOSITORY/FASMARM_small.ZIP
+	unzip $SRC/FASMARM_small.ZIP
 	mv ReadMe.txt fasmarm.txt
 	sed 's/^character.*/&\npreprocessing_done db ?/' \
 		< $src/SOURCE/LINUX/FASMARM.ASM > $src/source/Linux/fasmarm.asm

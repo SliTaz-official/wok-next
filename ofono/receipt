@@ -11,36 +11,25 @@ WEB_SITE="http://ofono.org"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://linux-kernel.uio.no/pub/linux/network/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="dbus-dev udev-dev glib-dev bluez-dev \
+BUILD_DEPENDS="dbus-dev eudev-dev glib-dev bluez-dev \
 mobile-broadband-provider-info-dev"
 SPLIT="ofono-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make && make DESTDIR=$DESTDIR install || return 1
+
+	cp -a $stuff/etc/* $install/etc/
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		ofono)
-			# sysconfdir
-			mkdir -p $fs/etc
-			cp -a $install/etc/* $fs/etc
-			cp -a $stuff/etc/* $fs/etc
-			# sbin
-			mkdir -p $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			DEPENDS="dbus glib udev bluez"
+			copy @std
+			DEPENDS="dbus glib eudev bluez"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

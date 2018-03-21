@@ -11,16 +11,14 @@ TARBALL="$PACKAGE-$VERSION.zip"
 URL="$WEB_SITE/archives/$TARBALL"
 
 DEPENDS="php-gd"
-BUILD_DEPENDS=""
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	[ -s "$SOURCES_REPOSITORY/$TARBALL" ] ||
-		wget -O "$SOURCES_REPOSITORY/$TARBALL" $URL
-	mkdir -p $DESTDIR/var/www 2> /dev/null
+	[ -s "$SRC/$TARBALL" ] || wget -O "$SRC/$TARBALL" $URL
+	mkdir -p $DESTDIR/var/www 2>/dev/null
 	cd $DESTDIR/var/www
-	unzip "$SOURCES_REPOSITORY/$TARBALL"
+	unzip "$SRC/$TARBALL"
 	chown -R 80.80 $DESTDIR/var/www/blogotext
 }
 

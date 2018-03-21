@@ -20,8 +20,8 @@ compile_rules() {
 	for i in $PATCH1 $PATCH2 ; do
 		[ -s $SRC/$(basename $i) ] || wget -P $SRC $i
 	done
-	cd .. ; tar xzf $SOURCES_REPOSITORY/$(basename $PATCH1) ; cd $src
-	#patch -p0 < $SOURCES_REPOSITORY/$(basename $PATCH2)
+	cd .. ; tar xzf $SRC/$(basename $PATCH1) ; cd $src
+	#patch -p0 < $SRC/$(basename $PATCH2)
 	sed -i 's/.*stdio.*/&\n#include <stdlib.h>/' xcmap.c bggen.c
 	sed -i 's/ gets *(\(.*\))/ fgets(\1,sizeof(\1)-1,stdin)/' vdcomp.c
 	sed -i 's/mktemp/mkstemp/' *.c

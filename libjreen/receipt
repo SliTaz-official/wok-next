@@ -6,39 +6,32 @@ CATEGORY="misc"
 SHORT_DESC="Qt jabber library, written in C++"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://qutim.org/jreen"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://qutim.org/dwnl/44/$TARBALL"
 
 BUILD_DEPENDS="Qt4-dev qca-dev libidn-dev cmake qmake zlib-dev"
 SPLIT="libjreen libjreen-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i	-e 's/ moc_options /&moc_target /' \
 		-e 's/\(QT4_CREATE_MOC_COMMAND.*\))/\1 "${moc_target}")/' \
 			cmake/jreenMacros.cmake
-	mkdir build && cd build
+	mkdir build
+	cd    build
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libjreen)
-		DEPENDS="libQtNetwork libQtCore qca libidn"
-		mkdir -p $fs/usr/
-		cp -a $install/usr/lib $fs/usr
-		;;
-	libjreen-dev)
-		CAT="development|Qt jabber library, written in C++"
-		DEPENDS="libjreen pkg-config"
-		mkdir -p $fs/usr/share $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libjreen)
+			copy @std
+			DEPENDS="libQtNetwork libQtCore qca libidn"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

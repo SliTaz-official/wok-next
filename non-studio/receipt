@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="non-studio"
 GITHASH="de7c7ae0b8ae33e06c9ebf31bcc4a97dfa614532"
@@ -7,34 +7,23 @@ CATEGORY="multimedia"
 SHORT_DESC="Complete studio, powerful, fast and light"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://non.tuxfamily.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://git.tuxfamily.org/non/non/?p=non/non.git;a=snapshot;h=$GITHASH;sf=tgz"
 
-DEPENDS="ntk libsndfile libsigc++ liblrdf liblo jack \
-ladspa"
-BUILD_DEPENDS="ntk-dev libsndfile-dev libsigc++-dev liblrdf-dev liblo-dev \
+BUILD_DEPENDS_arm="ntk-dev libsndfile-dev libsigc++-dev liblrdf-dev liblo-dev \
 jack-dev ladspa-dev"
+BUILD_DEPENDS="ntk-dev libsndfile-dev libsigc++-dev liblrdf-dev liblo-dev \
+jack-dev ladspa-dev git python"
 
-# Handle cross compilation
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS git python"
-esac
-
-# Rules to configure and make the package. --project=mixer
-compile_rules()
-{
+compile_rules() {
 	./waf configure --prefix=/usr &&
 	./waf build &&
-	./waf install --destdir=${DESTDIR}
+	./waf install --destdir=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/icons/hicolor
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/non-* $fs/usr/share
-	cp -a $install/usr/share/icons/hicolor/32x32 \
-		$fs/usr/share/icons/hicolor
+genpkg_rules() {
+	copy @std
+	DEPENDS="ntk libsndfile libsigc++ liblrdf liblo jack ladspa"
 }

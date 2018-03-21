@@ -1,22 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nabi"
 VERSION="0.99.4"
 CATEGORY="misc"
-SHORT_DESC="powerful GNU XIM, made for entering Hangul"
+SHORT_DESC="Powerful GNU XIM, made for entering Hangul"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://nabi.kldp.net"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://kldp.net/frs/download.php/5287/$TARBALL"
 
-DEPENDS="libhangul gtk+ cairo xorg-libSM xorg-libICE"
 BUILD_DEPENDS="libhangul libhangul-dev gtk+-dev cairo-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
@@ -25,11 +22,7 @@ compile_rules()
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libhangul gtk+ cairo xorg-libSM xorg-libICE"
 }
-

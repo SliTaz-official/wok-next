@@ -1,31 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ncmpc"
 VERSION="0.21"
 CATEGORY="multimedia"
-SHORT_DESC="A ncurses MPD client."
+SHORT_DESC="A ncurses MPD client"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.musicpd.org/clients/ncmpc/"
-WGET_URL="http://www.musicpd.org/download/ncmpc/0/$TARBALL"
-TAGS="music player"
 
-DEPENDS="mpd glib ncurses libmpdclient"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://www.musicpd.org/download/ncmpc/0/$TARBALL"
+
 BUILD_DEPENDS="glib-dev ncurses-dev libmpdclient-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/ncmpc
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="mpd glib ncurses libmpdclient"
+	TAGS="music player"
 }
-

@@ -1,44 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="obmenu"
 VERSION="1.0"
 CATEGORY="x-window"
-SHORT_DESC="Openbox menu editor."
+SHORT_DESC="Openbox menu editor"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://obmenu.sourceforge.net/index.html"
-WGET_URL="http://downloads.sourceforge.net/obmenu/$TARBALL"
-TAGS="openbox"
 
-DEPENDS="python pycairo pygobject pygtk libffi"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://downloads.sourceforge.net/obmenu/$TARBALL"
+
 BUILD_DEPENDS="python python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
+compile_rules() {
+	python setup.py build &&
 	python setup.py install --root=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps
-	cp -a $install/usr $fs
-	cp $install/usr/share/obmenu/mnu48.png $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="python pycairo pygobject pygtk libffi"
+	TAGS="openbox"
 }
 
-post_install()
-{
-	echo -n "Enabling configuration file..."
+post_install() {
+	# Enabling configuration file
 	cp "$1/home/tux/.config/openbox/menu.xml" "$1/root/.config/openbox"
-	status
 }
 
-post_remove()
-{
-	echo -n "Removing configuration files..."
+post_remove() {
+	# Removing configuration file
 	rm "$1/root/.config/openbox/menu.xml"
-	status
 }

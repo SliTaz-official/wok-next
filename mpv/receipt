@@ -14,15 +14,15 @@ EXTRA_SOURCE_FILES="$WAFTOOL"
 
 DEPENDS="xorg-server xorg-libXv xorg-libXinerama xorg-libXScrnSaver util-linux-uuid \
 alsa-lib enca fribidi libass lua ffmpeg"
-BUILD_DEPENDS="wget xorg-dev xorg-libXv-dev xorg-libXScrnSaver-dev lua-dev ffmpeg-dev \
+BUILD_DEPENDS="xorg-dev xorg-libXv-dev xorg-libXScrnSaver-dev lua-dev ffmpeg-dev \
 enca-dev fribidi-dev libass-dev alsa-lib-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	[ -s $SOURCES_REPOSITORY/$WAFTOOL ] || wget -P $SOURCES_REPOSITORY \
+	[ -s $SRC/$WAFTOOL ] || wget -P $SRC \
 		http://www.freehackers.org/~tnagy/release/$WAFTOOL
-	install -m 755 $SOURCES_REPOSITORY/$WAFTOOL waf
+	install -m 755 $SRC/$WAFTOOL waf
 	./bootstrap.py
 	./waf configure \
 		--prefix=/usr \

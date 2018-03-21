@@ -1,43 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nagios-nsca"
 VERSION="2.9.1"
 CATEGORY="network"
-SHORT_DESC="Service and network monitoring program, remote monitoring."
+SHORT_DESC="Service and network monitoring program, remote monitoring"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-SOURCE="nsca"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.nagios.org/"
+
+TARBALL="nsca-$VERSION.tar.gz"
 #WGET_URL="$SF_MIRROR/nagios/$TARBALL"
 WGET_URL="http://prdownloads.sourceforge.net/sourceforge/nagios/$TARBALL"
 
 BUILD_DEPENDS="libmcrypt-dev perl libwrap-dev"
-DEPENDS="libmcrypt"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--localstatedir=/var --datadir=/usr/share/nagios \
-	--sysconfdir=/etc/nagios --sbindir=/usr/sbin \
-	--bindir=/usr/sbin --libexecdir=/usr/lib/nagios \
-	--with-nsca-user=nagios \
-	--with-nsca-group=nagios \
-	--with-nsca-port=5667 \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make all 
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--datadir=/usr/share/nagios \
+		--sysconfdir=/etc/nagios \
+		--sbindir=/usr/sbin \
+		--bindir=/usr/sbin \
+		--libexecdir=/usr/lib/nagios \
+		--with-nsca-user=nagios \
+		--with-nsca-group=nagios \
+		--with-nsca-port=5667 \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make all || return 1
+
+	mkdir -p \
+		$install/usr/sbin/ \
+		$install/etc/nagios/
+	cp -a $src/src/nsca      $install/usr/sbin/
+	cp -a $src/src/send_nsca $install/usr/sbin/
+
+	install -m644 $src/sample-config/nsca.cfg      $install/etc/nagios/
+	install -m644 $src/sample-config/send_nsca.cfg $install/etc/nagios/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin \
-		$fs/etc/nagios
-	cp -a $src/src/nsca $fs/usr/sbin
-	cp -a $src/src/send_nsca $fs/usr/sbin
-	
-	install -m 0644 $src/sample-config/nsca.cfg $fs/etc/nagios
-	install -m 0644 $src/sample-config/send_nsca.cfg $fs/etc/nagios
+genpkg_rules() {
+	copy @std
+	DEPENDS="libmcrypt"
 }

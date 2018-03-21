@@ -7,6 +7,7 @@ SHORT_DESC="Mozilla Network Security Services (NSS)"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="MPL"
 WEB_SITE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/nss.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.mozilla.org/pub/security/nss/releases/NSS_${VERSION//./_}_RTM/src/${TARBALL}"
@@ -14,10 +15,12 @@ WGET_URL="http://ftp.mozilla.org/pub/security/nss/releases/NSS_${VERSION//./_}_R
 BUILD_DEPENDS="nspr-dev sqlite3-dev zlib-dev perl"
 SPLIT="nss-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/nss.html
+compile_rules() {
+	case $ARCH in
+		x86_64) ARCH_ARGS='USE_64=1';;
+		*)      ARCH_ARGS='';;
+	esac
+
 	cd nss &&
 	make \
 		-j1 \
@@ -25,35 +28,33 @@ compile_rules()
 		NSPR_INCLUDE_DIR=/usr/include/nspr \
 		USE_SYSTEM_ZLIB=1 \
 		ZLIB_LIBS=-lz \
-		$([ $(uname -m) == x86_64 ] && echo USE_64=1) \
-		$([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1) &&
+		$ARCH_ARGS \
+		$([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1) || return 1
 
 	mkdir -p \
 		$install/usr/lib \
 		$install/usr/include/nss \
 		$install/usr/bin \
 		$install/usr/lib/pkgconfig \
-		$install/usr/include/nss &&
-	cd ../dist &&
+		$install/usr/include/nss
+	cd ../dist
 
-	install -vm755 Linux*/lib/*.so             $install/usr/lib &&
-	install -vm644 Linux*/lib/*.chk            $install/usr/lib &&
-	install -vm644 Linux*/lib/libcrmf.a        $install/usr/lib &&
+	install -vm755 Linux*/lib/*.so             $install/usr/lib/
+	install -vm644 Linux*/lib/*.chk            $install/usr/lib/
+	install -vm644 Linux*/lib/libcrmf.a        $install/usr/lib/
 
-	cp -vRL public/nss/*                       $install/usr/include/nss &&
-	cp -vRL private/nss/*                      $install/usr/include/nss &&
-	chmod -v 644                               $install/usr/include/nss/* &&
+	cp -vRL public/nss/*                       $install/usr/include/nss/
+	cp -vRL private/nss/*                      $install/usr/include/nss/
+	chmod -v 644                               $install/usr/include/nss/*
 
-	install -vm755 Linux*/bin/certutil         $install/usr/bin &&
-	install -vm755 Linux*/bin/nss-config       $install/usr/bin &&
-	install -vm755 Linux*/bin/pk12util         $install/usr/bin &&
+	install -vm755 Linux*/bin/certutil         $install/usr/bin/
+	install -vm755 Linux*/bin/nss-config       $install/usr/bin/
+	install -vm755 Linux*/bin/pk12util         $install/usr/bin/
 
-	install -vm644 Linux*/lib/pkgconfig/nss.pc $install/usr/lib/pkgconfig
+	install -vm644 Linux*/lib/pkgconfig/nss.pc $install/usr/lib/pkgconfig/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		nss)
 			copy @std

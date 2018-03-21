@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="o3read"
 VERSION="0.0.4"
@@ -6,24 +6,17 @@ CATEGORY="utilities"
 SHORT_DESC="Standalone converter for OpenOffice.org writer and calc formats"
 MAINTAINER="milka@konstelacioj.info"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://siag.nu/o3read/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://siag.nu/pub/o3read/$PACKAGE-$VERSION.tar.gz"
-TAGS="office"
 
-DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/man/|/share&|' Makefile
 	make install PREFIX=$DESTDIR/usr
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	TAGS="office"
 }
-

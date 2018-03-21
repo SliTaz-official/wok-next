@@ -11,18 +11,12 @@ WEB_SITE="http://gobby.0x539.de/trac/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://releases.0x539.de/obby/$TARBALL"
 
-BUILD_DEPENDS="$DEPENDS gnutls-dev libgpg-error-dev libgcrypt-dev net6-dev \
-libsigc++-dev"
+BUILD_DEPENDS="zlib libtasn1 gnutls-dev libgpg-error-dev libgcrypt-dev \
+net6-dev libsigc++-dev"
 SPLIT="obby-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

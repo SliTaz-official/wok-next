@@ -1,25 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gparted"
-VERSION="0.28.1"
+VERSION="0.31.0"
 CATEGORY="system-tools"
 SHORT_DESC="A partition editor to graphically manage disk partitions"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://gparted.sourceforge.net/"
-CROSS="error: cannot run test program while cross compiling"
+WEB_SITE="https://gparted.sourceforge.io/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/xsoft/gparted.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev libsigc++-dev glibmm-dev gtkmm-dev parted-dev \
-cairomm-dev pangomm-dev libgiomm-dev intltool util-linux-uuid-dev"
+cairomm-dev pangomm-dev glibmm-dev intltool util-linux-uuid-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/xsoft/gparted.html
+CROSS="error: cannot run test program while cross compiling"
 
+compile_rules() {
 	# Remove the "-v" option from the swapon/off commands.
 	# This will allow gparted to play nicely with busybox.
 	sed -i 's/swapoff -v/swapoff/; s/swapon -v/swapon/' src/Win_GParted.cc
@@ -29,17 +27,13 @@ compile_rules()
 	sed -i '/^_Keywords=/d; s|@gksuprog@|tazbox su|' gparted.desktop.in.in
 
 	./configure \
-		--prefix=/usr \
 		--disable-scrollkeeper \
 		--disable-doc \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM &&
+		$CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy gparted gpartedbin
 	DEPENDS="atk atkmm cairo cairomm fontconfig freetype gdk-pixbuf glib \
 	glibmm gtk+ gtkmm libgiomm libsigc++ pango pangomm parted util-linux-uuid"

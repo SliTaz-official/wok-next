@@ -1,4 +1,4 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="notecase"
 VERSION="1.9.8"
@@ -6,29 +6,26 @@ CATEGORY="office"
 SHORT_DESC="A hierarchical text notes manager"
 MAINTAINER="cooltaz@fastmail.fm"
 LICENSE="BSD"
-TARBALL="$PACKAGE-${VERSION}_src.tar.gz"
 WEB_SITE="http://notecase.sourceforge.net/"
+
+TARBALL="$PACKAGE-${VERSION}_src.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="office notes"
 
-DEPENDS="gnome-vfs gtksourceview"
-BUILD_DEPENDS="gtk+-dev xorg-pixman-dev gtksourceview-dev gnome-vfs-dev GConf-dev \
-pkg-config gettext-tools"
+BUILD_DEPENDS="gtk+-dev xorg-pixman-dev gtksourceview-dev gnome-vfs-dev \
+GConf-dev gettext-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
 	busybox patch -p1 -i $stuff/notecase-1.9.8_gcc4.u || return 1
-	
+
 	sed -i s/'install -D'/'install'/ Makefile
 	sed -i 's/^DEBSIZE:=.*/DEBSIZE:=0/' Makefile*
+
 	# Compile
 	make CFLAGS="$(pkg-config gnome-vfs-2.0 --cflags)"
 	# Locale trick (Makefile use install -D)
 	cd po
-	for i in `ls *.po | cut -f1 -d.`
-	do
+	for i in $(ls *.po | cut -f1 -d.); do
 		mkdir -p $install/usr/share/locale/$i/LC_MESSAGES
 	done
 	cd ..
@@ -36,12 +33,8 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/applications
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $stuff/notecase.desktop $fs/usr/share/applications
+genpkg_rules() {
+	copy @std
+	DEPENDS="gnome-vfs gtksourceview"
+	TAGS="office notes"
 }
-

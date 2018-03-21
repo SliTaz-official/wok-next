@@ -9,17 +9,15 @@ LICENSE="MIT"
 WEB_SITE="https://gist.github.com/jirutka/3742890"
 EXTRA_SOURCE_FILES="rules-both.iptables rules-ipv4.iptables rules-ipv6.ip6tables"
 
-BUILD_DEPENDS="wget"
-
 # Rules to configure and make the package.
 compile_rules()
 {
 	mkdir -p $install/usr/share/iptables
 	while read dir file ; do
-		[ -s "$SOURCES_REPOSITORY/$file" ] ||
-			wget --no-check-certificate -P $SOURCES_REPOSITORY \
+		[ -s "$SRC/$file" ] ||
+			wget --no-check-certificate -P $SRC \
 				$WEB_SITE/raw/$dir/$file
-		cp $SOURCES_REPOSITORY/$file $install/usr/share/iptables/
+		cp $SRC/$file $install/usr/share/iptables/
 	done <<EOT
 c025b0b8c58af49aa9644982c459314c9adba157 rules-both.iptables
 622104b0e46e0e7134a69bb7ce24850943b8d2a7 rules-ipv4.iptables

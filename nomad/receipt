@@ -1,23 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nomad"
 VERSION="0.1"
 CATEGORY="misc"
-SHORT_DESC="user friendly wifi configure for nomads."
-WEB_SITE="http://doc.slitaz.org/en:guides:wifi-easy"
+SHORT_DESC="User friendly Wi-Fi configure for nomads"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="GPL3"
+WEB_SITE="http://doc.slitaz.org/en:guides:wifi-easy"
 
-DEPENDS="gtkdialog wireless_tools"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin
-	cp -a stuff/nomad $fs/usr/sbin/
-	cp -a stuff/nomadbox $fs/usr/sbin/
-
-	mkdir $fs/etc
-	cp -a stuff/nomad.conf $fs/etc/
+compile_rules() {
+	install -Dm755 $stuff/nomad      $install/usr/sbin/nomad
+	install -Dm755 $stuff/nomadbox   $install/usr/sbin/nomadbox
+	install -Dm644 $stuff/nomad.conf $install/etc/nomad.conf
 }
 
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtkdialog wireless_tools"
+}

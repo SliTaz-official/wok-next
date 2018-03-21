@@ -1,39 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nanoshot"
 VERSION="0.2.15"
 CATEGORY="utilities"
-SHORT_DESC="Take screenshots of screen area, selected windows, web pages and videos"
+SHORT_DESC="Take screenshots of screen area, windows, web pages and videos"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://sourceforge.net/projects/nanoshot/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="xdg-utils python pygobject pygtk pycurl gnome-python-desktop \
-dbus-python python-pil gst0-python"
 BUILD_DEPENDS="xdg-utils python pygobject pygtk pycurl gnome-python-desktop \
 dbus-python python-pil bash sed gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p /usr/share/man
-	cd $src
+
 	./configure $CONFIGURE_ARGS &&
 	sed -i 's/cp -T/cp/g' ./install
 	# fix install paths
 	sed -i "s|\"/usr|\"$install/usr|g" ./install
 
 	./install
+
+	# fix paths
+	sed -i "s|$install||g" $install/usr/bin/Nanoshot
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/icons/{Humanity,Humanity-Dark,ubuntu-mono-dark}
-	rm -rf $fs/usr/man
-	# fix paths
-	sed -i "s|$install||g" $fs/usr/bin/Nanoshot
+genpkg_rules() {
+	copy @std
+	DEPENDS="xdg-utils python pygobject pygtk pycurl gnome-python-desktop \
+	dbus-python python-pil gst0-python"
 }

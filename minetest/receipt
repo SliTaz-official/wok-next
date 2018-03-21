@@ -15,17 +15,17 @@ EXTRA_SOURCE_FILES="$WGET_URL2"
 
 DEPENDS="openssl libpng16 jpeg sqlite3 libvorbis openal glu curl \
 mesa irrlicht"
-BUILD_DEPENDS="wget cmake libpng16-dev jpeg-dev sqlite3-dev libogg-dev \
+BUILD_DEPENDS="cmake libpng16-dev jpeg-dev sqlite3-dev libogg-dev \
 libvorbis-dev openal-dev freetype-dev xorg-libXxf86vm-dev glu-dev \
 curl-dev mesa-dev irrlicht-dev"
 
 # Rules to configure and make the package.
 compile_rules()
 {
-	[ -s "$SOURCES_REPOSITORY/$TARBALL2" ] || wget --no-check-certificate \
-		-O "$SOURCES_REPOSITORY/$TARBALL2" $WGET_URL2
+	[ -s "$SRC/$TARBALL2" ] || wget --no-check-certificate \
+		-O "$SRC/$TARBALL2" $WGET_URL2
 	cd games/
-	tar xf $SOURCES_REPOSITORY/$TARBALL2
+	tar xf $SRC/$TARBALL2
 	cd ..
 	cmake -DCMAKE_INSTALL_PREFIX=/usr . 
 	make &&

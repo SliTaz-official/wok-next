@@ -11,7 +11,7 @@ WEB_SITE="http://www.bluez.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.kernel.org/pub/linux/bluetooth/$TARBALL"
 
-BUILD_DEPENDS="alsa-lib-dev dbus-dev glib-dev libusb-dev pkg-config libusb-compat"
+BUILD_DEPENDS="alsa-lib-dev dbus-dev glib-dev libusb-dev libusb-compat"
 SPLIT="bluez-tools bluez-tools-experimental bluez bluez-dev"
 
 BUILD_DEPENDS="glib-dev dbus-dev eudev-dev libical-dev readline-dev"
@@ -52,14 +52,12 @@ genpkg_rules()
 			CAT="system-tools|tools"
 			;;
 		bluez-tools-experimental)
-			copy bin/
+			copy bin/ @rm
 			rm $fs/usr/bin/bluetoothctl $fs/usr/bin/btmon	# -> main package
-			remove_already_packed
 			CAT="system-tools|experimental tools"
 			;;
 		bluez)
-			copy @std
-			remove_already_packed
+			copy @std @rm
 			TAGS="bluetooth"
 			DEPENDS="dbus eudev glib libical ncurses readline   linux-bluetooth"
 			;;

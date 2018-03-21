@@ -23,11 +23,11 @@ SPLIT="bash-dev"
 
 patch_bash() {
 	for i in $BASHPATCHES; do
-		[ -s "$SOURCES_REPOSITORY/$i" ] ||
-			wget -O "$SOURCES_REPOSITORY/$i" \
+		[ -s "$SRC/$i" ] ||
+			wget -O "$SRC/$i" \
 			http://ftp.gnu.org/gnu/bash/bash-$BASEVERSION-patches/$i
 		echo "Apply $i patch..."
-		patch -p0 -i $SOURCES_REPOSITORY/$i | awk '{print "  * " $0;}'
+		patch -p0 -i $SRC/$i | awk '{print "  * " $0;}'
 	done
 }
 
@@ -78,10 +78,10 @@ EOF
 	chown -R root:root $install
 
 	# Check bash against vulnerabilities
-	[ -s "$SOURCES_REPOSITORY/$BASHCHECK" ] ||
-		wget -O "$SOURCES_REPOSITORY/$BASHCHECK" $BASHCHECKURL
+	[ -s "$SRC/$BASHCHECK" ] ||
+		wget -O "$SRC/$BASHCHECK" $BASHCHECKURL
 	echo
-	$DESTDIR/bin/bash $SOURCES_REPOSITORY/$BASHCHECK $DESTDIR/bin/bash | \
+	$DESTDIR/bin/bash $SRC/$BASHCHECK $DESTDIR/bin/bash | \
 	tee bashcheck.log
 	echo
 	grep Vulnerable bashcheck.log && echo "ERROR: Vulnerable"

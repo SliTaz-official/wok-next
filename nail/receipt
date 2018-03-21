@@ -1,51 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nail"
 VERSION="12.4"
 CATEGORY="network"
-SHORT_DESC="Text mode mail user agent."
+SHORT_DESC="Text mode mail user agent"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="BSD"
-SOURCE="mailx"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://heirloom.sourceforge.net/mailx.html"
-WGET_URL="$SF_MIRROR/heirloom/$TARBALL"
-CONFIG_FILES="/etc/nailrc"
-TAGS="email imap pop3"
 
-DEPENDS="openssl"
+TARBALL="mailx-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/heirloom/$TARBALL"
+
 BUILD_DEPENDS="openssl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/static int smime/#define STACK STACK_OF(X509_NAME)\n&/' openssl.c
 
-	# avoid compiling with kerberos authentification:	
+	# avoid compiling with kerberos authentification:
 	make config.h
 	sed -i -e "/GSSAPI/d" config.h
 	sed -i -e "/gssapi/d" config.h
 	sed -i -e "s/-lgssapi_krb5//g" LIBS
-	
-	make install UCBINSTALL=/usr/bin/install \
-	DESTDIR=$DESTDIR PREFIX=/usr	
+
+	make install UCBINSTALL=/usr/bin/install DESTDIR=$DESTDIR PREFIX=/usr || return 1
+
+	mv $install/usr/bin/mailx $install/usr/bin/nail
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -r $install/usr/bin $fs/usr
-	mv $fs/usr/bin/mailx $fs/usr/bin/nail
-	
-	cp -r $install/etc $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
+	CONFIG_FILES="/etc/nailrc"
+	TAGS="email imap pop3"
 }
 
-# Post install commands for Tazpkg.
 # Check mailx
-post_install()
-{
+post_install() {
 	. "$1/etc/init.d/rc.functions"
 
 	if [ -e "$1/usr/bin/mailx" ]; then
@@ -65,7 +55,7 @@ post_install()
 			echo ""
 		fi
 	else
-		echo -n "linking /usr/bin/mailx to /usr/bin/nail"
+		action "linking /usr/bin/mailx to /usr/bin/nail"
 		ln -s /usr/bin/nail "$1/usr/bin/mailx"
 		status
 	fi

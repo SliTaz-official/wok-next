@@ -1,17 +1,16 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ncmpcpp"
 VERSION="0.5.10"
 CATEGORY="multimedia"
-SHORT_DESC="Ncurses mpd client inspired by ncmpc."
+SHORT_DESC="Ncurses mpd client inspired by ncmpc"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://unkart.ovh.org/ncmpcpp/"
-WGET_URL="http://ncmpcpp.rybczak.net/stable/$TARBALL"
-TAGS="music audio player"
 
-DEPENDS="ncurses taglib mpd curl libmpdclient"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://ncmpcpp.rybczak.net/stable/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev taglib taglib-dev curl-dev libmpdclient-dev"
 
 # Rules to configure and make the package.
@@ -35,24 +34,21 @@ genpkg_rules()
 	cp -a $install/usr/share/doc $fs/usr/share
 	ln $fs/usr/share/doc/ncmpcpp/config $fs/etc/skel/.ncmpcpp
 	ln $fs/usr/share/doc/ncmpcpp/keys $fs/etc/skel/.ncmpcpp
+DEPENDS="ncurses taglib mpd curl libmpdclient"
+TAGS="music audio player"
 }
 
-post_install()
-{
-	for i in $(ls "$1/home" 2> /dev/null); do
+post_install() {
+	for i in $(ls "$1/home" 2>/dev/null); do
 		[ -d "$1/home/$i/.ncmpcpp" ] && continue
-		echo -n "Enabling configuration files for $i ..."
+		# Enabling configuration files for $i...
 		cp -a "$1/etc/skel/.ncmpcpp" "$1/home/$i/"
 		sed -i 's|#mpd_music_dir = ""|mpd_music_dir = "/home/'$i'/music"|' "/home/$i/.ncmpcpp/config"
 		# Change permissions also
 		chroot "$1/" chown -R $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.ncmpcpp"
 	done
-	status
 }
 
-post_remove()
-{
-	echo -n "Removing configuration files..."
+post_remove() {
 	rm -rf /home/*/.ncmpcpp
-	status
 }

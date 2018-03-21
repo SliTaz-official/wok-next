@@ -7,47 +7,46 @@ CATEGORY="system-tools"
 SHORT_DESC="Add Windows network drivers support to Linux kernel."
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-SOURCE="ndiswrapper"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://ndiswrapper.sourceforge.net/joomla/"
-WGET_URL="$SF_MIRROR/$SOURCE/stable/$TARBALL"
-TAGS="windows wireless network"
+
+TARBALL="ndiswrapper-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/ndiswrapper/$TARBALL"
 
 BUILD_DEPENDS="linux-module-headers xz"
 SPLIT="ndiswrapper-driver ndiswrapper-utils ndiswrapper"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make KBUILD=/usr/src/linux KVER=linux-${kvers}-slitaz
 	xz driver/ndiswrapper.ko
+
+	mkdir -p \
+		$install/usr/sbin \
+		$install/sbin \
+		$install/lib/modules/${kvers}-slitaz/kernel/misc
+
+	# Install utilities
+	install -o root -m755 $src/utils/loadndisdriver      $install/sbin/
+	install -o root -m755 $src/utils/ndiswrapper         $install/usr/sbin/
+	install -o root -m755 $src/utils/ndiswrapper-buginfo $install/usr/sbin/
+	install -o root -m644 $src/driver/ndiswrapper.ko.xz \
+		$install/lib/modules/${kvers}-slitaz/kernel/misc/ndiswrapper.ko.xz
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	ndiswrapper-driver)
-		DEPENDS="linux"
-		mkdir -p $fs/usr/sbin $fs/sbin $fs/lib/modules/${kvers}-slitaz/kernel/misc
-
-		# Install utilities
-		install -o root -m 0755 $src/utils/loadndisdriver $fs/sbin/
-		install -o root -m 0644 $src/driver/ndiswrapper.ko.xz \
-			$fs/lib/modules/${kvers}-slitaz/kernel/misc/ndiswrapper.ko.xz
-		;;
-	ndiswrapper-utils)
-		CAT="system-tools|utilities"
-		DEPENDS="ndiswrapper-driver perl"
-		mkdir -p $fs/usr/sbin $fs/sbin 
-		# Install utilities	
-		install -o root -m 755 $src/utils/ndiswrapper $fs/usr/sbin/
-		install -o root -m 755 $src/utils/ndiswrapper-buginfo $fs/usr/sbin/
-		;;
-	ndiswrapper)
-		CATEGORY="meta"
-		DEPENDS="ndiswrapper-driver ndiswrapper-utils wireless_tools"
-		mkdir -p $fs/usr/sbin $fs/sbin 
-		;;
+		ndiswrapper-driver)
+			copy loadndisdriver ndiswrapper.ko.xz
+			DEPENDS="linux"
+			;;
+		ndiswrapper-utils)
+			copy ndiswrapper ndiswrapper-buginfo
+			CAT="system-tools|utilities"
+			DEPENDS="ndiswrapper-driver perl"
+			;;
+		ndiswrapper)
+			CATEGORY="meta"
+			DEPENDS="ndiswrapper-driver ndiswrapper-utils wireless_tools"
+			;;
 	esac
+	TAGS="windows wireless network"
 }

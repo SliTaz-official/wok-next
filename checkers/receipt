@@ -13,8 +13,8 @@ WEB_SITE="http://thierry.franquin.free.fr/jeudame/Dames.htm"
 compile_rules()
 {
 	
-	if [ -f $SOURCES_REPOSITORY/$TARBALL ]; then
-		unlzma -c $SOURCES_REPOSITORY/$TARBALL | tar xf -
+	if [ -f $SRC/$TARBALL ]; then
+		unlzma -c $SRC/$TARBALL | tar xf -
 	else
 		mkdir -p $src/$PACKAGE-$VERSION
 		for i in Dames.htm black.gif gray.gif \
@@ -23,7 +23,7 @@ compile_rules()
 			[ -s $i ] || wget -O $src/$PACKAGE-$VERSION/$i $(dirname $WEB_SITE)/$i
 		done
 		cd $src
-		tar -c * | lzma e $SOURCES_REPOSITORY/$TARBALL -si
+		tar -c * | lzma e $SRC/$TARBALL -si
 		mv $PACKAGE-$VERSION/* .
 		rm -rf $PACKAGE-$VERSION
 	fi

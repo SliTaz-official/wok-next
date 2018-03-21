@@ -3,19 +3,18 @@
 PACKAGE="libmatchbox"
 VERSION="1.12"
 CATEGORY="x-window"
-SHORT_DESC="Matchbox shared library."
+SHORT_DESC="Matchbox shared library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://matchbox-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/libmatchbox/snapshot/$TARBALL"
 
 BUILD_DEPENDS="pango-dev jpeg-dev libxml2-dev automake autoconf libtool"
 SPLIT="libmatchbox-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
 	./configure \
 		--enable-pango \
@@ -24,22 +23,14 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libmatchbox)
-		DEPENDS="pango"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	libmatchbox-dev)
-		CAT="development|Matchbox library devel files."
-		DEPENDS="pkg-config"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
+		libmatchbox)
+			copy @std
+			DEPENDS="pango"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

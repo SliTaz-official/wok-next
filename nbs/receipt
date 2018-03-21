@@ -15,24 +15,15 @@ BUILD_DEPENDS="subversion"
 SPLIT="nbs-dev"
 
 compile_rules() {
-	patch -p0 <  $stuff/Makefile.u &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	ln -s libnbs.so.1.0 $install/usr/lib/libnbs.so.1
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		nbs)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			ln -s libnbs.so.1.0 $fs/usr/lib/libnbs.so.1
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			;;
+		nbs)   copy @std;;
+		*-dev) copy @dev;;
 	esac
 }
