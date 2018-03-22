@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="liblinear"
+VERSION="2.20"
+CATEGORY="development"
+SHORT_DESC="A Library for Large Linear Classification"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://github.com/cjlin1/liblinear/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/liblinear.html"
+
+TARBALL="$PACKAGE-${VERSION//./}.tar.gz"
+WGET_URL="https://github.com/cjlin1/liblinear/archive/v${VERSION//./}/$TARBALL"
+
+SPLIT="liblinear-dev"
+
+compile_rules() {
+	make lib || return 1
+	install -Dm644 linear.h       $install/usr/include/linear.h
+	install -Dm755 liblinear.so.3 $install/usr/lib/liblinear.so.3
+	ln      -sf    liblinear.so.3 $install/usr/lib/liblinear.so
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		liblinear) copy @std;;
+		*-dev)     copy @dev;;
+	esac
+}

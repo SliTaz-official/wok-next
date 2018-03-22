@@ -1,31 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nmap"
-VERSION="6.25"
+VERSION="7.70"
 CATEGORY="security"
 SHORT_DESC="The Network Mapper"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://nmap.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/nmap.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://download.insecure.org/nmap/dist/$TARBALL"
+WGET_URL="https://nmap.org/dist/$TARBALL"
 
 BUILD_DEPENDS="libpcap-dev python-dev openssl-dev pcre-dev"
+BUILD_DEPENDS="python openssl-dev libpcap-dev pcre-dev zlib-dev libssh2-dev \
+liblinear-dev"
 
 compile_rules() {
-	patch -p1 < $stuff/$PACKAGE-$VERSION-nolua.patch
-
 	./configure \
-		--cache-file=$PWD/config.cache \
-		--without-liblua \
+		--with-liblua=included \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install-nmap
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="openssl libpcap pcre gcc-lib-base"
+	DEPENDS="liblinear libpcap libssh2 openssl pcre python zlib"
 	TAGS="network"
 }

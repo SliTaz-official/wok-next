@@ -8,35 +8,34 @@ monitoring"
 MAINTAINER="sdaigl@lacitec.on.ca"
 LICENSE="BSD"
 WEB_SITE="http://www.tcpdump.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/libpcap.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.tcpdump.org/release/$TARBALL"
 
-BUILD_DEPENDS="flex bison libnl-dev"
 BUILD_DEPENDS_arm=" "
+BUILD_DEPENDS="flex bison libnl-dev"
 SPLIT="libpcap-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm)
-		ARCH_ARGS="--with-pcap=linux"
-		export ac_cv_linux_vers=2
-		;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm)
+			ARCH_ARGS="--with-pcap=linux"
+			export ac_cv_linux_vers=2
+			;;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		libpcap) copy @std; DEPENDS="libnl";;
+		libpcap)
+			copy @std
+			DEPENDS="libnl"
+			;;
 		*-dev) copy @dev;;
 	esac
 }

@@ -1,36 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wordwarvi"
 VERSION="1.00"
 CATEGORY="games"
-SHORT_DESC="Retro shoot'em up game."
+SHORT_DESC="Retro shoot'em up game"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://wordwarvi.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="shooting"
 
-DEPENDS="portaudio expat gtk+ libvorbis xorg-libX11 xorg-libXau 
-         xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext
-         xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender
-         xorg-libXdamage"
-BUILD_DEPENDS="libvorbis-dev libogg-dev portaudio portaudio-dev gtk+-dev
-               xorg-libXrender-dev xorg-xproto xorg-renderproto
-               xorg-kbproto xorg-pixman-dev glib-dev"
+BUILD_DEPENDS="libvorbis-dev libogg-dev portaudio portaudio-dev gtk+-dev \
+xorg-libXrender-dev xorg-xproto xorg-renderproto xorg-kbproto xorg-pixman-dev \
+glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	make && make DESTDIR=$DESTDIR install || return 1
+
+	cp -a stuff/* $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/wordwarvi
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/wordwarvi/* $fs/usr/share/wordwarvi
-	cp -a stuff/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="portaudio expat gtk+ libvorbis xorg-libX11 xorg-libXau \
+	xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext \
+	xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender \
+	xorg-libXdamage"
+	TAGS="shooting"
 }

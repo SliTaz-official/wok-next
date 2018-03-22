@@ -1,30 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wmctrl"
 VERSION="c5c5eb8"
 CATEGORY="utilities"
-LICENSE="GPL"
+SHORT_DESC="A UNIX/Linux command line tool to interact with an EWMH/NetWM \
+compatible X Window Manager"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
+LICENSE="GPL"
 WEB_SITE="https://sites.google.com/site/tstyblo/wmctrl/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://git.make-linux.org/tools/$PACKAGE.git/snapshot/$TARBALL"
-SHORT_DESC="A UNIX/Linux command line tool to interact with an EWMH/NetWM compatible X Window Manager."
-DEPENDS="glib"
+
 BUILD_DEPENDS="glib-dev xorg-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure                    \
-		--prefix=/usr          \
-		--mandir=/usr/share/man\
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib"
 }

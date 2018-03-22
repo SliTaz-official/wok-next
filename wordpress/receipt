@@ -1,81 +1,79 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wordpress"
 VERSION="3.4.1"
 CATEGORY="misc"
-SHORT_DESC="Blog Tool and Publishing Platform."
+SHORT_DESC="Blog Tool and Publishing Platform"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-SUGGESTED="apache cherokee"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://wordpress.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
 DEPENDS="php mysql php-mysql"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/var/www/wordpress
 	cp -a $src/* $fs/var/www/wordpress
 	chown -R www.www $fs/var/www/wordpress
+SUGGESTED="apache cherokee"
 }
 
-post_install()
-{
+post_install() {
 	local db=wordpress
 	local db_user=wordpress
 	local db_password=wordpress
-	
+
 	# Minimal config for wordpress.
-	if [ -z "$1" ]; then
-		if ( ! mysqladmin -s ping > /dev/null ); then
-			echo "Starting MySQL server"
-			( /etc/init.d/mysql start ; status  ) || exit 
-			sleep 4 #let the mysql daemon start
-		fi
-		if ( ! mysql -u root -Be 'show databases' | grep -q $db ); then
-			echo -n "Create $db database"
-			mysql -Be "create database $db" ; status
-			# We suppose that $DB_USER user does not exist.
-			# It may be false.
-			echo  -n "Create user $db_user with password $db_password"
-			mysql -Be "grant all privileges on $db.* to '"$db_user"'@'localhost' 
-				identified by '"$db_password"'" ; status
-			# At last create the database for $PACKAGE.
-			echo -n "Create $db database schema."
-			#mysql -u glpi -pglpi -D glpi < /usr/share/glpi/install/mysql/glpi-${VERSION}-empty.sql ; status
-		fi
+	[ -z "$1" ] || return 0
+
+	if ( ! mysqladmin -s ping >/dev/null ); then
+		echo "Starting MySQL server"
+		( /etc/init.d/mysql start; status ) || exit
+		sleep 4 #let the mysql daemon start
 	fi
-	
+	if ( ! mysql -u root -Be 'show databases' | grep -q $db ); then
+		action "Create $db database"
+		mysql -Be "create database $db"; status
+
+		# We suppose that $DB_USER user does not exist.
+		# It may be false.
+		action "Create user $db_user with password $db_password"
+		mysql -Be "grant all privileges on $db.* to '"$db_user"'@'localhost' 
+			identified by '"$db_password"'" ; status
+
+		# At last create the database for $PACKAGE.
+		action "Create $db database schema."
+		#mysql -u glpi -pglpi -D glpi < /usr/share/glpi/install/mysql/glpi-${VERSION}-empty.sql ; status
+	fi
 }
 
-post_remove()
-{
+post_remove() {
 	local db=wordpress
 	local db_user=wordpress
 	local db_password=wordpress
-	
-	if [ -z "$1" ]; then
-		echo -n "Would you like to remove data and database files.(y/n) "
-		read answer
 
-		case $answer in 
+	[ -z "$1" ] || return 0
+
+	echo -n "Would you like to remove data and database files.(y/n) "
+	read answer
+
+	case $answer in
 		y|Y)
-			echo -n "Removing data directories..."
-			[ -d /var/lib/wordpress ] && rm -rf /var/lib/wordpress ; status
+			action "Removing data directories..."
+			[ -d /var/lib/wordpress ] && rm -rf /var/lib/wordpress; status
+
 			if ( mysql -u root -Be 'show databases' | grep -q $db ); then
-				echo -n "Deleting $db database"
-				mysql -Be "drop database $db" ; status
+				action "Deleting $db database"
+				mysql -Be "drop database $db"; status
+
 				# We suppose that glpi user does not exist.
 				# It may be false.
-				echo  -n "Delete user $db_user"
-				mysql -Be "delete from mysql.db where user='"$db_user"'" ; status
+				action "Delete user $db_user"
+				mysql -Be "delete from mysql.db where user='"$db_user"'"; status
 			fi
 			unset $answer
 			;;
-		*)
-			;;
-		esac
-	fi
+	esac
 }
