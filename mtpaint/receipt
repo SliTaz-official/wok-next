@@ -1,49 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mtpaint"
-VERSION="3.44.91"
-COMMIT="15ec7b65d09bff5372253f9568d06ea97487f9dc"
+VERSION="3.49.13"
+COMMIT="3884b6d"
 CATEGORY="graphics"
 SHORT_DESC="Painting program to create pixel art and manipulate digital photos"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mtpaint.sourceforge.net/"
-#WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/wjaguar/mtPaint/archive/$COMMIT.tar.gz"
 
-DEPENDS="gtk+ libpng16 lcms"
 BUILD_DEPENDS="gtk+-dev libpng16-dev lcms-dev zlib-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -p0 < $stuff/mtpaint.patch
 	sed 's/mem_undo_limit,\t32/mem_undo_limit,\t64/' -i $src/src/mainwindow.c
+
 	case "$ARCH" in
-		i?86)
-			./configure \
-				--cpu=$ARCH \
-				--prefix=/usr \
-				intl nogif nojp2 ;;
-		arm*)
-			# we need: arm-slitaz-linux-gnueabi-pkg-config
-			./configure \
-				--prefix=/usr \
-				--host=${HOST_SYSTEM} \
-				intl nogif
-	esac && make &&
-	make DESTDIR=$install install
+		i?86)   ARCH_ARGS="--cpu=$ARCH intl nogif nojp2";;
+		arm*)   ARCH_ARGS="--host=$HOST_SYSTEM intl nogif";;
+		x86_64) ARCH_ARGS="intl nogif nojp2";;
+	esac
+
+	./configure \
+		--prefix=/usr \
+		$ARCH_ARGS &&
+	make &&
+	make DESTDIR=$install install || return 1
+
+	mkdir -p $install/usr/share/applications/
+	install -Dm644 $stuff/*.desktop     $install/usr/share/applications/
+	install -Dm755 $stuff/mtpaint-doc   $install/usr/bin/mtpaint-doc
+	install -Dm644 $src/doc/mtpaint.png $install/usr/share/pixmaps/mtpaint.png
+	install -Dm644 $stuff/mtpaintrc     $install/etc/mtpaint/mtpaintrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/applications $fs/usr/share/pixmaps $fs/etc/mtpaint $fs/usr/share/thumbnailers
-	cp -a $install/usr/bin $fs/usr
-	install -m755 -oroot -groot $stuff/mtpaint-doc $fs/usr/bin
-	cp $stuff/*.desktop $fs/usr/share/applications
-	cp $src/doc/mtpaint.png $fs/usr/share/pixmaps
-	cp $stuff/mtpaintrc $fs/etc/mtpaint
-	cp $stuff/mtpaint.thumbnailer $fs/usr/share/thumbnailers
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ lcms \
+	libjpeg-turbo libpng16 pango tiff xorg-libX11 zlib"
 }
