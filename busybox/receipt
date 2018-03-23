@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
 BUILD_DEPENDS_arm="bzip2"
-BUILD_DEPENDS="patch bzip2 gettext perl pam-dev" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
+BUILD_DEPENDS="patch bzip2 gettext perl pam-dev libtirpc-dev" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
 case "$ARCH" in
 	arm*)   SPLIT='';;
 	x86_64) SPLIT="busybox busybox-pam:pam";;
@@ -33,6 +33,7 @@ compile_rules() {
 	esac
 
 	# Next both for i?86 and x86_64 native compilation
+	export CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libtirpc)"
 	case "$SET" in
 		'')
 			cp $stuff/.config $src

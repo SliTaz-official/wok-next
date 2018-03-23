@@ -1,35 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="c-client"
 VERSION="2007f"
 CATEGORY="development"
-SHORT_DESC="mail store formats support."
+SHORT_DESC="Mail store formats support"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
 WEB_SITE="http://www.washington.edu/imap/"
-SOURCE="imap"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="ftp://ftp.cac.washington.edu/mail/$TARBALL"
-TAGS="imap pop3 smtp"
 
-BUILD_DEPENDS="openssl-dev"
+TARBALL="imap-$VERSION.tar.gz"
+WGET_URL="https://www.mirrorservice.org/sites/ftp.cac.washington.edu/imap/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	sed -i 's|SSLCFLAGS)|SSLCFLAGS) -I/usr/include/openssl|' \
-		src/osdep/unix/Makefile
+BUILD_DEPENDS="openssl-dev krb5-dev pam-dev"
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
+	sed \
+		-e "s:-g -fno-omit-frame-pointer -O6:\${CFLAGS}:" \
+		-e "s:SSLDIR=/usr/local/ssl:SSLDIR=/usr:" \
+		-e "s:SSLCERTS=\$(SSLDIR)/certs:SSLCERTS=/etc/ssl/certs:" \
+		-i src/osdep/unix/Makefile
+
 	make slx
-	mkdir -p $DESTDIR/usr/include/c-client $DESTDIR/usr/lib
+
+	mkdir -p \
+		$DESTDIR/usr/include/c-client \
+		$DESTDIR/usr/lib
 	cp src/c-client/*.h c-client/linkage.h c-client/osdep.h c-client/env_unix.h \
 		$DESTDIR/usr/include/c-client
 	cp c-client/c-client.a $DESTDIR/usr/lib
+
+	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	chown -R root:root $fs
+genpkg_rules() {
+	copy @dev
+	TAGS="imap pop3 smtp"
 }

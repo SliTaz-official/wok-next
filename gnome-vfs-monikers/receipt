@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gnome-vfs-dev libbonobo-dev glib-dev orbit2-dev dbus-glib-dev \
-perl-xml-parser libxml2-dev"
+perl-xml-parser libxml2-dev gnutls-dev libgcrypt-dev"
 SPLIT="gnome-vfs-monikers-dev"
 
 compile_rules() {
@@ -30,22 +30,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		gnome-vfs-monikers)
-			mkdir -p $fs/usr/
-			cp -a $install/usr/lib $fs/usr
-
-			# Clean unwated files
-			cd $fs/usr/lib ; find . -name "*.*a" -exec rm -f {} \;
-
-			# Strip all
-			find . -name "*.so" -exec strip -s {} \;
+			copy @std
 			DEPENDS="gnome-vfs libbonobo"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/lib $fs/usr
-
-			# Clean unwated files
-			cd $fs/usr/lib ; find . -name "*.so*" -exec rm -f {} \;
+			copy @dev
 			DEPENDS="gnome-vfs-monikers gnome-vfs libbonobo"
 			;;
 	esac

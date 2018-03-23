@@ -3,43 +3,33 @@
 PACKAGE="libt4k_common"
 VERSION="0.1.1"
 CATEGORY="games"
-SHORT_DESC="Common libraries for tux4kids games."
+SHORT_DESC="Common libraries for tux4kids games"
 MAINTAINER="samuel_trassare@yahoo.com"
 LICENSE="GPL3"
 WEB_SITE="http://tux4kids.alioth.debian.org"
-SOURCE="t4k_common"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+
+TARBALL="t4k_common-$VERSION.tar.gz"
 WGET_URL="https://alioth.debian.org/frs/download.php/3540/$TARBALL"
 
 BUILD_DEPENDS="libsdl-dev libsdl-image-dev libsdl-mixer-dev libsdl-ttf-dev \
-libsdl-net-dev librsvg-dev libsdl-pango-dev libxml2-dev"
+libsdl-net-dev librsvg-dev libsdl-pango-dev wget libxml2-dev libcroco-dev"
 SPLIT="libt4k_common-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libt4k_common)
-		DEPENDS="libsdl libsdl-image libsdl-mixer libsdl-ttf \
+		libt4k_common)
+			copy @std
+			DEPENDS="libsdl libsdl-image libsdl-mixer libsdl-ttf \
 			libsdl-net librsvg libsdl-pango"
-		mkdir -p $fs/usr/lib $fs/usr/share
-		cp -a $install/usr/lib/*so* $fs/usr/lib
-		cp -ar $install/usr/share/* $fs/usr/share
-		;;
-	libt4k_common-dev)
-		mkdir -p $fs/usr/include \
-			$fs/usr/lib/pkgconfig 
-		cp -a $install/usr/include/* $fs/usr/include
-		cp -a $install/usr/lib/*a* $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig/* $fs/usr/lib/pkgconfig
-		;;
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

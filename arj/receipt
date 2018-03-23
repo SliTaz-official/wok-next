@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="arj"
 VERSION="3.10.22"
@@ -7,23 +7,20 @@ SHORT_DESC="ARJ archiver"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://arj.sourceforge.net/"
-TAGS="compression archive"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="automake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/gnu
 	aclocal
 	autoconf
 	rm -f config.guess config.sub
-	am="$(automake --version|head -n1|sed -r 's/.*\) (.*)/\1/')"
-	cp /usr/share/automake-"$am"/config.guess .
-	cp /usr/share/automake-"$am"/config.sub .
+#	am=$(automake --version|head -n1|sed -r 's/.*\) (.*)/\1/')
+	cp /usr/share/automake-*/config.guess .
+	cp /usr/share/automake-*/config.sub .
 
 	./configure $CONFIGURE_ARGS
 	cd ..
@@ -32,8 +29,7 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	TAGS="compression archive"
 }

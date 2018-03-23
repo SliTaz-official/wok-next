@@ -26,17 +26,19 @@ compile_rules() {
 	# Remove keywords from desktop file and apply SliTaz graphical SU method
 	sed -i '/^_Keywords=/d; s|@gksuprog@|tazbox su|' gparted.desktop.in.in
 
+	fix ld
 	./configure \
 		--disable-scrollkeeper \
 		--disable-doc \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 }
 
 genpkg_rules() {
 	copy gparted gpartedbin
-	DEPENDS="atk atkmm cairo cairomm fontconfig freetype gdk-pixbuf glib \
-	glibmm gtk+ gtkmm libgiomm libsigc++ pango pangomm parted util-linux-uuid"
+	DEPENDS="atkmm glib glibmm gtk+ gtkmm libsigc++ pangomm parted \
+	util-linux-uuid"
 	SUGGESTED="e2fsprogs dosfstools mtools ntfs-3g ntfsprogs jfsutils xfsprogs \
 	reiserfsprogs reiser4progs btrfs-progs f2fs-tools hfsutils hfsprogs \
 	util-linux-mkfs util-linux-misc lvm2 cryptsetup dmsetup nilfs-utils xfsdump"

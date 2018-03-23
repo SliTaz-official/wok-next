@@ -1,19 +1,17 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mingw32-binutils"
-SOURCE="binutils"
-VERSION="2.19.1"
+VERSION="2.28-1"
 CATEGORY="development"
-SHORT_DESC="MinGW32 binutils."
+SHORT_DESC="MinGW32 binutils"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION-src.tar.gz"
 WEB_SITE="http://www.mingw.org/"
-WGET_URL="$SF_MIRROR/mingw/$TARBALL"
-TAGS="assembler linker"
 
-DEPENDS="glibc-base zlib"
-BUILD_DEPENDS="slitaz-toolchain bison flex"
+TARBALL="binutils-$VERSION-mingw32-src.tar.xz"
+WGET_URL="$SF_MIRROR/mingw/$TARBALL"
+
+BUILD_DEPENDS="slitaz-toolchain bison flex texinfo"
 
 # Configuration only needs included if we're in the build/wok environment
 if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
@@ -52,4 +50,7 @@ genpkg_rules()
 	
 	#Create a symlink for --with-sysroot
 	ln -s . $fs$MINGW32_ROOT/usr
+
+	DEPENDS="glibc-base zlib"
+	TAGS="assembler linker"
 }

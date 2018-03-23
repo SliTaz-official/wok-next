@@ -3,20 +3,19 @@
 PACKAGE="gnome-python"
 VERSION="2.28.1"
 CATEGORY="x-window"
-SHORT_DESC="Python bindings for GNOME."
+SHORT_DESC="Python bindings for GNOME"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnome.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="python-dev pygobject-dev pygtk-dev libgnome-dev audiofile \
-esound libxml2-dev"
-SPLIT="gnome-python gnome-python-dev python-gconf"
+esound libxml2-dev libgcrypt-dev"
+SPLIT="python-gconf gnome-python gnome-python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--libexecdir=/usr/lib/$PACKAGE \
 		--sysconfdir=/etc/gnome \
@@ -24,30 +23,19 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gnome-python)
-		DEPENDS="python pygobject pygtk libgnome"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/pygtk $fs/usr/share
-		cp -a $install/usr/lib $fs/usr
-		rm -rf $fs/usr/lib/pkgconfig
-		rm -rf $fs/usr/lib/gnome-vfs-2.0/modules/*a
-		;;
-	gnome-python-dev)
-		mkdir -p $fs/usr/lib/gnome-vfs-2.0/modules
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/lib/gnome-vfs-2.0/modules/*.so $fs/usr/lib/gnome-vfs-2.0/modules
-		cp -a $install/usr/include $fs/usr
-		;;
-	python-gconf)
-		CAT="system-tools|Python bindings for gconf."
-		_PYTHONVER=$(grep  ^VERSION= $WOK/python/receipt | cut -d "=" -f2 | sed -e 's/"//g')
-		mkdir -p $fs/usr/lib/python${_PYTHONVER%.*}/site-packages/gtk-2.0
-		cp -a $install/usr/lib/python${_PYTHONVER%.*}/site-packages/gtk-2.0/gconf.so \
-			$fs/usr/lib/python${_PYTHONVER%.*}/site-packages/gtk-2.0
-		;;
+		python-gconf)
+			copy gconf.so
+			CAT="system-tools|Python bindings for gconf"
+			;;
+		gnome-python)
+			copy @std @rm
+			DEPENDS="python pygobject pygtk libgnome"
+			;;
+		gnome-python-dev)
+			copy @dev
+			DEPENDS="gnome-python pkg-config"
+			;;
 	esac
 }

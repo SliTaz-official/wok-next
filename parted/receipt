@@ -16,9 +16,12 @@ BUILD_DEPENDS="gettext util-linux-uuid-dev readline-dev check-dev texinfo"
 SPLIT="parted-dev"
 
 compile_rules() {
+	fix ld
 	./configure \
+		--disable-device-mapper \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -C doc html &&
 	makeinfo --html      -o doc/html       doc/parted.texi &&
@@ -31,7 +34,7 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		parted)
-			copy *.so* sbin/
+			copy @std
 			DEPENDS="ncurses readline util-linux-blkid util-linux-uuid"
 			SUGGESTED="btrfs-progs e2fsprogs f2fs-tools dosfstools mtools \
 			hfsutils hfsprogs jfsutils util-linux lvm2 nilfs-utils ntfsprogs \
@@ -39,7 +42,6 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="parted util-linux-blkid-dev util-linux-uuid-dev"
 			;;
 	esac
 }

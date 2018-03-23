@@ -3,14 +3,15 @@
 PACKAGE="asterisk"
 VERSION="11.1.1"
 CATEGORY="misc"
-SHORT_DESC="Open Source PBX and telephony toolkit."
+SHORT_DESC="Open Source PBX and telephony toolkit"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-EXTRA_SOURCE_FILES="rfc3951.txt"
 WEB_SITE="http://www.asterisk.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.asterisk.org/pub/telephony/asterisk/releases/$TARBALL"
-TAGS="telephony"
+
+EXTRA_SOURCE_FILES="rfc3951.txt"
 
 BUILD_DEPENDS="gtk+-dev libxml2-dev postgresql-dev libsdl-dev ncurses-dev \
 gmime gmime-dev unixODBC-dev unixODBC openldap-dev openldap \
@@ -26,8 +27,7 @@ SPLIT="asterisk-dev"
 #
 # Graphical configuration: 'make menuconfig' or 'make gmenuconfig'
 #
-compile_rules()
-{
+compile_rules() {
 # according to https://issues.asterisk.org/jira/browse/ASTERISK-20576
 # the message "Makefile:82: pjproject/build.mak: No such file or directory" is normal :-/
 	sed -i 's/>no</>yes</' addons/[acor]*.c
@@ -42,13 +42,14 @@ compile_rules()
 	busybox sed -i 's|lua5.1/||' pbx/pbx_lua.c
 	grep -rsl '^#define AST_PBX_MAX_STACK' * | xargs busybox sed -i \
 		's/define AST_PBX_MAX_STACK.*/define AST_PBX_MAX_STACK 1024/'
-	[ -s $SRC/rfc3951.txt ] ||
-		wget -P $SRC http://www.ietf.org/rfc/rfc3951.txt
-	cp $SRC/rfc3951.txt codecs/ilbc ||
+	[ -s $SOURCES_REPOSITORY/rfc3951.txt ] ||
+		wget -P $SOURCES_REPOSITORY http://www.ietf.org/rfc/rfc3951.txt
+	cp $SOURCES_REPOSITORY/rfc3951.txt codecs/ilbc ||
 	cp $stuff/rfc3951.txt codecs/ilbc
 	[ -f codecs/ilbc/iLBC_define.h ] || ( cd codecs/ilbc &&
 		awk -f $stuff/extract-cfile.awk rfc3951.txt > /dev/null )
 	mkdir -p $DESTDIR/usr/bin
+#	export CXXFLAGS="$CXXFLAGS -fPIC"
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -63,30 +64,28 @@ compile_rules()
 	gcc rawplayer.c -o $DESTDIR/usr/bin/rawplayer
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	asterisk)
-		CONFIG_FILES="/etc/asterisk"
-		DEPENDS="openssl ncurses zlib libogg libvorbis curl newt \
+		asterisk)
+			CONFIG_FILES="/etc/asterisk"
+			DEPENDS="openssl ncurses zlib libogg libvorbis curl newt \
 			libusb-compat alsa-lib speex iksemel spandsp tiff \
 			radiusclient-ng nbs freetds libpostgresqlclient \
 			libmysqlclient libunixODBC popt dahdi libpri lua \
 			libcap attr net-snmp portaudio sqlite3 libkrb5 \
 			libcomerr3 libsdl libsdl-image libxml2 bluez \
 			libldap libical neon util-linux-uuid"
-		mkdir -p $fs/usr
-		cp -a $install/etc $fs
-		cp -a $install/var $fs
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $stuff/*/ $fs
-		;;
-	asterisk-dev)
-		mkdir -p $fs/usr
-		cp -a $install/usr/include $fs/usr
-		;;
+			mkdir -p $fs/usr
+			cp -a $install/etc $fs
+			cp -a $install/var $fs
+			cp -a $install/usr/lib $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $stuff/*/ $fs
+			TAGS="telephony"
+			;;
+		asterisk-dev)
+			copy @dev
+			;;
 	esac
 }
 

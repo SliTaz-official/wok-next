@@ -15,9 +15,7 @@ TARBALL_MD5="f936d2ca5cbe1e18c71ca2baa5e84fb4"
 BUILD_DEPENDS="gettext zlib-dev expat-dev curl-dev libssh-dev"
 SPLIT="exiv2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-video \
 		--enable-webready \
@@ -25,9 +23,7 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		exiv2)
 			copy @std
@@ -35,8 +31,8 @@ genpkg_rules()
 			;;
 		exiv2-dev)
 			copy @dev
-			DEPENDS="curl-dev expat-dev libssh-dev openssl-dev \
-			zlib-dev"
+			DEPENDS="curl-dev expat-dev libssh-dev zlib-dev"
+			# + openssl-dev depending on libssh
 			;;
 	esac
 }

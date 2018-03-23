@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="duktape"
-VERSION="2.1.1"
+VERSION="2.2.0"
 CATEGORY="libs"
 SHORT_DESC="Embeddable Javascript engine"
 MAINTAINER="al.bobylev@gmail.com"
@@ -20,9 +20,12 @@ compile_rules() {
 	cp $stuff/duktape.pc .
 	sed -i "s|@@VERSION@@|$VERSION|" duktape.pc
 
-	CFLAGS="$CFLAGS -D DUK_USE_FASTINT -w" make
+	CFLAGS="$CFLAGS -D DUK_USE_FASTINT -w" \
+	make
 
-	mkdir -p $install/usr/lib/pkgconfig $install/usr/include
+	mkdir -p \
+		$install/usr/lib/pkgconfig/ \
+		$install/usr/include/
 	make install
 	cp duktape.pc $install/usr/lib/pkgconfig/
 }

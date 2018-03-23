@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="compiz-compizconfig-python"
 VERSION="0.8.12.1"
 CATEGORY="x-window"
-SHORT_DESC="Compiz Config Python module."
+SHORT_DESC="Compiz Config Python module"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="${PACKAGE/compiz-/}"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="https://github.com/compiz-reloaded"
-WGET_URL="$WEB_SITE/$SOURCE/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="python compiz-core compiz-libcompizconfig"
-BUILD_DEPENDS="$DEPENDS python-dev pygtk-dev compiz-core-dev protobuf-dev \
-compiz-libcompizconfig-dev python-cython libxslt-dev util-linux-uuid-dev \
-startup-notification-dev libtool  xorg-dev glib-dev"
+TARBALL="compizconfig-python-$VERSION.tar.xz"
+WGET_URL="$WEB_SITE/compizconfig-python/releases/download/v$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr
-	make && make install
+BUILD_DEPENDS="compiz-libcompizconfig-dev glib-dev compiz-core-dev \
+xorg-libX11-dev xorg-libXcomposite-dev xorg-libXext-dev xorg-libXdamage-dev \
+xorg-libXrandr-dev xorg-libXi-dev xorg-libXinerama-dev xorg-libXcursor-dev \
+xorg-libICE-dev xorg-libSM-dev libxml2-dev startup-notification-dev \
+python-cython python-dev xorg-xcb-util-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python compiz-core compiz-libcompizconfig"
 }

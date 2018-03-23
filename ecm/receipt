@@ -12,7 +12,7 @@ WEB_SITE="http://www.neillcorlett.com/ecm/"
 TARBALL="cmdpack-$VERSION-src.tar.gz"
 WGET_URL="http://www.neillcorlett.com/downloads/$TARBALL"
 
-SPLIT="ecm-extras"
+SPLIT="ecm ecm-extras"
 
 compile_rules() {
 	cd $src/src
@@ -23,21 +23,18 @@ compile_rules() {
 		./mkgcc ${i%.c} || return 1
 		cp -a ${i%.c} $DESTDIR/usr/bin
 	done
+
+	ln -sf ecm $install/usr/bin/unecm
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		ecm)
-			mkdir -p $fs/usr/bin
-			cp -a $install/usr/bin/ecm $fs/usr/bin
-			ln -sf ecm $fs/usr/bin/unecm
+			copy ecm unecm
 			;;
 		ecm-extras)
-			mkdir -p $fs/usr
-			cp -a $install/usr/bin $fs/usr
-			[ -f $fs/usr/bin/ecm ] && rm -f $fs/usr/bin/ecm
+			copy @std @rm
 			CAT="misc|extra tools"
 			;;
 	esac
 }
-

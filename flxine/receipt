@@ -1,4 +1,4 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="flxine"
 VERSION="0.6.10"
@@ -6,25 +6,22 @@ CATEGORY="multimedia"
 SHORT_DESC="FLTK Xine frontend"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-fltk13-source-$VERSION.tgz"
 WEB_SITE="http://home.arcor.de/szukw000/english_index.html"
+
+TARBALL="$PACKAGE-fltk13-source-$VERSION.tgz"
 WGET_URL="http://home.arcor.de/szukw000/$TARBALL"
 
-DEPENDS="fltk xine-lib"
-BUILD_DEPENDS="fltk-dev xine-lib-dev autoconf automake"
+BUILD_DEPENDS="shared-mime-info fltk-dev xine-lib-dev autoconf automake \
+xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	#export ac_cv_lib_pthread_pthread_create=yes
 	./bootstrap.sh &&
-	./configure $CONFIGURE_ARGS && 
+	./configure $CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="fltk xine-lib"
 }

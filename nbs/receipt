@@ -15,10 +15,17 @@ BUILD_DEPENDS="subversion"
 SPLIT="nbs-dev"
 
 compile_rules() {
+	# respect DESTDIR
+	sed -i.orig 's|/usr/|\$(DESTDIR)/usr/|g' Makefile
+	mkdir -p $install/usr/bin/
+
 	make &&
 	make DESTDIR=$DESTDIR install || return 1
 
 	ln -s libnbs.so.1.0 $install/usr/lib/libnbs.so.1
+
+	# like --disable static (asterisk don't like this lib)
+	find $install -type f -name '*.a' -delete
 }
 
 genpkg_rules() {

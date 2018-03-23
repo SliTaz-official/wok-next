@@ -1,64 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="8086tiny"
 VERSION="1.25"
+COMMIT="c79ca2a" # no releases there in Github
 CATEGORY="system-tools"
-SHORT_DESC="PC XT-compatible emulator/virtual machine."
+SHORT_DESC="PC XT-compatible emulator/virtual machine"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="${PACKAGE}_${VERSION/./}.tar.bz2"
-WEB_SITE="http://www.megalith.co.uk/8086tiny"
-WGET_URL="$WEB_SITE/downloads/$TARBALL"
-TAGS="emulator 8086"
+WEB_SITE="https://github.com/adriancable/8086tiny"
 
-DEPENDS="libsdl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS_arm="libsdl-dev"
 BUILD_DEPENDS="libsdl-dev nasm"
 
-# Handle cross compilation.
-case "$ARCH" in
-	arm*) BUILD_DEPENDS="libsdl-dev" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
-		i?86)
+		arm*)
+			make CC=$HOST_SYSTEM-gcc 8086tiny_slowcpu
+			nasm bios_source/bios.asm &&
+			echo "Skipping: strip: Unable to recognise the format"
+			;;
+		*)
 			make CC=gcc no_graphics &&
 			mv 8086tiny 8086tiny.nographics &&
 			make CC=gcc &&
-			nasm bios_source/bios.asm ;;
-		arm*)
-			make CC=${HOST_SYSTEM}-gcc 8086tiny_slowcpu
-			nasm bios_source/bios.asm &&
-			echo "Skipping: strip: Unable to recognise the format" ;;
-	esac
+			nasm bios_source/bios.asm
+			;;
+	esac || return 1
+
+	install -Dm755 $src/8086tiny            $install/usr/bin/8086tiny
+	[ -x "$src/8086tiny.nographics" ] &&
+	install -Dm755 $src/8086tiny.nographics $install/usr/bin/8086tiny.nographics
+	install -Dm755 $stuff/8086tiny.sh       $install/usr/bin/8086tiny.sh
+	install -Dm644 $src/bios_source/bios    $install/usr/share/8086tiny/bios
 }
 
-# SliTaz package testsuite
 testsuite() {
-	readelf -Ah ${src}/8086tiny
+	readelf -Ah $src/8086tiny
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/8086tiny
-	cp -a $src/8086tiny $fs/usr/bin
-	[ -x "$src/8086tiny.nographics" ] && \
-		cp -a $src/8086tiny.nographics $fs/usr/bin
-	cp -a $src/bios_source/bios $fs/usr/share/8086tiny
-	cat > $fs/usr/bin/8086tiny.sh <<EOT
-#!/bin/sh
-
-if [ ! -e "\$1" ]; then
-	echo "Usage: \$0 fd_image [hd_image]"
-else
-	clear
-	stty cbreak raw -echo min 0
-	\${TINY8086:-/usr/bin/8086tiny} /usr/share/8086tiny/bios "\$@"
-	stty cooked echo
-fi
-EOT
-	chmod 755 $fs/usr/bin/8086tiny.sh
+genpkg_rules() {
+	copy @std
+	DEPENDS="libsdl"
+	TAGS="emulator 8086"
 }

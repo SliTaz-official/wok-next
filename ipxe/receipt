@@ -30,34 +30,43 @@ compile_rules() {
 	    -e 's|//\(#define.*REBOOT_CMD\)|\1|' config/general.h
 	cp $stuff/lkrnprefix.S arch/i386/prefix
 
-	make all || return 1
+	# refer to http://ipxe.org/appnote/buildtargets
+	case $ARCH in
+		i?86)   platform='bin-i386-pcbios';;
+		x86_64) platform='bin-x86_64-pcbios';;
+	esac
+
+	make $platform || return 1
 	separator
 
-	make bin/undionly.pxe    bin/undionly.kpxe bin/undionly.kkpxe \
-	     bin/undionly.kkkpxe bin/ipxe.pxe      bin/ipxe.kpxe \
-	     bin/ipxe.kkpxe      bin/ipxe.kkkpxe   bin/ipxe.nbi \
-	     bin/ipxe.lkrn \
+	make $platform/undionly.pxe    $platform/undionly.kpxe \
+	     $platform/undionly.kkpxe  $platform/undionly.kkkpxe \
+	     $platform/ipxe.pxe        $platform/ipxe.kpxe \
+	     $platform/ipxe.kkpxe      $platform/ipxe.kkkpxe \
+	     $platform/ipxe.nbi        $platform/ipxe.lkrn \
 	     EMBED=$stuff/ipxe.cmd || return 1
 
-	mkdir $install/boot
-	cp -a $src/src/bin/ipxe.lkrn $install/boot/ipxe
+	mkdir -p $install/boot/
+	cp -a $src/src/$platform/ipxe.lkrn $install/boot/ipxe
 	OFS=$((0x156))
 	unix2dos <<EOT | dd bs=1 of=$install/boot/ipxe conv=notrunc \
 		seek=$OFS count=$((0x1F0-$OFS))
 $SHORT_DESC
 EOT
+
+	mkdir -p $install/usr/share/boot/
+	cp -a $src/src/$platform/ipxe.kpxe     $install/usr/share/boot/ipxe.pxe
+	cp -a $src/src/$platform/undionly.kpxe $install/usr/share/boot/undi.pxe
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		ipxe)
-			copy @std
+			copy ipxe
 			;;
 		ipxe-pxe)
+			copy *.pxe
 			CAT="system-tools|for pxe server"
-			mkdir -p $fs/usr/share/boot
-			cp -a $src/src/bin/ipxe.kpxe     $fs/usr/share/boot/ipxe.pxe
-			cp -a $src/src/bin/undionly.kpxe $fs/usr/share/boot/undi.pxe
 			;;
 	esac
 }

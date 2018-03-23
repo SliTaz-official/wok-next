@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="audacity"
 VERSION="2.1.3"
@@ -7,34 +7,24 @@ SHORT_DESC="A free multi-track audio editor and recorder"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.audacityteam.org/"
+
 TARBALL="Audacity-$VERSION.tar.gz"
 WGET_URL="https://github.com/audacity/audacity/archive/$TARBALL"
-TAGS="sound audio recorder editor"
 
-DEPENDS="wxWidgets ffmpeg libvorbis imlib2 libid3tag libmad flac libsndfile \
-lame alsa-lib xorg-libXxf86vm"
 BUILD_DEPENDS="wxWidgets-dev ffmpeg-dev libvorbis-dev libmad-dev flac-dev \
-libsndfile-dev lame-dev alsa-lib-dev portaudio-dev cmake expat-dev gettext-tools"
+libsndfile-dev lame-dev alsa-lib-dev portaudio-dev cmake expat-dev \
+gettext-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--with-ffmpeg=local \
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/audacity $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/applications $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="wxWidgets ffmpeg libvorbis imlib2 libid3tag libmad flac \
+	libsndfile lame alsa-lib xorg-libXxf86vm"
+	TAGS="sound audio recorder editor"
 }

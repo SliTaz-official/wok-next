@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gxine"
 VERSION="0.5.905"
 CATEGORY="multimedia"
-SHORT_DESC="GTK+ Xine media player user interface."
+SHORT_DESC="GTK+ Xine media player user interface"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xine-project.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://switch.dl.sourceforge.net/sourceforge/xine/$TARBALL"
 
-DEPENDS="xine-lib libvorbis gtk+ spidermonkey dbus"
-BUILD_DEPENDS="spidermonkey-dev xine-lib-dev xorg-dev dbus-dev \
-gtk+-dev xorg-libXinerama-dev xorg-libXext-dev xorg-xextproto perl \
+BUILD_DEPENDS="shared-mime-info spidermonkey-dev xine-lib-dev xorg-dev \
+dbus-dev gtk+-dev xorg-libXinerama-dev xorg-libXext-dev xorg-xextproto perl \
 xorg-libXv-dev xorg-videoproto xorg-xf86vidmodeproto"
 
-# Rules to configure and make the package.
-
-compile_rules()
-{
-	cd $src
-	
+compile_rules() {
 	# Fix for glib2 (-lm)
 	sed -i "/<glib\//d" src/*
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	
+
 	# Fix for lirc
 	#patch -p0 < $stuff/gxine-0.5.907-lirc.patch || return 1
 	
@@ -43,18 +38,11 @@ compile_rules()
 		--disable-own-playlist-parsers \
 		VENDOR_PKG_VERSION="$VERSION; SliTaz GNU/Linux" \
 		$CONFIGURE_ARGS &&
-        make && make DESTDIR=$DESTDIR install
-        sed -i '/^x/d' $install/usr/share/applications/gxine.desktop
-}
-		
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/etc $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/etc $fs
+	make && make DESTDIR=$DESTDIR install
+	sed -i '/^x/d' $install/usr/share/applications/gxine.desktop
 }
 
+genpkg_rules() {
+	copy @std
+	DEPENDS="xine-lib libvorbis gtk+ spidermonkey dbus"
+}

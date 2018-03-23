@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nss"
-VERSION="3.29"
+VERSION="3.35"
 CATEGORY="utilities"
 SHORT_DESC="Mozilla Network Security Services (NSS)"
 MAINTAINER="rocky@slitaz.org"
@@ -10,7 +10,7 @@ WEB_SITE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/nss.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ftp.mozilla.org/pub/security/nss/releases/NSS_${VERSION//./_}_RTM/src/${TARBALL}"
+WGET_URL="https://archive.mozilla.org/pub/security/nss/releases/NSS_${VERSION//./_}_RTM/src/$TARBALL"
 
 BUILD_DEPENDS="nspr-dev sqlite3-dev zlib-dev perl"
 SPLIT="nss-dev"
@@ -21,22 +21,23 @@ compile_rules() {
 		*)      ARCH_ARGS='';;
 	esac
 
-	cd nss &&
+	cd nss
 	make \
 		-j1 \
 		BUILD_OPT=1 \
 		NSPR_INCLUDE_DIR=/usr/include/nspr \
 		USE_SYSTEM_ZLIB=1 \
 		ZLIB_LIBS=-lz \
+		NSS_ENABLE_WERROR=0 \
 		$ARCH_ARGS \
 		$([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1) || return 1
 
 	mkdir -p \
-		$install/usr/lib \
-		$install/usr/include/nss \
-		$install/usr/bin \
-		$install/usr/lib/pkgconfig \
-		$install/usr/include/nss
+		$install/usr/lib/ \
+		$install/usr/include/nss/ \
+		$install/usr/bin/ \
+		$install/usr/lib/pkgconfig/ \
+		$install/usr/include/nss/
 	cd ../dist
 
 	install -vm755 Linux*/lib/*.so             $install/usr/lib/
