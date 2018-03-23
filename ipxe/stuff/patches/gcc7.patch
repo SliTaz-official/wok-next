@@ -1,0 +1,169 @@
+--- a/src/drivers/net/igbvf/igbvf_vf.c
++++ b/src/drivers/net/igbvf/igbvf_vf.c
+@@ -357,8 +357,10 @@
+ 		break;
+ 	case e1000_promisc_enabled:
+ 		msgbuf |= E1000_VF_SET_PROMISC_MULTICAST;
++		/* FALLTHROUGH */
+ 	case e1000_promisc_unicast:
+ 		msgbuf |= E1000_VF_SET_PROMISC_UNICAST;
++		/* FALLTHROUGH */
+ 	case e1000_promisc_disabled:
+ 		break;
+ 	default:
+--- a/src/drivers/net/ath/ath5k/ath5k_desc.c
++++ b/src/drivers/net/ath/ath5k/ath5k_desc.c
+@@ -104,8 +104,10 @@
+ 		case AR5K_PKT_TYPE_BEACON:
+ 		case AR5K_PKT_TYPE_PROBE_RESP:
+ 			frame_type = AR5K_AR5210_TX_DESC_FRAME_TYPE_NO_DELAY;
++			/* FALLTHROUGH */
+ 		case AR5K_PKT_TYPE_PIFS:
+ 			frame_type = AR5K_AR5210_TX_DESC_FRAME_TYPE_PIFS;
++			/* FALLTHROUGH */
+ 		default:
+ 			frame_type = type /*<< 2 ?*/;
+ 		}
+--- a/src/drivers/net/ath/ath9k/ath9k_ar9003_phy.c
++++ b/src/drivers/net/ath/ath9k/ath9k_ar9003_phy.c
+@@ -539,6 +539,7 @@
+ 	case 0x5:
+ 		REG_SET_BIT(ah, AR_PHY_ANALOG_SWAP,
+ 			    AR_PHY_SWAP_ALT_CHAIN);
++		/* FALLTHROUGH */
+ 	case 0x3:
+ 	case 0x1:
+ 	case 0x2:
+--- a/src/drivers/net/ath/ath9k/ath9k_ar9002_phy.c
++++ b/src/drivers/net/ath/ath9k/ath9k_ar9002_phy.c
+@@ -122,6 +122,7 @@
+ 				aModeRefSel = 2;
+ 			if (aModeRefSel)
+ 				break;
++			/* FALLTHROUGH */
+ 		case 1:
+ 		default:
+ 			aModeRefSel = 0;
+--- a/src/drivers/net/ath/ath9k/ath9k_ar5008_phy.c
++++ b/src/drivers/net/ath/ath9k/ath9k_ar5008_phy.c
+@@ -640,12 +640,14 @@
+ 	case 0x5:
+ 		REG_SET_BIT(ah, AR_PHY_ANALOG_SWAP,
+ 			    AR_PHY_SWAP_ALT_CHAIN);
++		/* FALLTHROUGH */
+ 	case 0x3:
+ 		if (ah->hw_version.macVersion == AR_SREV_REVISION_5416_10) {
+ 			REG_WRITE(ah, AR_PHY_RX_CHAINMASK, 0x7);
+ 			REG_WRITE(ah, AR_PHY_CAL_CHAINMASK, 0x7);
+ 			break;
+ 		}
++		/* FALLTHROUGH */
+ 	case 0x1:
+ 	case 0x2:
+ 	case 0x7:
+--- a/src/drivers/net/tg3/tg3_hw.c
++++ b/src/drivers/net/tg3/tg3_hw.c
+@@ -2518,32 +2518,46 @@
+ 	switch (limit) {
+ 	case 16:
+ 		tw32(MAC_RCV_RULE_15,  0); tw32(MAC_RCV_VALUE_15,  0);
++		/* FALLTHROUGH */
+ 	case 15:
+ 		tw32(MAC_RCV_RULE_14,  0); tw32(MAC_RCV_VALUE_14,  0);
++		/* FALLTHROUGH */
+ 	case 14:
+ 		tw32(MAC_RCV_RULE_13,  0); tw32(MAC_RCV_VALUE_13,  0);
++		/* FALLTHROUGH */
+ 	case 13:
+ 		tw32(MAC_RCV_RULE_12,  0); tw32(MAC_RCV_VALUE_12,  0);
++		/* FALLTHROUGH */
+ 	case 12:
+ 		tw32(MAC_RCV_RULE_11,  0); tw32(MAC_RCV_VALUE_11,  0);
++		/* FALLTHROUGH */
+ 	case 11:
+ 		tw32(MAC_RCV_RULE_10,  0); tw32(MAC_RCV_VALUE_10,  0);
++		/* FALLTHROUGH */
+ 	case 10:
+ 		tw32(MAC_RCV_RULE_9,  0); tw32(MAC_RCV_VALUE_9,  0);
++		/* FALLTHROUGH */
+ 	case 9:
+ 		tw32(MAC_RCV_RULE_8,  0); tw32(MAC_RCV_VALUE_8,  0);
++		/* FALLTHROUGH */
+ 	case 8:
+ 		tw32(MAC_RCV_RULE_7,  0); tw32(MAC_RCV_VALUE_7,  0);
++		/* FALLTHROUGH */
+ 	case 7:
+ 		tw32(MAC_RCV_RULE_6,  0); tw32(MAC_RCV_VALUE_6,  0);
++		/* FALLTHROUGH */
+ 	case 6:
+ 		tw32(MAC_RCV_RULE_5,  0); tw32(MAC_RCV_VALUE_5,  0);
++		/* FALLTHROUGH */
+ 	case 5:
+ 		tw32(MAC_RCV_RULE_4,  0); tw32(MAC_RCV_VALUE_4,  0);
++		/* FALLTHROUGH */
+ 	case 4:
+ 		/* tw32(MAC_RCV_RULE_3,  0); tw32(MAC_RCV_VALUE_3,  0); */
++		/* FALLTHROUGH */
+ 	case 3:
+ 		/* tw32(MAC_RCV_RULE_2,  0); tw32(MAC_RCV_VALUE_2,  0); */
++		/* FALLTHROUGH */
+ 	case 2:
+ 	case 1:
+ 
+--- a/src/drivers/infiniband/golan.c
++++ b/src/drivers/infiniband/golan.c
+@@ -2024,6 +2024,7 @@
+ 	case GOLAN_PORT_CHANGE_SUBTYPE_CLIENT_REREG:
+ 	case GOLAN_PORT_CHANGE_SUBTYPE_ACTIVE:
+ 		golan_ib_update ( ibdev );
++		/* FALLTHROUGH */
+ 	case GOLAN_PORT_CHANGE_SUBTYPE_DOWN:
+ 	case GOLAN_PORT_CHANGE_SUBTYPE_LID:
+ 	case GOLAN_PORT_CHANGE_SUBTYPE_PKEY:
+--- a/src/tests/setjmp_test.c
++++ b/src/tests/setjmp_test.c
+@@ -153,12 +153,19 @@
+ 		case 0: setjmp_ok ( &alpha ); break;
+ 		case 1: setjmp_ok ( &beta ); break;
+ 		case 2:	longjmp_ok ( &alpha, 0 );
++			/* FALLTHROUGH */
+ 		case 3: longjmp_ok ( &alpha, 1 );
++			/* FALLTHROUGH */
+ 		case 4: longjmp_ok ( &alpha, 2 );
++			/* FALLTHROUGH */
+ 		case 5: longjmp_ok ( &beta, 17 );
++			/* FALLTHROUGH */
+ 		case 6: longjmp_ok ( &beta, 29 );
++			/* FALLTHROUGH */
+ 		case 7: longjmp_ok ( &alpha, -1 );
++			/* FALLTHROUGH */
+ 		case 8: longjmp_ok ( &beta, 0 );
++			/* FALLTHROUGH */
+ 		case 9: longjmp_ok ( &beta, 42 );
+ 		}
+ 	}
+--- a/src/include/curses.h
++++ b/src/include/curses.h
+@@ -443,7 +443,7 @@
+ extern int wclrtobot ( WINDOW * ) __nonnull;
+ extern int wclrtoeol ( WINDOW * ) __nonnull;
+ extern void wcursyncup ( WINDOW * );
+-extern int wcolour_set ( WINDOW *, short, void * ) __nonnull;
++extern int wcolour_set ( WINDOW *, short, void * );
+ #define wcolor_set(w,s,v) wcolour_set((w),(s),(v))
+ extern int wdelch ( WINDOW * ) __nonnull;
+ extern int wdeleteln ( WINDOW * ) __nonnull;
+--- a/src/arch/x86/image/bzimage.c
++++ b/src/arch/x86/image/bzimage.c
+@@ -282,9 +282,11 @@
+ 		case 'G':
+ 		case 'g':
+ 			bzimg->mem_limit <<= 10;
++			/* FALLTHROUGH */
+ 		case 'M':
+ 		case 'm':
+ 			bzimg->mem_limit <<= 10;
++			/* FALLTHROUGH */
+ 		case 'K':
+ 		case 'k':
+ 			bzimg->mem_limit <<= 10;
