@@ -1,31 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="unionfs-fuse"
 VERSION="0.24"
 CATEGORY="system-tools"
-SHORT_DESC="unionfs-fuse is an effort to create a userland unionfs implementation that is way more flexible than the current in-kernel based unionfs solution."
+SHORT_DESC="unionfs-fuse is an effort to create a userland unionfs \
+implementation that is way more flexible than the current in-kernel based \
+unionfs solution"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://podgorny.cz/moin/UnionFsFuse"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://podgorny.cz/unionfs-fuse/releases/$TARBALL"
 
-DEPENDS="fuse"
-BUILD_DEPENDS="cmake fuse-dev"
+BUILD_DEPENDS="cmake fuse2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/extern inline/static inline/' src/hashtable_itr.h
 	sed -i '/^void */{NNd}' src/hashtable_itr.c
-	cmake -DCMAKE_INSTALL_PREFIX=/usr . &&
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="fuse2"
 }
-

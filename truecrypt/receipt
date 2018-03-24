@@ -12,11 +12,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://sources.archlinux.org/other/tc/$TARBALL"
 TARBALL_SHA512="b5e766023168015cb91bfd85c9e2621055dd98408215e02704775861b5070c5a0234a00c64c1bf7faa34e6d0b51ac71cd36169dd7a6f84d7a34ad0cfa304796a"
 
-BUILD_DEPENDS="pkcs nasm fuse-dev wxWidgets28-dev xorg-libSM-dev"
+BUILD_DEPENDS="pkcs nasm fuse2-dev wxWidgets28-dev xorg-libSM-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make \
 		PKCS11_INC="/usr/include/pkcs" \
 		WX_CONFIG=/usr/bin/wx-config \
@@ -35,9 +33,7 @@ compile_rules()
 	cook_pick_docs Release/Setup_Files/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	DEPENDS="fuse wxWidgets28 xorg-libSM dmsetup linux-md"
+	DEPENDS="fuse2 wxWidgets28 xorg-libSM dmsetup linux-md"
 }

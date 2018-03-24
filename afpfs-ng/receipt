@@ -7,26 +7,22 @@ SHORT_DESC="The free afpfs driver."
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://alexthepuffin.googlepages.com/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="libgcrypt-dev readline-dev gmp-dev fuse-dev automake"
+BUILD_DEPENDS="libgcrypt-dev readline-dev gmp-dev fuse2-dev automake"
 SPLIT="afpfs-ng-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		afpfs-ng)
 			copy @std
-			DEPENDS="fuse libgcrypt readline gmp"
+			DEPENDS="fuse2 libgcrypt readline gmp"
 			;;
 		*-dev) copy @dev;;
 	esac

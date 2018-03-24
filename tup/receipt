@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tup"
 VERSION="0.7.3"
 CATEGORY="utilities"
-SHORT_DESC="Tup is a file-based build system for Linux, OSX, and Windows."
+SHORT_DESC="Tup is a file-based build system for Linux, OSX, and Windows"
 MAINTAINER="necrophcodr@necrophcodr.me"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://gittup.org/tup/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/gittup/tup"
 
-DEPENDS="fuse"
-BUILD_DEPENDS="fuse-dev git"
+BUILD_DEPENDS="fuse2-dev git"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./bootstrap.sh &&
-	mkdir -p $DESTDIR/usr/bin
-	cp tup $DESTDIR/usr/bin
+	install -Dm755 tup $install/usr/bin/tup
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs/
+genpkg_rules() {
+	copy @std
+	DEPENDS="fuse2"
 }

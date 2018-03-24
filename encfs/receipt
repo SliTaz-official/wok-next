@@ -1,35 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="encfs"
 VERSION="1.7.4"
 CATEGORY="security"
-SHORT_DESC="Encryption filesystem for FUSE."
+SHORT_DESC="Encryption filesystem for FUSE"
 MAINTAINER="b1+slitaz@nagel.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://www.arg0.net/encfs"
-WGET_URL="http://encfs.googlecode.com/files/$TARBALL"
-TAGS="filesystem"
 
-DEPENDS="fuse rlog openssl libboost-system libboost-serialization \
-libboost-filesystem gcc-lib-base"
-BUILD_DEPENDS="fuse fuse-dev rlog rlog-dev openssl-dev libboost-dev \
+TARBALL="$PACKAGE-$VERSION.tgz"
+WGET_URL="http://encfs.googlecode.com/files/$TARBALL"
+
+BUILD_DEPENDS="fuse2-dev rlog rlog-dev openssl-dev libboost-dev \
 libboost-system libboost-serialization libboost-filesystem"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mv $PACKAGE-${VERSION%-*} $src 2> /dev/null
+compile_rules() {
+	mv $PACKAGE-${VERSION%-*} $src 2>/dev/null
 	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="fuse2 rlog openssl libboost-system libboost-serialization \
+	libboost-filesystem gcc-lib-base"
+	TAGS="filesystem"
 }

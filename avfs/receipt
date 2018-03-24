@@ -11,12 +11,10 @@ WEB_SITE="http://avfs.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/avf/$PACKAGE/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="gfortran fuse-dev xz-dev"
+BUILD_DEPENDS="gfortran fuse2-dev xz-dev"
 SPLIT="avfs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-fuse \
 		$CONFIGURE_ARGS &&
@@ -24,13 +22,11 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		avfs)
 			copy @std
-			DEPENDS="fuse liblzma"
+			DEPENDS="fuse2 liblzma"
 			;;
 		*-dev)
 			copy @dev

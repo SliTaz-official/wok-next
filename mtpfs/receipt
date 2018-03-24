@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mtpfs"
 VERSION="1.1"
@@ -7,21 +7,17 @@ SHORT_DESC="FUSE filesystem that supports reading and writing from any MTP devic
 MAINTAINER="keupont@no-log.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.adebenham.com/mtpfs/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.adebenham.com/files/mtp/$TARBALL"
 
-DEPENDS="fuse libmtp libmad libid3tag glib"
-BUILD_DEPENDS="fuse-dev libmtp-dev libmad-dev libid3tag-dev glib-dev"
+BUILD_DEPENDS="fuse2-dev libmtp-dev libmad-dev libid3tag-dev glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="fuse2 libmtp libmad libid3tag glib"
 }

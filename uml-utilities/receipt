@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="uml-utilities"
-SOURCE="uml_utilities"
 VERSION="20070815"
 CATEGORY="utilities"
-SHORT_DESC="The User Mode Linux utilities."
+SHORT_DESC="The User Mode Linux utilities"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${SOURCE}_$VERSION.tar.bz2"
 WEB_SITE="http://user-mode-linux.sourceforge.net/"
-WGET_URL="${WEB_SITE}$TARBALL"
-SUGGESTED="linux-uml"
 
-DEPENDS="readline ncurses fuse"
-BUILD_DEPENDS="readline-dev fuse-dev"
+TARBALL="uml_utilities_$VERSION.tar.bz2"
+WGET_URL="$WEB_SITE$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="readline-dev fuse2-dev"
+
+compile_rules() {
 	make &&
-	make DESTDIR=$DESTDIR install 
-} 
+	make DESTDIR=$DESTDIR install
+}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="readline ncurses fuse2"
+	SUGGESTED="linux-uml"
 }

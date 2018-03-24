@@ -11,19 +11,15 @@ WEB_SITE="https://github.com/sahlberg/libnfs"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/sahlberg/libnfs/archive/$TARBALL"
 
-BUILD_DEPENDS="automake libtool   fuse-dev talloc-dev"
+BUILD_DEPENDS="automake libtool   fuse2-dev talloc-dev"
 SPLIT="libnfs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -vif &&
 	./configure $CONFIGURE_ARGS && make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libnfs) copy @std;;
 		*-dev)  copy @dev;;

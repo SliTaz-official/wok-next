@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-fuse"
 VERSION="0.16"
@@ -11,20 +11,16 @@ WEB_SITE="https://metacpan.org/release/Fuse"
 TARBALL="Fuse-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DP/DPATES/$TARBALL"
 
-DEPENDS="fuse perl-filesys-statvfs perl-lchown perl-unix-mknod"
-BUILD_DEPENDS="$DEPENDS perl-dev fuse-dev"
+DEPENDS="fuse2 perl-filesys-statvfs perl-lchown perl-unix-mknod"
+BUILD_DEPENDS="$DEPENDS perl-dev fuse2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

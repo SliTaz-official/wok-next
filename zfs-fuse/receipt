@@ -1,21 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="zfs-fuse"
 VERSION="0.7.0"
 CATEGORY="system-tools"
-SHORT_DESC="ZFS file system from Sun."
+SHORT_DESC="ZFS file system from Sun"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="CDDL"
 WEB_SITE="http://zfs-fuse.net"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/releases/$VERSION/$TARBALL"
 
-DEPENDS="fuse libaio openssl perl"
-BUILD_DEPENDS="fuse-dev scons libaio-dev attr-dev zlib-dev acl-dev openssl-dev"
+BUILD_DEPENDS="fuse2-dev scons libaio-dev attr-dev zlib-dev acl-dev openssl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr
 	cd $src/src
 	# glibc 2.14 update
@@ -27,9 +25,7 @@ compile_rules()
 	      man_dir=$DESTDIR/usr/share/man/man8 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="fuse2 libaio openssl perl"
 }
