@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libblockdev"
-VERSION="2.11-1"
+VERSION="2.16"
 CATEGORY="libs"
 SHORT_DESC="A library for manipulating block devices"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,20 +10,19 @@ WEB_SITE="https://github.com/storaged-project/libblockdev/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libblockdev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/storaged-project/libblockdev/archive/$TARBALL"
+WGET_URL="https://github.com/storaged-project/libblockdev/releases/download/$VERSION-1/$TARBALL"
 
 BUILD_DEPENDS="automake libtool python glib-dev eudev-dev cryptsetup-dev \
 nss-dev coreutils-file-special libdevmapper-dev kmod-dev parted-dev \
-util-linux-mount-dev util-linux-blkid-dev libbytesize-dev volume_key-dev"
-SPLIT="libblockdev-python libblockdev libblockdev-dev"
+util-linux-mount-dev util-linux-blkid-dev libbytesize-dev volume_key-dev \
+python3"
+SPLIT="libblockdev-python libblockdev-python3 libblockdev libblockdev-dev"
 
 compile_rules() {
-	fix ld
-	./autogen.sh &&
-
 	./configure \
+		--without-gtk-doc \
 		--without-dm \
-		--sysconfdir=/etc \
+		--with-python3 \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make && make install
@@ -32,9 +31,14 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		*-python)
-			copy *.py
-			CAT="libs|python bindings"
+			copy python2*/
+			CAT="libs|Python2 bindings"
 			DEPENDS="libblockdev python"
+			;;
+		*-python3)
+			copy python3*/
+			CAT="libs|Python3 bindings"
+			DEPENDS="libblockdev python3"
 			;;
 		libblockdev)
 			copy @std @rm

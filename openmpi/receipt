@@ -1,12 +1,12 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openmpi"
-VERSION="1.5.3"
+VERSION="1.5.3" # current stable is 3.0.0
 CATEGORY="development"
 SHORT_DESC="High performance message passing library (MPI)"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-WEB_SITE="http://www.open-mpi.org"
+WEB_SITE="https://www.open-mpi.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.open-mpi.org/software/ompi/v${VERSION%.*}/downloads/$TARBALL"
@@ -15,6 +15,8 @@ BUILD_DEPENDS="gcc gfortran libtool openssh valgrind valgrind-dev"
 SPLIT="openmpi-dev"
 
 compile_rules() {
+	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
+
 	./configure \
 		--sysconfdir=/etc/openmpi \
 		--enable-mpi-f90 \
@@ -34,12 +36,7 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		openmpi)
-			mkdir -p $fs/usr/lib/$PACKAGE
-			cp -a $install/etc $fs
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/$PACKAGE/*.so* $fs/usr/lib/$PACKAGE
-			cp -a $install/usr/lib/mpi.mod $fs/usr/lib
+			copy @std
 			DEPENDS="gcc gfortran libtool openssh valgrind"
 			;;
 		*-dev)

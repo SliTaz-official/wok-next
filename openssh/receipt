@@ -1,27 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openssh"
-VERSION="7.5p1"
+VERSION="7.6p1"
 CATEGORY="security"
 SHORT_DESC="OpenSSH clients and daemon"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.openssh.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/openssh.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev zlib-dev openssl-dev perl mdocml-dev pam-dev" # groff
-SPLIT="sftp-server openssh openssh-pam"
+SPLIT="openssh openssh-pam:pam"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/openssh.html
-	install  -v -m700 -d /var/lib/sshd &&
-	chown    -v root:sys /var/lib/sshd &&
+compile_rules() {
+	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
 
-	addgroup -g 50 -S sshd &&
+	install -m700 -d /var/lib/sshd
+	chown   root:sys /var/lib/sshd
+
+	addgroup -g 50 -S sshd
 	adduser \
 		-h /var/lib/sshd \
 		-g 'sshd PrivSep' \
@@ -29,39 +29,30 @@ compile_rules()
 		-G sshd \
 		-S -D \
 		-u 50 \
-		sshd &&
+		sshd
 
-	cp -a $src $src-pam
+	case $SET in
+		pam) SET_ARGS='--with-pam    --with-xauth=/usr/bin/xauth';;
+		*)   SET_ARGS='--without-pam --with-md5-passwords';;
+	esac
+
 	./configure \
 		--sysconfdir=/etc/ssh \
-		--with-md5-passwords \
 		--with-privsep-path=/var/lib/sshd \
-		--without-pam \
-		--without-ssh1 \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install || return 1
 
-	cd $src-pam
-	./configure \
-		--sysconfdir=/etc/ssh \
-		--with-privsep-path=/var/lib/sshd \
-		--with-pam \
-		--with-xauth=/usr/bin/xauth \
-		--without-ssh1 \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-pam install || return 1
+	install -vm755 contrib/ssh-copy-id $install/usr/bin/
 
-	for inst in $install $install-pam ; do
-		install -vm755 contrib/ssh-copy-id $inst/usr/bin
+	cook_pick_manpages contrib/ssh-copy-id.1
+	cook_pick_docs INSTALL LICENCE OVERVIEW README*
 
-		install=$inst cook_pick_manpages contrib/ssh-copy-id.1
-		install=$inst cook_pick_docs INSTALL LICENCE OVERVIEW README*
+	# SliTaz stuff
 
-		# SliTaz stuff
+	install -Dm755 $stuff/openssh $install/etc/init.d/openssh
 
-		mkdir -p $inst/etc/init.d
-		cp $stuff/openssh $inst/etc/init.d
-		cat >> $inst/etc/ssh/ssh_config <<EOT
+	cat >> $install/etc/ssh/ssh_config <<EOT
 
 # client bug CVE-2016-0777 and CVE-2016-0778
 Host *
@@ -72,35 +63,28 @@ Host *+*
   ProxyCommand ssh $(echo %h | sed 's/+[^+]*$//;s/\([^+%%]*\)%%\([^+]*\)$/\2 -l \1/;s/:/ -p /') exec nc -w1 $(echo %h | sed 's/^.*+//;/:/!s/$/ %p/;s/:/ /')
 
 EOT
-	done
+
+	touch $install/etc/inetd.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		sftp-server)
-			copy sftp-server
-			CAT="security|secure FTP server"
-			TAGS="ssh"
-			DEPENDS="openssl zlib"
-			;;
 		openssh)
 			copy @std sshd/
-			DEPENDS="sftp-server openssl zlib"
-			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config /etc/ssh/sshd_config \
-			/etc/inetd.conf"
+			DEPENDS="openssl zlib"
+			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config \
+			/etc/ssh/sshd_config /etc/inetd.conf"
 			TAGS="ssh security"
 			PROVIDE="ssh"
 			TAZPANEL_DAEMON="man::sshd|edit::/etc/ssh/sshd_config|options|web::$WEB_SITE"
 			;;
 		openssh-pam)
-			install=$install-pam copy @std sshd/
+			copy @std sshd/
 			sed -i 's/.*UsePAM.*/UsePAM yes/' $fs/etc/ssh/sshd_config
 			CAT="security|with PAM support"
-			DEPENDS="sftp-server openssl zlib pam"
-			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config /etc/ssh/sshd_config \
-			/etc/inetd.conf"
+			DEPENDS="openssl zlib pam"
+			CONFIG_FILES="/etc/ssh/moduli /etc/ssh/ssh_config \
+			/etc/ssh/sshd_config /etc/inetd.conf"
 			TAGS="ssh security"
 			PROVIDE="openssh:pam ssh:pam"
 			TAZPANEL_DAEMON="man::sshd|edit::/etc/ssh/sshd_config|options|web::$WEB_SITE"

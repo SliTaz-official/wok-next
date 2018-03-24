@@ -7,8 +7,7 @@ SHORT_DESC="File and print services with SMB/CIFS"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.samba.org/"
-BUGS="Open directory needs MIT kerberos support (krb5)"
-COOKOPTS="!menus"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/samba.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://download.samba.org/pub/samba/stable/$TARBALL"
@@ -16,19 +15,22 @@ WGET_URL="https://download.samba.org/pub/samba/stable/$TARBALL"
 BUILD_DEPENDS="python-dev perl acl-dev docbook-xsl openldap-dev   \
 gnutls-dev krb5-dev cyrus-sasl-dev zlib-dev popt-dev libtdb-dev talloc-dev \
 libgcrypt-dev nss-dev cups-dev dbus-dev pam pam-dev"
-SPLIT="samba samba-pam samba-dev" # TODO: swat
+SPLIT="samba samba-dev samba-pam:pam" # TODO: swat
+
+BUGS="Open directory needs MIT kerberos support (krb5)"
+COOKOPTS="!menus"
 
 version() {
 	wget -O- -q https://download.samba.org/pub/samba/ | \
 	sed '/LATEST-IS-SAMBA/!d; s|.*SAMBA-\([^<]*\).*|\1|'
 }
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/basicnet/samba.html
+compile_rules() {
+	case $SET in
+		'')  SET_ARGS='--without-pam';;
+		pam) SET_ARGS='--with-pam';;
+	esac
 
-	cp -a $src $src-pam
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
@@ -36,69 +38,44 @@ compile_rules()
 		--with-piddir=/run/samba \
 		--with-pammodulesdir=/lib/security \
 		--enable-fhs \
-		--without-pam \
 		--without-ad-dc \
 		--without-systemd \
 		--enable-selftest \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make && make install || return 1
 
-	cd $src-pam
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--with-piddir=/run/samba \
-		--with-pammodulesdir=/lib/security \
-		--enable-fhs \
-		--with-pam \
-		--without-ad-dc \
-		--without-systemd \
-		--enable-selftest \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR-pam install || return 1
+	mkdir -p $instsll/lib/
+	mv $install/usr/lib/libnss_wins.so*  $install/usr/lib/libnss_winbind.so* \
+		$install/lib
+	ln -sf ../../lib/libnss_winbind.so.2 $install/usr/lib/libnss_winbind.so
+	ln -sf ../../lib/libnss_wins.so.2    $install/usr/lib/libnss_wins.so
 
-	for inst in $install $install-pam ; do
-		mkdir -p $inst/lib
-		mv $inst/usr/lib/libnss_wins.so* $inst/usr/lib/libnss_winbind.so* \
-			$inst/lib
-		ln -sf ../../lib/libnss_winbind.so.2 $inst/usr/lib/libnss_winbind.so
-		ln -sf ../../lib/libnss_wins.so.2    $inst/usr/lib/libnss_wins.so
+	install -m644 examples/smb.conf.default $install/etc/samba
 
-		install -m644 examples/smb.conf.default $inst/etc/samba
+	mkdir -pv                                  $install/etc/openldap/schema
+	cp examples/LDAP/README                    $install/etc/openldap/schema/README.LDAP
+	cp examples/LDAP/samba*                    $install/etc/openldap/schema
+	cp -r examples/LDAP/get* examples/LDAP/ol* $install/etc/openldap/schema
 
-		mkdir -pv $inst/etc/openldap/schema
-		cp examples/LDAP/README $inst/etc/openldap/schema/README.LDAP
-		cp examples/LDAP/samba* $inst/etc/openldap/schema
-		cp -r examples/LDAP/get* examples/LDAP/ol* $inst/etc/openldap/schema
+	cp -a $stuff/etc $install
 
-		cp -a $stuff/etc $inst
+	# Symlink smbspool to cups backend
+	mkdir -p                 $install/usr/lib/cups/backend/
+	ln -sf /usr/bin/smbspool $install/usr/lib/cups/backend/smb
 
-		# Symlink smbspool to cups backend
-		mkdir -p $inst/usr/lib/cups/backend
-		ln -sf /usr/bin/smbspool $inst/usr/lib/cups/backend/smb
+	# for swat package
+#	icodir="$inst/usr/share/icons/hicolor/48x48/apps"
+#	mkdir -p $icodir
+#	cp $stuff/swat.png $icodir
 
-		# for swat package
-#		icodir="$inst/usr/share/icons/hicolor/48x48/apps"
-#		mkdir -p $icodir
-#		cp $stuff/swat.png $icodir
-
-		chown -R root:root $inst
-	done
+	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	# Note, packages samba-common, smbclient was removed due to circular dependencies:
 	# smbclient <--> samba <--> samba-common
 	case $PACKAGE in
-#		smbclient)
-#			copy smbclient smbspool smbget smbtree smbcacls smbcquotas smbtar \
-#			rpcclient net nmblookup libnetapi.so* libsmbclient.so* smb
-#			CAT="network|client"
-#			DEPENDS="samba libldap libtdb popt talloc"
-#			;;
 #		swat)
 #			copy swat/ swat.desktop swat.png
 #			CAT="development|Samba Web Administration Tool"
@@ -106,7 +83,6 @@ genpkg_rules()
 #			;;
 		samba)
 			copy @std
-#			remove_already_packed
 			DEPENDS="acl attr dbus libcups libgnutls libldap libtdb ncurses \
 			ncurses-libform ncurses-libpanel perl popt python talloc \
 			talloc-python zlib"
@@ -115,9 +91,8 @@ genpkg_rules()
 			CONFIG_FILES="/etc/samba/smb.conf"
 			;;
 		samba-pam)
+			copy @std
 			CAT="system-tools|using PAM"
-			install=$install-pam copy @std
-#			remove by hand already packed files...
 			DEPENDS="acl attr dbus libcups libgnutls libldap libtdb ncurses \
 			ncurses-libform ncurses-libpanel perl popt python talloc \
 			talloc-python zlib pam"
@@ -132,7 +107,6 @@ genpkg_rules()
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
 post_install_samba() {
 	[ -n "$quiet" ] || cat <<EOT
 
