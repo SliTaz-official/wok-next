@@ -23,7 +23,7 @@ compile_rules()
 		$CONFIGURE_ARGS &&
 	make && make DESTDIR=$DESTDIR install
 	# Provide sane defaults
-  	sed -i '/^#Listen/a\Listen 127.0.0.1' "$DESTDIR/etc/tinyproxy/tinyproxy.conf"
+	find $DESTDIR/etc -name tinyproxy.conf | xargs sed -i '/^#Listen/a\Listen 127.0.0.1'
 
 }
 
@@ -33,7 +33,7 @@ genpkg_rules()
 	mkdir -p $fs/usr/share $fs/etc/init.d
 	cp -a $install/usr/sbin $fs/usr
 	cp -a $install/usr/share/tinyproxy $fs/usr/share
-	cp -a $install/etc/tinyproxy $fs/etc
+	cp -a $install/etc $fs
 	cp -a $stuff/tinyproxy $fs/etc/init.d
 }
 

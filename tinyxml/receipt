@@ -13,18 +13,18 @@ WGET_URL="$SF_MIRROR/project/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
 # Rules to configure and make the package.
 compile_rules()
 {
+	mkdir -p $install/usr/lib $install/usr/bin
 	make &&
 	${HOST_SYSTEM}-g++ -m32 -fPIC "$CXXFLAGS" -shared \
-		-o libtinyxml.so.0.$VERSION \
+		-o $install/usr/lib/libtinyxml.so.0.$VERSION \
 		-Wl,-soname,libtinyxml.so.0 $(ls *.o | grep -v xmltest)
+	cp xmltest $install/usr/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/lib $fs/usr/bin
-	cp -a ${src}/xmltest $fs/usr/bin
-	cp -a ${src}/*.so* $fs/usr/lib
+	cp -a $install/. $fs/.
 	cd  $fs/usr/lib
 	ln -s libtinyxml.so.0.$VERSION libtinyxml.so.0
 	ln -s libtinyxml.so.0.$VERSION libtinyxml.so
