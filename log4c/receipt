@@ -14,25 +14,16 @@ WGET_URL="http://prdownloads.sourceforge.net/log4c/$TARBALL"
 SPLIT="log4c-dev"
 
 compile_rules() {
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	mv $install/etc/log4crc.sample $install/etc/log4crc
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		log4c)
-			mkdir -p $fs/usr/lib $fs/etc
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/etc/log4crc.sample $fs/etc/log4crc
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib 
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/share $fs/usr
-			;;
+		log4c) copy @std;;
+		*-dev) copy @dev;;
 	esac
 }

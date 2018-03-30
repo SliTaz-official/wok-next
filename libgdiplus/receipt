@@ -3,11 +3,13 @@
 PACKAGE="libgdiplus"
 VERSION="5.4"
 CATEGORY="development"
-SHORT_DESC="Mono library providing a GDI+ compatible API on non-Windows operating systems"
+SHORT_DESC="Mono library providing a GDI+ compatible API on non-Windows \
+operating systems"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.mono-project.com/Libgdiplus"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mono/libgdiplus/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="m4 bison glib-dev xorg-dev libxml2-dev \
@@ -19,37 +21,27 @@ SPLIT="libgdiplus-dev"
 # Build documentation at http://mono-project.com/Compiling_Mono
 # and http://mono-project.com/Release_Notes_Mono_2.4#Installing_Mono_2.4
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--sysconfdir=/etc \
 		--with-cairo=system \
-		$CONFIGURE_ARGS  &&
-	make  &&
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libgdiplus)
-		DEPENDS="glib glibc-base xorg-libICE xorg-libSM xorg-libX11 \
+		libgdiplus)
+			copy @std
+			DEPENDS="glib glibc-base xorg-libICE xorg-libSM xorg-libX11 \
 			xorg-libXau xorg-libXdmcp xorg-libXrender cairo expat \
 			freetype fontconfig giflib jpeg libpng16 tiff xorg-pixman \
 			libexif zlib util-linux-uuid"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	libgdiplus-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

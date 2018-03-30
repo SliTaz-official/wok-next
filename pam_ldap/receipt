@@ -1,31 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pam_ldap"
 VERSION="185"
 CATEGORY="system-tools"
-SHORT_DESC="Get and update authenticate from LDAP."
+SHORT_DESC="Get and update authenticate from LDAP"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.padl.com/OSS/pam_ldap.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.padl.com/download/$TARBALL"
 
 BUILD_DEPENDS="pam-dev perl openldap-dev libldap"
-DEPENDS="pam nss_ldap openssl libldap cyrus-sasl libcomerr3"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./vers_string -v
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--sysconfdir=/etc --mandir=/usr/share/man $CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr/lib $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="pam nss_ldap openssl libldap cyrus-sasl libcomerr3"
 }

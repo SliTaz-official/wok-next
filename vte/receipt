@@ -7,6 +7,7 @@ SHORT_DESC="Terminal capabilities for GTK+ widgets"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -16,32 +17,28 @@ BUILD_DEPENDS="automake gettext gobject-introspection-dev vala intltool \
 pango-dev gtk+3-dev pcre2-dev gnutls-dev"
 SPLIT="vte-terminal vte vte-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html
-
+compile_rules() {
 	case "$ARCH" in
-		i?86) ARCH_ARGS="--enable-introspection=yes";;
-		arm)  ARCH_ARGS="--enable-introspection=no";;
+		arm*) ARCH_ARGS="--enable-introspection=no";;
+		*)    ARCH_ARGS="--enable-introspection=yes";;
 	esac
 
 	sed -i '/Werror/d' configure.ac &&
 	autoreconf &&
 
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make -j1 && make install
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make -j1 &&
+	make install
 
 	# add 'Home' and 'End' keys
 	#sed -i '9i\ \ \ \ :kh=\\E[H:@7=\\E[F:\\' $install/usr/share/vte/termcap-0.0/xterm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		vte-terminal)
 			copy bin/

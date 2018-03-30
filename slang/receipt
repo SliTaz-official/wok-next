@@ -14,11 +14,8 @@ WGET_URL="ftp://space.mit.edu/pub/davis/slang/v${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="pcre-dev oniguruma-dev libpng16-dev zlib-dev readline-dev"
 SPLIT="slang-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--with-readline=gnu \
 		$CONFIGURE_ARGS &&
 	make -j1 &&
@@ -31,9 +28,7 @@ compile_rules()
 		$install/usr/lib/slang/v2/modules/*.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		slang)
 			copy @std

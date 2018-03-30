@@ -29,11 +29,8 @@ compile_rules() {
 	GLL_DRV="i915,nouveau,r300,r600,radeonsi,svga,swrast,swr,virgl,etnaviv,imx"
 
 	sed -i "/pthread_stubs_possible=/s/yes/no/" configure.ac
-	fix ld
 	./autogen.sh \
 		CFLAGS='-O2' CXXFLAGS='-O2' \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--enable-texture-float \
 		--enable-gles1 \
 		--enable-gles2 \
@@ -45,7 +42,8 @@ compile_rules() {
 		--with-gallium-drivers=$GLL_DRV &&
 	unset GLL_DRV &&
 	fix libtool &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	cook_pick_docs docs/*
 	install -Dm644 $stuff/90-DRI.conf $install/etc/X11/xorg.conf.d/90-DRI.conf

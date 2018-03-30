@@ -19,9 +19,7 @@ wireless_tools-dev libxml2-dev lxmenu-data libwnck2-dev libfm-dev \
 libkeybinder-dev"
 SPLIT="lxpanel-extra lxpanel lxpanel-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
 		arm*) ARCH_ARGS='--with-plugins="netstatus,volumealsa,cpu,batt,xkb,thermal,cpufreq,monitors"';;
 	esac
@@ -29,11 +27,11 @@ compile_rules()
 	./autogen.sh
 	CFLAGS="$CFLAGS -lgmodule-2.0"
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make install || exit 1
+	fix libtool &&
+	make &&
+	make install || exit 1
 
 	# SliTaz profile
 	cp -r $stuff/slitaz $install/etc/xdg/lxpanel/
@@ -41,9 +39,7 @@ compile_rules()
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		lxpanel-extra)
 			copy kbled.so ns-*.png *lock-*.png xkb-flags/ \

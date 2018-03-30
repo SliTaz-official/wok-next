@@ -14,15 +14,11 @@ WGET_URL="$XORG_MIRROR/app/$TARBALL"
 BUILD_DEPENDS="xorg-libXmu-dev"
 PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -e '/$serverargs $vtarg/ s/serverargs/: #&/' \
 		-i startx.cpp
 
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-xinitdir=/etc/X11/xinit \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -31,10 +27,8 @@ compile_rules()
 	cp $stuff/xserverrc $install/etc/X11/xinit/xserverrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	TAGS="utility xorg"
 	DEPENDS="xorg-libX11   openssl xorg-xauth"
+	TAGS="utility xorg"
 }

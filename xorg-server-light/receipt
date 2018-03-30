@@ -25,9 +25,7 @@ xorg-inputproto xorg-kbproto xorg-fontsproto xorg-videoproto \
 xorg-compositeproto xorg-recordproto xorg-resourceproto xorg-presentproto \
 xorg-libxkbfile-dev xorg-libXfont2-dev xorg-libXau-dev xorg-libpciaccess-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Handle cross compilation. ARM use build host: perl flex
 	case "$ARCH" in
 		arm)
@@ -35,14 +33,12 @@ compile_rules()
 			ARCH_ARGS="--enable-malloc0returnsnull"
 			OS_NAME="SliTaz ARM"
 			VENDOR="http://arm.slitaz.org" ;;
-		i?86)
+		*)
 			OS_NAME="SliTaz GNU/Linux"
 			VENDOR="http://www.slitaz.org" ;;
 	esac
 
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-docs \
 		--disable-devel-docs \
 		--disable-screensaver \
@@ -69,8 +65,10 @@ compile_rules()
 		--with-fontrootdir=/usr/share/fonts/X11 \
 		--with-xkb-output=/var/lib/xkb \
 		--with-serverconfig-path=/etc/X11 \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 # Be sure it as cross compile
@@ -78,9 +76,7 @@ testsuite() {
 	readelf -h $install/usr/bin/Xorg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 #	DEPENDS="xorg-xkeyboard-config xorg-libpciaccess xorg-libXxf86vm \
 #	xorg-libXfont xorg-libXau xorg-base-fonts libgcrypt xorg-pixman \

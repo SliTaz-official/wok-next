@@ -21,10 +21,11 @@ SPLIT="libfm-gtk libfm-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	# remove useless file
 	rm -r $install/usr/share/mime/

@@ -3,49 +3,38 @@
 PACKAGE="unixODBC"
 VERSION="2.3.4"
 CATEGORY="system-tools"
-SHORT_DESC="ODBC for unix."
+SHORT_DESC="ODBC for UNIX"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.unixodbc.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.unixodbc.org/pub/unixODBC/$TARBALL"
 
 BUILD_DEPENDS="readline-dev"
-SPLIT="unixODBC libunixODBC unixODBC-dev"
+SPLIT="libunixODBC unixODBC unixODBC-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--disable-gui \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	unixODBC)
-		TAGS="database"
-		DEPENDS="libunixODBC readline"
-		mkdir -p $fs/usr/lib
-		cp -a $install/etc $fs
-		cp -a $install/usr/bin $fs/usr
-		;;
-	libunixODBC)
-		CAT="system-tools|ODBC for unix libraries."
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	unixODBC-dev)
-		CAT="development|ODBC for unix development files."
-		DEPENDS="unixODBC"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*a $fs/usr/lib
-		;;
+		libunixODBC)
+			copy *.so*
+			CAT="system-tools|libraries"
+			;;
+		unixODBC)
+			copy @std @rm
+			DEPENDS="libunixODBC readline"
+			TAGS="database"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

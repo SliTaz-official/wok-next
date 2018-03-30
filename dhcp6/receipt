@@ -15,27 +15,22 @@ BUILD_DEPENDS="perl"
 SPLIT="dhcp6-client dhcp6-relay dhcp6-dev"
 SIBLINGS="dhcp"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	grep -q MYEOL includes/dhctoken.h ||
 	sed -i "s/SEMI/MYEOL = '\\\\n',\n\tQUESTION = '?',\n\t&/" \
 		includes/dhctoken.h
 	sed -i 's/== NOERROR/== (isc_result_t) NOERROR/' server/ddns.c
 
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
 
 	mkdir -p $install/etc/init.d
-	cp $WOK/dhcp/stuff/dhcpd $install/etc/init.d
+	cp $WOK/dhcp/stuff/dhcpd     $install/etc/init.d
 	cp $src/client/scripts/linux $install/etc/dhclient-script
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		dhcp6)
 			copy dhcpd.conf dhcpd
@@ -58,4 +53,3 @@ genpkg_rules()
 		*-dev) copy @dev;;
 	esac
 }
-

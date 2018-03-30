@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxlauncher"
 VERSION="0.2.4"
@@ -6,51 +6,27 @@ CATEGORY="x-window"
 SHORT_DESC="LXDE launcher for netbooks"
 LICENSE="GPL3"
 MAINTAINER="pankso@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wiki.lxde.org/en/LXLauncher"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
-TAGS="LXDE netbook"
 
-DEPENDS="xorg-libX11 gtk+ gnome-menus startup-notification menu-cache xorg-libXdamage"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
 BUILD_DEPENDS="xorg-libX11-dev gtk+-dev gnome-menus gnome-menus-dev \
 menu-cache-dev startup-notification-dev startup-notification xorg-libxcb-dev \
 intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	#export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
-	## Fix infinite loop.
-	#touch po/stamp-it
-	## Default icons to 32
-	#sed -i s/'120'/'100'/ src/lxlauncher.c
-	#sed -i s/'48'/'32'/ src/lxlauncher.c
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	# SliTaz homemade config file
+	install -Dm644 $stuff/gtkrc $install/etc/xdg/lxlauncher/gtkrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-
-	cp -a $install/usr/bin $fs/usr
-
-	# SliTaz home make config files
-	cp -a $install/etc $fs
-	cp -a $stuff/gtkrc $fs/etc/xdg/lxlauncher
-
-	cp -a $install/usr/share/desktop-directories $fs/usr/share
-
-	#cp -a $stuff/background $fs/usr/share/lxlauncher
-	#background="internet learn play settings work"
-	#for i in $background; do
-	#	ln -sf slitaz.jpg $fs/usr/share/lxlauncher/background/accessibility_${i}_wallpaper.jpg
-	#done
-
-	chown -R root.root $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11 gtk+ gnome-menus startup-notification menu-cache \
+	xorg-libXdamage"
+	TAGS="LXDE netbook"
 }

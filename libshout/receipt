@@ -11,26 +11,18 @@ WEB_SITE="https://www.icecast.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.xiph.org/releases/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="libvorbis-dev libtheora-dev speex-dev libogg-dev"
 BUILD_DEPENDS="libogg-dev libvorbis-dev libtheora-dev speex-dev openssl-dev"
 SPLIT="libshout-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -e 's/SSLeay_add_all_algorithms/OpenSSL_add_all_algorithms/g' -i src/tls.c
 
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
-	make && make install
-#	make LDFLAGS+=-lspeex && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libshout)
 			copy @std

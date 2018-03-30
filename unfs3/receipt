@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="unfs3"
 VERSION="0.9.22"
@@ -6,40 +6,38 @@ CATEGORY="network"
 SHORT_DESC="User-land NFSv3 Server"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://unfs3.sourceforge.net/"
-WGET_URL="http://ovh.dl.sourceforge.net/sourceforge/unfs3/${TARBALL}"
-TAGS="network nfs"
-CONFIG_FILES="/etc/exports"
 
-DEPENDS="portmap"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://ovh.dl.sourceforge.net/sourceforge/unfs3/${TARBALL}"
+
 BUILD_DEPENDS="flex"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--sysconfdir=/etc \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make || return 1
+
+	install -Dm755 $src/unfsd              $install/usr/bin/unfsd
+	install -Dm644 $stuff/etc/exports      $install/etc/exports
+	install -Dm755 $stuff/etc/init.d/unfsd $install/etc/init.d/unfsd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	install -g root -o root -m 0755 -s $src/unfsd $fs/usr/bin
-	
-	mkdir -p $fs/etc/init.d
-	install -g root -o root -m 0644 stuff/etc/exports $fs/etc
-	install -g root -o root -m 0755 stuff/etc/init.d/unfsd $fs/etc/init.d
+genpkg_rules() {
+	copy @std
+	DEPENDS="portmap"
+	TAGS="network nfs"
+	CONFIG_FILES="/etc/exports"
 }
 
-post_install()
-{
+post_install() {
+	[ -n "$quiet" ] ||
+	cat <<EOT
 
-       echo -e "\nTo starts $PACKAGE server you can run :\n"
-       echo "/etc/init.d/$PACKAGE start"
-       echo -e "Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf\n"
+	.----------------------------------------------.
+	| To start unfs3 server you can run:           |
+	|   /etc/init.d/unfsd start                    |
+	|                                              |
+	| Or add unfsd to RUN_DAEMONS in /etc/rcS.conf |
+	'----------------------------------------------'
+EOT
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rsnapshot"
 VERSION="1.4.2"
@@ -6,31 +6,24 @@ CATEGORY="system-tools"
 SHORT_DESC="A remote filesystem snapshot utility"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.rsnapshot.org"
-WGET_URL="https://github.com/rsnapshot/rsnapshot/archive/$VERSION.tar.gz"
-CONFIG_FILES="/etc/rsnapshot.conf"
 
-DEPENDS="perl rsync"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/rsnapshot/rsnapshot/archive/$VERSION.tar.gz"
+
 BUILD_DEPENDS="perl rsync autoconf automake libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	mv $install/etc/rsnapshot.conf.default $install/etc/rsnapshot.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc/rsnapshot.conf.default $fs/etc/rsnapshot.conf
+genpkg_rules() {
+	copy @std
+	CONFIG_FILES="/etc/rsnapshot.conf"
+	DEPENDS="perl rsync"
 }

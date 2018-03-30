@@ -1,55 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ssmtp"
 VERSION="2.64"
 CATEGORY="network"
-SHORT_DESC="Extremely simple MTA to get mail off the system to a mailhub."
+SHORT_DESC="Extremely simple MTA to get mail off the system to a mailhub"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_${VERSION}.orig.tar.bz2"
 WEB_SITE="http://packages.debian.org/stable/mail/ssmtp"
-WGET_URL="http://ftp.debian.org/debian/pool/main/s/ssmtp/$TARBALL"
-CONFIG_FILES="/etc/ssmtp/ssmtp.conf /etc/ssmtp/revaliases"
 
-DEPENDS="openssl"
+TARBALL="${PACKAGE}_${VERSION}.orig.tar.bz2"
+WGET_URL="http://ftp.debian.org/debian/pool/main/s/ssmtp/$TARBALL"
+
 BUILD_DEPENDS="openssl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|@LIBS@|& -lcrypto|' Makefile.in
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
+
+	./configure \
 		--enable-md5auth \
 		--enable-ssl \
 		$CONFIGURE_ARGS &&
-	make
+	make || return 1
 
 	# Install
 	mkdir -p $DESTDIR/usr/sbin $DESTDIR/etc/ssmtp
 	cp ssmtp $DESTDIR/usr/sbin
 	cp revaliases ssmtp.conf $DESTDIR/etc/ssmtp
+
+	ln -sf ssmtp "$install/usr/sbin/sendmail"
+	ln -sf ssmtp "$install/usr/sbin/newaliases"
+	ln -sf ssmtp "$install/usr/sbin/mailq"
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin/ $fs/usr/
-	cp -a $install/etc/ $fs/
-}
-
-post_install()
-{
-	ln -sf /usr/sbin/ssmtp "$1/usr/sbin/sendmail"
-	ln -sf /usr/sbin/ssmtp "$1/usr/sbin/newaliases"
-	ln -sf /usr/sbin/ssmtp "$1/usr/sbin/mailq"
-}
-
-post_remove()
-{
-	rm -f "$1/usr/sbin/sendmail"
-	rm -f "$1/usr/sbin/newaliases"
-	rm -f "$1/usr/sbin/mailq"
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
+	CONFIG_FILES="/etc/ssmtp/ssmtp.conf /etc/ssmtp/revaliases"
 }

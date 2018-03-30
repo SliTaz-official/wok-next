@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fcron"
 VERSION="3.0.4"
@@ -6,21 +6,15 @@ CATEGORY="network"
 SHORT_DESC="Periodical command scheduler"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WEB_SITE="http://fcron.free.fr/"
-WGET_URL="http://fcron.free.fr/archives/$TARBALL"
-TAGS="cron scheduler"
 
-DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.src.tar.gz"
+WGET_URL="http://fcron.free.fr/archives/$TARBALL"
+
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--without-sendmail \
 		--with-username=nobody \
 		--with-groupname=nogroup \
@@ -31,18 +25,13 @@ compile_rules()
 		--with-editor=/bin/vi \
 		--with-sysfcrontab=yes \
 		$CONFIGURE_ARGS &&
-	make && make -j1 DESTDIR=$DESTDIR install
+	make &&
+	make -j1 DESTDIR=$DESTDIR install || return 1
+
+	install -Dm755 $stuff/fcron $install/etc/init.d/fcron
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/ $fs/etc/init.d
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin/fcron $fs/usr/bin
-	cp -a $install/var $fs
-	cp -a $install/etc $fs
-
-	cp -a stuff/fcron $fs/etc/init.d
+genpkg_rules() {
+	copy @std
+	TAGS="cron scheduler"
 }

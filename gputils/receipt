@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gputils"
 VERSION="0.14.3"
 CATEGORY="development"
-SHORT_DESC="Tools for the Microchip (TM) PIC microcontrollers."
+SHORT_DESC="Tools for the Microchip (TM) PIC microcontrollers"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gputils.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --sysconfdir=/etc $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
 }

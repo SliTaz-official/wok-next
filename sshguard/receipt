@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sshguard"
 VERSION="2.0.0"
@@ -6,29 +6,21 @@ CATEGORY="security"
 SHORT_DESC="Protects networked hosts from brute force attacks"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.sshguard.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
-TAGS="ssh"
 
-DEPENDS="iptables"
-BUILD_DEPENDS=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
+compile_rules() {
+	./configure \
 		--with-firewall=iptables \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="iptables"
+	TAGS="ssh"
 }

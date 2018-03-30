@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="yaws"
 VERSION="1.91"
@@ -6,35 +6,22 @@ CATEGORY="development"
 SHORT_DESC="http webserver written in erlang"
 MAINTAINER="allan316@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://yaws.hyber.org"
-WGET_URL="$WEB_SITE/download/$TARBALL"
-TAGS="webserver"
 
-DEPENDS="erlang pam"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/download/$TARBALL"
+
 BUILD_DEPENDS="erlang pam-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/yaws
-	./configure \
-		--prefix=/usr \
-		--localstatedir=/var \
-		--sysconfdir=/etc \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install 2>&1 | grep -v yaws.pdf
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr 
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="erlang pam"
+	TAGS="webserver"
 }
-

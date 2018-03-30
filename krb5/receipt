@@ -19,20 +19,16 @@ compile_rules() {
 	CFLAGS="${CFLAGS/-Os/-O2}"
 	CXXFLAGS="$CFLAGS"
 
-	cd src
 	sed -e "s@python2.5/Python.h@& python2.7/Python.h@g" \
 		-e "s@-lpython2.5]@&,\n  AC_CHECK_LIB(python2.7,main,[PYTHON_LIB=-lpython2.7])@g" \
-		-i configure.in &&
-
+		-i configure.in
 	sed -e 's@\^u}@^u cols 300}@' \
-		-i tests/dejagnu/config/default.exp &&
-
+		-i tests/dejagnu/config/default.exp
 	sed -e '/eq 0/{N;s/12 //}' \
-		-i plugins/kdb/db2/libdb2/test/run.test &&
+		-i plugins/kdb/db2/libdb2/test/run.test
 
 	autoconf &&
 	./configure \
-		--sysconfdir=/etc \
 		--localstatedir=/var/lib \
 		--with-system-et=no \
 		--with-system-ss=no \

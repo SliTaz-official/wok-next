@@ -12,67 +12,53 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}dist/$TARBALL"
 
 BUILD_DEPENDS="gettext groff pam-dev"
-SPLIT="sudo sudo-pam sudo-dev sudo-pam-dev"
+SPLIT="sudo sudo-dev sudo-pam:pam sudo-pam-dev:pam"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cp -a $src $src-pam
+compile_rules() {
+	case $SET in
+		'')  SET_ARGS='--without-pam';;
+		pam) SET_ARGS='--with-pam';;
+	esac
+
 	./configure \
-		--sysconfdir=/etc \
 		--libexecdir=/usr/lib \
 		--with-secure-path \
 		--with-all-insults \
 		--with-env-editor \
 		--docdir=/usr/share/doc/sudo-$VERSION \
 		--with-passprompt="[sudo] password for %p" \
-		--without-pam \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install &&
+	make install || return 1
 
-	cd $src-pam &&
-	./configure \
-		--sysconfdir=/etc \
-		--libexecdir=/usr/lib \
-		--with-secure-path \
-		--with-all-insults \
-		--with-env-editor \
-		--docdir=/usr/share/doc/sudo-$VERSION \
-		--with-passprompt="[sudo] password for %p" \
-		--with-pam \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR-pam install &&
+	ln -sfv libsudo_util.so.0.0.0 $install/usr/lib/sudo/libsudo_util.so.0
 
-	ln -sfv libsudo_util.so.0.0.0 $install/usr/lib/sudo/libsudo_util.so.0 &&
-	ln -sfv libsudo_util.so.0.0.0 $install-pam/usr/lib/sudo/libsudo_util.so.0 &&
-	
-	mkdir -p $install-pam/etc/pam.d &&
-	cp $stuff/sudo $install-pam/etc/pam.d/
+	if [ "$SET" == 'pam' ]; then
+		install -Dm644 $stuff/sudo $install/etc/pam.d/sudo
+	fi
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		sudo)
 			copy @std
 			DEPENDS="zlib"
 			CONFIG_FILES="/etc/sudoers"
 			;;
-		sudo-pam)
-			install=$install-pam copy @std
-			DEPENDS="zlib pam"
-			PROVIDE="sudo:pam"
-			CONFIG_FILES="/etc/sudoers /etc/pam.d/sudo"
-			;;
 		sudo-dev)
 			copy @dev
 			DEPENDS="zlib-dev"
 			;;
+
+		sudo-pam)
+			copy @std
+			DEPENDS="zlib pam"
+			PROVIDE="sudo:pam"
+			CONFIG_FILES="/etc/sudoers /etc/pam.d/sudo"
+			;;
 		sudo-pam-dev)
-			install=$install-pam copy @dev
+			copy @dev
 			DEPENDS="zlib-dev pam-dev"
 			PROVIDE="sudo-dev:pam"
 			;;

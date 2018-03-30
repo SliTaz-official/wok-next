@@ -1,39 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tinyproxy"
 VERSION="1.8.3"
 CATEGORY="network"
-SHORT_DESC="A light-weight HTTP proxy daemon for POSIX operating systems."
+SHORT_DESC="A light-weight HTTP proxy daemon for POSIX operating systems"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://banu.com/tinyproxy/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://banu.com/pub/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -Np1 -i $stuff/no-docs-and-tests.diff
+
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--sysconfdir=/etc/tinyproxy \
-		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
 	# Provide sane defaults
-	find $DESTDIR/etc -name tinyproxy.conf | xargs sed -i '/^#Listen/a\Listen 127.0.0.1'
+	sed -i '/^#Listen/a\Listen 127.0.0.1' $install/etc/tinyproxy/tinyproxy.conf
 
+	install -Dm755 $stuff/tinyproxy $install/etc/init.d/tinyproxy
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/etc/init.d
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share/tinyproxy $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $stuff/tinyproxy $fs/etc/init.d
+genpkg_rules() {
+	copy @std
 }
-

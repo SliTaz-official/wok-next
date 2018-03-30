@@ -15,29 +15,26 @@ BUILD_DEPENDS_arm="gtk+-dev ncurses-dev"
 BUILD_DEPENDS="intltool gtk+-dev python-dev gobject-introspection-dev pygtk-dev"
 SPLIT="vte-gtk2-terminal vte-gtk2-python vte-gtk2 vte-gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html (for gtk+3 version)
 
 	case "$ARCH" in
-		i?86) ARCH_ARGS="--enable-introspection=yes";;
-		arm)  ARCH_ARGS="--enable-introspection=no";;
+		arm*) ARCH_ARGS="--enable-introspection=no";;
+		*)    ARCH_ARGS="--enable-introspection=yes";;
 	esac
 
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make -j1 && make install
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make install
 
 	# add 'Home' and 'End' keys
 	#sed -i '9i\ \ \ \ :kh=\\E[H:@7=\\E[F:\\' $install/usr/share/vte/termcap-0.0/xterm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		vte-gtk2-terminal)
 			copy bin/

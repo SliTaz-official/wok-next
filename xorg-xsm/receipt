@@ -15,19 +15,12 @@ BUILD_DEPENDS="xorg-util-macros xorg-libX11-dev xorg-libXt-dev xorg-libICE-dev \
 xorg-libSM-dev xorg-libXaw-dev"
 PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libICE xorg-libSM xorg-libX11 xorg-libXaw xorg-libXt"
 	CONFIG_FILES="/etc/X11/app-defaults/XSm /etc/X11/xsm/system.xsm"

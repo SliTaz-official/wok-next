@@ -1,36 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="icecast"
 VERSION="2.3.3"
 CATEGORY="multimedia"
-SHORT_DESC="An opensource alternative to shoutcast that supports mp3, ogg (vorbis/theora) and aac streaming"
+SHORT_DESC="An opensource alternative to shoutcast that supports mp3, ogg \
+(vorbis/theora) and aac streaming"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.icecast.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.xiph.org/releases/$PACKAGE/$TARBALL"
 
-DEPENDS="libxslt libxml2 libogg libvorbis libtheora"
-BUILD_DEPENDS="libxslt-dev libxml2-dev libogg-dev libvorbis-dev libtheora-dev libogg libvorbis libtheora"
+BUILD_DEPENDS="libxslt-dev libxml2-dev libogg-dev libvorbis-dev libtheora-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--disable-yp \
 		$CONFIGURE_ARGS &&
 	make -j2 &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/etc $fs/
-	cp -a $install/usr/share/icecast $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="libxslt libxml2 libogg libvorbis libtheora"
 }

@@ -18,19 +18,18 @@ SPLIT="distcc distccmon-gui"
 compile_rules() {
 	export CFLAGS="-Wno-error=unused-but-set-variable -Wno-unused-local-typedefs"
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		--with-gnome \
 		--with-gtk \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		distcc)
-			mkdir -p $fs/usr \
+			mkdir -p \
+				$fs/usr \
 				$fs/var/log/distccd \
 				$fs/etc/init.d
 

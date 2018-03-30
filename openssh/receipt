@@ -16,8 +16,6 @@ BUILD_DEPENDS="openssl-dev zlib-dev openssl-dev perl mdocml-dev pam-dev" # groff
 SPLIT="openssh openssh-pam:pam"
 
 compile_rules() {
-	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
-
 	install -m700 -d /var/lib/sshd
 	chown   root:sys /var/lib/sshd
 
@@ -41,7 +39,8 @@ compile_rules() {
 		--with-privsep-path=/var/lib/sshd \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install || return 1
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
 
 	install -vm755 contrib/ssh-copy-id $install/usr/bin/
 

@@ -1,35 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bird"
 VERSION="1.6.3"
 CATEGORY="network"
-SHORT_DESC="internet routing daemon"
+SHORT_DESC="Internet routing daemon"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://bird.network.cz"
-WGET_URL="ftp://bird.network.cz/pub/$PACKAGE/$TARBALL"
-TAGS="route routing daemon"
 
-DEPENDS="readline ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="ftp://bird.network.cz/pub/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="flex bison readline-dev ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="readline ncurses"
+	TAGS="route routing daemon"
 }

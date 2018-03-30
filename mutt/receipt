@@ -1,5 +1,4 @@
-
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="mutt"
 VERSION="1.6.1"
@@ -7,50 +6,41 @@ CATEGORY="network"
 SHORT_DESC="Small and powerful text-based mail client"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.mutt.org"
-WGET_URL="ftp://ftp.mutt.org/pub/mutt/$TARBALL"
-CONFIG_FILES="/etc/Muttrc /etc/mime.types"
 
-DEPENDS="openssl ncurses zlib libidn libsasl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="ftp://ftp.mutt.org/pub/mutt/$TARBALL"
+
 BUILD_DEPENDS="libidn-dev ncurses-dev openssl-dev perl cyrus-sasl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{	
-    addgroup mail
-    sed -i 's/STACK \*/STACK_OF(X509) */' mutt_ssl.c
-    ./configure \
-		--prefix=/usr \
+compile_rules() {
+	addgroup mail
+	sed -i 's/STACK \*/STACK_OF(X509) */' mutt_ssl.c
+
+	./configure \
 		--enable-imap \
 		--with-ssl=/usr \
 		--with-mailpath=/var/mail \
-		--sysconfdir=/etc \
 		--enable-pop \
 		--enable-smtp \
 		--with-sasl \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make &&
+	make install
+
 	delgroup mail
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc/* $fs/etc	
-	cp -a $install/usr/share $fs/usr
-	rm -r $fs/usr/share/doc
-	rm -r $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl ncurses zlib libidn libsasl"
+	CONFIG_FILES="/etc/Muttrc /etc/mime.types"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" addgroup mail
 }
 
-post_remove()
-{
+post_remove() {
 	chroot "$1/" delgroup mail
 }

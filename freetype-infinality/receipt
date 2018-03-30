@@ -23,38 +23,29 @@ compile_rules() {
 	patch -p1 < $src/patch/freetype-entire-infinality-patchset-20130104-01.patch
 
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install 2>&1 | grep -v rmdir
+	make install || return 1
+
+	# profile settings
+	install -Dm644 $src/patch/infinality-settings.sh \
+		$install/etc/profile.d/infinality-settings.sh
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		freetype-infinality)
-			mkdir -p \
-				$fs/etc/profile.d \
-				$fs/usr/lib/freetype-infinality
-			# profile settings
-			install -m644 $src/patch/infinality-settings.sh $fs/etc/profile.d
-			# binary & libs
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib/freetype-infinality
+			copy @std
 			DEPENDS="slitaz-base-files zlib"
 			PROVIDE="freetype"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/share $fs/usr
+			copy @dev
 			DEPENDS="freetype-infinality libzip-dev bzip2-dev"
 			;;
 	esac
 }
-
 
 post_install_freetype_infinality() {
 	# SliTaz not support /etc/profile.d/ by default, but use /etc/profile file
@@ -67,7 +58,14 @@ EOT
 	# add patched libs to loader config
 	echo '/usr/lib/freetype-infinality' >> "$1/etc/ld.so.conf"
 	chroot "$1/" ldconfig
-	echo 'Now you can log out/in to take effect on all your apps'
+
+	[ -n "$quiet" ] || cat <<EOT
+
+	.---------------------------------------.
+	| Now you can log out/in to take effect |
+	| on all your apps.                     |
+	'---------------------------------------'
+EOT
 }
 
 post_remove_freetype_infinality() {

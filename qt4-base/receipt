@@ -7,8 +7,9 @@ CATEGORY="meta"
 SHORT_DESC="Qt4 less deps rebuild (without gstreamer, phonon etc.)"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL3 LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://qt-project.org/"
+
+TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="http://download.qt-project.org/archive/qt/${VERSION%.*}/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="xorg-libX11-dev dbus-dev libmng-dev \
@@ -22,11 +23,10 @@ tiff-dev xorg-dev-proto xorg-dev zip unzip gtk+-dev alsa-lib-dev \
 sqlite3-dev libQtClucene wayland-dev"
 SPLIT="qt-base libQtWebkit qtconfig"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export CXXFLAGS="$CXXFLAGS -std=gnu++98"
 
+	# site script isn't used
 	./configure\
 		-silent \
 		-prefix /usr \
@@ -64,9 +64,7 @@ compile_rules()
 	make INSTALL_ROOT=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 	qt4-base)
 		# PROVIDE="qt-x11-opensource-src Qt4"
@@ -75,10 +73,9 @@ genpkg_rules()
 		mkdir -p $fs/etc/xdg
 		;;
 	libQtWebkit)
+		copy libQtWebKit.so*
 		CAT="network|Web browser engine for Qt"
 		DEPENDS="libQtCore libQtGui libQtNetwork libpng16"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtWebKit.so* $fs/usr/lib
 		;;
 	qtconfig)
 		CAT="x-window|Qtconfig is a tool that allows users to customize the default settings for Qt applications"

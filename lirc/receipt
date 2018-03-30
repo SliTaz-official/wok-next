@@ -3,7 +3,8 @@
 PACKAGE="lirc"
 VERSION="0.9.4d"
 CATEGORY="utilities"
-SHORT_DESC="Enables decoding and sending signals of many commonly used remote controls."
+SHORT_DESC="Enables decoding and sending signals of many commonly used remote \
+controls"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -13,18 +14,13 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="linux linux-module-headers python libusb-dev libirman-dev \
 portaudio-dev alsa-lib-dev libusb-compat-dev util-linux-uuid-dev \
 libftdi-dev jack-dev libxslt python3 udev-dev"
-SPLIT="lirc lirc-dev"
+SPLIT="lirc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	KERNEL_VERSION=`grep  ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g'`
+compile_rules() {
+	KERNEL_VERSION=$(grep  ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g')
 	sed -i "s/uname -r/echo $KERNEL_VERSION-slitaz/g" configure
 
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-x \
 		--with-driver=all \
 		--with-kerneldir=/usr/src/linux \
@@ -34,27 +30,15 @@ compile_rules()
 	make DESTDIR=$DESTDIR install 2>&1 | sed '/depmod:/d'
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	lirc)
-		DEPENDS="glibc-base libusb libusb-compat libftdi xorg-libXau \
+		lirc)
+			copy @std
+			DEPENDS="glibc-base libusb libusb-compat libftdi xorg-libXau \
 			libirman portaudio alsa-lib util-linux-uuid"
-		mkdir -p $fs/usr/lib $fs/usr/share
-		cp -a $install/usr/share/lirc $fs/usr/share
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-
-		cp -a $install/etc $fs
-		cp -a $install/var $fs
-		;;
-	lirc-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

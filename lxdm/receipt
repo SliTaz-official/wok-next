@@ -11,22 +11,18 @@ WEB_SITE="https://wiki.lxde.org/en/LXDM"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="xorg-dev gtk+-dev"
 BUILD_DEPENDS="intltool xorg-libX11-dev gtk+-dev   iso-codes" # + consolekit2-dev
 SPLIT="lxdm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sbindir=/usr/bin \
 		--libexecdir=/usr/lib/lxdm \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--enable-password \
 		--without-pam \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	# lxdm daemon
 	cp -a $stuff/init.d/ $install/etc/
@@ -36,9 +32,7 @@ compile_rules()
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		lxdm)
 			copy @std

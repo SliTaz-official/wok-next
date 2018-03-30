@@ -11,14 +11,14 @@ WEB_SITE="https://github.com/mate-desktop/mate-polkit"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/mate-polkit/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="mate-common gtk-doc gtk+3-dev polkit-dev"
+BUILD_DEPENDS="mate-common gtk-doc gtk+3-dev polkit-dev \
+gobject-introspection-dev"
 SPLIT="mate-polkit-dev"
 
 compile_rules() {
 	./autogen.sh \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

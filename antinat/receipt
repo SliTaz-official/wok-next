@@ -15,23 +15,16 @@ WGET_URL="http://www.malsmith.net/download/?obj=antinat/$VERSION/antinat-source.
 BUILD_DEPENDS="gfortran expat-dev"
 SPLIT="antinat-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
 
 	# make file readable for web interface, revert file permissions in post-install
 	chmod a+r $install/etc/antinat.xml
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		antinat)
 			copy @std var/

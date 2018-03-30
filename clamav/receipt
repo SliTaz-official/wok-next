@@ -27,7 +27,6 @@ compile_rules() {
 	adduser -s /bin/false -H -D -u 64 clamav
 
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc/clamav \
 		--with-dbdir=/var/lib/clamav \
 		--with-iconv=no \
@@ -62,13 +61,7 @@ genpkg_rules() {
 			TAGS="antivirus"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib \
-				$fs/usr/bin
-
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/bin/clamav-config $fs/usr/bin
+			copy @dev
 			;;
 	esac
 }

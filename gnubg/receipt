@@ -1,36 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnubg"
 VERSION="1.05.000"
 CATEGORY="games"
-SHORT_DESC="GNU Backgammon game."
+SHORT_DESC="GNU Backgammon game"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-release-$VERSION-sources.tar.gz"
 WEB_SITE="http://www.gnubg.org/"
+
+TARBALL="$PACKAGE-release-$VERSION-sources.tar.gz"
 WGET_URL="http://files.gnubg.org/media/sources/$TARBALL"
 
-DEPENDS="gtk+ libcanberra ncurses python gmp libvorbis libltdl"
 BUILD_DEPENDS="autoconf automake bison flex libtool \
 glib-dev libpng16-dev freetype-dev gtk+-dev cairo-dev libcanberra-dev \
 gtkglext-dev readline-dev python sqlite3-dev gmp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
+compile_rules() {
+	./configure \
 		--disable-cputest \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/applications
-	cp -a $install/* $fs
-	cp -a $stuff/gnubg.desktop $fs/usr/share/applications
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ libcanberra ncurses python gmp libvorbis libltdl"
 }

@@ -17,40 +17,23 @@ SPLIT="libbonobo-dev"
 
 compile_rules() {
 	sed -i 's/-DG_DISABLE_DEPRECATED//' activation-server/Makefile*
+
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc/gnome \
 		--libexecdir=/usr/lib/bonobo \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libbonobo)
-			mkdir -p $fs/usr/lib
-			cp -a $install/etc $fs/
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/orbit-2.0 $fs/usr/lib
-			cp -a $install/usr/lib/bonobo $fs/usr/lib
-
-			# Clean unwated files
-			cd $fs/usr/lib ; find . -name "*.*a" -exec rm -f {} \;
+			copy @std
 			DEPENDS="glib orbit2 libxml2 libglade"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.a* $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/bonobo-2.0 $fs/usr/lib
-			cp -a $install/usr/share/idl $fs/usr/share
-
-			# remove archive lib
-			find $fs/usr/lib -name *.so* -exec rm -f {} \;
+			copy @dev
 			;;
 	esac
 }

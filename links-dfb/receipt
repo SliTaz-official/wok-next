@@ -1,41 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="links-dfb"
 VERSION="2.14"
 CATEGORY="network"
-SHORT_DESC="Light and fast web browser using Ncurses, X or DirectFB."
+SHORT_DESC="Light and fast web browser using Ncurses, X or DirectFB"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="links"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://links.twibright.com/"
-WGET_URL="http://links.twibright.com/download/$TARBALL"
-PROVIDE="links"
 
-DEPENDS="ncurses openssl jpeg libpng16 tiff zlib libgomp directfb"
+TARBALL="links-$VERSION.tar.gz"
+WGET_URL="http://links.twibright.com/download/$TARBALL"
+
 BUILD_DEPENDS="openssl-dev ncurses-dev jpeg-dev libpng16-dev tiff-dev \
 zlib-dev directfb-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/\*last_val/last_val/' dip.c
+
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		--with-directfb \
 		--without-bzip2 \
 		--enable-graphics \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $src/graphics/links.xpm $install/usr/share/pixmaps/links.xpm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp $src/graphics/links.xpm $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses openssl jpeg libpng16 tiff zlib libgomp directfb"
+	PROVIDE="links"
 }

@@ -18,13 +18,13 @@ SPLIT="man-db-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--disable-setuid \
 		--with-browser=/usr/bin/lynx \
 		--with-vgrind=/usr/bin/vgrind \
 		--with-grap=/usr/bin/grap \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
 
 	sed -i "s:man root:root root:g" $install/usr/lib/tmpfiles.d/man-db.conf
 }

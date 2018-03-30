@@ -16,15 +16,11 @@ BUILD_DEPENDS="xorg-libSM-dev xorg-libX11-dev glib-dev util-linux-uuid-dev"
 SPLIT="xorg-libXt-dev"
 
 compile_rules() {
-	# Handle cross compilation.
 	case "$ARCH" in
 		arm) unset CFLAGS ;;
 	esac
 
-	fix ld
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-appdefaultdir=/etc/X11/app-defaults \
 		$CONFIGURE_ARGS &&
 	fix libtool &&

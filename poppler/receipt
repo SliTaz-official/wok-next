@@ -15,28 +15,21 @@ BUILD_DEPENDS="tiff-dev zlib-dev libjpeg-turbo-dev libpng16-dev freetype-dev \
 fontconfig-dev cairo-dev lcms2-dev"
 SPLIT="poppler-apps poppler-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
 		--enable-build-type=release \
 		--enable-cmyk \
 		--enable-xpdf-headers \
 		--with-testdatadir=$PWD/testfiles \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make &&
+	make install || return 1
 
-	docdir="$install/usr/share/doc/poppler-$VERSION" &&
-	install -v -m755 -d        $docdir &&
-	install -v -m644 README*   $docdir &&
-	cp -vr glib/reference/html $docdir
+	cook_pick_docs README* glib/reference/html/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		poppler)
 			copy *.so*

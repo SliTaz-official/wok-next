@@ -6,17 +6,16 @@ CATEGORY="games"
 SHORT_DESC="An emulator for Gameboy and GameboyAdvance systems"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
-TARBALL="VisualBoyAdvance-src-$VERSION.tar.gz"
 WEB_SITE="http://vba.ngemu.com/"
+
+TARBALL="VisualBoyAdvance-src-$VERSION.tar.gz"
 WGET_URL="http://downloads.sourceforge.net/sourceforge/vba/$TARBALL"
 
 BUILD_DEPENDS="libglademm-dev libglademm libsdl-dev patch nasm gtk+-dev gtkmm-dev \
 cairomm-dev libglade-dev libxml2-dev zlib-dev bison flex"
-SPLIT="visualboyadvance visualboyadvance-gtk"
+SPLIT="visualboyadvance-gtk visualboyadvance"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/Util.cpp
 	sed -i 's/int i = 0; i < 16; i++/int ii = 0; ii < 16; ii++/' \
 		src/sdl/debugger.cpp
@@ -24,33 +23,32 @@ compile_rules()
 	for i in $stuff/$VERSION-*.patch; do
 		patch -Np0 < $i
 	done
+
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--disable-profiling \
 		--enable-gtk=2.4 \
 		--disable-dev \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make DESTDIR=$DESTDIR install
+	make $MAKEFLAGS &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $stuff/visualboyadvance-gtk.desktop \
+		$install/usr/share/applications/visualboyadvance-gtk.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	visualboyadvance)
-		CONFIG_FILES="/etc/VisualBoyAdvance.cfg"
-		TAGS="emulator gameboy"
-		DEPENDS="libsdl"
-		cp -a $install/* $fs
-		;;
-	visualboyadvance-gtk)
-		CAT="games|An emulator for Gameboy and Gameboy Advance systems (GTK frontend)."
-		TAGS="emulator gameboy"
-		DEPENDS="libglademm visualboyadvance"
-		mkdir -p $fs/usr/bin $fs/usr/share/applications
-		cp -a $install/usr/bin/gvba $fs/usr/bin
-		cp $stuff/visualboyadvance-gtk.desktop $fs/usr/share/applications
-		;;
+		visualboyadvance-gtk)
+			copy gvba visualboyadvance-gtk.desktop vba-64.png vba.glade *.mo
+			DEPENDS="libglademm visualboyadvance"
+			CAT="games|GTK frontend"
+			TAGS="emulator gameboy"
+			;;
+		visualboyadvance)
+			copy @std @rm
+			CONFIG_FILES="/etc/VisualBoyAdvance.cfg"
+			TAGS="emulator gameboy"
+			DEPENDS="libsdl"
+			;;
 	esac
 }

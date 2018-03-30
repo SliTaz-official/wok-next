@@ -11,28 +11,19 @@ WEB_SITE="http://www.openvas.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://wald.intevation.org/frs/download.php/757/$TARBALL"
 
-#BUILD_DEPENDS="util-linux-uuid libpcap openvas-libraries openvas-libraries-dev \
-#libgd-dev libpng16-dev gtk+-dev gnutls-dev"
 BUILD_DEPENDS="libgd-dev libpng16-dev glib-dev openvas-libraries-dev \
 gnutls-dev gtk+-dev"
 
 compile_rules() {
 	cp -a $stuff/libopenvas-config /usr/bin
 
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS || return 1
-	find -name Makefile | xargs sed -i 's|uname -o|echo GNU/Linux|'
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
+genpkg_rules() {
+	copy @std
 	DEPENDS="openvas-libraries gtk+"
 	CONFIG_FILES="/etc/openvas/"
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="firejail"
 VERSION="0.9.34"
@@ -6,29 +6,19 @@ CATEGORY="security"
 SHORT_DESC="A SUID sandbox program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://l3net.wordpress.com/projects/firejail/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="linux-api-headers"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/etc $fs
+genpkg_rules() {
+	copy @std
 }

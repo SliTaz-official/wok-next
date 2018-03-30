@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clipit"
 VERSION="1.4.2"
@@ -7,15 +7,13 @@ SHORT_DESC="Lightweight, fully featured GTK+ clipboard manager"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://clipit.rspwn.com/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/gtkclipit/Version%201/$TARBALL"
 
-DEPENDS="gtk+"
 BUILD_DEPENDS="gtk+-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# fix subcategory for cascade menu
 	sed -i 's|Categories=.*|Categories=GTK;Utility;TextTools;|' \
 		$src/data/clipit.desktop.in
@@ -23,16 +21,12 @@ compile_rules()
 	sed -i 's|clipit-trayicon|edit-paste|' $src/data/clipit*.desktop.in
 	sed -i 's|clipit-trayicon|edit-paste|' $src/src/main.c
 
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/icons $fs/usr/share/locale $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+"
 }

@@ -1,25 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="qemu-light"
 VERSION="2.0.2"
 CATEGORY="misc"
-SHORT_DESC="Light Qemu i386-softmmu target (without xen, vde, bluez, blobs, tls)."
+SHORT_DESC="Light Qemu i386-softmmu target (without xen, vde, bluez, blobs, tls)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="qemu"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://www.qemu.org/"
-WGET_URL="http://wiki.qemu.org/download/$TARBALL"
-TAGS="virtualization"
-CONFLICT="qemu"
 
-DEPENDS="alsa-lib libsdl util-linux-uuid"
+TARBALL="qemu-$VERSION.tar.bz2"
+WGET_URL="http://wiki.qemu.org/download/$TARBALL"
+
 BUILD_DEPENDS="gettext perl alsa-lib-dev libsdl-dev util-linux-uuid-dev python \
 glib-dev zlib-dev autoconf automake libtool bison flex"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTIDR/usr/share/qemu/ia32
 
 	[ -s $SRC/$UEFIZIP ] || wget -P $SRC \
@@ -33,8 +28,6 @@ compile_rules()
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 	#--cross-prefix= --host-cc=
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--disable-xen \
 		--disable-vnc-sasl \
 		--disable-vnc-tls \
@@ -45,12 +38,11 @@ compile_rules()
 		--audio-drv-list=alsa \
 		--target-list="$TARGET" \
 		--cc=$BUILD_SYSTEM-gcc &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/qemu
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/qemu/keymaps $fs/usr/share/qemu
@@ -60,4 +52,7 @@ genpkg_rules()
 	done
 	# Create qemu symlink
 	cd $fs/usr/bin && ln -s qemu-system-i386 qemu
+	DEPENDS="alsa-lib libsdl util-linux-uuid"
+	TAGS="virtualization"
+	CONFLICT="qemu"
 }

@@ -15,9 +15,8 @@ BUILD_DEPENDS="audiofile-dev alsa-lib-dev"
 SPLIT="esound-dev"
 
 compile_rules() {
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
@@ -25,19 +24,12 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		esound)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/etc $fs
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="audiofile alsa-lib"
 			TAGS="audio sound"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.la $fs/usr/lib
-			cp -a $install/usr/lib/*.a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

@@ -16,18 +16,15 @@ BUILD_DEPENDS="gettext ncurses-dev zlib-dev groff libmagic-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-wrapping-as-root \
 		--enable-utf8 \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS &&
 	make && make install || exit 1
 
 	# Config file.
-	mkdir -p $install/etc
-	cp $src/doc/nanorc.sample $install/etc/nanorc
+	install -Dm644 $src/doc/nanorc.sample $install/etc/nanorc
 
-	install -v -m644 doc/texinfo/nano.html $install/usr/share/doc/nano-$VERSION
+	cook_pick_docs doc/texinfo/nano.html
 }
 
 genpkg_rules() {

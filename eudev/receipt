@@ -29,7 +29,6 @@ EOF
 		--bindir=/sbin \
 		--sbindir=/sbin \
 		--libdir=/usr/lib \
-		--sysconfdir=/etc \
 		--libexecdir=/lib \
 		--with-rootprefix= \
 		--with-rootlibdir=/lib \
@@ -39,7 +38,7 @@ EOF
 		--enable-kmod \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
 
 	cp $stuff/*.rules $install/etc/udev/rules.d
 	cp -a $stuff/udev/* $install/lib/udev

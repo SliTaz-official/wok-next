@@ -7,29 +7,23 @@ SHORT_DESC="Bigelow & Holmes bitmap fonts Lucida and LucidaBright (75 DPI)"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-COOKOPTS="!gz" # too long
 
 TARBALL="font-bh-75dpi-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/font/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-font-util-dev xorg-mkfontdir xorg-bdftopcf"
+COOKOPTS="!gz" # too long
 PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-all-encodings \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	TAGS="font"
 }

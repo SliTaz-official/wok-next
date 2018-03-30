@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="icinga"
 VERSION="1.2.1"
@@ -6,19 +6,15 @@ CATEGORY="system-tools"
 SHORT_DESC="Open Source host, service and network monitoring program"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.icinga.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--datadir=/usr/share/icinga \
 		--with-htmurl=/icinga \
 		--with-lockfile=/var/run/icinga.pid \
 		--with-icinga-user=nobody \
@@ -35,17 +31,17 @@ compile_rules()
 		--with-mail=/usr/bin/mailx \
 		$CONFIGURE_ARGS &&
 	make all && \
-	make DESTDIR=$DESTDIR install \
-	    install-commandmode \
+	make DESTDIR=$DESTDIR \
+		install \
+		install-commandmode \
 		install-config \
 		install-webconf \
 		install-idoutils \
 		install-api
+
+	# TODO: check files permissions
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/icinga
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }

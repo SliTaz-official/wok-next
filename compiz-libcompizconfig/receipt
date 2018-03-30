@@ -16,26 +16,19 @@ libxslt-dev startup-notification-dev protobuf-dev glib-dev libtool"
 SPLIT="compiz-libcompizconfig-dev"
 
 compile_rules() {
-	./configure --sysconfdir=/etc
-	make && make install
+	./configure &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		compiz-libcompizconfig)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/etc $fs
-			cp -a $install/usr/lib/compiz* $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/share/compiz $fs/usr/share
-			find $fs -name 'lib*a' -delete
+			copy @std
 			DEPENDS="compiz-core protobuf glib libxml2"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib $fs/usr
-			find $fs -name '*so*' -delete
+			copy @dev
 			;;
 	esac
 }

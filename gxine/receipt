@@ -22,12 +22,9 @@ compile_rules() {
 
 	# Fix for lirc
 	#patch -p0 < $stuff/gxine-0.5.907-lirc.patch || return 1
-	
+
 	#--with-logo-format=image
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		--sysconfdir=/etc \
 		--with-dbus \
 		--with-spidermonkey=/usr/include/js \
 		--without-browser-plugin \
@@ -38,8 +35,8 @@ compile_rules() {
 		--disable-own-playlist-parsers \
 		VENDOR_PKG_VERSION="$VERSION; SliTaz GNU/Linux" \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
-	sed -i '/^x/d' $install/usr/share/applications/gxine.desktop
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

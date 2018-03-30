@@ -14,25 +14,21 @@ WGET_URL="http://ftp.debian.org/debian/pool/main/libp/libpaper/$TARBALL"
 BUILD_DEPENDS="automake libtool"
 SPLIT="libpaper-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi &&
 
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make &&
+	make install || return 1
 
-	install -m755 $stuff/run-parts $install/usr/bin &&
-	mkdir -p $install/etc &&
+	install -m755 $stuff/run-parts $install/usr/bin
+	mkdir -p $install/etc
 	echo 'a4' > $install/etc/papersize
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libpaper)
 			copy @std

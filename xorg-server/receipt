@@ -32,10 +32,7 @@ xorg-server"
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
-	fix ld
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-static \
 		--enable-glamor \
 		--enable-install-setuid \
@@ -59,7 +56,8 @@ compile_rules() {
 		--with-builder-addr="devel@slitaz.org" \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	mkdir -pv $install/etc/X11/xorg.conf.d
 }

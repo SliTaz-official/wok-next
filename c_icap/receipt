@@ -15,13 +15,12 @@ BUILD_DEPENDS="zlib-dev"
 SPLIT="c_icap-dev"
 
 compile_rules() {
-	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
-
 	./configure \
 		--sysconfdir=/etc/c-icap \
 		--enable-large-files \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $install/etc/init.d/ $install/var/log/c-icap/
 	install -m755 $stuff/c-icapd $install/etc/init.d

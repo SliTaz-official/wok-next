@@ -29,17 +29,16 @@ compile_rules() {
 	esac
 
 	./configure \
-		--sysconfdir=/etc \
 		--with-dbpath=/var/lib/sasl/sasldb2 \
 		--with-saslauthd=/var/run/saslauthd \
 		--with-devrandom=/dev/urandom \
 		--with-openssl \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
-	cp -a $stuff/etc $install
-	chown -R root:root $inst/etc
+	install -Dm755 $stuff/etc/init.d/cyrus-sasl $install/etc/init.d/cyrus-sasl
 
 	cook_pick_docs doc/*.html doc/*.txt doc/ONEWS doc/TODO \
 		saslauthd/LDAP_SASLAUTHD

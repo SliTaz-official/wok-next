@@ -22,11 +22,11 @@ compile_rules() {
 	sed -i '/key_secret_is/s|secret|secretkey|' src/libtirpc.map
 
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
 		--disable-gssapi \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libtirpc.so.* $install/lib

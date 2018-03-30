@@ -15,22 +15,15 @@ BUILD_DEPENDS="xorg-util-macros xorg-font-util-dev xorg-xproto \
 xorg-libXfont-dev xorg-xtrans"
 PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	touch /root/missing /missing
 
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libXfont"
 	CONFIG_FILES="/etc/X11/fs/config"

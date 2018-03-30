@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="asciidoc"
 VERSION="8.6.9"
@@ -11,23 +11,16 @@ WEB_SITE="http://www.methods.co.nz/asciidoc/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/asciidoc/$TARBALL"
 
-DEPENDS="python"
 BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		--docdir=/usr/share/doc/asciidoc-$VERSION \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install &&
 	make DESTDIR=$install docs
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy etc/ bin/
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

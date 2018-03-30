@@ -16,10 +16,7 @@ SPLIT="vde2-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--libexecdir=/usr/lib/$PACKAGE \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
@@ -28,20 +25,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		vde2)
-			mkdir -p $fs/usr/lib/vde2
-			cp -a $install/etc $fs
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/vde2/*.so* $fs/usr/lib/vde2
+			copy @std
 			DEPENDS="openssl"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/vde2
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/lib/vde2/*a $fs/usr/lib/vde2
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

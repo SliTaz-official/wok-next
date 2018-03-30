@@ -15,9 +15,6 @@ BUILD_DEPENDS="openssl-dev openssl libwrap-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--localstatedir=/var \
 		--datadir=/usr/share/nagios \
 		--sysconfdir=/etc/nagios \
 		--sbindir=/usr/lib/nagios \
@@ -27,7 +24,6 @@ compile_rules() {
 		--with-nagios-group=nagios \
 		--with-nrpe-user=nagios \
 		--with-nrpe-group=nagios \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make all &&
 	make install || return 1
@@ -52,7 +48,7 @@ post_install() {
 
 	# Set perms for files and directories
 	chroot "$1/" chown -R nagios.nagios /usr/lib/nagios/plugins
-	chroot "$1/" chown    nagios.nagios /etc/nagios/* 
+	chroot "$1/" chown    nagios.nagios /etc/nagios/*
 
 	# Add check_nrpe in nagios config file
 	echo "cfg_file=/etc/nagios/objects/nrpe.cfg" >> "$1/etc/nagios/nagios.cfg"

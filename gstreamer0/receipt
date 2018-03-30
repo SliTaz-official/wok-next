@@ -16,18 +16,13 @@ BUILD_DEPENDS="glib-dev libxml2-dev gobject-introspection-dev python-dev bison \
 flex m4 valgrind gettext"
 SPLIT="gstreamer0-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Handle cross compilation
+compile_rules() {
 	case "$ARCH" in
-		i?86) origin="http://www.slitaz.org";;
 		arm*) origin="http://arm.slitaz.org";;
+		*)    origin="http://www.slitaz.org";;
 	esac
 
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--libexecdir=/usr/lib \
 		--enable-silent-rules \
 		--disable-static \
@@ -36,12 +31,11 @@ compile_rules()
 		--with-package-name="GStreamer-0.10" \
 		--with-package-origin="$origin" \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	make $MAKEFLAGS &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gstreamer0)
 			copy @std

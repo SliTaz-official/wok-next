@@ -6,8 +6,9 @@ CATEGORY="network"
 SHORT_DESC="Daemon for managing internet connections"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://connman.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://linux-kernel.uio.no/pub/linux/network/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="glib-dev dbus-dev iptables-dev iptables gnutls-dev libnl-dev
@@ -15,18 +16,11 @@ openconnect udev-dev wpa_supplicant readline-dev ncurses-dev openvpn
 bluez-dev ppp-dev"
 SPLIT="connman connman-dev connman-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# add dependency on libncurses.so,
 	sed -i 's/-lreadline/-lreadline -lncurses/' Makefile.in
-	cd $src
+
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-gtk-doc \
 		--disable-neard \
 		--enable-polkit \
@@ -36,80 +30,55 @@ compile_rules()
 		--enable-client \
 		--enable-test \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	mkdir -p $install/usr/sbin/
+	install -m755 $src/client/connmanctl $install/usr/sbin/
+	install -m755 $src/tools/*-test      $install/usr/sbin/
+	install -m755 $src/tools/*-tool      $install/usr/sbin/
+	install -m755 $src/tools/*-unit      $install/usr/sbin/
+	install -m755 $src/tools/wispr       $install/usr/sbin/
+	# python tools
+	install -m755 $src/test/*            $install/usr/sbin/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	connman)
-		DEPENDS="glib dbus iptables gnutls libnl libgcrypt udev \
+		connman)
+			copy @std
+			rm -r $fs/usr/sbin/; copy connman-vpnd connmand # split other -> dev
+			DEPENDS="glib dbus iptables gnutls libnl libgcrypt udev \
 			wpa_supplicant dbus-helper"
-		SUGGESTED="xl2tpd pptpclient openvpn"
-		# dbus conf
-		mkdir -p $fs/etc
-		cp -a $install/etc/dbus-1 $fs/etc
-		# conman exec
-		mkdir -p $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		# libs
-		mkdir -p $fs/usr/lib/connman/plugins-vpn
-		cp -a $install/usr/lib/connman/plugins-vpn/*.so \
-			$fs/usr/lib/connman/plugins-vpn
-		# vpn scripts
-		mkdir -p $fs/usr/lib/connman/scripts
-		cp -a $install/usr/lib/connman/scripts $fs/usr/lib/connman
-		# share
-		cp -a $install/usr/share $fs/usr
-		# init script
-		cp -a $stuff/etc $fs
-		;;
-	connman-dev)
-		CAT="network|Daemon for managing internet connections, dev files."
-		# vpn
-		mkdir -p $fs/usr/lib/connman/plugins-vpn
-		cp -a $install/usr/lib/connman/plugins-vpn/*a \
-			$fs/usr/lib/connman/plugins-vpn
-		# include
-		cp -a $install/usr/include $fs/usr
-		# pkg-config
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		# test tools
-		mkdir -p $fs/usr/sbin
-		install -Dm755 $src/tools/*-test $fs/usr/sbin
-		install -Dm755 $src/tools/*-tool $fs/usr/sbin
-		install -Dm755 $src/tools/*-unit $fs/usr/sbin
-		install -Dm755 $src/tools/wispr $fs/usr/sbin
-		# python tools
-		install -Dm755 $src/test/* $fs/usr/sbin
-		;;
-	connman-tools)
-		CAT="network|Daemon for managing internet connections, dev tools."
-		DEPENDS="readline ncurses"
-		# client
-	        mkdir -p $fs/usr/sbin
-		install -Dm755 $src/client/connmanctl  $fs/usr/sbin
-		;;
+			SUGGESTED="xl2tpd pptpclient openvpn"
+			;;
+		connman-tools)
+			copy connmanctl
+			CAT="network|dev tools"
+			DEPENDS="readline ncurses"
+			;;
+		connman-dev)
+			copy @dev @std @rm
+			;;
 	esac
 }
 
-# Pre and post remove commands for Tazpkg
-post_install_connman()
-{
+post_install_connman() {
 	if ! grep -qs ^CONNMAND_OPTIONS "$1/etc/daemons.conf"; then
-		echo '# Connman daemon options.' >> "$1/etc/daemons.conf"
-		echo 'CONNMAND_OPTIONS=""' >> "$1/etc/daemons.conf"
-		echo '' >> "$1/etc/daemons.conf"
+		cat >> "$1/etc/daemons.conf" <<EOT
+
+# Connman daemon options.
+CONNMAND_OPTIONS=""
+
+EOT
 	fi
 	if [ -z "$1" -a -s /etc/network.conf ]; then
 		/etc/init.d/connman start || /etc/init.d/connman restart
 	fi
 }
 
-pre_remove_connman()
-{
+pre_remove_connman() {
 	if [ -z "$1" ]; then
-		/etc/init.d/connman stop 2> /dev/null
+		/etc/init.d/connman stop 2>/dev/null
 	fi
 }

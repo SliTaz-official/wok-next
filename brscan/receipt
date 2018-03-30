@@ -16,15 +16,10 @@ SPLIT="brscan2"
 
 compile_rules() {
 	cd $src/brscan
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS || return 1
+	./configure $CONFIGURE_ARGS || return 1
 	sed -i '/mk_package/d' Makefile
-	make -j1 && {
+	make -j1 &&
+	{
 		cd ..
 		mkdir -p $DESTDIR
 		cp -a brscan $DESTDIR

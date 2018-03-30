@@ -18,8 +18,6 @@ compile_rules() {
 	rm -f src/fcobjshash.h
 
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-arch=$ARCH \
 		--disable-static \
 		--enable-iconv \
@@ -54,15 +52,13 @@ EOT
 	# chown -R root.root $fs
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		fontconfig)
 			copy @std
 			DEPENDS="bzlib freetype liblzma liblzma libpng16 libxml2 zlib"
 			;;
-		fontconfig-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="fontconfig freetype-dev libpng16-dev libxml2-dev"
 			;;

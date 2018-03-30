@@ -1,54 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="webalizer"
 VERSION="2.23-08"
 CATEGORY="network"
-SHORT_DESC="Web server log file analysis program."
+SHORT_DESC="Web server log file analysis program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
 WEB_SITE="http://www.webalizer.com/"
-WGET_URL="ftp://ftp.mrunix.net/pub/$PACKAGE/$TARBALL"
-TAGS="logs"
 
-DEPENDS="libgd zlib db apache"
+TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
+WGET_URL="ftp://ftp.mrunix.net/pub/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="libgd libgd-dev zlib-dev db db-dev libjpeg-turbo"
 
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure  \
-		--sysconfdir=/etc &&
+compile_rules() {
+	./configure &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	mv $install/etc/webalizer.conf.sample $install/etc/webalizer.conf
+	install -Dm755 $stuff/webalizer $install/etc/initcron.d/webalizer
+	install -Dd -o80 -g80 $install/var/www/webalizer/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc $fs/var/www/webalizer $fs/etc/initcron.d
-	chown 80 $fs/var/www/webalizer
-	cp -a $install/etc/webalizer.conf.sample $fs/etc/webalizer.conf
-	cp -a $install/usr/bin $fs/usr
-	cat > $fs/etc/initcron.d/webalizer << EOT
-
-30 0 * * * /usr/bin/webalizer -o /var/www/webalizer /var/log/apache/access_log
-EOT
-	chmod +x $fs/etc/initcron.d/webalizer
+genpkg_rules() {
+	copy @std
+	DEPENDS="libgd zlib db apache"
+	TAGS="logs"
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install() {
 	grep -q webalizer "$1/etc/init.d/local.sh" || \
 	cat >> "$1/etc/init.d/local.sh" <<EOT
 [ -f /var/www/webalizer/index.html ] || /usr/bin/webalizer -o /var/www/webalizer /var/log/apache/access_log
 EOT
+
 	if [ -z "$1" ]; then
-		webalizer -o /var/www/webalizer /var/log/apache/access_log 
-		crontab -l 2> /dev/null | grep -q webalizer || crontab - << EOT
-$(crontab -l 2> /dev/null)
+		webalizer -o /var/www/webalizer /var/log/apache/access_log
+		crontab -l 2>/dev/null | grep -q webalizer || crontab - << EOT
+$(crontab -l 2>/dev/null)
 $(cat /etc/initcron.d/webalizer)
 EOT
 	fi

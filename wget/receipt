@@ -22,13 +22,13 @@ compile_rules() {
 	./configure \
 		--with-ssl=openssl \
 		--with-openssl \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
 	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
-	copy wget wgetrc
+	copy @std
 	DEPENDS="openssl libidn pcre util-linux-uuid zlib"
 	CONFIG_FILES="/etc/wgetrc"
 }

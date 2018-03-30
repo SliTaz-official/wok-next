@@ -14,29 +14,15 @@ WGET_URL="http://download.berlios.de/radiusclient-ng/$TARBALL"
 SPLIT="radiusclient-ng-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make -j 1 DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		radiusclient-ng)
-			mkdir -p $fs/usr/lib
-			cp -a $install/etc $fs
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			;;
+		radiusclient-ng) copy @std;;
+		*-dev)           copy @dev;;
 	esac
 }
 

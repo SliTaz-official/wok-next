@@ -1,32 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mygestures"
 VERSION="0.7"
 CATEGORY="x-window"
-SHORT_DESC="Recognizing gestures made with your mouse and perform actions."
+SHORT_DESC="Recognizing gestures made with your mouse and perform actions"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://sourceforge.net/projects/mygestures/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="xorg-libX11 xorg-libXtst jansson"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXtst jansson-dev xorg-libXmu-dev \
 xorg-libXrender-dev xorg-libXtst-dev libxml2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--sysconfdir=/etc/$PACKAGE \
 		$CONFIGURE_ARGS &&
-	make && make -j 1 install
+	make &&
+	make -j 1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11 xorg-libXtst jansson"
 }

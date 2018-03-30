@@ -18,28 +18,25 @@ SPLIT="cups-filters-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--without-rcdir \
 		--disable-static \
 		--disable-avahi \
 		--with-gs-path=/usr/bin/gs \
 		--with-pdftops-path=/usr/bin/gs \
-		--docdir=/usr/share/doc/cups-filters-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		cups-filters)
-			copy etc/ bin/ sbin/ cups/ ppd/ *.so*
-			# rm -rf $fs/usr/share/cups/ppdc
+			copy @std
 			DEPENDS="cups dbus fontconfig freetype glib ijs lcms2 libcups \
 			libgnutls libjpeg-turbo libpng16 poppler qpdf tiff zlib"
 			;;
 		*-dev)
-			copy *.h *.la *.pc
+			copy @dev
 			;;
 	esac
 }

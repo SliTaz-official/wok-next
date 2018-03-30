@@ -1,22 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="speech-dispatcher"
 VERSION="0.6.7"
 CATEGORY="utilities"
-SHORT_DESC="Common interface to speech synthesis."
+SHORT_DESC="Common interface to speech synthesis"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.freebsoft.org/speechd"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.freebsoft.org/pub/projects/speechd/$TARBALL"
 
-DEPENDS="glib alsa-lib espeak dotconf python libsndfile"
 BUILD_DEPENDS="glib-dev alsa-lib-dev dotconf-dev python \
 python-dev espeak-dev sed espeak dotconf"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 
@@ -30,18 +28,13 @@ compile_rules()
 	cd ../../
 
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		--sysconfdir=/etc \
 		--with-espeak \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/sounds/speech-dispatcher
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/etc $fs
@@ -56,4 +49,5 @@ genpkg_rules()
 	rm -rf $fs/usr/share/info
 	rm -rf $fs/usr/lib/*.*a
 	rm -rf $fs/usr/lib/speech-dispatcher/*.*a
+	DEPENDS="glib alsa-lib espeak dotconf python libsndfile"
 }

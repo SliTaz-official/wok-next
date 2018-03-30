@@ -1,35 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libzen"
 VERSION="0.4.32"
-CATEGORY="libdevel"
+CATEGORY="development"
 SHORT_DESC="ZenLib - small C++ derivative class to have a simpler life"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://mediaarea.net/"
+
 TARBALL="${PACKAGE}_$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}download/source/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd Project/GNU/Library
 	./autogen.sh
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
-	sed -i -e "s|$src/Project/GNU/Library|/usr/lib|" -e 's|/.libs||' \
-	$install/usr/bin/libzen-config
+	sed \
+		-e "s|$src/Project/GNU/Library|/usr/lib|" \
+		-e 's|/.libs||' \
+		-i $install/usr/bin/libzen-config
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @dev
 }

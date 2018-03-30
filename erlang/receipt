@@ -1,36 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="erlang"
 VERSION="R15B01"
 CATEGORY="development"
-SHORT_DESC="Erlang programming language."
+SHORT_DESC="Erlang programming language"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
+WEB_SITE="http://$PACKAGE.org/"
+
 SOURCE="otp_src"
 TARBALL="${SOURCE}_$VERSION.tar.gz"
-WEB_SITE="http://$PACKAGE.org/"
 WGET_URL="${WEB_SITE}download/$TARBALL"
 
-DEPENDS="ncurses openssl libunixODBC"
 BUILD_DEPENDS="perl ncurses-dev openssl-dev unixODBC-dev icedtea6-jdk"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LANG=C
 	sed -i 's|./Install|sh -x Install|' Makefile*
-	
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		--infodir=/usr/share/info \
-		$CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
 	make -j 1 &&
 	make -j 1 INSTALL_PREFIX=$DESTDIR install || return 1
-	
-	for i in $DESTDIR/usr/lib/erlang/*/bin/erl $DESTDIR/usr/lib/erlang/bin/erl \
-		 $DESTDIR/usr/lib/erlang/*/bin/start $DESTDIR/usr/lib/erlang/bin/start
+
+	for i in \
+		$DESTDIR/usr/lib/erlang/*/bin/erl \
+		$DESTDIR/usr/lib/erlang/bin/erl \
+		$DESTDIR/usr/lib/erlang/*/bin/start \
+		$DESTDIR/usr/lib/erlang/bin/start
 	do
 		sed -i 's|^ROOTDIR=.*$|ROOTDIR=/usr/lib/erlang|' $i
 	done
@@ -39,8 +35,7 @@ compile_rules()
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses openssl libunixODBC"
 }

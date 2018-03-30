@@ -14,19 +14,13 @@ WGET_URL="$SF_MIRROR/linux-atm/$TARBALL"
 BUILD_DEPENDS="perl"
 SPLIT="atm-tools-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make -j1 &&
 	make -j1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		atm-tools)
 			copy @std

@@ -14,20 +14,13 @@ WGET_URL="$XORG_MIRROR/app/$TARBALL"
 BUILD_DEPENDS="xorg-util-macros xorg-libFS-dev"
 PKG_RULE="std"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libFS"
 }

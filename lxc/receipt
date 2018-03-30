@@ -3,57 +3,45 @@
 PACKAGE="lxc"
 VERSION="2.1.1"
 CATEGORY="system-tools"
-SHORT_DESC="Userspace control package for Linux Containers."
+SHORT_DESC="Userspace control package for Linux Containers"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://linuxcontainers.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
 BUILD_DEPENDS="libcap-dev util-linux-getopt"
 SPLIT="lxc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --mandir=/usr/share/man \
-		--sysconfdir=/etc \
+compile_rules() {
+	./configure \
 		--libexec=/usr/lib/$PACKAGE \
-		--localstatedir=/var \
-	$CONFIGURE_ARGS &&
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	sed \
+		-e 's/^is_set(/zgrep() { zcat | grep "$@"; }\n\n&/' \
+		-e 's/\(.*\$GREP .*\)\(\$CONFIG.*\)/\1< \2/' \
+		-i $install/usr/bin/lxc-checkconfig
+	chmod +x $install/usr/bin/lxc-*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.   
-genpkg_rules()                                      
-{
+genpkg_rules() {
 	case $PACKAGE in
-	lxc)
-		DEPENDS="libcap perl util-linux-getopt linux-netfilter \
+		lxc)
+			copy @std
+			DEPENDS="libcap perl util-linux-getopt linux-netfilter \
 			linux-bridge iptables bridge-utils"
-		mkdir -p $fs/usr/share $fs/var/lib/lxc
-		cp -a $install/usr/share/lxc $fs/usr/share
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		rm -rf $fs/usr/lib/pkgconfig
-		cp -a $install/etc $fs
-		cp -a $install/var $fs
-		sed -i -e 's/^is_set(/zgrep() { zcat | grep "$@"; }\n\n&/' \
-			-e 's/\(.*\$GREP .*\)\(\$CONFIG.*\)/\1< \2/' \
-			$fs/usr/bin/lxc-checkconfig
-		chmod +x $fs/usr/bin/lxc-*
-		;;
-	lxc-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+			;;
+		lxc-dev)
+			copy @dev
+			;;
 	esac
 }
 
-post_install_lxc()
-{
+post_install_lxc() {
 	[ -n "$1" ] && return
 	lxc-checkconfig  | tee /dev/stderr | grep -q required && cat <<EOT
 

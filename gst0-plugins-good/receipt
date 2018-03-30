@@ -7,6 +7,7 @@ SHORT_DESC="GStreamer-0.10 Good Plugins"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://gstreamer.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/7.6/multimedia/gst-plugins-good.html"
 
 TARBALL="gst-plugins-good-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gst-plugins-good/0.10/$TARBALL"
@@ -18,17 +19,12 @@ jack2-dev libcaca-dev libdv-dev libraw1394-dev libiec61883-dev libavc1394-dev \
 libshout-dev libsoup-dev speex-dev taglib-dev wavpack-dev libjpeg-turbo-dev"
 SPLIT="gst0-plugins-good-extra gst0-plugins-good gst0-plugins-good-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/7.6/multimedia/gst-plugins-good.html
+compile_rules() {
 	sed -i "/input:/d" sys/v4l2/gstv4l2bufferpool.c &&
 	sed -i "/case V4L2_CID_HCENTER/d; /case V4L2_CID_VCENTER/d" \
 		sys/v4l2/v4l2_calls.c &&
 
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-package-name="$SHORT_DESC" \
 		--with-package-origin="http://www.slitaz.org/" \
 		--enable-experimental \
@@ -45,9 +41,7 @@ compile_rules()
 	make -C docs/plugins install-data
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-extra)
 			copy *deinterlace.so *dv.so *jack.so *rtp.so *rtpmanager.so \

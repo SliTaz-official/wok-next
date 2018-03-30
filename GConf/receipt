@@ -17,24 +17,16 @@ SPLIT="GConf-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--libexecdir=/usr/lib/GConf \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		GConf)
-			mkdir -p  $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/lib/GConf $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
-			rm $fs/usr/lib/GConf/2/*.*a
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/etc $fs
-			cp -a $install/usr/share/dbus-1 $fs/usr/share
-			cp -a $install/usr/share/polkit-1 $fs/usr/share
+			copy @std
 			DEPENDS="glibc-base glib dbus dbus-glib expat libxml2 zlib polkit \
 			orbit2 atk cairo gtk+ fontconfig freetype pango xorg-pixman \
 			libpng16 xorg-libX11 xorg-libXau xorg-libXcomposite \
@@ -42,17 +34,7 @@ genpkg_rules() {
 			xorg-libXfixes xorg-libXinerama xorg-libXrender"
 			;;
 		*-dev)
-			mkdir -p  $fs/usr/lib/GConf/2/
-			cp -a $install/usr/lib/GConf/2/*.*a $fs/usr/lib/GConf/2
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-
-			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/aclocal $fs/usr/share
-			cp -a $install/usr/share/sgml $fs/usr/share
-			cp -a $install/usr/share/gir-1.0 $fs/usr/share
-
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			DEPENDS="GConf orbit2-dev"
 			;;
 	esac

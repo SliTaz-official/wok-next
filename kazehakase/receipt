@@ -7,19 +7,16 @@ SHORT_DESC="GTK+ web browser using Webkit rendering engine"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://kazehakase.sourceforge.jp/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://iij.dl.osdn.jp/kazehakase/43802/$TARBALL"
 PATCH_URL="http://http.debian.net/debian/pool/main/k/kazehakase/kazehakase_0.5.8-4.diff.gz"
-TAGS="web-browser"
 
-DEPENDS="libwebkit"
 BUILD_DEPENDS="libtool automake autoconf intltool \
-gtk+-dev dbus-glib-dev libwebkit-dev gnutls-dev xorg-libSM-dev zlib-dev \
+gtk+-dev dbus-glib-dev webkitgtk-dev gnutls-dev xorg-libSM-dev zlib-dev \
 util-linux-uuid-dev libxslt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	PATCH_GZ="$(basename "$PATCH_URL")"
 	[ -e "$SRC/$PATCH_GZ" ] || wget -O "$SRC/$PATCH_GZ" "$PATCH_URL"
 	cp "$SRC/$PATCH_GZ" $src
@@ -46,15 +43,13 @@ compile_rules()
 
 	./autogen.sh
 
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	find $fs -name '*.la' -delete
+genpkg_rules() {
+	copy @std
+	DEPENDS="webkitgtk"
+	TAGS="web-browser"
 }

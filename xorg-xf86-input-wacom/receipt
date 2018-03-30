@@ -17,21 +17,16 @@ xorg-libXinerama-dev eudev-dev"
 SPLIT="xorg-xf86-input-wacom-dev"
 PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-systemd-unit-dir=no \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-wacom)
 			copy @std

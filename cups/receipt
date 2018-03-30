@@ -13,9 +13,14 @@ WGET_URL="https://github.com/apple/cups/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="automake libusb-dev zlib-dev acl-dev dbus-dev gnutls-dev perl \
 python pam pam-dev"
-SPLIT="libcups cups cups-pam cups-doc cups-dev"
+SPLIT="libcups cups cups-pam:pam cups-doc cups-dev"
 
 compile_rules() {
+	case $SET in
+		'')  SET_ARGS='--disable-pam';;
+		pam) SET_ARGS='--enable-pam';;
+	esac
+
 	# gid 19 suggested by the BLFS is in use in SliTaz (by cdrom group),
 	# using 23 instead
 	addgroup -g 23 lpadmin
@@ -31,69 +36,53 @@ compile_rules() {
 
 	CC=gcc \
 	./configure \
-		--sysconfdir=/etc \
 		--libdir=/usr/lib \
-		--localstatedir=/var \
-		--disable-pam \
 		--disable-systemd \
 		--with-rcdir=/tmp/cupsinit \
 		--with-system-groups=lpadmin \
 		--with-docdir=/usr/share/doc/cups-$VERSION \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make BUILDROOT=$install install || return 1
 
-	cd $src-pam
-	CC=gcc \
-	./configure \
-		--sysconfdir=/etc \
-		--libdir=/usr/lib \
-		--localstatedir=/var \
-		--enable-pam \
-		--disable-systemd \
-		--with-rcdir=/tmp/cupsinit \
-		--with-system-groups=lpadmin \
-		--with-docdir=/usr/share/doc/cups-$VERSION \
-		$CONFIGURE_ARGS &&
-	make &&
-	make BUILDROOT=$install-pam install || return 1
+	rm -rf $install/tmp &&
 
-	for inst in $install $install-pam ; do
-		rm -rf $inst/tmp &&
+	ln -svnf ../doc/cups-$VERSION $install/usr/share/cups/doc-$VERSION
 
-		ln -svnf ../doc/cups-$VERSION $inst/usr/share/cups/doc-$VERSION
+	echo "ServerName /var/run/cups/cups.sock" > $install/etc/cups/client.conf
 
-		echo "ServerName /var/run/cups/cups.sock" > $inst/etc/cups/client.conf &&
+	sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
+		$install/usr/share/cups/templates/choose-uri.tmpl
+	sed -i 's|htmlview|browser|'    $install/usr/share/applications/cups.desktop
+	sed -i 's|^#Group .*|Group lp|' $install/etc/cups/cups-files.conf
 
-		sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
-			$inst/usr/share/cups/templates/choose-uri.tmpl &&
-		sed -i 's|htmlview|browser|' $inst/usr/share/applications/cups.desktop &&
-		sed -i 's|^#Group .*|Group lp|' $inst/etc/cups/cups-files.conf &&
+	# Daemon script
+	cp -a $stuff/etc $install
+	chown -R root:root $install/etc
+	# TazPanel link
+	cp -a $stuff/var $install
+	chown -R root:root $install/var
 
-		# Daemon script
-		cp -a $stuff/etc $inst &&
-		chown -R root:root $inst/etc &&
-		# TazPanel link
-		cp -a $stuff/var $inst &&
-		chown -R root:root $inst/var &&
+	# Install ssl directory where to store the certs, solves some samba issues
+	install -dm700 -g lp $install/etc/cups/ssl
 
-		# Install ssl directory where to store the certs, solves some samba issues
-		install -dm700 -g lp $inst/etc/cups/ssl &&
+	# Install some more configuration files that will get filled by cupsd
+	touch $install/etc/cups/printers.conf
+	touch $install/etc/cups/classes.conf
+	touch $install/etc/cups/subscriptions.conf
+	chgrp -R lp $install/etc/cups
 
-		# Install some more configuration files that will get filled by cupsd
-		touch $inst/etc/cups/printers.conf &&
-		touch $inst/etc/cups/classes.conf &&
-		touch $inst/etc/cups/subscriptions.conf &&
-		chgrp -R lp $inst/etc/cups &&
+	# Comment out unnecessary PageLogFormat entry
+	sed -i -e 's:PageLogFormat:#PageLogFormat:' $install/etc/cups/cupsd.conf*
 
-		# Comment out unnecessary PageLogFormat entry
-		sed -i -e 's:PageLogFormat:#PageLogFormat:' $inst/etc/cups/cupsd.conf* &&
-
-		# Change files permissions to be accessible via web interface - will be
-		# fixed in post_install
-		chmod -c o+r $inst/etc/cups/* $inst/usr/sbin/cupsd \
-		$inst/usr/lib/cups/backend/ipp $inst/usr/lib/cups/backend/lpd
-	done
+	# Change files permissions to be accessible via web interface - will be
+	# fixed in post_install
+	chmod -c o+r \
+		$install/etc/cups/* \
+		$install/usr/sbin/cupsd \
+		$install/usr/lib/cups/backend/ipp \
+		$install/usr/lib/cups/backend/lpd
 }
 
 genpkg_rules() {
@@ -111,7 +100,6 @@ genpkg_rules() {
 			TAGS="printer printing"
 			;;
 		cups-pam)
-			install=$install-pam \
 			copy @std
 			rm -f $fs/usr/lib/libcups.so*
 			CAT="system-tools|with PAM support"

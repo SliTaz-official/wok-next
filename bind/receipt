@@ -7,8 +7,6 @@ SHORT_DESC="BIND DNS server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MPL2"
 WEB_SITE="http://www.isc.org/downloads/BIND/"
-TAZPANEL_DAEMON="edit::/etc/bind/named.conf|man|options|web::$WEB_SITE"
-TAGS="DNS daemon"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.isc.org/isc/bind9/$VERSION/$TARBALL"
@@ -16,20 +14,19 @@ WGET_URL="http://ftp.isc.org/isc/bind9/$VERSION/$TARBALL"
 BUILD_DEPENDS="libtool libcap-dev openssl-dev perl krb5-dev readline-dev"
 SPLIT="bind-client libbind bind-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/etc/bind
+
 	./configure \
 		--sysconfdir=/etc/bind \
-		--localstatedir=/var \
 		--enable-threads \
 		--disable-static \
 		--with-libtool \
 		--with-openssl \
 		--with-randomdev=/dev/urandom \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
 
 	LD_LIBRARY_PATH=$DESTDIR/usr/lib \
 	$DESTDIR/usr/bin/dig ns . @a.root-servers.net. > $DESTDIR/etc/bind/db.root
@@ -44,14 +41,14 @@ compile_rules()
 	cp dnssec ipv6 migrat* options rfc-compliance roadmap sdb $docdir/misc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		bind)
 			CONFIG_FILES="/etc/bind/"
 			copy etc/ sbin/
 			DEPENDS="libbind attr openssl perl"
+			TAZPANEL_DAEMON="edit::/etc/bind/named.conf|man|options|web::$WEB_SITE"
+			TAGS="DNS daemon"
 			;;
 		bind-client)
 			copy bin/; rm $fs/usr/bin/bind9-config
@@ -69,9 +66,7 @@ genpkg_rules()
 	esac
 }
 
-# Post message when installing.
-post_install_bind()
-{
+post_install_bind() {
 	mkdir -p "$1/var/cache/bind"
 
 	localnets="192.168.0.0/16; 127.0.0.1;"

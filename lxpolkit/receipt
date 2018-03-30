@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt V2.
 
 PACKAGE="lxpolkit"
 VERSION="0.1.0"
@@ -6,29 +6,23 @@ CATEGORY="x-window"
 SHORT_DESC="LXDE PolicyKit authentication agent"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/lxde/LXPolkit/$TARBALL"
 WEB_SITE="http://lxde.org"
-TAGS="LXDE"
 
-DEPENDS="gtk+ polkit"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev polkit-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--libexecdir=/usr/lib/lxde \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs/usr/share
-    cp -a $install/etc $fs
-    cp -a $install/usr/lib $fs/usr
-    cp -a $install/usr/share/$PACKAGE $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ polkit"
+	TAGS="LXDE"
 }

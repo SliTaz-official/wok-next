@@ -1,36 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bogofilter"
 VERSION="1.2.4"
 CATEGORY="network"
-SHORT_DESC="Mail filter that classifies mail as spam or ham."
+SHORT_DESC="Mail filter that classifies mail as spam or ham"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://bogofilter.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="mail email filter spam C"
 
-DEPENDS="sqlite3 gsl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="sqlite3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --with-database=sqlite3 \
-		--prefix=/usr --sysconfdir=/etc/bogofilter \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--with-database=sqlite3 \
+		--sysconfdir=/etc/bogofilter \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	chmod +x $install/usr/bin/bf_*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs
-	chmod +x $fs/usr/bin/bf_*
+genpkg_rules() {
+	copy @std
+	DEPENDS="sqlite3 gsl"
+	TAGS="mail email filter spam C"
 }

@@ -19,19 +19,17 @@ SPLIT="dbus-helper dbus-introspect dbus dbus-dev"
 compile_rules() {
 	# temporarily: --disable-xml-docs
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-doxygen-docs \
 		--disable-xml-docs \
 		--disable-static \
-		--docdir=/usr/share/doc/dbus-$VERSION \
 		--with-console-auth-dir=/run/console/ \
 		--with-system-pid-file=/run/dbus/pid \
 		--with-system-socket=/run/dbus/system_bus_socket \
 		--disable-systemd \
 		--without-systemdsystemunitdir \
 		$CONFIGURE_ARGS &&
-	make && make -j1 install || return 1
+	make &&
+	make -j1 install || return 1
 
 	# Init script
 	cp -a $stuff/etc $install
@@ -42,9 +40,7 @@ compile_rules() {
 	cp doc/introspect.* $install/usr/share/xml/docbook/stylesheet/dbus
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		dbus-helper)
 			copy dbus-daemon-launch-helper
@@ -69,11 +65,9 @@ pre_install_dbus() {
 	# Go for echoing on configuration files if any messagebus user
 	# was found.
 	if ! grep -qs 'messagebus' "$1/etc/passwd"; then
-		action 'Adding user: messagebus...'
 		chroot "$1/" addgroup -g25 -S messagebus
 		chroot "$1/" adduser -h/var/run/dbus -S -D -u25 -G messagebus \
 			-g"D-Bus Message Daemon User" messagebus
-		status
 	fi
 	if ! grep -qs ^DBUS_OPTIONS "$1/etc/daemons.conf"; then
 		action 'Configuring %s/etc/daemons.conf...' "$1"

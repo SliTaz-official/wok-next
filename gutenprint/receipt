@@ -14,14 +14,8 @@ BUILD_DEPENDS="gnutls-dev expat-dev cups-dev libgcrypt-dev zlib-dev \
 foomatic-db-engine libtasn1-dev gmp-dev tar"
 SPLIT="gutenprint-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--mandir=/usr/share/man \
 		--disable-samples \
 		--with-cups \
 		--disable-test \
@@ -30,31 +24,15 @@ compile_rules()
 	make install 2>&1 | grep -v "rmdir: '/home/slitaz/wok/gutenprint/"
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gutenprint)
-		DEPENDS="gnutls readline gtk+ cups libtasn1 gmp"
-		mkdir -p $fs/etc $fs/usr/lib $fs/usr/share
-	
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/cups $fs/usr/lib
-		cp -a $install/usr/lib/gutenprint $fs/usr/lib
-		cp -a $install/usr/share/cups $fs/usr/share
-		cp -a $install/usr/share/$PACKAGE $fs/usr/share	
-		cp -a $install/etc   $fs
-	
-		# Remove docs
-		rm -rf $fs/usr/share/$PACKAGE/doc
-		;;
-	gutenprint-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		gutenprint)
+			copy @std
+			rm -rf $fs/usr/share/$PACKAGE/doc # Remove docs
+			DEPENDS="gnutls readline gtk+ cups libtasn1 gmp"
+			;;
+		gutenprint-dev)
+			copy @dev
+			;;
 	esac
 }

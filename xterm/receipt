@@ -19,10 +19,6 @@ xorg-libXft-dev xorg-libXt-dev"
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		--localstatedir=/var \
 		--with-icon-symlink \
 		--disable-desktop \
 		--with-x \
@@ -43,7 +39,7 @@ compile_rules() {
 		--disable-rectangles \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
 
 	cat >> $install/usr/share/X11/app-defaults/XTerm <<EOT
 !

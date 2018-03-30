@@ -15,8 +15,6 @@ BUILD_DEPENDS="gcc gfortran libtool openssh valgrind valgrind-dev"
 SPLIT="openmpi-dev"
 
 compile_rules() {
-	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
-
 	./configure \
 		--sysconfdir=/etc/openmpi \
 		--enable-mpi-f90 \
@@ -30,7 +28,8 @@ compile_rules() {
 		--with-libltdl=/usr \
 		FC=/usr/bin/gfortran \
 		LDFLAGS='-Wl,-z,noexecstack' &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

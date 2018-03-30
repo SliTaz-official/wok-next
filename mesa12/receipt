@@ -7,9 +7,6 @@ SHORT_DESC="Open-source implementaton of OpenGL: legacy"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.mesa3d.org/"
-SUGGESTED="nvidia"
-PROVIDE="libgl"
-CONFIG_FILES="/etc/drirc"
 
 TARBALL="mesa-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/$VERSION/$TARBALL"
@@ -56,9 +53,12 @@ genpkg_rules() {
 			libOSMesa.so* libgbm.so* libglapi.so* libxatracker.so*
 			DEPENDS="expat libdrm xorg-libXdamage xorg-libXxf86vm \
 			xorg-libXt udev xorg-libxshmfence"
+			SUGGESTED="nvidia"
+			PROVIDE="libgl"
+			CONFIG_FILES="/etc/drirc"
 			;;
 		mesa12-dev)
-			copy *.h *.la *.pc
+			copy @dev
 			DEPENDS="mesa12 mesa12-dri mesa12-libegl libdrm-dev \
 			xorg-libXdamage-dev  xorg-libXxf86vm-dev \
 			xorg-libXt-dev xorg-glproto xorg-dri2proto"
@@ -71,9 +71,9 @@ genpkg_rules() {
 			xorg-libpciaccess zlib"
 			;;
 		mesa12-libegl)
+			copy libEGL*
 			CAT="libs|EGL library"
 			DEPENDS="mesa12"
-			copy libEGL*
 			;;
 	esac
 }

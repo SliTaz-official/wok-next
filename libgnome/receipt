@@ -23,7 +23,9 @@ compile_rules() {
 		--sysconfdir=/etc/gnome \
 		--localstatedir=/var/lib \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/usr/share/images
 	ln -s ../pixmaps/backgrounds/gnome/background-default.jpg \

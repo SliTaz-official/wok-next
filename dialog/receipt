@@ -16,17 +16,15 @@ SPLIT="dialog-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--with-ncursesw \
 		--enable-nls \
 		--enable-widec \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install || return 1
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
 
 	# Config file.
-	mkdir -p $install/etc
-	cp $stuff/dialogrc $install/etc
+	install -Dm644 $stuff/dialogrc $install/etc/dialogrc
 }
 
 genpkg_rules() {

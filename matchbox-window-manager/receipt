@@ -1,37 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="matchbox-window-manager"
 VERSION="1.2"
 CATEGORY="x-window"
-SHORT_DESC="Matchbox Window Manager."
+SHORT_DESC="Matchbox Window Manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://matchbox-project.org/"
-WGET_URL="${WEB_SITE}sources/$PACKAGE/$VERSION/$TARBALL"
-TAGS="window-manager"
 
-DEPENDS="gtk+ startup-notification libmatchbox"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="${WEB_SITE}sources/$PACKAGE/$VERSION/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev startup-notification-dev libmatchbox-dev expat-dev \
 xorg-libSM-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--enable-expat \
 		--enable-startup-notification \
 		--enable-session \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ startup-notification libmatchbox"
+	TAGS="window-manager"
 }

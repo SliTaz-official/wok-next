@@ -18,31 +18,29 @@ compile_rules() {
 	cd Project/GNU/Library
 	./autogen.sh
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--enable-shared \
 		--enable-minimize-size \
 		--with-libcurl \
 		--with-libmms \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
-	mkdir -p $install/usr/bin
-	cp -a libmediainfo-config $install/usr/bin
-	sed -i -e "s|$src/Project/GNU/Library|/usr/lib|" -e 's|.libs||' \
-		$install/usr/bin/libmediainfo-config
+	install -Dm755 libmediainfo-config $install/usr/bin/libmediainfo-config
+	sed \
+		-e "s|$src/Project/GNU/Library|/usr/lib|" \
+		-e 's|.libs||' \
+		-i $install/usr/bin/libmediainfo-config
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libmediainfo)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="libcurl libmms"
 			;;
 		*-dev)
-			cp -a $install/* $fs
-			rm $fs/usr/lib/*.so*
+			copy @dev
 			;;
 	esac
 }

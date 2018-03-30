@@ -3,26 +3,24 @@
 PACKAGE="squid"
 VERSION="3.5.27"
 CATEGORY="network"
-SHORT_DESC="Web/ftp proxy."
+SHORT_DESC="Web/FTP proxy"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.squid-cache.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}Versions/v3/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="perl openssl-dev openldap-dev cyrus-sasl-dev libcap-dev"
 SPLIT="squid squid-auth-helpers squid-langpack"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	touch scripts/boilerplate.h
+
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc/squid \
 		--datadir=/usr/share/squid \
 		--libexecdir=/usr/lib/squid \
-		--localstatedir=/var \
 		--with-logdir=/var/log/squid \
 		--with-openssl \
 		--disable-poll \
@@ -45,12 +43,11 @@ compile_rules()
 		--enable-icap-client \
 		--with-pthreads ac_cv_header_linux_netfilter_ipv4_h="yes" \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	make $MAKEFLAGS &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 	squid)
 		CONFIG_FILES="/etc/squid"
@@ -91,7 +88,7 @@ genpkg_rules()
 		cat <<EOF>>$fs/etc/squid/squid.conf
 	
 cache_effective_user squid
-cache_effective_group squid 
+cache_effective_group squid
 
 access_log /var/log/squid/access.log
 cache_log /var/log/squid/cache.log
@@ -117,46 +114,34 @@ EOF
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_squid()
-{
-	local user
-	local group
-	
-	user=squid
-	group=squid
-	
+post_install_squid() {
+	local user=squid group=squid
+
 	if ! grep -q $user "$1/etc/passwd"; then
-		echo -n "Adding user/group $user..."
 		chroot "$1/" addgroup -S $group
 		chroot "$1/" adduser -S -D -H -G $group $user
-		status
 	fi
-	
 
 	# Set perms for files and directories
-	chroot "$1/" chown -R ${user}.${group} /var/log/squid \
-		/var/cache/squid 
+	chroot "$1/" chown -R $user:$group /var/log/squid /var/cache/squid
 
-	cat <<EOF
-----
-To start $PACKAGE server you can run :
+	[ -n "$quiet" ] || cat <<EOF
 
-    /etc/init.d/$PACKAGE start
-
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
-----
+	.----------------------------------------------.
+	| To start squid server you can run:           |
+	|   /etc/init.d/squid start                    |
+	|                                              |
+	| Or add squid to RUN_DAEMONS in /etc/rcS.conf |
+	'----------------------------------------------'
 EOF
 }
 
-
-post_remove_squid()
-{
-	echo "Removing stalled files..."
+post_remove_squid() {
+	# Removing stalled files...
 	test -d /var/cache/squid && rm -rf /var/cache/squid
-	test -d /var/log/squid && rm -rf /var/log/squid
+	test -d /var/log/squid   && rm -rf /var/log/squid
 	test -d /usr/share/squid && rm -rf /usr/share/squid
-	
-	echo "Removing user/group squid"
+
+	# Removing user/group squid
 	deluser squid
 }

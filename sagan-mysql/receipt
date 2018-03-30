@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sagan-mysql"
 VERSION="0.2.0"
@@ -7,33 +7,26 @@ SHORT_DESC="Real time system and event log monitoring system with MySQL support"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://sagan.softwink.com/"
-SOURCE="sagan"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+
+TARBALL="sagan-$VERSION.tar.gz"
 WGET_URL="http://sagan.softwink.com/download/$TARBALL"
 
-DEPENDS="libesmtp libpcap libdnet libmysqlclient liblognorm sagan-rules pcre"
 BUILD_DEPENDS="libesmtp-dev libpcap-dev libdnet-dev mysql-dev liblognorm-dev \
 pcre-dev"
-PROVIDE="sagan"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS \
+compile_rules() {
+	./configure \
 		--sysconfdir=/etc/sagan \
 		--disable-postgresql \
 		--disable-prelude \
 		--disable-lognorm \
-	&& make && make install
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir $fs/usr
-	
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/var $fs/
-	cp -a $install/etc $fs/
-	
+genpkg_rules() {
+	copy @std
+	DEPENDS="libesmtp libpcap libdnet libmysqlclient liblognorm sagan-rules pcre"
+	PROVIDE="sagan"
 }

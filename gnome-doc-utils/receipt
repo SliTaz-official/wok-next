@@ -2,7 +2,7 @@
 
 PACKAGE="gnome-doc-utils"
 VERSION="0.20.10"
-CATEGORY="misc"
+CATEGORY="development"
 SHORT_DESC="Documentation utilities for GNOME"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
@@ -12,40 +12,16 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="libxml2-dev libxslt-dev rarian-dev libxml2-python intltool"
-SPLIT="gnome-doc-utils-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-scrollkeeper \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
+		$CONFIGURE_ARGS &&
 	make -j1 &&
 	make -j1 DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		gnome-doc-utils)
-			mkdir -p $fs/usr/bin $fs/usr/share/locale
-			cp -a $install/usr/bin/gnome-doc-tool $fs/usr/bin
-			cp -a $install/usr/bin/xml2po $fs/usr/bin
-			cp -a $install/usr/share/xml $fs/usr/share
-			cp -a $install/usr/lib $fs/usr
-			DEPENDS="libxml2 libxslt python libxml2-python rarian docbook-xml"
-			;;
-		*-dev)
-			mkdir -p $fs/usr/bin \
-				$fs/usr/lib \
-				$fs/usr/share
-			cp -a $install/usr/share/pkgconfig $fs/usr/lib
-			cp -a $install/usr/bin/gnome-doc-prepare $fs/usr/bin
-			cp -a $install/usr/share/aclocal $fs/usr/share
-			cp -a $install/usr/share/man $fs/usr/share
-			cp -a $install/usr/share/gnome* $fs/usr/share
-			cp -a $install/usr/lib $fs/usr
-			;;
-	esac
+	copy @std @dev
+	DEPENDS="libxml2 libxslt python libxml2-python rarian docbook-xml"
 }

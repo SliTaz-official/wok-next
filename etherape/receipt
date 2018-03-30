@@ -1,51 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="etherape"
 VERSION="0.9.14"
 CATEGORY="network"
-SHORT_DESC="A graphical network monitor and visualization tool."
+SHORT_DESC="A graphical network monitor and visualization tool"
 MAINTAINER="hackdorte@sapo.pt"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://etherape.sourceforge.net"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="ip monitoring network tcp vlan wlan"
 
-DEPENDS="gtk+ libglade libgnome libpcap libgnomeui libltdl \
-openssl libxslt libgnome-keyring util-linux-uuid"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gcc glib-dev glibc-dev libglade-dev libgnome-dev gtk+-dev \
-libgnomeui-dev libpcap-dev gnome-doc-utils-dev openssl-dev libxslt-dev \
+libgnomeui-dev libpcap-dev gnome-doc-utils openssl-dev libxslt-dev \
 ossp-uuid-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-./configure \
-  --prefix=/usr \
-  --libdir=/usr/lib \
-  --sysconfdir=/etc \
-  --localstatedir=/var/state/$PACKAGE-$VERSION \
-  --mandir=/usr/share/man \
-  --docdir=/usr/share/doc/$PACKAGE-$VERSION \
-  --build=$ARCH-slitaz-linux \
-  --disable-scrollkeeper
-  make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--libdir=/usr/lib \
+		--localstatedir=/var/state/$PACKAGE-$VERSION \
+		--disable-scrollkeeper \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	# The SliTaz use Tazbox.
+	sed -i 's/^Exec=.*/Exec=tazbox su dbus-launch etherape/' \
+		$install/usr/share/applications/etherape.desktop
+
+	# TODO: check, looks like ${localstatedir} is a bit weird
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-  mkdir -p $fs/usr/bin
-  cp -a $install/usr/bin/* $fs/usr/bin
-
-  mkdir -p $fs/usr/share
-  cp -a $install/usr/share/* $fs/usr/share
-}
-
-post_install() 
-{
-  # The SliTaz use Tazbox.
-  sed -i 's/^Exec=.*/Exec=tazbox su dbus-launch etherape/' \
-  $1/usr/share/applications/etherape.desktop
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ libglade libgnome libpcap libgnomeui libltdl \
+	openssl libxslt libgnome-keyring util-linux-uuid"
+	TAGS="ip monitoring network tcp vlan wlan"
 }

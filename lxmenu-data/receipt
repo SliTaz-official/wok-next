@@ -7,26 +7,20 @@ SHORT_DESC="LXDE freedesktop.org menu specification"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
 WEB_SITE="http://lxde.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxmenu-data.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="gettext intltool"
 BUILD_DEPENDS_arm=" "
+BUILD_DEPENDS="gettext intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxmenu-data.html
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	CONFIG_FILES="/etc/xdg/menus/lxde-applications.menu"
 	TAGS="LXDE"

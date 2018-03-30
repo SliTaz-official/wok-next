@@ -21,16 +21,14 @@ compile_rules() {
 	patch -Np1 -i $stuff/xfmedia-empty-prev-next-fix.patch
 	patch -Np1 -i $stuff/xfmedia-exo-0.6.patch
 
-	fix ld
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--enable-exo \
 		--disable-startup-notification \
 		$CONFIGURE_ARGS || return 1
 	sed -i 's/define HAVE_XSCREENSAVER_EXTENSION .*/undef HAVE_XSCREENSAVER_EXTENSION/' config.h
 	fix libtool &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

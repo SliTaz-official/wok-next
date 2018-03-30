@@ -15,22 +15,18 @@ BUILD_DEPENDS="gettext automake intltool libtool doxygen coreutils-path \
 libxslt docbook-xsl gtk+-dev xorg-libX11-dev"
 SPLIT="scim-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap &&
 
 	./configure \
-		--sysconfdir=/etc \
 		--with-x \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		scim)
 			copy @std
@@ -52,12 +48,8 @@ genpkg_rules()
 	esac
 }
 
-post_install_scim()
-{
-	[ -n "$quiet" ] || newline
-	action 'Updating gtk.immodules... '
+post_install_scim() {
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 > $1/etc/gtk-2.0/gtk.immodules
-	status
 
 	[ -n "$quiet" ] || cat <<EOT
 In order to start scim and use chinese after boot time,
@@ -74,7 +66,6 @@ scim -d &
 EOT
 }
 
-post_remove_scim()
-{
+post_remove_scim() {
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 > $1/etc/gtk-2.0/gtk.immodules
 }

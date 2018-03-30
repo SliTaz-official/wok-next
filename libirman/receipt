@@ -14,26 +14,19 @@ WGET_URL="http://www.lirc.org/software/snapshots/$TARBALL"
 SPLIT="libirman-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libirman)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/etc $fs
+			copy @std
 			CONFIG_FILES="/etc/irman.conf"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

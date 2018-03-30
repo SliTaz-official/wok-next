@@ -6,69 +6,62 @@ CATEGORY="network"
 SHORT_DESC="A very fast, fiexible and easy to configure Web Server."
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.cherokee-project.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.cherokee-project.com/download/${VERSION%.*}/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl-dev openldap-dev python-dev pam-dev libmysqlclient ffmpeg-dev gettext autoconf automake"
+BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl-dev openldap-dev python-dev \
+pam-dev libmysqlclient ffmpeg-dev gettext autoconf automake"
 SPLIT="cherokee cherokee-dev cherokee-doc"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Update deprecated symbols of ffmpeg
 	sed -i 's|hdl->avformat->file_size|avio_size(hdl->avformat)|' cherokee/handler_streaming.c
-	
+
 	# Use subdirectory for logs
 	sed -i -r 's|(%localstatedir%/log)|\1/cherokee|' cherokee.conf.sample.pre
 
 	autoreconf -v
-	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-		--with-wwwroot=/var/www/cherokee --disable-static \
-		--with-wwwuser=www --with-wwwgroup=www \
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--with-wwwroot=/var/www/cherokee \
+		--disable-static \
+		--with-wwwuser=www \
+		--with-wwwgroup=www \
 		--enable-os-string="SliTaz" \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install && {
-	install -D -m644 pam.d_cherokee $DESTDIR/etc/pam.d/$PACKAGE
-	chown -R www:www $DESTDIR/var/lib/$PACKAGE/graphs
-	python -m compileall $DESTDIR
-	python -O -m compileall $DESTDIR
-	mkdir -p $DESTDIR/var/log/$PACKAGE $DESTDIR/etc/logrotate.d
-	chown -R www:www $DESTDIR/var/log/$PACKAGE
-	cp -a $stuff/$PACKAGE.logrotate $DESTDIR/etc/logrotate.d/$PACKAGE
-	}
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 pam.d_cherokee $install/etc/pam.d/cherokee
+	chown -R www:www $install/var/lib/cherokee/graphs
+	python    -m compileall $install
+	python -O -m compileall $install
+
+	install -d -o80 -u80 $install/var/log/cherokee
+
+	install -Dm644 $stuff/cherokee.logrotate $install/etc/logrotate.d/cherokee
+	install -Dm755 $stuff/cherokee           $install/etc/init.d/cherokee
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	cherokee)
-		PROVIDE="lighttpd"
-		DEPENDS="pcre cyrus-sasl openssl python libmysqlclient \
+		cherokee)
+			copy @std
+			DEPENDS="pcre cyrus-sasl openssl python libmysqlclient \
 			libldap ffmpeg"
-		mkdir -p $fs/usr/lib/cherokee $fs/usr/share $fs/etc/init.d
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/cherokee/*.so* $fs/usr/lib/cherokee
-		cp -a $install/usr/share/cherokee $fs/usr/share
-		cp -a $install/var $fs
-		cp -a $install/etc $fs
-		cp -a $stuff/cherokee $fs/etc/init.d
-		;;
-	cherokee-dev)
-		mkdir -p $fs/usr/lib/cherokee $fs/usr/share
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/cherokee/*.*a $fs/usr/lib/cherokee
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/share/aclocal $fs/usr/share
-		;;
-	cherokee-doc)
-		CAT="misc|Docs for cherokee"
-		DEPENDS="cherokee"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/doc $fs/usr/share
-		;;
+			PROVIDE="lighttpd"
+			;;
+		cherokee-dev)
+			copy @dev
+			;;
+		cherokee-doc)
+			copy doc/
+			CAT="misc|documentation"
+			DEPENDS="cherokee"
+			;;
 	esac
 }

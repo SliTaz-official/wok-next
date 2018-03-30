@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xfce-utils"
 VERSION="4.8.3"
@@ -6,40 +6,26 @@ CATEGORY="x-window"
 SHORT_DESC="Xfce utilities"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.xfce.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxfce4util libxfce4ui startup-notification dbus-glib"
 BUILD_DEPENDS="libxfce4util-dev libxfce4ui-dev intltool startup-notification-dev \
- util-linux-uuid-dev dbus-glib-dev"
+util-linux-uuid-dev dbus-glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
+compile_rules() {
+	./configure \
 		--enable-dbus \
 		--disable-debug \
 		--with-browser=browser \
-  		--with-terminal=xterm \
-		--mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+		--with-terminal=xterm \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs/
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/dbus* $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	
-	#Fix perms
-	chmod 755 $fs/usr/bin/*
+genpkg_rules() {
+	copy @std
+	DEPENDS="libxfce4util libxfce4ui startup-notification dbus-glib"
 }
-

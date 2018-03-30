@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="system-tools-backends"
 VERSION="2.10.2"
@@ -7,24 +7,19 @@ SHORT_DESC="GNOME System Tools backends"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://system-tools-backends.freedesktop.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="dbus dbus-glib glib glibc-base libffi pcre polkit zlib"
 BUILD_DEPENDS="dbus-dev polkit-dev dbus-glib-dev glib-dev intltool perl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -rf $fs/usr/share/locale
+genpkg_rules() {
+	copy @std
+	DEPENDS="dbus dbus-glib glib glibc-base libffi pcre polkit zlib"
 }

@@ -14,20 +14,13 @@ WGET_URL="$XORG_MIRROR/app/$TARBALL"
 BUILD_DEPENDS="xorg-libXaw-dev"
 PKG_RULE="std"
 
-# Rules to configure and make the package.ls sr	
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libX11 xorg-libXaw xorg-libXmu xorg-libXt"
 	CONFIG_FILES="/etc/X11/app-defaults/XFontSel"

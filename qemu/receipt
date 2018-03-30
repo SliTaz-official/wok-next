@@ -3,26 +3,31 @@
 PACKAGE="qemu"
 VERSION="2.0.2"
 CATEGORY="misc"
-SHORT_DESC="General-purpose full virtualizer for x86 hardware."
+SHORT_DESC="General-purpose full virtualizer"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://qemu.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://wiki.qemu.org/download/$TARBALL"
 
 BUILD_DEPENDS="gettext perl alsa-lib-dev gnutls-dev libsdl-dev bluez-dev \
 libtasn1-dev vde2-dev curl-dev attr-dev util-linux-uuid-dev \
 glib-dev autoconf automake libtool bison flex libusb-dev ncurses-dev"
-SPLIT="qemu qemu-arm qemu-mips qemu-x86_64"
+SPLIT="qemu-arm qemu-mips qemu-x86_64 qemu"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTIDR/usr/share/qemu/ia32
+compile_rules() {
+	UEFIZIP="OVMF-IA32-r15214.zip"
+	[ -s $SRC/$UEFIZIP ] ||
+	wget -P $SRC $SF_MIRROR/edk2/$UEFIZIP
+	mkdir -p                       $install/usr/share/qemu/ia32/
+	unzip $SRC/$UEFIZIP OVMF.fd -d $install/usr/share/qemu/ia32/
 
-	[ -s $SRC/$UEFIZIP ] || wget -P $SRC \
-		http://netassist.dl.sourceforge.net/project/edk2/OVMF/$UEFIZIP
-	unzip $SRC/$UEFIZIP OVMF.fd -d $DESTIDR/usr/share/qemu/ia32
+	UEFIZIP="OVMF-X64-r15214.zip"
+	[ -s $SRC/$UEFIZIP ] ||
+	wget -P $SRC $SF_MIRROR/edk2/$UEFIZIP
+	mkdir -p                       $install/usr/share/qemu/x64/
+	unzip $SRC/$UEFIZIP OVMF.fd -d $install/usr/share/qemu/x64/
 
 	patch -p0 < $stuff/cloop.u
 
@@ -32,75 +37,48 @@ compile_rules()
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 	#--cross-prefix= --host-cc=
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--enable-sdl \
 		--enable-curses \
 		--audio-drv-list=alsa,oss \
 		--target-list="$TARGET" \
 		--cc=$BUILD_SYSTEM-gcc &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	ln -s qemu-system-i386   $install/usr/bin/qemu
+	ln -s qemu-system-arm    $install/usr/bin/qemu-arm
+	ln -s qemu-system-mips   $install/usr/bin/qemu-mips
+	ln -s qemu-system-x86_64 $install/usr/bin/qemu-x86_64
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	qemu)
-		UEFIZIP="OVMF-IA32-r15214.zip"
-		EXTRA_SOURCE_FILES="$UEFIZIP"
-		TAGS="virtualization emulator"
-		DEPENDS="alsa-lib gnutls libsdl bluez libtasn1 libsasl vde2 \
+		qemu-arm)
+			copy qemu-system-arm qemu-arm
+			CAT="misc|for ARM hardware"
+			DEPENDS="qemu"
+			TAGS="virtualization"
+			;;
+		qemu-mips)
+			copy qemu-system-mips qemu-mips
+			CAT="misc|for MIPS hardware"
+			DEPENDS="qemu"
+			TAGS="virtualization"
+			;;
+		qemu-x86_64)
+			copy qemu-system-x86_64 qemu-x86_64 x64/OVMF.fd target-x86_64.conf
+			CAT="misc|for X86_64 CPU"
+			DEPENDS="qemu"
+			TAGS="virtualization"
+			;;
+		qemu)
+			copy @std @rm
+			# Remove unneeded bios binaries
+			rm -f $fs/usr/share/qemu/*ppc* $fs/usr/share/qemu/*sparc*
+			CATEGORY="misc|for x86 hardware"
+			DEPENDS="alsa-lib gnutls libsdl bluez libtasn1 libsasl vde2 \
 			libcurl ncurses attr util-linux-uuid glib libusb"
-		mkdir -p $fs/usr/bin $fs/usr/share
-
-		# /etc/qemu is for x86_64
-		#cp -a $install/etc $fs
-
-		cp -a $install/usr/bin/qemu-*-i386 $fs/usr/bin
-		cp -a $install/usr/bin/qemu-ga $fs/usr/bin
-		cp -a $install/usr/bin/qemu-io $fs/usr/bin
-		cp -a $install/usr/bin/qemu-img $fs/usr/bin
-		cp -a $install/usr/bin/qemu-nbd $fs/usr/bin
-
-		cp -a $install/usr/share/qemu $fs/usr/share
-
-		# Remove unneeded bios binaries
-		rm -f $fs/usr/share/qemu/*ppc*
-		rm -f $fs/usr/share/qemu/*sparc*
-
-		# Create qemu symlink
-		cd $fs/usr/bin && ln -s qemu-system-i386 $PACKAGE
-		;;
-	qemu-arm)
-		CAT="misc|General-purpose full virtualizer for ARM hardware."
-		TAGS="virtualization"
-		DEPENDS="qemu"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/qemu-*${PACKAGE#qemu-} $fs/usr/bin
-		cd $fs/usr/bin && ln -s qemu-system-${PACKAGE#qemu-} $PACKAGE
-		;;
-	qemu-mips)
-		CAT="misc|General-purpose full virtualizer for MIPS hardware."
-		TAGS="virtualization"
-		DEPENDS="qemu"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/qemu-*${PACKAGE#qemu-} $fs/usr/bin
-		cd $fs/usr/bin && ln -s qemu-system-${PACKAGE#qemu-} $PACKAGE
-		;;
-	qemu-x86_64)
-		CAT="misc|General-purpose full virtualizer for X86_64 CPU."
-		TAGS="virtualization"
-		UEFIZIP="OVMF-X64-r15214.zip"
-		EXTRA_SOURCE_FILES="$UEFIZIP"
-		DEPENDS="qemu"
-		mkdir -p $fs/usr/bin $fs/usr/share/qemu/x64 $fs/etc
-		cp -a $install/etc/qemu $fs/etc
-		cp -a $install/usr/bin/qemu-*${PACKAGE#qemu-} $fs/usr/bin
-		cd $fs/usr/bin && ln -s qemu-system-${PACKAGE#qemu-} $PACKAGE
-		[ -s $SRC/$UEFIZIP ] || wget -P $SRC \
-			http://netassist.dl.sourceforge.net/project/edk2/OVMF/$UEFIZIP
-		unzip $SRC/$UEFIZIP OVMF.fd -d $fs/usr/share/qemu/x64
-		;;
+			TAGS="virtualization emulator"
+			;;
 	esac
 }

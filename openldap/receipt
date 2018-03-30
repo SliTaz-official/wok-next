@@ -22,8 +22,6 @@ compile_rules() {
 
 	autoconf &&
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--libexecdir=/usr/lib \
 		--disable-static \
 		--disable-debug \
@@ -34,7 +32,9 @@ compile_rules() {
 		--disable-hdb \
 		$CONFIGURE_ARGS &&
 	sed -i 's|@VERSION_OPTION@||' $src/libraries/*/Makefile &&
-	make depend && make && make install || return 1
+	make depend &&
+	make &&
+	make install || return 1
 
 	install -Dm0755 $stuff/etc/init.d/openldap $install/etc/init.d/openldap
 

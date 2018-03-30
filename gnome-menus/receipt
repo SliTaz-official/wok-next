@@ -9,18 +9,13 @@ LICENSE="GPL2"
 WEB_SITE="http://www.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-#WGET_URL="http://ftp.gnome.org/pub/GNOME/desktop/${VERSION%.*}/$VERSION/sources/$TARBALL"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool python-dev python glib-dev"
 SPLIT="gnome-menus-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -28,22 +23,12 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		gnome-menus)
-			PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/$PYTHON_LIB $fs/usr/lib
-			rm $fs/usr/lib/$PYTHON_LIB/site-packages/*.*a
+			copy @std
 			DEPENDS="glib"
 			SUGGESTED="python gamin"
 			;;
 		*-dev)
-			PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-			mkdir -p $fs/usr/lib/$PYTHON_LIB/site-packages
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/$PYTHON_LIB/site-packages/*.*a \
-				$fs/usr/lib/$PYTHON_LIB/site-packages
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			DEPENDS="gnome-menus python-dev"
 			;;
 	esac

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vnstat"
 VERSION="1.15"
@@ -7,34 +7,28 @@ SHORT_DESC="Console-based network monitoring utility"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://humdi.net/vnstat/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-DEPENDS="busybox"
-SUGGESTED="libgd"
 BUILD_DEPENDS="libgd-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-	$CONFIGURE_ARGS &&
-	make && make install
-	find $install/usr/share/man -type f -exec gzip \{\} \;
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
 	mkdir -p $install/etc/init.d
 	ln -s daemon $install/etc/init.d/vnstatd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="busybox"
+	SUGGESTED="libgd"
 }
 
-post_install()
-{
+post_install() {
 	# Start vnstat daemon and edit daemons.conf
 	if [ -z "$1" -a ! -s /aufs-umount.sh ]; then
 		/etc/init.d/vnstatd start || continue
@@ -48,9 +42,8 @@ EOT
 	fi
 }
 
-pre_remove()
-{
-	# Stop vnstat daemon before rm.
+# Stop vnstat daemon before rm.
+pre_remove() {
 	[ -z "$1" -a -x /etc/init.d/vnstatd ] && /etc/init.d/vnstatd stop
 	:
 }

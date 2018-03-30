@@ -1,34 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="chillispot"
 VERSION="1.1.0"
 CATEGORY="network"
-SHORT_DESC="Captive portal or wireless LAN access point controller."
+SHORT_DESC="Captive portal or wireless LAN access point controller"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.chillispot.info/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$TARBALL"
-CONFIG_FILES="/etc/chilli.conf"
 
 BUILD_DEPENDS="gfortran"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/) defined (/) || defined (/' src/tun.c
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--sysconfdir=/etc --mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $src/doc/chilli.conf $install/etc/chilli.conf
+	install -Dm755 $stuff/chilli        $install/etc/init.d/chilli
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc/init.d $fs/var/lib/chilli/
-	cp -a $install/usr/sbin $fs/usr
-	cp $src/doc/chilli.conf $fs/etc
-	cp $stuff/chilli $fs/etc/init.d
+genpkg_rules() {
+	copy @std
+	CONFIG_FILES="/etc/chilli.conf"
 }
-

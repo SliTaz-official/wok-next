@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="uget"
 VERSION="1.10.4"
@@ -6,35 +6,25 @@ CATEGORY="network"
 SHORT_DESC="Download manager using gtk+ and libcurl"
 MAINTAINER="devl547@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://urlget.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/urlget/$TARBALL"
 
-DEPENDS="pcre glib curl gtk+3"
 BUILD_DEPENDS="pcre-dev glib-dev curl-dev gtk+3-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--disable-gstreamer \
 		--disable-notify \
 		--with-gtk3 \
-		$CONFIGURE_ARGS \
-		LDFLAGS='-Wl,-O1 -Wl,--as-needed' &&
+		LDFLAGS='-Wl,-O1 -Wl,--as-needed' \
+		$CONFIGURE_ARGS &&
 	make -j2 -s &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/share/applications/ $fs/usr/share
-	cp -a $install/usr/share/icons/ $fs/usr/share
-	cp -a $install/usr/share/sounds/ $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="pcre glib curl gtk+3"
 }

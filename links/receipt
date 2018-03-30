@@ -1,54 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="links"
 VERSION="2.14"
 CATEGORY="network"
-SHORT_DESC="Light and fast web browser using Ncurses or Xlib."
+SHORT_DESC="Light and fast web browser using Ncurses or Xlib"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://links.twibright.com/"
-WGET_URL="http://links.twibright.com/download/$TARBALL"
-TAGS="web-browser"
 
-SUGGESTED="gpm"
-DEPENDS="ncurses openssl jpeg libpng16 tiff xorg-libX11 xorg-libXau \
-xorg-libXdmcp xorg-libxcb zlib liblzma bzlib libgomp"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://links.twibright.com/download/$TARBALL"
+
 BUILD_DEPENDS="openssl-dev xorg-libX11-dev jpeg-dev libpng16-dev tiff-dev \
 zlib-dev xorg-libXdmcp-dev xorg-libxcb-dev xorg-libXau-dev xz-dev bzip2-dev \
 gpm-dev"
 
-# Handle cross compilation
 case "$ARCH" in
 	arm*)
-		VERSION="2.7" 
-		TARBALL="$PACKAGE-$VERSION.tar.gz" 
-		WGET_URL="http://links.twibright.com/download/$TARBALL" ;;
+		VERSION="2.7"
+		TARBALL="$PACKAGE-$VERSION.tar.gz"
+		WGET_URL="http://links.twibright.com/download/$TARBALL";;
 esac
-
-# Handle SliTaz arch
 case "$SLITAZ_ARCH" in
-	arm*) VERSION="2.7" ;;
+	arm*) VERSION="2.7";;
 esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--enable-graphics \
 		--without-directfb \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $src/graphics/links.xpm $install/usr/share/pixmaps/links.xpm
+	install -Dm644 $stuff/links.html       $install/usr/share/webhome/links.html
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps $fs/usr/share/webhome
-	cp -a $install/usr/bin $fs/usr
-	cp $src/graphics/links.xpm $fs/usr/share/pixmaps
-	cp $stuff/links.html $fs/usr/share/webhome
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses openssl jpeg libpng16 tiff xorg-libX11 xorg-libXau \
+	xorg-libXdmcp xorg-libxcb zlib liblzma bzlib libgomp"
+	SUGGESTED="gpm"
+	TAGS="web-browser"
 }

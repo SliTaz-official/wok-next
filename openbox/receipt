@@ -23,15 +23,14 @@ compile_rules() {
 		*)     SET_ARGS='';;
 	esac
 
-	fix ld
 	# openbox required reconfiguration after patching...
 	autoreconf -fi &&
 
 	./configure \
-		--sysconfdir=/etc \
 		--libexecdir=/usr/lib/openbox \
 		--disable-static \
-		$ARCH_ARGS $SET_ARGS $CONFIGURE_ARGS &&
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make -j1 DESTDIR=$DESTDIR install &&

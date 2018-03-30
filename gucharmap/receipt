@@ -3,55 +3,43 @@
 PACKAGE="gucharmap"
 VERSION="3.0.1"
 CATEGORY="utilities"
-SHORT_DESC="GNOME Character Map (GTK+2)"
+SHORT_DESC="GNOME Character Map, GTK+2"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://wiki.gnome.org/action/show/Apps/Gucharmap"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="itstool libxml2-tools glib-dev gtk+-dev intltool"
-SPLIT="gucharmap gucharmap-dev gucharmap-i18n"
+SPLIT="gucharmap-dev gucharmap-i18n"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--disable-maintainer-mode \
 		--disable-gconf \
 		--disable-schemas-install \
 		--disable-scrollkeeper \
 		--with-gtk=2.0 \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gucharmap)
-		DEPENDS="gtk+ xorg-libXdamage"
-		mkdir -p $fs/usr/bin $fs/usr/lib $fs/usr/share
-		cp -a $install/etc $fs
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/share/applications $fs/usr/share
-		;;
-	gucharmap-dev)
-		CAT="development|GNOME Character Map (GTK+2), development files"
-		DEPENDS="gucharmap"
-		mkdir -p $fs/usr/lib $fs/usr/share
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/lib/*.la $fs/usr/lib
-		;;
-	gucharmap-i18n)
-		CAT="localization|Language files for GNOME Character Map (GTK+2)"
-		DEPENDS="gucharmap"
-		mkdir -p $fs/usr/share/locale
-		cp -a $install/usr/share/locale/* $fs/usr/share/locale
-		;;
+		gucharmap)
+			copy @std
+			DEPENDS="gtk+ xorg-libXdamage"
+			;;
+		gucharmap-dev)
+			copy @dev
+			DEPENDS="gucharmap"
+			;;
+		gucharmap-i18n)
+			copy locale/
+			CAT="localization|language files"
+			DEPENDS="gucharmap"
+			;;
 	esac
 }

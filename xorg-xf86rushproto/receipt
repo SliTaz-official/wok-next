@@ -14,19 +14,12 @@ WGET_URL="$XORG_MIRROR/proto/$TARBALL"
 BUILD_DEPENDS="xorg-util-macros"
 PKG_RULE="dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @dev
 }

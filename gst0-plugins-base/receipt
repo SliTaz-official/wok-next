@@ -26,8 +26,6 @@ compile_rules() {
 		arm*) export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include" ;;
 	esac
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--enable-experimental \
 		--disable-static \
 		--disable-debug \
@@ -35,7 +33,8 @@ compile_rules() {
 		--with-package-name="$SHORT_DESC" \
 		--with-package-origin="http://www.slitaz.org/" \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make install
+	make $MAKEFLAGS &&
+	make install
 }
 
 genpkg_rules() {

@@ -21,7 +21,6 @@ SPLIT="perl-image-magick imagemagick imagemagick-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--with-perl \
 		--with-magick-plus-plus \
 		--with-modules \
@@ -29,8 +28,9 @@ compile_rules() {
 		--with-rsvg \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
 
 	chmod -R u+w $install/usr/lib/perl5/
 }

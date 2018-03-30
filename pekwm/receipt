@@ -1,48 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pekwm"
 VERSION="0.1.13"
 CATEGORY="x-window"
-SHORT_DESC="Very light, configurable and themable window manager for X."
+SHORT_DESC="Very light, configurable and themable window manager for X"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="hsetroot tint2 lxpanel wbar xorg-xprop xorg-xev xdotool wmctrl"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.pekwm.org/projects/pekwm"
-WGET_URL="$WEB_SITE/files/$TARBALL"
-TAGS="window-manager"
 
-DEPENDS="xorg-libX11 xorg-libXinerama xorg-libXft xorg-libXrandr xorg-libXpm"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$WEB_SITE/files/$TARBALL"
+
 BUILD_DEPENDS="xorg-dev xorg-dev-proto zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --sysconfdir=/etc $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
-}
+	make DESTDIR=$DESTDIR install || return 1
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/pekwm $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/pekwm $fs/usr/share
-	cp -a $install/etc $fs
 	# Custom configuration files and scripts
-	cp -a $stuff/etc $fs
-	cp -a $stuff/scripts $fs/usr/share/pekwm
+	cp -r $stuff/etc     $install
+	cp -r $stuff/scripts $install/usr/share/pekwm/
+
 	# Set perms.
-	chown -R root.root $fs
-	chmod +x $fs/etc/pekwm/start
-	chmod +x $fs/usr/share/pekwm/scripts/*
-	chmod 0755 $fs/usr/bin/pekwm
+	chown -R root:root $install
+	chmod +x   $install/etc/pekwm/start
+	chmod +x   $install/usr/share/pekwm/scripts/*
 }
 
-post_install()
-{
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11 xorg-libXinerama xorg-libXft xorg-libXrandr xorg-libXpm"
+	SUGGESTED="hsetroot tint2 lxpanel wbar xorg-xprop xorg-xev xdotool wmctrl"
+	TAGS="window-manager"
+}
+
+post_install() {
 	# Pekwm searches for default font path (100dpi folder) for xsever to render 
 	# menus; either manually set it in .xinitrc or fake 100dpi folder fonts 
 	# by linking to ttf-dejavu
@@ -55,14 +48,11 @@ post_install()
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q $PACKAGE; then
-		echo -n "Adding $PACKAGE to /etc/slim.conf..."
 		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
-		status
 	fi
 }
 
-post_remove()
-{
+post_remove() {
 	# Remove WM from SLIM available sessions.
 	if grep -q $PACKAGE "$1/etc/slim.conf"; then
 		sed -i s/,$PACKAGE// "$1/etc/slim.conf"

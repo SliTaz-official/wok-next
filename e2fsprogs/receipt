@@ -19,11 +19,11 @@ SPLIT="libcomerr-dev e2fsprogs-dev e2fsprogs-fsck libcomerr e2fsprogs"
 
 compile_rules() {
 	sed -i -e 's:\[\.-\]::' tests/filter.sed
-	mkdir ../build && cd ../build
+	mkdir build
+	cd    build
 
 	$src/configure \
 		--bindir=/bin \
-		--sysconfdir=/etc \
 		--with-root-prefix="" \
 		--enable-elf-shlibs \
 		--disable-libblkid \
@@ -31,7 +31,9 @@ compile_rules() {
 		--disable-uuidd \
 		--disable-fsck \
 		$CONFIGURE_ARGS &&
-	make && make install && make install-libs || return 1
+	make &&
+	make install &&
+	make install-libs || return 1
 
 	for i in libcom_err libe2p libext2fs libss; do
 		chmod u+w $install/usr/lib/$i.a

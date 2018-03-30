@@ -11,13 +11,12 @@ WEB_SITE="http://www.gnome.org"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="python-dev libxml2-python GConf-dev gnome-doc-utils-dev \
+BUILD_DEPENDS="python-dev libxml2-python GConf-dev gnome-doc-utils \
 intltool gtk+-dev xorg-libXrandr-dev"
 SPLIT="gnome-desktop-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--sysconfdir=/etc/gnome \
 		--localstatedir=/var/lib \
 		--enable-gtk-doc-html=no \
@@ -26,7 +25,8 @@ compile_rules() {
 		--disable-static \
 		--with-gnome-distributor="SliTaz GNU/Linux" \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
@@ -40,10 +40,7 @@ genpkg_rules() {
 			DEPENDS="GConf gtk+ startup-notification"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

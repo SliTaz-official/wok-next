@@ -16,21 +16,16 @@ BUILD_DEPENDS="gobject-introspection-dev libxslt gtk-doc glib-dev eudev-dev \
 libgudev-dev libusb-dev intltool dbus-introspect"
 SPLIT="upower-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--enable-deprecated \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		upower)
 			copy @std

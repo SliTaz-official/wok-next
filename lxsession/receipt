@@ -7,6 +7,7 @@ SHORT_DESC="Standard session manager used by LXDE"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/LXSession"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxsession.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
@@ -14,20 +15,15 @@ WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 BUILD_DEPENDS="intltool xorg-libX11-dev polkit-dev vala libxslt docbook-xsl \
 automake gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxsession.html
-
+compile_rules() {
 	# https://git.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/lxsession
 	# Regenerate C sources from Vala code
 	rm *.stamp
 	autoreconf -fi
 
-	./configure \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	# customize desktop.conf for SliTaz
 	confdir="$install/etc/xdg/lxsession/LXDE"
@@ -56,9 +52,7 @@ compile_rules()
 	touch $confdir/autostart
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango polkit \
 	xorg-libX11   dbus-glib lsb-release"

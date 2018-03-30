@@ -1,34 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="minidlna"
 VERSION="1.1.4"
 CATEGORY="network"
-SHORT_DESC="a simple media server fully compliant with DLNA/UPnP-AV clients"
+SHORT_DESC="Simple media server fully compliant with DLNA/UPnP-AV clients"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://minidlna.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-CONFIGFILES="/etc/minidlna.conf"
 
-DEPENDS="ffmpeg jpeg libsqlite3 libexif libid3tag libogg libvorbis flac"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="ffmpeg-dev jpeg-dev sqlite3-dev libexif-dev libid3tag-dev \
 libogg-dev libvorbis-dev flac-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $src/minidlna.conf $install/etc/minidlna.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $src/minidlna.conf $fs/etc
+genpkg_rules() {
+	copy @std
+	DEPENDS="ffmpeg jpeg libsqlite3 libexif libid3tag libogg libvorbis flac"
+	CONFIG_FILES="/etc/minidlna.conf"
 }

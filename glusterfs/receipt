@@ -1,44 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="glusterfs"
 VERSION="3.12.5"
 CATEGORY="misc"
-SHORT_DESC="Distributed file system."
+SHORT_DESC="Distributed file system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 LGPL3"
 WEB_SITE="http://www.gluster.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://download.gluster.org/pub/gluster/glusterfs/${VERSION%.*}/$VERSION/$TARBALL"
 
-DEPENDS="python readline mpc-library elfutils openssl"
 BUILD_DEPENDS="flex python-dev readline-dev mpc-library elfutils openssl-dev \
 acl-dev sqlite-dev liburcu-dev libxml2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i "/^cat/,/^EOM/d;s/exit/echo '$HOST_SYSTEM'\n&/" config.sub
-	./configure --prefix=/usr --infodir=/usr/share/info \
+
+	./configure \
 		--libexecdir=/usr/share \
-		--mandir=/usr/share/man \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
 	make &&
 	make  install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	cp -a $install/sbin $fs
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/glusterfs $fs/usr/share
-
-	# Clean-up
-	find $fs/usr/lib -name "*.*a" -exec rm -f {} \;
+genpkg_rules() {
+	copy @std
+	DEPENDS="python readline mpc-library elfutils openssl"
 }

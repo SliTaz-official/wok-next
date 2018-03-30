@@ -6,64 +6,57 @@ CATEGORY="development"
 SHORT_DESC="Cross-platform, open source .NET development framework"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="LGPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.mono-project.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.mono-project.com/sources/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="tar bzip2 m4 bison gawk \
 gettext glib-dev perl libgdiplus-dev"
-SPLIT="mono mono-dev mono-doc"
+SPLIT="mono-doc mono mono-dev"
 
 # Build documentation at http://mono-project.com/Compiling_Mono
 # and http://mono-project.com/Release_Notes_Mono_2.4#Installing_Mono_2.4
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--with-libgdiplus=installed \
-		$CONFIGURE_ARGS 2>&1 | grep -v /libtool &&
-	make -j 1 2>&1 | grep -v 'dll.makefrag: No such file' && make install
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make install
 
-	for i in System.Web_standalone_test_net_2_0 \
-		 System.Web_standalone_test_net_4_0 \
-		 System.Web.Extensions_standalone_test_net_2_0 \
-		 System.Web.Extensions_standalone_test_net_4_0 \
-		 net_2_0_standalone-runner-support \
-		 net_4_0_standalone-runner-support ; do
+	for i in \
+		System.Web_standalone_test_net_2_0 \
+		System.Web_standalone_test_net_4_0 \
+		System.Web.Extensions_standalone_test_net_2_0 \
+		System.Web.Extensions_standalone_test_net_4_0 \
+		net_2_0_standalone-runner-support \
+		net_4_0_standalone-runner-support ; do
 		touch -d 197001010000 mcs/build/deps/$i.dll.makefrag
 	done
+
 	cd $src/mcs/jay
-	make -j 1 && make DESTDIR=$DESTDIR prefix=/usr INSTALL=../../install-sh install
+	make -j1 &&
+	make DESTDIR=$DESTDIR prefix=/usr INSTALL=../../install-sh install
 
 	#fix .pc file to be able to request mono on what it depends, fixes #go-oo build
 	sed -i -e "s:#Requires:Requires:" $DESTDIR/usr/lib/pkgconfig/mono.pc
+
+	chmod +x $install/usr/bin/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	mono)
-		DEPENDS="glib glibc-base zlib libgdiplus"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/mono $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/etc $fs
-		chmod +x $fs/usr/bin/*
-		;;
-	mono-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
-	mono-doc)
-		CAT="development|mono documentation files."
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/monodoc $fs/usr/lib
-		;;
+		mono-doc)
+			copy usr/lib/monodoc/
+			CAT="development|documentation"
+			;;
+		mono)
+			copy @std @rm
+			DEPENDS="glib glibc-base zlib libgdiplus"
+			;;
+		mono-dev)
+			copy @dev
+			;;
 	esac
 }

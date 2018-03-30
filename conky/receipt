@@ -18,21 +18,20 @@ imlib2-dev lua-dev xorg-libXext-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--enable-wlan \
 		--enable-lua \
 		--enable-imlib2 \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	install -Dm644 $stuff/conky.conf    $install/etc/conky/conky.conf
+	install -Dm644 $stuff/conky.desktop $install/etc/xdg/autostart/conky.desktop
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr $fs/etc/conky $fs/etc/xdg/autostart
-	cp -a $install/usr/bin $fs/usr
-	cp -f $install/etc/conky/conky_no_x11.conf $fs/etc/conky
-	cp -a $stuff/conky.conf $fs/etc/conky
-	cp -a $stuff/conky.desktop $fs/etc/xdg/autostart
+	copy @std
 	DEPENDS="expat fontconfig freetype glib xorg-libX11 xorg-libXau \
 	xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libxcb \
 	xorg-libXft xorg-libXrender zlib ncurses wireless_tools imlib2"

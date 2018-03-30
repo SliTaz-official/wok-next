@@ -6,39 +6,30 @@ CATEGORY="misc"
 SHORT_DESC="The DICOM Toolkit"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://dicom.offis.de/dcmtk"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://dicom.offis.de/pub/dicom/offis/software/$PACKAGE/$PACKAGE${VERSION//./}/$TARBALL"
 
 BUILD_DEPENDS="libxml2-dev tiff-dev libpng16-dev zlib-dev libwrap-dev"
 SPLIT="dcmtk dcmtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
 		--sysconfdir=/etc/dcmtk \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make -j 1 &&
+	make -j1 &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	dcmtk)
-		DEPENDS="libxml2 tiff libpng16 libwrap"
-		cp -a $install/* $fs/
-		;;
-	dcmtk-dev)
-		CAT="development|development files"
-		MAINTAINER="pascal.bellard@slitaz.org"
-		DEPENDS="dcmtk"
-		mkdir -p $fs/usr/include/dcmtk $fs/usr/lib
-		cp -a $src/*/include/dcmtk/* $fs/usr/include/dcmtk
-		cp -a $src/*/*/*a $fs/usr/lib
-		;;
+		dcmtk)
+			copy @std
+			DEPENDS="libxml2 tiff libpng16 libwrap"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

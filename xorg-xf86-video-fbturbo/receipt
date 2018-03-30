@@ -17,25 +17,18 @@ WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 # actually because I stripped down Xorg build since it mesa are not
 # ported yet.
 
-BUILD_DEPENDS="xorg-server-dev"
+BUILD_DEPENDS="xorg-server-dev automake"
 SPLIT="xorg-xf86-video-fbturbo-dev"
 PKG_RULE="std-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -vi
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-fbturbo)
 			copy @std

@@ -15,23 +15,15 @@ BUILD_DEPENDS="intltool"
 SPLIT="xfce4-icon-theme-dev"
 
 compile_rules() {
-	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--disable-debug \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		xfce4-icon-theme)
-			copy @std
-			;;
-		*-dev)
-			copy @dev
-			;;
+		xfce4-icon-theme) copy @std;;
+		*-dev)            copy @dev;;
 	esac
 	TAGS="Xfce"
 }

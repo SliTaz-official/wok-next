@@ -8,7 +8,6 @@ MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://www.gtk.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/gtk3.html"
-CROSS_BUGS="bug: /bin/bash: no: command not found"
 
 TARBALL="gtk+-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gtk+/${VERSION%.*}/$TARBALL"
@@ -21,9 +20,9 @@ xorg-libXdamage-dev libepoxy-dev at-spi2-atk-dev cups-dev colord-dev gtk-doc \
 libxslt gobject-introspection-dev xorg-libSM-dev"
 SPLIT="gtk+3-demo gtk+3-widget-factory gtk+3-icon-browser gtk+3 gtk+3-dev"
 COOKOPTS="skip-log-errors" # Failed to open file ?./gdk.gresource.xml?: No such file or directory
+CROSS_BUGS="bug: /bin/bash: no: command not found"
 
 compile_rules() {
-	fix ld
 	# Handle cross compilation.
 	case "$ARCH" in
 		arm*)
@@ -35,8 +34,6 @@ compile_rules() {
 	esac
 
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--disable-debug \
 		--enable-xkb \
 		--enable-xinerama \
@@ -55,7 +52,7 @@ compile_rules() {
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install || return 1
 
-	cp -f $stuff/settings.ini $install/etc/gtk-3.0 &&
+	cp -f $stuff/settings.ini $install/etc/gtk-3.0
 	find $install -name '*.desktop' | xargs sed -i '/NoDisplay/d'
 }
 

@@ -12,19 +12,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
 BUILD_DEPENDS="python-dev openldap-dev coreutils-file-format swig"
-SPLIT="audit-python audit-dev"
+SPLIT="audit-python audit audit-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--sbindir=/sbin \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install &&
+	make DESTDIR=$DESTDIR install || return 1
 
 	# make files readable for the web interface; fix permissions later in post_install
 	chmod 755 $install/etc/audisp/plugins.d/
@@ -33,19 +28,16 @@ compile_rules()
 	-type f -exec chmod o+r '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		audit)
-			copy @std
-			rm -r $fs/usr/lib/python*
-			DEPENDS="openssl libldap"
-			;;
 		audit-python)
 			copy *.py site-packages/*.so
 			CAT="misc|Python bindings"
 			DEPENDS="audit python"
+			;;
+		audit)
+			copy @std @rm
+			DEPENDS="openssl libldap"
 			;;
 		*-dev)
 			copy @dev

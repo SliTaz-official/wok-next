@@ -11,112 +11,71 @@ WEB_SITE="http://www.partimage.org/Index.fr.html"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="newt newt-dev slang-dev bzip2-dev openssl-dev zlib-dev pam-dev"
-SPLIT="partimage partimage-pam"
+SPLIT="partimage partimage-pam:pam"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $SET in
+		'')  SET_ARGS='--disable-pam';;
+		pam) SET_ARGS='--enable-pam';;
+	esac
+
 	sed -i 's/gzFile \*m_gzImageFile/gzFile m_gzImageFile/' src/client/imagefile.h
 	sed -i 's/(gzFile \*) gzdopen/gzdopen/' src/client/imagefile.cpp
 
-	cp -a $src $src-pam
-
 	./configure \
-		--prefix=/usr \
-		--disable-pam \
-		--sysconfdir=/etc \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install || return 1
 
-	cd $src-pam
-	./configure \
-		--prefix=/usr \
-		--enable-pam \
-		--sysconfdir=/etc \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR-pam install
+	install -Dm600 $stuff/etc/partimaged/partimaged.cert $install/etc/partimaged/partimaged.cert
+	install -Dm600 $stuff/etc/partimaged/partimaged.key  $install/etc/partimaged/partimaged.key
+	install -Dm755 $stuff/etc/init.d/partimaged          $install/etc/init.d/partimaged
+
+	mkdir -p $install/var/lib/partimaged/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	partimage)
-		DEPENDS="newt bzip2 openssl slitaz-base-files zlib gcc-lib-base"
-		mkdir -p $fs/usr $fs/etc/init.d $fs/var/lib/partimaged
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/etc $fs/
-		install -g root -o root -m 0600 stuff/etc/partimaged/partimaged.* $fs/etc/partimaged
-		install -g root -o root -m 0755 stuff/etc/init.d/partimaged $fs/etc/init.d
-		;;
-	partimage-pam)
-		CAT="system-tools|using PAM"
-		PROVIDE="partimage:pam"
-		DEPENDS="newt bzip2 openssl slitaz-base-files zlib pam gcc-lib-base"
-		mkdir -p $fs/usr $fs/etc/init.d $fs/var/lib/partimaged
-		cp -a $install-pam/usr/sbin $fs/usr
-		cp -a $install-pam/etc $fs/
-		install -g root -o root -m 0600 stuff/etc/partimaged/partimaged.* $fs/etc/partimaged
-		install -g root -o root -m 0755 stuff/etc/init.d/partimaged $fs/etc/init.d
-		;;
+		partimage)
+			copy @std
+			DEPENDS="newt bzip2 openssl slitaz-base-files zlib gcc-lib-base"
+			;;
+		partimage-pam)
+			copy @std
+			CAT="system-tools|using PAM"
+			PROVIDE="partimage:pam"
+			DEPENDS="newt bzip2 openssl slitaz-base-files zlib pam gcc-lib-base"
+			;;
 	esac
 }
 
-post_install_partimage()
-{
-	echo
-	echo "Adding user/group partimag..."
+# The same post-install/remove rules for both PAM/non-PAM packages
+
+post_install() {
+	# Adding user/group partimag...
 	chroot "$1/" adduser -S -H -D partimag
 
-	echo "Setting permissions for config files"
+	# Setting permissions for config files
 	chmod 0600 "$1"/etc/partimaged/*
-	chroot "$1/" chown partimag.partimag "$1"/etc/partimaged/*	
+	chroot "$1/" chown partimag.partimag "$1"/etc/partimaged/*
 
-	echo "Creating image files directory"
+	# Creating image files directory
 	chroot "$1/" install -g partimag -o partimag -m 0755 -d "$1/var/lib/partimaged"
 
-	echo ""
-	echo -e "\nTo starts partimage server you can run :\n"
-	echo "/etc/init.d/partimaged start"
-	echo -e "Or add partimaged to RUN_DAEMONS in /etc/rcS.conf\n"
+	[ -n "$quiet" ] || cat <<EOT
+
+	.---------------------------------------------------.
+	| To starts partimage server you can run:           |
+	|   /etc/init.d/partimaged start                    |
+	|                                                   |
+	| Or add partimaged to RUN_DAEMONS in /etc/rcS.conf |
+	'---------------------------------------------------'
+EOT
 }
 
-post_remove_partimage()
-{
-	chroot "$1/" deluser partimag
-	chroot "$1/" delgroup partimag
-
-	if [ -f "$1/etc/paritimaged" ]; then
-		rm -rf "$1/etc/partimaged"
-	fi
-}
-
-post_install_partimage_pam()
-{
-	echo
-	echo "Adding user/group partimag..."
-	chroot "$1/" adduser -S -H -D partimag
-
-	echo "Setting permissions for config files"
-	chmod 0600 "$1"/etc/partimaged/*
-	chroot "$1/" chown partimag.partimag "$1"/etc/partimaged/*	
-
-	echo "Creating image files directory"
-	chroot "$1/" install -g partimag -o partimag -m 0755 -d "$1/var/lib/partimaged"
-
-	echo ""
-	echo -e "\nTo starts partimage server you can run :\n"
-	echo "/etc/init.d/partimaged start"
-	echo -e "Or add partimaged to RUN_DAEMONS in /etc/rcS.conf\n"
-}
-
-post_remove_partimage_pam()
-{
-	chroot "$1/" deluser partimag
+post_remove() {
+	chroot "$1/" deluser  partimag
 	chroot "$1/" delgroup partimag
 
 	if [ -f "$1/etc/paritimaged" ]; then

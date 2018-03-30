@@ -1,39 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="minicom"
 VERSION="2.6"
 CATEGORY="development"
-SHORT_DESC="menu driven communications program"
+SHORT_DESC="Menu driven communications program"
 MAINTAINER="f.lombard@free.fr"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://alioth.debian.org/projects/minicom/"
-WGET_URL="http://alioth.debian.org/frs/download.php/3195/$PACKAGE/$TARBALL"
-CONFIG_FILES="/etc/minirc.dfl"
 
-DEPENDS="ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://alioth.debian.org/frs/download.php/3195/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/getline/get_line/' src/minicom.c
-	./configure \
-		--sysconfdir=/etc \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	touch $install/etc/minirc.dfl
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	mkdir -p $fs/etc
-	touch $fs$CONFIG_FILES
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
+	CONFIG_FILES="/etc/minirc.dfl"
 }

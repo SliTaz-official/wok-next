@@ -7,27 +7,23 @@ SHORT_DESC="Bluetooth protocol stack"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.bluez.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/bluez.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.kernel.org/pub/linux/bluetooth/$TARBALL"
 
-BUILD_DEPENDS="alsa-lib-dev dbus-dev glib-dev libusb-dev libusb-compat"
+#BUILD_DEPENDS="alsa-lib-dev dbus-dev glib-dev libusb-dev libusb-compat"
+BUILD_DEPENDS="glib-dev dbus-dev eudev-dev libical-dev readline-dev"
 SPLIT="bluez-tools bluez-tools-experimental bluez bluez-dev"
 
-BUILD_DEPENDS="glib-dev dbus-dev eudev-dev libical-dev readline-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/general/bluez.html
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--enable-library \
 		--disable-systemd \
 		--enable-experimental \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $install/usr/sbin
 	ln -svf ../libexec/bluetooth/bluetoothd $install/usr/sbin
@@ -35,16 +31,12 @@ compile_rules()
 	mkdir -p $install/etc/bluetooth
 	cp src/main.conf $install/etc/bluetooth
 
-	docdir="$install/usr/share/doc/$PACKAGE-$VERSION"
-	mkdir -p $docdir
-	cp doc/*.txt $docdir
+	cook_pick_docs doc/*.txt
 
 	cp $stuff/*.conf $install/etc/bluetooth/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		bluez-tools)
 			copy bccmd bluemoon ciptool hciattach hciconfig hcidump hcitool \

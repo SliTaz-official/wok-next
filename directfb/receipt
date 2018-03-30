@@ -3,62 +3,47 @@
 PACKAGE="directfb"
 VERSION="1.4.3"
 CATEGORY="system-tools"
-SHORT_DESC="Thin library that provides hardware graphics acceleration."
+SHORT_DESC="Thin library that provides hardware graphics acceleration"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
+WEB_SITE="http://www.directfb.org/"
+
 SOURCE="DirectFB"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.directfb.org/"
 WGET_URL="http://www.directfb.org/downloads/Core/$SOURCE-${VERSION%.*}/$TARBALL"
 
+BUILD_DEPENDS_arm="libpng12-dev jpeg-dev freetype-dev"
 BUILD_DEPENDS="libpng12-dev jpeg-dev freetype-dev tslib-dev perl"
 SPLIT="directfb-dev"
 
-# Handle cross compilation.
-case "$ARCH" in
-	arm) 
-		BUILD_DEPENDS="libpng12-dev jpeg-dev freetype-dev"
-		ARCH_ARGS="--with-gfxdrivers=none --disable-x11"
-		export LDFLAGS="$LDFLAGS -L/cross/arm/sysroot/usr/lib"
-		export CPPFLAGS="$CPPFLAGS -I/cross/arm/sysroot/usr/include" ;;
-esac
 
-# Handle SliTaz arch installation.
-case "$SLITAZ_ARCH" in
-	arm) DEPENDS="libpng12 libjpeg freetype zlib" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case "$ARCH" in
+		arm)
+			ARCH_ARGS="--with-gfxdrivers=none --disable-x11"
+			export LDFLAGS="$LDFLAGS -L/cross/arm/sysroot/usr/lib"
+			export CPPFLAGS="$CPPFLAGS -I/cross/arm/sysroot/usr/include"
+			;;
+	esac
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
 		--with-dither-rgb16=none \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	directfb)
-		DEPENDS="libpng12 libjpeg freetype tslib zlib"
-		mkdir -p $fs/usr/lib $fs/usr/share
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/directfb-* $fs/usr/lib
-		cp -a $install/usr/share/directfb-* $fs/usr/share
-		find $fs/usr/lib -name "*.*a" -exec rm '{}' \;
-		;;
-	directfb-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/directfb-* $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		find $fs/usr/lib -name "*.so*" -exec rm '{}' \;
-		;;
+		directfb)
+			copy @std
+			DEPENDS="libpng12 libjpeg freetype tslib zlib"
+			case "$SLITAZ_ARCH" in
+				arm) DEPENDS="libpng12 libjpeg freetype zlib" ;;
+			esac
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

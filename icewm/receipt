@@ -16,21 +16,17 @@ xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev xorg-libXrandr-dev \
 xorg-libXft-dev alsa-lib-dev libsndfile-dev xorg-libXinerama-dev fribidi-dev \
 gdk-pixbuf-dev flac-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--docdir=/usr/share/doc/icewm-$VERSION \
-		--enable-guievents --with-icesound=ALSA \
+		--enable-guievents \
+		--with-icesound=ALSA \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	make &&
+	make install &&
 	rm $install/usr/share/xsessions/icewm.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	TAGS="window-manager"
 	DEPENDS="alsa-lib flac fribidi gdk-pixbuf libsndfile libvorbis xorg-libSM \

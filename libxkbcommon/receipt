@@ -16,22 +16,17 @@ BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros xorg-xkeyboard-config-dev bison"
 SPLIT="libxkbcommon-x11 libxkbcommon libxkbcommon-dev"
 SIBLINGS="libxkbcommon-wayland"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
 		--with-xkb-config-root=/usr/share/X11/xkb \
 		--docdir=/usr/share/doc/libxkbcommon-$VERSION \
 		--disable-wayland \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libxkbcommon-x11)
 			copy libxkbcommon-x11.so*

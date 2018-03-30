@@ -1,36 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mc"
 VERSION="4.8.19"
 CATEGORY="system-tools"
-SHORT_DESC="Midnight Commander - ncurses based file manager."
+SHORT_DESC="Midnight Commander - ncurses based file manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://midnight-commander.org/"
-TAGS="file-manager text-editor"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.midnight-commander.org/$TARBALL"
 
-SUGGESTED="gpm xz cdrkit-isoinfo lynx w3m wv poppler-apps file"
-DEPENDS="ncurses glib e2fsprogs util-linux-blkid libssh2 openssl zlib pcre"
 BUILD_DEPENDS="gpm-dev glib-dev ncurses-dev util-linux-mount-dev \
 util-linux-blkid-dev util-linux-uuid-dev check-dev gettext libssh2-dev"
 
 COOKOPTS="!menus"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/lzma -cd/lzcat/' $src/src/editor/edit.c
 
 	./configure \
 		--enable-charset \
 		--with-gpm-mouse \
 		--with-screen=ncurses \
-		--sysconfdir=/etc \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 
 	mkdir -p $install/usr/share/terminfo/s
 	cp -a /usr/share/terminfo/s/screen-256color $install/usr/share/terminfo/s
@@ -43,11 +38,12 @@ compile_rules()
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy bin/ mc/ terminfo/ applications/
 
 	sed -i 's#|profile|#&receipt|#' $fs/usr/share/mc/syntax/Syntax
 	sed -i 's/lzma -dc/lzcat/g'     $fs/usr/libexec/mc/ext.d/archive.sh
+	DEPENDS="ncurses glib e2fsprogs util-linux-blkid libssh2 openssl zlib pcre"
+	SUGGESTED="gpm xz cdrkit-isoinfo lynx w3m wv poppler-apps file"
+	TAGS="file-manager text-editor"
 }

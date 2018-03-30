@@ -1,43 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pm-utils"
 VERSION="1.4.1"
 CATEGORY="system-tools"
-SHORT_DESC="Collection of scripts that handle suspend and resume."
+SHORT_DESC="Collection of scripts that handle suspend and resume"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://pm-utils.freedesktop.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://pm-utils.freedesktop.org/releases/$TARBALL"
-CONFIG_FILES="/etc/pm"
-TAGS="power-management"
 
-DEPENDS="bash kbd"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	# workaround grep -x not implemented in busybox
-	echo -n "Applying grep -x patch.."
-	patch -p1 pm/functions.in $stuff/grep-x.patch > /dev/null \
-		&& echo done. || echo failed.
+	patch -p1 pm/functions.in $stuff/grep-x.patch
 	# remove acoustic management not implemented in busybox
-	echo -n "Applying harddrive patch.."
-	patch -p1 pm/power.d/harddrive $stuff/harddrive.patch > /dev/null \
-		&& echo done. || echo failed.
-	# build
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+	patch -p1 pm/power.d/harddrive $stuff/harddrive.patch
+
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	# main
 	mkdir -p $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
@@ -49,7 +34,6 @@ genpkg_rules()
 	cp -a $install/etc/pm $fs/etc
 
 	# remove incompatible hooks
-	echo "remove incompatible hooks"
 	# NetworkManager hook
 	rm -f $fs/usr/lib/pm-utils/sleep.d/55NetworkManager
 	# grub hook (Redhat specific)
@@ -60,20 +44,22 @@ genpkg_rules()
 	rm -f $fs/usr/lib/pm-utils/power.d/sata_alpm
 
 	# add video quirks
-	echo -n "Add video quirks"
 	cp -a $stuff/video-quirks $fs/usr/lib/pm-utils
-	status
+
+	DEPENDS="bash kbd"
+	CONFIG_FILES="/etc/pm"
+	TAGS="power-management"
 }
 
-pre_remove()
-{
+pre_remove() {
 	[ -s "$1/etc/slim.conf" ] &&
 	sed -i 's|.*/usr/sbin/pm-suspend|#&|' "$1/etc/slim.conf"
+	:
 }
 
-post_install()
-{
+post_install() {
 	[ -s "$1/etc/slim.conf" ] &&
 	sed -i 's|^#suspend_cmd.*|suspend_cmd         /usr/sbin/pm-suspend|' \
 		"$1/etc/slim.conf"
+	:
 }

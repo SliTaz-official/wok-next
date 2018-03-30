@@ -1,36 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dillo"
 VERSION="3.0.4"
 CATEGORY="network"
-SHORT_DESC="Light and fast web browse using FLTK."
+SHORT_DESC="Light and fast web browse using FLTK"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.dillo.org/"
-WGET_URL="http://www.dillo.org/download/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="fltk libpng16 jpeg zlib openssl xorg-libX11 gcc-lib-base"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://www.dillo.org/download/$TARBALL"
+
 BUILD_DEPENDS="fltk-dev libpng16-dev jpeg-dev zlib-dev openssl-dev \
 xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -p0 < $stuff/fltk-1.3.3.u
 	cp -f $stuff/pixmaps.slitaz.h src/pixmaps.h &&
+
 	./configure \
-		--sysconfdir=/etc \
-		--prefix=/usr \
 		--enable-ssl \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/lib $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib/dillo $fs/usr/lib
@@ -43,4 +38,6 @@ genpkg_rules()
 	# Dillo version for user agent string
 	sed -i s"/_dillo_version_/$VERSION/" $fs/etc/dillo/dillorc
 	chown -R root.root $fs
+	DEPENDS="fltk libpng16 jpeg zlib openssl xorg-libX11 gcc-lib-base"
+	TAGS="web-browser"
 }

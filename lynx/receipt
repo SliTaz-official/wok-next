@@ -1,45 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lynx"
 VERSION="2.8.8"
 CATEGORY="network"
-SHORT_DESC="Terminal-based text-only browser."
+SHORT_DESC="Terminal-based text-only browser"
 MAINTAINER="samuel_trassare@yahoo.com"
 LICENSE="GPL2"
 WEB_SITE="http://lynx.isc.org"
+
 TARBALL="$PACKAGE$VERSION.tar.gz"
 WGET_URL="http://lynx.isc.org/$PACKAGE$VERSION/$TARBALL"
 
 # Will require build dep libtirpc after glibc is upgraded to 2.14.
-DEPENDS="openssl ncurses zlib"
 BUILD_DEPENDS="openssl-dev ncurses-dev zlib-dev gettext-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
+compile_rules() {
+	./configure \
 		--enable-ipv6 \
 		--enable-gnutls-compat \
 		--enable-nls \
 		--with-ssl \
 		--with-gnutls \
 		--with-zlib \
-		--with-nss-compat &&
-	make && 
+		--with-nss-compat \
+		$CONFIGURE_ARGS &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/etc $fs/
+testsuite() {
+	readelf -h $install/usr/bin/lynx
 }
 
-testsuite()
-{
-	readelf -h $install/usr/bin/lynx
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl ncurses zlib"
 }

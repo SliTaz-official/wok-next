@@ -1,82 +1,74 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jwm"
 VERSION="2.2.0"
 CATEGORY="x-window"
-SHORT_DESC="JWM is a light Window Manager for the X window system."
+SHORT_DESC="JWM is a light Window Manager for the X window system"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.joewing.net/programs/jwm/"
-WGET_URL="http://www.joewing.net/programs/jwm/releases/$TARBALL"
-TAGS="window-manager"
 
-DEPENDS="xorg-libX11 xorg-libXft xorg-libXrender xorg-libXpm xorg-libXext \
-xorg-libXmu xorg-libXinerama xorg-libXau xorg-libXdmcp xorg-libXt libjpeg \
-libpng16 slitaz-configs-base xorg-xload xorg-xclock imlib2 hsetroot"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://www.joewing.net/programs/jwm/releases/$TARBALL"
+
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev jpeg-dev libpng16-dev \
 xorg-libXext-dev gettext"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm)
-		DEPENDS="$DEPENDS joe lynx ytree"
-		ARCH_ARGS="--disable-nls" ;;
-	i?86)
-		DEPENDS="$DEPENDS compton nano" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case "$ARCH" in
+		arm*) ARCH_ARGS="--disable-nls";;
+		*)    ARCH_ARGS="";;
+	esac
 	#[ -f done.resize-backgound.u ] || patch -p1 < $stuff/resize-backgound.u
 	#touch done.resize-backgound.u
+
 	./configure \
-    	--prefix=/usr \
-    	--mandir=/usr/share/man \
 		--sysconfdir=/etc/xdg/jwm \
 		--disable-fribidi \
 		--disable-rpath \
 		--disable-rsvg \
 		--disable-confirm \
-		$CONFIGURE_ARGS $ARCH_ARGS 2>/dev/null &&
-	make && make install
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	# Simple and default config file
+	install -Dm644 $stuff/simple.jwmrc          $install/etc/xdg/jwm/simple.jwmrc
+	install -Dm644 $stuff/slitaz.jwmrc          $install/etc/xdg/jwm/system.jwmrc
+	install -Dm644 $stuff/xsessions/jwm.desktop $install/usr/share/xsessions/jwm.desktop
 }
 
-testsuite()
-{
+testsuite() {
 	readelf -h $install/usr/bin/jwm
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/etc/xdg/jwm $fs/usr/share
-	cp -a $install/usr/bin $fs/usr/bin
-	# Simple and default config file.
-	cp $stuff/simple.jwmrc $fs/etc/xdg/jwm/simple.jwmrc
-	cp $stuff/slitaz.jwmrc $fs/etc/xdg/jwm/system.jwmrc
-	cp -r $stuff/xsessions $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11 xorg-libXft xorg-libXrender xorg-libXpm xorg-libXext \
+	xorg-libXmu xorg-libXinerama xorg-libXau xorg-libXdmcp xorg-libXt libjpeg \
+	libpng16 slitaz-configs-base xorg-xload xorg-xclock imlib2 hsetroot"
+	case "$ARCH" in
+		arm*) DEPENDS="$DEPENDS joe lynx ytree";;
+		*)    DEPENDS="$DEPENDS compton nano" ;;
+	esac
+	TAGS="window-manager"
 }
 
-post_install()
-{
+post_install() {
 	if [ -d "$1/etc/jwm" ]; then
-		echo "Removing old system wide configs: /etc/jwm"
+		# Removing old system wide configs: /etc/jwm
 		rm -rf "$1/etc/jwm"
 	fi
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q $PACKAGE; then
-		echo -n "Adding $PACKAGE to /etc/slim.conf..."
 		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
-		status
 	fi
 	true
 }
 
-post_remove()
-{
+post_remove() {
 	# Remove WM from SLIM available sessions.
 	if grep -q $PACKAGE "$1/etc/slim.conf"; then
 		sed -i s/,$PACKAGE// "$1/etc/slim.conf"

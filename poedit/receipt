@@ -7,43 +7,35 @@ SHORT_DESC="A cross-platform gettext catalogs editing tool"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://poedit.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/vslavik/$PACKAGE/archive/v$VERSION-oss.tar.gz"
 
 BUILD_DEPENDS="automake gettext asciidoc libxslt xmlto util-linux-getopt \
 docbook-xsl gcc49 wxWidgets-dev icu-dev gtkspell-dev \
 lucene++-dev db-dev libdb libdb-cxx expat-dev"
-SPLIT="poedit poedit-i18n"
+SPLIT="poedit-i18n poedit"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export CXX=/usr/bin/i486-slitaz-linux-g++-49
 	#export CXXFLAGS="$CFLAGS -std=gnu++11"
 	./bootstrap &&
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	poedit)
-		SUGGESTED="aspell"
-		DEPENDS="wxWidgets lucene++ gtkspell gcc49-lib-base gettext-tools"
-		cp -a $install/* $fs
-		rm -r $fs/usr/share/locale $fs/usr/share/man
-		;;
-	poedit-18n)
-		CAT="localization|Translations for Poedit"
-		DEPENDS="poedit"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/locale $fs/usr/share
-		;;
+		poedit-18n)
+			copy locale/
+			CAT="localization|translations"
+			DEPENDS="poedit"
+			;;
+		poedit)
+			copy @std @rm
+			DEPENDS="wxWidgets lucene++ gtkspell gcc49-lib-base gettext-tools"
+			SUGGESTED="aspell"
+			;;
 	esac
 }

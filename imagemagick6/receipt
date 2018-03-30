@@ -20,22 +20,18 @@ libxml2-dev librsvg-dev perl-dev util-linux-uuid-dev jasper-dev ilmbase-dev \
 openexr-dev libgsf-dev" # graphviz-dev
 SPLIT="imagemagick6-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--enable-hdri \
 		--with-modules \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install-libs-only
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		imagemagick6)
 			copy @std
