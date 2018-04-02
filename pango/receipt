@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pango"
-VERSION="1.40.3"
+VERSION="1.40.14"
 CATEGORY="x-window"
 SHORT_DESC="Layout and rendering of internationalized text"
 MAINTAINER="pankso@slitaz.org"
@@ -11,40 +11,37 @@ WEB_SITE="http://www.pango.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="cairo-dev libxml2-dev xorg-libXft-dev"
-BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev gobject-introspection-dev"
+BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev \
+gobject-introspection-dev meson ninja"
 SPLIT="pango-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			export LIBTOOL=${HOST_SYSTEM}-libtool
-			ARCH_ARGS="--enable-introspection=no" ;;
-	esac
+	mkdir build
+	cd    build
 
-	./configure \
-		$ARCH_ARGS \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		.. &&
+	ninja &&
+	ninja install || return 1
+
+	rm -rf \
+		$install/usr/libexec/installed-tests \
+		$install/usr/share/installed-tests
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		pango)
 			copy bin/ *.so*
-			DEPENDS="bzlib cairo fontconfig freetype glib harfbuzz libffi \
-			liblzma libpng16 xorg-libxcb libxml2 pcre xorg-pixman xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext xorg-libXft xorg-libXrender zlib"
+			DEPENDS="cairo fontconfig freetype glib libharfbuzz xorg-libX11 \
+			xorg-libXft xorg-libXrender"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="pango bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			glib-dev glibc-dev harfbuzz-dev libffi-dev xz-dev libpng16-dev \
-			xorg-libxcb-dev libxml2-dev pcre-dev xorg-pixman-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXft-dev \
-			xorg-libXrender-dev zlib-dev"
+			DEPENDS="pango cairo-dev fontconfig-dev freetype-dev glib-dev \
+			harfbuzz-dev xorg-libXft-dev"
 			;;
 	esac
 }

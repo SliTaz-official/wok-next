@@ -19,6 +19,7 @@ compile_rules() {
 	./configure \
 		--with-gobject \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -33,7 +34,7 @@ genpkg_rules() {
 		harfbuzz)
 			copy bin/
 			CAT="system-tools|applications"
-			DEPENDS="libharfbuzz cairo"
+			DEPENDS="cairo freetype glib libharfbuzz"
 			;;
 		libharfbuzz)
 			copy libharfbuzz.so* libharfbuzz-gobject.so*
@@ -43,18 +44,17 @@ genpkg_rules() {
 		libharfbuzz-icu)
 			copy libharfbuzz-icu.so*
 			CAT="libs|ICU integration"
-			DEPENDS="libicu libharfbuzz"
+			DEPENDS="libharfbuzz libicu"
 			;;
 		harfbuzz-icu-dev)
 			copy *-icu.h *-icu.pc # *-icu.la
 			CAT="development|ICU integration development files"
-			DEPENDS="libharfbuzz-icu harfbuzz-dev icu-dev"
+			DEPENDS="harfbuzz-dev icu-dev"
 			PROVIDE="harfbuzz-icu" # fake for cookutils as it always wanted to install package without '-dev'
 			;;
 		harfbuzz-dev)
 			copy @dev @rm
-			DEPENDS="harfbuzz bzip2-dev freetype-dev glib-dev libffi-dev \
-			libpng16-dev pcre-dev"
+			DEPENDS="harfbuzz glib-dev"
 			;;
 	esac
 }

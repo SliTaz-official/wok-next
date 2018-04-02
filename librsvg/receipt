@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="librsvg"
-VERSION="2.40.18"
+VERSION="2.42.2"
 CATEGORY="graphics"
 SHORT_DESC="Rendering SVG"
 MAINTAINER="erjo@slitaz.org"
@@ -13,12 +13,13 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev gdk-pixbuf-dev libxml2-dev pango-dev libcroco-dev \
-gtk-doc gobject-introspection-dev vala gtk+3-dev"
+gtk-doc gobject-introspection-dev vala gtk+3-dev rust"
 SPLIT="rsvg-convert rsvg-view librsvg-dev"
 
 compile_rules() {
 	./configure \
 		--enable-vala \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
