@@ -12,8 +12,6 @@ TARBALL="xf86-input-vmmouse-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-server-dev eudev-dev"
-SPLIT="xorg-xf86-input-vmmouse-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -22,14 +20,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-vmmouse)
-			copy @std
-			DEPENDS="xorg-server eudev"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-input-vmmouse xorg-server-dev eudev-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="xorg-server eudev"
 }

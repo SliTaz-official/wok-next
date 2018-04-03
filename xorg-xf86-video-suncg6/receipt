@@ -13,8 +13,6 @@ TARBALL="xf86-video-suncg6-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
 BUILD_DEPENDS="xorg-server-dev"
-SPLIT="xorg-xf86-video-suncg6-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -23,15 +21,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-suncg6)
-			copy @std
-			DEPENDS="xorg-server"
-			TAGS="xorg display"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-suncg6 xorg-server-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="xorg-server"
+	TAGS="xorg display"
 }

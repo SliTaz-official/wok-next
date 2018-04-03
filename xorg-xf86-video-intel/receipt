@@ -17,8 +17,6 @@ xorg-libXrandr-dev cairo-dev xorg-libxshmfence-dev xorg-libXxf86vm-dev \
 libdrm-dev xorg-libXinerama-dev xorg-libXcursor-dev xorg-libXtst-dev \
 xorg-libXScrnSaver-dev xorg-server-dev xorg-libXvMC-dev xorg-xcb-util-dev \
 xorg-libXfont2-dev"
-SPLIT="xorg-xf86-video-intel-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure \
@@ -30,23 +28,12 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-intel)
-			copy @std
-			DEPENDS="eudev libdrm libdrm-intel xorg-libX11 xorg-libXScrnSaver \
-			xorg-libXau xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
-			xorg-libXext xorg-libXfixes xorg-libXi xorg-libXinerama \
-			xorg-libXrandr xorg-libXrender xorg-libXtst xorg-libXv \
-			xorg-libXvMC xorg-libpciaccess xorg-libxcb xorg-libxshmfence \
-			xorg-pixman xorg-xcb-util"
-			TAGS="xorg display"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-intel eudev-dev libdrm-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXv-dev xorg-libXvMC-dev xorg-libpciaccess-dev \
-			xorg-libxcb-dev xorg-pixman-dev xorg-xcb-util-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="eudev libdrm libdrm-intel xorg-libX11 xorg-libXScrnSaver \
+	xorg-libXau xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
+	xorg-libXext xorg-libXfixes xorg-libXi xorg-libXinerama \
+	xorg-libXrandr xorg-libXrender xorg-libXtst xorg-libXv \
+	xorg-libXvMC xorg-libpciaccess xorg-libxcb xorg-libxshmfence \
+	xorg-pixman xorg-xcb-util"
+	TAGS="xorg display"
 }

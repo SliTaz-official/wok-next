@@ -13,8 +13,6 @@ WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
 BUILD_DEPENDS="xorg-server-dev xorg-libXfont2-dev xorg-xf86dgaproto \
 spice-protocol"
-SPLIT="xorg-xf86-video-qxl-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -23,15 +21,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-qxl)
-			copy @std
-			DEPENDS="xorg-server eudev"
-			TAGS="xorg display"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-qxl xorg-server-dev eudev-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="xorg-server eudev"
+	TAGS="xorg display"
 }

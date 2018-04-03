@@ -12,8 +12,6 @@ TARBALL="xf86-input-mutouch-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
 BUILD_DEPENDS="xorg-server-dev"
-SPLIT="xorg-xf86-input-mutouch-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -22,14 +20,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-mutouch)
-			copy @std
-			DEPENDS="xorg-server"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-input-mutouch xorg-server-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="xorg-server"
 }

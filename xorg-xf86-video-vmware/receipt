@@ -14,8 +14,6 @@ WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
 xorg-libXrender-dev xorg-libXinerama-dev xorg-libXv-dev xorg-xproto \
 xorg-fontsproto libgcrypt-dev expat-dev eudev-dev"
-SPLIT="xorg-xf86-video-vmware-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -24,16 +22,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-vmware)
-			copy @std
-			DEPENDS="expat libdrm libdrm-nouveau libgcrypt libgpg-error \
-			llvm-libs mesa"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-vmware expat-dev libdrm-dev libgcrypt-dev \
-			libgpg-error-dev llvm-libs mesa-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="expat libdrm libdrm-nouveau libgcrypt libgpg-error llvm-libs mesa"
 }

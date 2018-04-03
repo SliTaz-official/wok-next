@@ -13,8 +13,6 @@ TARBALL="xf86-video-openchrome-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
 BUILD_DEPENDS="xorg-server-dev xorg-libXvMC-dev"
-SPLIT="xorg-xf86-video-openchrome-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -23,18 +21,8 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-openchrome)
-			copy @std
-			DEPENDS="xorg-server eudev libdrm xorg-libX11 xorg-libXext \
-			xorg-libXv xorg-libXvMC"
-			TAGS="xorg display"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-openchrome xorg-server-dev eudev-dev \
-			libdrm-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXv-dev xorg-libXvMC-dev xorg-libxcb-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="xorg-server eudev libdrm xorg-libX11 xorg-libXext \
+	xorg-libXv xorg-libXvMC"
+	TAGS="xorg display"
 }

@@ -13,8 +13,6 @@ WGET_URL="$XORG_MIRROR/driver/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-server-dev xorg-libXrandr-dev \
 xorg-libXrender-dev xorg-libXv-dev eudev-dev"
-SPLIT="xorg-xf86-video-nouveau-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -23,16 +21,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-nouveau)
-			copy @std
-			DEPENDS="eudev libdrm libdrm-nouveau"
-			TAGS="xorg display"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-nouveau xorg-server-dev eudev-dev \
-			libdrm-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="eudev libdrm libdrm-nouveau"
+	TAGS="xorg display"
 }
