@@ -14,7 +14,6 @@ WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="intltool xfce4-panel-dev libsoup-dev xorg-libXfixes-dev \
 libxfce4ui-dev exo-dev xorg-libSM-dev startup-notification-dev \
 xorg-xcb-util-dev"
-SPLIT="xfce4-screenshooter-dev"
 
 compile_rules() {
 	./configure \
@@ -26,16 +25,8 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		xfce4-screenshooter)
-			copy @std
-			DEPENDS="cairo exo gdk-pixbuf glib gtk+ libsoup libxfce4ui \
-			libxfce4util libxml2 xfce4-panel xorg-libX11 xorg-libXext \
-			xorg-libXfixes"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	copy @std
+	DEPENDS="cairo exo gdk-pixbuf glib gtk+ libsoup libxfce4ui libxfce4util \
+	libxml2 xfce4-panel xorg-libX11 xorg-libXext xorg-libXfixes"
 	TAGS="Xfce"
 }

@@ -13,7 +13,6 @@ WGET_URL="http://archive.xfce.org/src/panel-plugins/$PACKAGE/${VERSION%.*}/$TARB
 
 BUILD_DEPENDS="intltool gtk+-dev libxfce4util-dev libxfce4ui-dev \
 xfce4-panel-dev xorg-libSM-dev startup-notification-dev xorg-xcb-util-dev"
-SPLIT="xfce4-battery-plugin-dev"
 
 compile_rules() {
 	./configure \
@@ -25,14 +24,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		xfce4-battery-plugin)
-			copy @std
-			DEPENDS="glib gtk+ libxfce4ui libxfce4util xfce4-panel"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	copy @std
+	DEPENDS="glib gtk+ libxfce4ui libxfce4util xfce4-panel"
 	TAGS="Xfce"
 }
