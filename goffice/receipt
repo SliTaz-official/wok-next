@@ -16,13 +16,15 @@ intltool"
 SPLIT="goffice-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		goffice)
-			copy *.so* *.xml *.xsl README
+			copy @std
 			DEPENDS="at-spi2-core at-spi2-atk atk bzlib cairo dbus fontconfig \
 			freetype gdk-pixbuf glib glibc-base gtk+3 harfbuzz libcroco libffi \
 			libgsf libpng16 librsvg xorg-libxcb libxml2 libxslt pango pcre \
@@ -32,7 +34,7 @@ genpkg_rules() {
 			xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
 			;;
 		*-dev)
-			copy *.h *.la *.pc
+			copy @dev
 			DEPENDS="goffice glib-dev libgsf-dev libxml2-dev gtk+3-dev \
 			cairo-dev pango-dev librsvg-dev libxslt-dev"
 			;;

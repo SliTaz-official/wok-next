@@ -14,7 +14,7 @@ WGET_URL="http://download.gimp.org/pub/gimp/v${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="gettext perl-xml-parser babl-dev gegl-dev glib-dev \
 intltool expat-dev zlib-dev libart_lgpl-dev lcms-dev xorg-dev-proto \
 gdk-pixbuf-dev gtk+-dev libexif-dev aalib-dev libmng-dev jasper-dev"
-SPLIT="gimp gimp-brushes gimp-console gimp-dev gimp-plug-ins"
+SPLIT="gimp-brushes gimp-console gimp-dev gimp-plug-ins gimp"
 
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
@@ -36,77 +36,33 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		gimp)
-			SUGGESTED="gimp-plug-ins gimp-brushes gimp-console \
-			gimp-plugin-ufraw"
-			DEPENDS="libart_lgpl babl gegl glib tiff xorg-libXdamage \
-			xorg-libXmu xorg-libXt gdk-pixbuf gtk+ libexif"
-			mkdir -p $fs/usr/lib $fs/usr/share/pixmaps
-
-			cp -a $install/etc $fs
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/gimp $fs/usr/lib
-
-			cp $install/usr/share/icons/hicolor/24x24/apps/gimp.png \
-				$fs/usr/share/pixmaps/gimp.png
-
-			# The gimp-console goes in a separate package
-			rm $fs/usr/bin/gimp-console*
-
-			# Most plug-ins goes in a separate package
-			rm -rf $fs/usr/lib/gimp/2.0/plug-ins/*
-			for i in file-jpeg file-png pixelize screenshot; do
-				cp $install/usr/lib/gimp/2.0/plug-ins/$i \
-					$fs/usr/lib/gimp/2.0/plug-ins
-			done
-
-			# Include only Basic brushes --> gimp-brushes
-			cp -a $install/usr/share/gimp $fs/usr/share
-			for i in gimp-* Legacy Media Sketch Splatters Texture; do
-				rm -rf $fs/usr/share/gimp/2.0/brushes/$i
-			done
-
-			# Remove devel files
-			rm $fs/usr/lib/gimp/2.0/modules/*.*a
-
-			# Put a nice splash with a spider
-			cp -a $stuff/gimp-splash.png $fs/usr/share/gimp/2.0/images
-			;;
 		gimp-brushes)
+			copy gimp/2.0/brushes/
+			find $fs -name 'Basic' -exec rm -r '{}' \; # -> main package
 			CAT="graphics|brushes set"
 			DEPENDS="gimp"
-			mkdir -p $fs/usr/share/gimp/2.0
-			cp -a $install/usr/share/gimp/2.0/brushes $fs/usr/share/gimp/2.0
-			rm -rf $fs/usr/share/gimp/2.0/brushes/Basic
 			;;
 		gimp-console)
+			copy gimp-console*
 			CAT="graphics|console"
 			DEPENDS="babl pango cairo gimp glib xorg-libX11 xorg-libXau"
-			mkdir -p $fs/usr/bin
-			cp -a $install/usr/bin/gimp-console* $fs/usr/bin
 			;;
 		gimp-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib $fs/usr
-			# Remove libraries files
-			rm -rf $fs/usr/lib/*.so*
-			rm -rf $fs/usr/lib/gimp/2.0/modules/*.so*
-			rm -rf $fs/usr/lib/gimp/2.0/environ
-			rm -rf $fs/usr/lib/gimp/2.0/interpreters
-			rm -rf $fs/usr/lib/gimp/2.0/plug-ins
+			copy @dev
 			;;
 		gimp-plug-ins)
+			copy gimp/2.0/plug-ins/
+			find $fs \( -name file-jpeg -o -name file-png -o -name pixelize \
+				-o -name screenshot \) -delete # -> main package
 			CAT="graphics|plug-ins suite for advanced users"
 			DEPENDS="gimp lcms xorg-libXpm libmng aalib libexif tiff"
-			mkdir -p $fs/usr/lib/gimp/2.0
-			cp -a $install/usr/lib/gimp/2.0/plug-ins $fs/usr/lib/gimp/2.0
-
-			# Remove plug-ins provided by the main package.
-			for i in file-jpeg file-png pixelize screenshot; do
-				rm $fs/usr/lib/gimp/2.0/plug-ins/$i
-			done
+			;;
+		gimp)
+			copy @std @rm # all the rest
+			DEPENDS="libart_lgpl babl gegl glib tiff xorg-libXdamage \
+			xorg-libXmu xorg-libXt gdk-pixbuf gtk+ libexif"
+			SUGGESTED="gimp-plug-ins gimp-brushes gimp-console \
+			gimp-plugin-ufraw"
 			;;
 	esac
 }
