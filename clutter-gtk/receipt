@@ -17,31 +17,24 @@ SPLIT="clutter-gtk-dev"
 
 compile_rules() {
 	patch -Np1 -i $stuff/fix-gir.patch
-	sed -i -e 's/GTK_WIDGET_REALIZED/gtk_widget_get_realized/' \
-	       -e 's/GTK_WIDGET_VISIBLE/gtk_widget_get_visible/' \
-	       clutter-gtk/gtk-clutter-embed.c
+	sed \
+		-e 's/GTK_WIDGET_REALIZED/gtk_widget_get_realized/' \
+		-e 's/GTK_WIDGET_VISIBLE/gtk_widget_get_visible/' \
+		-i clutter-gtk/gtk-clutter-embed.c
 	autoreconf -i
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install 2>&1 | grep -v /usr/share/gtk-doc/html
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		clutter-gtk)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/girepository-1.0 $fs/usr/lib
+			copy @std
 			DEPENDS="gtk+ clutter"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/share/gir-1.0 $fs/usr/share
+			copy @dev
 			;;
 	esac
 }

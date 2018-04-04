@@ -17,25 +17,19 @@ SPLIT="epdf-dev"
 
 compile_rules() {
 	./autogen.sh \
-		--prefix=/usr \
-		$CONFIGURE_ARGS 2>&1 | \
-		sed 's|missing: No such|missing: no such|'
-	make && make install
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		epdf)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="poppler eina ecore evas"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			DEPENDS="poppler-dev eina-dev ecore-dev evas-dev"
 			;;
 	esac

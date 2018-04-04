@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="util-linux"
-VERSION="2.30.1"
+VERSION="2.31.1"
 CATEGORY="meta"
 SHORT_DESC="Random collection of Linux utilities"
 MAINTAINER="pankso@slitaz.org"
@@ -32,14 +32,13 @@ compile_rules() {
 	mkdir -p $install/var/lib/hwclock
 	./configure \
 		ADJTIME_PATH=/var/lib/hwclock/adjtime \
-		--docdir=/usr/share/doc/util-linux-$VERSION \
 		--disable-static \
 		--without-systemd \
 		--without-systemdsystemunitdir &&
 	make && make install || exit 1
 
-	mkdir -p $install/usr/share/applications
-	cp $stuff/cfdisk.desktop $install/usr/share/applications
+	install -Dm644 $stuff/cfdisk.desktop \
+		$install/usr/share/applications/cfdisk.desktop
 }
 
 genpkg_rules() {
@@ -56,7 +55,7 @@ genpkg_rules() {
 			util-linux-uuid"
 			;;
 		blkid-dev)
-			copy blkid.h blkid.pc libblkid.*a
+			copy blkid.h blkid.pc
 			CAT="development|blkid development files"
 			DEPENDS="util-linux-blkid util-linux-uuid-dev"
 			;;
@@ -94,7 +93,7 @@ genpkg_rules() {
 			util-linux-smartcols util-linux-uuid"
 			;;
 		fdisk-dev)
-			copy libfdisk.h libfdisk.*a fdisk.pc
+			copy libfdisk.h fdisk.pc
 			CAT="development|fdisk utility development files"
 			DEPENDS="util-linux-fdisk util-linux-blkid-dev util-linux-uuid-dev"
 			;;
@@ -131,7 +130,7 @@ genpkg_rules() {
 			util-linux-smartcols"
 			;;
 		mount-dev)
-			copy libmount.h libmount.*a mount.pc
+			copy libmount.h mount.pc
 			CAT="development|mount utilities development files"
 			DEPENDS="util-linux-mount util-linux-blkid-dev util-linux-uuid-dev"
 			;;
@@ -158,7 +157,7 @@ genpkg_rules() {
 			DEPENDS="glibc-base"
 			;;
 		smartcols-dev)
-			copy libsmartcols.h libsmartcols.*a smartcols.pc
+			copy libsmartcols.h smartcols.pc
 			CAT="development|smartcols library development files"
 			DEPENDS="util-linux-smartcols"
 			;;
@@ -168,7 +167,7 @@ genpkg_rules() {
 			DEPENDS="glibc-base"
 			;;
 		uuid-dev)
-			copy uuid.h libuuid.*a uuid.pc
+			copy uuid.h uuid.pc
 			CAT="development|uuid utility and library development files"
 			DEPENDS="util-linux-uuid"
 			;;

@@ -19,7 +19,6 @@ SPLIT="compiz-core-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--enable-shared \
 		--enable-librsvg \
 		--enable-dbus \
@@ -27,30 +26,20 @@ compile_rules() {
 		--enable-glib \
 		--disable-static \
 		--disable-inotify &&
-	make && make install
+	make && make install || return 1
+
+	sed 's|bash|sh|' -i $install/usr/bin/compiz-decorator
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		compiz-core)
-			mkdir -p $fs/usr/lib $fs/usr/share/locale
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/compiz $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/share/compiz $fs/usr/share
-			cp -a $install/usr/share/icons $fs/usr/share
-			cp -a $install/usr/share/locale/ru $fs/usr/share
-			rm -rf $fs/usr/lib/compiz/*.la
-			sed 's|bash|sh|' -i $fs/usr/bin/compiz-decorator
+			copy @std
 			DEPENDS="librsvg libxslt mesa glu dbus dbus-glib \
 			startup-notification compiz-bcop compiz-libcompizconfig"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/compiz $fs/usr/share/compiz
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/*.la $fs/usr/lib
-			cp -a $install/usr/lib/compiz/*.la $fs/usr/lib/compiz/
+			copy @dev
 			;;
 	esac
 }

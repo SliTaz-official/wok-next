@@ -15,29 +15,14 @@ BUILD_DEPENDS="alsa-lib-dev ladspa-dev"
 SPLIT="dssi-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--localstatedir=/var \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		dssi)
-			mkdir -p $fs/usr/lib/dssi
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/dssi $fs/usr/lib
-			rm -f $fs/usr/lib/dssi/*a
-			DEPENDS="gcc-lib-base"
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib/dssi
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/dssi/*a $fs/usr/lib/dssi
-			;;
+		dssi)  copy @std;;
+		*-dev) copy @dev;;
 	esac
 }

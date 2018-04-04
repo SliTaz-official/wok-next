@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="centerim"
 VERSION="5.0.1"
@@ -6,27 +6,23 @@ CATEGORY="network"
 SHORT_DESC="Console mode IM"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-TARBALL="centerim5-$VERSION.tar.gz"
 WEB_SITE="http://www.centerim.org"
-WGET_URL="$WEB_SITE/download/cim5/$TARBALL"
-TAGS="im instant-messenger cli command-line"
 
-DEPENDS="ncurses curl openssl libidn libgpg-error gpgme"
+TARBALL="centerim5-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/download/cim5/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev curl-dev openssl-dev libidn-dev libgpg-error-dev \
 gpgme-dev libpurple-dev libsigc++-dev libxml2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses curl openssl libidn libgpg-error gpgme"
+	TAGS="im instant-messenger cli command-line"
 }

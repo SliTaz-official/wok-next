@@ -1,28 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="brasero"
 VERSION="2.30.0"
 CATEGORY="utilities"
-SHORT_DESC="Brasero (aka Bonfire) is yet another application to burn CD/DVD for the gnome desktop."
+SHORT_DESC="Brasero (aka Bonfire) is yet another application to burn CD/DVD \
+for the GNOME desktop"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org/projects/brasero"
-WGET_URL="http://ftp.gnome.org/pub/GNOME/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="glib gtk+ GConf gstreamer0 gst0-plugins-base libxml2 libunique \
-dbus-glib cdrdao dvd+rw-tools libcanberra libvorbis libogg"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="glib-dev gtk+-dev GConf-dev gstreamer0-dev gst0-plugins-base-dev \
 libxml2-dev libunique-dev dbus-glib-dev gnome-doc-utils xorg-libxcb-dev \
 libpthread-stubs xorg-xcb-util-dev orbit2-dev dbus-dev libcanberra-dev \
 libxml2-python libvorbis-dev libogg-dev util-linux-uuid-dev \
 intltool libtool"
+SPLIT="brasero-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--disable-schemas-install \
 		--disable-scrollkeeper \
 		--disable-caches \
@@ -35,11 +33,16 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/lib $fs/usr/
-	cp -a $install/usr/share/applications $fs/usr/share/applications
+genpkg_rules() {
+	case $PACKAGE in
+		brasero)
+			copy @std
+			DEPENDS="glib gtk+ GConf gstreamer0 gst0-plugins-base libxml2 \
+			libunique dbus-glib cdrdao dvd+rw-tools libcanberra libvorbis \
+			libogg"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

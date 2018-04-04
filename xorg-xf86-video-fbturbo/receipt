@@ -18,8 +18,6 @@ WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 # ported yet.
 
 BUILD_DEPENDS="xorg-server-dev automake autoconf libtool"
-SPLIT="xorg-xf86-video-fbturbo-dev"
-PKG_RULE="std-dev"
 
 compile_rules() {
 	autoreconf -vi
@@ -29,14 +27,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-fbturbo)
-			copy @std
-			DEPENDS="xorg-server"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="xorg-xf86-video-fbturbo xorg-server-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="xorg-server"
 }
