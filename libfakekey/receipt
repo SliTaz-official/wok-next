@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libfakekey"
-VERSION="0.1"
+VERSION="0.3"
 CATEGORY="libs"
 SHORT_DESC="X virtual keyboard library"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,16 +9,16 @@ LICENSE="GPL"
 WEB_SITE="https://www.yoctoproject.org/tools-resources/projects/matchbox"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://downloads.yoctoproject.org/releases/matchbox/libfakekey/$VERSION/$TARBALL"
+WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/libfakekey/snapshot/$TARBALL"
 
-BUILD_DEPENDS="gfortran xorg-libX11-dev xorg-libXt-dev xorg-libXtst-dev"
+BUILD_DEPENDS="automake libtool xorg-libX11-dev xorg-libXtst-dev"
 SPLIT="libfakekey-dev"
 
 compile_rules() {
-	./configure \
+	./autogen.sh \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make AM_LDFLAGS=-lX11 &&
+	fix libtool &&
 	make install
 }
 
@@ -30,9 +30,9 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libfakekey xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXi-dev xorg-libXtst-dev \
-			xorg-libxcb-dev"
+			DEPENDS="libfakekey \
+			xorg-libX11-dev xorg-libXtst-dev"
 			;;
 	esac
+	TAGS="matchbox"
 }

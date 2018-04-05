@@ -6,7 +6,7 @@ CATEGORY="multimedia"
 SHORT_DESC="Cross-platform audio output library and plugins"
 MAINTAINER="rj.rohit@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://downloads.xiph.org/releases/ao/" 
+WEB_SITE="http://downloads.xiph.org/releases/ao/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
@@ -19,28 +19,21 @@ compile_rules() {
 		--enable-alsa09 \
 		--disable-arts \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
+
+	# Add conf file
+	install -Dm644 $stuff/libao.conf $install/etc/libao.conf
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libao)
-			mkdir -p $fs/usr/lib/ao/plugins-4 $fs/etc
-			cp -a $install/usr/lib/ao/plugins-4/*.so $fs/usr/lib/ao/plugins-4
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			# Add conf file
-			cp -a $stuff/libao.conf $fs/etc
-			DEPENDS="glibc-base alsa-lib"
+			copy @std
+			DEPENDS="alsa-lib"
 			;;
 		*-dev)
-			mkdir -p \
-				$fs/usr/lib/ao/plugins-4 \
-				$fs/usr/share
-			cp -a $install/usr/lib/ao/plugins-4/*.la $fs/usr/lib/ao/plugins-4
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/share/aclocal $fs/usr/share
+			copy @dev
 			;;
 	esac
 }

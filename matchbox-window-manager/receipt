@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="matchbox-window-manager"
-VERSION="1.2"
+VERSION="1.2.2"
 CATEGORY="x-window"
 SHORT_DESC="Matchbox Window Manager"
 MAINTAINER="pankso@slitaz.org"
@@ -9,13 +9,13 @@ LICENSE="GPL2"
 WEB_SITE="http://matchbox-project.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="${WEB_SITE}sources/$PACKAGE/$VERSION/$TARBALL"
+WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/matchbox-window-manager/snapshot/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev startup-notification-dev libmatchbox-dev expat-dev \
-xorg-libSM-dev"
+BUILD_DEPENDS="automake GConf-dev libmatchbox-dev xorg-libXfixes-dev \
+xorg-libXcursor-dev expat-dev startup-notification-dev xorg-libSM-dev"
 
 compile_rules() {
-	./configure \
+	./autogen.sh \
 		--enable-expat \
 		--enable-startup-notification \
 		--enable-session \
@@ -26,6 +26,7 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gtk+ startup-notification libmatchbox"
+	DEPENDS="expat libmatchbox startup-notification xorg-libICE xorg-libSM \
+	xorg-libX11 xorg-libXcursor xorg-libXext xorg-libXfixes"
 	TAGS="window-manager"
 }

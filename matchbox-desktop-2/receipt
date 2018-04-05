@@ -1,34 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="matchbox-desktop-2"
-VERSION="2.0"
+VERSION="2.2"
 CATEGORY="x-window"
-SHORT_DESC="Matchbox desktop v2."
+SHORT_DESC="Matchbox desktop v2"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="matchbox-desktop"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://matchbox-project.org/"
-WGET_URL="${WEB_SITE}sources/$SOURCE/$VERSION/$TARBALL"
 
-DEPENDS="gtk+ dbus dbus-glib util-linux-uuid"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/matchbox-desktop-2/snapshot/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev dbus-dev dbus-glib-dev util-linux-uuid-dev"
+BUILD_DEPENDS="automake glib-dev gtk+3-dev xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	
+compile_rules() {
+	mkdir m4
+	autoreconf -v --install || return 1
+
 	./configure \
 		--disable-startup-notification \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk gdk-pixbuf glib gtk+3 pango xorg-libX11"
+	TAGS="matchbox"
 }

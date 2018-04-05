@@ -18,10 +18,8 @@ SPLIT="libxfcegui4-dev"
 compile_rules() {
 	# xfce_setenv is removed in libxfce4util 4.11.0
 	sed -i 's/xfce_setenv/g_setenv/' libxfcegui4/xfce-exec.c
+
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-static \
 		--disable-debug \
 		$CONFIGURE_ARGS &&
@@ -32,25 +30,13 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		libxfcegui4)
-			mkdir -p $fs/usr/lib \
-				$fs/usr/share/locale
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/libglade $fs/usr/lib
-			cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-			cp -a $install/usr/share/icons $fs/usr/share
-			# Remove SVG icons
-			rm -rf $fs/usr/share/icons/hicolor/scalable
+			copy @std
 			DEPENDS="gtk+ libxfce4util xfconf startup-notification dbus-glib \
 			libglade"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib \
-				$fs/usr
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			DEPENDS="gtk+ libxfcegui4 libxfce4util-dev"
 			;;
 	esac
 }
-

@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="matchbox-common"
 VERSION="0.9.1"
 CATEGORY="x-window"
-SHORT_DESC="Common files for matchbox window manager."
+SHORT_DESC="Common files for matchbox window manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://matchbox-project.org/"
-WGET_URL="${WEB_SITE}sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ libmatchbox"
-BUILD_DEPENDS="gtk+-dev libmatchbox-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://downloads.yoctoproject.org/releases/matchbox/matchbox-common/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="libmatchbox-dev"
+
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
+
+	install -Dm755 $stuff/matchbox-session $install/usr/bin/matchbox-session
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/share $fs/usr
-	cp -a $stuff/matchbox-session $fs/usr/bin
-	# For matchbox v2
-	#cp -a $stuff/matchbox-session-2 $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS=""
+	TAGS="matchbox"
 }

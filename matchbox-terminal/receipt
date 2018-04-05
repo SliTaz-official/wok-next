@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="matchbox-terminal"
+VERSION="0.1"
+CATEGORY="x-window"
+SHORT_DESC="Matchbox Terminal"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://matchbox-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/matchbox-terminal/snapshot/$TARBALL"
+
+BUILD_DEPENDS="automake glib-dev gtk+3-dev vte-dev"
+
+compile_rules() {
+	mkdir m4
+	autoreconf -v --install || return 1
+
+	./configure \
+		$CONFIGURE_ARGS &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib gtk+3 vte"
+	TAGS="matchbox"
+}

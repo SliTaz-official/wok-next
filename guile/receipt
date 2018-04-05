@@ -25,18 +25,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		guile)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/share/guile $fs/usr/share
+			copy @std
 			DEPENDS="gmp readline ncurses libltdl"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/share/aclocal $fs/usr/share
+			copy @dev
 			DEPENDS="guile gmp-dev"
 			;;
 	esac

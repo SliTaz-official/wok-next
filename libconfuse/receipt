@@ -1,37 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libconfuse"
-SOURCE="confuse"
 VERSION="2.7"
 CATEGORY="misc"
-SHORT_DESC="Configuration file parser library."
+SHORT_DESC="Configuration file parser library"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="ISC"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.nongnu.org/confuse/"
-WGET_URL="http://savannah.nongnu.org/download/$SOURCE/$TARBALL"
+
+TARBALL="confuse-$VERSION.tar.gz"
+WGET_URL="http://savannah.nongnu.org/download/confuse/$TARBALL"
 
 BUILD_DEPENDS="gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS
-	sed -i 's/ -Werror//' src/Makefile
-	make && make DESTDIR=$DESTDIR install
+		$CONFIGURE_ARGS &&
+	sed -i 's/ -Werror//' src/Makefile &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+genpkg_rules() {
+	copy @dev *.la # static lib .a + .la
 }
-

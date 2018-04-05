@@ -13,112 +13,73 @@ WGET_URL="http://hal.freedesktop.org/releases/$TARBALL"
 
 BUILD_DEPENDS="dbus-dev dbus-glib dbus-glib-dev udev-dev pciutils \
 util-linux-blkid-dev expat-dev util-linux-uuid-dev glib-dev libv4l-dev"
-SPLIT="hal hal-dev hal-extra hal-scripts"
+SPLIT="hal-scripts hal-extra hal hal-dev"
 
-EXTRA="
-hald-addon-cpufreq
-hald-addon-hid-ups
-hald-addon-imac-backlight
-hald-addon-ipw-killswitch
-hald-probe-video4linux
-hald-probe-net-bluetooth
-hald-probe-ieee1394-unit
-hald-probe-pc-floppy
-hald-probe-printer"
 CROSS="error: cannot check for file existence when cross compiling"
 
 compile_rules() {
 	sed -i 's|linux/videodev.h|libv4l1-videodev.h|' \
 		hald/linux/probing/probe-video4linux.c
 	sed -i 's|glib/gmain|glib|' hald/linux/addons/addon-*.c
-	zcat /usr/share/misc/pci.ids.gz > /usr/share/misc/pci.ids &&
-	patch -p1 < $stuff/hal-scripts.u || return 1 &&
-	#patch -p1 < $stuff/hal-udev.patch || return 1 &&
+	zcat /usr/share/misc/pci.ids.gz > /usr/share/misc/pci.ids
+	patch -p1 < $stuff/hal-scripts.u || return 1
+	#patch -p1 < $stuff/hal-udev.patch || return 1
+
 	grep -qs 'define u8' hald/linux/probing/linux_dvd_rw_utils.c ||
 	sed -i 's|#include <scsi/scsi.h>|#define u8 __u8\n&|' \
 		hald/linux/probing/linux_dvd_rw_utils.c
 
+	libexecdir='/usr/lib/hal'
 	./configure \
-		--libexecdir=/usr/lib/hal \
+		--libexecdir=$libexecdir \
 		--disable-usb-ids \
 		--disable-policy-kit \
 		--build=$HOST_SYSTEM \
 		--host=$HOST_SYSTEM &&
 	make &&
 	rm /usr/share/misc/pci.ids &&
-	make install
+	make install || return 1
+
+	chmod -R +x $install$libexecdir/scripts/*
+
+	# init script
+	cp -a $stuff/etc $install
+	# policy for ntfs-3g
+	cp -a $stuff/policy $install/usr/share/hal/fdi/
+	# change bash to sh in hal scripts; use full-path
+	sed -i \
+		-e 's:/bin/bash:/bin/sh:' \
+		-e "s:hal-functions:$libexecdir/scripts/hal-functions:" \
+		$install/usr/lib/hal/scripts/hal* \
+		$install/usr/lib/hal/scripts/linux/hal*
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-	hal)
-		DEPENDS="dbus dbus-glib slitaz-base-files udev \
+		hal-scripts)
+			copy hal/scripts/
+			CAT="x-window|scripts"
+			DEPENDS="dbus dbus-glib glib hal"
+			;;
+		hal-extra)
+			copy hald-addon-cpufreq hald-addon-hid-ups \
+			hald-addon-imac-backlight hald-addon-ipw-killswitch \
+			hald-probe-video4linux hald-probe-net-bluetooth \
+			hald-probe-ieee1394-unit hald-probe-pc-floppy hald-probe-printer \
+			10-cpufreq.fdi 10-dockstation.fdi 10-imac-backlight.fdi \
+			15-storage-luks.fdi 30-wol.fdi
+			CAT="x-window|extra lib and fdi files"
+			DEPENDS="dbus dbus-glib glib hal"
+			;;
+		hal)
+			copy @std @rm
+			DEPENDS="dbus dbus-glib slitaz-base-files udev \
 			util-linux-blkid libusb-compat"
-		mkdir -p $fs/usr/lib $fs/usr/share
-		cp -a $install/etc $fs
-		cp -a $install/var $fs
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/hal $fs/usr/lib
-		cp -a $install/usr/share/hal $fs/usr/share
-		chmod -R +x $fs/usr/lib/hal/scripts/*
-		# Remove a few run time lib and strip.
-		for lib in $EXTRA
-		do
-			rm $fs/usr/lib/hal/$lib
-		done
-		strip -s $fs/usr/lib/hal/* 2>/dev/null
-		# Init script
-		cp -a stuff/etc $fs
-
-		# Policy for ntfs-3g
-		cp -a stuff/policy $fs/usr/share/hal/fdi/
-		chown -R root.root $fs
-
-		# exclude unwanted fdi files
-		rm $fs/usr/share/hal/fdi/policy/10osvendor/10-cpufreq.fdi
-		rm $fs/usr/share/hal/fdi/policy/10osvendor/10-dockstation.fdi
-		rm $fs/usr/share/hal/fdi/policy/10osvendor/10-imac-backlight.fdi
-		rm $fs/usr/share/hal/fdi/policy/10osvendor/15-storage-luks.fdi
-		rm $fs/usr/share/hal/fdi/policy/10osvendor/30-wol.fdi
-	
-		# change bash to sh in hal scripts
-		sed -i 's:/bin/bash:/bin/sh:' $fs/usr/lib/hal/scripts/hal* 
-		sed -i 's:/bin/bash:/bin/sh:' $fs/usr/lib/hal/scripts/linux/hal* 
-		# use full-path
-		sed -i 's:hal-functions:/usr/lib/hal/scripts/hal-functions:' $fs/usr/lib/hal/scripts/hal* 
-		sed -i 's:hal-functions:/usr/lib/hal/scripts/hal-functions:' $fs/usr/lib/hal/scripts/linux/hal* 
-		;;
-	hal-dev)
-		DEPENDS="hal dbus-dev"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
-	hal-extra)
-		CAT="x-window|Hal extra lib and fdi files."
-		DEPENDS="dbus dbus-glib glib hal"
-		mkdir -p $fs/usr/lib/hal $fs/usr/share/hal/fdi/policy/10osvendor
-		for lib in $EXTRA
-		do
-			cp $install/usr/lib/hal/$lib $fs/usr/lib/hal
-		done
-	
-		# copy some excluded files from hal
-		cp -a $install/usr/share/hal/fdi/policy/10osvendor/10-cpufreq.fdi $fs/usr/share/hal/fdi/policy/10osvendor
-		cp -a $install/usr/share/hal/fdi/policy/10osvendor/10-dockstation.fdi $fs/usr/share/hal/fdi/policy/10osvendor
-		cp -a $install/usr/share/hal/fdi/policy/10osvendor/10-imac-backlight.fdi $fs/usr/share/hal/fdi/policy/10osvendor
-		cp -a $install/usr/share/hal/fdi/policy/10osvendor/15-storage-luks.fdi $fs/usr/share/hal/fdi/policy/10osvendor
-		cp -a $install/usr/share/hal/fdi/policy/10osvendor/30-wol.fdi $fs/usr/share/hal/fdi/policy/10osvendor
-		;;
-	hal-scripts)
-		CAT="x-window|Hal scripts files."
-		DEPENDS="dbus dbus-glib glib hal"
-		mkdir -p $fs/usr/lib/hal
-		cp -a $install/usr/lib/hal/scripts $fs/usr/lib/hal
-		;;
+			;;
+		hal-dev)
+			copy @dev
+			DEPENDS="hal dbus-dev"
+			;;
 	esac
 }
 
@@ -126,21 +87,17 @@ pre_install_hal() {
 	# Go for echoing on configuration files if any haldaemon user
 	# was found.
 	if ! grep -q 'haldaemon' "$1/etc/passwd"; then
-		echo -n "Adding user: messagebus..."
 		echo 'haldaemon:x:26:26:HAL Daemon User:/dev/null:/bin/false' >> "$1/etc/passwd"
 		echo 'haldaemon:!:14013:0:99999:7:::' >> "$1/etc/shadow"
 		echo 'haldaemon:x:26:' >> "$1/etc/group"
 		echo 'haldaemon:!::' >> "$1/etc/gshadow"
-		status
 	fi
 	if ! grep -q ^HALD_OPTIONS "$1/etc/daemons.conf"; then
-		echo -n "Configuring /etc/daemons.conf..."
 		cat >> "$1/etc/daemons.conf" << "EOT"
 # HAL daemon options.
 HALD_OPTIONS="--daemon=yes"
 
 EOT
-		status
 	fi
 }
 

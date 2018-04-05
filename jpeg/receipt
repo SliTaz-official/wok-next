@@ -3,52 +3,39 @@
 PACKAGE="jpeg"
 VERSION="9b"
 CATEGORY="x-window"
-SHORT_DESC="JPEG image programs."
+SHORT_DESC="JPEG image programs"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.ijg.org/"
+
 TARBALL="jpegsrc.v${VERSION}.tar.gz"
 WGET_URL="http://www.ijg.org/files/$TARBALL"
-TAGS="jpeg jpg"
 
-SPLIT="jpeg jpeg-dev libjpeg"
+SPLIT="libjpeg jpeg jpeg-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-shared \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm644 $src/jpegint.h $install/usr/include/jpegint.h
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	jpeg)
-		DEPENDS="libjpeg"
-		mkdir -p  $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		# In libjpeg package
-		#cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	jpeg-dev)
-		CAT="development|JPEG images libs."
-		DEPENDS="jpeg libjpeg"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $src/jpegint.h $fs/usr/include
-		;;
-	libjpeg)
-		CAT="x-window|JPEG image libs."
-		TAGS="jpeg jpg"
-		mkdir -p  $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
+		libjpeg)
+			copy *.so
+			CAT="x-window|library"
+			;;
+		jpeg)
+			copy @std @rm
+			DEPENDS="libjpeg"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
+	TAGS="jpeg jpg"
 }

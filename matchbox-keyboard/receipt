@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="matchbox-keyboard"
+VERSION="0.1.1"
+CATEGORY="x-window"
+SHORT_DESC="Matchbox Keyboard"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://matchbox-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/matchbox-keyboard/snapshot/$TARBALL"
+
+BUILD_DEPENDS="automake libtool libfakekey-dev xorg-libXft-dev expat-dev"
+
+compile_rules() {
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="expat libfakekey libpng16 xorg-libX11 xorg-libXft xorg-libXrender"
+	TAGS="matchbox"
+}

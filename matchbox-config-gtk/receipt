@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="matchbox-config-gtk"
+VERSION="0.2"
+CATEGORY="x-window"
+SHORT_DESC="Matchbox GUI config tool"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://matchbox-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/matchbox-config-gtk/snapshot/$TARBALL"
+
+BUILD_DEPENDS="automake gtk+3-dev GConf-dev"
+
+compile_rules() {
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="GConf glib gtk+3"
+	TAGS="matchbox"
+}

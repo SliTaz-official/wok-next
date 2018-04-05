@@ -1,34 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="matchbox-panel"
 VERSION="0.9.3"
 CATEGORY="x-window"
-SHORT_DESC="Matchbox panel."
+SHORT_DESC="Matchbox panel"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://matchbox-project.org/"
-WGET_URL="${WEB_SITE}sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ startup-notification libmatchbox wireless_tools"
-BUILD_DEPENDS="gtk+-dev startup-notification-dev libmatchbox-dev wireless_tools-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://downloads.yoctoproject.org/releases/matchbox/matchbox-panel/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="libmatchbox-dev startup-notification-dev wireless_tools-dev"
+COOKOPTS="!fixdesktops"
+
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
-	#--enable-small-icons
-	#--enable-acpi-linux
+
 	./configure \
+		--enable-startup-notification \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="libmatchbox startup-notification wireless_tools xorg-libX11 \
+	xorg-libXext"
+	TAGS="matchbox"
 }

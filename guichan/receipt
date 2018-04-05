@@ -16,7 +16,6 @@ SPLIT="guichan-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--enable-sdl \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -26,15 +25,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		guichan)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="libsdl libsdl-image"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

@@ -9,19 +9,26 @@ LICENSE="GPL2"
 WEB_SITE="http://matchbox-project.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="${WEB_SITE}sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="http://downloads.yoctoproject.org/releases/matchbox/matchbox-desktop/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev startup-notification-dev libmatchbox-dev"
+BUILD_DEPENDS="gfortran libmatchbox-dev startup-notification-dev \
+xorg-xcb-util-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -ldl"
+	export LDFLAGS="$LDFLAGS -ldl"
 
-	./configure $CONFIGURE_ARGS &&
-	sed -i s'/$(install_sh) -d/mkdir -p/' data/Makefile &&
-	make && make install
+	./configure \
+		--disable-static \
+		--enable-startup-notification \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make \
+		MKDIRPROG='mkdir -p' \
+		install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gtk+ startup-notification libmatchbox"
+	DEPENDS="libmatchbox startup-notification xorg-libX11 zlib"
+	TAGS="matchbox"
 }
