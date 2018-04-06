@@ -16,6 +16,8 @@ libtool gtk-doc expat-dev xorg-libxshmfence-dev"
 SPLIT="clutter-gtk-dev"
 
 compile_rules() {
+	export LDFLAGS="$LDFLAGS -lm -lgthread-2.0"
+
 	patch -Np1 -i $stuff/fix-gir.patch
 	sed \
 		-e 's/GTK_WIDGET_REALIZED/gtk_widget_get_realized/' \

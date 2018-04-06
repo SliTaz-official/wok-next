@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnome-commander"
-VERSION="1.4.8"
+VERSION="1.8.0"
 CATEGORY="utilities"
 SHORT_DESC="A full featured, twin-panel file manager for Gnome2"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,22 +9,30 @@ LICENSE="GPL2"
 WEB_SITE="http://gcmd.github.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="https://download.gnome.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+#WGET_URL="https://download.gnome.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev glib-dev gnome-doc-utils libgnome-dev \
 libgnomeui-dev gdk-pixbuf-dev cairo-dev pango-dev atk-dev libbonoboui-dev \
 libgnomecanvas-dev libart_lgpl-dev xorg-libXinerama-dev xorg-libXrandr-dev \
 xorg-dev libgnome-keyring-dev libgcrypt-dev rarian-dev rarian exiv2-dev \
 taglib-dev libgsf-dev poppler-dev chmlib-dev lcms2-dev flex python-dev \
-util-linux-uuid-dev libunique-dev intltool"
+util-linux-uuid-dev libunique-dev intltool itstool"
 SPLIT="gnome-commander-i18n"
 
 compile_rules() {
+
 	./configure \
 		--disable-scrollkeeper \
 		$CONFIGURE_ARGS &&
+	# update-mime-database is useless in DESTDIR install, and although it is
+	# disabled, install-data-hook produces non-zero return code from `make install`
+	# and cooker believe package is broken; here we remove install-data-hook call
+	sed -i '/install-data-hook$/d' data/Makefile &&
 	make &&
-	make install
+	make \
+		GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 \
+		install
 }
 
 genpkg_rules() {
