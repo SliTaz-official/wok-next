@@ -11,26 +11,32 @@ WEB_SITE="http://matchbox-project.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://git.yoctoproject.org/cgit/cgit.cgi/libmatchbox/snapshot/$TARBALL"
 
-BUILD_DEPENDS="pango-dev jpeg-dev libxml2-dev automake autoconf libtool"
+BUILD_DEPENDS="automake libtool xorg-libX11-dev xorg-libXext-dev pango-dev \
+libpng16-dev libjpeg-turbo-dev"
 SPLIT="libmatchbox-dev"
 
 compile_rules() {
-	./autogen.sh
-	./configure \
+	./autogen.sh \
+		--disable-static \
 		--enable-pango \
 		--enable-jpeg \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libmatchbox)
 			copy @std
-			DEPENDS="pango"
+			DEPENDS="glib libjpeg-turbo libpng16 pango xorg-libX11 \
+			xorg-libXext xorg-libXft"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="libmatchbox libjpeg-turbo-dev libpng16-dev pango-dev \
+			xorg-libX11-dev xorg-libXext-dev"
 			;;
 	esac
 	TAGS="matchbox"
