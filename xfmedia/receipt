@@ -16,6 +16,7 @@ intltool libxfcegui4-dev startup-notification-dev xorg-libxcb-dev \
 xorg-libX11-dev xorg-libXt-dev xorg-libXtst-dev xorg-xcb-util-dev"
 
 compile_rules() {
+	export LDFLAGS="$LDFLAGS -lXext -lm -lgmodule-2.0"
 	sed -i 's/return xine_trick_mode.*/return 0;/' src/xfmedia-xine.c
 	patch -Np1 -i $stuff/xfmedia-dbus-0.6-support.patch
 	patch -Np1 -i $stuff/xfmedia-empty-prev-next-fix.patch
