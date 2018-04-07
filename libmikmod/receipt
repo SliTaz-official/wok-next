@@ -17,25 +17,15 @@ SPLIT="libmikmod-dev"
 compile_rules() {
 	touch macintosh/_libmikmodversion.r
 	sed -i 's|\$(SHELL)|/bin/bash|' configure
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libmikmod)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* /$fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a* $fs/usr/lib
-			cp -a $install/usr/share/aclocal $fs/usr/share
-			;;
+		libmikmod) copy @std;;
+		*-dev)     copy @dev;;
 	esac
 }
-

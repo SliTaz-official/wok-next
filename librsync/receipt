@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="librsync"
 VERSION="0.9.7"
@@ -7,28 +7,19 @@ SHORT_DESC="Library for the rsync remote-delta algorithm"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://librsync.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="zlib bzlib popt"
 BUILD_DEPENDS="popt-dev bzip2-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr \
-		--mandir=/usr/share/man \
-		--infodir=/usr/share/info \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir $fs/usr
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @dev @std
+	DEPENDS="zlib bzlib popt"
 }

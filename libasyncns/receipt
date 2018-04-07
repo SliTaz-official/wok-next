@@ -16,26 +16,15 @@ SPLIT="libasyncns-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-lynx \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libasyncns)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			DEPENDS="glibc-base"
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			;;
+		libasyncns) copy @std;;
+		*-dev)      copy @dev;;
 	esac
 }

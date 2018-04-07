@@ -16,9 +16,7 @@ dbus-dev dbus-glib-dev intltool diffutils libffi libxslt gtk-doc"
 SPLIT="telepathy-glib-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -26,18 +24,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		telepathy-glib)
-			mkdir -p $fs/usr/share $fs/usr/lib
-			cp -a $install/usr/share/gir* $fs/usr/share
-			cp -a $install/usr/share/glib* $fs/usr/share
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/gir* $fs/usr/lib
+			copy @std
 			DEPENDS="glib gobject-introspection dbus dbus-glib libffi"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

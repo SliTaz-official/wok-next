@@ -14,19 +14,27 @@ WGET_URL="https://releases.pagure.org/volume_key/$TARBALL"
 
 BUILD_DEPENDS="automake gettext gpgme-dev libtool cryptsetup-dev nss-dev \
 python-dev"
-SPLIT="volume_key-dev volume_key-python"
+SPLIT="volume_key-python volume_key volume_key-dev"
 
 compile_rules() {
 	sed -i '/config.h/d' lib/libvolume_key.h &&
 	autoreconf -fiv &&
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		*-python)
+			copy python2.7/
+			find $fs -name '*.la' -delete
+			CAT="libs|python bindings"
+			DEPENDS="volume_key python"
+			;;
 		volume_key)
-			copy @std; rm -r $fs/usr/lib/python2.7/
+			copy @std @rm
 			DEPENDS="cryptsetup glib gpgme libassuan libdevmapper libgcrypt \
 			libgpg-error nspr nss pcre util-linux-blkid util-linux-uuid"
 			;;
@@ -36,11 +44,6 @@ genpkg_rules() {
 			gpgme-dev libassuan-dev libdevmapper-dev libgcrypt-dev \
 			libgpg-error-dev nspr-dev nss-dev pcre-dev python-dev \
 			util-linux-blkid-dev util-linux-uuid-dev"
-			;;
-		*-python)
-			copy site-packages/ @rm
-			CAT="libs|python bindings"
-			DEPENDS="volume_key python"
 			;;
 	esac
 }

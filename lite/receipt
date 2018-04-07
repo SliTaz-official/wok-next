@@ -23,25 +23,20 @@ compile_rules() {
 
 	patch -Np1 -i ${stuff}/lite_fix_stat_naming.patch || return 1
 	patch -Np1 -i ${stuff}/lite_fix_pkgconfig.patch || return 1
-	 ./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		lite)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/share $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="directfb"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

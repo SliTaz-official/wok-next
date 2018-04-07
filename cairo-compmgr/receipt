@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cairo-compmgr"
 VERSION="0.3.0"
@@ -8,4 +8,39 @@ MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://cairo-compmgr.tuxfamily.org/"
 
-DEPENDS="cairo-compmgr-core cairo-compmgr-plugins"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.tuxfamily.org/ccm/$PACKAGE/$TARBALL"
+
+BUILD_DEPENDS="xorg-libXcomposite-dev xorg-libXdamage-dev xorg-libXext-dev \
+xorg-libXi-dev xorg-libSM-dev cairo-dev xorg-pixman-dev gtk+-dev vala \
+xorg-libICE-dev xorg-libX11-dev util-linux-uuid-dev intltool"
+SPLIT="cairo-compmgr-dev"
+
+compile_rules() {
+	# make needed pkg-config file
+	ln -s $(ls /usr/lib/pkgconfig/libvala-*.pc | sed q) /usr/lib/pkgconfig/vala-1.0.pc
+
+	# localization
+	cp -a $stuff/cairo-compmgr.pot $src/po
+	cp -a $stuff/ru.po $src/po
+
+	export LDFLAGS="$LDFLAGS $(pkg-config --libs ice gmodule-2.0 x11)"
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	rm -f $install/usr/share/applications/*
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		cairo-compmgr)
+			copy @std
+			DEPENDS="libbfd gtk+ vala xorg-libSM xorg-libXi"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

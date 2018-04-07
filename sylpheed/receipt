@@ -19,23 +19,25 @@ compile_rules() {
 		--disable-gtkspell \
 		--disable-updatecheck \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
+
+	mkdir -p $install/usr/share/applications/
+	cp $stuff/applications/sylpheed*.desktop $install/usr/share/applications/
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		sylpheed)
-			mkdir -p $fs/usr/lib $fs/usr/share/applications
-			cp -a $stuff/applications/sylpheed*.desktop $fs/usr/share/applications
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
+			rm -r \
+				$fs/usr/share/sylpheed/faq/ \
+				$fs/usr/share/sylpheed/manual/
 			DEPENDS="gtk+ openssl libffi"
 			TAGS="mail internet"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			copy @dev
 			DEPENDS="gtk+ openssl gpgme gnupg xorg-libXdamage"
 			;;
 	esac

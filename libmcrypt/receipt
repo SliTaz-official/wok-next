@@ -14,27 +14,14 @@ WGET_URL="$SF_MIRROR/mcrypt/$TARBALL"
 SPLIT="libmcrypt-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libmcrypt)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/libmcrypt  $fs/usr/lib
-			cp -a $install/usr/lib/*.so*  $fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/lib/*.*a  $fs/usr/lib
-			cp -a $install/usr/share/aclocal  $fs/usr/share
-			cp -a $install/usr/include  $fs/usr
-			cp -a $install/usr/bin  $fs/usr
-			;;
+		libmcrypt) copy @std;;
+		*-dev)     copy @dev;;
 	esac
 }

@@ -17,7 +17,9 @@ pygobject3-dev gtk-doc"
 SPLIT="libpeas-gtk libpeas-python libpeas-dev libpeas-demo"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
@@ -46,6 +48,7 @@ genpkg_rules() {
 			;;
 		*-demo)
 			copy peas-demo peas-demo/ hicolor/ @rm
+			find $fs -name '*.la' -delete
 			DEPENDS="libpeas-gtk"
 			;;
 	esac

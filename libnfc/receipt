@@ -3,43 +3,34 @@
 PACKAGE="libnfc"
 VERSION="1.7.0"
 CATEGORY="development"
-SHORT_DESC="Near Field Communication (NFC) library."
+SHORT_DESC="Near Field Communication (NFC) library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://nfc-tools.org/index.php?title=Libnfc"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://libnfc.googlecode.com/files/$TARBALL"
 
-BUILD_DEPENDS="libusb-dev libusb-compat-dev pcsc-lite-dev udev-dev"
+BUILD_DEPENDS="libusb-dev libusb-compat-dev pcsc-lite-dev eudev-dev"
 SPLIT="libnfc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
 		--with-drivers=all \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libnfc)
-		DEPENDS="libusb pcsc-lite"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	libnfc-dev)
-		CAT="development|Near Field Communication (NFC) library, development files."
-		DEPENDS="libnfc pcsc-lite-dev libusb-dev libusb-compat-dev"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libnfc)
+			copy @std
+			DEPENDS="libusb pcsc-lite"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libnfc pcsc-lite-dev libusb-dev libusb-compat-dev"
+			;;
 	esac
 }

@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pyorbit"
 VERSION="2.24.0"
 CATEGORY="system-tools"
-SHORT_DESC="Python binding to GNOME ORBit."
+SHORT_DESC="Python binding to GNOME ORBit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org/"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="python orbit2"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="python-dev orbit2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="python orbit2"
 }

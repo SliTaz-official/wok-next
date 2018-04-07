@@ -18,25 +18,20 @@ compile_rules() {
 	./bootstrap
 	sed -i 's|/doc/|/share&|' Makefile*
 	patch -Np1 -i $stuff/$PACKAGE-1.4.0-mmx-sse-compile-fix.patch
-	./configure --enable-shared $CONFIGURE_ARGS && make && make install
+
+	./configure \
+		--enable-shared \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	# Upstream changed pkgconfig filename
+	ln -sf soundtouch-1.4.pc $install/usr/lib/pkgconfig/soundtouch-1.0.pc
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		soundtouch)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			DEPENDS="gcc-lib-base"
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/share/aclocal $fs/usr/share
-			# Upstream changed pkgconfig filename
-			ln -sf soundtouch-1.4.pc $fs/usr/lib/pkgconfig/soundtouch-1.0.pc
-			;;
+		soundtouch) copy @std;;
+		*-dev)      copy @dev;;
 	esac
 }

@@ -15,28 +15,16 @@ SPLIT="libhangul-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--datadir=/usr/lib \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libhangul)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/libhangul $fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.a $fs/usr/lib
-			cp -a $install/usr/lib/*.la $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			;;
+		libhangul) copy @std;;
+		*-dev)     copy @dev;;
 	esac
 }
 

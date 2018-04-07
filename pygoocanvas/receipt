@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pygoocanvas"
 VERSION="0.14.1"
@@ -6,30 +6,22 @@ CATEGORY="development"
 SHORT_DESC="GooCanvas python bindings"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://developer.berlios.de/projects/pygoocanvas"
-WGET_URL="http://ftp.gnome.org/pub/GNOME/sources/pygoocanvas/${VERSION%.*}/$TARBALL"
 
-DEPENDS="python pygtk goocanvas"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="goocanvas-dev python-dev pygobject-dev pycairo-dev pygtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-docs \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @dev
+	DEPENDS="python pygtk goocanvas"
 }
-

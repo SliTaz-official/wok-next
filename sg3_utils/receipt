@@ -3,43 +3,34 @@
 PACKAGE="sg3_utils"
 VERSION="1.42"
 CATEGORY="system-tools"
-SHORT_DESC="Low level utilities for devices that use a SCSI command set."
+SHORT_DESC="Low level utilities for devices that use a SCSI command set"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://sg.danny.cz/sg/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://sg.danny.cz/sg/p/$TARBALL"
 
-BUILD_DEPENDS=""
-SPLIT="sg3_utils libsgutils2 sg3_utils-dev"
+SPLIT="libsgutils2 sg3_utils sg3_utils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	sg3_utils)
-		DEPENDS="libsgutils2"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		;;
-	libsgutils2)
-		CAT="system-tools|The sg_utils library."
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	sg3_utils-dev)
-		CAT="development|The sg_utils devel files."
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
+		libsgutils2)
+			copy libsgutils2.so*
+			CAT="system-tools|library"
+			;;
+		sg3_utils)
+			copy @std @rm
+			DEPENDS="libsgutils2"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

@@ -16,30 +16,25 @@ SPLIT="pcsc-lite-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--enable-libudev \
 		--enable-ipcdir=/run/pcscd \
 		--enable-usbdropdir=/usr/lib/pcsc/drivers \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm755 $stuff/init.d/pcscd $install/etc/init.d/pcscd
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		pcsc-lite)
-			mkdir -p $fs/usr/lib/pcsc/drivers $fs/etc
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/bin $fs/usr
-			cp -a $stuff/init.d $fs/etc
+			copy @std
 			DEPENDS="udev"
 			SUGGESTED="ccid"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

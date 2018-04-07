@@ -6,36 +6,28 @@ CATEGORY="multimedia"
 SHORT_DESC="A library to handle Apple Property List format whereas it's binary or XMl"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://libimobiledevice.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.libimobiledevice.org/downloads/$TARBALL"
 
-DEPENDS="glib libxml2"
 BUILD_DEPENDS="libxml2-dev glib-dev swig python python-dev python-cython"
 SPLIT="libplist-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libplist)
-		mkdir -p $fs/usr/lib 
-		cp -a $install/usr/lib/*.so* $fs/usr/lib/
-		cp -a $install/usr/lib/python* $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		;;
-	libplist-dev)
-		mkdir -p $fs/usr/lib
-		cp -ar $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libplist)
+			copy @std
+			DEPENDS="glib libxml2"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

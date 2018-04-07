@@ -3,39 +3,31 @@
 PACKAGE="spandsp"
 VERSION="0.0.6"
 CATEGORY="system-tools"
-SHORT_DESC="library of DSP functions for telephony."
+SHORT_DESC="Library of DSP functions for telephony"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.soft-switch.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$PACKAGE/$TARBALL"
 
-DEPENDS="tiff zlib jpeg"
 BUILD_DEPENDS="tiff-dev zlib-dev jpeg-dev"
-SPLIT="spandsp spandsp-dev"
+SPLIT="spandsp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make -j 1 install
+	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	spandsp)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	spandsp-dev)
-		CAT="development|library of DSP functions for telephony dev files."
-		DEPENDS="spandsp"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
+		spandsp)
+			copy @std
+			DEPENDS="tiff zlib jpeg"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

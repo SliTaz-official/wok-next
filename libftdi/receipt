@@ -15,9 +15,7 @@ BUILD_DEPENDS="slitaz-toolchain libusb-dev libusb libusb-compat-dev udev-dev"
 SPLIT="libftdi-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -25,16 +23,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		libftdi)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
+			copy @std
 			DEPENDS="glibc-base libusb libusb-compat gcc-lib-base"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

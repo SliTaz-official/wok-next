@@ -3,7 +3,7 @@
 PACKAGE="openmotif"
 VERSION="2.3.2"
 CATEGORY="non-free"
-SHORT_DESC="source code version of Motif under a public license."
+SHORT_DESC="Source code version of Motif under a public license"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -14,48 +14,32 @@ BUILD_DEPENDS="xorg-dev-proto xorg-libXmu xorg-libXft-dev xorg-libXrender-dev \
 xorg-xbitmaps fontconfig-dev freetype-dev jpeg-dev libpng16-dev xorg-libXt-dev \
 xorg-libSM-dev xorg-xproto xorg-libXmu-dev xorg-libX11-dev xorg-printproto \
 xorg-xextproto bison flex xorg-libXp util-linux-uuid-dev expat-dev libxml2-dev"
-SPLIT="openmotif openmotif-demo openmotif-dev openmotif-man"
+SPLIT="openmotif-demo openmotif-dev openmotif openmotif-man"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make -j 1 &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	openmotif)
-		DEPENDS="xorg fontconfig expat freetype jpeg libpng16 xorg-libXp xorg-libXft"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		rm -f $fs/usr/bin/uil
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/X11 $fs/usr/lib
-		;;
-	openmotif-demo)
-		CAT="non-free|source code version of Motif under a public license, demo files."
-		DEPENDS="openmotif openmotif-dev"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/Xm $fs/usr/share
-		;;
-	openmotif-dev)
-		CAT="non-free|source code version of Motif under a public license, development files."
-		DEPENDS="openmotif util-linux-uuid"
-		mkdir -p $fs/usr/lib $fs/usr/bin
-		cp -a $install/usr/lib/*a $fs/usr/lib
-		cp -a $install/usr/bin/uil $fs/usr/bin
-		cp -a $install/usr/include $fs/usr
-		;;
-	openmotif-man)
-		CAT="non-free|source code version of Motif under a public license, manual pages."
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/man $fs/usr/share
-		;;
+		openmotif-demo)
+			copy share/Xm/
+			CAT="non-free|demo files"
+			DEPENDS="openmotif openmotif-dev"
+			;;
+		openmotif-dev)
+			copy @dev @rm bin/uil
+			DEPENDS="openmotif util-linux-uuid"
+			;;
+		openmotif)
+			copy @std @rm
+			DEPENDS="xorg fontconfig expat freetype jpeg libpng16 xorg-libXp \
+			xorg-libXft"
+		openmotif-man)
+			copy man/
+			CAT="non-free|manual pages"
+			;;
 	esac
 }

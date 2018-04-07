@@ -9,17 +9,14 @@ LICENSE="BSD"
 WEB_SITE="http://libetpan.sourceforge.net/libetpan/index.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://heanet.dl.sourceforge.net/sourceforge/libetpan/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 SPLIT="libetpan-dev"
 
 compile_rules() {
 	sed -i 's/--iso-8601=minutes/+%Y-%m-%dT%H:%M%Z/' configure
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -27,15 +24,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		libetpan)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="libsasl expat libcurl libdb openssl zlib gcc-lib-base"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

@@ -3,48 +3,35 @@
 PACKAGE="sctp-tools"
 VERSION="1.0.17"
 CATEGORY="network"
-SHORT_DESC="Stream Control Transmission Protocol tools."
+SHORT_DESC="Stream Control Transmission Protocol"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-SOURCE="lksctp-tools"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://lksctp.sourceforge.net/"
-WGET_URL="$SF_MIRROR/project/lksctp/lksctp/$SOURCE/$TARBALL"
 
-SPLIT="sctp-tools libsctp-dev libsctp"
+TARBALL="lksctp-tools-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/lksctp/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+SPLIT="libsctp sctp-tools libsctp-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	sctp-tools)
-		DEPENDS="libsctp"
-		mkdir -p $fs/usr/lib/lksctp-tools
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/lksctp-tools/libwithsctp.so* \
-			$fs/usr/lib/lksctp-tools
-		;;
-	libsctp)
-		CAT="network|Stream Control Transmission Protocol libraries."
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libsctp.so* $fs/usr/lib
-		;;
-	libsctp-dev)
-		CAT="development|Stream Control Transmission Protocol developement libraries."
-		mkdir -p $fs/usr/lib/lksctp-tools
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/libsctp.*a $fs/usr/lib
-		cp -a $install/usr/lib/lksctp-tools/*a $fs/usr/lib/lksctp-tools
-		;;
+		libsctp)
+			copy libsctp.so*
+			CAT="network|libraries"
+			;;
+		sctp-tools)
+			copy @std @rm
+			CAT="network|tools"
+			DEPENDS="libsctp"
+			;;
+		libsctp-dev)
+			copy @dev
+			;;
 	esac
 }

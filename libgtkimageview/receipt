@@ -3,47 +3,32 @@
 PACKAGE="libgtkimageview"
 VERSION="1.6.4"
 CATEGORY="system-tools"
-SHORT_DESC="Simple image viewer widget for GTK."
+SHORT_DESC="Simple image viewer widget for GTK"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="LGPL2.1"
+WEB_SITE="http://trac.bjourne.webfactional.com/" 
+
 SOURCE="gtkimageview"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://trac.bjourne.webfactional.com/" 
 WGET_URL="http://trac.bjourne.webfactional.com/attachment/wiki/WikiStart/$TARBALL?format=raw"
 
 BUILD_DEPENDS="gtk+-dev expat-dev"
-SPLIT="libgtkimageview libgtkimageview-dev"
+SPLIT="libgtkimageview-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install	
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libgtkimageview)
-		DEPENDS="gtk+"
-		mkdir -p $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		# Remove devel files
-		cd $fs/usr/lib
-		rm -r libgtkimageview.a libgtkimageview.la pkgconfig/
-		;;
-	libgtkimageview-dev)
-		mkdir -p $fs/usr
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		# Remove libraries files
-		cd $fs/usr/lib
-		rm -r *.so*
-		;;
+		libgtkimageview)
+			copy @std
+			DEPENDS="gtk+"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

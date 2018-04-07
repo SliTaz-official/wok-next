@@ -22,35 +22,20 @@ compile_rules() {
 
 	./configure \
 		--with-default-audio=alsa \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		mpg123)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			# ARM
-			if [ -d "$install/usr/lib/mpg123" ]; then
-				cp -a $install/usr/lib/mpg123 $fs/usr/lib
-				#mpg123 need *.la file to work
-				#find $fs/usr/lib -name "*.la" -exec rm -f {} \;
-			fi
-			# Needed to work!!! Dont remove
-			cp $install/usr/lib/libmpg123.la $fs/usr/lib
+			copy @std *.la # la file required to work - don't remove
 			DEPENDS="alsa-lib audiofile libltdl"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/mpg123
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			# ARM mpg123 need *.la file to work
-			#if [ -d "$install/usr/lib/mpg123" ]; then
-				#cp -a $install/usr/lib/mpg123 $fs/usr/lib
-				#find $fs/usr/lib -name "*.so" -exec rm -f {} \;
-			#fi
+			copy @dev
 			;;
 	esac
 }

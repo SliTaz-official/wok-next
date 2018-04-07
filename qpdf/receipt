@@ -17,19 +17,19 @@ SPLIT="qpdf-dev"
 compile_rules() {
 	./configure \
 		--disable-static \
-		--docdir=/usr/share/doc/qpdf-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		qpdf)
-			copy bin/ *.so*
+			copy @std
 			DEPENDS="pcre zlib"
 			;;
 		*-dev)
-			copy *.h *.hh *.la *.pc
+			copy @dev
 			;;
 	esac
 }

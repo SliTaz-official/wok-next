@@ -15,27 +15,20 @@ BUILD_DEPENDS="giflib-dev jpeg-dev libpng16-dev tiff-dev xorg-dev"
 SPLIT="leptonica-dev"
 
 compile_rules() {
-	./autogen.sh
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		leptonica)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="giflib jpeg libpng16 tiff xorg-libX11 xorg-libXau \
 			xorg-libXdmcp xorg-libxcb"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

@@ -23,16 +23,14 @@ compile_rules() {
 	./configure \
 		--with-distro="SliTaz" \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		sox)
-			mkdir -p $fs/usr/lib/sox
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @std
 			case "$SLITAZ_ARCH" in
 				arm*)
 					DEPENDS="libltdl libsamplerate alsa-lib libid3tag libmad \
@@ -47,10 +45,7 @@ genpkg_rules() {
 			esac
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/sox
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			#cp -a $install/usr/lib/sox/*a $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

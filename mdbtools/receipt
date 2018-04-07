@@ -1,33 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mdbtools"
 VERSION="0.6pre1"
 CATEGORY="development"
-SHORT_DESC="Export Microsoft's Access database."
+SHORT_DESC="Export Microsoft's Access database"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mdbtools.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="ncurses readline glib libunixODBC libltdl"
 BUILD_DEPENDS="bison flex unixODBC-dev glib-dev readline-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's|.*mdb_backends;|// &|' include/mdbtools.h
-	./configure --prefix=/usr --infodir=/usr/share/info \
-		--enable-sql --with-unixodbc=/usr \
-		--mandir=/usr/share/man \
+
+	./configure \
+		--enable-sql \
+		--with-unixodbc=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.   
-genpkg_rules()                                      
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="ncurses readline glib libunixODBC libltdl"
 }
