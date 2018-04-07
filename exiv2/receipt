@@ -12,15 +12,26 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.exiv2.org/builds/exiv2-$VERSION-trunk.tar.gz"
 TARBALL_MD5="f936d2ca5cbe1e18c71ca2baa5e84fb4"
 
-BUILD_DEPENDS="gettext zlib-dev expat-dev curl-dev libssh-dev"
+BUILD_DEPENDS="cmake gettext zlib-dev expat-dev curl-dev libssh-dev"
 SPLIT="exiv2-dev"
 
 compile_rules() {
-	./configure \
-		--enable-video \
-		--enable-webready \
-		$CONFIGURE_ARGS &&
-	make && make install
+	# some MacOS meta files(?) treated as "bad" *.po files
+	find $src -type f -name '._*' -delete
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DEXIV2_ENABLE_BUILD_SAMPLES=OFF \
+		-DEXIV2_ENABLE_BUILD_PO=ON \
+		-DEXIV2_ENABLE_VIDEO=ON \
+		-DEXIV2_ENABLE_WEBREADY=ON \
+		. &&
+	make &&
+	make DESTDIR=$install install || return 1
+
+	# https://en.wikipedia.org/wiki/Linux_Software_Map
+	find $install -name '*.lsm' -delete
 }
 
 genpkg_rules() {
@@ -29,10 +40,8 @@ genpkg_rules() {
 			copy @std
 			DEPENDS="expat libcurl libssh zlib"
 			;;
-		exiv2-dev)
+		*-dev)
 			copy @dev
-			DEPENDS="curl-dev expat-dev libssh-dev zlib-dev"
-			# + openssl-dev depending on libssh
 			;;
 	esac
 }
