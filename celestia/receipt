@@ -17,7 +17,8 @@ freeglut-dev xorg-libXmu-dev glu mesa-dev libpng16-dev libogg-dev \
 jpeg-dev glew-dev zlib-dev gettext autoconf"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -ldl"
+	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -ldl"
+
 	sed -i 's|"ray.h"|&\n#include "mathlib.h"|' src/celmath/intersect.h
 	sed -i 's|NULL|0|' src/celengine/frametree.h
 	sed -i 's|"png.h"|&\n#include "zlib.h"|' src/celestia/imagecapture.cpp

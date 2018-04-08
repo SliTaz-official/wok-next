@@ -17,6 +17,8 @@ xorg-xextproto bison flex xorg-libXp util-linux-uuid-dev expat-dev libxml2-dev"
 SPLIT="openmotif-demo openmotif-dev openmotif openmotif-man"
 
 compile_rules() {
+	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
+
 	./configure $CONFIGURE_ARGS &&
 	make -j 1 &&
 	make DESTDIR=$DESTDIR install
