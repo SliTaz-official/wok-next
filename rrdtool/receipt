@@ -1,28 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="rrdtool"
-VERSION="1.4.6"
+VERSION="1.7.0"
 CATEGORY="misc"
 SHORT_DESC="Data logging and graphing system for time series data"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://oss.oetiker.ch/$PACKAGE"
+WEB_SITE="https://oss.oetiker.ch/rrdtool/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/pub/$TARBALL"
+WGET_URL="https://oss.oetiker.ch/rrdtool/pub/$TARBALL"
 
 BUILD_DEPENDS="perl-dev zlib-dev freetype-dev libpng16-dev libxml2-dev \
 fontconfig-dev xorg-pixman-dev cairo-dev glib-dev pango-dev python-dev perl groff \
-libwrap-dev tcl-dev lua5.1-dev ruby"
-SPLIT="rrdtool-doc rrdtool-lua rrdtool-man rrdtool-perl rrdtool-python \
-rrdtool-dev"
+tcl-dev lua5.1-dev ruby gettext"
+SPLIT="rrdtool-perl rrdtool-python rrdtool-dev rrdtool"
 
 compile_rules() {
 	sed -i 's/PL_sv_undef sv_undef/PL_sv_undef PL_sv_undef/' bindings/perl-shared/RRDs.xs
 	export LDFLAGS="$LDFLAGS -L/usr/lib/lua/5.1"
 
-	TOREMOVE="/usr/include/lua5.1"
+	TOREMOVE="/usr/include/lua5.1 /usr/lib/lua5.1"
 	ln -s lua/5.1 /usr/include/lua5.1
+	ln -s lua/5.1 /usr/lib/lua5.1
 	for i in /usr/bin/lua /usr/bin/luac ; do
 		[ -e $i ] && continue
 		ln -s $(basename $i)5.1 $i
@@ -66,15 +66,16 @@ genpkg_rules() {
 			CAT="development|Python bindings"
 			DEPENDS="python rrdtool"
 			;;
+		rrdtool-dev)
+			copy @dev examples/
+			DEPENDS="rrdtool"
+			;;
 		rrdtool)
 			copy @std @rm
+			rm -r $fs/usr/lib/perl5/ # ... empty
 			DEPENDS="zlib freetype libpng16 libxml2 fontconfig xorg-pixman \
 			cairo glib pango xorg-xcb-util xorg-base-fonts libwrap"
 			TAGS="logs"
-			;;
-		rrdtool-dev)
-			copy @dev
-			DEPENDS="rrdtool"
 			;;
 	esac
 }
