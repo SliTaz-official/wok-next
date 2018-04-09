@@ -11,7 +11,8 @@ WEB_SITE="https://launchpad.net/libdbusmenu"
 TARBALL="libdbusmenu-$VERSION.tar.gz"
 WGET_URL="https://launchpad.net/libdbusmenu/${VERSION%.*}/$VERSION/+download/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk-doc gtk+3-dev gtk+-dev json-glib-dev vala"
+BUILD_DEPENDS="intltool gtk-doc gtk+3-dev gtk+-dev json-glib-dev vala \
+gobject-introspection-dev"
 SPLIT="libdbusmenu-gtk3-apps libdbusmenu-gtk3 libdbusmenu-gtk3-dev"
 SIBLINGS="libdbusmenu-gtk2"
 
@@ -27,8 +28,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		libdbusmenu-gtk3-apps)
 			copy libexec/ # note "gtk+" in depends
-			DEPENDS="libdbusmenu-gtk3 atk cairo fontconfig freetype gdk-pixbuf \
-			glib gtk+ json-glib pango xorg-libX11"
+			DEPENDS="glib gtk+ json-glib libdbusmenu-gtk3 xorg-libX11"
 			CAT="development|applications"
 			;;
 		libdbusmenu-gtk3)
@@ -37,13 +37,7 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
-			harfbuzz-dev json-glib-dev libffi-dev libpng16-dev libxml2-dev \
-			pango-dev pcre-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			DEPENDS="${SPLIT/$PACKAGE/} gdk-pixbuf-dev gtk+3-dev json-glib-dev"
 			;;
 	esac
 }

@@ -30,7 +30,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make -j1 install
 }
 
 genpkg_rules() {
@@ -38,8 +38,7 @@ genpkg_rules() {
 		libappindicator-gtk2)
 			copy libappindicator.so*
 			CAT="x-window|GTK+2"
-			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
-			libdbusmenu-gtk2 libindicator-gtk2 pango"
+			DEPENDS="glib gtk+ libdbusmenu-gtk2 libindicator-gtk2"
 			;;
 		libappindicator-gtk2-python)
 			copy @std @rm
@@ -49,31 +48,18 @@ genpkg_rules() {
 		libappindicator-gtk2-dev)
 			copy @dev
 			DEPENDS="libappindicator-gtk2 libappindicator-gtk2-python \
-			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev libdbusmenu-gtk2-dev \
-			libffi-dev libindicator-gtk2-dev libpng16-dev libxml2-dev \
-			pango-dev pcre-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			gtk+-dev libdbusmenu-gtk2-dev"
 			;;
 
 		libappindicator-gtk3)
 			copy @std
 			CAT="x-window|GTK+3"
-			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libdbusmenu-gtk3 \
-			libindicator-gtk3 pango"
+			DEPENDS="glib gtk+3 libdbusmenu-gtk3 libindicator-gtk3"
 			;;
 		libappindicator-gtk3-dev)
 			copy @dev
 			DEPENDS="libappindicator-gtk3 \
-			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gtk+3-dev harfbuzz-dev \
-			libdbusmenu-gtk3-dev libffi-dev libindicator-gtk3-dev libpng16-dev \
-			libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			gtk+3-dev libdbusmenu-gtk3-dev"
 			;;
 	esac
 }
