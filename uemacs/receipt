@@ -18,12 +18,13 @@ BUILD_DEPENDS="git ncurses-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	make
+	make &&
+	mkdir -p $install/usr/bin &&
+	cp em $install/usr/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/em $fs/usr/bin
+	cp -a $install/usr $fs
 }
