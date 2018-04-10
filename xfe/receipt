@@ -3,79 +3,60 @@
 PACKAGE="xfe"
 VERSION="1.40"
 CATEGORY="system-tools"
-SHORT_DESC="Xfe File manager and utility using Fox toolkit."
+SHORT_DESC="FOX tools for X Window"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://roland65.free.fr/xfe/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="file-manager"
 
-BUILD_DEPENDS="libpng16-dev jpeg-dev tiff-dev xorg-libXft-dev fox-dev automake"
-GENERIC_MENUS="no"
-SPLIT="xfe xfe-extras xfi xfw"
+BUILD_DEPENDS_arm="libpng16-dev libjpeg-turbo-dev tiff-dev xorg-libXft-dev \
+fox-dev automake"
+BUILD_DEPENDS="libpng16-dev libjpeg-turbo-dev tiff-dev xorg-libXft-dev fox-dev \
+automake intltool gettext xorg-libXrandr-dev xorg-libXi"
+SPLIT="xfe-extra-icons xfe xfi xfw xfp"
 
-# Handle cross compilation.
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS intltool" ;;
-	arm)
-		export LDLAGS="-L/cross/$ARCH/sysroot/usr/lib" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case "$ARCH" in
+		arm) export LDFLAGS="-L/cross/$ARCH/sysroot/usr/lib";;
+	esac
 	# Required by freetype-dev-2.4.11
 	sed -i 's|config/ftheader.h|freetype/config/ftheader.h|' configure.ac
+
 	./autogen.sh
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	COOKOPTS="!pixmaps !menus"
+	DEPENDS="fox xorg-libX11 xorg-libXft xorg-libXrandr" # the same depends
 	case $PACKAGE in
-	xfe)
-		SUGGESTED="adie calculator shutterbug xfe-extras xfi"
-		DEPENDS="libpng16 jpeg tiff xorg-libXft fox"
-		mkdir -p $fs/usr/bin $fs/usr/share/xfe/icons
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		cp -a $install/usr/share/xfe/xferc $fs/usr/share/xfe
-		sed -i 's/gnomeblue-theme/tango-theme/' $fs/usr/share/xfe/xferc
-		# Tango/Gnome icons theme only
-		cp -a $install/usr/share/xfe/icons/tango-theme \
-			$fs/usr/share/xfe/icons
-		cp -a $install/usr/share/xfe/icons/gnome-theme \
-			$fs/usr/share/xfe/icons	
-		;;
-	xfe-extras)
-		CAT="system-tools|Xfe File manager tools."
-		DEPENDS="xfe"
-		GENERIC_MENUS="no"
-		mkdir -p $fs/usr/bin \
-			$fs/usr/share/applications \
-			$fs/usr/share/icons 
-
-		cp -a $install/usr/bin/xf[i,v,p,w] $fs/usr/bin
-		cp -a $install/usr/share/applications/xf[i,v,p,w]* $fs/usr/share/applications
-		cp -a $src/xf[i,v,p,w].png $fs/usr/share/icons
-		;;
-	xfi)
-		CAT="x-window|X File Image viewer using the Fox Toolkit."
-		LOCALE=""
-		DEPENDS="fox"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		copy_generic_files
-		;;
-	xfw)
-		CAT="x-window|X File Writer - Text editor using the Fox Toolkit."
-		LOCALE=""
-		TAGS="text-editor"
-		DEPENDS="fox"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		copy_generic_files
-		;;
+		xfe-extra-icons)
+			copy kde-theme/ windows-theme/ xfe-theme/
+			DEPENDS="xfe"
+			CAT="misc|extra icon themes"
+			;;
+		xfe)
+			copy xfe xfe/ xfe.desktop xfe.png @rm
+			SUGGESTED="adie calculator shutterbug xfe-extras xfi"
+			CAT="system-tools|file manager"
+			;;
+		xfi)
+			copy xfi xfi.desktop xfi.png @rm
+			CAT="x-window|image viewer"
+			;;
+		xfw)
+			copy xfw xfw.desktop xfw.png @rm
+			CAT="x-window|text editor"
+			TAGS="text-editor"
+			;;
+		xfp)
+			copy xfp xfp.desktop xfp.png @rm
+			CAT="x-window|package manager"
+			;;
 	esac
+	TAGS="file-manager"
 }
