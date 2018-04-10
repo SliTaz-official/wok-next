@@ -16,15 +16,14 @@ BUILD_DEPENDS="git bzip2"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
 	# patch for SliTaz (use basic artwork - job for artwork team?)
 	patch -i ../../stuff/slitaz.patch
+	mkdir $install/usr/bin
+	cp screenfetch-dev $install/usr/bin/screenfetch
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/bin
-	cp -a $src/screenfetch-dev $fs/usr/bin/screenfetch
+	cp -a $install/usr $fs
 }
-

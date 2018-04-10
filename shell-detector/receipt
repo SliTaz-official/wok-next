@@ -17,16 +17,16 @@ BUILD_DEPENDS="git"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
+	mkdir -p $install/usr/share/$PACKAGE
+	cp -a * $install/usr/share/$PACKAGE
+	ln -s shelldetect.php $install/usr/share/$PACKAGE/index.php
+	chown -R www.www $install/usr/share/$PACKAGE
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/$PACKAGE
-	cp -a $src/* $fs/usr/share/$PACKAGE
-	ln -s shelldetect.php $fs/usr/share/$PACKAGE/index.php
-	chown -R www.www $fs/usr/share/$PACKAGE
+	cp -a $install/usr $fs
 }
 
 post_install()
