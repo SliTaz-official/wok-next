@@ -44,13 +44,15 @@ EOT
 	objcopy -O binary tobzimage.o tobzimage.bin
 	cp $stuff/tobzimage .
 	./tobzimage --build
+	mkdir -p $install/usr/share/boot $install/usr/share/doc $install/usr/bin
+	cp linld.com $install/usr/share/boot
+	cp linld.txt $install/usr/share/doc
+	cp tobzimage $install/usr/bin
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules()
 {
-	mkdir -p $fs/usr/share/boot $fs/usr/bin $install/usr/share/doc
-	cp $src/linld.com $stuff/linld.txt $fs/usr/share/boot/
-	cp $stuff/linld.txt $install/usr/share/doc
-	#cp $src/tobzimage $fs/usr/bin
+	mkdir -p $fs/usr/share
+	cp -a $install/usr/share/boot $fs/usr/share
 }
