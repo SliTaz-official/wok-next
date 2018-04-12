@@ -12,7 +12,6 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev"
-SPLIT="gtk-xfce-engine-dev"
 
 compile_rules() {
 	./configure \
@@ -24,14 +23,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		gtk-xfce-engine)
-			copy @std
-			DEPENDS="cairo glib gtk+"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	copy @std
+	DEPENDS="cairo glib gtk+"
 	TAGS="Xfce"
 }

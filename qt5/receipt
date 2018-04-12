@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="qt5"
-VERSION="5.9.1"
+VERSION="5.10.1"
 CATEGORY="meta"
 SHORT_DESC="Cross-platform application framework"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,7 +9,7 @@ LICENSE="LGPL3 GPL3"
 WEB_SITE="https://www.qt.io/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/qt5.html"
 
-TARBALL="qt-everywhere-opensource-src-$VERSION.tar.xz"
+TARBALL="qt-everywhere-src-$VERSION.tar.xz"
 WGET_URL="https://download.qt.io/archive/qt/${VERSION%.*}/$VERSION/single/$TARBALL"
 
 PATCH="Do-not-make-lack-of-SSE2-support-on-x86-32-fatal.patch"
@@ -32,7 +32,7 @@ qt5-script           qt5-scxml            qt5-sensors          \
 qt5-serialbus        qt5-serialport       qt5-speech           \
 qt5-svg              qt5-tools            qt5-virtualkeyboard  \
 qt5-wayland          qt5-webchannel       qt5-websockets       \
-qt5-x11extras        qt5-xmlpatterns      qt5-base-egl	\
+qt5-x11extras        qt5-xmlpatterns      qt5-base-egl         \
 \
 qt5-locale-ar    qt5-locale-ca    qt5-locale-cs    qt5-locale-da \
 qt5-locale-de    qt5-locale-en    qt5-locale-es    qt5-locale-fa \
@@ -45,7 +45,6 @@ qt5-locale-uk    qt5-locale-zh_CN qt5-locale-zh_TW \
 qt5-doc qt5-dev"
 
 compile_rules() {
-#	fix math
 	export QT5PREFIX=/usr # or /opt/qt5
 	if [ "$QT5PREFIX" == '/usr' ]; then
 		QT5OPTS="\
@@ -61,24 +60,24 @@ compile_rules() {
 "
 	fi
 
-	echo "INCLUDEPATH += /usr/include/openssl-1.0" >> qtbase/src/network/network.pro
-	export OPENSSL_LIBS='-L/usr/lib/openssl-1.0 -lssl -lcrypto'
-
-	[ -s $SRC/$PATCH ] || wget -O $SRC/$PATCH $PATCH_URL$PATCH
-	cd $src/qtdeclarative
-	cp $SRC/$PATCH ./$PATCH
-	patch -p1 -i $PATCH
-	cd ..
-
-	# Build qmake (and all following things with it) using existing CFLAGS and LDFLAGS
-	sed -i -e "s|^\(QMAKE_CFLAGS_RELEASE.*\)|\1 $CFLAGS -DQT_MATH_H_DEFINES_MACROS=1|" \
-		qtbase/mkspecs/common/gcc-base.conf
-	sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 $LDFLAGS|" \
-		qtbase/mkspecs/common/g++-unix.conf
-
-	# Fix missing private includes https://bugreports.qt.io/browse/QTBUG-37417
-	sed -e '/CMAKE_NO_PRIVATE_INCLUDES\ \=\ true/d' -i \
-		qtbase/mkspecs/features/create_cmake.prf
+#	echo "INCLUDEPATH += /usr/include/openssl-1.0" >> qtbase/src/network/network.pro
+#	export OPENSSL_LIBS='-L/usr/lib/openssl-1.0 -lssl -lcrypto'
+#
+#	[ -s $SRC/$PATCH ] || wget -O $SRC/$PATCH $PATCH_URL$PATCH
+#	cd $src/qtdeclarative
+#	cp $SRC/$PATCH ./$PATCH
+#	patch -p1 -i $PATCH
+#	cd ..
+#
+#	# Build qmake (and all following things with it) using existing CFLAGS and LDFLAGS
+#	sed -i -e "s|^\(QMAKE_CFLAGS_RELEASE.*\)|\1 $CFLAGS -DQT_MATH_H_DEFINES_MACROS=1|" \
+#		qtbase/mkspecs/common/gcc-base.conf
+#	sed -i -e "s|^\(QMAKE_LFLAGS_RELEASE.*\)|\1 $LDFLAGS|" \
+#		qtbase/mkspecs/common/g++-unix.conf
+#
+#	# Fix missing private includes https://bugreports.qt.io/browse/QTBUG-37417
+#	sed -e '/CMAKE_NO_PRIVATE_INCLUDES\ \=\ true/d' -i \
+#		qtbase/mkspecs/features/create_cmake.prf
 
 	./configure \
 		-prefix $QT5PREFIX \

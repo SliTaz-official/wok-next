@@ -13,7 +13,6 @@ TARBALL="$SOURCE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}src/$SOURCE/$TARBALL"
 
 BUILD_DEPENDS="gstreamer1-dev gst1-plugins-base-dev mpg123-dev jpeg-dev"
-SPLIT="gst1-plugins-good-dev"
 
 compile_rules() {
 	sed '/set ERROR_C/d' -i configure
@@ -33,17 +32,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		gst1-plugins-good)
-			copy @std
-			DEPENDS="gstreamer1 gst1-plugins-base pango alsa-lib \
-			mpg123 jpeg"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gstreamer1-dev gst1-plugins-base-dev  \
-			gstreamer1 gst1-plugins-base  gst1-plugins-good \
-			mpg123-dev jpeg-dev "
-			;;
-	esac
+	copy @std
+	DEPENDS="gstreamer1 gst1-plugins-base pango alsa-lib mpg123 jpeg"
 }

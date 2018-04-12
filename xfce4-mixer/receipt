@@ -14,7 +14,6 @@ WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="intltool dbus-glib-dev gst0-plugins-base-dev gtk+-dev \
 libunique-dev libxfce4util-dev libxfce4ui-dev xfce4-panel-dev libkeybinder-dev \
 startup-notification-dev xorg-xcb-util-dev"
-SPLIT="xfce4-mixer-dev"
 
 compile_rules() {
 	./configure \
@@ -26,16 +25,8 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		xfce4-mixer)
-			copy @std
-			DEPENDS="cairo dbus-glib gdk-pixbuf glib gst0-plugins-base \
-			gstreamer0 gtk+ libkeybinder libunique libxfce4ui libxfce4util \
-			xfce4-panel xfconf"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	copy @std
+	DEPENDS="cairo dbus-glib gdk-pixbuf glib gst0-plugins-base gstreamer0 gtk+ \
+	libkeybinder libunique libxfce4ui libxfce4util xfce4-panel xfconf"
 	TAGS="Xfce"
 }

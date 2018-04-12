@@ -13,7 +13,6 @@ WGET_URL="http://archive.xfce.org/src/apps/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool gtk+-dev xfce4-panel-dev libical-dev db-dev \
 dbus-glib-dev libnotify-dev popt-dev"
-SPLIT="orage-dev"
 
 compile_rules() {
 	./configure \
@@ -25,16 +24,8 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		orage)
-			copy @std
-			DEPENDS="dbus dbus-glib gdk-pixbuf glib gtk+ libical libnotify \
-			libxfce4util pango popt xfce4-panel xorg-libX11"
-			TAGS="Xfce office"
-			;;
-		*-dev)
-			copy @dev
-			TAGS="Xfce"
-			;;
-	esac
+	copy @std
+	DEPENDS="dbus dbus-glib gdk-pixbuf glib gtk+ libical libnotify \
+	libxfce4util pango popt xfce4-panel xorg-libX11"
+	TAGS="Xfce office"
 }

@@ -13,7 +13,6 @@ WGET_URL="$WEB_SITE/src/gst-plugins-ugly/$TARBALL"
 
 BUILD_DEPENDS="gstreamer0-dev gst0-plugins-base-dev lame-dev libdvdread-dev
 libcdio-dev libmad-dev libmpeg2-dev x264-dev"
-SPLIT="gst0-plugins-ugly-dev"
 
 compile_rules() {
 	./configure \
@@ -27,18 +26,8 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		gst0-plugins-ugly)
-			copy @std *.mo
-			DEPENDS="gst0-plugins-base lame libdvdread libcdio libmad \
-			libmpeg2 opencore-amr"
-			SUGGESTED="x264"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gstreamer0-dev gst0-plugins-base-dev lame-dev \
-			libdvdread-dev libcdio-dev libmad-dev libmpeg2-dev \
-			x264-dev"
-			;;
-	esac
+	copy @std *.mo
+	DEPENDS="gst0-plugins-base lame libdvdread libcdio libmad libmpeg2 \
+	opencore-amr"
+	SUGGESTED="x264"
 }

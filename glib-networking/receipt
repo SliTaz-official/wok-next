@@ -13,33 +13,18 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool gnutls-dev gsettings-desktop-schemas"
 BUILD_DEPENDS_arm="glib-dev gnutls-dev"
-SPLIT="glib-networking-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--with-ca-certificates=/etc/ssl/ca-bundle.crt \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	case $PACKAGE in
-		glib-networking)
-			copy @std
-			DEPENDS="glib gmp libffi libgnutls libtasn1 nettle p11-kit pcre \
-			util-linux-blkid util-linux-mount util-linux-uuid zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="glib-networking glib-dev glibc-dev gmp-dev gnutls-dev \
-			libffi-dev libtasn1-dev nettle-dev p11-kit-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			zlib-dev"
-			;;
-	esac
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib gmp libffi libgnutls libtasn1 nettle p11-kit pcre \
+	util-linux-blkid util-linux-mount util-linux-uuid zlib"
 }

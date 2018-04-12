@@ -14,30 +14,15 @@ WGET_URL="$WEB_SITE/$PACKAGE/$TARBALL"
 BUILD_DEPENDS_arm="gtkspell-dev geany-dev lua-dev libxml2-dev"
 BUILD_DEPENDS="intltool geany-dev gtk+-dev check-dev vte-gtk2-dev \
 python-dev pygtk-dev gtkspell-dev" # lua5.1-dev but produces error
-SPLIT="geany-plugins-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		geany-plugins)
-			copy @std
-			DEPENDS="geany atk cairo enchant fontconfig freetype gdk-pixbuf \
-			glib gtk+ gtkspell libxml2 pango python vte-gtk2 xorg-libX11 \
-			xorg-libXext"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="geany-plugins atk-dev bzip2-dev cairo-dev enchant-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev geany-dev glib-dev \
-			gtk+-dev gtkspell-dev harfbuzz-dev libffi-dev libpng16-dev \
-			libxml2-dev ncurses-dev pango-dev pcre-dev python-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			vte-gtk2-dev xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
-			xorg-pixman-dev xz-dev zlib-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="geany atk cairo enchant fontconfig freetype gdk-pixbuf glib gtk+ \
+	gtkspell libxml2 pango python vte-gtk2 xorg-libX11 xorg-libXext"
 }

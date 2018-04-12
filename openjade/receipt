@@ -12,40 +12,37 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/openjade/$TARBALL"
 
 BUILD_DEPENDS="patch opensp-dev automake texinfo perl"
-SPLIT="openjade-dev"
 
 compile_rules() {
 	sed -i -e '/getopts/{N;s#&G#g#;s#do .getopts.pl.;##;}' \
 		-e '/use POSIX/ause Getopt::Std;' msggen.pl
 
-	export CXXFLAGS="$CXXFLAGS -fno-lifetime-dse" &&
+	export CXXFLAGS="$CXXFLAGS -fno-lifetime-dse"
 	./configure \
-		--mandir=/usr/share/man \
 		--enable-http \
 		--disable-static \
 		--enable-default-catalog=/etc/sgml/catalog \
 		--enable-default-search-path=/usr/share/sgml \
 		--datadir=/usr/share/sgml/openjade-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR="$install" install install-man &&
+	make &&
+	make DESTDIR="$install" install install-man || return 1
 
-	ln -vsf openjade       $install/usr/bin/jade &&
-	ln -vsf libogrove.so   $install/usr/lib/libgrove.so &&
-	ln -vsf libospgrove.so $install/usr/lib/libspgrove.so &&
-	ln -vsf libostyle.so   $install/usr/lib/libstyle.so &&
+	ln -vsf openjade       $install/usr/bin/jade
+	ln -vsf libogrove.so   $install/usr/lib/libgrove.so
+	ln -vsf libospgrove.so $install/usr/lib/libspgrove.so
+	ln -vsf libostyle.so   $install/usr/lib/libstyle.so
 
 	install -v -m644 dsssl/catalog dsssl/*.dtd dsssl/*.dsl dsssl/*.sgm \
-		$install/usr/share/sgml/openjade-$VERSION &&
+		$install/usr/share/sgml/openjade-$VERSION
 
 	echo 'SYSTEM "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" "/usr/share/xml/docbook/xml-dtd-4.5/docbookx.dtd"' >> \
 		$install/usr/share/sgml/openjade-$VERSION/catalog
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		openjade) copy @std; DEPENDS="sgml-common opensp";;
-		*-dev)    copy @dev;;
-	esac
+	copy @std
+	DEPENDS="sgml-common opensp"
 }
 
 pre_remove() {
