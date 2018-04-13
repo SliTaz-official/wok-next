@@ -15,19 +15,20 @@ BUILD_DEPENDS_arm="gob2-dev libglade-dev libmpd libmpd-dev curl-dev \
 sqlite3-dev xorg-libSM-dev libsoup-dev libsexy-dev xorg-xcb-util-dev \
 util-linux-uuid-dev flex intltool"
 BUILD_DEPENDS="gob2-dev libglade-dev libmpd libmpd-dev curl-dev sqlite3-dev \
-xorg-libSM-dev libsoup-dev libsexy-dev xorg-xcb-util-dev util-linux-uuid-dev \
-flex intltool vala"
+xorg-libSM-dev libsoup-dev xorg-xcb-util-dev util-linux-uuid-dev flex intltool \
+vala"
 SPLIT="gmpc-dev"
 
 compile_rules() {
+	export LDFLAGS="$LDFLAGS -lm"
+
 	./configure \
-		--enable-system-libsexy \
 		--disable-shave \
 		--disable-unique \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make || return 1
-	sed -i 's|GNOME;AudioVideo;|GTK;AudioVideo;Player;|' data/$PACKAGE.desktop
+	sed -i 's|GNOME;AudioVideo;|GTK;AudioVideo;Player;|' data/gmpc.desktop
 	make install
 }
 
