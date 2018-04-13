@@ -17,8 +17,11 @@ SPLIT="gtkhotkey-dev"
 compile_rules() {
 	sed -i 's|<glib/.*h>|<glib.h>|' src/x11/tomboykeybinder.h src/gtk-hotkey-error.h
 	sed -i 's|}/doc|}/share/doc|' Makefile*
+
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

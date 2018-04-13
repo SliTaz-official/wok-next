@@ -23,7 +23,9 @@ compile_rules() {
 		--with-zlib \
 		--with-xz \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	# compatibility with module-init-tools
 	# (the package that previously handled Linux kernel modules)

@@ -6,13 +6,15 @@ CATEGORY="system-tools"
 SHORT_DESC="Top quality printer drivers for Canon, Epson"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://gimp-print.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/gimp-print/$TARBALL"
 
 BUILD_DEPENDS="gnutls-dev expat-dev cups-dev libgcrypt-dev zlib-dev \
 foomatic-db-engine libtasn1-dev gmp-dev tar"
 SPLIT="gutenprint-dev"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	./configure \
@@ -20,8 +22,9 @@ compile_rules() {
 		--with-cups \
 		--disable-test \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make install 2>&1 | grep -v "rmdir: '/home/slitaz/wok/gutenprint/"
+	make install
 }
 
 genpkg_rules() {

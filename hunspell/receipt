@@ -14,22 +14,19 @@ WGET_URL="https://github.com/hunspell/hunspell/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="automake libtool gettext"
 SPLIT="hunspell-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -vfi &&
 	rm $src/po/stamp-po &&
 
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -j1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		hunspell) copy @std ;;
-		hunspell-dev) copy @dev ;;
+		hunspell) copy @std;;
+		*-dev)    copy @dev;;
 	esac
 }

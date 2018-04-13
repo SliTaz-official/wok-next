@@ -1,31 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lcdnurse"
 VERSION="1.0.3"
 CATEGORY="misc"
-SHORT_DESC="'heal' dead pixels on your LCD screen."
+SHORT_DESC="'heal' dead pixels on your LCD screen"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://congelli.eu/prog_info_lcdnurse_page_1.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://congelli.eu/download/$PACKAGE/$TARBALL"
 
-DEPENDS="wxWidgets28"
 BUILD_DEPENDS="wxWidgets28-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="wxWidgets28"
 }

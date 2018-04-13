@@ -3,7 +3,8 @@
 PACKAGE="libdnet"
 VERSION="1.12"
 CATEGORY="network"
-SHORT_DESC="A simplified, portable interface to serveral low-level networking routines"
+SHORT_DESC="A simplified, portable interface to serveral low-level networking \
+routines"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
 WEB_SITE="http://code.google.com/p/libdnet/"
@@ -15,12 +16,10 @@ BUILD_DEPENDS="python python-dev"
 SPLIT="libdnet-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

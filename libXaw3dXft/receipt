@@ -15,20 +15,18 @@ BUILD_DEPENDS="xorg-libX11-dev xorg-libXt-dev xorg-libXmu-dev xorg-libXext-dev \
 xorg-libXft-dev xorg-libXpm-dev"
 SPLIT="libXaw3dXft-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-arrow-scrollbars \
 		--enable-gray-stipples \
 		--enable-multiplane-bitmaps \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libXaw3dXft)
 			copy @std

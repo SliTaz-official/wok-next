@@ -17,10 +17,12 @@ SPLIT="libee-dev"
 compile_rules() {
 	# Patch from http://www.gossamer-threads.com/lists/rsyslog/users/4600
 	patch -p 1 < $stuff/libee-build-fix.patch
+
 	./configure \
 		--disable-testbench \
 		$CONFIGURE_ARGS &&
-	make -j 1 &&
+	fix libtool &&
+	make -j1 &&
 	make install
 }
 

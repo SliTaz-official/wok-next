@@ -17,20 +17,17 @@ gstreamer1-dev gtk+3-dev"
 SPLIT="libcanberra-gnome libcanberra-gstreamer1 libcanberra-gtk2 \
 libcanberra-gtk3 libcanberra libcanberra-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-gtk \
 		--disable-oss \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -j1 docdir=/usr/share/doc/libcanberra-$VERSION install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-gnome)
 			copy gnome-settings-daemon-3.0/ gdm/ gnome/ canberra-boot

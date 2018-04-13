@@ -7,6 +7,7 @@ SHORT_DESC="A portable library for SSA/ASS subtitles rendering"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
 WEB_SITE="https://github.com/libass/libass"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libass.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/libass/libass/releases/download/$VERSION/$TARBALL"
@@ -14,16 +15,14 @@ WGET_URL="https://github.com/libass/libass/releases/download/$VERSION/$TARBALL"
 BUILD_DEPENDS="yasm-dev freetype-dev fribidi-dev fontconfig-dev"
 SPLIT="libass-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libass.html
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libass)
 			copy @std

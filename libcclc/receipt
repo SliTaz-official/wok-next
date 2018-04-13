@@ -14,15 +14,14 @@ WGET_URL="$SF_MIRROR/ccl/$TARBALL"
 BUILD_DEPENDS="file openssl-dev"
 SPLIT="libcclc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libcclc)
 			copy @std

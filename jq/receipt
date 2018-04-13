@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jq"
 VERSION="1.4"
@@ -6,24 +6,19 @@ CATEGORY="utilities"
 SHORT_DESC="jq is a lightweight and flexible command-line JSON processor"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://stedolan.github.io/jq/"
-WGET_URL="${WEB_SITE}download/source/$TARBALL"
-TAGS="json"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="${WEB_SITE}download/source/$TARBALL"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	TAGS="json"
 }

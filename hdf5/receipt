@@ -17,8 +17,11 @@ SPLIT="hdf5-dev"
 compile_rules() {
 	sed -i 's|// .*|/* & */|' test/th5s.c tools/lib/h5tools_str.c
 	sed -i 's/Using_CMake.txt/USING_CMake.txt/' src/CMakeLists.txt
+
 	./configure $CONFIGURE_ARGS &&
-	make all && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make all &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

@@ -14,20 +14,17 @@ WGET_URL="$GNOME_MIRROR/murrine/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev libxml2-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		--enable-animation \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	TAGS="gtk2"
 	DEPENDS="gtk+"

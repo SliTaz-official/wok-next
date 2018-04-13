@@ -1,25 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="inotify-tools"
 VERSION="3.14"
 CATEGORY="system-tools"
-SHORT_DESC="Set of programs providing a simple interface to inotify."
+SHORT_DESC="Set of programs providing a simple interface to inotify"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/rvoicilas/inotify-tools/wiki"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/downloads/rvoicilas/inotify-tools/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure && make && make install
+compile_rules() {
+	./configure &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	copy @std
 }

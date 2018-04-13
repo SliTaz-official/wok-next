@@ -20,14 +20,14 @@ SPLIT="libgcrypt-dev"
 compile_rules() {
 	case "$ARCH" in
 		arm)
-			#LIBS="-L/cross/arm/sysroot/usr/lib -lgpg-error"
-			./configure \
-				--build=i486-slitaz-linux \
-				--host=arm-slitaz-linux-gnueabi;;
-		*)
-			./configure $CONFIGURE_ARGS;;
-	esac &&
-	make && make install
+			CONFIGURE_ARGS="--build=i486-slitaz-linux \
+							--host=arm-slitaz-linux-gnueabi";;
+	esac
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

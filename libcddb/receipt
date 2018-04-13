@@ -7,22 +7,21 @@ SHORT_DESC="C library to access data on a CDDB server freedb.org"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://libcddb.sourceforge.net/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcddb.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 SPLIT="libcddb-utils libcddb-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcddb.html
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libcddb) copy *.so*;;
 		*-utils) copy bin/; CAT="multimedia|utilities";;

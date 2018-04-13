@@ -14,19 +14,15 @@ WGET_URL="https://github.com/Xiche/libdaq/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="automake libtool flex bison libpcap-dev"
 SPLIT="libdaq-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap &&
-	./configure \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make -j1 &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libdaq)
 			copy @std

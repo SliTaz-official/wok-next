@@ -7,6 +7,7 @@ SHORT_DESC="GNU Compact Disc Input and Control Library"
 MAINTAINER="rj.rohit@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/libcdio/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcdio.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://ftp.gnu.org/gnu/libcdio/$TARBALL"
@@ -14,16 +15,14 @@ WGET_URL="https://ftp.gnu.org/gnu/libcdio/$TARBALL"
 BUILD_DEPENDS="perl libcddb-dev ncurses-dev"
 SPLIT="libcdio-utils libcdio-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcdio.html
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libcdio) copy *.so*;;
 		*-utils) copy bin/; DEPENDS="libcdio libcddb ncurses";;

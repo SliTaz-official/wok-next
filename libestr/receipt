@@ -14,20 +14,15 @@ WGET_URL="http://libestr.adiscon.com/files/download/$TARBALL"
 SPLIT="libestr-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libestr)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.a* $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			;;
+		libestr) copy @std;;
+		*-dev)   copy @dev;;
 	esac
 }

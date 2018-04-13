@@ -14,18 +14,17 @@ WGET_URL="https://github.com/hyperrealm/libconfig/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="texinfo"
 SPLIT="libconfig-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# See: https://github.com/hyperrealm/libconfig/issues/47
 	rm lib/scanner.c
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libconfig) copy @std;;
 		*-dev)     copy @dev;;

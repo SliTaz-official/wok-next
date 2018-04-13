@@ -14,20 +14,18 @@ WGET_URL="https://ftp.gnu.org/gnu/libcdio/$TARBALL"
 BUILD_DEPENDS="libcdio-dev"
 SPLIT="libcdio-paranoia-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-cpp-progs \
 		--disable-static \
 		--disable-example-progs \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libcdio-paranoia)
 			copy @std

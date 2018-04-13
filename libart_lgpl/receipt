@@ -13,19 +13,16 @@ WGET_URL="http://ftp.gnome.org/pub/GNOME/sources/libart_lgpl/${VERSION%.*}/$TARB
 
 SPLIT="libart_lgpl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libart_lgpl) copy @std;;
 		*-dev)       copy @dev;;

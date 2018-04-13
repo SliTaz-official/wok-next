@@ -1,37 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="htop"
 VERSION="2.0.2"
 CATEGORY="system-tools"
-SHORT_DESC="Interactive process viewer."
+SHORT_DESC="Interactive process viewer"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://htop.sourceforge.net/"
-WGET_URL="http://hisham.hm/htop/releases/$VERSION/$TARBALL"
-TAGS="monitor system"
 
-DEPENDS="ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://hisham.hm/htop/releases/$VERSION/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev"
 
-# Handle cross comilation
-case "$ARCH" in
-	arm) CROSS_ARGS="--enable-native_affinity=no" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm) ARCH_ARGS="--enable-native_affinity=no";;
+	esac
 
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
 		--enable-unicode \
-		$CONFIGURE_ARGS $CROSS_ARGS &&
-	make && make install
-	
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/* $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
+	TAGS="monitor system"
 }

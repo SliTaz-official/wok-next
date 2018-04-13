@@ -14,19 +14,17 @@ WGET_URL="https://www.openprinting.org/download/ijs/download/$TARBALL"
 BUILD_DEPENDS="gfortran"
 SPLIT="ijs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-shared \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		ijs)   copy @std;;
 		*-dev) copy @dev;;

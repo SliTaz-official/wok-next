@@ -1,34 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lftp"
 VERSION="4.8.3"
 CATEGORY="network"
-SHORT_DESC="Small but powerful ftp client"
+SHORT_DESC="Small but powerful FTP client"
 MAINTAINER="mimas@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://lftp.yar.ru/"
-WGET_URL="${WEB_SITE}ftp/$TARBALL"
-CROSS="bug: failed at test"
 
-DEPENDS="gmp readline expat gnutls gcc-lib-base"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="${WEB_SITE}ftp/$TARBALL"
+
 BUILD_DEPENDS="gmp-dev ncurses-dev readline-dev expat-dev gperf gnutls-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+CROSS="bug: failed at test"
+
+compile_rules() {
 	./configure \
 		--with-gnutls \
 		--without-openssl \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM &&
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gmp readline expat gnutls gcc-lib-base"
 }

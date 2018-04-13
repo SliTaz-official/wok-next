@@ -13,11 +13,16 @@ WGET_URL="${WEB_SITE}${TARBALL}"
 
 BUILD_DEPENDS="libdvdcss-dev autoconf automake libtool"
 SPLIT="libdvdread-dev"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	patch -Np1 -i $stuff/DVDFileStat.patch
-	./autogen.sh $CONFIGURE_ARGS 2>&1 | grep -v /libtool &&
-	make && make install
+
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

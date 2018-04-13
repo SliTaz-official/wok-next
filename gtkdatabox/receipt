@@ -24,7 +24,10 @@ compile_rules() {
 	find . -iname 'Makefile.in' -exec \
 	sed -e '/-D[A-Z_]*DISABLE_DEPRECATED/d' -i {} + && \
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

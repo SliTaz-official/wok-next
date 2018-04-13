@@ -1,0 +1,75 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libdbusmenu"
+VERSION="16.04.0"
+CATEGORY="meta"
+SHORT_DESC="Library for passing menus over DBus"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3 LGPL2.1 LGPL3"
+WEB_SITE="https://launchpad.net/libdbusmenu"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://launchpad.net/libdbusmenu/${VERSION%.*}/$VERSION/+download/$TARBALL"
+
+BUILD_DEPENDS="intltool gtk-doc gtk+3-dev gtk+-dev json-glib-dev vala \
+gobject-introspection-dev"
+SPLIT="libdbusmenu-gtk2-apps libdbusmenu-gtk2 libdbusmenu-gtk2-dev \
+libdbusmenu-gtk3-apps:3 libdbusmenu-gtk3:3 libdbusmenu-gtk3-dev:3"
+
+compile_rules() {
+	case $SET in
+		'') SET_ARGS='--with-gtk=2';;
+		3)  SET_ARGS='--with-gtk=3';;
+	esac
+
+	./configure \
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make -j1 DESTDIR=$install install # please keep DESTDIR, or it will be partial installed
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libdbusmenu-gtk2-apps)
+			copy libexec/
+			DEPENDS="libdbusmenu-gtk2 xorg-libX11"
+			CAT="development|GTK+2 applications"
+			;;
+		libdbusmenu-gtk2)
+			copy @std @rm
+			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ \
+			json-glib pango"
+			CAT="x-window|GTK+2"
+			;;
+		libdbusmenu-gtk2-dev)
+			copy @dev
+			DEPENDS="libdbusmenu-gtk2-apps libdbusmenu-gtk2 \
+			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
+			gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev json-glib-dev \
+			libffi-dev libpng16-dev libxml2-dev pango-dev pcre-dev \
+			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
+			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
+			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			CAT="development|GTK+2 development files"
+			;;
+
+		libdbusmenu-gtk3-apps)
+			copy libexec/ # note "gtk+" in depends
+			DEPENDS="glib gtk+ json-glib libdbusmenu-gtk3 xorg-libX11"
+			CAT="development|GTK+3 applications"
+			;;
+		libdbusmenu-gtk3)
+			copy @std @rm
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 json-glib pango"
+			CAT="x-window|GTK+3"
+			;;
+		libdbusmenu-gtk3-dev)
+			copy @dev
+			DEPENDS="libdbusmenu-gtk3-apps libdbusmenu-gtk3 \
+			gdk-pixbuf-dev gtk+3-dev json-glib-dev"
+			CAT="development|GTK+3 development files"
+			;;
+	esac
+}
