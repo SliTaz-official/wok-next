@@ -11,14 +11,15 @@ WEB_SITE="http://www.gtk.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gnutls-dev gsettings-desktop-schemas"
 BUILD_DEPENDS_arm="glib-dev gnutls-dev"
+BUILD_DEPENDS="intltool gnutls-dev gsettings-desktop-schemas"
 
 compile_rules() {
 	./configure \
 		--with-ca-certificates=/etc/ssl/ca-bundle.crt \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

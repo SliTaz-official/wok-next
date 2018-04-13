@@ -22,10 +22,12 @@ compile_rules() {
 	./configure \
 		--without-doxygen \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	sed -i 's|LIBS = -lgavl|LIBS = -lgavl -ldl -lpthread -lgtk-x11-2.0 -lgobject-2.0 -lglib-2.0 -lxml2 -lgdk-x11-2.0 -lgdk_pixbuf-2.0 -lX11|' \
 		apps/*/Makefile lib/Makefile tests/Makefile &&
 	sed -i 's|ln -sf $(DESTDIR)$(pkgdatadir)|ln -sf $(pkgdatadir)|' icons/Makefile &&
-	make && make -j 1 install
+	make &&
+	make -j 1 install
 }
 
 genpkg_rules() {

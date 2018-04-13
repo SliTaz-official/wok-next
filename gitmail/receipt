@@ -1,33 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gitmail"
 VERSION="0.4"
 CATEGORY="network"
-SHORT_DESC="Ghost In The Mail is a simple mail client."
+SHORT_DESC="Ghost In The Mail is a simple mail client"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gitmail.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk+ xorg-libXdamage"
 BUILD_DEPENDS="gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lpthread"
-	./configure --prefix=/usr $CONFIGURE_ARGS 2>&1 | grep -v /config.rpath &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR \
-	gitmaildocdir=/usr/share/doc/GhostInTheMail \
-	install
+	make \
+		DESTDIR=$DESTDIR \
+		gitmaildocdir=/usr/share/doc/GhostInTheMail \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ xorg-libXdamage"
 }

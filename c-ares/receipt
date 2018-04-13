@@ -14,6 +14,9 @@ WGET_URL="${WEB_SITE}download/$TARBALL"
 SPLIT="c-ares-dev"
 
 compile_rules() {
+	export CFLAGS=${CFLAGS/-D_GLIBCXX_USE_C99_MATH=1/}
+	export CPPFLAGS="$CPPFLAGS -D_GLIBCXX_USE_C99_MATH=1"
+
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&

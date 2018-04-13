@@ -11,10 +11,10 @@ WEB_SITE="http://www.gtk.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gettext tiff-dev libpng16-dev libjpeg-turbo-dev \
-xorg-libX11-dev gobject-introspection-dev gtk-doc util-linux-mount-dev"
 BUILD_DEPENDS_arm="glib-dev gettext tiff-dev libpng16-dev libjpeg-turbo-dev \
 xorg-libX11-dev gtk-doc"
+BUILD_DEPENDS="glib-dev gettext tiff-dev libpng16-dev libjpeg-turbo-dev \
+xorg-libX11-dev gobject-introspection-dev gtk-doc util-linux-mount-dev"
 SPLIT="gdk-pixbuf-dev"
 
 compile_rules() {
@@ -28,9 +28,11 @@ compile_rules() {
 	./configure \
 		--with-x11 \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
-	mkdir -p $install/usr/lib/gdk-pixbuf-2.0/2.10.0 &&
+	mkdir -p $install/usr/lib/gdk-pixbuf-2.0/2.10.0
 	touch    $install/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 }
 

@@ -11,7 +11,8 @@ WEB_SITE="http://linuxbrit.co.uk/feh/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://linuxbrit.co.uk/downloads/$TARBALL"
 
-BUILD_DEPENDS="imlib2-dev imlib2 xorg-xproto freetype-dev xorg-libXext-dev"
+BUILD_DEPENDS="gfortran imlib2-dev imlib2 xorg-xproto freetype-dev \
+xorg-libXext-dev"
 SPLIT="giblib-dev"
 
 compile_rules() {
@@ -20,9 +21,8 @@ compile_rules() {
 	esac
 
 	sed -i 's|/doc|/share&|' Makefile*
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

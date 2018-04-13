@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="binutils m4 ncurses-dev readline-dev texinfo"
-SPLIT="gmp gmp-dev"
+SPLIT="gmp-dev"
 
 compile_rules() {
 	# Create generic libraries
@@ -24,8 +24,10 @@ compile_rules() {
 		--enable-cxx \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	# -j > 1 make install fails.
-	make && make html && make install && make install-html
+	make && make html &&
+	make install && make install-html
 }
 
 testsuite() {

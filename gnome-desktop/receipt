@@ -25,6 +25,7 @@ compile_rules() {
 		--disable-static \
 		--with-gnome-distributor="SliTaz GNU/Linux" \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -32,11 +33,7 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		gnome-desktop)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			#cp -a $install/etc $fs
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			#cp -a $install/usr/share/dbus-1 $fs/usr/share
+			copy bin/ *.so*
 			DEPENDS="GConf gtk+ startup-notification"
 			;;
 		*-dev)

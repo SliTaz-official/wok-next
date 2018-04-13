@@ -13,22 +13,19 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gfortran intltool perl-xml-parser gtk+-dev file"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cp $stuff/*.po* $src/po
 	sed -i 's|@CATALOGS@|ru.gmo|' po/Makefile.in.in
 
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	COOKOPTS="!pixmaps"
 	copy bin/
-	GENERIC_PIXMAPS="no"
 	DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+ libffi \
 	libharfbuzz liblzma libpng16 libxml2 pango pcre util-linux-blkid \
 	util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau xorg-libXdmcp \

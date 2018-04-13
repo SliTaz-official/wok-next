@@ -25,6 +25,7 @@ compile_rules() {
 		--disable-shave \
 		--disable-unique \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make || return 1
 	sed -i 's|GNOME;AudioVideo;|GTK;AudioVideo;Player;|' data/$PACKAGE.desktop
 	make install
@@ -33,18 +34,12 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		gmpc)
-			mkdir -p $fs/usr/share/icons/hicolor
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/share/$PACKAGE $fs/usr/share
-			cp -a $install/usr/share/icons/hicolor/16x16 \
-				$fs/usr/share/icons/hicolor
+			copy @std
 			DEPENDS="libglade libmpd curl xorg-libSM libsoup libsexy mpd \
 			sqlite3 libtasn1"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

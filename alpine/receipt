@@ -14,6 +14,8 @@ WGET_URL="ftp://ftp.cac.washington.edu/alpine/$TARBALL"
 BUILD_DEPENDS="openssl10-dev pam-dev ncurses-dev gfortran gettext"
 
 compile_rules() {
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0 -lcrypto"
+
 	CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0" \
 	./configure \
 		--without-tcl \
