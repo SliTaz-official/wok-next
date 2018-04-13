@@ -7,26 +7,23 @@ SHORT_DESC="Lightweight image viewer"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/GPicView"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/gpicview.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
 BUILD_DEPENDS="intltool gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/gpicview.html
+compile_rules() {
 	sed -i 's|Utility;||' gpicview.desktop.in
 
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	# skip pixmaps and icons (found in the icon theme)
 	copy bin/ *.desktop *.ui
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libjpeg-turbo \

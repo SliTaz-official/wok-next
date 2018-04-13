@@ -11,28 +11,25 @@ WEB_SITE="https://gstreamer.freedesktop.org/"
 TARBALL="gstreamer-$VERSION.tar.xz"
 WGET_URL="https://gstreamer.freedesktop.org/src/gstreamer/$TARBALL"
 
-BUILD_DEPENDS="gettext perl valgrind-dev"
 BUILD_DEPENDS_arm="glib-dev libxml2-dev pkg-config"
+BUILD_DEPENDS="gettext perl valgrind-dev"
 SPLIT="gstreamer1-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
 	./configure \
 		--with-package-name="GStreamer (1.0)" \
 		--with-package-origin="http://www.slitaz.org/" \
 		$CONFIGURE_ARGS &&
-	# Suppress installing errors (fatal for cooker)
-	sed -i 's| \$(builddir)/html/\*\.sgml||' docs/gst/Makefile \
-		docs/libs/Makefile docs/plugins/Makefile &&
-	make $MAKEFLAGS && make install &&
+	fix libtool &&
+	make $MAKEFLAGS &&
+	make install || return 1
 
 	ln -s gstreamer-1.0/gst $install/usr/include/gst
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gstreamer1)
 			copy @std

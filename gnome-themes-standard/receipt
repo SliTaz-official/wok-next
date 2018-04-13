@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-themes-standard"
-VERSION="3.20.2"
+VERSION="3.22.3"
 CATEGORY="customization"
 SHORT_DESC="Various components of the default GNOME theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/GNOME/gnome-themes-standard"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/gnome-themes-standard.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 
-DEPENDS="gtk+"
 BUILD_DEPENDS="automake glib-dev intltool gtk+3-dev librsvg-dev gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	while read i; do patch -p1 -i $stuff/patches/$i; done < $stuff/patches/series
-
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy icons/ themes/ *.so
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+"
 }

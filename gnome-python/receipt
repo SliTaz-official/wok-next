@@ -9,7 +9,7 @@ LICENSE="LGPL2"
 WEB_SITE="http://www.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="python-dev pygobject-dev pygtk-dev libgnome-dev audiofile \
 esound libxml2-dev libgcrypt-dev"
@@ -21,6 +21,7 @@ compile_rules() {
 		--sysconfdir=/etc/gnome \
 		--disable-pam \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }

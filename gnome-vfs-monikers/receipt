@@ -19,12 +19,11 @@ compile_rules() {
 	export CFLAGS="-I/usr/include/libbonobo-2.0 -I/usr/include/glib-2.0 \
 -I/usr/lib/glib-2.0/include -I/usr/include/bonobo-activation-2.0 \
 -I/usr/include/orbit-2.0 -I/usr/include/gnome-vfs-2.0"
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

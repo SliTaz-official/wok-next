@@ -1,29 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gphoto2"
 VERSION="2.5.15"
 CATEGORY="graphics"
-SHORT_DESC="digital camera download and access program"
+SHORT_DESC="Digital camera download and access program"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.gphoto.org" 
-WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
-TAGS="camera photo"
+WEB_SITE="http://www.gphoto.org/"
 
-DEPENDS="libexif jpeg libgphoto2 readline popt libltdl ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
+
 BUILD_DEPENDS="jpeg-dev libgphoto2-dev readline readline-dev popt popt-dev \
 libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libexif jpeg libgphoto2 readline popt libltdl ncurses"
+	TAGS="camera photo"
 }

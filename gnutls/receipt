@@ -19,7 +19,6 @@ libidn-dev unbound-dev p11-kit-dev"
 SPLIT="libgnutls gnutls-dev"
 
 compile_rules() {
-	# Handle cross compilation.
 	case "$ARCH" in
 		arm*)
 			ARCH_ARGS="--with-libgcrypt-prefix=/cross/$ARCH/sysroot/usr \
@@ -30,7 +29,9 @@ compile_rules() {
 	./configure \
 		--enable-openssl-compatibility \
 		--with-default-trust-store-file="/etc/ssl/ca-bundle.crt" \
-		$CONFIGURE_ARGS ${ARCH_ARGS} &&
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install &&
 	make -C doc/reference install-data-local
 }

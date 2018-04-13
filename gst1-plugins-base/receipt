@@ -11,30 +11,27 @@ WEB_SITE="https://gstreamer.freedesktop.org/"
 TARBALL="gst-plugins-base-$VERSION.tar.xz"
 WGET_URL="https://gstreamer.freedesktop.org/src/gst-plugins-base/$TARBALL"
 
-BUILD_DEPENDS="gettext valgrind-dev python gstreamer1-dev \
-orc-dev xorg-libX11-dev xorg-libXv-dev alsa-lib-dev cdparanoia-III-dev \
-libvorbis-dev libogg-dev opus-dev pango-dev libtheora-dev"
 BUILD_DEPENDS_arm="gstreamer1-dev pango-dev alsa-lib-dev libogg-dev \
 libtheora-dev libtheora-enc libvorbis-dev udev-dev xorg-libXv-dev \
 xorg-libXvMC-dev util-linux-uuid-dev orc-dev opus-dev"
+BUILD_DEPENDS="gettext valgrind-dev python gstreamer1-dev \
+orc-dev xorg-libX11-dev xorg-libXv-dev alsa-lib-dev cdparanoia-III-dev \
+libvorbis-dev libogg-dev opus-dev pango-dev libtheora-dev"
 SPLIT="gst1-plugins-base-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
 	./configure \
 		--with-package-name="GStreamer Base Plugins (1.0)" \
 		--with-package-origin="http://www.slitaz.org/" \
 		$CONFIGURE_ARGS &&
-	# Suppress installing errors (fatal for cooker)
-	sed -i 's| \$(builddir)/html/\*\.sgml||' \
-		docs/libs/Makefile docs/plugins/Makefile &&
-	make $MAKEFLAGS && make install
+	fix libtool &&
+	make $MAKEFLAGS &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		gst1-plugins-base)
 			copy @std
