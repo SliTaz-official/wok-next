@@ -14,20 +14,19 @@ WGET_URL="$SF_MIRROR/beaver-editor/$TARBALL"
 BUILD_DEPENDS="intltool gtk+-dev"
 SPLIT="beaver-plugins"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|dir/po/\*\.po|& 2>/dev/null|' configure
 
-	./configure $CONFIGURE_ARGS && make && make install &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	# Custom default configuration
 	cp $stuff/beaver.conf.default $install/usr/share/beaver/resource/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		beaver)
 			copy beaver resource/

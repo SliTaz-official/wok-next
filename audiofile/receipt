@@ -14,19 +14,16 @@ WGET_URL="http://audiofile.68k.org/$TARBALL"
 BUILD_DEPENDS="alsa-lib-dev"
 SPLIT="audiofile-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|-1 <<|-1U <<|' libaudiofile/modules/SimpleModule.h
 
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		audiofile)
 			copy @std

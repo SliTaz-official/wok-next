@@ -14,14 +14,14 @@ WGET_URL="https://www.kernel.org/pub/linux/utils/cryptsetup/v${VERSION%.*}/$TARB
 BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev popt-dev libgcrypt-dev"
 SPLIT="cryptsetup-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		--enable-cryptsetup-reencrypt \
-	$CONFIGURE_ARGS &&
-	make && make install
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 # Rules to gen a SliTaz package suitable for Tazpkg.

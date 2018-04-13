@@ -18,7 +18,9 @@ compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$install install || return 1
+	fix libtool &&
+	make &&
+	make DESTDIR=$install install || return 1
 
 	cook_pick_docs doc/*.html doc/*.css doc/*.png
 }

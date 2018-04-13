@@ -7,28 +7,26 @@ SHORT_DESC="Open source MPEG-4 and MPEG-2 AAC encoder"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.audiocoding.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/faac.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/faac/$TARBALL"
 
 SPLIT="faac-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/faac.html
-	sed -i -e '/obj-type/d' -e '/Long Term/d' frontend/main.c &&
+compile_rules() {
+	sed -i '/obj-type/d; /Long Term/d' frontend/main.c
 
 	CFLAGS=-std=c99 CXXFLAGS=-std=c++98 \
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		faac)  copy @std; TAGS="mp4 mpeg encoder";;
 		*-dev) copy @dev;;

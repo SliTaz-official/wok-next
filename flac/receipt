@@ -7,7 +7,6 @@ SHORT_DESC="FLAC stands for Free Lossless Audio Codec"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="http://flac.sourceforge.net/"
-TAGS="codec audio"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://downloads.xiph.org/releases/flac/$TARBALL"
@@ -16,22 +15,22 @@ TARBALL_SHA256="91cfc3ed61dc40f47f050a109b08610667d73477af6ef36dcad31c31a4a8d53f
 BUILD_DEPENDS="libogg-dev"
 SPLIT="flac-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# gcc4 fix: http://bugs.gentoo.org/199579
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		flac)
 			copy @std
 			DEPENDS="libogg"
+			TAGS="codec audio"
 			;;
-		flac-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="flac libogg-dev"
 			;;

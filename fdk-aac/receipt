@@ -13,19 +13,16 @@ WGET_URL="$SF_MIRROR/opencore-amr/$TARBALL"
 
 SPLIT="fdk-aac-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-aac) copy @std;;
 		*-dev) copy @dev;;

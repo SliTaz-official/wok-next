@@ -1,46 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="codeblocks"
 VERSION="10.05"
 CATEGORY="development"
-SHORT_DESC="An open source, cross platform, free C++ IDE."
+SHORT_DESC="An open source, cross platform, free C++ IDE"
 MAINTAINER="stefanossofroniou542@gmail.com"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
 WEB_SITE="http://www.codeblocks.org/"
-WGET_URL="http://download.berlios.de/codeblocks/$TARBALL"
-TAGS="IDE"
 
-DEPENDS="wxWidgets28"
+TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
+WGET_URL="http://download.berlios.de/codeblocks/$TARBALL"
+
 BUILD_DEPENDS="wxWidgets28-dev xorg-libXdmcp-dev xorg-libXau-dev expat-dev \
 autoconf automake libtool zip gnome-icon-theme hunspell-dev gamin-dev \
 libboost-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	
+
 	busybox patch -p1 -i $stuff/glib.u
+
 	./configure \
 		--with-contrib-plugins="all, -help" \
-		--prefix=/usr \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/include $fs/usr
-	cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/*.*a $fs/usr/lib
-	cp -a $install/usr/lib/codeblocks $fs/usr/lib
-	cp -a $install/usr/lib/wxSmithContribItems $fs/usr/lib
-	cp -a $install/usr/share/codeblocks $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="wxWidgets28"
+	TAGS="IDE"
 }

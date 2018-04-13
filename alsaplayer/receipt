@@ -13,14 +13,12 @@ WGET_URL="${WEB_SITE}$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev flac-dev"
 BUILD_DEPENDS_arm="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev"
-SPLIT="alsaplayer-scopes alsaplayer-dev"
+SPLIT="alsaplayer-scopes alsaplayer alsaplayer-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	i="$src/interface/gtk2/pixmaps"
-	cp -f	$i/note.xpm	$i/logo.xpm
-	sed -i	's/note/logo/'	$i/logo.xpm
+	cp  -f $i/note.xpm    $i/logo.xpm
+	sed -i 's/note/logo/' $i/logo.xpm
 
 	./configure \
 		--enable-gtk2 \
@@ -28,28 +26,25 @@ compile_rules()
 		--disable-jack \
 		--disable-esd \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	# Chmod install-sh to avoid install error.
 	chmod 755 install-sh &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		alsaplayer)
-			copy @std
-			# Remove scopes
-			rm -rf $fs/usr/lib/alsaplayer/scopes2
-			DEPENDS="gtk+ alsa-lib libmad libogg libvorbis xorg-libXdamage"
-			TAGS="music audio player mp3 ogg flac"
-			SUGGESTED="alsaplayer-scopes libid3tag flac"
-			;;
 		alsaplayer-scopes)
 			copy scopes2/*.so
 			CAT="multimedia|visualisations"
 			DEPENDS="alsaplayer"
+			;;
+		alsaplayer)
+			copy @std @rm
+			DEPENDS="gtk+ alsa-lib libmad libogg libvorbis xorg-libXdamage"
+			TAGS="music audio player mp3 ogg flac"
+			SUGGESTED="alsaplayer-scopes libid3tag flac"
 			;;
 		*-dev) copy @dev;;
 	esac

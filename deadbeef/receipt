@@ -11,11 +11,6 @@ WEB_SITE="http://deadbeef.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev alsa-lib-dev libogg-dev libvorbis-dev libmad-dev \
-libsndfile-dev libsamplerate-dev flac-dev curl-dev libcdio-dev \
-libcddb-dev intltool libsndfile libcurl yasm libzip-dev util-linux-uuid-dev"
-SPLIT="deadbeef-plugins deadbeef-dev"
-
 BUILD_DEPENDS="gettext intltool yasm zlib-dev jansson-dev gtk+-dev \
 alsa-lib-dev dbus-dev curl-dev libmad-dev libvorbis-dev libogg-dev flac-dev \
 libsndfile-dev libcdio-dev libcddb-dev cdparanoia-III-dev xorg-libX11-dev \
@@ -23,7 +18,10 @@ imlib2-dev libjpeg-turbo-dev libpng16-dev libsamplerate-dev faad2-dev "
 SPLIT="deadbeef-plugins deadbeef-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

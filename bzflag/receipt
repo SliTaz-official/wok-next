@@ -1,34 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bzflag"
 VERSION="2.4.0"
 CATEGORY="games"
-SHORT_DESC="A multiplayer 3D tank battle game."
+SHORT_DESC="A multiplayer 3D tank battle game"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://bzflag.org"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="curl mesa libsdl glew"
 BUILD_DEPENDS="curl-dev mesa-dev libsdl-dev glew-dev util-linux-uuid-dev \
 expat-dev xorg-libxshmfence-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--with-glew \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/bzflag $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="curl mesa libsdl glew"
 }
-

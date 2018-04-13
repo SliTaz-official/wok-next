@@ -7,22 +7,21 @@ SHORT_DESC="A portable ASCII art graphic library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2"
 WEB_SITE="http://aa-project.sourceforge.net/aalib/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/aa-project/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev xorg-libXt-dev xorg-libX11-dev"
 SPLIT="aalib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		aalib)
 			copy @std

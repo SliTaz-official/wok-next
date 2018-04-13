@@ -18,10 +18,11 @@ compile_rules() {
 	./configure \
 		--disable-python \
 		$CONFIGURE_ARGS &&
-	make && make -j1 install || return 1
+	fix libtool &&
+	make &&
+	make -j1 install || return 1
 
-	mkdir -p $install/etc
-	cp $stuff/asound.conf $install/etc
+	install -Dm644 $stuff/asound.conf $install/etc/asound.conf
 }
 
 genpkg_rules() {

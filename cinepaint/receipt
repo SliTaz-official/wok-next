@@ -19,11 +19,12 @@ python-dev glu-dev xorg-libXmu-dev xorg-libXext-dev" # libpng12-dev
 compile_rules() {
 	sh ./autogen.sh
 	./configure \
-		--prefix=/usr \
 		--enable-gtk2 \
 		--disable-print \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

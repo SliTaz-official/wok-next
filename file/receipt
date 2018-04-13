@@ -12,7 +12,7 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/file.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/file/file/archive/FILE${VERSION/./_}.tar.gz"
 
-BUILD_DEPENDS_arm=""
+BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="automake libtool zlib-dev python"
 SPLIT="libmagic libmagic-dev python-magic"
 
@@ -21,6 +21,7 @@ compile_rules() {
 	./configure \
 		--libdir=/usr/lib \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install || return 1
 
 	rmdir --ignore-fail-on-non-empty $install/usr/share/man/man5/

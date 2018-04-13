@@ -25,7 +25,10 @@ compile_rules() {
 	# Fix a problem introduced with glibc-2.26
 	sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
 
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	ln -s flex $install/usr/bin/lex
 }

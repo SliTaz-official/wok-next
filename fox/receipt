@@ -3,38 +3,29 @@
 PACKAGE="fox"
 VERSION="1.6.49"
 CATEGORY="x-window"
-SHORT_DESC="Fox toolkit."
+SHORT_DESC="Fox toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.fox-toolkit.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.fox-toolkit.org/pub/$TARBALL"
 
+BUILD_DEPENDS_arm="jpeg-dev libpng16-dev tiff-dev xorg-libXft-dev"
 BUILD_DEPENDS="libpng16-dev jpeg-dev tiff-dev xorg-libXft-dev mesa-dev \
 glu-dev freetype-dev fontconfig-dev expat-dev libxml2-dev xorg-dev \
 xorg-libxshmfence-dev"
 SPLIT="adie calculator fox-dev fox-doc pathfinder shutterbug"
 
-# Handle SliTaz arch.
-case "$SLITAZ_ARCH" in
-	arm) BUILD_DEPENDS="libjpeg libpng16 tiff xorg-libXft" ;;
-esac
+compile_rules() {
+	case "$ARCH" in
+		arm) ARCH_ARGS="--with-opengl=no";;
+	esac
 
-# Handle cross compilation.
-case "$ARCH" in
-	arm) 
-		BUILD_DEPENDS="jpeg-dev libpng16-dev tiff-dev xorg-libXft-dev" 
-		ARCH_ARGS="--with-opengl=no" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
 		--with-xft \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
@@ -43,63 +34,45 @@ testsuite() {
 	readelf -h $install/usr/bin/adie || exit 1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	fox)
-		SUGGESTED="adie calculator pathfinder shutterbug"
-		DEPENDS="libpng16 jpeg tiff xorg-libXft bzlib mesa glu \
+		fox)
+			copy libCHART-*.so* libFOX-*.so*
+			SUGGESTED="adie calculator pathfinder shutterbug"
+			DEPENDS="libpng16 jpeg tiff xorg-libXft bzlib mesa glu \
 			xorg-libXcursor xorg-libXrandr xorg-libXxf86vm \
 			xorg-libXdamage libdrm jbigkit"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	adie)
-		CAT="x-window|Advanced text editor using the Fox Toolkit."
-		TAGS="text-editor"
-		DEPENDS="fox"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		copy_generic_files
-		;;
-	calculator)
-		CAT="utilities|Calculator using the Fox Toolkit."
-		TAGS="calculator"
-		DEPENDS="fox"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		copy_generic_files
-		;;
-	fox-dev)
-		DEPENDS="fox"
-		mkdir -p $fs/usr/lib $fs/usr/bin
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/bin/fox-config $fs/usr/bin
-		cp -a $install/usr/bin/reswrap $fs/usr/bin
-		chmod +x $fs/usr/bin/*
-		;;
-	fox-doc)
-		CAT="misc|Fox Toolkit documentation."
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/doc $fs/usr/share
-		;;
-	pathfinder)
-		CAT="x-window|Fast and light file manager using the Fox Toolkit."
-		TAGS="file-manager"
-		DEPENDS="fox"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/PathFinder $fs/usr/bin
-		copy_generic_files
-		;;
-	shutterbug)
-		CAT="x-window|Screenshot application from the Fox Toolkit."
-		DEPENDS="fox"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/$PACKAGE $fs/usr/bin
-		copy_generic_files
-		;;
+			;;
+		adie)
+			copy adie Adie.stx
+			CAT="x-window|advanced text editor"
+			TAGS="text-editor"
+			DEPENDS="fox"
+			;;
+		calculator)
+			copy calculator
+			CAT="utilities|calculator"
+			TAGS="calculator"
+			DEPENDS="fox"
+			;;
+		fox-dev)
+			copy @dev reswrap
+			DEPENDS="fox"
+			;;
+		fox-doc)
+			copy doc/
+			CAT="misc|documentation"
+			;;
+		pathfinder)
+			copy PathFinder
+			CAT="x-window|fast and light file manager"
+			TAGS="file-manager"
+			DEPENDS="fox"
+			;;
+		shutterbug)
+			copy shutterbug
+			CAT="x-window|screenshot application"
+			DEPENDS="fox"
+			;;
 	esac
 }

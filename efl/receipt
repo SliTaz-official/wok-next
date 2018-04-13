@@ -25,12 +25,14 @@ compile_rules() {
 		src/modules/evas/loaders/gif/evas_image_load_gif.c
 
 	autoreconf -v &&
-	ac_aux_dir=$src ./configure \
+	ac_aux_dir=$src \
+	./configure \
 		--disable-static \
 		--disable-doc \
 		--disable-pulseaudio \
 		--disable-physics \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -j1 DESTDIR=$install install
 }

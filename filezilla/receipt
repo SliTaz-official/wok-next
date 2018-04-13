@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="filezilla"
 VERSION="3.7.3"
@@ -6,34 +6,27 @@ CATEGORY="network"
 SHORT_DESC="FTP Client"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-SOURCE="FileZilla"
-TARBALL="${SOURCE}_${VERSION}_src.tar.bz2"
 WEB_SITE="http://filezilla-project.org/"
+
+TARBALL="FileZilla_${VERSION}_src.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="ftp client"
 
-DEPENDS="wxWidgets28 gnutls libidn xorg-libXxf86vm libtasn1 sqlite3"
-BUILD_DEPENDS="xdg-utils gettext wxWidgets28-dev gnutls-dev libidn-dev sqlite3-dev"
+BUILD_DEPENDS="xdg-utils gettext wxWidgets28-dev gnutls-dev libidn-dev \
+sqlite3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--with-tinyxml=builtin \
 		--without-dbus \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/filezilla $fs/usr/share
-
+genpkg_rules() {
+	copy @std
 	rm -rf $fs/usr/share/fileszilla/docs
+	DEPENDS="wxWidgets28 gnutls libidn xorg-libXxf86vm libtasn1 sqlite3"
+	TAGS="ftp client"
 }

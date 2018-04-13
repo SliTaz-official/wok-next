@@ -11,31 +11,58 @@ WEB_SITE="http://collectd.org"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://collectd.org/files/$TARBALL"
 
-BUILD_DEPENDS="slitaz-toolchain rrdtool-dev perl"
-SPLIT="collectd collectd-dev"
+BUILD_DEPENDS="slitaz-toolchain rrdtool-dev perl curl-dev libxml2-dev"
+SPLIT="collectd collectd-dev collectd-apache:apache collectd-bind:bind"
 
 compile_rules() {
-	sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' src/*.c configure*
+	case $SET in
+		'')
+			sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' src/*.c configure*
 
-	./configure \
-		--enable-interface \
-		--enable-load \
-		--enable-cpu \
-		--enable-disk \
-		--enable-logfile \
-		--enable-syslog \
-		--enable-csv\
-		--enable-rrdtool \
-		--with-librrdtool=/usr/include \
-		--disable-all-plugins \
-		--sysconfdir=/etc/collectd \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install || return 1
+			./configure \
+				--enable-interface \
+				--enable-load \
+				--enable-cpu \
+				--enable-disk \
+				--enable-logfile \
+				--enable-syslog \
+				--enable-csv\
+				--enable-rrdtool \
+				--with-librrdtool=/usr/include \
+				--disable-all-plugins \
+				--sysconfdir=/etc/collectd \
+				$CONFIGURE_ARGS &&
+			fix libtool &&
+			make &&
+			make DESTDIR=$DESTDIR install || return 1
 
-	# Add init script and fixes
-	install -Dm755 $stuff/collectd $install/etc/init.d/collectd
-	chmod 0644 $install/etc/collectd/*
+			# Add init script and fixes
+			install -Dm755 $stuff/collectd $install/etc/init.d/collectd
+			chmod 0644 $install/etc/collectd/*
+			;;
+		apache)
+			./configure \
+				--enable-apache \
+				--disable-all-plugins \
+				--sysconfdir=/etc/collectd \
+				$CONFIGURE_ARGS &&
+			fix libtool &&
+			make &&
+			make DESTDIR=$DESTDIR install
+			;;
+		bind)
+			sed -i 's/ipt_error_target/ipt2_error_target/' src/libiptc/libiptc.c
+
+			./configure \
+				--enable-bind \
+				--disable-all-plugins \
+				--sysconfdir=/etc/collectd \
+				$CONFIGURE_ARGS &&
+			fix libtool &&
+			make &&
+			make DESTDIR=$DESTDIR install
+			;;
+	esac
 }
 
 genpkg_rules() {
@@ -47,6 +74,18 @@ genpkg_rules() {
 			;;
 		collectd-dev)
 			copy @dev
+			;;
+		collectd-apache)
+			copy @std
+			DEPENDS="libcurl apache"
+			CAT="network|Apache plugin"
+			#CONFIG_FILES="/etc/collectd/collectd.conf"
+			;;
+		collectd-bind)
+			copy bind.so*
+			DEPENDS="libcurl libxml2"
+			CAT="network|Bind plugin"
+			#CONFIG_FILES="/etc/collectd/collectd.conf"
 			;;
 	esac
 }

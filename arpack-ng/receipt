@@ -14,16 +14,15 @@ WGET_URL="https://github.com/opencollab/arpack-ng/archive/$VERSION.tar.gz"
 BUILD_DEPENDS="automake libtool gfortran lapack"
 SPLIT="arpack-ng-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap &&
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		arpack-ng)
 			copy @std

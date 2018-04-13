@@ -1,34 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cssc"
 VERSION="1.4.0"
 CATEGORY="development"
-SHORT_DESC="GNU compatibly stupid source control : SCCS."
+SHORT_DESC="GNU compatibly stupid source control: CSSC"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-SOURCE="CSSC"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/cssc/"
+
+TARBALL="CSSC-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-TAGS="rcs sccs version-control versioning"
 
-DEPENDS="gcc-lib-base"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
+compile_rules() {
+	./configure \
 		--libexecdir=/usr/lib/$PACKAGE \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	TAGS="rcs sccs version-control versioning"
 }

@@ -17,6 +17,7 @@ SPLIT="coova-chilli-dev"
 compile_rules() {
 	sed -i 's|return -1; safe_close|return -1;\n safe_close|' src/redir.c
 	sed -i 's|if (.\(safe_write.*\)) /. error ./|\1|' src/garden.c
+
 	./configure \
 		--enable-largelimits \
 		--enable-binstatusfile \
@@ -43,6 +44,7 @@ compile_rules() {
 		--enable-modules \
 		--enable-multiroute \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

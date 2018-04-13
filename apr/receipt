@@ -8,25 +8,26 @@ MAINTAINER="lehswe@gmail.com"
 LICENSE="Apache"
 WEB_SITE="http://apr.apache.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/apr.html"
-CROSS="error: cannot check for file existence when cross compiling"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://archive.apache.org/dist/apr/$TARBALL"
 
 BUILD_DEPENDS="util-linux-uuid-dev"
 SPLIT="apr-dev"
+
 COOKOPTS="skip-log-errors"
+CROSS="error: cannot check for file existence when cross compiling"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--disable-static \
 		--with-installbuilddir=/usr/share/apr-1/build \
 		--enable-nonportable-atomics \
 		--with-devrandom \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM &&
-	make && make install
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

@@ -1,43 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="emerald"
 VERSION="0.8.12.4"
 CATEGORY="x-window"
-SHORT_DESC="Window decorator for Compiz."
+SHORT_DESC="Window decorator for Compiz"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://github.com/compiz-reloaded"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="xorg-libX11 gtk+ libwnck2 compiz-core"
 BUILD_DEPENDS="xorg-dev gtk+-dev libwnck2-dev compiz-core-dev \
 libtool autoconf automake intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./autogen.sh --prefix=/usr --with-gtk=2.0 $CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./autogen.sh \
+		--prefix=/usr \
+		--with-gtk=2.0 \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	# save original emerald theme as 'default':
+	mkdir -p $install/usr/share/emerald/themes/default/
+	cd       $install/usr/share/emerald/themes/default/
+	for i in $(ls ../../theme/*.png); do
+		ln -s $i $(basename $i)
+	done
+	mv $install/usr/share/emerald/theme/theme.ini \
+	   $install/usr/share/emerald/themes/default/theme.ini
+
+	# make SliTaz theme
+	ln -sf ../theme     $install/usr/share/emerald/themes/SliTaz
+	cp $stuff/theme.ini $install/usr/share/emerald/themes/SliTaz/
+
+	# custom SliTaz config
+	cp -f $stuff/settings.ini $install/usr/share/emerald/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share/locale
-	cp -a $install/usr/share/locale/ru $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
-	cp -a $install/usr/lib/libemeraldengine.so* $fs/usr/lib
-	rm -f $fs/usr/lib/$PACKAGE/*/*.*a
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	# SliTaz config and theme (to move in slitaz-configs ?)
-	cp -f $stuff/settings.ini $fs/usr/share/emerald
-	cp -f $stuff/theme.ini $fs/usr/share/emerald/theme
-	cd $fs/usr/share/emerald
-	mkdir themes ; cd themes ; ln -sf ../theme SliTaz
-	mkdir default ; cd default
-	for i in `ls ../../theme/*.png`; do ln -s $i `basename $i`; done
-	cp -a $install/usr/share/emerald/theme/theme.ini .
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11 gtk+ libwnck2 compiz-core"
 }

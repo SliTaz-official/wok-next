@@ -20,7 +20,10 @@ compile_rules() {
 	sed -i '/ top.do_check ==/s/top.do_check/*&/' modules/filter/tex.cpp
 	sed -i '/word ==/s/word/*&/'                  prog/check_funs.cpp
 
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	ln -svfn aspell-0.60 $install/usr/lib/aspell
 

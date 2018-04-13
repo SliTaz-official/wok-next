@@ -7,7 +7,6 @@ SHORT_DESC="BeeCrypt Cryptography Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="http://beecrypt.sourceforge.net/"
-TAGS="cryptography toolkit"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -16,20 +15,23 @@ TARBALL_SHA256="286f1f56080d1a6b1d024003a5fa2158f4ff82cae0c6829d3c476a4b5898c55d
 BUILD_DEPENDS="python-dev"
 SPLIT="beecrypt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--without-cplusplus \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		beecrypt) copy @std ;;
-		beecrypt-dev) copy @dev ;;
+		beecrypt)
+			copy @std
+			TAGS="cryptography toolkit"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

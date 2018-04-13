@@ -8,13 +8,12 @@ MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.fox-toolkit.org/"
 
-SOURCE="fox"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+TARBALL="fox-$VERSION.tar.gz"
 WGET_URL="http://ftp.fox-toolkit.org/pub/$TARBALL"
 
-BUILD_DEPENDS="libpng12 jpeg tiff xorg-libXft bzlib \
-xorg-libXrender xorg-libXrender-dev fontconfig fontconfig-dev freetype freetype-dev \
-libpng12-dev jpeg-dev tiff-dev xorg-libXft-dev mesa glu expat-dev libxml2-dev"
+BUILD_DEPENDS="bzlib xorg-libXrender xorg-libXrender-dev fontconfig-dev \
+freetype-dev libpng12-dev jpeg-dev tiff-dev xorg-libXft-dev mesa glu expat-dev \
+libxml2-dev"
 SPLIT="fox14-dev"
 
 compile_rules() {
@@ -25,6 +24,7 @@ compile_rules() {
 		LDFLAGS="-lXft -lfreetype -lfontconfig -lXrender" \
 		--with-xft \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }

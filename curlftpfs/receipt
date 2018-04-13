@@ -9,14 +9,13 @@ LICENSE="GPL2"
 WEB_SITE="http://curlftpfs.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://downloads.sourceforge.net/curlftpfs/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="fuse2-dev curl-dev glib-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

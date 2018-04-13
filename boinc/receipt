@@ -25,31 +25,28 @@ compile_rules() {
 		--enable-unicode \
 		--enable-optimize \
 		$CONFIGURE_ARGS &&
-		make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	chmod 0644 $install/etc/boinc-client.conf
+
+	install -Dm644 $install/usr/share/boinc/boincmgr.48x48.png \
+		$install/usr/share/pixmaps/boincmgr.png
+
+	rm $install/etc/init.d/boinc-client
+	install -Dm755 $stuff/boinc-client $install/etc/init.d/boinc-client
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		boinc)
-			mkdir -p \
-				$fs/usr/lib \
-				$fs/var/lib/boinc \
-				$fs/usr/share/pixmaps
-			cp -a $install/etc $fs
-			chmod 0644 $fs/etc/boinc-client.conf
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp $install/usr/share/boinc/boincmgr.48x48.png \
-				$fs/usr/share/pixmaps/boincmgr.png
-			rm $fs/etc/init.d/boinc-client
-			cp $stuff/boinc-client $fs/etc/init.d/boinc-client
+			copy @std
 			# The init script requires bash.
 			DEPENDS="openssl libcurl wxWidgets28 libnotify bash"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

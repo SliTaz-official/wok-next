@@ -16,10 +16,12 @@ zlib-dev"
 
 compile_rules() {
 	sed -i 's/ettercap_LDFLAGS = -export-dynamic @EC_LIBS@/ettercap_LDADD += @EC_LIBS@\nettercap_LDFLAGS = -export-dynamic/' src/Makefile.*
+
 	./configure \
 		--enable-plugins \
 		--disable-gtk \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

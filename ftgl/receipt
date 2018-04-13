@@ -6,39 +6,35 @@ CATEGORY="x-window"
 SHORT_DESC="OpenGL library to use arbitrary fonts"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://ftgl.wiki.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="freetype-dev freeglut-dev mesa-dev glu-dev \
 expat-dev xorg-libxshmfence-dev"
 SPLIT="ftgl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lGL"
+
 	./configure \
 		--with-pic \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	ftgl)
-		DEPENDS="freetype freeglut mesa glu"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	ftgl-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		;;
+		ftgl)
+			copy @std
+			DEPENDS="freetype freeglut mesa glu"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

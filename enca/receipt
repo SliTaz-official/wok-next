@@ -13,22 +13,19 @@ WGET_URL="https://dl.cihar.com/enca/$TARBALL"
 
 SPLIT="enca-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	#sed -e "s#./make_hash#./native_make_hash#" -i tools/Makefile.am || exit 1
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		enca) copy @std ;;
-		enca-dev) copy @dev ;;
+		enca)  copy @std;;
+		*-dev) copy @dev;;
 	esac
 }

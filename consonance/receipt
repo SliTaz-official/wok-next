@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="consonance"
 VERSION="0.5.1"
@@ -6,34 +6,32 @@ CATEGORY="multimedia"
 SHORT_DESC="A lightwight music manager"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://sites.google.com/site/consonancemanager/" 
-WGET_URL="http://cloud.github.com/downloads/sujith/consonance/$TARBALL"
-TAGS="player audio music mp3 ogg"
+WEB_SITE="http://sites.google.com/site/consonancemanager/"
 
-DEPENDS="libao taglib libmad sqlite3 dbus-glib libnotify flac libsndfile libvorbis \
-curl libmodplug libcdio libcddb xorg-xcb-util"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://cloud.github.com/downloads/sujith/consonance/$TARBALL"
+
 BUILD_DEPENDS="libao-dev taglib taglib-dev libmad-dev sqlite3-dev dbus-glib-dev \
 libnotify-dev flac-dev libsndfile-dev libvorbis-dev curl-dev libmodplug-dev \
 libcdio-dev libcddb-dev libidn-dev libidn libao libsndfile libmodplug libcdio \
 alsa-lib-dev libogg-dev gtk+-dev libcdio-paranoia-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|cdio/cdda.h|cdio/paranoia/cdda.h|' src/cdda.h
 	sed -i 's/.*= notify_notification_new_with_status_icon/#define notify_notification_new_with_status_icon(a,b,c,d) notify_notification_new(a,b,gtk_status_icon_get_icon_name(c))\n&/' src/statusicon.c
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
-	
+	make DESTDIR=$DESTDIR install || return 1
+
+	mkdir -p $install/usr/share/pixmaps
+	ln -s ../consonance/data/consonance.png $install/usr/share/pixmaps/consonance.png
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/share/$PACKAGE/data/consonance.png $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="libao taglib libmad sqlite3 dbus-glib libnotify flac libsndfile \
+	libvorbis curl libmodplug libcdio libcddb xorg-xcb-util"
+	TAGS="player audio music mp3 ogg"
 }

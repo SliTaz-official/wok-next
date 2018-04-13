@@ -1,34 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fastjar"
 VERSION="0.98"
 CATEGORY="development"
-SHORT_DESC="A fast C implementation of the JDK jar utility."
+SHORT_DESC="A fast C implementation of the JDK jar utility"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://savannah.nongnu.org/projects/fastjar/"
-WGET_URL="http://download.savannah.gnu.org/releases-noredirect/fastjar/$TARBALL"
-TAGS="java"
 
-DEPENDS="glibc-base zlib"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.savannah.gnu.org/releases-noredirect/fastjar/$TARBALL"
+
 BUILD_DEPENDS="slitaz-toolchain zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make  &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibc-base zlib"
+	TAGS="java"
 }
-

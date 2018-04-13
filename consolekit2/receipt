@@ -25,7 +25,9 @@ compile_rules() {
 		--with-systemdsystemunitdir=no \
 		--enable-docbook-docs \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	mv -v $install/etc/X11/app-defaults/xinitrc.d/90-consolekit \
 		  $install/etc/X11/app-defaults/xinitrc.d/90-consolekit.sh

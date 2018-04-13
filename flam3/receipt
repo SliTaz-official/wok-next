@@ -13,13 +13,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/scottdraves/flam3/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="expat-dev libjpeg-turbo-dev libpng16-dev libxml2-dev"
-SPLIT="flam3 flam3-dev"
+SPLIT="flam3-dev"
 
 compile_rules() {
 	./configure \
 		--disable-static \
 		--enable-shared \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR -j1 install
 }

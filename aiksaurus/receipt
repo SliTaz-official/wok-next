@@ -3,26 +3,27 @@
 PACKAGE="aiksaurus"
 VERSION="1.2.1"
 CATEGORY="system-tools"
-SHORT_DESC="A cross-platform, open-source thesaurus."
+SHORT_DESC="A cross-platform, open-source thesaurus"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://aiksaurus.sourceforge.net/"
-WGET_URL="http://downloads.sourceforge.net/$PACKAGE/$TARBALL"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev patch expat-dev xorg-libXau-dev glib-dev"
 SPLIT="aiksaurus-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --with-gtk $CONFIGURE_ARGS &&
-	make && make -j1 DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--with-gtk \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make -j1 DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		aiksaurus)
 			copy @std
@@ -33,4 +34,3 @@ genpkg_rules()
 			;;
 	esac
 }
-

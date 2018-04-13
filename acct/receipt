@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="acct"
 VERSION="6.6.2"
 CATEGORY="utilities"
-SHORT_DESC="Utilities that report data about users logged on GNU/Linux."
+SHORT_DESC="Utilities that report data about users logged on GNU/Linux"
 MAINTAINER="hackdorte@sapo.pt"
 LICENSE="GPL3"
 WEB_SITE="http://savannah.gnu.org/projects/acct/"
@@ -11,24 +11,15 @@ WEB_SITE="http://savannah.gnu.org/projects/acct/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-TAGS="analysis network utilities"
-
-DEPENDS="gcc-lib-base glibc"
-BUILD_DEPENDS="glibc-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gcc-lib-base glibc"
+	TAGS="analysis network utilities"
 }

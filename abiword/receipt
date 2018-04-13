@@ -27,14 +27,12 @@ compile_rules() {
 	sed -i 's|cat \$(BUILTIN_STAMP)|& 2> /dev/null|' src/plugins/Makefile*
 
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--enable-plugins \
 		--enable-clipart \
 		--enable-templates \
 		--disable-collab-backend-sugar \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$DESTDIR install || return 1
 

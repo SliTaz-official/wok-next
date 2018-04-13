@@ -14,16 +14,15 @@ WGET_URL="https://git.kernel.org/cgit/linux/kernel/git/jaegeuk/f2fs-tools.git/sn
 BUILD_DEPENDS="automake libtool util-linux-uuid-dev"
 SPLIT="f2fs-tools-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi &&
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-tools)
 			copy @std
