@@ -12,15 +12,25 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.galago-project.org/files/releases/source/notify-python/$TARBALL"
 
 BUILD_DEPENDS="python-dev libnotify-dev pygtk-dev"
+SPLIT="notify-python-dev"
 
 compile_rules() {
 	sed -i 's/, attach//;s/ attach[^;]*//;/GtkWidget .attach/d' src/pynotify.c
 
-	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="python libnotify"
-	TAGS="python"
+	case $PACKAGE in
+		notify-python)
+			copy @std
+			DEPENDS="python libnotify"
+			TAGS="python"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
