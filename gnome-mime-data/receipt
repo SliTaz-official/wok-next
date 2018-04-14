@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="perl-xml-parser gettext"
+SPLIT="gnome-mime-data-dev"
 
 compile_rules() {
 	./configure \
@@ -22,6 +23,13 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="perl-xml-parser"
+	case $PACKAGE in
+		gnome-mime-data)
+			copy @std
+			DEPENDS="perl-xml-parser"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
