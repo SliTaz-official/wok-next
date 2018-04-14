@@ -6,38 +6,38 @@ CATEGORY="development"
 SHORT_DESC="Concurrent Versions System"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="http://ximbiot.com/cvs/"
+WEB_SITE="http://cvs.nongnu.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.gnu.org/non-gnu/cvs/source/stable/$VERSION/$TARBALL"
 
+BUILD_DEPENDS="automake perl krb5-dev texinfo zlib-dev"
 SPLIT="cvs-contrib"
 
 compile_rules() {
-	./configure \
-		-C \
-		--prefix=/usr \
-		--with-ssh \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	unset EDITOR VISUAL
+	sed -i -e 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/' configure.in
+	find . -name Makefile.am | xargs sed -i -e 's/^INCLUDES/AM_CPPFLAGS/'
+	AUTOMAKE='automake --add-missing' autoreconf
+
+	./configure &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install &&
+
+	rm $install/usr/share/info/dir
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		cvs)
-			mkdir -p $fs/usr/bin
-			cp -a $install/usr/bin/cvs* $fs/usr/bin
-			DEPENDS="libcomerr libcomerr3 openssl libkrb5"
+			copy cvs cvsbug
+			DEPENDS="libkrb5 zlib"
 			TAGS="version-control versioning"
 			;;
 		cvs-contrib)
-			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/cvs $fs/usr/share
-			rm -f $fs/usr/share/cvs/contrib/intro.doc
+			copy contrib/ rcs2log
+			rm $fs/usr/share/cvs/contrib/intro.doc
 			CAT="development|contrib utilities"
-			DEPENDS="libcomerr openssl libkrb5"
 			;;
 	esac
 }
