@@ -14,12 +14,15 @@ WGET_URL="${WEB_SITE}files/$TARBALL"
 SPLIT="libmnl-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libmnl) copy @std;;
-		*-dev) copy @dev;;
+		*-dev)  copy @dev;;
 	esac
 }

@@ -7,6 +7,7 @@ SHORT_DESC="Decoding MPEG-1 and MPEG-2 video streams"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://libmpeg2.sourceforge.net/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libmpeg2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://libmpeg2.sourceforge.net/files/$TARBALL" # no $SF_MIRROR
@@ -15,27 +16,21 @@ BUILD_DEPENDS="gfortran xorg-libX11-dev xorg-libICE-dev xorg-libXext-dev \
 xorg-libSM-dev xorg-libXv-dev"
 SPLIT="libmpeg2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libmpeg2.html
+compile_rules() {
 	sed -i 's/static const/static/' libmpeg2/idct_mmx.c &&
 
 	./configure \
 		--enable-shared \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make install &&
+	make install || return 1
 
-	docdir=$install/usr/share/doc/mpeg2dec-$VERSION &&
-	mkdir -p $docdir &&
-	install -v -m644 README doc/libmpeg2.txt $docdir
+	cook_pick_docs README doc/libmpeg2.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libmpeg2)
 			copy @std

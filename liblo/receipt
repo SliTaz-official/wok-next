@@ -15,7 +15,10 @@ BUILD_DEPENDS="doxygen"
 SPLIT="liblo-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	cook_pick_manpages doc/man/man3/[lp]*
 }

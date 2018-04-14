@@ -19,16 +19,15 @@ compile_rules() {
 	touch NEWS AUTHORS ChangeLog
 	autoreconf -fi || return 1
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libmad)
-			copy @std
-			;;
-		*-dev)
-			copy @dev
-			;;
+		libmad) copy @std;;
+		*-dev)  copy @dev;;
 	esac
 }

@@ -14,21 +14,18 @@ WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
 BUILD_DEPENDS="libtool gettext libjpeg-turbo-dev libexif-dev libusb-dev"
 SPLIT="libgphoto2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		udevscriptdir=/lib/udev \
 		--with-exif \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libgphoto2)
 			copy @std

@@ -17,16 +17,15 @@ SPLIT="libmicrohttpd-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-dependency-tracking \
 		--enable-largefile \
 		--enable-curl \
 		--enable-messages \
 		--with-pic \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install || return 1
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install || return 1
 
 	mkdir -p $DESTDIR/usr/include/$PACKAGE
 	cp -a src/include/platform.h $DESTDIR/usr/include/$PACKAGE

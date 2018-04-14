@@ -7,7 +7,6 @@ SHORT_DESC="IDL Compiling Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://github.com/GNOME/libIDL"
-CROSS="bug: can not run test program"
 
 TARBALL="libIDL-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/libIDL/${VERSION%.*}/$TARBALL"
@@ -15,19 +14,18 @@ WGET_URL="$GNOME_MIRROR/libIDL/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="bison flex glib-dev"
 SPLIT="libidl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+CROSS="bug: can not run test program"
+
+compile_rules() {
 	./configure \
 		--cache-file=config.cache \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM &&
-	make && make install
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libidl)
 			copy @std

@@ -15,16 +15,15 @@ BUILD_DEPENDS="doxygen"
 SPLIT="libmpdclient-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libmpdclient)
-			copy @std
-			;;
-		*-dev)
-			copy @dev
-			;;
+		libmpdclient) copy @std;;
+		*-dev)        copy @dev;;
 	esac
 }

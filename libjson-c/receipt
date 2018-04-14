@@ -17,24 +17,16 @@ SPLIT="libjson-c-dev"
 compile_rules() {
 	sed -i 's/-Werror /&-Wno-error=unused-but-set-variable /' Makefile*
 	./autogen.sh
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make -j 1 DESTDIR=$DESTDIR install
+	make -j1 DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libjson-c)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr/
-			cp -a $install/usr/lib/*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			;;
+		libjson-c) copy @std;;
+		*-dev)     copy @dev;;
 	esac
 }

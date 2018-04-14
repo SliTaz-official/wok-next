@@ -15,10 +15,10 @@ BUILD_DEPENDS="zlib-dev gfortran"
 SPLIT="libid3tag-dev"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	# libid3tag.pc
 	mkdir -p $install/usr/lib/pkgconfig/

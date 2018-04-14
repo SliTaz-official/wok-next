@@ -16,16 +16,15 @@ BUILD_DEPENDS="gtk+-dev gobject-introspection-dev xorg-libXext-dev python-dev \
 pygtk-dev pygobject-dev automake autoconf libtool"
 SPLIT="libkeybinder-python libkeybinder-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -vif &&
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libkeybinder)
 			copy libkeybinder.so*

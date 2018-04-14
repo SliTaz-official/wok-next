@@ -14,22 +14,18 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="zlib-dev libjpeg-turbo-dev lcms2-dev"
 SPLIT="libmng-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
-	docdir=$install/usr/share/doc/libmng-$VERSION &&
-	install -v -m755 -d             $docdir &&
-	install -v -m644 doc/libmng.txt $docdir
+	cook_pick_docs doc/libmng.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libmng) copy @std; DEPENDS="lcms2 libjpeg-turbo zlib";;
 		*-dev)  copy @dev; DEPENDS="libmng lcms2-dev libjpeg-turbo-dev zlib-dev";;

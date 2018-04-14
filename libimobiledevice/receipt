@@ -3,10 +3,12 @@
 PACKAGE="libimobiledevice"
 VERSION="1.1.1"
 CATEGORY="misc"
-SHORT_DESC="Is a software library that talks the protocols to support iPhone and iPod Touch devices on Linux"
+SHORT_DESC="Software library that talks the protocols to support iPhone and \
+iPod Touch devices on Linux"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://libimobiledevice.org"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/downloads/$TARBALL"
 
@@ -14,32 +16,23 @@ BUILD_DEPENDS="gnutls-dev glib-dev libplist-dev usbmuxd-dev python-dev swig \
 libxml2-dev libgcrypt-dev"
 SPLIT="libimobiledevice-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -Np1 -i $stuff/swig-version-check.patch
-	./configure \
-		$CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libimobiledevice)
-		DEPENDS="gnutls glib libplist usbmuxd"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/python* $fs/usr/lib
-		;;
-	libimobiledevice-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libimobiledevice)
+			copy @std
+			DEPENDS="gnutls glib libplist usbmuxd"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

@@ -15,15 +15,14 @@ WGET_URL="https://www.autistici.org/bakunin/libmrss/$TARBALL"
 BUILD_DEPENDS="libnxml-dev curl-dev"
 SPLIT="libmrss-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libmrss)
 			copy @std

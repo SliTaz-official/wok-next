@@ -3,9 +3,9 @@
 PACKAGE="liblrdf"
 VERSION="0.4.0"
 CATEGORY="multimedia"
+SHORT_DESC="A library for the manipulation of RDF file in LADSPA plugins"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="A library for the manipulation of RDF file in LADSPA plugins"
 WEB_SITE="http://sourceforge.net/projects/lrdf"
 
 TARBALL="${PACKAGE}-${VERSION}.tar.gz"
@@ -20,7 +20,11 @@ compile_rules() {
 	patch -Np0 -i $stuff/raptor2.diff
 	patch -Np1 -i $stuff/pkgconfig-raptor.patch
 	autoreconf -vfi
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

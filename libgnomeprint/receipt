@@ -6,8 +6,9 @@ CATEGORY="x-window"
 SHORT_DESC="GNOME print library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.gnome.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev pango-dev intltool flex libart_lgpl-dev libxml2-dev"
@@ -18,7 +19,9 @@ compile_rules() {
 		--with-html-dir=/usr/share/doc \
 		--without-cups \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

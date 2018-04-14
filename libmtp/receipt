@@ -14,24 +14,22 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="libusb-dev libgcrypt-dev"
 SPLIT="mtp-tools libmtp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--with-udev=/etc/udev \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	# udev rules in /etc/udev/rules.d/; udev execs in /lib/udev/
-	mkdir -p $install/lib/udev &&
-	mv $install/etc/udev/mtp-probe $install/lib/udev &&
+	mkdir -p $install/lib/udev
+	mv $install/etc/udev/mtp-probe $install/lib/udev
 	sed -i 's#/etc/udev/mtp-probe#/lib/udev/mtp-probe#' \
 		$install/etc/udev/rules.d/69-libmtp.rules
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libmtp)
 			copy udev/ *.so*

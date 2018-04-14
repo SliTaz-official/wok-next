@@ -14,22 +14,20 @@ WGET_URL="https://github.com/libharu/libharu/archive/RELEASE_${VERSION//./_}.tar
 BUILD_DEPENDS="automake libtool zlib-dev libpng16-dev"
 SPLIT="libharu-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	touch include/config.h.in
 	aclocal &&
 	libtoolize &&
 	automake --add-missing &&
 	autoconf &&
+
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libharu)
 			copy @std
