@@ -1,19 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gpm"
-VERSION="1.99.7"
+VERSION="1.20.7"
 CATEGORY="misc"
-SHORT_DESC="Mouse server for console."
+SHORT_DESC="Mouse server for console"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.nico.schottelius.org/software/gpm/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.lzma"
 WGET_URL="${WEB_SITE}archives/$TARBALL"
 
 BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="gawk bison ncurses-dev automake autoconf libtool texinfo"
-SPLIT="gpm gpm-dev gpm-extra"
+SPLIT="gpm-extra gpm gpm-dev"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	sed -i 's|-Werror||' Makefile.include.in
@@ -23,8 +24,8 @@ compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make && make install || return 1
 
-#	chmod a+x $install/usr/lib/*
-	cp -a $stuff/* $install
+	chmod a+x $install/usr/lib/*
+	install -Dm755 $stuff/etc/init.d/gpm $install/etc/init.d/gpm
 }
 
 genpkg_rules() {
@@ -53,6 +54,6 @@ post_install_gpm() {
 }
 
 # Just to be sure when cross-compiling.
-testsuite_gpm_extra() {
+testsuite() {
 	readelf -h $install/usr/bin/gpm-root
 }

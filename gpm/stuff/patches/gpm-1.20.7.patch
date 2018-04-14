@@ -1,0 +1,30 @@
+# from https://bugzilla.redhat.com/show_bug.cgi?id=1500092
+# from https://src.fedoraproject.org/rpms/gpm/pull-request/1
+--- a/src/prog/gpm-root.y
++++ b/src/prog/gpm-root.y
+@@ -1196,11 +1196,7 @@
+                                                         LOG_DAEMON : LOG_USER);
+    /* reap your zombies */
+    childaction.sa_handler=reap_children;
+-#if defined(__GLIBC__)
+-   __sigemptyset(&childaction.sa_mask);
+-#else /* __GLIBC__ */
+-   childaction.sa_mask=0;
+-#endif /* __GLIBC__ */
++   sigemptyset(&childaction.sa_mask);
+    childaction.sa_flags=SA_INTERRUPT; /* need to break the select() call */
+    sigaction(SIGCHLD,&childaction,NULL);
+ 
+--- a/src/daemon/open_console.c
++++ b/src/daemon/open_console.c
+@@ -23,6 +23,10 @@
+ #include <sys/stat.h>               /* stat()            */
+ #include <sys/ioctl.h>              /* ioctl             */
+ 
++#ifdef HAVE_SYS_SYSMACROS_H
++#include <sys/sysmacros.h>          /* major() w/newer glibc */
++#endif
++
+ /* Linux specific (to be outsourced in gpm2 */
+ #include <linux/serial.h>           /* for serial console check */
+ #include <asm/ioctls.h>            /* for serial console check */
