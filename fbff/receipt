@@ -1,33 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fbff"
 VERSION="20170211"
 CATEGORY="multimedia"
-SHORT_DESC="FFmpeg client in frame buffer."
+SHORT_DESC="FFmpeg client in frame buffer"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://repo.or.cz/w/fbff.git"
-WGET_URL="git|git://repo.or.cz/fbff.git"
-TAGS="video"
 
-DEPENDS="ffmpeg zlib"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="git|git://repo.or.cz/fbff.git"
+
 BUILD_DEPENDS="ffmpeg-dev zlib-dev git"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
 		arm*) sed -i s"#/opt#/cross/$ARCH/sysroot/usr#" Makefile ;;
-	esac &&
-	sed -i s"/cc/${HOST_SYSTEM}-gcc/" Makefile &&
-	make
+	esac
+	sed -i "s|cc|$HOST_SYSTEM-gcc|" Makefile
+
+	make || return 1
+
+	install -Dm755 $src/fbff $install/usr/bin/fbff
 }
 
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/fbff $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="ffmpeg zlib"
+	TAGS="video"
 }
