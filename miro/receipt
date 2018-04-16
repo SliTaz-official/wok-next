@@ -1,40 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="miro"
 VERSION="6.0"
 CATEGORY="multimedia"
-SHORT_DESC="The free and open source internet TV platform."
+SHORT_DESC="The free and open source internet TV platform"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.getmiro.com"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.osuosl.org/pub/pculture.org/$PACKAGE/src/$TARBALL"
 
-DEPENDS="dbus-python python-pyrex pygtk gstreamer0 python-pysqlite pywebkitgtk \
-shared-mime-info desktop-file-utils hicolor-icon-theme gst0-python notify-python \
-libtorrent-rasterbar gst0-plugins-base gst0-plugins-good gst0-ffmpeg \
-pycurl taglib python-gconf"
-BUILD_DEPENDS="$DEPENDS python-dev dbus-python-dev pygtk-dev gstreamer0-dev \
-shared-mime-info-dev gst0-python-dev libtorrent-rasterbar-dev libsoup-dev \
-libwebkit-dev gst0-plugins-base-dev gst0-plugins-good-dev ffmpeg-dev \
-imagemagick-dev taglib-dev libboost-dev"
+BUILD_DEPENDS="python-pyrex python-pysqlite pywebkitgtk desktop-file-utils \
+hicolor-icon-theme notify-python gst0-ffmpeg pycurl python-gconf python-dev \
+dbus-python-dev pygtk-dev gstreamer0-dev shared-mime-info-dev gst0-python-dev \
+libtorrent-rasterbar-dev libsoup-dev webkitgtk-dev gst0-plugins-base-dev \
+gst0-plugins-good-dev ffmpeg-dev imagemagick-dev taglib-dev libboost-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/linux
 	python setup.py install --root=$DESTDIR
 	sed -i "s|./miro.real|/usr/bin/miro.real|g" $DESTDIR/usr/bin/miro
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/miro $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="dbus-python python-pyrex pygtk gstreamer0 python-pysqlite \
+	pywebkitgtk shared-mime-info desktop-file-utils hicolor-icon-theme \
+	gst0-python notify-python libtorrent-rasterbar gst0-plugins-base \
+	gst0-plugins-good gst0-ffmpeg pycurl taglib python-gconf"
 }
-

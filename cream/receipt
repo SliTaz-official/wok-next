@@ -1,31 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cream"
 VERSION="1.0-rc5"
 CATEGORY="network"
-SHORT_DESC="light web browser based on WebKit and using GTK+."
+SHORT_DESC="Light web browser based on WebKit and using GTK+"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://cream-browser.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/cream-browser/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="gtk+ gcc-lib-base libwebkit libtasn1"
-BUILD_DEPENDS="libwebkit-dev libwebkit libsoup-dev gtk+-dev gettext-tools"
+BUILD_DEPENDS="webkitgtk-dev libsoup-dev gtk+-dev gettext-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ gcc-lib-base webkitgtk libtasn1"
+	TAGS="web-browser"
 }

@@ -6,17 +6,15 @@ CATEGORY="multimedia"
 SHORT_DESC="library to provide automatic proxy configuration management"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="LGPL2.1"
-SUGGESTED="python icu libcurl libxslt webkit-r"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://libproxy.github.io/libproxy/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/libproxy/libproxy/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="glibc-base cmake libwebkit-dev python python-dev perl gtk+-dev"
-SPLIT="libproxy libproxy-dev"
+BUILD_DEPENDS="cmake webkitgtk-dev python-dev perl gtk+-dev"
+SPLIT="libproxy-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
 	sed -i -e 's/WITH_MOZJS:BOOL=ON/WITH_MOZJS:BOOL=OFF/' \
 	       -e 's|/usr/local|/usr|' CMakeCache.txt
@@ -25,21 +23,15 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libproxy)
-		DEPENDS="glib gtk+ gcc-lib-base xorg-libXmu libwebkit libtasn1"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		#cp -a $install/usr/lib/python* $fs/usr/lib
-		;;
-	libproxy-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libproxy)
+			copy @std
+			DEPENDS="glib gtk+ xorg-libXmu webkitgtk libtasn1"
+			SUGGESTED="python icu libcurl libxslt"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }
