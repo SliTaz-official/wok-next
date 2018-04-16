@@ -14,9 +14,7 @@ WGET_URL="http://downloads.webmproject.org/releases/webp/$TARBALL"
 BUILD_DEPENDS="libpng16-dev libjpeg-turbo-dev tiff-dev giflib-dev"
 SPLIT="libwebp-apps libwebp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-libwebpmux \
 		--enable-libwebpdemux \
@@ -25,12 +23,12 @@ compile_rules()
 		--enable-swap-16bit-csp \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libwebp)
 			copy *.so*

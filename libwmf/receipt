@@ -15,15 +15,14 @@ BUILD_DEPENDS="gfortran xorg-libXt-dev expat-dev libxml2-dev freetype-dev \
 libjpeg-turbo-dev libgd-dev gdk-pixbuf-dev gtk+-dev"
 SPLIT="libwmf-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libwmf)
 			copy @std

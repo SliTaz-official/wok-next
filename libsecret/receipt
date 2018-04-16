@@ -15,18 +15,16 @@ BUILD_DEPENDS="libtool intltool libxslt docbook-xsl libgcrypt-dev \
 gobject-introspection-dev vala util-linux-mount-dev"
 SPLIT="libsecret-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libsecret)
 			copy @std

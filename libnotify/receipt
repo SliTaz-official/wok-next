@@ -11,9 +11,9 @@ WEB_SITE="https://developer.gnome.org/libnotify/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
+BUILD_DEPENDS_arm="dbus-dev gtk+-dev dbus-glib dbus-glib-dev expat-dev"
 BUILD_DEPENDS="gdk-pixbuf-dev glib-dev gtk+-dev gobject-introspection-dev \
 gtk-doc xmlto"
-BUILD_DEPENDS_arm="dbus-dev gtk+-dev dbus-glib dbus-glib-dev expat-dev"
 SPLIT="libnotify-dev"
 
 compile_rules() {
@@ -21,7 +21,10 @@ compile_rules() {
 	-e 's/tests_modules="gtk+-3.0 >= $REQ_GTK_VERSION"/tests_modules="gtk+-2.0 >= $REQ_GTK_VERSION"/' \
 	-i configure
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

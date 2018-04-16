@@ -14,7 +14,10 @@ WGET_URL="https://github.com/adah1972/libunibreak/releases/download/libunibreak_
 SPLIT="libunibreak-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	# fix broken link
 	ln -sf libunibreak.a $install/usr/lib/liblinebreak.a

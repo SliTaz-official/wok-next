@@ -1,30 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lrzip"
 VERSION="0.630"
 CATEGORY="utilities"
-SHORT_DESC="lrzip is a file compression program designed to do particularly well on very large files containing long distance redundancy"
+SHORT_DESC="File compression program designed to do particularly well on very \
+large files containing long distance redundancy"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://ck.kolivas.org/apps/lrzip/"
-WGET_URL="$WEB_SITE/$TARBALL"
-TAGS="compression archive"
 
-DEPENDS="lzo bzlib zlib gcc-lib-base"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$WEB_SITE/$TARBALL"
+
 BUILD_DEPENDS="lzo-dev bzip2-dev zlib-dev nasm perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-    ./configure $CONFIGURE_ARGS &&
-    make &&
-    make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs/usr
-    cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="lzo bzlib zlib gcc-lib-base"
+	TAGS="compression archive"
 }

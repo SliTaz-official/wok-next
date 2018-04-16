@@ -14,12 +14,13 @@ WGET_URL="http://archive.ubuntu.com/ubuntu/pool/universe/libs/libstroke/$TARBALL
 BUILD_DEPENDS="patch gfortran xorg-libXt-dev"
 SPLIT="libstroke-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		libstroke)

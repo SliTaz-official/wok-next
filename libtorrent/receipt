@@ -11,29 +11,26 @@ WEB_SITE="http://libtorrent.rakshasa.no/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://libtorrent.rakshasa.no/downloads/$TARBALL"
 
-CROSS_BUGS="bug: can not run test program"
-
 BUILD_DEPENDS="curl-dev libsigc++-dev openssl-dev"
 SPLIT="libtorrent-dev"
 
+CROSS_BUGS="bug: can not run test program"
+
 compile_rules() {
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libtorrent)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="curl libsigc++ openssl"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/pkgconfig
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig
+			copy @dev
 			;;
 	esac
 }

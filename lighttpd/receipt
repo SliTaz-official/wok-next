@@ -3,35 +3,32 @@
 PACKAGE="lighttpd"
 VERSION="1.4.35"
 CATEGORY="network"
-SHORT_DESC="Fast and light HTTP Web server."
+SHORT_DESC="Fast and light HTTP Web server"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.lighttpd.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://download.lighttpd.net/lighttpd/releases-${VERSION%.*}.x/$TARBALL"
 
 BUILD_DEPENDS="pcre-dev bzip2-dev zlib-dev"
 SPLIT="lighttpd lighttpd-modules"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/addrs_left/d' src/mod_extforward.c
+
 	./configure \
 		--enable-shared \
 		--disable-ipv6 \
-		--prefix=/usr \
 		--libdir=/usr/lib/lighttpd \
-		--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 # On SliTaz Lighttpd runs as user/group : www/www or 80/80.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 	lighttpd)
 		CONFIG_FILES="/etc/lighttpd/vhosts.conf /etc/lighttpd/lighttpd.conf"
@@ -95,16 +92,13 @@ userdir"
 	esac
 }
 
-# Make sur it as cross compile properly
-testsuite()
-{
+# Make sure it as cross compile properly
+testsuite() {
 	readelf -h $install/usr/sbin/$PACKAGE
 }
 
-# Pre and post install commands for Tazpkg.
 # We stop the server by default in case of upgarde.
-pre_install_lighttpd()
-{
+pre_install_lighttpd() {
 	[ -z "$1" ] && for i in httpd ngnix apache cherokee $PACKAGE ; do
 		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
 	done
@@ -114,8 +108,7 @@ pre_install_lighttpd()
 	fi
 }
 
-post_install_lighttpd()
-{
+post_install_lighttpd() {
 	# Restore original config.
 	if [ -d "$1/etc/lighttpd.bak" ]; then
 		rm -rf "$1/etc/lighttpd"

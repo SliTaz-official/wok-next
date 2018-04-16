@@ -15,8 +15,11 @@ BUILD_DEPENDS="automake libtool openssl-dev libjpeg-turbo-dev libpng16-dev"
 SPLIT="libvncserver-novnc libvncserver-dev"
 
 compile_rules() {
-	./autogen.sh $CONFIGURE_ARGS &&
-	make && make install || return 1
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/var/www
 	cp -r webclients/novnc $install/var/www

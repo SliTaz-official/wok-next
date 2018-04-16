@@ -1,41 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lives"
 VERSION="2.8.6"
 CATEGORY="multimedia"
-SHORT_DESC="Simple to use, yet powerful video editor and VJ tool."
+SHORT_DESC="Simple to use, yet powerful video editor and VJ tool"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-SOURCE="LiVES"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://lives.sourceforge.net/"
+
+TARBALL="LiVES-$VERSION.tar.bz2"
 WGET_URL="http://lives-video.com/releases/$TARBALL"
 
-DEPENDS="alsa-lib libpng16 gtk+ sox mjpegtools libavc1394 liboil libtheora"
-BUILD_DEPENDS="alsa-lib alsa-lib-dev libpng16-dev gtk+-dev procps expat-dev perl \
-gettext-tools"
+BUILD_DEPENDS="alsa-lib alsa-lib-dev libpng16-dev gtk+-dev procps expat-dev \
+perl gettext-tools"
 
-# Rules to configure and make the package.
-#
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--disable-jack \
-	$CONFIGURE_ARGS &&
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	# Fix the name (.desktop) file.
+	sed -i 's|^Exec=.*|Exec=lives-exe|' $install/usr/share/applications/LiVES.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/lives $fs/usr/lib
-	cp -a $install/usr/share/lives $fs/usr/share
-	find $fs/usr/lib/lives -name "*.la" -exec rm '{}' \;
-	# Fix the name (.desktop) file.
-	sed -i 's/^Exec=.*/Exec=lives-exe/' $install/usr/share/applications/LiVES.desktop
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib libpng16 gtk+ sox mjpegtools libavc1394 liboil libtheora"
 }

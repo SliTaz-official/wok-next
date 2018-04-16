@@ -33,8 +33,9 @@ compile_rules() {
 		--with-threads \
 		--with-history \
 	$CONFIGURE_ARGS $ARCH_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
 
 	find $install -name '*.sh' -exec chmod +x \{\} \;
 }

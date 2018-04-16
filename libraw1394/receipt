@@ -13,15 +13,14 @@ WGET_URL="https://www.kernel.org/pub/linux/libs/ieee1394/$TARBALL"
 
 SPLIT="libraw1394-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libraw1394) copy @std;;
 		*-dev)      copy @dev;;

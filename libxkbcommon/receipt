@@ -4,7 +4,7 @@ PACKAGE="libxkbcommon"
 VERSION="0.7.2"
 CATEGORY="x-window"
 SHORT_DESC="Keyboard handling library using XKB data"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="custom"
 WEB_SITE="https://xkbcommon.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libxkbcommon.html"
@@ -12,16 +12,22 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libxkbcommon.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://xkbcommon.org/download/$TARBALL"
 
-BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros xorg-xkeyboard-config-dev bison"
-SPLIT="libxkbcommon-x11 libxkbcommon libxkbcommon-dev"
-SIBLINGS="libxkbcommon-wayland"
+BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros xorg-xkeyboard-config-dev \
+bison wayland-protocols-dev wayland-dev"
+SPLIT="libxkbcommon-x11 libxkbcommon libxkbcommon-dev \
+libxkbcommon-wayland:w libxkbcommon-wayland-dev:w"
 
 compile_rules() {
+	case $SET in
+		'') SET_ARGS='--disable-wayland --enable-x11';;
+		w)  SET_ARGS='--enable-wayland --disable-x11';;
+	esac
+
 	./configure \
 		--with-xkb-config-root=/usr/share/X11/xkb \
-		--docdir=/usr/share/doc/libxkbcommon-$VERSION \
-		--disable-wayland \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -37,10 +43,19 @@ genpkg_rules() {
 			copy @std @rm
 			DEPENDS=" "
 			;;
-		*-dev)
+		libxkbcommon-dev)
 			copy @dev
 			DEPENDS="libxkbcommon libxkbcommon-x11 \
 			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev"
+			;;
+
+		libxkbcommon-wayland)
+			CAT="x-window|Wayland support"
+			copy @std
+			;;
+		libxkbcommon-wayland-dev)
+			CAT="development|development files with Wayland support"
+			copy @dev
 			;;
 	esac
 }

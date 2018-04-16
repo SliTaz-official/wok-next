@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lingot"
 VERSION="0.8.1"
@@ -6,28 +6,26 @@ CATEGORY="multimedia"
 SHORT_DESC="Musical instrument tuner"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nongnu.org/lingot/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/lingot/$TARBALL"
 
-DEPENDS="gtk+ alsa-lib jack libglade"
 BUILD_DEPENDS="gtk+-dev alsa-lib-dev jack-dev \
 libglade-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
-		--disable-jack $CONFIGURE_ARGS &&
-	make && make install
+		--disable-jack \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	install -Dm644 $stuff/lingot.desktop $install/usr/share/applications/lingot.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/applications
-	cp -a $stuff/lingot.desktop $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/lingot $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ alsa-lib jack libglade"
 }

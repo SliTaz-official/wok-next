@@ -14,23 +14,20 @@ WGET_URL="http://www.libraw.org/data/$TARBALL"
 BUILD_DEPENDS="libjpeg-turbo-dev lcms2-dev jasper-dev"
 SPLIT="libraw-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	CXX="g++ -Wno-narrowing" \
 	./configure \
 		--enable-jpeg \
 		--enable-jasper \
 		--enable-lcms \
 		--disable-static \
-		--docdir=/usr/share/doc/libraw-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libraw) copy @std; DEPENDS="jasper lcms2 libgomp libjpeg-turbo";;
 		*-dev)  copy @dev; DEPENDS="libraw jasper-dev lcms2-dev libjpeg-turbo-dev";;

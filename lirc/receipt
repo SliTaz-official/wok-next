@@ -7,14 +7,16 @@ SHORT_DESC="Enables decoding and sending signals of many commonly used remote \
 controls"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.lirc.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="linux linux-module-headers python libusb-dev libirman-dev \
 portaudio-dev alsa-lib-dev libusb-compat-dev util-linux-uuid-dev \
 libftdi-dev jack-dev libxslt python3 udev-dev"
 SPLIT="lirc-dev"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	KERNEL_VERSION=$(grep  ^VERSION= $WOK/linux/receipt | cut -d "=" -f2 | sed -e 's/"//g')
@@ -26,8 +28,9 @@ compile_rules() {
 		--with-kerneldir=/usr/src/linux \
 		--with-moduledir=/lib/modules/$KERNEL_VERSION-slitaz/kernel/misc \
 		$CONFIGURE_ARGS &&
-	make 2>&1 | sed 's/ERROR/Error/;/lirc_dev\/Module/d' &&
-	make DESTDIR=$DESTDIR install 2>&1 | sed '/depmod:/d'
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

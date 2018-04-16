@@ -17,12 +17,16 @@ SPLIT="libuninameslist-dev"
 compile_rules() {
 	autoreconf -i
 	automake
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libuninameslist) copy @std;;
-		*-dev) copy @dev;;
+		*-dev)           copy @dev;;
 	esac
 }

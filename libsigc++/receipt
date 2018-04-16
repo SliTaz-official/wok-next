@@ -14,20 +14,19 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="m4 perl"
 SPLIT="libsigc++-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -e "/^libdocdir =/ s/\$(book_name)/libsigc++-$VERSION/" -i \
 		docs/Makefile.in
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libsigc++) copy @std;;
-		*-dev) copy @dev;;
+		*-dev)     copy @dev;;
 	esac
 }

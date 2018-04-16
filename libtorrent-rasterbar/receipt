@@ -15,18 +15,16 @@ BUILD_DEPENDS="libboost-dev libboost-system libboost-chrono libboost-random \
 openssl-dev python-dev libboost-python"
 SPLIT="libtorrent-rasterbar-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-python-binding \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libtorrent-rasterbar)
 			copy @std

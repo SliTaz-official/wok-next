@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lostirc"
 VERSION="0.4.6"
@@ -6,26 +6,27 @@ CATEGORY="network"
 SHORT_DESC="A simple IRC client"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://lostirc.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dfn.dl.sourceforge.net/sourceforge/lostirc/$TARBALL"
 
-DEPENDS="glibmm cairomm gtkmm libsigc++"
 BUILD_DEPENDS="glibmm-dev cairomm-dev gtkmm-dev libsigc++-dev gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	busybox patch -p1 -i $stuff/gcc.u
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	cp -r $stuff/skel $fs/etc
+	install -Dm644 $stuff/skel/.lostirc/perform.conf \
+		$install/etc/skel/.lostirc/perform.conf
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $stuff/skel $fs/etc
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibmm cairomm gtkmm libsigc++"
 }

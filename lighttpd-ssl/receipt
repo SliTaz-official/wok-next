@@ -1,20 +1,16 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lighttpd-ssl"
 VERSION="1.4.35"
 CATEGORY="network"
-SHORT_DESC="Fast and light HTTP Web server with SSL support."
+SHORT_DESC="Fast and light HTTP Web server with SSL support"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-SUGGESTED="lighttpd-modules php perl python"
-SOURCE="lighttpd"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="http://www.lighttpd.net/"
-WGET_URL="http://download.lighttpd.net/lighttpd/releases-${VERSION%.*}.x/$TARBALL"
-CONFIG_FILES="/etc/lighttpd/vhosts.conf /etc/lighttpd/lighttpd.conf /etc/ssl/lighttpd"
-PROVIDE="lighttpd"
 
-DEPENDS="pcre openssl"
+TARBALL="lighttpd-$VERSION.tar.xz"
+WGET_URL="http://download.lighttpd.net/lighttpd/releases-${VERSION%.*}.x/$TARBALL"
+
 BUILD_DEPENDS="pcre-dev bzip2-dev openssl-dev zlib-dev"
 
 BASE_MODULES="
@@ -29,26 +25,22 @@ rewrite
 status
 userdir"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/addrs_left/d' src/mod_extforward.c
+
 	./configure \
 		--enable-shared \
 		--disable-ipv6 \
 		--with-openssl \
-		--prefix=/usr \
 		--libdir=/usr/lib/lighttpd \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 # On SliTaz Lighttpd runs as user/group : www/www or 80/80.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	#cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
@@ -62,7 +54,7 @@ genpkg_rules()
 	done
 
 	# Server root and config file.
-	cp -a $WOK/$SOURCE/stuff/etc $fs
+	cp -a $WOK/lighttpd/stuff/etc $fs
 	chown -R 0.0 $fs/etc
 	mkdir -p $fs/etc/ssl/lighttpd
 	cat >> $fs/etc/lighttpd/lighttpd.conf <<EOT
@@ -82,18 +74,19 @@ EOT
 	# Logs directory.
 	mkdir -p $fs/var/log/lighttpd
 	chown 80.80 $fs/var/log/lighttpd
+	DEPENDS="pcre openssl"
+	PROVIDE="lighttpd"
+	SUGGESTED="lighttpd-modules php perl python"
+	CONFIG_FILES="/etc/lighttpd/vhosts.conf /etc/lighttpd/lighttpd.conf /etc/ssl/lighttpd"
 }
 
-# Make sur it as cross compile properly
-testsuite()
-{
+# Make sure it as cross compile properly
+testsuite() {
 	readelf -h $install/usr/sbin/lighttpd
 }
 
-# Pre and post install commands for Tazpkg.
 # We stop the server by default in case of upgarde.
-pre_install()
-{
+pre_install() {
 	[ -z "$1" ] && for i in httpd lighttpd ngnix apache cherokee $PACKAGE ; do
 		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
 	done

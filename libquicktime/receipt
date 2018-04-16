@@ -17,13 +17,14 @@ SPLIT="libquicktime-dev"
 
 compile_rules() {
 	patch -p0 < $stuff/ffmpeg.u
+
 	./configure \
-		--prefix=/usr \
 		--enable-gpl \
 		--with-ffmpeg \
 		--with-x264 \
 		--without-doxygen \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

@@ -20,12 +20,11 @@ xorg-libXt gstreamer0-dev gst0-plugins-base-dev"
 SPLIT="libwebkit-video libwebkit-video-dev"
 SUGGESTED="gst0-plugins-good gst0-plugins-bad gst0-plugins-ugly gst0-ffmpeg"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# libwebkit does not like parallel builds.
 	export MAKEFLAGS=$(echo $MAKEFLAGS | sed 's/-j[0-9]*/-j1/')
 	touch Documentation/webkitgtk/version.xml
+
 	# Build
 	./configure \
 		--prefix=/usr \
@@ -41,14 +40,13 @@ compile_rules()
 		--disable-webkit2 \
 		--disable-gtk-doc-html \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make all stamp-po 2>&1 | grep -v Source/WebCore/dom/testing && 
 	make DESTDIR=$DESTDIR install 2>&1 | grep -v /usr/share/gtk-doc/html/ &&
 	cp -a $src/Programs/GtkLauncher $DESTDIR/usr/bin
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 	libwebkit-video)
 		PROVIDE="libwebkit"

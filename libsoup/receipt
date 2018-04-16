@@ -11,24 +11,22 @@ WEB_SITE="https://wiki.gnome.org/Projects/libsoup"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev libxml2-dev sqlite3-dev intltool gtk-doc \
-gobject-introspection-dev vala glib-networking-dev"
 BUILD_DEPENDS_arm="glib-networking-dev glib-dev libxml2-dev libgcrypt-dev \
 libtasn1-dev gnutls-dev zlib-dev libgnome-keyring-dev sqlite3-dev dbus-dev"
+BUILD_DEPENDS="glib-dev libxml2-dev sqlite3-dev intltool gtk-doc \
+gobject-introspection-dev vala glib-networking-dev"
 SPLIT="libsoup-gnome libsoup-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libsoup)
 			copy libsoup-2*.so*

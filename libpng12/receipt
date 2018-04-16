@@ -17,27 +17,25 @@ PATCH_URL="$SF_MIRROR/apng/$PATCH"
 BUILD_DEPENDS="gawk zlib-dev"
 SPLIT="libpng12-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	[ -s "$SRC/$PATCH" ] || wget -O "$SRC/$PATCH" $PATCH_URL
 	gzip -cd $SRC/$PATCH | patch -p0
 
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libpng12)
 			copy @std
 			DEPENDS="zlib"
 			;;
-		libpng12-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="zlib-dev"
 			;;

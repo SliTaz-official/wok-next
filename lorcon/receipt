@@ -19,12 +19,11 @@ SPLIT="lorcon-dev"
 
 compile_rules() {
 	touch -d 197001010000 .depend
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
@@ -33,4 +32,3 @@ genpkg_rules() {
 		*-dev)  copy @dev;;
 	esac
 }
-

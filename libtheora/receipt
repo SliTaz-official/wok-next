@@ -14,17 +14,16 @@ WGET_URL="http://downloads.xiph.org/releases/theora/$TARBALL"
 BUILD_DEPENDS="libogg-dev libvorbis-dev libpng16-dev"
 SPLIT="libtheora-enc libtheora-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c &&
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libtheora)
 			copy libtheora.so*
