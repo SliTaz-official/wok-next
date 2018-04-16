@@ -3,72 +3,65 @@
 PACKAGE="openvpn"
 VERSION="2.3.6"
 CATEGORY="network"
-SHORT_DESC="Full-featured open source SSL VPN solution."
+SHORT_DESC="Full-featured open source SSL VPN solution"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://openvpn.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://swupdate.openvpn.net/community/releases/$TARBALL"
-TAGS="vpn tunnel network"
 
 BUILD_DEPENDS="lzo-dev openssl-dev pam-dev"
 SPLIT="openvpn openvpn-doc openvpn-down-root openvpn-pam"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--enable-password-save \
 		$CONFIGURE_ARGS &&
 	make &&
 	( cd plugin/auth-pam/ ; make ) &&
 	( cd plugin/down-root/ ; make ) &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	install -Dm755 $stuff/etc/init.d/openvpn-client $install/etc/init.d/openvpn-client
+	install -Dm755 $stuff/etc/init.d/openvpn-server $install/etc/init.d/openvpn-server
+	install -Dm644 $stuff/etc/openvpn/openvpn.conf  $install/etc/openvpn/openvpn.conf
+
+	install -Dm755 $src/src/plugins/down-root/.libs/openvpn-plugin-down-root.so \
+		$install/usr/share/openvpn/openvpn-plugin-down-root.so
+	install -Dm755 $src/src/plugins/auth-pam/.libs/openvpn-plugin-auth-pam.so \
+		$install/usr/share/openvpn/openvpn-plugin-auth-pam.so
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	openvpn)
-		DEPENDS="lzo openssl"
-		mkdir -p $fs/usr/sbin
-		cp -a $install/usr/sbin/openvpn $fs/usr/sbin
-		cp -a $stuff/etc $fs
-		chown root.root $fs/etc/init.d/*
-		chmod 0644 $fs/etc/openvpn/openvpn.conf
-		;;
-	openvpn-doc)
-		CAT="network|Documentation for OpenVPN."
-		DEPENDS="openvpn"
-		mkdir -p $fs/usr/share/openvpn
-		cp -a $install/usr/share/		$fs/usr/
-		cp -a $src/sample/sample-config-files	$fs/usr/share/openvpn
-		cp -a $src/sample/sample-plugins	$fs/usr/share/openvpn
-		cp -a $src/sample/sample-keys		$fs/usr/share/openvpn
-		cp -a $src/sample/sample-scripts	$fs/usr/share/openvpn
-		;;
-	openvpn-down-root)
-		CAT="network|The down-root plugin for OpenVPN."
-		DEPENDS="openvpn"
-		mkdir -p $fs/usr/share/openvpn
-		cp -a $src/src/plugins/down-root/.libs/openvpn-plugin-down-root.so \
-			$fs/usr/share/openvpn
-		;;
-	openvpn-pam)
-		CAT="network|PAM plugin for OpenVPN."
-		PROVIDE="openvpn:pam"
-		DEPENDS="openvpn pam"
-		mkdir -p $fs/usr/share/openvpn
-		cp -a $src/src/plugins/auth-pam/.libs/openvpn-plugin-auth-pam.so \
-			$fs/usr/share/openvpn
-		;;
+		openvpn)
+			copy openvpn etc/
+			DEPENDS="lzo openssl"
+			TAGS="vpn tunnel network"
+			;;
+		openvpn-doc)
+			copy doc/ sample-config-files/ sample-plugins/ sample-keys/ \
+			sample-scripts/
+			CAT="network|documentation"
+			DEPENDS="openvpn"
+			;;
+		openvpn-down-root)
+			copy openvpn-plugin-down-root.so
+			CAT="network|the down-root plugin"
+			DEPENDS="openvpn"
+			;;
+		openvpn-pam)
+			copy openvpn-plugin-auth-pam.so
+			CAT="network|PAM plugin"
+			PROVIDE="openvpn:pam"
+			DEPENDS="openvpn pam"
+			TAGS="vpn tunnel network"
+			;;
 	esac
 }
 
-post_remove_openvpn()
-{
+post_remove_openvpn() {
 	# remove config
 	rm -rf ${root}/etc/openvpn
 }

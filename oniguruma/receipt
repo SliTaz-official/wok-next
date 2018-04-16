@@ -16,7 +16,10 @@ SPLIT="oniguruma-dev"
 
 compile_rules() {
 	autoreconf -vfi &&
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	cook_pick_docs doc/*
 }

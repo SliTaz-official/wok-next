@@ -18,11 +18,8 @@ SPLIT="net6-dev"
 compile_rules() {
 	sed -i '/int kx_prio/d;s|kx_set_priority(session, kx_prio|priority_set_direct(session, "NORMAL:+ANON-DH", NULL|' src/encrypt.cpp
 
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }

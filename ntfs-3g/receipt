@@ -21,11 +21,13 @@ compile_rules() {
 	./configure \
 		--enable-extras \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	mkdir -p $install/lib &&
-	make install &&
+	make install || return 1
 
-	mkdir -p $install/etc && touch $install/etc/filesystems &&
+	mkdir -p $install/etc
+	touch $install/etc/filesystems
 	#this link allow udisks2 to use ntfs-3g
 	ln -s mount.ntfs-3g $install/sbin/mount.ntfs
 }

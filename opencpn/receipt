@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="opencpn"
 VERSION="1.3.2"
@@ -6,35 +6,28 @@ CATEGORY="utilities"
 SHORT_DESC="A concise Chart/plotter Navigator"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-SUGGESTED="nvidia"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://opencpn.sourceforge.net"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://nchc.dl.sourceforge.net/sourceforge/$PACKAGE/$TARBALL"
 
-DEPENDS="wxWidgets28 mesa glu"
 BUILD_DEPENDS="wxWidgets28-dev mesa-dev glu-dev"
-TAGS="office"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	
-	cd $src
+
 	busybox patch -p0 -i $stuff/glib.u
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="wxWidgets28 mesa glu"
+	SUGGESTED="nvidia"
+	TAGS="office"
 }
