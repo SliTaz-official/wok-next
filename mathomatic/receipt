@@ -14,19 +14,18 @@ WGET_URL="https://github.com/rubicks/mathomatic/archive/$VERSION.tar.gz"
 BUILD_DEPENDS="automake libtool readline-dev"
 SPLIT="mathomatic-optional mathomatic"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi &&
 
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	install -m0755 primes/matho-mult primes/matho-sum primes/primorial \
 		$install/usr/bin
 
-	docdir="$install/usr/share/doc/mathomatic-16.0.5"
-	mkdir -p $docdir
-	cp doc/* $docdir
+	cook_pick_docs doc/*
 
 	appdir="$install/usr/share/applications"
 	mkdir -p $appdir
@@ -41,9 +40,7 @@ compile_rules()
 	cook_pick_manpages mathomatic.1 lib/*.3 primes/*.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		mathomatic-optional)
 			copy bin/matho-* primorial

@@ -1,44 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="moserial"
 VERSION="2.32.1"
 CATEGORY="utilities"
-SHORT_DESC="A gtk-based serial console."
+SHORT_DESC="A GTK-based serial console"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://live.gnome.org/moserial"
-WGET_URL="http://ftp.gnome.org/pub/GNOME/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
-LOCALES="da de es fr pt_BR zh_CN"
-TAGS="serial console"
 
-DEPENDS="GConf gtk+"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="GConf-dev gnome-doc-utils intltool vala gtk+-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# removing help
 	patch -Np3 -i $stuff/glade.patch
-	# build
-	./configure $CONFIGURE_ARGS \
+
+	./configure \
 		--disable-scrollkeeper \
-		--prefix="/usr" &&
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-#
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/moserial $fs/usr/share
-	cp -a $install/usr/share/icons/hicolor/48x48/apps/moserial.png \
-		$fs/usr/share/pixmaps
-	for locale in $LOCALES; do
-		cp -a $install/usr/share/locale/$locale $fs/usr/share/locale
-	done
-	chown -R root.root $fs
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="GConf gtk+"
+	TAGS="serial console"
 }

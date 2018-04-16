@@ -20,15 +20,14 @@ SPLIT="mjpegtools-dev"
 BUILD_DEPENDS="libjpeg-turbo-dev libpng16-dev libdv-dev xorg-libX11-dev \
 xorg-libICE-dev xorg-libXxf86dga-dev gtk+-dev libsdl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		mjpegtools)
 			copy @std

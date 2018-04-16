@@ -17,15 +17,15 @@ SPLIT="nagios-plugins-mysql"
 
 compile_rules() {
 	sed -i '/gets is a security hole/d' gl/stdio*.h
+
 	./configure \
-		--prefix=/usr \
 		--libexecdir=/usr/lib/nagios/plugins \
 		--with-nagios-user=nobody \
 		--with-nagios-group=nogroup \
 		--with-ping-command="/bin/ping -w %d -c %d %s" \
 		--with-fping-command="/usr/sbin/fping" \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install &&
 	make DESTDIR=$DESTDIR install-root

@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mcrypt"
 VERSION="2.6.8"
 CATEGORY="security"
-SHORT_DESC="Encryption"
+SHORT_DESC="Simple crypting program"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mcrypt.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.sourceforge.net/project/mcrypt/MCrypt/$VERSION/$TARBALL"
 
-DEPENDS="zlib mhash libmcrypt"
-BUILD_DEPENDS="libmcrypt-dev libmcrypt-dev mhash-dev zlib-dev"
+BUILD_DEPENDS="libmcrypt-dev mhash-dev zlib-dev"
+COOKOPTS="skip-log-errors"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr $CONFIGURE_ARGS 2>&1 | grep -v libtoolT &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="zlib mhash libmcrypt"
 }

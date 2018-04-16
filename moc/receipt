@@ -1,47 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="moc"
 VERSION="2.5.0"
 CATEGORY="multimedia"
-SHORT_DESC="Music on console."
+SHORT_DESC="Music on console"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://moc.daper.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://ftp.daper.net/pub/soft/moc/stable/$TARBALL"
 
-DEPENDS="alsa-lib libvorbis libogg libmad libid3tag flac curl \
-libsamplerate libsndfile libltdl ffmpeg ncurses db"
+BUILD_DEPENDS_arm="alsa-lib-dev libid3tag-dev libogg-dev libvorbis-dev"
 BUILD_DEPENDS="libvorbis-dev libogg-dev libmad-dev libid3tag-dev flac-dev db-dev \
 curl-dev libsamplerate-dev alsa-lib-dev ncurses-dev libsndfile-dev libsamplerate \
 libtool libmagic-dev"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm) BUILD_DEPENDS="alsa-lib-dev libid3tag-dev libogg-dev libvorbis-dev" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LIBTOOL=${HOST_SYSTEM}-libtool
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/moc $fs/usr/share/doc $fs/usr/share/moc
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/moc/* $fs/usr/lib/moc
-	cp -a $install/usr/share/doc/* $fs/usr/share/doc
-	cp -a $install/usr/share/moc/* $fs/usr/share/moc
-
-	# strip unneeded libraries
-	rm $fs/usr/lib/moc/decoder_plugins/*.*a
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib libvorbis libogg libmad libid3tag flac curl \
+	libsamplerate libsndfile libltdl ffmpeg ncurses db"
 }

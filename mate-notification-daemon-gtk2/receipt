@@ -20,14 +20,15 @@ compile_rules() {
 
 	mkdir macros; autoreconf -fi
 	intltoolize;  autoreconf
+
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
-	copy @std
-	cook_copy_icons # only 16 and 48
+	copy @std @ico # only 16 and 48 icons
 	DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
 	glib gtk+ libcanberra libffi libharfbuzz libltdl liblzma libnotify libogg \
 	libpng16 libvorbis libwnck2 libxml2 pango pcre startup-notification \

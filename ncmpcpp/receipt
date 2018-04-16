@@ -13,29 +13,25 @@ WGET_URL="http://ncmpcpp.rybczak.net/stable/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev taglib taglib-dev curl-dev libmpdclient-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--enable-clock \
 		--with-taglib \
 		--with-curl \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	mkdir -p $install/etc/skel/.ncmpcpp/
+	cp $install/usr/share/doc/ncmpcpp/config \
+	   $install/usr/share/doc/ncmpcpp/keys     $install/etc/skel/.ncmpcpp/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/etc/skel/.ncmpcpp
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/doc $fs/usr/share
-	ln $fs/usr/share/doc/ncmpcpp/config $fs/etc/skel/.ncmpcpp
-	ln $fs/usr/share/doc/ncmpcpp/keys $fs/etc/skel/.ncmpcpp
-DEPENDS="ncurses taglib mpd curl libmpdclient"
-TAGS="music audio player"
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses taglib mpd curl libmpdclient"
+	TAGS="music audio player"
 }
 
 post_install() {
