@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="rpcbind"
-VERSION="0.2.0"
+VERSION="0.2.4"
 CATEGORY="network"
 SHORT_DESC="RPC program numbers to universal addresses converter"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -18,8 +18,9 @@ compile_rules() {
 		arm*) export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include/tirpc" ;;
 	esac
 
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
+	./configure \
+		--with-systemdsystemunitdir=no \
+		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
