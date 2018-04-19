@@ -17,6 +17,8 @@ xorg-libXcomposite-dev menu-cache-dev alsa-lib-dev xorg-dev gettext"
 # libsde-utils-dev libsde-utils-x11-dev libsde-utils-jansson-dev libsde-utils-gtk-dev
 SPLIT="waterline-dev"
 
+COOKOPTS="!menus"
+
 compile_rules() {
 	rm -rf $src/.git
 	sed 's/lxsession-logout/tazbox logout/' -i src/defaultapplications.c
@@ -27,21 +29,17 @@ compile_rules() {
 		--disable-maintainer-mode \
 		--enable-silent-rules \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	install -Dm644 $stuff/waterline.desktop $install/etc/xdg/autostart/waterline.desktop
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		waterline)
 			copy @std
-			mkdir -p $fs/etc/xdg/autostart
-			cat > $fs/etc/xdg/autostart/waterline.desktop <<EOT
-[Desktop Entry]
-Type=Application
-Name=Waterline Desktop panel
-Exec=waterline
-EOT
 			DEPENDS="libsde-utils-jansson libsde-utils-x11"
 			TAGS="desktop panel taskbar"
 			;;

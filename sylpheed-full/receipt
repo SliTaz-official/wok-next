@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sylpheed-full"
 VERSION="3.5.1"
@@ -6,31 +6,27 @@ CATEGORY="network"
 SHORT_DESC="Simple and full featured e-mail client (GPG, spell, ldap support)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="sylpheed"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://sylpheed.sraoss.jp/en/"
-WGET_URL="http://sylpheed.sraoss.jp/sylpheed/v${VERSION%.*}/$TARBALL"
-TAGS="mail internet"
-PROVIDE="sylpheed"
 
-DEPENDS="gtk+ openssl gnupg gpgme libgpg-error gtkspell enchant libldap"
+TARBALL="sylpheed-$VERSION.tar.bz2"
+WGET_URL="http://sylpheed.sraoss.jp/sylpheed/v${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev openssl-dev libgpg-error-dev gtkspell-dev \
 enchant-dev openldap-dev gpgme-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-ldap \
 		--disable-updatecheck \
-		$CONFIGURE_ARGS && 
-	make && make install
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ openssl gnupg gpgme libgpg-error gtkspell enchant libldap"
+	PROVIDE="sylpheed"
+	TAGS="mail internet"
 }

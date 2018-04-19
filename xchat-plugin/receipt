@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xchat-plugin"
 VERSION="2.8.8"
@@ -7,18 +7,14 @@ SHORT_DESC="IRC client using GTK+ with plugins support"
 MAINTAINER="lenios@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.xchat.org/"
-SOURCE="xchat"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="http://www.xchat.org/files/source/${VERSION%.*}/$TARBALL"
-PROVIDE="xchat"
 
-DEPENDS="gtk+ dbus openssl gettext-base dbus-glib xorg-libXdamage"
+TARBALL="xchat-$VERSION.tar.bz2"
+WGET_URL="http://www.xchat.org/files/source/${VERSION%.*}/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev dbus-dev openssl shared-mime-info \
 gettext-tools perl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i -e 's|glib/gslist.h|glib.h|' -e 's|glib/giochannel.h|glib.h|' \
 		-e 's|glib/glist.h|glib.h|' -e 's|glib/gstrfuncs.h|glib.h|' \
 		-e 's|glib/gutils.h|glib.h|' src/common/xchat.h
@@ -26,21 +22,17 @@ compile_rules()
 	sed -i 's|glib/gmarkup.h|glib.h|' src/common/util.c
 
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-tcl \
 		--enable-spell=static \
 		--enable-ipv6 \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	# cp -a $install/usr/share/dbus-1 $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ dbus openssl gettext-base dbus-glib xorg-libXdamage"
+	PROVIDE="xchat"
 }

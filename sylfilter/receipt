@@ -1,33 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sylfilter"
 VERSION="0.8"
 CATEGORY="network"
-SHORT_DESC="SylFilter is a light message filter library and command-line tools."
+SHORT_DESC="SylFilter is a light message filter library and command-line tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://sylpheed.sraoss.jp/sylfilter/"
-WGET_URL="http://sylpheed.sraoss.jp/sylfilter/src/$TARBALL"
-TAGS="mail email filter spam"
 
-DEPENDS="sqlite3"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://sylpheed.sraoss.jp/sylfilter/src/$TARBALL"
+
 BUILD_DEPENDS="sqlite3-dev gfortran glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|config.rpath.*|& 2>/dev/null|' configure	# hide trigger
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="sqlite3"
+	TAGS="mail email filter spam"
 }

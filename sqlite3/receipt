@@ -17,9 +17,7 @@ EXTRA_SOURCE_FILES="mysql2sqlite.sh"
 BUILD_DEPENDS="tcl-dev"
 SPLIT="libsqlite3 libsqlite3-tcl lemon sqlite3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case "$ARCH" in
 		arm*) ARCH_ARGS="--with-tcl=/cross/arm/sysroot/usr/lib" ;;
 	esac
@@ -39,6 +37,7 @@ compile_rules()
 		LDFLAGS="$LDFLAGS -ldl" \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool &&
 	sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool &&
 	make &&
@@ -60,9 +59,7 @@ compile_rules()
 	chmod +x $install/usr/bin/mysql2sqlite.sh
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		sqlite3)
 			copy sqlite3 mysql2sqlite.sh

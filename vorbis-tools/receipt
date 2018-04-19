@@ -1,30 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vorbis-tools"
 VERSION="1.4.0"
 CATEGORY="multimedia"
-SHORT_DESC="Vorbis encoder, decoder and tiny tools."
+SHORT_DESC="Vorbis encoder, decoder and tiny tools"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.vorbis.com/"
-WGET_URL="http://downloads.xiph.org/releases/vorbis/$TARBALL"
-TAGS="multimedia ogg"
 
-DEPENDS="libogg libvorbis flac libao libcurl speex openssl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://downloads.xiph.org/releases/vorbis/$TARBALL"
+
 BUILD_DEPENDS="libogg-dev libvorbis-dev flac-dev libao-dev curl-dev speex-dev \
 openssl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libogg libvorbis flac libao libcurl speex openssl"
+	TAGS="multimedia ogg"
 }

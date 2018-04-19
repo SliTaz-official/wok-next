@@ -1,29 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="radeontool"
 VERSION="1.6.3"
 CATEGORY="system-tools"
-SHORT_DESC="Utility to control ATI Radeon backlight functions on laptops."
+SHORT_DESC="Utility to control ATI Radeon backlight functions on laptops"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="zlib/libpng"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://anonscm.debian.org/cgit/collab-maint/radeontool.git"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://people.freedesktop.org/~airlied/$PACKAGE/$TARBALL"
 
-DEPENDS="xorg-libpciaccess"
 BUILD_DEPENDS="xorg-libpciaccess-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs/
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libpciaccess"
 }

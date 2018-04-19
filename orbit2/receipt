@@ -7,7 +7,6 @@ SHORT_DESC="A CORBA 2.4-compliant Object Request Broker (ORB) - deprecated"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
 WEB_SITE="https://projects.gnome.org/ORBit2/"
-CROSS="bug: Could not check for borked linking while cross-compiling"
 
 TARBALL="ORBit2-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/ORBit2/${VERSION%.*}/$TARBALL"
@@ -15,21 +14,18 @@ WGET_URL="$GNOME_MIRROR/ORBit2/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="glib-dev dbus-dev dbus-glib-dev libidl-dev"
 SPLIT="orbit2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+CROSS="bug: Could not check for borked linking while cross-compiling"
+
+compile_rules() {
 	sed -i 's/-DG_DISABLE_DEPRECATED//' linc2/src/Makefile*
 
-	./configure \
-		--prefix=/usr \
-		--build=$HOST_SYSTEM \
-		--host=$HOST_SYSTEM &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		orbit2)
 			copy @std

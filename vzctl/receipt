@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vzctl"
 VERSION="3.0.25.1"
@@ -6,18 +6,14 @@ CATEGORY="system-tools"
 SHORT_DESC="OpenVZ containers control utility"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://wiki.openvz.org/Main_Page"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.openvz.org/utils/${PACKAGE}/${VERSION}/src/${TARBALL}"
 
-DEPENDS="udev bash procmail bridge-utils logrotate tar gzip"
 BUILD_DEPENDS="sed"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	
+compile_rules() {
 	# Apply patches
 	while read patch_file; do
 		if [ -f done.$patch_file ]; then
@@ -30,35 +26,36 @@ compile_rules()
 	done <<EOT
 vzctl-${VERSION}-Makefile.u
 EOT
+
 	./configure \
-		--prefix=/usr \
-		--localstatedir=/var \
 		--enable-bashcomp \
 		--enable-logrotate \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install && make DESTDIR=$DESTDIR install-slitaz
+	fix libtool &&
+	make &&
+	make DESTDIR=$DESTDIR install &&
+	make DESTDIR=$DESTDIR install-slitaz
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib \
+genpkg_rules() {
+	mkdir -p \
+		$fs/usr/lib \
 		$fs/usr/share
-		
+
 	cp -a $install/usr/sbin $fs/usr
 	cp -a $install/usr/lib/vzctl $fs/usr/lib
 	cp -a $install/usr/lib/*.so* $fs/usr/lib
 	cp -a $install/etc $fs/
 	cp -a $install/var/ $fs/
 	cp -a $install/vz/ $fs/
-	
+
 	# fix permissions
 	chmod 0755 $fs/usr/lib/vzctl/scripts/v*
 	chmod 0755 $fs/usr/sbin/*
 	chmod 0755 $fs/etc/init.d/vz
-	
-	# Copy slitaz script and config
-	cp -a stuff/slitaz.conf $fs/etc/vz/dists
-	cp -a stuff/slitaz-*.sh $fs/etc/vz/dists/scripts
-}
 
+	# Copy slitaz script and config
+	cp -a $stuff/slitaz.conf $fs/etc/vz/dists
+	cp -a $stuff/slitaz-*.sh $fs/etc/vz/dists/scripts
+	DEPENDS="udev bash procmail bridge-utils logrotate tar gzip"
+}

@@ -19,12 +19,13 @@ compile_rules() {
 	mkdir -p $src/m4
 
 	autoreconf -fi
-	./configure $CONFIGURE_ARGS && make $MAKEFLAGS install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make $MAKEFLAGS install
 }
 
 genpkg_rules() {
-	copy viewnior *.ui
-	cook_copy_icons
+	copy viewnior *.ui @ico
 	DEPENDS="atk bzlib cairo exiv2 fontconfig freetype gcc-lib-base gdk-pixbuf \
 	glib glibc-base gtk+ harfbuzz libffi libpng16 xorg-libxcb libxml2 pango \
 	pcre xorg-pixman xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \

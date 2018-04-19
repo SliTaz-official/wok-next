@@ -7,6 +7,7 @@ SHORT_DESC="ReiserFS tools"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.sfr-fresh.com/linux/misc/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/reiserfs.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/people/jeffm/reiserfsprogs/v$VERSION/$TARBALL"
@@ -14,21 +15,16 @@ WGET_URL="https://www.kernel.org/pub/linux/kernel/people/jeffm/reiserfsprogs/v$V
 BUILD_DEPENDS="util-linux-uuid-dev libcomerr-dev acl-dev"
 SPLIT="reiserfsprogs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/reiserfs.html
-
+compile_rules(){
 	./configure \
 		--sbindir=/sbin \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		reiserfsprogs)
 			copy @std

@@ -14,7 +14,10 @@ WGET_URL="$SF_MIRROR/xarchiver/$VERSION/$TARBALL"
 BUILD_DEPENDS="gtk+-dev intltool"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 
 	mkdir -p $install/var/www/cgi-bin $install/usr/share/doc/xarchiver/html
 	cp $stuff/xarchiver.cgi $install/var/www/cgi-bin
@@ -25,8 +28,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	rm -r $fs/usr/share/icons; cook_copy_icons
+	copy @std @ico
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango"
 	# binutils for ar; busybox also contains gzip & cpio; rar is get-rar;
 	# gtar is absent

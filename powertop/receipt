@@ -1,33 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="powertop"
 VERSION="2.0"
 CATEGORY="system-tools"
-SHORT_DESC="Utility designed to measure and explain a computer's electrical power consumption"
+SHORT_DESC="Utility designed to measure and explain a computer's electrical \
+power consumption"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.lesswatts.org/projects/powertop/"
-WGET_URL="https://01.org/powertop/sites/default/files/downloads/$TARBALL"
-TAGS="power-management"
 
-DEPENDS="ncurses pciutils libnl zlib gcc-lib-base"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://01.org/powertop/sites/default/files/downloads/$TARBALL"
+
 BUILD_DEPENDS="acl gettext ncurses-dev autoconf automake libtool \
 pciutils-dev libnl-dev zlib-dev gettext diffutils"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/AC_PROG_LIBTOOL/AC_PROG_MKDIR_P\n&/' configure.ac
 	sed -i 's/(mkdir_p)/(MKDIR_P)/' po/Makefile.in.in
 	./autogen.sh
-	./configure &&  make && make install
+
+	./configure &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses pciutils libnl zlib gcc-lib-base"
+	TAGS="power-management"
 }
-

@@ -1,41 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pcmanfm-legacy"
 VERSION="0.5.2"
 SOURCE="pcmanfm"
 CATEGORY="system-tools"
-SHORT_DESC="Light and easy to use file manager."
+SHORT_DESC="Light and easy to use file manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="http://pcmanfm.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$SOURCE/$TARBALL"
-TAGS="file-manager"
 
-DEPENDS="glibc-base glib util-linux-uuid xorg-libxcb xorg-xcb-util expat \
-zlib fontconfig freetype gtk+ atk cairo pango xorg-pixman libpng16 gamin \
-startup-notification dbus dbus-glib hal xorg-libICE xorg-libSM xorg-libX11 \
-xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
-xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrender \
-hicolor-icon-theme shared-mime-info"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/$SOURCE/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev gamin-dev gamin shared-mime-info intltool hal-dev \
 dbus-glib-dev dbus-dev startup-notification-dev xorg-libxcb-dev xorg-xcb-util-dev \
 xorg-xcb-util xorg-libX11-dev xorg-libXt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lXt"
 
-	cd $src
-	for i in  $stuff/*.patch
-	do
-		if [ -f done.$(basename $i) ]; then
-			continue
-		else
-			patch -p0 < $i && touch done.$(basename $i) || return 1
-		fi
+	for i in  $stuff/*.patch; do
+		[ -f done.$(basename $i) ] && continue
+		patch -p0 < $i && touch done.$(basename $i) || return 1
 	done
 
 	cp $stuff/fr.po $src/po
@@ -43,26 +30,21 @@ compile_rules()
 	./configure \
 		--enable-hal \
 		$CONFIGURE_ARGS &&
-	make && make -j 1 install
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/applications $fs/etc/xdg
-
-	cp -a $install/usr/bin $fs/usr
-	#cp -a $install/usr/share/mime $fs/usr/share
-	cp -a $install/usr/share/pcmanfm $fs/usr/share
-	rm -rf $fs/usr/share/pcmanfm/icons
+	fix libtool &&
+	make &&
+	make -j1 install || return 1
 
 	# XDG autostart desktop file (lxsession will use it automaticaly)
-	cp -a $stuff/autostart $fs/etc/xdg
+	install -Dm644 $stuff/autostart/pcmanfm.desktop $fs/etc/xdg/autostart/pcmanfm.desktop
 }
 
-post_install()
-{
-	# update mime-cache
-	echo "Updating mime-types database"
-	chroot "$1/" /usr/bin/update-mime-database /usr/share/mime
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibc-base glib util-linux-uuid xorg-libxcb xorg-xcb-util expat \
+	zlib fontconfig freetype gtk+ atk cairo pango xorg-pixman libpng16 gamin \
+	startup-notification dbus dbus-glib hal xorg-libICE xorg-libSM xorg-libX11 \
+	xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
+	xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrender \
+	hicolor-icon-theme shared-mime-info"
+	TAGS="file-manager"
 }

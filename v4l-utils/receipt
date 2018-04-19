@@ -16,6 +16,7 @@ SPLIT="v4l-utils-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -j1 install
 }
@@ -25,13 +26,11 @@ genpkg_rules() {
 		v4l-utils)
 			copy @std
 			DEPENDS="eudev libjpeg-turbo"
-			PROVIDE="libv4l"
 			TAGS="webcam video"
 			;;
 		*-dev)
 			copy @dev
 			DEPENDS="v4l-utils eudev-dev libjpeg-turbo-dev"
-			PROVIDE="libv4l-dev"
 			;;
 	esac
 }

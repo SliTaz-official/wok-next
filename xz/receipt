@@ -20,7 +20,9 @@ compile_rules() {
 		--disable-static \
 		--enable-small \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/bin $install/lib
 	for i in lzma unlzma lzcat xz unxz xzcat; do

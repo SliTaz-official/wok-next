@@ -14,19 +14,18 @@ WGET_URL="https://github.com/google/protobuf/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="curl automake libtool zlib-dev python-dev"
 SPLIT="protobuf-python protobuf-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh &&
-	./configure $CONFIGURE_ARGS && make && make install || exit 1
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || exit 1
 
 	cd $src/python
 	python setup.py install --prefix=/usr --root $DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		protobuf)
 			copy bin/ *.so*

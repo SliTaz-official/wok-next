@@ -13,15 +13,14 @@ WGET_URL="https://support.hdfgroup.org/ftp/lib-external/szip/$VERSION/src/$TARBA
 
 SPLIT="szip-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		szip)  copy @std;;
 		*-dev) copy @dev;;

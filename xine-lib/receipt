@@ -28,9 +28,6 @@ compile_rules() {
 	sed -i 's/grep -x/grep/' configure
 	CPPFLAGS="$CPPFLAGS -DHAVE_NANO_SLEEP" \
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--with-freetype \
 		--with-xcb \
 		--without-jack \
@@ -45,6 +42,7 @@ compile_rules() {
 		--disable-vcd \
 		--disable-musepack \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
+	fix libtool &&
 	make && make install
 }
 

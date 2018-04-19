@@ -23,6 +23,7 @@ compile_rules() {
 		--disable-remote-access \
 		--disable-gtk-doc-html \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -49,8 +50,7 @@ genpkg_rules() {
 			util-linux-mount lsof"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/pkgconfig $fs/usr/share
+			copy @dev
 			;;
 	esac
 }

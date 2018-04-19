@@ -16,14 +16,15 @@ BUILD_DEPENDS="gettext ncurses-dev"
 SPLIT="procps-ng-dev"
 
 compile_rules() {
-#		--docdir=/usr/share/doc/procps-ng-$VERSION \
 	./configure \
 		--exec-prefix= \
 		--libdir=/usr/lib \
 		--disable-static \
 		--disable-kill \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/lib
 	mv $install/usr/lib/libprocps.so.* $install/lib

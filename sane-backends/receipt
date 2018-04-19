@@ -11,7 +11,7 @@ WEB_SITE="http://www.sane-project.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp2.sane-project.org/pub/sane/$PACKAGE-$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libusb-compat-dev libjpeg-turbo-dev tiff-dev zlib-dev libv4l-dev \
+BUILD_DEPENDS="libusb-compat-dev libjpeg-turbo-dev tiff-dev zlib-dev v4l-utils-dev \
 libgphoto2-dev libtool eudev-dev"
 SPLIT="sane-backends-dev"
 
@@ -22,6 +22,7 @@ compile_rules() {
 	patch -Np1 -i $stuff/xerox_mfp_fix_usb_devices.patch
 
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make -j1 DESTDIR=$install install || return 1
 
@@ -53,7 +54,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		sane-backends)
 			copy @std
-			DEPENDS="libusb-compat libjpeg-turbo tiff zlib libgphoto2 libv4l libltdl"
+			DEPENDS="libusb-compat libjpeg-turbo tiff zlib libgphoto2 v4l-utils libltdl"
 			SUGGESTED="imagemagick gocr tesseract-ocr"
 			;;
 		*-dev)

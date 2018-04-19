@@ -1,25 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="spacefm"
 VERSION="0.9.4"
 CATEGORY="system-tools"
-SHORT_DESC="Light, fast and easy to use file manager."
+SHORT_DESC="Light, fast and easy to use file manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://ignorantguru.github.io/spacefm/"
-WGET_URL="$SF_MIRROR/$PACKAGE/files/$TARBALL"
-TAGS="file-manager"
 
-DEPENDS="glibc-base glib util-linux-uuid xorg-libxcb xorg-xcb-util expat \
-gtk+ startup-notification dbus dbus-glib gdk-pixbuf udev bash udevil"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/$PACKAGE/files/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
 xorg-libxcb-dev xorg-xcb-util-dev expat-dev gdk-pixbuf-dev intltool udev-dev \
 coreutils-file-special"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch -Np1 -i $stuff/prefdlg.ui.diff
 	patch -Np1 -i $stuff/settings.h.diff
 	patch -Np1 -i $stuff/vfs-file-task.c.diff
@@ -28,22 +24,21 @@ compile_rules()
 		--with-preferable-sudo="/usr/bin/subox" \
 		--disable-pixmaps \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	install -Dm644 $stuff/spacefm.conf                  $install/etc/spacefm/spacefm.conf
+	install -Dm644 $stuff/xdg/autostart/spacefm.desktop $install/etc/autostart/spacefm.desktop
+	install -Dm644 $stuff/xdg/spacefm/session           $install/etc/xdg/spacefm/session
+
+	# /bin/bash --> /bin/sh
+	sed -i 's|/bin/bash|/bin/sh|g' $install/usr/bin/spacefm-auth
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share $fs/etc/spacefm
-	cp -a $install/usr/bin $fs/usr
-	for d in applications icons spacefm; do
-		cp -a $install/usr/share/$d $fs/usr/share
-	done
-	cp $stuff/spacefm.conf $fs/etc/spacefm
-	cp -a $stuff/xdg $fs/etc
-	# Faenza --> SliTaz
-	mv $fs/usr/share/icons/Faenza $fs/usr/share/icons/SliTaz
-	rm -rf $fs/usr/share/icons/hicolor/128x128
-	# /bin/bash --> /bin/sh
-	sed -i s'|/bin/bash|/bin/sh|'g $fs/usr/bin/spacefm-auth
+genpkg_rules() {
+	copy @std @ico
+	DEPENDS="glibc-base glib util-linux-uuid xorg-libxcb xorg-xcb-util expat \
+	gtk+ startup-notification dbus dbus-glib gdk-pixbuf udev bash udevil"
+	TAGS="file-manager"
 }

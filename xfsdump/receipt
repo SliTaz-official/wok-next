@@ -13,14 +13,13 @@ WGET_URL="ftp://oss.sgi.com/projects/xfs/cmd_tars/$TARBALL"
 
 BUILD_DEPENDS="libtool gettext util-linux-uuid-dev xfsprogs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	rm /bin/rpm # busybox rpm is useless here
 
 	./configure \
 		CFLAGS=-D_FILE_OFFSET_BITS=64 \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install
 
 	# change absolute symlinks to relative ones
@@ -28,9 +27,7 @@ compile_rules()
 	ln -sf ../../sbin/xfsrestore $install/usr/sbin/xfsrestore
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="attr ncurses util-linux-uuid xfsprogs"
 }

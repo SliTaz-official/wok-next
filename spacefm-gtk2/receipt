@@ -13,22 +13,19 @@ WGET_URL="https://github.com/IgnorantGuru/spacefm/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="intltool gtk+-dev eudev-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-video-thumbnails \
 		--with-preferable-sudo=/usr/bin/subox \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make MKDIRPROG='mkdir -p' install || return 1
 
 	rm -rf $install/usr/share/mime/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="cairo eudev gdk-pixbuf glib gtk+ pango xorg-libX11   bash"
 }

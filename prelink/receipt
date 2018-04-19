@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="prelink"
 VERSION="20130503"
@@ -7,21 +7,22 @@ SHORT_DESC="ELF prelinking utility to speed up dynamic linking"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL"
 WEB_SITE="http://people.redhat.com/jakub/prelink/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://people.redhat.com/jakub/$PACKAGE/$TARBALL"
 
-DEPENDS="elfutils"
 BUILD_DEPENDS="elfutils-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/^LIBS.*/& -lpthread/' src/Makefile*
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="elfutils"
 }

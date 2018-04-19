@@ -14,24 +14,19 @@ WGET_URL="$WEB_SITE/download/$TARBALL"
 BUILD_DEPENDS="gfortran"
 SPLIT="ucl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-shared \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make && make install || return 1
 
-	docdir=$install/usr/share/doc/ucl-$VERSION
-	mkdir -p $docdir
-	cp AUTHORS NEWS README THANKS TODO $docdir
+	cook_pick_docs AUTHORS NEWS README THANKS TODO $docdir
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		ucl) copy @std;;
+		ucl)   copy @std;;
 		*-dev) copy @dev;;
 	esac
 }

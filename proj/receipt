@@ -14,18 +14,18 @@ TARBALL_MD5="d598336ca834742735137c5674b214a1"
 
 SPLIT="proj-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $DESTDIR/usr/bin
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		proj) copy @std;;
+		proj)  copy @std;;
 		*-dev) copy @dev;;
 	esac
 }

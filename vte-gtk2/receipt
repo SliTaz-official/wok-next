@@ -7,6 +7,7 @@ SHORT_DESC="Terminal capabilities for GTK+ widgets"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html" # (for gtk+3 version)
 
 TARBALL="vte-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/vte/0.28/$TARBALL"
@@ -16,8 +17,6 @@ BUILD_DEPENDS="intltool gtk+-dev python-dev gobject-introspection-dev pygtk-dev"
 SPLIT="vte-gtk2-terminal vte-gtk2-python vte-gtk2 vte-gtk2-dev"
 
 compile_rules() {
-	# http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html (for gtk+3 version)
-
 	case "$ARCH" in
 		arm*) ARCH_ARGS="--enable-introspection=no";;
 		*)    ARCH_ARGS="--enable-introspection=yes";;
@@ -27,6 +26,7 @@ compile_rules() {
 		--disable-static \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make -j1 &&
 	make install
 

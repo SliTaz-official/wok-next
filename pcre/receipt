@@ -17,7 +17,6 @@ SPLIT="pcre-apps pcre-dev"
 
 compile_rules() {
 	./configure \
-		--docdir=/usr/share/doc/pcre-$VERSION \
 		--enable-unicode-properties \
 		--enable-pcre16 \
 		--enable-pcre32 \
@@ -28,7 +27,9 @@ compile_rules() {
 		--enable-jit \
 		--enable-valgrind \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libpcre.so.* $install/lib

@@ -16,11 +16,10 @@ SPLIT="wv-dev"
 
 compile_rules() {
 	sed -i 's|.ac_install_sh -d|mkdir -p|' configure
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make 
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 

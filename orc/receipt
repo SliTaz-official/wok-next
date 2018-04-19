@@ -14,15 +14,14 @@ WGET_URL="https://gstreamer.freedesktop.org/src/orc/$TARBALL"
 BUILD_DEPENDS="valgrind-dev"
 SPLIT="orc-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make $MAKEFLAGS && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make $MAKEFLAGS &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		orc)   copy @std;;
 		*-dev) copy @dev;;

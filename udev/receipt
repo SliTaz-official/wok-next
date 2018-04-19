@@ -7,7 +7,6 @@ SHORT_DESC="Udev creat automaticly right devices in /dev"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/software/systemd/man/udev.html"
-BUILD_WARNING="Install new udev package and rebuild hal"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kernel/hotplug/$TARBALL"
@@ -17,6 +16,8 @@ BUILD_DEPENDS="util-linux-blkid-dev gperf pciids acl-dev \
 usbutils-dev libusb-dev glib-dev pciids usbids kmod-dev \
 libgudev-dev pcre-dev xz-dev util-linux-uuid-dev"
 SPLIT="udev-dev"
+
+BUILD_WARNING="Install new udev package and rebuild hal"
 
 compile_rules() {
 	case "$ARCH" in
@@ -45,6 +46,7 @@ compile_rules() {
 		--with-usb-ids-path=/usr/share/misc/usb.ids.gz \
 		--with-systemdsystemunitdir=no \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
@@ -79,11 +81,7 @@ genpkg_rules() {
 			DEPENDS="util-linux-blkid pciids usbids acl kmod"
 			;;
 		*-dev)
-			mkdir -p $fs/lib $fs/usr/lib/pkgconfig $fs/usr/include
-			cp -a $install/lib/libudev*a $fs/lib
-			cp -a $install/lib/pkgconfig/libudev.pc $fs/usr/lib/pkgconfig
-			cp -a $install/usr/share/pkgconfig/* $fs/usr/lib/pkgconfig
-			cp -a $install/usr/include/libudev.h $fs/usr/include
+			copy @dev
 			;;
 	esac
 }

@@ -3,84 +3,76 @@
 PACKAGE="transmission"
 VERSION="2.92"
 CATEGORY="network"
-SHORT_DESC="Light and easy to use BitTorrent client."
+SHORT_DESC="Light and easy to use BitTorrent client"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.transmissionbt.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://transmission.cachefly.net/$TARBALL"
 
 BUILD_DEPENDS="gtk+3-dev openssl-dev curl-dev curl intltool \
 expat-dev gettext dbus-dev dbus-glib-dev libevent-dev wget tar"
 SPLIT="transmission-cli transmission-daemon transmission-web"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	touch third-party/miniupnp/VERSION
-	CFLAGS="$CFLAGS -fdata-sections -ffunction-sections \
-	-Wl,--gc-sections"
+	CFLAGS="$CFLAGS -fdata-sections -ffunction-sections -Wl,--gc-sections"
+
 	./configure \
-		--prefix=/usr \
 		--enable-cli \
 		--enable-lightweight \
 		$CONFIGURE_ARGS &&
-	make && make install &&
+	fix libtool &&
+	make && make install || return 1
+
 	rm -rf $install/usr/share/applications $src/macosx
 	#For gcc v4.7+
 	#cd $src/qt && qmake qtr.pro
 	#make && make INSTALL_ROOT=$install install
+
+	install -Dm644 $stuff/settings.json       $install/var/transmission-daemon/settings.json
+	install -Dm755 $stuff/transmission-daemon $install/etc/init.d/transmission-daemon
+
+	mv $install/usr/bin/transmission-gtk $install/usr/bin/transmission
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	transmission)
-		DEPENDS="gtk+3 openssl libcurl glib dbus dbus-glib \
+		transmission)
+			copy transmission
+			DEPENDS="gtk+3 openssl libcurl glib dbus dbus-glib \
 			xorg-libXdamage libnotify libevent"
-		TAGS="torrent"
-		SUGGESTED="transmission-web transmission-cli transmission-daemon"
-		mkdir -p $fs/usr/bin $fs/usr/share/applications
-		cp -a $install/usr/bin/${PACKAGE}-gtk $fs/usr/bin/${PACKAGE}
-		;;
-	transmission-cli)
-		CAT="network|Transmission command line interface."
-		DEPENDS="transmission libcurl openssl"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/transmission-cli $fs/usr/bin
-		;;
-	transmission-daemon)
-		CAT="network|Transmission daemon and remote tool."
-		SUGGESTED="transmission-web transmission-cli"
-		DEPENDS="openssl libcurl libevent"
-		mkdir -p $fs/usr/bin \
-			$fs/etc/init.d \
-			$fs/var/transmission-daemon
-		cp -a $install/usr/bin/transmission-daemon $fs/usr/bin
-		cp -a $install/usr/bin/transmission-remote $fs/usr/bin
-		cp $stuff/settings.json $fs/var/transmission-daemon
-		cp $stuff/transmission-daemon $fs/etc/init.d
-		;;
-	transmission-web)
-		CAT="network|Transmission web interface."
-		SUGGESTED="transmission-daemon"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/transmission $fs/usr/share
-		rm $fs/usr/share/transmission/web/LICENSE
-		;;
+			TAGS="torrent"
+			SUGGESTED="transmission-web transmission-cli transmission-daemon"
+			;;
+		transmission-cli)
+			copy transmission-cli
+			CAT="network|command line interface"
+			DEPENDS="transmission libcurl openssl"
+			;;
+		transmission-daemon)
+			copy transmission-daemon transmission-remote settings.json
+			CAT="network|daemon and remote tool"
+			SUGGESTED="transmission-web transmission-cli"
+			DEPENDS="openssl libcurl libevent"
+			;;
+		transmission-web)
+			copy share/transmission/
+			rm $fs/usr/share/transmission/web/LICENSE
+			CAT="network|web interface"
+			SUGGESTED="transmission-daemon"
+			;;
 	esac
 }
 
 # Remove old packages name
-post_install_transmission()
-{
+post_install_transmission() {
 	rm -f "$1/usr/bin/transmission-gtk"
-	rm -f "$1/usr/share/applications/${PACKAGE}-gtk.desktop"
+	rm -f "$1/usr/share/applications/transmission-gtk.desktop"
 }
 
-post_install_transmission_web()
-{
+post_install_transmission_web() {
 	# Info message
 	echo "
 You must activate the web interface throught Transmission and then

@@ -17,7 +17,6 @@ SPLIT="pcre2-apps pcre2-dev"
 
 compile_rules() {
 	./configure \
-		--docdir=/usr/share/doc/pcre2-$VERSION \
 		--enable-unicode \
 		--enable-pcre2-16 \
 		--enable-pcre2-32 \
@@ -28,7 +27,9 @@ compile_rules() {
 		--enable-jit \
 		--enable-valgrind \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

@@ -43,49 +43,50 @@ compile_rules() {
 		--enable-icap-client \
 		--with-pthreads ac_cv_header_linux_netfilter_ipv4_h="yes" \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-	squid)
-		CONFIG_FILES="/etc/squid"
-		DEPENDS="libsasl libldap openssl libltdl"
-		SUGGESTED="iptables"
-		mkdir -p $fs/usr/share/squid/errors $fs/var/cache/squid \
-			$fs/var/log/squid $fs/usr/lib/squid $fs/etc/squid/conf.d
-	
-		touch $fs/var/log/squid/cache.log
-	
-		cp -a $install/etc $fs
-		rm -rf $fs/etc/squid/*.default
-		cp -a $stuff/etc $fs
-	
-		cp -a $install/var $fs
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/usr/lib/squid/* $fs/usr/lib/squid
-	
-		# Remove auth libs
-		rm -f $fs/usr/lib/squid/*_auth*
-	
-		cp -a $install/usr/share/squid/mib.txt $fs/usr/share/squid
-		cp -a $install/usr/share/squid/icons $fs/usr/share/squid
-		cp -a $install/usr/share/squid/errors/templates $fs/usr/share/squid/errors
-		cp -a $install/usr/share/squid/errors/en* $fs/usr/share/squid/errors
-		cp -a $install/usr/share/squid/errors/fr* $fs/usr/share/squid/errors
-	
-		sed -i \
-			-e 's/TAG: visible_hostname/TAG: visible_hostname\nvisible_hostname slitaz/' \
-			-e 's|^#cache_dir ufs /var/cache 100|cache_dir ufs /var/cache/squid 256|' \
-			-e 's|^#pid_filename /var/logs|pid_filename /var/run/squid.pid|' \
-			-e "s|^coredump_dir.*|coredump_dir /var/cache/squid|" \
-			-e 's|^# error_directory|error_directory /usr/share/squid/errors/French|' \
-			-e 's|^# error_directory|error_directory /usr/share/squid/errors/French|' \
-				$fs/etc/squid/squid.conf
-		
-		cat <<EOF>>$fs/etc/squid/squid.conf
+		squid)
+			CONFIG_FILES="/etc/squid"
+			DEPENDS="libsasl libldap openssl libltdl"
+			SUGGESTED="iptables"
+			mkdir -p $fs/usr/share/squid/errors $fs/var/cache/squid \
+				$fs/var/log/squid $fs/usr/lib/squid $fs/etc/squid/conf.d
+
+			touch $fs/var/log/squid/cache.log
+
+			cp -a $install/etc $fs
+			rm -rf $fs/etc/squid/*.default
+			cp -a $stuff/etc $fs
+
+			cp -a $install/var $fs
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/usr/lib/squid/* $fs/usr/lib/squid
+
+			# Remove auth libs
+			rm -f $fs/usr/lib/squid/*_auth*
+
+			cp -a $install/usr/share/squid/mib.txt $fs/usr/share/squid
+			cp -a $install/usr/share/squid/icons $fs/usr/share/squid
+			cp -a $install/usr/share/squid/errors/templates $fs/usr/share/squid/errors
+			cp -a $install/usr/share/squid/errors/en* $fs/usr/share/squid/errors
+			cp -a $install/usr/share/squid/errors/fr* $fs/usr/share/squid/errors
+
+			sed \
+				-e 's/TAG: visible_hostname/TAG: visible_hostname\nvisible_hostname slitaz/' \
+				-e 's|^#cache_dir ufs /var/cache 100|cache_dir ufs /var/cache/squid 256|' \
+				-e 's|^#pid_filename /var/logs|pid_filename /var/run/squid.pid|' \
+				-e "s|^coredump_dir.*|coredump_dir /var/cache/squid|" \
+				-e 's|^# error_directory|error_directory /usr/share/squid/errors/French|' \
+				-e 's|^# error_directory|error_directory /usr/share/squid/errors/French|' \
+				-i $fs/etc/squid/squid.conf
+
+			cat <<EOF>>$fs/etc/squid/squid.conf
 	
 cache_effective_user squid
 cache_effective_group squid
@@ -96,21 +97,21 @@ cache_store_log /var/log/squid/store.log
 
 include /etc/squid/conf.d/*.conf
 EOF
-		;;
-	squid-auth-helpers)
-		CAT="network|Web/ftp proxy."
-		DEPENDS="squid libldap libsasl openssl libkrb5 libcomerr3"
-		mkdir -p $fs/usr/lib/squid
-		cp -a $install/usr/lib/squid/*_auth* $fs/usr/lib/squid
-		;;
-	squid-langpack)
-		CAT="network|Web/ftp proxy language pack."
-		DEPENDS="squid"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/share/squid/errors $fs/usr/share
-		rm -rf $fs/usr/share/squid/errors/en*
-		rm -rf $fs/usr/share/squid/errors/fr*
-		;;
+			;;
+		squid-auth-helpers)
+			CAT="network|auth helpers"
+			DEPENDS="squid libldap libsasl openssl libkrb5 libcomerr3"
+			mkdir -p $fs/usr/lib/squid
+			cp -a $install/usr/lib/squid/*_auth* $fs/usr/lib/squid
+			;;
+		squid-langpack)
+			CAT="network|language pack"
+			DEPENDS="squid"
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/share/squid/errors $fs/usr/share
+			rm -rf $fs/usr/share/squid/errors/en*
+			rm -rf $fs/usr/share/squid/errors/fr*
+			;;
 	esac
 }
 

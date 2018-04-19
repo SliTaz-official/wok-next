@@ -30,7 +30,9 @@ compile_rules() {
 				$CONFIGURE_ARGS
 				;;
 	esac &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	cd $install/usr/bin
 	mv pkg-config ${TOOLPREFIX}pkg-config

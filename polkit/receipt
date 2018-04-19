@@ -8,7 +8,6 @@ MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/polkit/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/polkit.html"
-CROSS="error: cannot check for file existence when cross compiling"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.freedesktop.org/software/polkit/releases/$TARBALL"
@@ -17,6 +16,8 @@ JS='js185'
 BUILD_DEPENDS="glib-dev $JS-dev expat-dev intltool pam-dev \
 gobject-introspection-dev gtk-doc"
 SPLIT="polkit polkit-dev  polkit-pam:pam polkit-pam-dev:pam"
+
+CROSS="error: cannot check for file existence when cross compiling"
 
 compile_rules() {
 	if ! grep -q polkitd "/etc/passwd"; then
@@ -34,7 +35,9 @@ compile_rules() {
 		--enable-libsystemd-login=no \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	fix libtool &&
+	make &&
+	make install || return 1
 
 	case "$SET" in
 		pam) install -Dm644 $stuff/polkit-1 $install/etc/pam.d/polkit-1;;

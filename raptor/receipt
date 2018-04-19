@@ -3,28 +3,30 @@
 PACKAGE="raptor"
 VERSION="2.0.8"
 CATEGORY="multimedia"
+SHORT_DESC="A C library that parses RDF/XML/N-Triples into RDF triples"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="A C library that parses RDF/XML/N-Triples into RDF triples"
 WEB_SITE="http://librdf.org/raptor"
-SOURCE="raptor2"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+
+TARBALL="raptor2-$VERSION.tar.gz"
 WGET_URL="http://librdf.org/dist/source/$TARBALL"
 
 BUILD_DEPENDS="libxml2-dev curl-dev zlib-dev openssl-dev libxslt-dev libidn-dev"
 SPLIT="raptor-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --disable-static --with-yajl=no $CONFIGURE_ARGS &&
-	make && make prefix=/usr install 
+compile_rules() {
+	./configure \
+		--disable-static \
+		--with-yajl=no \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make prefix=/usr install || return 1
+
+	ln -s raptor2/raptor2.h $install/usr/include/raptor.h
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{	
+
+genpkg_rules() {
 	case $PACKAGE in
 		raptor)
 			copy @std
@@ -32,7 +34,6 @@ genpkg_rules()
 			;;
 		raptor-dev)
 			copy @dev
-			ln -s raptor2/raptor2.h $fs/usr/include/raptor.h
 			DEPENDS="raptor curl-dev libxslt-dev"
 			;;
 	esac

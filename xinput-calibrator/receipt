@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xinput-calibrator"
 VERSION="0.7.5"
@@ -6,27 +6,21 @@ CATEGORY="x-window"
 SHORT_DESC="A generic touchscreen calibration program for X.Org"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SOURCE="xinput_calibrator"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://www.freedesktop.org/wiki/Software/xinput_calibrator/"
+
+TARBALL="xinput_calibrator-$VERSION.tar.gz"
 WGET_URL="http://cloud.github.com/downloads/tias/xinput_calibrator/$TARBALL"
 
-DEPENDS="xorg-libX11"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXext-dev xorg-libXi-dev xorg-inputproto"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/pixmaps/*.xpm \
-		$fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11"
 }

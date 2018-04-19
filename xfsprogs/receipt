@@ -14,31 +14,29 @@ WGET_URL="https://www.kernel.org/pub/linux/utils/fs/xfs/xfsprogs/$TARBALL"
 BUILD_DEPENDS="gettext util-linux-uuid-dev readline-dev"
 SPLIT="xfsprogs-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/xfsprogs.html
 	rm /bin/rpm # busybox rpm useless here
+
+	fix libtool &&
 	make \
 		DEBUG=-DNDEBUG \
 		INSTALL_USER=root \
 		INSTALL_GROUP=root \
 		LOCAL_CONFIGURE_OPTIONS="--enable-readline" &&
 	make PKG_DOC_DIR=/usr/share/doc/xfsprogs-$VERSION install &&
-	make PKG_DOC_DIR=/usr/share/doc/xfsprogs-$VERSION install-dev &&
+	make PKG_DOC_DIR=/usr/share/doc/xfsprogs-$VERSION install-dev || return 1
 
 	rm -fv \
 		$install/usr/lib/libhandle.a \
 		$install/lib/libhandle.a \
 		$install/lib/libhandle.la \
-		$install/lib/libhandle.so &&
-	ln -sfv ../../lib/libhandle.so.1 $install/usr/lib/libhandle.so &&
+		$install/lib/libhandle.so
+	ln -sfv ../../lib/libhandle.so.1 $install/usr/lib/libhandle.so
 	sed -i "s@libdir='/lib@libdir='/usr/lib@" $install/usr/lib/libhandle.la
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		xfsprogs)
 			copy @std

@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sysbench"
 VERSION="20150930"
 CATEGORY="misc"
-SHORT_DESC="A modular, cross-platform and multi-threaded benchmark tool."
+SHORT_DESC="A modular, cross-platform and multi-threaded benchmark tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/akopytov/sysbench"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/akopytov/sysbench.git"
 
-DEPENDS="libmysqlclient openssl zlib"
 BUILD_DEPENDS="git automake autoconf libtool mysql-dev openssl-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libmysqlclient openssl zlib"
 }

@@ -14,18 +14,16 @@ WGET_URL="http://launchpad.net/$PACKAGE/trunk/$VERSION/+download/$TARBALL"
 BUILD_DEPENDS="orc-dev"
 SPLIT="schroedinger-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-static \
-		$CONFIGURE_ARGS && \
-	make && make install
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		schroedinger)
 			copy @std

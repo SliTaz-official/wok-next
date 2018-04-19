@@ -13,21 +13,18 @@ WGET_URL="https://raw.githubusercontent.com/IgnorantGuru/udevil/pkg/$VERSION/$TA
 
 BUILD_DEPENDS="intltool eudev-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--disable-systemd \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make && make install || return 1
 
 	# Must be suid root
 	chmod +s $install/usr/bin/udevil
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="eudev glib   acl"
 	SUGGESTED="util-linux-mount util-linux-misc"

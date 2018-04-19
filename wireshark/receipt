@@ -16,13 +16,12 @@ libgcrypt-dev flex libtasn1-dev bison perl"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
 		--enable-setuid-install \
 		--with-qt=no \
 		--with-gtk2=yes \
 		--with-gtk3=no \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	sed -i 's/mozilla/browser/' config.h &&
 	make $MAKEFLAGS &&
 	make install

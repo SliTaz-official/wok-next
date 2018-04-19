@@ -1,34 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="unshield"
 VERSION="0.5"
 CATEGORY="utilities"
-SHORT_DESC="Extract files from InstallShield CAB archive."
+SHORT_DESC="Extract files from InstallShield CAB archive"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://kent.dl.sourceforge.net/sourceforge/synce/"
-WGET_URL="http://kent.dl.sourceforge.net/sourceforge/synce/$TARBALL"
-TAGS="windows exe cab"
+WEB_SITE="https://sourceforge.net/projects/synce/"
 
-DEPENDS="zlib"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/synce/$TARBALL"
+
 BUILD_DEPENDS="zlib-dev mysql-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/_BSD_SOURCE/_DEFAULT_SOURCE/' */*.c
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="zlib"
+	TAGS="windows exe cab"
 }
-
