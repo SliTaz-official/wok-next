@@ -1,34 +1,40 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="guvcview"
-SOURCE="guvcview-src"
-VERSION="1.6.1"
+VERSION="2.0.5"
 CATEGORY="multimedia"
-SHORT_DESC="A simple GTK interface for capturing and viewing video from webcams."
+SHORT_DESC="Simple interface for capturing and viewing video from v4l2 devices"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://guvcview.sourceforge.net"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+WEB_SITE="http://guvcview.sourceforge.net/"
+
+TARBALL="guvcview-src-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk+3 portaudio ffmpeg libsdl v4l-utils libgudev"
-BUILD_DEPENDS="gtk+3-dev portaudio-dev ffmpeg-dev libsdl-dev v4l-utils-dev \
-libgudev-dev intltool"
+BUILD_DEPENDS="intltool v4l-utils-dev eudev-dev libusb-dev ffmpeg-dev \
+libpng16-dev libsdl2-dev gsl-dev portaudio-dev gtk+3-dev"
+SPLIT="guvcview-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		    --disable-debian-menu \
-		    --disable-pulse $CONFIGURE_ARGS && 
-	make && 
+compile_rules() {
+	./configure \
+		--disable-debian-menu \
+		--disable-pulse \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/pixmaps $fs/usr/bin 
-	cp -a $install/usr/bin/* $fs/usr/bin
-	cp -a $install/usr/share/pixmaps/* $fs/usr/share/pixmaps
+genpkg_rules() {
+	case $PACKAGE in
+		guvcview)
+			copy @std *.mo
+			DEPENDS="eudev ffmpeg glib gsl gtk+3 libpng16 libsdl2 libusb \
+			portaudio v4l-utils"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
