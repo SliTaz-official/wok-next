@@ -1,15 +1,15 @@
 # SliTaz package receipt v2.
 
 PACKAGE="perdition"
-VERSION="2.1"
+VERSION="2.2"
 CATEGORY="network"
 SHORT_DESC="IMAP/POP proxy"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.vergenet.net/linux/$PACKAGE"
+WEB_SITE="http://horms.net/projects/perdition/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/download/$VERSION/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://horms.net/projects/perdition/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="vanessa_logger-dev vanessa_adt-dev vanessa_socket-dev \
 openldap-dev popt-dev cyrus-sasl-dev openssl-dev libidn-dev pam-dev"
@@ -36,30 +36,35 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	cp -a $stuff/etc $install
+
+	for i in pop3 pop3s imap4 imap4s imaps; do
+		mkdir -p $install/var/run/perdition.$i
+	done
+
+	install -Dm644 $src/perdition/db/ldap/perdition.schema \
+		$install/etc/openldap/schema/perdition.schema
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		perdition|perdition-pam)
-			DEPENDS="vanessa_logger vanessa_adt vanessa_socket libldap \
-			openssl cyrus-sasl glibc-base libkrb5 libcomerr3 gdbm"
-			if [ $PACKAGE == 'perdition-pam' ]; then
-				CAT="network|with PAM support"
-				DEPENDS="$DEPENDS pam"
-				PROVIDE="perdition:pam"
-			fi
-			mkdir -p $fs/usr/lib $fs/etc/openldap/schema
-			cp -a $install/etc $fs
+		perdition)
+			copy @std
 			rm -f $fs/etc/perdition/perdition.conf
-			cp -a $stuff/etc $fs
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			for i in pop3 pop3s imap4 imap4s imaps; do
-				mkdir -p $fs/var/run/perdition.$i
-			done
-			cp $src/perdition/db/ldap/perdition.schema $fs/etc/openldap/schema
-			CONFIG_FILES="/etc/perdition"
+			DEPENDS="libidn libldap openssl popt vanessa_adt vanessa_logger \
+			vanessa_socket" # cyrus-sasl libkrb5 libcomerr3 gdbm
+			CONFIG_FILES="/etc/perdition/"
+			;;
+		perdition-pam)
+			copy @std
+			rm -f $fs/etc/perdition/perdition.conf
+			DEPENDS="libidn libldap openssl pam popt vanessa_adt \
+			vanessa_logger vanessa_socket"
+			CAT="network|with PAM support"
+			PROVIDE="perdition:pam"
+			CONFIG_FILES="/etc/perdition/"
 			;;
 		perdition-dev)
 			copy @dev
@@ -73,12 +78,12 @@ post_install_perdition() {
 		chown nobody.nogroup "$1/var/run/perdition.$i"
 	done
 
-	[ -n "$quiet " ] || cat <<EOF
+	[ -n "$quiet" ] || cat <<EOF
 
 	.-------------------------------------------------------------------.
 	| Perdition will forward to the 127.0.0.1:50143 imap server.        |
 	| Can you change listen="imap" to listen="50143" in /etc/cyrus.conf |
-	| and restart cyrus-imap, or modify files in /etc/perdition.        |
+	| and restart cyrus-imap, or modify files in /etc/perdition/.       |
 	|                                                                   |
 	| To start perdition server you can run:                            |
 	|   /etc/init.d/perdition start                                     |
@@ -97,7 +102,7 @@ post_install_perdition_pam() {
 	.-------------------------------------------------------------------.
 	| Perdition will forward to the 127.0.0.1:50143 imap server.        |
 	| Can you change listen="imap" to listen="50143" in /etc/cyrus.conf |
-	| and restart cyrus-imap, or modify files in /etc/perdition.        |
+	| and restart cyrus-imap, or modify files in /etc/perdition/.       |
 	|                                                                   |
 	| To start perdition server you can run:                            |
 	|   /etc/init.d/perdition start                                     |
