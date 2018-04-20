@@ -1,25 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="quota"
-VERSION="4.01"
+VERSION="4.04"
 CATEGORY="system-tools"
 SHORT_DESC="Tools for the Linux Diskquota system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://quota.sourceforge.net/"
+WEB_SITE="https://sourceforge.net/projects/linuxquota/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/linuxquota/quota-tools/$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/linuxquota/$TARBALL"
 
-BUILD_DEPENDS="gettext e2fsprogs-dev"
+BUILD_DEPENDS="gettext libcomerr-dev e2fsprogs-dev dbus-dev libnl-dev \
+rpcsvc-proto libtirpc-dev"
+SPLIT="quota-dev"
 
 compile_rules() {
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/tirpc/"
+
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make ROOTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="e2fsprogs"
+	case $PACKAGE in
+		quota)
+			copy @std
+			DEPENDS="dbus e2fsprogs libnl libtirpc"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
