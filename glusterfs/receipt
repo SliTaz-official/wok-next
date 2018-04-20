@@ -12,19 +12,33 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://download.gluster.org/pub/gluster/glusterfs/${VERSION%.*}/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="flex python-dev readline-dev mpc-library elfutils openssl-dev \
-acl-dev sqlite-dev liburcu-dev libxml2-dev"
+acl-dev sqlite3-dev liburcu-dev libxml2-dev rpcsvc-proto libtirpc-dev"
+SPLIT="glusterfs-dev"
 
 compile_rules() {
 	sed -i "/^cat/,/^EOM/d;s/exit/echo '$HOST_SYSTEM'\n&/" config.sub
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/tirpc/"
+	export LDFLAGS="$LDFLAGS -ltirpc"
 
 	./configure \
 		--libexecdir=/usr/share \
 		$CONFIGURE_ARGS &&
+	sed -i 's| -lfl | |' $src/libglusterfs/src/Makefile &&
+	fix libtool &&
 	make &&
-	make  install
+	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="python readline mpc-library elfutils openssl"
+	case $PACKAGE in
+		glusterfs)
+			copy @std
+			DEPENDS="acl libsqlite3 libtirpc liburcu libxml2 openssl python \
+			readline zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="glusterfs acl-dev sqlite3-dev"
+			;;
+	esac
 }
