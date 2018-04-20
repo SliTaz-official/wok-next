@@ -12,8 +12,10 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 
 compile_rules() {
-	make
-	install -Dm755 $src/symlinks $install/usr/bin/symlinks
+	make || return 1
+	install -Dm755 symlinks   $install/usr/bin/symlinks
+	install -Dm644 symlinks.8 $install/usr/share/man/man8/symlinks.8
+	cook_pick_docs Readme.md
 }
 
 genpkg_rules() {

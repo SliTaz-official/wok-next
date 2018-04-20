@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="geoclue"
+VERSION="2.4.7"
+CATEGORY="network"
+SHORT_DESC="Modular geoinformation service built on top of the D-Bus"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/GeoClue/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/geoclue2.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.freedesktop.org/software/geoclue/releases/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool glib-dev json-glib-dev libsoup-dev \
+gobject-introspection-dev"
+SPLIT="geoclue-dev"
+
+compile_rules() {
+	./configure \
+		--disable-3g-source \
+		--disable-cdma-source \
+		--disable-modem-gps-source \
+		--disable-nmea-source \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		geoclue)
+			copy @std
+			DEPENDS="glib json-glib libsoup"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="geoclue glib-dev"
+			;;
+	esac
+}
