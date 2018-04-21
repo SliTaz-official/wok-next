@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xalan-c"
-VERSION="1.10.0-r705082"
+VERSION="1.11"
 CATEGORY="development"
 SHORT_DESC="An XSLT processor for transforming XML documents into HTML, text, \
 or other XML document types"
@@ -9,22 +9,16 @@ MAINTAINER="rcx@zoominternet.net"
 LICENSE="Apache"
 WEB_SITE="http://xalan.apache.org/"
 
-TARBALL="Xalan-C_r705082-src.tar.gz"
-# Need to use the patched r705082 version on Gentoo's mirrors
-# Normal WGET_URL would be "http://www.apache.org/dist/xml/$PACKAGE/source/$TARBALL"
-WGET_URL="http://www.gtlib.gatech.edu/pub/gentoo/distfiles/$TARBALL"
+TARBALL="xalan_c-$VERSION-src.tar.gz"
+WGET_URL="http://www.eu.apache.org/dist/xalan/xalan-c/sources/$TARBALL"
 
 BUILD_DEPENDS="xerces-c-dev"
 SPLIT="xalan-c-dev"
 
 compile_rules() {
-	fix math
-	mv c/* . && rm -r c
-	sed -i 's/isnan/std::&/' src/xalanc/PlatformSupport/DoubleSupport.hpp
-	sed -i 's/mutable MemoryManager/MemoryManager/' src/xalanc/*/*.hpp
-
 	export XERCESCROOT=/usr
-	export XALANCROOT=$src
+	export XALANCROOT=$src/c
+	cd c
 
 	./runConfigure \
 		-p linux \
@@ -40,14 +34,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		xalan-c)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			DEPENDS="glibc-base gcc-lib-base xerces-c libcurl openssl icu"
+			copy @std
+			DEPENDS="xerces-c"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

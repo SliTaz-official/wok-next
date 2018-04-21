@@ -1,12 +1,12 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xerces-c"
-VERSION="3.1.1"
+VERSION="3.2.1"
 CATEGORY="development"
 SHORT_DESC="A validating XML parser written in a portable subset of C++"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="Apache"
-WEB_SITE="http://xerces.apache.org/xerces-c"
+WEB_SITE="http://xerces.apache.org/xerces-c/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://apache.osuosl.org/xerces/c/3/sources/$TARBALL"
@@ -14,7 +14,14 @@ WGET_URL="http://apache.osuosl.org/xerces/c/3/sources/$TARBALL"
 SPLIT="xerces-c-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	case $ARCH in
+		i?86) ARCH_ARGS='--disable-sse2';;
+		*)    ARCH_ARGS='';;
+	esac
+
+	./configure \
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
@@ -22,12 +29,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		xerces-c)
-			copy @std
-			DEPENDS="libcurl openssl icu"
-			;;
-		*-dev)
-			copy @dev
-			;;
+		xerces-c) copy @std;;
+		*-dev)    copy @dev;;
 	esac
 }
