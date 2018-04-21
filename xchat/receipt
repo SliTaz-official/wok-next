@@ -11,21 +11,31 @@ WEB_SITE="http://www.xchat.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.xchat.org/files/source/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev dbus-dev openssl-dev shared-mime-info \
+BUILD_DEPENDS="gtk+-dev dbus-dev openssl10-dev shared-mime-info \
 gettext-tools perl-dev"
+SPLIT="xchat-plugin:plugin"
 
 compile_rules() {
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0 -lgmodule-2.0"
+
 	sed -i -e 's|glib/gslist.h|glib.h|' -e 's|glib/giochannel.h|glib.h|' \
 		-e 's|glib/glist.h|glib.h|' -e 's|glib/gstrfuncs.h|glib.h|' \
 		-e 's|glib/gutils.h|glib.h|' src/common/xchat.h
 	sed -i 's|glib/ghash.h|glib.h|' src/common/servlist.c src/common/text.c
 	sed -i 's|glib/gmarkup.h|glib.h|' src/common/util.c
 
+	case $SET in
+		'')     SET_ARGS='--disable-plugin';;
+		plugin) SET_ARGS='';;
+	esac
+
 	./configure \
-		--disable-plugin \
 		--disable-tcl \
 		--enable-spell=static \
 		--enable-ipv6 \
+		--enable-openssl=/usr/lib/openssl-1.0 \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -33,6 +43,16 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="gtk+ dbus openssl gettext-base dbus-glib xorg-libXdamage"
+	case $PACKAGE in
+		xchat)
+			copy @std
+			DEPENDS="gdk-pixbuf glib gtk+ openssl10 pango perl-core xorg-libX11"
+			;;
+		xchat-plugin)
+			copy @std
+			DEPENDS="gdk-pixbuf glib gtk+ openssl10 pango perl-core xorg-libX11"
+			PROVIDE="xchat"
+			CAT="network|with plugins support"
+			;;
+	esac
 }
