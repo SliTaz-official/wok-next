@@ -1,32 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xar"
-VERSION="1.5.2"
+VERSION="1.6.1"
 CATEGORY="utilities"
 SHORT_DESC="eXtensible ARchiver"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
-WEB_SITE="https://code.google.com/archive/p/xar/"
+WEB_SITE="https://mackyle.github.io/xar/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/xar/$TARBALL"
+WGET_URL="https://github.com/downloads/mackyle/xar/$TARBALL"
 
-BUILD_DEPENDS="libxml2-dev openssl-dev zlib-dev bzip2-dev"
+BUILD_DEPENDS="libxml2-dev openssl10-dev zlib-dev bzip2-dev"
 SPLIT="xar-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
+
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		xar)
 			copy @std
-			DEPENDS="acl attr bzlib glibc-base openssl libxml2 zlib"
+			DEPENDS="bzlib liblzma libxml2 openssl10 zlib"
 			;;
 		*-dev) copy @dev;;
 	esac
