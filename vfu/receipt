@@ -14,20 +14,18 @@ WGET_URL="http://cade.datamax.bg/vfu/$TARBALL"
 BUILD_DEPENDS="ncurses-dev pcre-dev"
 
 compile_rules() {
-	make || return 1
+	make || true
 
-	mkdir -p \
-		$install/usr/bin/ \
-		$install/usr/lib/vfu/ \
-		$install/etc/
-	cp -a $src/vfu/vfu  $install/usr/bin/
-	cp -a $src/rx/rx_*  $install/usr/lib/vfu/
-	cp -a $src/vfu.conf $install/etc/
-	chown -R root:root  $install
+	install -Dm755 vfu/vfu  $install/usr/bin/vfu
+	install -d              $install/usr/lib/vfu/
+	install -m755  rx/rx_*  $install/usr/lib/vfu/
+	install -Dm644 vfu.conf $install/etc/vfu.conf
+
+	cook_pick_manpages vfu.1
 }
 
 genpkg_rules() {
-	copy $std
+	copy @std
 	DEPENDS="ncurses pcre"
 	CONFIG_FILES="/etc/vfu.conf"
 }

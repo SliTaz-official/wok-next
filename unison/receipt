@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="unison"
-VERSION="2.48.3"
+VERSION="2.51.2"
 CATEGORY="system-tools"
 SHORT_DESC="File-synchronization tool"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,13 +9,17 @@ LICENSE="GPL3"
 WEB_SITE="http://www.cis.upenn.edu/~bcpierce/unison"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.seas.upenn.edu/~bcpierce/unison/download/releases/stable/$TARBALL"
+WGET_URL="https://github.com/bcpierce00/unison/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="ocaml emacs"
 
 compile_rules() {
-	CFLAGS="" make UISTYLE=text unison &&
-	install -Dm755 $src/unison $install/usr/bin/unison
+	CFLAGS='' make || return 1
+
+	install -Dm755 src/unison           $install/usr/bin/unison
+	install -Dm755 src/unison-fsmonitor $install/usr/bin/unison-fsmonitor
+
+	cook_pick_docs README.md
 }
 
 genpkg_rules() {
