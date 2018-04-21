@@ -1,21 +1,21 @@
 # SliTaz package receipt v2.
 
-PACKAGE="gcc61"
-VERSION="6.1.0"
+PACKAGE="gcc6"
+VERSION="6.4.0"
 CATEGORY="development"
 SHORT_DESC="The GNU Compiler Collection"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gcc.gnu.org/"
 
-TARBALL="gcc-$VERSION.tar.bz2"
+TARBALL="gcc-$VERSION.tar.xz"
 WGET_URL="ftp://gcc.gnu.org/pub/gcc/releases/gcc-$VERSION/$TARBALL"
 
 # We need gawk since busybox awk is not sufficient. We have BUILD_DEPENDS
 # for cookutils that are not used by tazwok/cook-toolchain since it installs
 # and uses its own copy.
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
-SPLIT="gcc61-lib-base"
+SPLIT="gcc6-lib-base"
 
 compile_rules() {
 	case $ARCH in
@@ -59,8 +59,8 @@ compile_rules() {
 		--enable-lto \
 		--enable-threads=posix \
 		--disable-bootstrap \
-		--program-suffix=-61 \
-		--libdir=/usr/libgcc61 \
+		--program-suffix=-6 \
+		--libdir=/usr/libgcc6 \
 		--with-pkgversion="$pkgversion" \
 		--disable-multilib \
 		$ARCH_ARGS \
@@ -70,7 +70,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		gcc61)
+		gcc6)
 			mkdir -p  $fs/usr/share
 			cp -a $install/usr/bin $fs/usr
 
@@ -86,7 +86,7 @@ genpkg_rules() {
 			DEPENDS="binutils libgomp libobjc gcc-lib-base mpc-library elfutils"
 			TAGS="compiler C C++"
 			;;
-		gcc61-lib-base)
+		gcc6-lib-base)
 			mkdir -p $fs/usr/lib
 			cp -a $install/usr/libgcc61/libgcc_s.so* $fs/usr/lib
 			cp -a $install/usr/libgcc61/libstdc++.so* $fs/usr/lib

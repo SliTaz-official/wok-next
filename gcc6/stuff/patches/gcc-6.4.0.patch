@@ -1,0 +1,16 @@
+./md-unwind-support.h: In function 'x86_64_fallback_frame_state':
+./md-unwind-support.h:65:47: error: dereferencing pointer to incomplete type 'struct ucontext'
+       sc = (struct sigcontext *) (void *) &uc_->uc_mcontext;
+                                               ^~
+
+--- a/libgcc/config/i386/linux-unwind.h
++++ b/libgcc/config/i386/linux-unwind.h
+@@ -58,7 +58,7 @@
+   if (*(unsigned char *)(pc+0) == 0x48
+       && *(unsigned long long *)(pc+1) == RT_SIGRETURN_SYSCALL)
+     {
+-      struct ucontext *uc_ = context->cfa;
++      struct ucontext_t *uc_ = context->cfa;
+       /* The void * cast is necessary to avoid an aliasing warning.
+          The aliasing warning is correct, but should not be a problem
+          because it does not alias anything.  */
