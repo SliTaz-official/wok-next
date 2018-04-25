@@ -1,45 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clamtk"
 VERSION="4.36"
 CATEGORY="network"
-SHORT_DESC="ClamTk is a GUI front-end for ClamAV using gtk2-perl."
+SHORT_DESC="ClamTk is a GUI front-end for ClamAV using gtk2-perl"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
 WEB_SITE="http://clamtk.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="clamav perl-gtk2 perl perl-date-calc perl-file-find-rule \
-perl-libwww-perl perl-locale-gettext perl-net-dns udev"
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cook_pick_manpages clamtk.1.gz
-}
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	install -Dm755  $src/clamtk $fs/usr/bin/clamtk
+compile_rules() {
+	install -Dm755 $src/clamtk $install/usr/bin/clamtk
 
 	# libs
-	PERL_VER=$(grep ^VERSION= $WOK/perl/receipt | cut -d "=" -f2 | sed -e 's/"//g')
-	for n in $src/lib/* ; do
-		install -Dm644 $n $fs/usr/lib/perl5/$PERL_VER/ClamTk/`basename $n`
+	PERL_VER=$(. $WOK/perl/receipt; echo $VERSION)
+	for n in $src/lib/*; do
+		install -Dm644 $n $install/usr/lib/perl5/$PERL_VER/ClamTk/$(basename $n)
 	done
-  
+
 	#localization
-	for n in $src/po/*.mo ; do
-		install -Dm644 $n $fs/usr/share/locale/`basename $n .mo`/LC_MESSAGES/clamtk.mo
+	for n in $src/po/*.mo; do
+		install -Dm644 $n $install/usr/share/locale/$(basename $n .mo)/LC_MESSAGES/clamtk.mo
 	done
 
 	# pixmaps
-	install -Dm644 $src/clamtk.xpm $fs/usr/share/pixmaps/clamtk.xpm
-	install -Dm644 $src/clamtk.png $fs/usr/share/pixmaps/clamtk.png
-  
+	install -Dm644 $src/clamtk.xpm $install/usr/share/pixmaps/clamtk.xpm
+	install -Dm644 $src/clamtk.png $install/usr/share/pixmaps/clamtk.png
+
 	# menu
-	install -Dm644 $src/clamtk.desktop $fs/usr/share/applications/clamtk.desktop
+	install -Dm644 $src/clamtk.desktop $install/usr/share/applications/clamtk.desktop
+
+	cook_pick_manpages clamtk.1.gz
+}
+
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="clamav perl-gtk2 perl perl-date-calc perl-file-find-rule \
+	perl-libwww-perl perl-locale-gettext perl-net-dns eudev"
 }
