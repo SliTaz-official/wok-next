@@ -19,7 +19,9 @@ COOKOPTS="skip-log-errors"
 CROSS="error: cannot check for file existence when cross compiling"
 
 compile_rules() {
+	# should define prefix
 	./configure \
+		--prefix=/usr \
 		--disable-static \
 		--with-installbuilddir=/usr/share/apr-1/build \
 		--enable-nonportable-atomics \
@@ -33,11 +35,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		apr)
-			copy *.so* *.exp
+			copy *.so*
 			DEPENDS="util-linux-uuid"
 			;;
 		apr-dev)
-			copy @dev build/
+			copy @dev build/ *.exp
 			DEPENDS="apr util-linux-uuid-dev"
 			;;
 	esac
