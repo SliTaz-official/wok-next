@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="nghttp2"
+VERSION="1.30.0"
+CATEGORY="network"
+SHORT_DESC="HTTP/2 C Library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://nghttp2.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/nghttp2.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/nghttp2/nghttp2/releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev openssl-dev libxml2-dev"
+SPLIT="nghttp2-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		--enable-lib-only \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		nghttp2) copy @std;;
+		*-dev)   copy @dev;;
+	esac
+}

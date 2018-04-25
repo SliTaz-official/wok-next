@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libnsl"
+VERSION="1.2.0"
+CATEGORY="network"
+SHORT_DESC="Public client interface for NIS(YP) and NIS+"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://github.com/thkukuk/libnsl/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/libnsl.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/thkukuk/libnsl/archive/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="automake gettext libtool libtirpc-dev rpcsvc-proto"
+SPLIT="libnsl-dev"
+
+compile_rules() {
+	autoreconf -fi &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	mkdir -p $install/lib
+	mv $install/usr/lib/libnsl.so.2*  $install/lib
+	ln -sfv ../../lib/libnsl.so.2.0.0 $install/usr/lib/libnsl.so
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libnsl)
+			copy @std
+			DEPENDS="libtirpc"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libnsl libtirpc-dev"
+			;;
+	esac
+}

@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ldns"
+VERSION="1.7.0"
+CATEGORY="network"
+SHORT_DESC="Fast DNS library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://www.nlnetlabs.nl/projects/ldns/about/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/ldns.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.nlnetlabs.nl/downloads/ldns/$TARBALL"
+
+BUILD_DEPENDS="openssl-dev perl"
+SPLIT="ldns-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		--with-drill \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		ldns)
+			copy @std
+			DEPENDS="openssl"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

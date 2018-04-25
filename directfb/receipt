@@ -1,21 +1,26 @@
 # SliTaz package receipt v2.
 
 PACKAGE="directfb"
-VERSION="1.4.3"
+VERSION="1.8.0"
+COMMIT="e97c8d4" # no releases here; latest commit (2014-01-30) hash
 CATEGORY="system-tools"
 SHORT_DESC="Thin library that provides hardware graphics acceleration"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://www.directfb.org/"
+WEB_SITE="https://github.com/DirectFB"
 
-SOURCE="DirectFB"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://www.directfb.org/downloads/Core/$SOURCE-${VERSION%.*}/$TARBALL"
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/DirectFB/directfb/archive/$COMMIT.tar.gz"
 
-BUILD_DEPENDS_arm="libpng12-dev jpeg-dev freetype-dev"
-BUILD_DEPENDS="libpng12-dev jpeg-dev freetype-dev tslib-dev perl"
+BUILD_DEPENDS="libtool automake gfortran libpng16-dev libjpeg-turbo-dev \
+freetype-dev tslib-dev perl fluxcomp xorg-xproto xorg-libXext-dev libvdpau-dev"
+
+BUILD_DEPENDS="libtool automake gfortran libpng16-dev libjpeg-turbo-dev \
+freetype-dev fluxcomp mesa-dev xorg-libxshmfence-dev expat-dev \
+xorg-libXcomposite-dev"
+
+
 SPLIT="directfb-dev"
-
 
 compile_rules() {
 	case "$ARCH" in
@@ -25,26 +30,29 @@ compile_rules() {
 			export CPPFLAGS="$CPPFLAGS -I/cross/arm/sysroot/usr/include"
 			;;
 	esac
-	./configure \
+
+	./autogen.sh \
+		--disable-osx \
 		--with-dither-rgb16=none \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make -j1 &&
+	make -j1 DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		directfb)
 			copy @std
-			DEPENDS="libpng12 libjpeg freetype tslib zlib"
+			DEPENDS="freetype libjpeg-turbo libpng16 tslib"
 			case "$SLITAZ_ARCH" in
 				arm) DEPENDS="libpng12 libjpeg freetype zlib" ;;
 			esac
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="directfb zlib-dev"
 			;;
 	esac
 }

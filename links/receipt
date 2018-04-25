@@ -3,17 +3,18 @@
 PACKAGE="links"
 VERSION="2.14"
 CATEGORY="network"
-SHORT_DESC="Light and fast web browser using Ncurses or Xlib"
+SHORT_DESC="Light and fast web browser"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://links.twibright.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/links.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://links.twibright.com/download/$TARBALL"
 
-BUILD_DEPENDS="openssl-dev xorg-libX11-dev jpeg-dev libpng16-dev tiff-dev \
-zlib-dev xorg-libXdmcp-dev xorg-libxcb-dev xorg-libXau-dev xz-dev bzip2-dev \
-gpm-dev"
+BUILD_DEPENDS="gpm-dev openssl-dev zlib-dev bzip2-dev xz-dev xorg-libX11-dev \
+xorg-libXt-dev libpng16-dev libjpeg-turbo-dev tiff-dev directfb-dev"
+SPLIT="links-dfb:dfb links-cli:cli"
 
 case "$ARCH" in
 	arm*)
@@ -26,9 +27,14 @@ case "$SLITAZ_ARCH" in
 esac
 
 compile_rules() {
+	case $SET in
+		'')  SET_ARGS='--enable-graphics --without-directfb --with-x';;
+		dfb) SET_ARGS='--enable-graphics --with-directfb --without-x';;
+		cli) SET_ARGS='--disable-graphics';;
+	esac
+
 	./configure \
-		--enable-graphics \
-		--without-directfb \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install || return 1
@@ -38,9 +44,24 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="ncurses openssl jpeg libpng16 tiff xorg-libX11 xorg-libXau \
-	xorg-libXdmcp xorg-libxcb zlib liblzma bzlib libgomp"
-	SUGGESTED="gpm"
+	case $PACKAGE in
+		links)
+			copy @std
+			DEPENDS="bzlib libgomp libjpeg-turbo liblzma libpng16 openssl tiff \
+			xorg-libX11 zlib"
+			SUGGESTED="gpm"
+			;;
+		links-dfb)
+			copy @std
+			DEPENDS="bzlib directfb libgomp libjpeg-turbo liblzma libpng16 \
+			openssl tiff zlib"
+			PROVIDE="links"
+			;;
+		links-cli)
+			copy @std
+			DEPENDS="bzlib liblzma openssl zlib"
+			PROVIDE="links"
+			;;
+	esac
 	TAGS="web-browser"
 }

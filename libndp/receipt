@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libndp"
+VERSION="1.6"
+CATEGORY="network"
+SHORT_DESC="Wrapper for IPv6 Neighbor Discovery Protocol"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="http://libndp.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/libndp.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://libndp.org/files/$TARBALL"
+
+SPLIT="libndp-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libndp) copy @std;;
+		*-dev)  copy @dev;;
+	esac
+}
