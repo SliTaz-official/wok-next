@@ -1,32 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lsof"
-VERSION="4.84"
+VERSION="4.91"
 CATEGORY="system-tools"
-SHORT_DESC="list open files."
+SHORT_DESC="Lists open files for running Unix processes"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
+WEB_SITE="https://people.freebsd.org/~abe/"
+
 TARBALL="${PACKAGE}_$VERSION.tar.bz2"
-WEB_SITE="http://people.freebsd.org/~abe/"
-WGET_URL="ftp://lsof.itap.purdue.edu/pub/tools/unix/$PACKAGE/$TARBALL"
+WGET_URL="ftp://ftp.fu-berlin.de/pub/unix/tools/lsof/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mv ${PACKAGE}_${VERSION} $src 2> /dev/null
-	cd $src
-	if [ ! -d ${PACKAGE}_${VERSION}_src ]; then
-		tar xf ${PACKAGE}_${VERSION}_src.tar
-	fi
+BUILD_DEPENDS="perl"
+
+compile_rules() {
+	tar xf ${PACKAGE}_${VERSION}_src.tar
 	cd ${PACKAGE}_${VERSION}_src
+
 	yes '' | ./Configure linux &&
-	make 
+	make -j1 || return 1
+
+	install -Dm755 $src/${PACKAGE}_${VERSION}_src/lsof $install/usr/bin/lsof
+	cook_pick_manpages $src/${PACKAGE}_${VERSION}_src/lsof.8
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/${PACKAGE}_${VERSION}_src/lsof $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }
-

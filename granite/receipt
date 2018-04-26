@@ -1,74 +1,47 @@
 # SliTaz package receipt v2.
 
 PACKAGE="granite"
-VERSION="0.2.1"
+VERSION="0.5"
 CATEGORY="system-tools"
-SHORT_DESC="A development library for elementary development"
+SHORT_DESC="Library that extends GTK+"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL3"
-WEB_SITE="https://launchpad.net/granite"
-BRANCH="535"
-TARBALL="$PACKAGE-$BRANCH.tar.bz2"
-WGET_URL="bzr|lp:granite"
+WEB_SITE="https://github.com/elementary/granite"
 
-BUILD_DEPENDS="bazaar cmake vala gtk+3-dev glib-dev libgee-dev \
-gobject-introspection-dev"
-SPLIT="granite granite-demo granite-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/elementary/granite/archive/$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# gee-1.0 is old while gee-0.8 is latest ;)
-	sed -i 's|gee-1.0|gee-0.8|g; s|Gee-1.0|Gee-0.8|g' \
-		$(grep -li gee-1.0 $(find . -type f))
+BUILD_DEPENDS="cmake vala gtk+3-dev libgee-dev gobject-introspection-dev \
+gettext"
+SPLIT="granite-demo granite granite-dev"
 
-	mkdir build &&
-	cd build &&
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
+COOKOPTS="!menus"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
 	make &&
 	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	granite)
-		DEPENDS="gtk+3 libgee"
-		mkdir -p \
-			$fs/usr/lib \
-			$fs/usr/share/locale
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		# icons converted from svg
-		for size in 16 22 24 32 48; do
-			ifolder=$fs/usr/share/icons/hicolor/${size}x${size}/actions
-			mkdir -p $ifolder
-			cp $stuff/${size}.png $ifolder/application-menu.png
-		done
-		# localization
-		. $WOK/slitaz-i18n/stuff/locale-pack.conf
-		for lang in $LOCALE_PACK; do
-			langf=$install/usr/share/locale/$lang
-			[ -d $langf ] && cp -a $langf $fs/usr/share/locale
-		done
-		;;
-	granite-dev)
-		CAT="development|Development files for granite"
-		DEPENDS="granite"
-		mkdir -p \
-			$fs/usr/lib \
-			$fs/usr/share
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/girepository* $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/share/gir* $fs/usr/share
-		cp -a $install/usr/share/vala $fs/usr/share
-		;;
-	granite-demo)
-		CAT="development|Demo for granite"
-		DEPENDS="granite"
-		mkdir -p $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		;;
+		granite-demo)
+			copy granite-demo granite-demo.desktop
+			CAT="development|demo"
+			DEPENDS="glib granite gtk+3 libgee"
+			;;
+		granite)
+			copy @std *.svg *.mo @rm
+			DEPENDS="cairo gdk-pixbuf glib gtk+3 libgee pango"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="granite cairo-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
+			libgee-dev"
+			;;
 	esac
 }
