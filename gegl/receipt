@@ -1,44 +1,52 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gegl"
-VERSION="0.2.0"
+VERSION="0.3.28"
 CATEGORY="system-tools"
 SHORT_DESC="Generic Graphics Library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://gegl.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/gegl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://ftp.gimp.org/pub/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="https://download.gimp.org/pub/gegl/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="babl-dev expat-dev gtk+-dev jasper-dev intltool"
-SPLIT="gegl-dev"
+BUILD_DEPENDS="babl-dev glib-dev json-glib-dev libjpeg-turbo-dev libpng16-dev \
+gobject-introspection-dev gettext cairo-dev pango-dev gdk-pixbuf-dev \
+librsvg-dev v4l-utils-dev openexr-dev libsdl-dev libraw-dev jasper-dev lua-dev \
+ffmpeg-dev lcms-dev libspiro-dev exiv2-dev tiff-dev libwebp-dev"
+SPLIT="gegl gegl-extra gegl-dev"
 
 compile_rules() {
-	# Keep gegl light so we can make smaller gimp LiveCD flavors
-	./configure \
-		--disable-docs \
-		--without-sdl \
-		--without-librsvg \
-		--without-graphviz \
-		--without-lua \
-		--without-libavformat \
-		--without-libv4l \
-		$CONFIGURE_ARGS &&
+	# Note, compiling gegl with all the possible "--without-*" options will
+	# produce "gegl" package. Omitting that options we get *the same* files
+	# plus some more, separated in the package "gegl-extra".
+	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
+	# Keep gegl light so we can make smaller gimp LiveCD flavors
 	case $PACKAGE in
 		gegl)
-			copy @std
-			DEPENDS="babl expat gtk+ jpeg xorg-libX11"
+			copy gcut gegl gegl-imgcmp gegl-*.so grey2.json jpg-*.so npy-*.so \
+			png-*.so ppm-*.so rgbe-*.so seamless-*.so transformops.so \
+			libgegl*.so*
+			DEPENDS="babl glib json-glib libjpeg-turbo libpng16 libspiro"
+			;;
+		gegl-extra)
+			copy @std @rm
+			DEPENDS="babl cairo ffmpeg gdk-pixbuf gegl-light glib jasper \
+			json-glib lcms2 libjpeg-turbo libpng16 libraw librsvg libsdl \
+			libspiro libwebp pango tiff"
+			CAT="system-tools|extra plugins"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="gegl libdrm-dev xorg-libXxf86vm-dev"
+			DEPENDS="gegl babl-dev glib-dev json-glib-dev"
 			;;
 	esac
 }
