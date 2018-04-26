@@ -1,15 +1,16 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fontconfig"
-VERSION="2.12.4"
+VERSION="2.12.6"
 CATEGORY="x-window"
 SHORT_DESC="Font configuration utilities and library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/fontconfig/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/fontconfig.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.freedesktop.org/software/fontconfig/release/$TARBALL"
+WGET_URL="https://www.freedesktop.org/software/fontconfig/release/$TARBALL"
 
 BUILD_DEPENDS="libxml2-dev freetype-dev gperf"
 SPLIT="fontconfig-dev"
@@ -17,6 +18,7 @@ SPLIT="fontconfig-dev"
 compile_rules() {
 	rm -f src/fcobjshash.h
 
+#	aclocal
 	./configure \
 		--with-arch=$ARCH \
 		--disable-static \
@@ -26,42 +28,18 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$install install || return 1
-
-
-	# FIXME: Which the app uses the next?
-	# FIXME: There are 10-hinting-{full,medium,none,slight}.conf already exists...
-	cd $install/usr/share/fontconfig/conf.avail
-	for h in hintslight hintmedium hintfull; do
-		cat > 10-hintstyle-$h.conf <<EOT
-<match target="font">
-	<edit mode="append" name="hintstyle">
-		<const>${h}</const>
-	</edit>
-</match>
-EOT
-	done
-
-	ln -s /usr/share/fontconfig/conf.avail/11-lcdfilter-default.conf \
-		$install/etc/fonts/conf.d
-
-	# Fontconfig warning: "/etc/fonts/conf.d/50-user.conf", line 14: reading
-	# configurations from ~/.fonts.conf is deprecated.
-	sed -i '/~\/\.fonts\.conf</d' \
-		$install/usr/share/fontconfig/conf.avail/50-user.conf
-
-	# chown -R root.root $fs
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		fontconfig)
 			copy @std
-			DEPENDS="bzlib freetype liblzma liblzma libpng16 libxml2 zlib"
+			DEPENDS="freetype libxml2"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="fontconfig freetype-dev libpng16-dev libxml2-dev"
+			DEPENDS="fontconfig freetype-dev libxml2-dev"
 			;;
 	esac
 }

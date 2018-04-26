@@ -1,0 +1,36 @@
+Fix fontconfig warning: "/etc/fonts/conf.d/50-user.conf", line 14: reading
+configurations from ~/.fonts.conf is deprecated.
+
+--- a/conf.d/50-user.conf
++++ b/conf.d/50-user.conf
+@@ -9,7 +9,4 @@
+ 	-->
+ 	<include ignore_missing="yes" prefix="xdg">fontconfig/conf.d</include>
+ 	<include ignore_missing="yes" prefix="xdg">fontconfig/fonts.conf</include>
+-	<!-- the following elements will be removed in the future -->
+-	<include ignore_missing="yes" deprecated="yes">~/.fonts.conf.d</include>
+-	<include ignore_missing="yes" deprecated="yes">~/.fonts.conf</include>
+ </fontconfig>
+
+Add default LCD filter by default.
+
+--- a/conf.d/Makefile.am
++++ b/conf.d/Makefile.am
+@@ -28,6 +28,7 @@
+ CONF_LINKS = \
+ 	10-hinting-$(PREFERRED_HINTING).conf	\
+ 	10-scale-bitmap-fonts.conf \
++	11-lcdfilter-default.conf \
+ 	20-unhint-small-vera.conf \
+ 	30-metric-aliases.conf \
+ 	40-nonlatin.conf \
+--- a/conf.d/Makefile.in
++++ b/conf.d/Makefile.in
+@@ -352,6 +352,7 @@
+ CONF_LINKS = \
+ 	10-hinting-$(PREFERRED_HINTING).conf	\
+ 	10-scale-bitmap-fonts.conf \
++	11-lcdfilter-default.conf \
+ 	20-unhint-small-vera.conf \
+ 	30-metric-aliases.conf \
+ 	40-nonlatin.conf \

@@ -7,6 +7,7 @@ SHORT_DESC="A portable ASCII art graphic library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2"
 WEB_SITE="http://aa-project.sourceforge.net/aalib/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/aalib.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/aa-project/$TARBALL"
@@ -15,7 +16,9 @@ BUILD_DEPENDS="ncurses-dev xorg-libXt-dev xorg-libX11-dev"
 SPLIT="aalib-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
@@ -25,7 +28,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		aalib)
 			copy @std
-			DEPENDS="ncurses xorg-libXt xorg-libX11"
+			DEPENDS="ncurses xorg-libX11"
 			;;
 		*-dev) copy @dev;;
 	esac

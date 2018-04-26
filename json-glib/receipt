@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="json-glib"
-VERSION="1.2.8"
+VERSION="1.4.2"
 CATEGORY="development"
 SHORT_DESC="JSON parser for GLib"
 MAINTAINER="mallory@sweetpeople.org"
@@ -12,28 +12,29 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/json-glib.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gtk-doc libxslt-dev gobject-introspection-dev gettext"
+BUILD_DEPENDS="meson ninja glib-dev gobject-introspection-dev gettext"
 SPLIT="json-glib-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+
+	meson-wrapper .. &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		json-glib)
 			copy @std
+			rm -r $fs/usr/lib/installed-tests/ $fs/usr/share/
 			DEPENDS="glib"
 			TAGS="javascript"
 			;;
 		*-dev)
-			copy @dev
-			DEPENDS="json-glib glib-dev libffi-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			zlib-dev"
+			copy @std @rm @dev
+			DEPENDS="json-glib glib-dev"
 			;;
 	esac
 }
