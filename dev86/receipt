@@ -12,29 +12,32 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lkundrak/dev86/tarball/v$VERSION"
 
 BUILD_DEPENDS="coreutils-file-output-full" # for `cat -v`
-SPLIT="elksemu"
+SPLIT="elksemu dev86"
+case $ARCH in
+	# elksemu isn't supported on x86-64, see:
+	# /usr/include/sys/vm86.h:24:3: error: #error This header is unsupported on x86-64.
+	x86_64) unset SPLIT;;
+esac
 
 compile_rules() {
 	sed -i 's|/usr/man|/usr/share/man|' man/Makefile
 	sed -i 's|REFIX)/man|REFIX)/share/man|' Makefile */Makefile
-	make -j 1 PREFIX=/usr &&
-	make -j 1 DIST=$DESTDIR install
+	make -j1 PREFIX=/usr &&
+	make -j1 DIST=$DESTDIR install || return 1
+
+	install -Dm755 $stuff/com2exe $install/usr/bin/com2exe
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		dev86)
-			mkdir -p $fs/usr
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib $fs/usr
-			cp -a $stuff/com2exe $fs/usr/bin
-			TAGS="compiler C assembler 8086"
-			;;
 		elksemu)
-			mkdir -p $fs/usr/bin
-			cp -a $install/usr/bin/elksemu $fs/usr/bin
-			CAT="system-tools|ELKS binary format support"
+			copy elksemu
+			CAT="system-tools|Embedded Linux Kernel Subset emulator"
 			TAGS="virtual 8086 vm86"
+			;;
+		dev86)
+			copy @std @dev @rm
+			TAGS="compiler C assembler 8086"
 			;;
 	esac
 }
