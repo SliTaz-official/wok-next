@@ -13,7 +13,6 @@ WGET_URL="https://www.freedesktop.org/software/vaapi/releases/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="autoconf automake libtool python libdrm-dev libva-dev \
 xorg-libpciaccess-dev xorg-libX11-dev"
-SPLIT="libva-intel-driver-dev"
 
 compile_rules() {
 	autoreconf -fi &&
@@ -25,14 +24,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		*-driver)
-			copy @std
-			DEPENDS="libdrm libdrm-intel xorg-libpciaccess"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libva-intel-driver libdrm-dev xorg-libpciaccess-dev"
-			;;
-	esac
+	copy @std
+	DEPENDS="libdrm libdrm-intel xorg-libpciaccess"
 }
