@@ -1,36 +1,32 @@
 # SliTaz package receipt v2.
 
 PACKAGE="alpine"
-VERSION="2.00"
+VERSION="2.21.999"
+HASH="349642a84039a4b026513c32a3b4f8594acd50df"
 CATEGORY="network"
 SHORT_DESC="Fast, easy to use email client"
 MAINTAINER="paul@slitaz.org"
 LICENSE="Apache"
 WEB_SITE="http://www.washington.edu/alpine/"
 
-TARBALL="$PACKAGE.tar.gz"
-WGET_URL="ftp://ftp.cac.washington.edu/alpine/$TARBALL"
+TARBALL="$PACKAGE-$HASH.tar.gz"
+WGET_URL="http://repo.or.cz/alpine.git/snapshot/$HASH.tar.gz"
 
-BUILD_DEPENDS="openssl10-dev pam-dev ncurses-dev gfortran gettext"
+BUILD_DEPENDS="openssl-dev pam-dev ncurses-dev gfortran gettext hunspell-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0 -lcrypto"
-
-	CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0" \
 	./configure \
 		--without-tcl \
 		--without-ldap \
 		--without-krb5 \
-		--with-ssl-include-dir=/usr/include/openssl-1.0/ \
-		--with-ssl-lib-dir=/usr/lib/openssl-1.0/ \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="ncurses openssl10 pam"
+	DEPENDS="ncurses openssl pam"
 	TAGS="mail client"
 }

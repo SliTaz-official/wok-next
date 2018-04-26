@@ -1,37 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wvdial"
 VERSION="1.61"
 CATEGORY="network"
-SHORT_DESC="makes modem-based connection to Internet"
+SHORT_DESC="Makes modem-based connection to Internet"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://wvstreams.googlecode.com/"
-WGET_URL="http://wvstreams.googlecode.com/files/$TARBALL"
-TAGS="network 3G"
+WEB_SITE="https://code.google.com/archive/p/wvstreams/"
 
-DEPENDS="ppp gcc-lib-base wvstreams"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/wvstreams/$TARBALL"
+
 BUILD_DEPENDS="wvstreams-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	 ./configure &&
-	make -j1 && 
-	make -j1 prefix=$DESTDIR/usr PPPDIR=$DESTDIR/etc/ppp/peers install
+compile_rules() {
+	./configure &&
+	make -j1 &&
+	make -j1 \
+		prefix=$DESTDIR/usr \
+		PPPDIR=$DESTDIR/etc/ppp/peers \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/wvdial* $fs/usr/bin
-	cp -a $install/etc $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="wvstreams   ppp"
+	TAGS="network 3G"
 }
 
-post_remove()
-{
+post_remove() {
 	rm -rf /etc/ppp/peers/wvdial
 }
