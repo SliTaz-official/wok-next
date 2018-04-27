@@ -1,18 +1,17 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openconnect"
-VERSION="4.07"
+VERSION="7.08"
 CATEGORY="network"
 SHORT_DESC="A client for Cisco's AnyConnect SSL VPN"
 MAINTAINER="samuel_trassare@yahoo.com"
 LICENSE="LGPL2.1"
-WEB_SITE="http://http://www.infradead.org/openconnect"
+WEB_SITE="http://www.infradead.org/openconnect/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.infradead.org/pub/openconnect/$TARBALL"
 
-# Will require libtirpc when glibc is upgraded to 2.14.
-BUILD_DEPENDS="openssl-dev zlib libxml2-dev vpnc gettext-tools"
+BUILD_DEPENDS="vpnc gettext gnutls-dev lz4-dev libproxy-dev krb5-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -23,5 +22,5 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="vpnc openssl libxml2"
+	DEPENDS="libgnutls libkrb5 libp11-kit libproxy libxml2 lz4-lib zlib"
 }
