@@ -22,8 +22,18 @@ compile_rules() {
 	make DESTDIR=$DESTDIR install || return 1
 
 	mkdir -p $install/usr/share/xine
-	mv $install/root/.mozilla/plugins/* $install/usr/share/xine/
-	rm -r $install/root/
+	# There's something different, don't know why
+	if [ -d $install/root ]; then
+		# in next64
+		echo "Found $install/root/.mozilla/plugins/"
+		mv $install/root/.mozilla/plugins/* $install/usr/share/xine/
+		rm -r $install/root/
+	else
+		# in next
+		echo "Found $install/.mozilla/plugins/"
+		mv $install/.mozilla/plugins/* $install/usr/share/xine/
+		rm -r $install/.mozilla
+	fi
 }
 
 genpkg_rules() {
