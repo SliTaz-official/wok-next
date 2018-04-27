@@ -3,35 +3,30 @@
 PACKAGE="ghostscript"
 VERSION="9.22"
 CATEGORY="office"
-SHORT_DESC="Ghostscript tools and utilities."
+SHORT_DESC="Ghostscript tools and utilities"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://pages.cs.wisc.edu/~ghost/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${VERSION/./}/$TARBALL"
 
 # build depends are optional ; ghostscripts still build but does not compile in cups support
 BUILD_DEPENDS="cairo-dev gtk+-dev expat-dev fontconfig-dev freetype-dev \
-gnutls-dev jpeg-dev libgcrypt-dev libgpg-error-dev libpng16-dev tiff-dev \
+gnutls-dev libgcrypt-dev libgpg-error-dev libpng16-dev tiff-dev \
 zlib-dev cups-dev jbig2dec jasper-dev"
 SPLIT="ghostscript ghostscript-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# force it to use system-libs
 	rm -rf jpeg libpng zlib jasper expat tiff
 
 	# --disable-compile-inits is needed for linking with system-zlib
 
 	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--disable-compile-inits \
 		--enable-dynamic \
 		--enable-cups \
-		--enable-cairo \
 		--enable-gtk \
 		--with-fontpath=/usr/share/fonts/truetype/:/usr/share/fonts \
 		--disable-compile-inits \
@@ -40,38 +35,24 @@ compile_rules()
 	make DESTDIR=$DESTDIR install soinstall
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	ghostscript)
-		DEPENDS="gtk+ expat fontconfig freetype gnutls jpeg libgcrypt \
-			libgpg-error libpng16 tiff zlib cups xorg-libICE \
-			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXt gcc-lib-base jasper jbig2dec" 
-		mkdir -p $fs/usr/share
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/usr/share/$PACKAGE $fs/usr/share
-		# Remove doc and examples
-		rm -rf $fs/usr/share/$PACKAGE/$VERSION/doc
-		rm -rf $fs/usr/share/$PACKAGE/$VERSION/examples
-		# Remove CMAPs (Non-free : not covered under GPL) : moved to non-free package get-ghostscript-CMAP
-		rm -rf $fs/usr/share/$PACKAGE/$VERSION/Resource/CMap/*
-	
-		# already compiled as a shared lib; gsc is same as gs
-		rm -rf $fs/usr/bin/gs
-		;;
-	ghostscript-dev)
-		CAT="development|Ghostscript devel file"
-		mkdir -p $fs/usr/include
-		cp -a $install/usr/include $fs/usr
-		;;
-	esac
-}
+		ghostscript)
+			copy @std
+			# Remove doc and examples
+			rm -rf $fs/usr/share/$PACKAGE/$VERSION/doc
+			rm -rf $fs/usr/share/$PACKAGE/$VERSION/examples
+			# Remove CMAPs (Non-free : not covered under GPL) : moved to non-free package get-ghostscript-CMAP
+			rm -rf $fs/usr/share/$PACKAGE/$VERSION/Resource/CMap/*
+			# already compiled as a shared lib; gsc is same as gs
+			rm -rf $fs/usr/bin/gs
+			ln -s gsc $fs/usr/bin/gs
 
-post_install_ghostscript()
-{
-	ln -sf /usr/bin/gsc "$1/usr/bin/gs"
+			DEPENDS="atk cairo cups fontconfig freetype gdk-pixbuf glib gtk+ \
+			libcups libgnutls libidn libjpeg-turbo libpng16 pango tiff zlib"
+			;;
+		*-dev)
+			copy @std
+			;;
+	esac
 }
