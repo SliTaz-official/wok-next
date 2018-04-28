@@ -1,61 +1,63 @@
 # SliTaz package receipt v2.
 
 PACKAGE="efl"
-VERSION="1.8.4"
+VERSION="1.20.7"
 CATEGORY="base-system"
-SHORT_DESC="EFL Core data structure library"
+SHORT_DESC="Enlightenment Foundation Libraries"
 MAINTAINER="domcox@slitaz.org"
-LICENSE="LGPL2.1"
-WEB_SITE="http://www.enlightenment.org/"
+LICENSE="BSD GPL2 LGPL2 zlib/libpng"
+WEB_SITE="https://www.enlightenment.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://download.enlightenment.org/rel/libs/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://download.enlightenment.org/rel/libs/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gstreamer0-dev gst0-plugins-base-dev check-dev \
-util-linux-mount-dev util-linux-blkid-dev eudev-dev openssl-dev dbus-dev \
-libjpeg-turbo-dev fribidi-dev giflib-dev tiff-dev libsndfile-dev lua-dev \
-xorg-libXp-dev xorg-printproto xorg-scrnsaverproto xorg-libXScrnSaver-dev \
-xorg-libXcursor-dev xorg-libXcomposite-dev xorg-libXinerama-dev \
-xorg-libXrandr-dev xorg-libXtst-dev mesa-dev util-linux-uuid-dev libxml2-dev \
-flac-dev autoconf automake expat-dev xorg-libxshmfence-dev"
+BUILD_DEPENDS="gettext openssl-dev libunwind-dev libjpeg-turbo-dev \
+gstreamer1-dev luajit-dev freetype-dev fontconfig-dev fribidi-dev \
+xorg-libX11-dev xorg-libXext-dev xorg-libXrender-dev mesa-dev giflib-dev \
+tiff-dev libwebp-dev poppler-dev libspectre-dev libraw-dev librsvg-dev \
+eudev-dev dbus-dev pulseaudio-dev xorg-libXcursor-dev xorg-libXcomposite-dev \
+xorg-libXinerama-dev xorg-libXrandr-dev xorg-libXScrnSaver-dev bullet-dev \
+gst1-plugins-base-dev"
 SPLIT="efl-dev"
 
 compile_rules() {
-	sed -i 's/DGifCloseFile([^)]*/&,NULL/' \
-		src/modules/evas/loaders/gif/evas_image_load_gif.c
-
-	autoreconf -v &&
-	ac_aux_dir=$src \
 	./configure \
-		--disable-static \
 		--disable-doc \
-		--disable-pulseaudio \
-		--disable-physics \
+		--disable-systemd \
+		--enable-harfbuzz \
+		--enable-image-loader-webp \
+		--enable-xinput22 \
+		--enable-multisense \
+		--enable-cancel-ok \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make -j1 DESTDIR=$install install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		efl)
 			copy @std
-			rm -rf $fs/usr/share/mime
-			DEPENDS="gstreamer0 gst0-plugins-base util-linux-mount \
-			util-linux-blkid eudev openssl dbus libjpeg-turbo fribidi giflib \
-			tiff libsndfile lua xorg-libXp xorg-libXScrnSaver mesa bullet \
-			util-linux-uuid"
+			DEPENDS="bullet cairo dbus eudev fontconfig freetype fribidi \
+			giflib glib gst1-plugins-base gstreamer1 libharfbuzz libjpeg-turbo \
+			libpng16 libraw librsvg libspectre libunwind libwebp luajit mesa \
+			openssl poppler python tiff util-linux-mount xorg-libX11 \
+			xorg-libXScrnSaver xorg-libXcomposite xorg-libXcursor \
+			xorg-libXdamage xorg-libXext xorg-libXfixes xorg-libXi \
+			xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libXtst zlib"
 			TAGS="e enlightenment efl"
 			;;
 		efl-dev)
 			copy @dev
-			DEPENDS="efl gstreamer0-dev gst0-plugins-base-dev check-dev \
-			util-linux-mount-dev util-linux-blkid-dev eudev-dev openssl-dev \
-			dbus-dev libjpeg-turbo-dev fribidi-dev giflib-dev tiff-dev \
-			libsndfile-dev lua-dev xorg-libXp-dev xorg-printproto \
-			xorg-scrnsaverproto xorg-libXScrnSaver-dev mesa-dev \
-			util-linux-uuid-dev libxml2-dev"
+			DEPENDS="shared-mime-info efl bullet-dev dbus-dev eudev-dev \
+			fontconfig-dev freetype-dev fribidi-dev glib-dev harfbuzz-dev \
+			libjpeg-turbo-dev libpng16-dev luajit-dev openssl-dev \
+			util-linux-mount-dev xorg-libX11-dev xorg-libXScrnSaver-dev \
+			xorg-libXcomposite-dev xorg-libXcursor-dev xorg-libXdamage-dev \
+			xorg-libXext-dev xorg-libXfixes-dev xorg-libXi-dev \
+			xorg-libXinerama-dev xorg-libXrandr-dev xorg-libXrender-dev \
+			xorg-libXtst-dev xorg-libxcb-dev zlib-dev"
 			;;
 	esac
 }

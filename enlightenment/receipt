@@ -1,89 +1,75 @@
 # SliTaz package receipt v2.
 
 PACKAGE="enlightenment"
-VERSION="0.17.6"
+VERSION="0.22.3"
 CATEGORY="x-window"
-SHORT_DESC="Enlightenment window manager (E17)"
+SHORT_DESC="Enlightenment window manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.enlightenment.org/"
+WEB_SITE="https://www.enlightenment.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://download.enlightenment.org/rel/apps/enlightenment/$TARBALL"
 
-BUILD_DEPENDS_arm="eet-dev evas-dev ecore-dev eeze-dev emotion-dev efreet-dev \
-edbus-dev libelementary elementary-dev edje-dev ethumb-dev eio-dev \
-alsa-lib-dev xorg-xcb-util-keysyms-dev bluez-dev connman-dev pam-dev"
-BUILD_DEPENDS="shared-mime-info eet-dev evas-dev ecore-dev eeze-dev \
-emotion-dev efreet-dev edbus-dev libelementary elementary-dev edje-dev \
-ethumb-dev eio-dev alsa-lib-dev xorg-xcb-util-keysyms-dev bluez-dev \
-connman-dev pam-dev pm-utils"
-SPLIT="enlightenment enlightenment-pam enlightenment-backgrounds"
+BUILD_DEPENDS="pam-dev bluez-dev gettext efl-dev alsa-lib-dev pulseaudio-dev \
+xorg-xcb-util-keysyms-dev pm-utils"
+SPLIT="enlightenment-backgrounds enlightenment enlightenment-common \
+enlightenment-dev enlightenment-pam:pam"
 
-LOCALES="cs da de el es fr fr_CH hu it pl pt pt_BR ru sl sv zh_CN zh_TW"
+COOKOPTS="!menus !pixmaps"
 
 compile_rules() {
-	cp -a $src $src-pam
-	export CFLAGS="$CFLAGS -fvisibility=hidden"
-	export LDFLAGS="$LDFLAGS -fvisibility=hidden"
+	case $SET in
+		'')  SET_ARGS='--disable-pam';;
+		pam) SET_ARGS='--enable-pam';;
+	esac
+
 	./configure \
-		--disable-connman \
-		--disable-enlightenment-menu \
 		--disable-doc \
-		--build=${ARCH}-slitaz-gnulinux \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS &&
+	fix libtool &&
+	make &&
 	make install || return 1
 
-	cd $src-pam
-	./configure \
-		--disable-mount-hal \
-		--disable-doc \
-		--build=${ARCH}-slitaz-gnulinux \
-		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR-pam install
+	# Use a modified sysactions.conf
+	mv $install/etc/enlightenment/sysactions.conf $install/etc/enlightenment/sysactions.conf.orig
+	install -Dm644 $stuff/sysactions.conf $install/etc/enlightenment/sysactions.conf
+
+	# Move documentation
+	mkdir -p $install/usr/share/doc
+	mv $install/usr/share/enlightenment/doc     $install/usr/share/doc/enlightenment
+	mv $install/usr/share/enlightenment/AUTHORS $install/usr/share/doc/enlightenment/
+	mv $install/usr/share/enlightenment/COPYING $install/usr/share/doc/enlightenment/
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-	enlightenment|enlightenment-pam)
-		DEPENDS="eet evas ecore eeze emotion efreet edbus edje \
-			elementary alsa-lib xorg-xcb-util-keysyms"
-		if [ $PACKAGE == 'enlightenment-pam' ]; then
-			DEPENDS="$DEPENDS pam"
-			install=$install-pam
-			CAT="x-window|with PAM, Bluez and connman support"
+		enlightenment-backgrounds)
+			copy backgrounds/
+			CAT="x-window|additional backgrounds"
+			;;
+		enlightenment)
+			copy enlightenment enlightenment_ckpasswd
+			DEPENDS="enlightenment-common efl"
 			SUGGESTED="bluez wpa_supplicant connman pm-utils"
+			;;
+		enlightenment-common)
+			copy @std @rm *.mo
+			DEPENDS="alsa-lib bluez efl pulseaudio xorg-libxcb \
+			xorg-xcb-util-keysyms"
+			CAT="x-window|common files for PAM and non-PAM packages"
+			;;
+		enlightenment-dev)
+			copy @dev
+			DEPENDS="enlightenment efl-dev"
+			;;
+		enlightenment-pam)
+			copy enlightenment enlightenment_ckpasswd
+			DEPENDS="enlightenment-common efl pam"
+			CAT="x-window|with PAM support"
 			PROVIDE="enlightenment:pam"
-		fi
-		mkdir -p $fs/usr/share/locale
-		# Use a modified sysactions.conf
-		cp -a $stuff/etc $fs
-
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/usr/share/enlightenment $fs/usr/share
-		cp -a $install/usr/share/xsessions $fs/usr/share
-
-		# Remove devel files *.a/*.la
-		rm -rf $fs/usr/lib/enlightenment/preload/*.*a
-		rm -rf $fs/usr/lib/enlightenment/modules/*/*/*.*a
-
-		# Remove backgrounds (1,6 Mb).
-		rm -rf $fs/usr/share/enlightenment/data/backgrounds/*
-
-		# locales
-		for locale in $LOCALES; do
-			cp -a $install/usr/share/locale/$locale $fs/usr/share/locale
-		done
-		;;
-	enlightenment-backgrounds)
-		CAT="x-window|additional backgrounds"
-		mkdir -p $fs/usr/share/enlightenment/data/backgrounds
-		cp -a $install/usr/share/enlightenment/data/backgrounds/* \
-			$fs/usr/share/enlightenment/data/backgrounds
-		;;
+			;;
 	esac
 	TAGS="e enlightenment window-manager"
 }
@@ -93,7 +79,6 @@ post_install_enlightenment() {
 		| sed s/,e17//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q enlightenment; then
-		echo -n "Adding enlightenment to /etc/slim.conf..."
 		sed -i "s/^sessions.*/sessions            enlightenment,${res}xs/" \
 			/etc/slim.conf
 		status
@@ -112,7 +97,6 @@ post_install_enlightenment_pam() {
 		| sed s/,e17//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q enlightenment; then
-		echo -n "Adding enlightenment to /etc/slim.conf..."
 		sed -i "s/^sessions.*/sessions            enlightenment,${res}xs/" \
 			/etc/slim.conf
 		status
