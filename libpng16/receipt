@@ -1,23 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libpng16"
-VERSION="1.6.28"
+VERSION="1.6.34"
 CATEGORY="libs"
 SHORT_DESC="PNG images library 1.6 series with APNG support"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://www.libpng.org/pub/png/libpng.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libpng.html"
 
 TARBALL="libpng-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/libpng/$TARBALL"
 
-#BUILD_DEPENDS="gawk zlib-dev"
 BUILD_DEPENDS="zlib-dev"
 SPLIT="libpng16-dev"
 
 compile_rules() {
 	LIBS=-lpthread \
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
@@ -38,7 +40,7 @@ genpkg_rules() {
 			;;
 		libpng16-dev)
 			copy @dev
-			DEPENDS="zlib-dev"
+			DEPENDS="libpng16 zlib-dev"
 			;;
 	esac
 }

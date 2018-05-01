@@ -7,28 +7,30 @@ SHORT_DESC="MS document manipulation library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.abisource.com/projects/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/wv.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.abisource.com/downloads/wv/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libgsf libgsf-dev glib-dev libxml2-dev libpng16-dev"
+BUILD_DEPENDS="libgsf-dev glib-dev libxml2-dev libpng16-dev"
 SPLIT="wv-dev"
 
 compile_rules() {
 	sed -i 's|.ac_install_sh -d|mkdir -p|' configure
 
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		wv)
 			copy @std
-			#chmod +x $fs/usr/bin/*
-			DEPENDS="glib libgsf libpng16 libxml2 zlib"
+			DEPENDS="glib libgsf libxml2 zlib"
 			;;
 		*-dev)
 			copy @dev

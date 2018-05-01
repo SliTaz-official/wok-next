@@ -1,27 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tree"
-VERSION="1.6.0"
+VERSION="1.7.0"
 CATEGORY="utilities"
 SHORT_DESC="Recursive directory listing program"
 MAINTAINER="MikeDSmith25@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://mama.indstate.edu/users/ice/tree/"
-WGET_URL="ftp://mama.indstate.edu/linux/tree/$TARBALL"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/tree.html"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make
-	make BINDIR=$DESTDIR/usr/bin MANDIR=$DESTDIR/usr/share/man install
+TARBALL="$PACKAGE-$VERSION.tgz"
+WGET_URL="http://mama.indstate.edu/users/ice/tree/src/$TARBALL"
+
+compile_rules() {
+	make &&
+	make \
+		BINDIR=$install/usr/bin \
+		MANDIR=$install/usr/share/man/man1 \
+		install || return 1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }
-

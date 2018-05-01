@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xapian"
-VERSION="1.4.4"
+VERSION="1.4.5"
 CATEGORY="utilities"
 SHORT_DESC="The open source search engine"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://xapian.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/xapian.html"
 
 TARBALL="xapian-core-$VERSION.tar.xz"
 WGET_URL="http://oligarchy.co.uk/xapian/$VERSION/$TARBALL"
@@ -15,7 +16,9 @@ BUILD_DEPENDS="perl zlib-dev util-linux-uuid-dev"
 SPLIT="xapian-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install

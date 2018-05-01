@@ -1,42 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cpio"
 VERSION="2.12"
 CATEGORY="base-system"
-SHORT_DESC="GNU cpio archiver."
+SHORT_DESC="GNU cpio archiver"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/cpio/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/cpio.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="tar gettext texinfo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--bindir=/bin \
 		--enable-mt \
 		--with-rmt=$install/usr/libexec/rmt \
-		$CONFIGURE_ARGS  &&
+		$CONFIGURE_ARGS &&
 	make &&
 	makeinfo --html            -o doc/html      doc/cpio.texi &&
 	makeinfo --html --no-split -o doc/cpio.html doc/cpio.texi &&
 	makeinfo --plaintext       -o doc/cpio.txt  doc/cpio.texi &&
-	make install
+	make install || return 1
 
 	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
-	install -v -m755 -d $docdir/html
+	install -v -m755 -d               $docdir/html
 	install -v -m644    doc/html/*    $docdir/html
 	install -v -m644    doc/cpio.html $docdir
 	install -v -m644    doc/cpio.txt  $docdir
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="glibc-base"
 }
