@@ -6,14 +6,14 @@ CATEGORY="x-window"
 SHORT_DESC="Animated graphical user interfaces library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="https://blogs.gnome.org/clutter/"
+WEB_SITE="https://developer.gnome.org/clutter/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/clutter.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev cogl-dev atk-dev json-glib-dev \
-gobject-introspection-dev gettext"
+gobject-introspection-dev gettext pango-dev"
 SPLIT="clutter-dev"
 
 compile_rules() {
@@ -32,26 +32,14 @@ genpkg_rules() {
 	case $PACKAGE in
 		clutter)
 			copy @std
-			DEPENDS="atk bzlib cairo cogl expat fontconfig freetype gdk-pixbuf \
-			glib json-glib libatomic libdrm libffi libharfbuzz liblzma \
-			libpng16 libxml2 mesa-libegl mesa-libgbm mesa-libwayland-egl \
-			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
-			wayland xorg-libX11 xorg-libXau xorg-libxcb xorg-libXcomposite \
-			xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
-			xorg-libXrandr xorg-libXrender xorg-libxshmfence xorg-pixman zlib"
+			DEPENDS="atk cairo cogl fontconfig glib json-glib pango \
+			xorg-libX11 xorg-libXcomposite xorg-libXdamage"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="clutter atk-dev bzip2-dev cairo-dev cogl-dev expat-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev harfbuzz-dev \
-			json-glib-dev libdrm-dev libffi-dev libpng16-dev libxml2-dev \
-			mesa-dev pango-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev wayland-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libxcb-dev \
-			xorg-libXcomposite-dev xorg-libXdamage-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXfixes-dev xorg-libXrandr-dev \
-			xorg-libXrender-dev xorg-libxshmfence-dev xorg-pixman-dev xz-dev \
-			zlib-dev"
+			DEPENDS="clutter atk-dev cairo-dev cogl-dev glib-dev json-glib-dev \
+			pango-dev xorg-libX11-dev xorg-libXcomposite-dev \
+			xorg-libXdamage-dev xorg-libXext-dev"
 			;;
 	esac
 }

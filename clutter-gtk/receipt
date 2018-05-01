@@ -1,29 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="clutter-gtk"
-VERSION="0.10.8"
+VERSION="1.8.4"
 CATEGORY="x-window"
 SHORT_DESC="GTK+ libraries for Clutter"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://clutter-project.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/clutter-gtk.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.clutter-project.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev clutter-dev gobject-introspection-dev automake autoconf \
-libtool gtk-doc expat-dev xorg-libxshmfence-dev"
+BUILD_DEPENDS="clutter-dev gtk+3-dev gettext gobject-introspection-dev"
 SPLIT="clutter-gtk-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -lm -lgthread-2.0"
-
-	patch -Np1 -i $stuff/fix-gir.patch
-	sed \
-		-e 's/GTK_WIDGET_REALIZED/gtk_widget_get_realized/' \
-		-e 's/GTK_WIDGET_VISIBLE/gtk_widget_get_visible/' \
-		-i clutter-gtk/gtk-clutter-embed.c
-	autoreconf -i
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -34,10 +26,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		clutter-gtk)
 			copy @std
-			DEPENDS="gtk+ clutter"
+			DEPENDS="cairo clutter cogl gdk-pixbuf glib gtk+3"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="clutter-gtk clutter-dev gtk+3-dev"
 			;;
 	esac
 }
