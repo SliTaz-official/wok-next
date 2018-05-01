@@ -15,10 +15,6 @@ BUILD_DEPENDS="zlib-dev"
 SPLIT="lzma lzlib lzlib-dev"
 
 compile_rules() {
-	if [ ! -f done.lzlib.u ]; then
-		patch -p0 < $stuff/lzlib.u || return 1
-		touch done.lzlib.u
-	fi
 	cd CPP/7zip/Compress/LZMA_Alone
 
 	# Handle cross compilation
@@ -31,35 +27,45 @@ compile_rules() {
 	# Remove copyright message.
 	sed '/MY_VERSION_COPYRIGHT_DATE/d' -i LzmaAlone.cpp
 
+	dos2unix makefile.gcc
+	sed -i 's|^CFLAGS =.*|& -fPIC|' makefile.gcc
+
+	title 'Making lzma'
 	make -f makefile.gcc lzma 2>/dev/null
+	title 'Making liblz.so'
 	make -f makefile.gcc liblz.so.1.0.0 &&
-	make -f makefile.gcc lzma &&
-	ln -s $src $install
+	title 'Making lzma (again)' &&
+	make -f makefile.gcc lzma || return 1
+
+	# install libs
+	install -Dm755 liblz.so.1.0.0 $install/lib/liblz.so.1.0.0
+	ln -s liblz.so.1.0.0 $install/lib/liblz.so
+	ln -s liblz.so.1.0.0 $install/lib/liblz.so.1
+
+	# install bins
+	install -Dm755 lzma-shared $install/usr/bin/lzma-alone
+	install -Dm755 $stuff/lzma $install/usr/bin/lzma
+	ln -s lzma $install/usr/bin/unlzma
+	ln -s lzma $install/usr/bin/lzcat
+
+	# install header
+	install -Dm644 lzlib.h $install/usr/include/lzlib.h
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		lzma)
-			mkdir -p $fs/usr/bin
-			cp -a $src/CPP/7zip/Compress/LZMA_Alone/lzma-shared $fs/usr/bin/lzma-alone
-			cp $stuff/lzma $fs/usr/bin
-			chmod 755 $fs/usr/bin/lzma
-			ln -s lzma $fs/usr/bin/unlzma
-			ln -s lzma $fs/usr/bin/lzcat
-			DEPENDS="lzlib zlib gcc-lib-base"
+			copy bin/
+			DEPENDS="lzlib"
 			TAGS="compression archive"
 			;;
 		lzlib)
-			mkdir -p $fs/lib
-			cp -a $src/CPP/7zip/Compress/LZMA_Alone/liblz.so.1.0.0 $fs/lib
-			ln -s liblz.so.1.0.0 $fs/lib/liblz.so
-			ln -s liblz.so.1.0.0 $fs/lib/liblz.so.1
+			copy lib/
 			CAT="base-system|library"
-			DEPENDS="zlib gcc-lib-base"
+			DEPENDS="zlib"
 			;;
-		lzlib-dev)
-			mkdir -p $fs/usr/include
-			cp -a $src/CPP/7zip/Compress/LZMA_Alone/lzlib.h $fs/usr/include
+		*-dev)
+			copy @dev
 			;;
 	esac
 }

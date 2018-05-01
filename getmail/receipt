@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
+
 PACKAGE="getmail"
 VERSION="4.41.0"
 CATEGORY="network"
-SHORT_DESC="A simple mail retrieval agent intended as a replacement for fetchmail."
+SHORT_DESC="A simple mail retrieval agent intended as a replacement for fetchmail"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://pyropus.ca/software/getmail"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/old-versions/$TARBALL"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
+BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py install --root=$DESTDIR || return 1
+compile_rules() {
+	python setup.py build &&
+	python setup.py install --root=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/doc $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

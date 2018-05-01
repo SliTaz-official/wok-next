@@ -1,22 +1,20 @@
 # SliTaz package receipt v2.
 
-PACKAGE="Geomyidae"
-VERSION="0.26.1"
+PACKAGE="geomyidae"
+VERSION="0.31.1"
 CATEGORY="network"
 SHORT_DESC="Geomyidae is a daemon for serving the Gopher protocol"
 MAINTAINER="allan316@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://www.r-36.net/"
 
-TARBALL="geomyidae-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}src/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://git.r-36.net/geomyidae/snapshot/$TARBALL"
 
 compile_rules() {
-	# Move man page to the right place
-	sed -i 's|/man/|/share&|' $src/Makefile
-
-	make && make DESTDIR=$DESTDIR install || return 1
-
+	CC=gcc \
+	make &&
+	make install &&
 	install -Dm644 $src/index.gph $install/var/gopher/index.gph
 }
 

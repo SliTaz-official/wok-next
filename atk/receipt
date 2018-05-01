@@ -1,26 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="atk"
-VERSION="2.24.0"
+VERSION="2.26.1"
 CATEGORY="x-window"
 SHORT_DESC="Accessibility toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://www.gnome.org/"
+WEB_SITE="https://developer.gnome.org/atk/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/atk.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="glib-dev"
-BUILD_DEPENDS="glib-dev gettext gobject-introspection-dev"
+BUILD_DEPENDS="meson ninja glib-dev gobject-introspection-dev gettext"
 SPLIT="atk-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
@@ -32,6 +33,7 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="atk glib-dev"
 			;;
 	esac
 }

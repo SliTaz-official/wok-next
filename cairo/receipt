@@ -12,15 +12,17 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/cairo.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
-BUILD_DEPENDS="glib-dev libpng16-dev zlib-dev fontconfig-dev \
-freetype-dev xorg-libX11-dev xorg-libXext-dev xorg-pixman-dev xorg-libXau-dev \
-xorg-libXdmcp-dev xorg-libXrender-dev xorg-xcb-util-dev xorg-libxcb-dev \
-expat-dev libxml2-dev"
+BUILD_DEPENDS="zlib-dev xorg-libX11-dev xorg-libXext-dev xorg-libICE-dev \
+xorg-libXrender-dev xorg-libxcb-dev libpng16-dev freetype-dev fontconfig-dev \
+libspectre-dev poppler-dev librsvg-dev gtk+-dev xorg-pixman-dev"
 SPLIT="cairo cairo-tools cairo-dev"
 
-BUILD_DEPENDS="$BUILD_DEPENDS mesa-dev eudev-dev xorg-libXxf86vm-dev \
-libdrm-dev mesa-libegl xorg-libxshmfence-dev"
-SPLIT="$SPLIT cairo-gl:gl cairo-gl-tools:gl cairo-gl-dev:gl"
+# use --nogl to disable building cairo-gl* packages
+if [ -z "$nogl" ]; then
+	BUILD_DEPENDS="$BUILD_DEPENDS mesa-dev eudev-dev xorg-libXxf86vm-dev \
+	libdrm-dev mesa-libegl xorg-libxshmfence-dev"
+	SPLIT="$SPLIT cairo-gl:gl cairo-gl-tools:gl cairo-gl-dev:gl"
+fi
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -71,12 +73,14 @@ genpkg_rules() {
 			CAT="x-window|with GL support"
 			DEPENDS="fontconfig freetype glib libpng16 mesa mesa-libegl \
 			xorg-libX11 xorg-libxcb xorg-pixman zlib"
+			PROVIDE="cairo:mesa"
 			;;
 		cairo-gl-tools)
 			copy usr/bin/ usr/lib/cairo/*.so*
 			CAT="development|development tools with GL support"
 			DEPENDS="cairo-gl glib mesa mesa-libegl xorg-libX11 \
 			xorg-libXrender xorg-libxcb xorg-pixman zlib"
+			PROVIDE="cairo-tools:mesa cairo-tools:cairo-gl"
 			;;
 		cairo-gl-dev)
 			copy @dev
