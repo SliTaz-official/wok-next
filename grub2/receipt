@@ -39,7 +39,13 @@ compile_rules() {
 			install -Dm0644 $stuff/example-grub.cfg $install/boot/grub/example-grub.cfg
 			;;
 		efi)
-			export EFI_ARCH=i386
+			case $ARCH in
+			i?86)	bootimg=bootia32.efi
+				EFI_ARCH=i386;;
+			x86_64)	bootimg=bootx64.efi
+				EFI_ARCH=x86_64;;
+			esac
+			export EFI_ARCH
 			./configure \
 				--with-platform=efi \
 				--target=$EFI_ARCH \
@@ -51,8 +57,8 @@ compile_rules() {
 			cd grub-core
 			../grub-mkimage \
 				-d . \
-				-o ../bootia32.efi \
-				-O i386-efi \
+				-o ../$bootimg \
+				-O $EFI_ARCH-efi \
 				-p /boot/grub \
 				ntfs hfs appleldr boot cat efi_gop efi_uga elf fat hfsplus \
 				iso9660 linux keylayouts memdisk minicmd part_apple ext2 extcmd \
