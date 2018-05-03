@@ -1,52 +1,47 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ruby"
-VERSION="2.4.0"
+VERSION="2.5.0"
 CATEGORY="development"
 SHORT_DESC="Dynamic programming language focused on simplicity and productivity"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.ruby-lang.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/ruby.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://cache.ruby-lang.org/pub/ruby/${VERSION%.*}/$TARBALL"
 
+BUILD_DEPENDS_arm="zlib-dev tcl-dev openssl-dev db-dev readline-dev"
 BUILD_DEPENDS="gmp-dev db-dev libffi-dev openssl-dev tcl-dev tk-dev zlib-dev \
 gdbm-dev readline-dev"
-BUILD_DEPENDS_arm="zlib-dev tcl-dev openssl-dev db-dev readline-dev"
 SPLIT="libruby libruby-extras ruby-doc ruby-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Handle cross compilation.
+compile_rules() {
 	case "$ARCH" in
 		arm*)
 			# executable host ruby is required. use --with-baseruby option.
 			# --with-arch=arm 
 			export ac_cv_func_getpgrp_void=yes
-			export ac_cv_func_setpgrp_void=yes 
+			export ac_cv_func_setpgrp_void=yes
 			ARCH_ARGS="--with-baseruby=/usr/bin/ruby" ;;
 	esac
 
-	#patch -Np1 < $stuff/openssl-1.0.patch
 	./configure \
 		--enable-shared \
-		--docdir=/usr/share/doc/ruby-$VERSION \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$ARCH_ARGS \
+		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		ruby)
 			copy /usr/bin/
 			TAGS="ruby language programming"
 			SUGGESTED="tk"
-			DEPENDS="gmp libruby"
+			DEPENDS="libruby"
 			;;
 		libruby)
 			copy libruby.so*
@@ -56,16 +51,15 @@ genpkg_rules()
 		libruby-extras)
 			copy /usr/lib/ruby/
 			CAT="libdevel|native libraries"
-			DEPENDS="ruby gdbm gmp openssl libdb libffi ncurses \
-			readline zlib"
+			DEPENDS="gdbm libdb libffi libruby openssl readline zlib"
 			;;
 		ruby-doc)
-			CAT="development|ri documentation"
 			copy /usr/share/ri/
+			CAT="development|ri documentation"
 			;;
 		ruby-dev)
 			copy @dev
-			DEPENDS="ruby libruby libruby-extras"
+			DEPENDS="ruby libruby libruby-extras" # all but doc
 			;;
 	esac
 }

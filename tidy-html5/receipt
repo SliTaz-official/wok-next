@@ -1,24 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tidy-html5"
-VERSION="5.1.25"
+VERSION="5.4.0"
 CATEGORY="development"
 SHORT_DESC="The granddaddy of HTML tools, with support for modern standards"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://www.htacg.org/tidy-html5/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/tidy-html5.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/htacg/tidy-html5/archive/$VERSION.tar.gz"
+WGET_URL="https://github.com/htacg/tidy-html5/releases/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="cmake libxslt"
+SPLIT="tidy-html5-dev"
 
 compile_rules() {
 	cd build/cmake
-	cmake ../.. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release &&
-	make && make install
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_TAB2SPACE=ON \
+		../.. &&
+	make &&
+	make install &&
+	install -v -m755 tab2space $install/usr/bin/
 }
 
 genpkg_rules() {
-	copy @std
+	case $PACKAGE in
+		tidy-html5) copy @std;;
+		*-dev)      copy @dev;;
+	esac
 }

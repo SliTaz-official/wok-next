@@ -1,23 +1,32 @@
 # SliTaz package receipt v2.
 
 PACKAGE="valgrind"
-VERSION="3.12.0"
+VERSION="3.13.0"
 CATEGORY="development"
 SHORT_DESC="Memory debugger and profiler"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://valgrind.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/valgrind.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://valgrind.org/downloads/$TARBALL"
+WGET_URL="https://sourceware.org/ftp/valgrind/$TARBALL"
 
-BUILD_DEPENDS="sed autoconf"
+BUILD_DEPENDS="perl"
 SPLIT="valgrind-dev"
 
 compile_rules() {
-	autoconf &&
+	# glibc-2.26 bug
+	sed -i '1904s/4/5/' coregrind/m_syswrap/syswrap-linux.c
 
-	./configure $CONFIGURE_ARGS && make && make install
+	# versioned folder for docs
+	sed -i 's|/doc/valgrind||' docs/Makefile.in
+
+	./configure \
+		--datadir=/usr/share/doc/valgrind-$VERSION \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

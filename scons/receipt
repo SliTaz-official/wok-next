@@ -1,24 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="scons"
-VERSION="2.3.4"
+VERSION="3.0.0"
 CATEGORY="development"
 SHORT_DESC="SCons is an Open Source software construction tool"
 MAINTAINER="chadi.elahmad@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://www.scons.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/scons.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="python python-dev"
+BUILD_DEPENDS="python-dev"
 
 compile_rules() {
-	mkdir -p $DESTDIR/usr/share
 	python setup.py install \
+		--prefix=/usr \
 		--standard-lib \
-		--prefix=$DESTDIR/usr
-	mv $DESTDIR/usr/man $DESTDIR/usr/share
+		--optimize=1 \
+		--install-data=/usr/share \
+		--root=$install || return 1
+
+	find $install -perm 775 -exec chmod 755 '{}' \;
 }
 
 genpkg_rules() {

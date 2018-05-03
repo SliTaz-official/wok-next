@@ -23,7 +23,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install || return 1
+	make -j1 install || return 1
 
 	cook_pick_docs doc/*
 }
@@ -33,18 +33,17 @@ genpkg_rules() {
 		libsvn)
 			copy *.so*
 			CAT="libdevel|library"
-			DEPENDS="apr apr-util expat libmagic libsasl libsqlite3 serf \
-			util-linux-uuid zlib"
+			DEPENDS="apr apr-util expat libmagic libsasl libsqlite3 serf zlib"
 			;;
 		subversion)
 			copy @std @rm
-			DEPENDS="libsvn"
+			DEPENDS="apr apr-util libsasl libsvn"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libsvn subversion apr-dev apr-util-dev cyrus-sasl-dev \
-			expat-dev libmagic-dev cyrus-sasl-dev serf-dev sqlite3-dev \
-			util-linux-uuid-dev zlib-dev"
+			DEPENDS="libsvn subversion \
+			apr-dev apr-util-dev cyrus-sasl-dev expat-dev libmagic-dev \
+			serf-dev sqlite3-dev zlib-dev"
 			;;
 	esac
 }

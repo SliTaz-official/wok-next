@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tcl"
-VERSION="8.6.7"
+VERSION="8.6.8"
 CATEGORY="development"
 SHORT_DESC="The Tool Command Language"
 MAINTAINER="erjo@slitaz.org"
@@ -24,8 +24,6 @@ compile_rules() {
 	cd unix
 
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
 		$ARCH_ARGS &&
 	make || return 1
 
@@ -33,22 +31,26 @@ compile_rules() {
 		-e "s|$src|/usr/include|" \
 		-i tclConfig.sh
 
-	sed -e "s|$src/unix/pkgs/tdbc1.0.5|/usr/lib/tdbc1.0.5|" \
-		-e "s|$src/pkgs/tdbc1.0.5/generic|/usr/include|" \
-		-e "s|$src/pkgs/tdbc1.0.5/library|/usr/lib/tcl8.6|" \
-		-e "s|$src/pkgs/tdbc1.0.5|/usr/include|" \
-		-i pkgs/tdbc1.0.5/tdbcConfig.sh
+	i=$(basename pkgs/tdbc[0-9.]*)
+	sed -e "s|$src/unix/pkgs/$i|/usr/lib/$i|" \
+		-e "s|$src/pkgs/$i/generic|/usr/include|" \
+		-e "s|$src/pkgs/$i/library|/usr/lib/tcl${VERSION%.*}|" \
+		-e "s|$src/pkgs/$i|/usr/include|" \
+		-i pkgs/$i/tdbcConfig.sh
 
-	sed -e "s|$src/unix/pkgs/itcl4.1.0|/usr/lib/itcl4.1.0|" \
-		-e "s|$src/pkgs/itcl4.1.0/generic|/usr/include|" \
-		-e "s|$src/pkgs/itcl4.1.0|/usr/include|" \
-		-i pkgs/itcl4.1.0/itclConfig.sh
+	i=$(basename pkgs/itcl*)
+	sed -e "s|$src/unix/pkgs/$i|/usr/lib/$i|" \
+		-e "s|$src/pkgs/$i/generic|/usr/include|" \
+		-e "s|$src/pkgs/$i|/usr/include|" \
+		-i pkgs/$i/itclConfig.sh
 
 	make install &&
 	make install-private-headers || return 1
 
-	ln -v -sf tclsh${VERSION:0:3} $install/usr/bin/tclsh
-	chmod 755 $install/usr/lib/libtcl${VERSION:0:3}.so
+	ln -v -sf tclsh${VERSION%.*} $install/usr/bin/tclsh
+
+	find $install -type f -perm 444 -exec chmod 644 '{}' \;
+	find $install -name '*.so' -exec chmod 755 '{}' \;
 	find $install -name '*.sh' -exec chmod 755 '{}' \;
 }
 

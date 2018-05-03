@@ -1,31 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="yajl"
-VERSION="2.0.2"
+VERSION="2.1.0"
 CATEGORY="development"
 SHORT_DESC="Yet Another JSON Library"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="https://github.com/lloyd/yajl"
-WGET_URL="git|git://github.com/lloyd/yajl.git"
-BRANCH="$VERSION"
+WEB_SITE="http://lloyd.github.io/yajl/"
 
-BUILD_DEPENDS="cmake doxygen git"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://github.com/lloyd/yajl/tarball/$VERSION"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="cmake doxygen"
+SPLIT="yajl-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		.
-	make DESTDIR=$DESTDIR install
+		.. &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	case $PACKAGE in
+		yajl)  copy @std;;
+		*-dev) copy @dev;;
+	esac
 }
-

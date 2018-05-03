@@ -1,47 +1,38 @@
 # SliTaz package receipt v2.
 
 PACKAGE="usbutils"
-VERSION="007"
+VERSION="009"
 CATEGORY="system-tools"
 SHORT_DESC="Displaying information about USB"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://linux-usb.sourceforge.net/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/usbutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-#WGET_URL="http://www.kernel.org/pub/linux/utils/usb/$PACKAGE/$TARBALL"
-WGET_URL="http://sourceware.mirrors.tds.net/pub/kernel.org/linux/utils/usb/$PACKAGE/$TARBALL"
+WGET_URL="https://www.kernel.org/pub/linux/utils/usb/usbutils/$TARBALL"
 
 BUILD_DEPENDS="libusb-dev zlib-dev"
 SPLIT="usbutils-dev"
 
 compile_rules() {
 	./configure \
-		--prefix=/usr \
-		--libdir=/usr/lib \
-		--datadir=/usr/share/misc \
+		--datadir=/usr/share/hwdata \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		usbutils)
-			mkdir -p $fs/usr
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			sed -i s'/bash/sh/' $fs/usr/bin/usb-devices
-			rm -f $fs/usr/bin/lsusb.py
-			DEPENDS="glibc-base libusb libusb-compat zlib usbids"
+			copy @std
+			find $fs -name '*.py' -delete
+			DEPENDS="eudev libusb   usbids"
 			TAGS="usb"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/share/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
-}
-
-post_remove_usbutils() {
-	ln -s /bin/busybox "$1/usr/bin/lsusb"
 }

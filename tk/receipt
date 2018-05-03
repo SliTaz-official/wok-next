@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tk"
-VERSION="8.6.7"
+VERSION="8.6.8"
 CATEGORY="development"
-SHORT_DESC="The TCL gui toolkit"
+SHORT_DESC="The TCL GUI toolkit"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://tcl.sourceforge.net/"
@@ -13,7 +13,7 @@ TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/tcl/$TARBALL"
 
 BUILD_DEPENDS="tcl-dev xorg-libX11-dev"
-SPLIT="tk-dev"
+SPLIT="tk-demos tk tk-dev"
 
 compile_rules() {
 	case $ARCH in
@@ -23,8 +23,6 @@ compile_rules() {
 
 	cd unix
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
 		$ARCH_ARGS &&
 	make &&
 	sed -e "s@^\(TK_SRC_DIR='\).*@\1/usr/include'@" \
@@ -40,15 +38,20 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
+		tk-demos)
+			copy demos/
+			CAT="development|demo applications"
+			DEPENDS=""
+			;;
 		tk)
-			copy @std
+			copy @std @rm
 			find $fs -name '*Config.sh' -delete
-			DEPENDS="tcl xorg-libX11 zlib"
+			DEPENDS="tcl xorg-libX11"
 			TAGS="programming language"
 			;;
 		*-dev)
 			copy @dev *Config.sh
-			DEPENDS="tk tcl-dev xorg-libX11-dev"
+			DEPENDS="tk xorg-libX11-dev"
 			;;
 	esac
 }

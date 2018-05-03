@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="vala"
-VERSION="0.36.4"
+VERSION="0.38.8"
 CATEGORY="development"
 SHORT_DESC="Compiler for the GObject type system"
 MAINTAINER="mimas@slitaz.org"
@@ -12,9 +12,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/vala.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev libxslt-dev"
+BUILD_DEPENDS="automake libtool glib-dev libxslt-dev"
 
 compile_rules() {
+	# if graphviz is not installed
+	sed -i '102d; 108,124d; 126,127d' configure.ac
+	sed -i '/valadoc/d' Makefile.am
+	ACLOCAL= autoreconf -fiv
+
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -23,6 +28,6 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std @dev
-	DEPENDS="glib-dev libffi-dev pcre-dev"
+	DEPENDS="glib-dev"
 	TAGS="compiler"
 }

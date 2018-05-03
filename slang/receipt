@@ -1,15 +1,16 @@
 # SliTaz package receipt v2.
 
 PACKAGE="slang"
-VERSION="2.2.4"
+VERSION="2.3.1"
 CATEGORY="development"
 SHORT_DESC="S-Lang library"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.jedsoft.org/slang/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/slang.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://space.mit.edu/pub/davis/slang/v${VERSION%.*}/$TARBALL"
+WGET_URL="http://www.jedsoft.org/releases/slang/$TARBALL"
 
 BUILD_DEPENDS="pcre-dev oniguruma-dev libpng16-dev zlib-dev readline-dev"
 SPLIT="slang-dev"
@@ -19,7 +20,8 @@ compile_rules() {
 		--with-readline=gnu \
 		$CONFIGURE_ARGS &&
 	make -j1 &&
-	make -j1 install_doc_dir=/usr/share/doc/slang-$VERSION \
+	make -j1 \
+		install_doc_dir=/usr/share/doc/slang-$VERSION \
 		SLSH_DOC_DIR=/usr/share/doc/slang-$VERSION/slsh \
 		install-all &&
 
@@ -32,7 +34,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		slang)
 			copy @std
-			DEPENDS="libpng16 ncurses oniguruma pcre readline zlib"
+			DEPENDS="libpng16 oniguruma pcre readline zlib"
 			CONFIG_FILES="/etc/slsh.rc"
 			;;
 		*-dev) copy @dev;;

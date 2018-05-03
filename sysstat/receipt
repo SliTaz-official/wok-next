@@ -1,32 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sysstat"
-VERSION="10.0.5"
+VERSION="11.6.2"
 CATEGORY="system-tools"
-SHORT_DESC="Performance monitoring tools."
+SHORT_DESC="Performance monitoring tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://sebastien.godard.pagesperso-orange.fr/"
-WGET_URL="http://pagesperso-orange.fr/sebastien.godard/$TARBALL"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/sysstat.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://perso.wanadoo.fr/sebastien.godard/$TARBALL"
 
 BUILD_DEPENDS="gettext bzip2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure $CONFIGURE_ARGS &&
+compile_rules() {
+	sa_lib_dir=/usr/lib/sa \
+	sa_dir=/var/log/sa \
+	conf_dir=/etc/sysconfig \
+	./configure \
+		--disable-file-attr \
+		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
 }

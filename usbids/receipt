@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="usbids"
-VERSION="20161205"
+VERSION="20180414"
 CATEGORY="misc"
 SHORT_DESC="List of USB ID's"
 MAINTAINER="slaxemulator@gmail.com"
@@ -11,21 +11,22 @@ WEB_SITE="http://www.linux-usb.org/usb-ids.html"
 TARBALL="$PACKAGE-$VERSION.gz"
 WGET_URL="http://www.linux-usb.org/usb.ids.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	ver=$(zcat $TARBALL | fgrep '# Version:' | tr -cd '0-9')
 	separator
 	echo "Receipt version: $VERSION"
 	echo "Actual  version: $ver"
 	separator
 
-	mkdir -p $install/usr/share/misc
-	cp $src/$TARBALL $install/usr/share/misc/usb.ids.gz
+	if [ "$VERSION" != "$ver" ]; then
+		echo "Updating version"
+		sed -i "/^VERSION=/s|\".*\"|\"$ver\"|" $WOK/$PACKAGE/receipt
+		mv $SRC/$TARBALL $SRC/$PACKAGE-$ver.gz
+	fi
+
+	install -Dm644 $TARBALL $install/usr/share/hwdata/usb.ids.gz
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy usb.ids.gz
+genpkg_rules() {
+	copy @std
 }
