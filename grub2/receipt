@@ -86,8 +86,12 @@ genpkg_rules() {
 			;;
 		grub2-efi-modules)
 			DEPENDS="grub2-efi"
-			mkdir -p $install/boot/efi/grub/
-			cp $src/grub-core/*.mod $src/grub-core/*.lst $install/boot/efi/grub/
+			case $ARCH in
+			i?86)	efi_path=boot/efi/grub/i386-efi;;
+			x86_64)	efi_path=boot/efi/grub/x86_64-efi;;
+			esac
+			mkdir -p $install/$efi_path
+			cp $src/grub-core/*.mod $src/grub-core/*.lst $install/$efi_path
 			;;
 	esac
 }
