@@ -7,47 +7,43 @@ SHORT_DESC="Collection of scripts that handle suspend and resume"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://pm-utils.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pm-utils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://pm-utils.freedesktop.org/releases/$TARBALL"
+WGET_URL="https://pm-utils.freedesktop.org/releases/$TARBALL"
+
+BUILD_DEPENDS="symlinks"
 
 compile_rules() {
-	# workaround grep -x not implemented in busybox
-	patch -p1 pm/functions.in $stuff/grep-x.patch
-	# remove acoustic management not implemented in busybox
-	patch -p1 pm/power.d/harddrive $stuff/harddrive.patch
-
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	# add video quirks
+	cp -r $stuff/video-quirks $install/usr/lib/pm-utils/
+
+	fix symlinks
+
+	ln -s pm-action.8 man/pm-suspend.8
+	ln -s pm-action.8 man/pm-hibernate.8
+	ln -s pm-action.8 man/pm-suspend-hybrid.8
+	cook_pick_manpages man/*.1 man/*.8
 }
 
 genpkg_rules() {
-	# main
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib/pm-utils $fs/usr/lib
-
-	# sysconfig
-	mkdir -p $fs/etc
-	cp -a $install/etc/pm $fs/etc
-
-	# remove incompatible hooks
-	# NetworkManager hook
+	copy @std
+	# remove incompatible hooks:
+	#   NetworkManager hook
 	rm -f $fs/usr/lib/pm-utils/sleep.d/55NetworkManager
-	# grub hook (Redhat specific)
+	#   grub hook (Redhat specific)
 	rm -f $fs/usr/lib/pm-utils/sleep.d/01grub
-	# readahead hook (not busybox compliant)
+	#   readahead hook (not busybox compliant)
 	rm -f $fs/usr/lib/pm-utils/power.d/readahead
-	# sata_alpm (causes disk errors on many hardware)
+	#   sata_alpm (causes disk errors on many hardware)
 	rm -f $fs/usr/lib/pm-utils/power.d/sata_alpm
 
-	# add video quirks
-	cp -a $stuff/video-quirks $fs/usr/lib/pm-utils
-
 	DEPENDS="bash kbd"
-	CONFIG_FILES="/etc/pm"
+	CONFIG_FILES="/etc/pm/"
 	TAGS="power-management"
 }
 

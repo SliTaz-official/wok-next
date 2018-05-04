@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="elinks"
 VERSION="0.12pre6"
@@ -6,18 +6,18 @@ CATEGORY="network"
 SHORT_DESC="Full featured www text browser"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://elinks.or.cz"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/download/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="openssl bzip2 spidermonkey zlib libidn expat gpm"
-BUILD_DEPENDS="openssl-dev bzip2-dev spidermonkey-dev zlib-dev libidn-dev \
-expat-dev gpm-dev"
+BUILD_DEPENDS="openssl10-dev bzip2-dev spidermonkey-dev zlib-dev libidn-dev \
+expat-dev gpm-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
+
 	# --enable-fastmem: disables internal `malloc()` debugging and 
 	# use `alloca()` wherever possible.
 	# --disable-backtrace disables internal backtrace code.
@@ -25,13 +25,15 @@ compile_rules()
 		--enable-fastmem \
 		--disable-backtrace \
 		--without-x \
-		$CONFIGURE_ARGS && 
-	make && make DESTDIR=$DESTDIR install
+		--with-openssl \
+		--enable-88-colors \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="bzlib expat libidn openssl10 spidermonkey zlib"
+	TAGS="web-browser"
 }

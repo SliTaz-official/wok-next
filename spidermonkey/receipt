@@ -14,6 +14,8 @@ WGET_URL="http://ftp.mozilla.org/pub/mozilla.org/js/$TARBALL"
 BUILD_DEPENDS="nspr-dev"
 SPLIT="spidermonkey-dev"
 
+COOKOPTS="skip-log-errors"
+
 compile_rules() {
 	cd $src/src
 
@@ -27,23 +29,18 @@ compile_rules() {
 	export CFLAGS="${CFLAGS} -DJS_C_STRINGS_ARE_UTF8"
 	# build - threadsafe
 	make -j1 -f Makefile.ref BUILD_OPT=1 JS_THREADSAFE=1 \
-		DIST=$DESTDIR/usr all export 2>&1 | grep -v 'OBJ/nspr/Version'
+		DIST=$DESTDIR/usr all export
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		spidermonkey)
-			mkdir -p $fs/usr/lib
-
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*so* $fs/usr/lib
+			copy @std
 			DEPENDS="nspr"
 			TAGS="javascript"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/include/js
-			cp -a $install/usr/include/js/* $fs/usr/include/js
-			cp -a $install/usr/lib/*.*a $fs/usr/lib/
+			copy @dev
 			;;
 	esac
 }
