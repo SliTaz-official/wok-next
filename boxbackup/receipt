@@ -1,37 +1,32 @@
 # SliTaz package receipt v2.
 
 PACKAGE="boxbackup"
-VERSION="0.11.1"
+VERSION="0.12"
 CATEGORY="meta"
 SHORT_DESC="BoxBackup on-line backup system"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.boxbackup.org/"
+WEB_SITE="https://www.boxbackup.org/"
 
-TARBALL="boxbackup-$VERSION.tgz"
-# stable
-# WGET_URL="$SF_MIRROR/boxbackup/$TARBALL"
-#WGET_URL="http://www.boxbackup.org/svn/box/packages/$TARBALL"
-WGET_URL="http://www.boxbackup.org/export/3106/box/packages/$TARBALL"
+# for the latest releases weird names please visit:
+# https://github.com/boxbackup/boxbackup/releases
+TARBALL="BoxBackup-0.12.mark_master_builds_as_full_releases.180326.161ceef.tar.gz"
+WGET_URL="https://github.com/boxbackup/boxbackup/archive/$TARBALL"
 
-BUILD_DEPENDS="db-dev libedit-dev openssl-dev zlib-dev perl"
+BUILD_DEPENDS="automake zlib-dev libedit-dev db-dev openssl-dev libxslt"
 SPLIT="boxbackup-client boxbackup-server"
 
-# Configuration variables
-
 compile_rules() {
+	./bootstrap
 	./configure \
-		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make -j1 &&
-	{
-		mkdir -p $DESTDIR
-		cp -a  parcels/boxbackup-$VERSION-backup-client-linux-gnu $DESTDIR
-		cp -a  parcels/boxbackup-$VERSION-backup-server-linux-gnu $DESTDIR
-		rm -f $DESTDIR/boxbackup-$VERSION-backup-server-linux-gnu/*.*
-	}
+	make ||return 1
+	sed -i 's|usr/man|usr/share/man|' parcels/*/install*
+	make install-backup-client
+	make install-backup-server
 
-	cook_pick_manpages $src/docs/man/*
+	install -Dm755 $stuff/bbackupd $install/etc/init.d/bbackupd
+	install -Dm755 $stuff/bbstored $install/etc/init.d/bbstored
 }
 
 genpkg_rules() {
@@ -40,23 +35,16 @@ genpkg_rules() {
 			DEPENDS="$SPLIT"
 			;;
 		*-client)
-			mkdir -p $fs/usr/bin
-			cp -a $install/boxbackup-$VERSION-backup-client-linux-gnu/bb* $fs/usr/bin
-			rm -f $fs/usr/bin/*.*
-			mkdir -p $fs/etc/init.d
-			cp -a $stuff/bbackupd $fs/etc/init.d
+			copy bbackupd bbackupquery bbackupctl bbackupd-config
 			CAT="network|client"
-			DEPENDS="db libedit openssl perl zlib gcc-lib-base"
+			DEPENDS="libedit openssl zlib"
 			TAGS="backup automatic client"
 			;;
 		*-server)
-			mkdir -p $fs/usr/bin
-			cp -a $install/boxbackup-$VERSION-backup-server-linux-gnu/bb* $fs/usr/bin
-			cp -a $install/boxbackup-$VERSION-backup-server-linux-gnu/ra* $fs/usr/bin
-			mkdir -p $fs/etc/init.d
-			cp -a $stuff/bbstored $fs/etc/init.d
+			copy bbstored bbstoreaccounts bbstored-certs bbstored-config \
+			raidfile-config
 			CAT="network|server"
-			DEPENDS="db libedit openssl perl zlib gcc-lib-base"
+			DEPENDS="openssl zlib"
 			TAGS="backup automatic server network"
 			;;
 	esac
@@ -279,4 +267,3 @@ post_remove_boxbackup_server() {
 	# Delete PID, sock files
 	rm -f /var/run/bbstored.*
 }
-
