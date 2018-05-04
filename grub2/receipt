@@ -14,7 +14,7 @@ WGET_URL="ftp://ftp.gnu.org/gnu/grub/$TARBALL"
 
 BUILD_DEPENDS="flex bison zlib-dev xz-dev freetype-dev ncurses-dev \
 libusb-compat-dev libusb-dev libdevmapper-dev"
-SPLIT="grub2 grub2-efi:efi"
+SPLIT="grub2 grub2-efi:efi grub2-efi-modules:efi"
 
 compile_rules() {
 	sed -i 's|sys/types.h>|&\n#include <sys/sysmacros.h>|' \
@@ -83,6 +83,11 @@ genpkg_rules() {
 		grub2-efi)
 			copy @std
 			DEPENDS=" "
+			;;
+		grub2-efi-modules)
+			DEPENDS="grub2-efi"
+			mkdir -p $install/boot/efi/grub/
+			cp $src/grub-core/*.mod $install/boot/efi/grub/
 			;;
 	esac
 }
