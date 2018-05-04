@@ -3,7 +3,7 @@
 PACKAGE="ayttm"
 VERSION="0.6.3"
 CATEGORY="network"
-SHORT_DESC="Universal instant messenger client"
+SHORT_DESC="Universal instant messaging client"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://ayttm.sourceforge.net/"
@@ -11,26 +11,36 @@ WEB_SITE="http://ayttm.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev zlib-dev audiofile-dev xorg-xcb-util-dev openssl-dev \
-flex enchant-dev xorg-libXpm-dev libtool"
+BUILD_DEPENDS="gtk+-dev zlib-dev audiofile-dev xorg-xcb-util-dev openssl10-dev \
+flex enchant-dev xorg-libXpm-dev libtool gettext"
 
 compile_rules() {
 	# remove -lfl
 	sed -i 's/LEXLIB=.*/LEXLIB=/' configure
+
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
 
 	./configure \
 		--disable-webcam \
 		--disable-esd \
 		--disable-arts \
 		--enable-lj \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	mkdir -p $install/usr/share/applications/
+	cp $install/usr/share/applnk/Internet/ayttm.desktop \
+		$install/usr/share/applications/
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gtk+ zlib audiofile xorg-xcb-util openssl enchant aspell \
+	rm -r $fs/usr/share/applnk/ $fs/usr/share/gnome/
+	DEPENDS="enchant gdk-pixbuf glib gtk+ libltdl openssl10 pango xorg-libX11 \
 	xorg-libXpm"
+	CONFIG_FILES="/etc/ayttmrc"
 }
