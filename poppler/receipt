@@ -1,46 +1,49 @@
 # SliTaz package receipt v2.
 
 PACKAGE="poppler"
-VERSION="0.51.0"
+VERSION="0.62.0"
 CATEGORY="office"
 SHORT_DESC="PDF rendering library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://poppler.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/poppler.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://poppler.freedesktop.org/$TARBALL"
+WGET_URL="https://poppler.freedesktop.org/$TARBALL"
 
-BUILD_DEPENDS="tiff-dev zlib-dev libjpeg-turbo-dev libpng16-dev freetype-dev \
-fontconfig-dev cairo-dev lcms2-dev"
+BUILD_DEPENDS="cmake freetype-dev fontconfig-dev libjpeg-turbo-dev zlib-dev \
+libpng16-dev tiff-dev nss-dev cairo-dev gobject-introspection-dev gtk+3-dev \
+gdk-pixbuf-dev openjpeg2-dev lcms2-dev curl-dev poppler-data"
 SPLIT="poppler-apps poppler-dev"
 
 compile_rules() {
-	./configure \
-		--disable-static \
-		--enable-build-type=release \
-		--enable-cmyk \
-		--enable-xpdf-headers \
-		--with-testdatadir=$PWD/testfiles \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
+	mkdir build
+	cd    build
+
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DTESTDATADIR=$PWD/testfiles \
+		-DENABLE_XPDF_HEADERS=ON \
+		.. &&
 	make &&
 	make install || return 1
 
-	cook_pick_docs README* glib/reference/html/
+	cook_pick_docs ../glib/reference/html
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		poppler)
 			copy *.so*
-			DEPENDS="cairo fontconfig freetype glib lcms2 libjpeg-turbo \
-			libpng16 tiff zlib"
+			DEPENDS="cairo fontconfig freetype glib lcms2 libcurl \
+			libjpeg-turbo libpng16 nspr nss openjpeg2 tiff zlib"
 			;;
 		poppler-apps)
 			copy bin/
 			CAT="office|utilities to manipulate PDF file"
-			DEPENDS="poppler cairo freetype lcms2 zlib"
+			DEPENDS="cairo freetype lcms2 poppler"
 			;;
 		poppler-dev)
 			copy @dev @rm

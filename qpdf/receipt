@@ -1,17 +1,18 @@
 # SliTaz package receipt v2.
 
 PACKAGE="qpdf"
-VERSION="6.0.0"
+VERSION="7.1.1"
 CATEGORY="system-tools"
 SHORT_DESC="QPDF: A Content-Preserving PDF Transformation System"
 MAINTAINER="mojo@slitaz.org"
 LICENSE="Artistic-2.0"
 WEB_SITE="http://qpdf.sourceforge.net/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/qpdf.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev pcre-dev"
+BUILD_DEPENDS="zlib-dev libjpeg-turbo-dev fop libxslt libxml2-tools"
 SPLIT="qpdf-dev"
 
 compile_rules() {
@@ -27,10 +28,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		qpdf)
 			copy @std
-			DEPENDS="pcre zlib"
+			DEPENDS="libjpeg-turbo zlib"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="qpdf libjpeg-turbo-dev zlib-dev"
 			;;
 	esac
 }

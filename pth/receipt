@@ -7,27 +7,28 @@ SHORT_DESC="C library for multithreading inside server applications"
 MAINTAINER="fraazz@altern.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.gnu.org/software/pth/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pth.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://ftp.ossp.org/pkg/lib/pth/$TARBALL" 
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
+BUILD_DEPENDS="gfortran"
 SPLIT="pth-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
-	make -j1 DESTDIR=$DESTDIR install
+	make -j1 DESTDIR=$DESTDIR install || return 1
+
+	cook_pick_docs README PORTING SUPPORT TESTS
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		pth)
-			copy @std
-			DEPENDS="libltdl"
-			;;
-		*-dev)
-			copy @dev
-			;;
+		pth)   copy @std;;
+		*-dev) copy @dev;;
 	esac
 }
