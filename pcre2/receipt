@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pcre2"
-VERSION="10.23"
+VERSION="10.31"
 CATEGORY="system-tools"
 SHORT_DESC="Perl 5 Compatible Regular Expression 2"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,10 +10,10 @@ WEB_SITE="http://www.pcre.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pcre2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/$TARBALL"
+WGET_URL="$SF_MIRROR/pcre/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev bzip2-dev readline-dev valgrind-dev"
-SPLIT="pcre2-apps pcre2-dev"
+SPLIT="libpcre2-8 libpcre2-16 libpcre2-32 libpcre2-posix pcre2-apps pcre2-dev"
 
 compile_rules() {
 	./configure \
@@ -35,12 +35,33 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		pcre2)
-			copy *.so*
-			CAT="system-tools|library"
+			CAT="meta|old way compatibility meta-package"
+			DEPENDS="libpcre2-8 libpcre2-16 libpcre2-32 libpcre2-posix"
 			;;
-		*-apps)
+		libpcre2-8)
+			copy libpcre2-8.so*
+			CAT="system-tools|PCRE2-8 library"
+			DEPENDS=" "
+			;;
+		libpcre2-16)
+			copy libpcre2-16.so*
+			CAT="system-tools|PCRE2-16 library"
+			DEPENDS=" "
+			;;
+		libpcre2-32)
+			copy libpcre2-32.so*
+			CAT="system-tools|PCRE2-32 library"
+			DEPENDS=" "
+			;;
+		libpcre2-posix)
+			copy libpcre2-posix.so*
+			CAT="system-tools|PCRE2-POSIX library"
+			DEPENDS="libpcre2-8"
+			;;
+		pcre2-apps)
 			copy @std @rm
-			DEPENDS="pcre2 bzlib ncurses readline zlib"
+			DEPENDS="libpcre2-8 libpcre2-16 libpcre2-32 libpcre2-posix bzlib \
+			readline zlib"
 			CAT="development|applications"
 			;;
 		*-dev)

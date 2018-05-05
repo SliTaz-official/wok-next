@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pciutils"
-VERSION="3.5.5"
+VERSION="3.5.6"
 CATEGORY="system-tools"
 SHORT_DESC="Linux PCI Utilities"
 MAINTAINER="pankso@slitaz.org"
@@ -9,45 +9,26 @@ LICENSE="GPL2"
 WEB_SITE="http://mj.ucw.cz/sw/pciutils/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pciutils.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/software/utils/pciutils/$TARBALL"
 
 BUILD_DEPENDS="kmod-dev eudev-dev zlib-dev"
 SPLIT="pciutils-dev"
 
 compile_rules() {
 	make \
-		OPT="$CFLAGS -fPIC -DPIC" \
-		ZLIB=yes \
-		SHARED=no \
 		PREFIX=/usr \
-		SHAREDIR=/usr/share/misc \
-		MANDIR=/usr/share/man \
 		SBINDIR=/usr/bin \
-		lib/libpci.a &&
-	cp lib/libpci.a $src/../ &&
-
-	make clean &&
+		SHAREDIR=/usr/share/hwdata \
+		SHARED=yes &&
 	make \
-		OPT="$CFLAGS" \
-		ZLIB=yes \
-		SHARED=yes \
 		PREFIX=/usr \
 		SBINDIR=/usr/bin \
-		SHAREDIR=/usr/share/misc \
-		MANDIR=/usr/share/man \
-		all &&
-
-	make \
+		SHAREDIR=/usr/share/hwdata \
 		SHARED=yes \
-		PREFIX=/usr \
-		SBINDIR=/usr/bin \
-		SHAREDIR=/usr/share/misc \
-		MANDIR=/usr/share/man \
-		DESTDIR=$install \
-		install install-lib &&
+		install install-lib || return 1
 
-	mv $src/../libpci.a $install/usr/lib
+	chmod -v 755 $install/usr/lib/libpci.so.$VERSION
 }
 
 genpkg_rules() {
@@ -55,7 +36,7 @@ genpkg_rules() {
 		pciutils)
 			copy @std
 			rm -rf $fs/usr/share/
-			DEPENDS="eudev kmod liblzma zlib   pciids"
+			DEPENDS="eudev kmod zlib   pciids"
 			;;
 		*-dev)
 			copy @dev

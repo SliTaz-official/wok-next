@@ -8,6 +8,7 @@ MAINTAINER="milka@konstelacioj.info"
 LICENSE="LGPL2.1"
 #WEB_SITE="http://p7zip.sourceforge.net/"
 WEB_SITE="https://sourceforge.net/projects/sevenzip/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/p7zip.html"
 
 TARBALL="${PACKAGE}_${VERSION}_src_all.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -28,15 +29,7 @@ compile_rules() {
 		DEST_DIR="$install" \
 		DEST_HOME=/usr \
 		DEST_SHARE_DOC=/usr/share/doc/p7zip-$VERSION \
-		DEST_MAN=/usr/share/man || return 1
-
-#	# Remove documentation for the GUI file manager
-#	rm -r "$install/usr/share/doc/p7zip/DOC/MANUAL/fm"
-
-#	install -d $install/usr/share/licenses/p7zip
-#	ln -s -t   $install/usr/share/licenses/p7zip/ \
-#		/usr/share/doc/p7zip/DOC/License.txt \
-#		/usr/share/doc/p7zip/DOC/unRarLicense.txt
+		DEST_MAN=/usr/share/man
 }
 
 genpkg_rules() {
@@ -44,7 +37,6 @@ genpkg_rules() {
 		p7zip)
 			copy 7zr
 			CAT="utilities|supports only 7z archives"
-			DEPENDS="gcc-lib-base glibc-base"
 			;;
 		p7zip-full)
 			copy @std @rm

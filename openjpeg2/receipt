@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openjpeg2"
-VERSION="2.1.2"
+VERSION="2.3.0"
 CATEGORY="graphics"
-SHORT_DESC="Open-source C-Library for JPEG 2000 (ver. 2.x)"
+SHORT_DESC="Open-source C-Library for JPEG 2000 (v. 2.x)"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
 WEB_SITE="http://www.openjpeg.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/openjpeg2.html"
 
 TARBALL="openjpeg-$VERSION.tar.gz"
 WGET_URL="https://github.com/uclouvain/openjpeg/archive/v$VERSION.tar.gz"
@@ -14,30 +15,28 @@ WGET_URL="https://github.com/uclouvain/openjpeg/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="cmake zlib-dev libpng16-dev tiff-dev lcms2-dev"
 SPLIT="openjpeg2-tools openjpeg2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build &&
-	cd    build &&
+compile_rules() {
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_PREFIX=/usr .. &&
-	make && make install &&
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install || return 1
 
 	cook_pick_manpages $src/doc/man/*/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		openjpeg2)
 			copy *.so*
 			;;
-		*-tools)
+		openjpeg2-tools)
 			copy bin/
 			CAT="graphics|applications"
-			DEPENDS="openjpeg2 lcms2 libpng16 tiff zlib"
+			DEPENDS="openjpeg2 lcms2 libpng16 tiff"
 			;;
 		*-dev)
 			copy @dev

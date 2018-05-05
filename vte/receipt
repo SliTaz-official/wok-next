@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="vte"
-VERSION="0.46.1"
+VERSION="0.50.2"
 CATEGORY="utilities"
 SHORT_DESC="Terminal capabilities for GTK+ widgets"
 MAINTAINER="pankso@slitaz.org"
@@ -13,8 +13,9 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS_arm="gtk+-dev ncurses-dev"
-BUILD_DEPENDS="automake gettext gobject-introspection-dev vala intltool \
-pango-dev gtk+3-dev pcre2-dev gnutls-dev"
+BUILD_DEPENDS="intltool pango-dev gtk+3-dev pcre2-dev gnutls-dev \
+gobject-introspection-dev vala gperf"
+
 SPLIT="vte-terminal vte vte-dev"
 
 compile_rules() {
@@ -23,16 +24,18 @@ compile_rules() {
 		*)    ARCH_ARGS="--enable-introspection=yes";;
 	esac
 
-	sed -i '/Werror/d' configure.ac &&
-	autoreconf &&
-
 	./configure \
 		--disable-static \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make -j1 &&
-	make install
+	make &&
+	make install || return 1
+
+	ln -s $(cd $install/usr/lib/pkgconfig; ls vte-*.pc) \
+		$install/usr/lib/pkgconfig/vte.pc
+	ln -s $(cd $install/usr/bin; ls vte-*) \
+		$install/usr/bin/vte
 
 	# add 'Home' and 'End' keys
 	#sed -i '9i\ \ \ \ :kh=\\E[H:@7=\\E[F:\\' $install/usr/share/vte/termcap-0.0/xterm
@@ -43,30 +46,16 @@ genpkg_rules() {
 		vte-terminal)
 			copy bin/
 			CAT="development|X Terminal"
-			DEPENDS="vte"
+			DEPENDS="glib gtk+3 pango vte"
 			;;
 		vte)
 			copy @std @rm
-			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gmp \
-			gtk+3 libffi libgnutls libharfbuzz libidn liblzma libpng16 \
-			libtasn1 libunistring libxml2 nettle p11-kit pango pcre pcre2 \
-			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
-			xorg-pixman zlib"
+			DEPENDS="atk cairo glib gtk+3 libgnutls libpcre2-8 pango zlib"
 			;;
 		vte-dev)
 			copy @dev
-			ln -s $(cd $fs/usr/lib/pkgconfig ; ls vte-*.pc) \
-				$fs/usr/lib/pkgconfig/vte.pc
 			DEPENDS="vte vte-terminal \
-			atk-dev bzip2-dev cairo-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gmp-dev gnutls-dev gtk+3-dev harfbuzz-dev \
-			libffi-dev libidn-dev libpng16-dev libtasn1-dev libunistring-dev \
-			libxml2-dev nettle-dev p11-kit-dev pango-dev pcre-dev pcre2-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libxcb-dev xorg-libXdmcp-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-pixman-dev xz-dev \
-			zlib-dev"
+			glib-dev gnutls-dev gtk+3-dev pango-dev pcre2-dev zlib-dev"
 			;;
 	esac
 }

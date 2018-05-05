@@ -7,6 +7,7 @@ SHORT_DESC="Pixel-manipulation library for X and Cairo"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.cairographics.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pixman.html"
 
 TARBALL="pixman-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/lib/$TARBALL"
@@ -15,7 +16,9 @@ BUILD_DEPENDS="libpng16-dev"
 SPLIT="xorg-pixman-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install

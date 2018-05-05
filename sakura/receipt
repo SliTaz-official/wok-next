@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="sakura"
-VERSION="3.4.0"
+VERSION="3.6.0"
 CATEGORY="utilities"
 SHORT_DESC="Simple GTK+3 and VTE-based terminal emulator"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,28 +11,23 @@ WEB_SITE="http://www.pleyades.net/david/projects/sakura"
 TARBALL="sakura-$VERSION.tar.bz2"
 WGET_URL="https://launchpad.net/sakura/trunk/$VERSION/+download/$TARBALL"
 
-BUILD_DEPENDS="cmake glib-dev gtk+3-dev vte-dev pcre2-dev gettext"
+BUILD_DEPENDS="cmake glib-dev gtk+3-dev vte-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i '/TryExec/d; s|Icon=.*|Icon=utilities-terminal|' sakura.desktop
 
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=RELEASE \
 		. &&
-	make && make install &&
+	make &&
+	make install || return 1
 
 	rm -rf $install/usr/share/pixmaps
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	TAGS="terminal"
-	DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libgnutls pango pcre2 vte \
-	xorg-libX11 zlib"
-	PROVIDE="sakura"
+	DEPENDS="glib gtk+3 pango vte"
 }
