@@ -1,34 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtkdialog"
-VERSION="0.8.2"
+VERSION="0.8.3"
 CATEGORY="x-window"
-SHORT_DESC="Small utility for fast and easy GUI building using GTK+."
+SHORT_DESC="Small utility for fast and easy GUI building using GTK+"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://code.google.com/archive/p/gtkdialog/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://code.google.com/p/gtkdialog/"
-WGET_URL="http://$PACKAGE.googlecode.com/files/$TARBALL"
+WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/gtkdialog/$TARBALL"
 
-DEPENDS="atk bzlib cairo expat fontconfig freetype gcc-lib-base \
-gdk-pixbuf glib glibc-base gtk+ libffi libglade libpng16 xorg-libxcb \
-libxml2 pango xorg-pixman xorg-libX11 xorg-libXau xorg-libXcomposite \
-xorg-libXcursor xorg-libXdamage xorg-libXdmcp xorg-libXext \
-xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
-BUILD_DEPENDS="gtk+-dev libglade-dev vte-dev"
+BUILD_DEPENDS="automake gtk+-dev libglade-dev vte-gtk2-dev texinfo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS &&
+compile_rules() {
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	cook_pick_docs README TODO doc/reference
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/icons $fs/usr/share
+genpkg_rules() {
+	copy @std icons/
+	DEPENDS="gdk-pixbuf glib gtk+ libglade vte-gtk2"
 }

@@ -1,33 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tilda"
-VERSION="0.9.6"
+VERSION="1.4.1"
 CATEGORY="utilities"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-SHORT_DESC="Linux terminal based on classic terminals from first person shooter games."
-WEB_SITE="http://tilda.sourceforge.net"
+SHORT_DESC="Linux terminal based on classic terminals from first person \
+shooter games"
+WEB_SITE="https://github.com/lanoxx/tilda"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="terminal"
+WGET_URL="https://github.com/lanoxx/tilda/archive/$TARBALL"
 
-DEPENDS="vte libconfuse libglade"
-BUILD_DEPENDS="flex vte-dev libglade-dev libconfuse"
+BUILD_DEPENDS="automake gettext gtk+3-dev vte-dev libconfuse"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|LEXLIB=.*|LEXLIB=/usr/lib/libfl.a|' configure
-	sed -i 's|<glib/.*|<glib.h>|' src/tomboykeybinder.h src/tilda.c
-	./configure $CONFIGURE_ARGS && 
-	make && make install
+compile_rules() {
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/applications/
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/tilda.glade $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="gdk-pixbuf glib gtk+3 pango vte xorg-libX11"
+	TAGS="terminal"
 }
