@@ -1,36 +1,77 @@
 # SliTaz package receipt v2.
 
 PACKAGE="opencv"
-VERSION="3.3.0"
+VERSION="3.4.1"
 CATEGORY="development"
 SHORT_DESC="Open source computer vision library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://opencv.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/opencv.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/Itseez/opencv/archive/$VERSION.tar.gz"
+WGET_URL="https://github.com/opencv/opencv/archive/$VERSION.tar.gz"
+WGET_URL2="https://raw.githubusercontent.com/opencv/opencv_3rdparty/\
+dfe3162c237af211e98b8960018b564bc209261d/ippicv/\
+ippicv_2017u3_lnx_intel64_general_20170822.tgz"
+WGET_URL3="https://github.com/opencv/opencv_contrib/archive/$VERSION/\
+opencv_contrib-$VERSION.tar.gz"
 
-BUILD_DEPENDS="cmake gtk+-dev ffmpeg-dev libjpeg-turbo-dev tiff-dev \
-libpng16-dev"
+BUILD_DEPENDS="cmake python-dev python-numpy zlib-dev \
+libjpeg-turbo-dev tiff-dev libpng16-dev libwebp-dev jasper-dev openexr-dev \
+ilmbase-dev gtk+-dev glib-dev gstreamer1-dev gst1-plugins-base-dev \
+libgphoto2-dev shared-mime-info xine-lib-dev protobuf-dev " # lapack-dev
 SPLIT="opencv opencv-dev"
 
 compile_rules() {
-	fix math
+	ipp_file=$SRC/$(basename $WGET_URL2)
+	if [ ! -e "$ipp_file" ]; then
+		wget -O $ipp_file $WGET_URL2
+	fi
+	ipp_hash=$(md5sum $ipp_file | cut -d" " -f1)
+	ipp_dir=.cache/ippicv
+	mkdir -p $ipp_dir
+	cp $ipp_file $ipp_dir/$ipp_hash-$(basename $ipp_file)
+
+	if [ ! -e "$SRC/$(basename $WGET_URL3)" ]; then
+		wget -P $SRC $WGET_URL3
+	fi
+	tar -xf $SRC/$(basename $WGET_URL3)
+
+
 	mkdir build
 	cd    build
+
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_CXX11=ON \
+		-DBUILD_PERF_TESTS=OFF \
+		-DWITH_XINE=ON \
+		-DBUILD_TESTS=OFF \
+		-DENABLE_PRECOMPILED_HEADERS=OFF \
+		-DCMAKE_SKIP_RPATH=ON \
+		-DBUILD_WITH_DEBUG_INFO=OFF \
+		-Wno-dev \
+		\
 		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	case $ARCH in
+		x86_64) a='intel64';;
+		*)      a='ia32';;
+	esac
+	cp -v 3rdparty/ippicv/ippicv_lnx/lib/$a/libippicv.a $install/usr/lib
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		opencv)
 			copy @std
-			DEPENDS="gtk+ ffmpeg jpeg tiff libpng16"
+			DEPENDS="cairo gdk-pixbuf glib gst1-plugins-base gstreamer1 gtk+ \
+			jasper libgphoto2 libjpeg-turbo libpng16 libwebp openexr tiff \
+			xine-lib zlib"
 			;;
 		opencv-dev)
 			copy @dev

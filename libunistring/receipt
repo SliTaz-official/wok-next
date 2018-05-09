@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libunistring"
-VERSION="0.9.7"
+VERSION="0.9.8"
 CATEGORY="libdevel"
 SHORT_DESC="Unicode string library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3 LGPL3 FDL"
 WEB_SITE="https://www.gnu.org/software/libunistring/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libunistring.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
@@ -14,7 +15,9 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 SPLIT="libunistring-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install

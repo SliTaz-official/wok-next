@@ -1,21 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libidn2"
-VERSION="2.0.0"
+VERSION="2.0.4"
 CATEGORY="system-tools"
 SHORT_DESC="Encode and decode internationalized domain names"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3 LGPL2.1"
 WEB_SITE="https://www.gnu.org/software/libidn/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libidn2.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="https://alpha.gnu.org/gnu/libidn/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/libidn/$TARBALL"
 
 BUILD_DEPENDS="gtk-doc gettext"
 SPLIT="libidn2-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install

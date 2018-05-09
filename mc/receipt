@@ -1,49 +1,43 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mc"
-VERSION="4.8.19"
+VERSION="4.8.20"
 CATEGORY="system-tools"
 SHORT_DESC="Midnight Commander - ncurses based file manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://midnight-commander.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/mc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.midnight-commander.org/$TARBALL"
 
-BUILD_DEPENDS="gpm-dev glib-dev ncurses-dev util-linux-mount-dev \
-util-linux-blkid-dev util-linux-uuid-dev check-dev gettext libssh2-dev"
+BUILD_DEPENDS="check-dev glib-dev gettext gpm-dev libssh2-dev"
 
 COOKOPTS="!menus"
 
 compile_rules() {
-	sed -i 's/lzma -cd/lzcat/' $src/src/editor/edit.c
-
 	./configure \
 		--enable-charset \
 		--with-gpm-mouse \
 		--with-screen=ncurses \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make install
+	make install || return 1
 
-	mkdir -p $install/usr/share/terminfo/s
-	cp -a /usr/share/terminfo/s/screen-256color $install/usr/share/terminfo/s
+	install -Dm644 /usr/share/terminfo/s/screen-256color \
+	       $install/usr/share/terminfo/s/screen-256color
 
-	mkdir -p $install/usr/share/applications
-	cp $stuff/*.desktop $install/usr/share/applications
-
-	install -m755 $stuff/mc.sh $install/usr/bin
-
-	chown -R root:root $install
+	install -Dm644 $stuff/mc.desktop      $install/usr/share/applications/mc.desktop
+	install -Dm644 $stuff/mc-root.desktop $install/usr/share/applications/mc-root.desktop
+	install -Dm755 $stuff/mc.sh           $install/usr/bin/mc.sh
 }
 
 genpkg_rules() {
-	copy bin/ mc/ terminfo/ applications/
-
-	sed -i 's#|profile|#&receipt|#' $fs/usr/share/mc/syntax/Syntax
-	sed -i 's/lzma -dc/lzcat/g'     $fs/usr/libexec/mc/ext.d/archive.sh
-	DEPENDS="ncurses glib e2fsprogs util-linux-blkid libssh2 openssl zlib pcre"
-	SUGGESTED="gpm xz cdrkit-isoinfo lynx w3m wv poppler-apps file"
+	copy @std
+	DEPENDS="glib libssh2 ncurses"
+	SUGGESTED="perl python openssl gpm xz cdrkit-isoinfo lynx w3m wv \
+	poppler-apps file"
 	TAGS="file-manager text-editor"
 }

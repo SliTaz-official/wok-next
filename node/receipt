@@ -1,30 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="node"
-VERSION="0.10.41"
+VERSION="9.5.0"
 CATEGORY="network"
-SHORT_DESC="Node.js is a platform for easily building network applications."
+SHORT_DESC="Node.js - JavaScript runtime built on Chrome's V8 JavaScript engine"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-v$VERSION.tar.gz"
-WEB_SITE="http://nodejs.org/"
-WGET_URL="http://nodejs.org/dist/v$VERSION/$TARBALL"
+WEB_SITE="https://nodejs.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/nodejs.html"
 
-DEPENDS="python openssl"
-BUILD_DEPENDS="python-dev openssl-dev"
+TARBALL="$PACKAGE-v$VERSION.tar.xz"
+WGET_URL="https://nodejs.org/dist/v$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	#patch -p0 < ${stuff}/SConstruct.patch || return 1
-	./configure --prefix=/usr &&
-	make && make install
+BUILD_DEPENDS="python-dev zlib-dev c-ares-dev openssl-dev icu-dev"
+SPLIT="node-dev"
+
+compile_rules() {
+	# site script didn't used, define prefix here
+	./configure \
+		--prefix=/usr \
+		--shared-cares \
+		--shared-openssl \
+		--shared-zlib \
+		--with-intl=system-icu \
+		&&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/node* $fs/usr/lib
+genpkg_rules() {
+	case $PACKAGE in
+		node)
+			copy @std
+			DEPENDS="c-ares icu libicu openssl python zlib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

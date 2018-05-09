@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="obex-data-server"
+VERSION="0.4.6"
+CATEGORY="system-tools"
+SHORT_DESC="D-Bus service providing OBEX functionality"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://tadas.dailyda.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/obex-data-server.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://tadas.dailyda.com/software/$TARBALL"
+
+BUILD_DEPENDS="glib-dev dbus-glib-dev gdk-pixbuf-dev libusb-compat-dev \
+libusb-dev bluez-dev openobex-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="bluez dbus-glib gdk-pixbuf glib libusb-compat openobex"
+}

@@ -1,17 +1,18 @@
 # SliTaz package receipt v2.
 
 PACKAGE="newt"
-VERSION="0.52.19"
+VERSION="0.52.20"
 CATEGORY="libdevel"
 SHORT_DESC="Programming library for color text mode"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://fedorahosted.org/newt/"
+WEB_SITE="https://pagure.io/newt"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/newt.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://fedorahosted.org/releases/n/e/$PACKAGE/$TARBALL"
+WGET_URL="https://releases.pagure.org/newt/$TARBALL"
 
-BUILD_DEPENDS="slang-dev popt-dev python-dev tcl-dev"
+BUILD_DEPENDS="slang-dev popt-dev python-dev tcl-dev gpm-dev"
 SPLIT="newt-dev"
 
 compile_rules() {
@@ -23,14 +24,16 @@ compile_rules() {
 	./configure \
 		--with-gpm-support \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		newt)
 			copy @std *.mo
-			DEPENDS="popt python slang tcl gpm"
+			DEPENDS="popt python slang tcl"
+			SUGGESTED="gpm"
 			;;
 		*-dev) copy @dev;;
 	esac

@@ -1,44 +1,65 @@
 # SliTaz package receipt v2.
 
 PACKAGE="spacefm"
-VERSION="0.9.4"
-CATEGORY="system-tools"
-SHORT_DESC="Light, fast and easy to use file manager"
-MAINTAINER="pankso@slitaz.org"
+VERSION="1.0.6"
+CATEGORY="meta"
+SHORT_DESC="Multi-panel tabbed file and desktop manager"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://ignorantguru.github.io/spacefm/"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$SF_MIRROR/$PACKAGE/files/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/IgnorantGuru/spacefm/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
-xorg-libxcb-dev xorg-xcb-util-dev expat-dev gdk-pixbuf-dev intltool eudev-dev \
-coreutils-file-special"
+BUILD_DEPENDS="intltool gtk+-dev gtk+3-dev startup-notification-dev eudev-dev \
+ffmpegthumbnailer-dev"
+SPLIT="spacefm spacefm-gtk2:gtk2 spacefm-gtk3:gtk3"
 
 compile_rules() {
-	patch -Np1 -i $stuff/prefdlg.ui.diff
-	patch -Np1 -i $stuff/settings.h.diff
-	patch -Np1 -i $stuff/vfs-file-task.c.diff
+	case $SET in
+		'')   rm -r $src; mkdir $install; return 0;;
+		gtk2) SET_ARGS='--with-gtk2';;
+		gtk3) SET_ARGS='--with-gtk3';;
+	esac
 
 	./configure \
-		--with-preferable-sudo="/usr/bin/subox" \
-		--disable-pixmaps \
+		--with-preferable-sudo=/usr/bin/subox \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install || return 1
+	make MKDIRPROG='mkdir -p' install || return 1
 
-	install -Dm644 $stuff/spacefm.conf                  $install/etc/spacefm/spacefm.conf
-	install -Dm644 $stuff/xdg/autostart/spacefm.desktop $install/etc/autostart/spacefm.desktop
-	install -Dm644 $stuff/xdg/spacefm/session           $install/etc/xdg/spacefm/session
+	install -Dm644 $stuff/spacefm-desktop-pref.desktop \
+		$install/usr/share/applications/spacefm-desktop-pref.desktop
+	install -Dm644 $stuff/xdg/autostart/spacefm.desktop \
+		$install/etc/xdg/autostart/spacefm.desktop
+	install -Dm644 $stuff/xdg/spacefm/session \
+		$install/etc/xdg/spacefm/session
 
-	# /bin/bash --> /bin/sh
-	sed -i 's|/bin/bash|/bin/sh|g' $install/usr/bin/spacefm-auth
+	# useless file, it adds nothing useful to Freedesktop's shared-mime-info
+	rm -r $install/usr/share/mime/
 }
 
 genpkg_rules() {
-	copy @std @ico
-	DEPENDS="glibc-base glib util-linux-uuid xorg-libxcb xorg-xcb-util expat \
-	gtk+ startup-notification dbus dbus-glib gdk-pixbuf eudev bash udevil"
-	TAGS="file-manager"
+	case $PACKAGE in
+		spacefm)
+			CAT="meta|empty meta-package"
+			DEPENDS="spacefm-gtk2"
+			;;
+		spacefm-gtk2)
+			copy @std @ico
+			CAT="system-tools|with GTK+2 interface"
+			DEPENDS="cairo eudev ffmpegthumbnailer gdk-pixbuf glib gtk+ pango \
+			startup-notification xorg-libX11   bash"
+			TAGS="file-manager"
+			;;
+		spacefm-gtk3)
+			copy @std @ico
+			CAT="system-tools|with GTK+3 interface"
+			DEPENDS="cairo eudev ffmpegthumbnailer gdk-pixbuf glib gtk+3 pango \
+			startup-notification xorg-libX11   bash"
+			TAGS="file-manager"
+			;;
+	esac
 }

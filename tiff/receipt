@@ -1,26 +1,37 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tiff"
-VERSION="4.0.7"
+VERSION="4.0.9"
 CATEGORY="graphics"
 SHORT_DESC="TIFF images"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.libtiff.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libtiff.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.osgeo.org/libtiff/$TARBALL"
 
-BUILD_DEPENDS="libjpeg-turbo-dev zlib-dev"
-SPLIT="tiff-apps tiff-dev"
+BUILD_DEPENDS="cmake ninja zlib-dev libjpeg-turbo-dev xz-dev \
+mesa-dev glu-dev freeglut-dev"
+SPLIT="tiff tiff-apps tiff-dev tiff-gl:gl tiff-gl-apps:gl tiff-gl-dev:gl"
 
 compile_rules() {
-	./configure \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	case $SET in
+		# no options for it
+		'') sed -i 's|HAVE_OPENGL TRUE|HAVE_OPENGL FALSE|' CMakeLists.txt;;
+	esac
+
+	mkdir -p libtiff-build
+	cd       libtiff-build
+
+	cmake \
+		-DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libtiff-$VERSION \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-G Ninja \
+		.. &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
@@ -28,16 +39,34 @@ genpkg_rules() {
 		tiff)
 			copy *.so*
 			CAT="graphics|libraries"
-			DEPENDS="jpeg-turbo zlib"
+			DEPENDS="libjpeg-turbo liblzma zlib"
 			;;
 		tiff-apps)
 			copy bin/
 			CAT="graphics|CLI applications"
-			DEPENDS="libjpeg-turbo zlib tiff"
+			DEPENDS="tiff"
 			;;
-		*-dev)
+		tiff-dev)
 			copy @dev
-			DEPENDS="tiff tiff-apps libjpeg-turbo-dev zlib-dev"
+			DEPENDS="tiff tiff-apps"
+			;;
+
+		tiff-gl)
+			copy *.so*
+			CAT="graphics|libraries"
+			DEPENDS="libjpeg-turbo liblzma zlib"
+			PROVIDE="tiff:mesa"
+			;;
+		tiff-gl-apps)
+			copy bin/
+			CAT="graphics|CLI applications"
+			DEPENDS="freeglut mesa tiff"
+			PROVIDE="tiff-apps:mesa"
+			;;
+		tiff-gl-dev)
+			copy @dev
+			DEPENDS="tiff-gl tiff-gl-apps"
+			PROVIDE="tiff-dev:mesa"
 			;;
 	esac
 }

@@ -1,0 +1,33 @@
+--- a/src/editor/edit.c
++++ b/src/editor/edit.c
+@@ -128,7 +128,7 @@
+     { "xz -cd %s 2>&1", "xz > %s", ".xz"},
+     { "lz4 -cd %s 2>&1", "lz4 > %s", ".lz4" },
+     { "lzip -cd %s 2>&1", "lzip > %s", ".lz"},
+-    { "lzma -cd %s 2>&1", "lzma > %s", ".lzma" },
++    { "lzcat %s 2>&1", "lzma > %s", ".lzma" },
+     { "bzip2 -cd %s 2>&1", "bzip2 > %s", ".bz2" },
+     { "gzip -cd %s 2>&1", "gzip > %s", ".gz" },
+     { "gzip -cd %s 2>&1", "gzip > %s", ".Z" }
+--- a/misc/syntax/Syntax.in
++++ b/misc/syntax/Syntax.in
+@@ -37,7 +37,7 @@
+ file ..\*\\.lsm$ LSM\sFile
+ include lsm.syntax
+ 
+-file .\*(bash_completion|profile|\\.(sh|bash_login|bash_profile|bash_logout|bash_aliases|bash_exports|bash_history|bashrc|profile|zlogin|zlogout|zprofile|zshenv|zshrc))$ Shell\sScript ^#!\s\*/(.\*/|usr/bin/env\s)([a-z]?|ba|pdk)sh
++file .\*(bash_completion|profile|receipt|\\.(sh|bash_login|bash_profile|bash_logout|bash_aliases|bash_exports|bash_history|bashrc|profile|zlogin|zlogout|zprofile|zshenv|zshrc))$ Shell\sScript ^#!\s\*/(.\*/|usr/bin/env\s)([a-z]?|ba|pdk)sh
+ include sh.syntax
+ 
+ file ..\*\\.((?i:pl|pm|psgi)|t)$ Perl\sProgram ^#!.\*([\s/]perl|@PERL@)
+--- a/misc/ext.d/archive.sh
++++ b/misc/ext.d/archive.sh
+@@ -30,7 +30,7 @@
+         lz4 -dc "${MC_EXT_FILENAME}" 2>/dev/null
+         ;;
+     lzma)
+-        lzma -dc "${MC_EXT_FILENAME}" 2>/dev/null
++        lzcat "${MC_EXT_FILENAME}" 2>/dev/null
+         ;;
+     xz)
+         xz -dc "${MC_EXT_FILENAME}" 2>/dev/null
