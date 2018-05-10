@@ -15,18 +15,6 @@ DEPENDS="ruby-enterprise sqlite3-ruby"
 # Rules to configure and make the package.
 compile_rules()
 {
-	# Apply patches
-	while read patch_file; do
-		if [ -f done.$patch_file ]; then
-			echo "Skipping $patch_file"
-			continue
-		fi
-		echo "Apply $patch_file"
-		patch -p1 < $stuff/$patch_file || return 1
-		touch done.$patch_file
-	done <<EOT
-owp-${VERSION}.u
-EOT
 	mkdir $DESTDIR
 	mv * $DESTDIR 2> /dev/null || true
 }

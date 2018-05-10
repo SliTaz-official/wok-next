@@ -16,16 +16,6 @@ BUILD_DEPENDS="lua5.1-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-        echo $src
-	cd $src
-	while read file; do
-		[ -f done.$file ] && continue
-		echo "Apply $file..."
-		patch -p1 < $stuff/$file || return 1
-		touch done.$file
-	done <<EOT
-patch.diff
-EOT
 	make CFLAGS="$CFLAGS -I/usr/include/lua/5.1" && make DESTDIR=$DESTDIR install
 }
 

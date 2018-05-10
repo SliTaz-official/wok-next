@@ -21,10 +21,8 @@ wireless_tools-dev mesa-dev yasm libnotify-dev curl-dev hunspell-dev"
 compile_rules()
 {
 	cp -a $stuff/seamonkey.mozconfig $src/.mozconfig
-	cd $src
 	sed -i -e 's/USE_INPUT_PARTITION/USE_INPUT_FRAGMENTS/' \
 		-e 's/0.9.7/1.0.0/' mozilla/configure.in mozilla/configure
-	#patch -p1 -i $stuff/google-breakpad.u || exit 1
 	cat >> mozilla/layout/build/Makefile.in << "EOF"
 ifdef MOZ_ENABLE_CANVAS
 EXTRA_DSO_LDOPTS += $(XLDFLAGS) -lX11 -lXrender
@@ -32,8 +30,6 @@ endif
 EOF
 	unset CFLAGS
 	unset CXXFLAGS
-	patch -Np1 -i $stuff/seamonkey-2.0-lang.patch
-	patch -Np1 -i $stuff/seamonkey-install-dir.patch
 	export LDFLAGS="$LDFLAGS -Wl,-rpath,/usr/lib/seamonkey"
 	./configure $CONFIGURE_ARGS 2>&1 | grep -v 'cthandlers/calendar/Makefile.in' &&
 	make &&

@@ -14,15 +14,6 @@ WGET_URL="$SF_MIRROR/nagios/$TARBALL"
 BUILD_DEPENDS="mysql-dev"
 
 compile_rules() {
-	while read patch_file; do
-		if [ ! -f done.$patch_file ]; then
-			patch -p1 < $stuff/$patch_file || exit 1
-			touch done.$patch_file
-		fi
-	done <<EOT
-$PACKAGE-$VERSION-Makefiles.in.u
-EOT
-
 	./configure \
 		--with-ndo2db-user=nagios \
 		--with-ndo2db-group=nagios \

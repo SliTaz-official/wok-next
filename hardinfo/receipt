@@ -16,15 +16,6 @@ BUILD_DEPENDS="gtk+ gtk+-dev"
 # Rules to configure and make the package.
 compile_rules()
 {
-	cd $src
-	while read file; do
-		[ -f done.$file ] && continue
-		patch -p0 < $stuff/$file || return 1
-		touch done.$file
-	done <<EOT
-languages.patch
-os.patch
-EOT
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
