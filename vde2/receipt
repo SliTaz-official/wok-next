@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="vde2"
-VERSION="2.3.1"
+VERSION="2.3.2"
 CATEGORY="network"
 SHORT_DESC="Virtual Distributed Ethernet"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,16 +11,23 @@ WEB_SITE="http://vde.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/vde/$TARBALL"
 
-BUILD_DEPENDS="openssl openssl-dev"
+BUILD_DEPENDS="openssl-dev" # python-dev libpcap-dev
 SPLIT="vde2-dev"
 
 compile_rules() {
+	# Disable size optimization (and use default) because inlining functions
+	# in the src/vde_switch/fstp.c will produce errors:
+	#   undefined reference to `nstringtol'
+	#   undefined reference to `ltonstring'
+	export CFLAGS="${CFLAGS/-Os/}"
+
 	./configure \
 		--libexecdir=/usr/lib/$PACKAGE \
+		--enable-experimental \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	make -j1 &&
+	make -j1 install
 }
 
 genpkg_rules() {
