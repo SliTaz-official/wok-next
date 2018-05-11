@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="freeglut"
-VERSION="2.6.0"
+VERSION="3.0.0"
 CATEGORY="x-window"
 SHORT_DESC="OpenGL utility toolkit"
 MAINTAINER="b1+slitaz@nagel.org"
@@ -11,38 +11,34 @@ WEB_SITE="http://freeglut.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="mesa-dev mesa glu-dev glu xorg-inputproto \
-xorg-xproto xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
-xorg-libXdmcp-dev xorg-libXext-dev xorg-libXi-dev xorg-libXfixes-dev \
-xorg-libXxf86vm-dev xorg-libxcb-dev expat-dev xorg-libxshmfence-dev"
+BUILD_DEPENDS="cmake mesa-dev glu-dev xorg-libXi-dev"
 SPLIT="freeglut-dev"
 
 compile_rules() {
-	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-
-	if [ ! -d $src ]; then mv $PACKAGE-2.6.0 $src; fi
-
-	cd $src
-
-	./configure $CONFIGURE_ARGS &&
-#	sed -i '/XF86VMODE/d' config.status
-	fix libtool &&
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	chmod 644 $src/doc/*
+	cook_pick_docs $src/doc/*
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		freeglut)
 			copy @std
-			DEPENDS="glibc-base libdrm mesa glu \
-			xorg-libX11 xorg-libXau xorg-libXdamage xorg-libXdmcp \
-			xorg-libXext xorg-libXi xorg-libXfixes xorg-libXxf86vm"
-			SUGGESTED="nvidia"
+			DEPENDS="mesa xorg-libX11 xorg-libXi xorg-libXxf86vm"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="freeglut mesa-dev xorg-libX11-dev xorg-libXrandr-dev \
+			xorg-libXxf86vm-dev"
 			;;
 	esac
 }
