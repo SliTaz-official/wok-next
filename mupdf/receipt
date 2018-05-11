@@ -1,23 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mupdf"
-VERSION="1.11"
-CATEGORY="utilities"
-SHORT_DESC="A lightweight PDF and XPS viewer"
+VERSION="1.13.0"
+CATEGORY="x-window"
+SHORT_DESC="MuPDF document viewer"
 MAINTAINER="jozee@slitaz.org"
-LICENSE="GPL3"
-WEB_SITE="http://mupdf.com/"
+LICENSE="AGPL3"
+WEB_SITE="https://mupdf.com/"
 
-TARBALL="$PACKAGE-$VERSION-source.tar.gz"
-WGET_URL="http://mupdf.com/downloads/$TARBALL"
+TARBALL="$PACKAGE-$VERSION-source.tar.xz"
+WGET_URL="https://mupdf.com/downloads/$TARBALL"
 
-BUILD_DEPENDS="freetype-dev fontconfig-dev jbig2dec-dev libjpeg-turbo-dev \
-openjpeg-dev zlib-dev xorg-dev"
-SPLIT="mudraw mupdf mupdf-dev"
+BUILD_DEPENDS="freetype-dev libjpeg-turbo-dev jbig2dec-dev openjpeg2-dev \
+freeglut-dev mesa-dev glu-dev curl-dev"
+SPLIT="mupdf mupdf-gl mupdf-tools mupdf-dev"
 
 compile_rules() {
-	# Use system wide libraries instead of included ones
-	rm -rf $src/thirdparty
+	# use system wide libraries instead of included ones; leave mujs
+	rm -rf thirdparty/curl      thirdparty/freeglut  thirdparty/freetype \
+	       thirdparty/harfbuzz  thirdparty/jbig2dec  thirdparty/lcms2 \
+	       thirdparty/libjpeg   thirdparty/openjpeg  thirdparty/zlib
+
+	# fix includes for jbig2dec
+	sed -i '/^JBIG2DEC_CFLAGS :=/s|$| -I./include/mupdf|' Makethird
 
 	case "$ARCH" in
 		arm*)
@@ -34,24 +39,48 @@ CFLAGS += -I/cross/$ARCH/sysroot/usr/include -O2 -march=armv6 -ftree-vectorize -
 CROSSCOMPILE=yes
 endif
 EOT
-			ln -s /usr/include/freetype2/freetype/ /usr/include/freetype
 			;;
 	esac
-	make ${ARCH_ARGS} build=release &&
-	make ${ARCH_ARGS} build=release prefix=/usr install
-	rm -rf /usr/include/freetype
+	make $ARCH_ARGS build=small libs apps extra &&
+	make $ARCH_ARGS build=small prefix=/usr install || return 1
+
+	# install tools
+	cd $src/build/small
+	cp mjsgen mujstest muraster mupdf-x11-curl $install/usr/bin/
+
+	# desktop integration
+	install -Dm644 $stuff/mupdf.desktop \
+		$install/usr/share/applications/mupdf.desktop
+	install -Dm644 $src/docs/logo/mupdf.png \
+		$install/usr/share/icons/hicolor/48x48/apps/mupdf.png
+
+	# fix permissions
+	find $install/usr/include $install/usr/share $install/usr/lib -type f \
+		-exec chmod 0644 '{}' \;
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		mudraw)
-			copy mudraw
-			CAT="development|mudraw"
-			DEPENDS="bzlib freetype jbig2dec openjpeg"
-			;;
 		mupdf)
-			copy @std @rm
-			DEPENDS="bzlib freetype fontconfig jbig2dec openjpeg xorg-libXext"
+			copy mupdf-x11-curl mupdf.desktop mupdf.png
+			ln -s mupdf-x11-curl $fs/usr/bin/mupdf
+			DEPENDS="freetype jbig2dec libcurl libharfbuzz libjpeg-turbo \
+			openjpeg2 openssl xorg-libX11 xorg-libXext zlib"
+			CAT="x-window|basic X11 version"
+			;;
+		mupdf-gl)
+			copy mupdf-gl mupdf.desktop mupdf.png
+			ln -s mupdf-gl $fs/usr/bin/mupdf
+			DEPENDS="freeglut freetype jbig2dec libharfbuzz libjpeg-turbo mesa \
+			openjpeg2 zlib"
+			CAT="x-window|full featured OpenGL accelerated version"
+			PROVIDE="mupdf:mesa"
+			;;
+		mupdf-tools)
+			copy mutool mjsgen mujstest muraster
+			DEPENDS="freetype jbig2dec libharfbuzz libjpeg-turbo openjpeg2 \
+			openssl zlib"
+			CAT="x-window|multipurpose PDF tools"
 			;;
 		mupdf-dev)
 			copy @dev
