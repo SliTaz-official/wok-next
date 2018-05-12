@@ -1,28 +1,48 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libiodbc"
-VERSION="3.52.7"
+VERSION="3.52.12"
 CATEGORY="system-tools"
 SHORT_DESC="Independent Open DataBase Connectivity"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.iodbc.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libiodbc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.iodbc.org/downloads/iODBC/$TARBALL"
+WGET_URL="$SF_MIRROR/iodbc/$TARBALL"
 
-SPLIT="libiodbc-dev"
+BUILD_DEPENDS="gtk+-dev chrpath"
+SPLIT="libiodbc-gui libiodbc libiodbc-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--with-iodbc-inidir=/etc/iodbc \
+		--includedir=/usr/include/iodbc \
+		--disable-libodbc \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	# remove rpath pointing to "/home/slitaz/wok/libiodbc/source/libiodbc-3.52.12/iodbc/.libs"
+	chrpath -d $install/usr/bin/iodbctest*
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libiodbc) copy @std;;
-		*-dev)    copy @dev;;
+		libiodbc-gui)
+			copy iodbcadm-gtk libdrvproxy.so* libiodbcadm.so*
+			DEPENDS="glib gtk+ libiodbc"
+			;;
+		libiodbc)
+			copy @std @rm
+			rm -r $fs/usr/share # remove samples/ with underlayind dirs
+			;;
+		*-dev)
+			copy @dev samples/
+			DEPENDS="libiodbc" # exclude gui package
+			;;
 	esac
 }

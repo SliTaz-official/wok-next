@@ -7,6 +7,7 @@ SHORT_DESC="Library for handling paper characteristics"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://packages.debian.org/unstable/source/libpaper"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libpaper.html"
 
 TARBALL="libpaper_$VERSION.tar.gz"
 WGET_URL="http://ftp.debian.org/debian/pool/main/libp/libpaper/$TARBALL"
@@ -25,8 +26,11 @@ compile_rules() {
 	make install || return 1
 
 	install -m755 $stuff/run-parts $install/usr/bin
+
 	mkdir -p $install/etc
 	echo 'a4' > $install/etc/papersize
+
+	mkdir -p $install/etc/libpaper.d
 }
 
 genpkg_rules() {
@@ -37,8 +41,4 @@ genpkg_rules() {
 			;;
 		*-dev) copy @dev;;
 	esac
-}
-
-post_install_libpaper() {
-	mkdir -p "$1/etc/libpaper.d"
 }
