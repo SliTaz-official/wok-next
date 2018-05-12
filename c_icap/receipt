@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="c_icap"
-VERSION="0.1.7"
+VERSION="0.5.3"
 CATEGORY="network"
 SHORT_DESC="Implementation of an ICAP server"
 MAINTAINER="erjo@slitaz.org"
@@ -11,7 +11,7 @@ WEB_SITE="http://c-icap.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/c-icap/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev"
+BUILD_DEPENDS="openssl-dev zlib-dev bzip2-dev brotli-dev openldap-dev pcre-dev"
 SPLIT="c_icap-dev"
 
 compile_rules() {
@@ -23,8 +23,8 @@ compile_rules() {
 	make &&
 	make install || return 1
 
-	mkdir -p $install/etc/init.d/ $install/var/log/c-icap/
-	install -m755 $stuff/c-icapd $install/etc/init.d
+	mkdir -p $install/var/log/c-icap/
+	install -Dm755 $stuff/c-icapd $install/etc/init.d/c-icapd
 
 	# Fix config file
 	sed -i -e "s|YourServerName|localhost|;
@@ -38,6 +38,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		c_icap)
 			copy @std var/log/c-icap/
+			DEPENDS="brotli bzlib libldap libpcre openssl zlib"
 			;;
 		*-dev)
 			copy @dev
