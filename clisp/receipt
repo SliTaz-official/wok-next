@@ -1,41 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clisp"
-VERSION="2.49"
+VERSION="2.50"
 CATEGORY="development"
-SHORT_DESC="GNU ANSI common lisp implementation."
+SHORT_DESC="GNU ANSI Common Lisp implementation"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://clisp.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://clisp.sourceforge.io/"
 
-DEPENDS="readline ncurses"
-BUILD_DEPENDS="readline-dev libsigsegv libffcall"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/gnu-clisp/clisp/-/archive/clisp-$VERSION/clisp-clisp-$VERSION.tar.bz2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# CFLAGS/CXXFLAGS/MAKEFLAGS screw the build process.
-	unset CFLAGS CXXFLAGS MAKEFLAGS
-	export CFLAGS="-falign-functions=4"
+BUILD_DEPENDS="libunistring-dev gettext libffcall readline-dev libsigsegv-dev"
 
+compile_rules() {
+	FORCE_UNSAFE_CONFIGURE=1 \
 	./configure \
-		--with-libsigsegv \
-		--cbc build &&
-
-	# Be careful - unusual build rules!
-	cd build &&
-	make DESTDIR=$DESTDIR install
+		--with-ffcall \
+		--with-readline \
+		build &&
+	cd  build &&
+	./makemake \
+		--with-ffcall \
+		--with-readline \
+		--with-dynamic-ffi \
+		> Makefile &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
-	# remove stuff
-	rm -rf $fs/usr/share/man
+genpkg_rules() {
+	copy @std @dev
+	DEPENDS="libsigsegv libunistring ncurses readline"
 }
