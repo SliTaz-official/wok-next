@@ -9,35 +9,70 @@ LICENSE="GPL2"
 WEB_SITE="http://www.malsmith.net/antinat/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-#WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 WGET_URL="http://www.malsmith.net/download/?obj=antinat/$VERSION/antinat-source.tar.bz2"
 
-BUILD_DEPENDS="gfortran expat-dev"
-SPLIT="antinat-dev"
+BUILD_DEPENDS="gfortran expat-dev pam-dev"
+SPLIT="libantinat antinat antinat-dev antinat-pam:pam antinat-pam-dev:pam"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	case $SET in
+		'')  SET_ARGS='--disable-pam'; SET_CMD='s|#define ENABLE_PAM 1|#undef ENABLE_PAM|';;
+		pam) SET_ARGS='--enable-pam';  SET_CMD='';;
+	esac
+
+	export shrext_cmds='.so'	# shared libs lost their suffix without this
+	./configure \
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
+	sed -i "$SET_CMD" config.h &&
 	fix libtool &&
 	make &&
 	make install || return 1
 
 	# make file readable for web interface, revert file permissions in post-install
-	chmod a+r $install/etc/antinat.xml
+	chmod a+r $install/etc/antinat.xml $install/etc/pam.d/antinat
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+
+		# common (pam and non-pam) libs
+		libantinat)
+			copy libantinat.so*
+			CAT="libs|client library"
+			;;
+
+		# non-pam
 		antinat)
-			copy @std var/
-			DEPENDS="expat"
+			copy bin/antinat antinat.xml var/
+			DEPENDS="expat libantinat"
 			CONFIG_FILES="/etc/antinat.xml"
 			;;
-		*-dev)
+		antinat-dev)
 			copy @dev
+			DEPENDS="antinat"
+			;;
+
+		# pam
+		antinat-pam)
+			copy bin/antinat antinat.xml var/ pam.d/
+			DEPENDS="expat libantinat pam"
+			CONFIG_FILES="/etc/antinat.xml"
+			CAT="network|using PAM"
+			PROVIDE="antinat:pam"
+			;;
+		antinat-pam-dev)
+			copy @dev
+			DEPENDS="antinat-pam"
+			CAT="development|development files using PAM"
+			PROVIDE="antinat-dev:pam"
 			;;
 	esac
 }
 
 post_install_antinat() {
 	chmod 600 $1/etc/antinat.xml
+}
+post_install_antinat_pam() {
+	chmod 600 $1/etc/antinat.xml $1/etc/pam.d/antinat
 }

@@ -1,23 +1,32 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libsigsegv"
-VERSION="2.10"
-CATEGORY="development"
+VERSION="2.12"
+CATEGORY="libs"
 SHORT_DESC="Library for handling page faults in user mode"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/libsigsegv/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libsigsegv.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
+SPLIT="libsigsegv-dev"
+
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--enable-shared \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
-	copy @dev
+	case $PACKAGE in
+		libsigsegv) copy @std;;
+		*-dev)      copy @dev;;
+	esac
 }
