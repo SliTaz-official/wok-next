@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="apr-util"
-VERSION="1.6.0"
+VERSION="1.6.1"
 CATEGORY="development"
 SHORT_DESC="APR Library Utilities"
 MAINTAINER="lehswe@gmail.com"
@@ -15,7 +15,7 @@ WGET_URL="https://archive.apache.org/dist/apr/$TARBALL"
 BUILD_DEPENDS="apr-dev openssl-dev gdbm-dev postgresql-dev sqlite3-dev \
 unixODBC-dev expat-dev mysql-dev openldap-dev"
 SPLIT="apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite apr-crypto \
-apr-dbm-gdbm apr-util-dev"
+apr-dbm-gdbm apr-ldap apr-util-dev"
 
 compile_rules() {
 	./configure \
@@ -35,11 +35,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		apr-util)
 			copy libaprutil-1.so* aprutil.exp
-			DEPENDS="apr expat util-linux-uuid"
+			DEPENDS="apr expat"
 			;;
 		apr-dbd-mysql)
 			copy *mysql*.so
-			DEPENDS="apr-util libmysqlclient openssl zlib"
+			DEPENDS="apr-util libmysqlclient"
 			CAT="libdevel|MySQL DBD driver"
 			;;
 		apr-dbd-odbc)
@@ -66,6 +66,11 @@ genpkg_rules() {
 			copy *dbm*.so
 			DEPENDS="apr-util gdbm"
 			CAT="libdevel|GDBM plugin"
+			;;
+		apr-ldap)
+			copy apr_ldap*.so
+			DEPENDS="apr-util libldap"
+			CAT="libdevel|LDAP plugin"
 			;;
 		*-dev)
 			copy @dev

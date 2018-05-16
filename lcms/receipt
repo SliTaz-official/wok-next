@@ -7,18 +7,23 @@ SHORT_DESC="A free color management engine in 100K"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.littlecms.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/lcms.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="tiff-dev jpeg-dev zlib-dev gfortran xz-dev"
+BUILD_DEPENDS="tiff-dev libjpeg-turbo-dev zlib-dev gfortran xz-dev"
 SPLIT="lcms-dev lcms-apps"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	cook_pick_docs README.1ST doc/*
 }
 
 genpkg_rules() {
@@ -29,9 +34,8 @@ genpkg_rules() {
 		lcms-apps)
 			copy bin/
 			CAT="development|applications"
-			DEPENDS="lcms jpeg tiff zlib"
+			DEPENDS="lcms libjpeg-turbo tiff"
 			;;
 		*-dev) copy @dev;;
 	esac
 }
-

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libbytesize"
-VERSION="0.11"
+VERSION="1.2"
 CATEGORY="libs"
 SHORT_DESC="C class for working with arbitrary big sizes"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,14 +10,12 @@ WEB_SITE="https://github.com/storaged-project/libbytesize/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libbytesize.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/storaged-project/libbytesize/archive/$TARBALL"
+WGET_URL="https://github.com/storaged-project/libbytesize/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="automake libtool gettext gmp-dev mpfr-dev"
+BUILD_DEPENDS="gettext gmp-dev mpfr-dev"
 SPLIT="libbytesize-python libbytesize libbytesize-dev"
 
 compile_rules() {
-	./autogen.sh &&
-
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -33,12 +31,10 @@ genpkg_rules() {
 			;;
 		libbytesize)
 			copy @std @rm
-			DEPENDS="gmp mpfr pcre"
+			DEPENDS="gmp libpcre mpfr"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libbytesize libbytesize-python \
-			glib-dev gmp-dev mpfr-dev pcre-dev"
 			;;
 	esac
 }

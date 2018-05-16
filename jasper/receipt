@@ -1,32 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="jasper"
-VERSION="2.0.12"
+VERSION="2.0.14"
 CATEGORY="graphics"
 SHORT_DESC="Implementation of JPEG-2000 codec"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.ece.uvic.ca/~frodo/jasper/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/jasper.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}software/$TARBALL"
+WGET_URL="http://www.ece.uvic.ca/~frodo/jasper/software/$TARBALL"
 
 BUILD_DEPENDS="cmake libjpeg-turbo-dev"
 SPLIT="jasper-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p build
-	cmake -G "Unix Makefiles" -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/usr
-	cd build
-	make clean all &&
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_SKIP_INSTALL_RPATH=YES \
+		-DJAS_ENABLE_DOC=NO \
+		-DCMAKE_INSTALL_DOCDIR=/usr/share/doc/jasper-$VERSION \
+		.. &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		jasper)
 			copy @std

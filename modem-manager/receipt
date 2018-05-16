@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="modem-manager"
+VERSION="1.6.12"
+CATEGORY="network"
+SHORT_DESC="Unified high level API for communicating with mobile broadband modems"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 LGPL2.1"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/ModemManager/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/ModemManager.html"
+
+TARBALL="ModemManager-$VERSION.tar.xz"
+WGET_URL="https://www.freedesktop.org/software/ModemManager/$TARBALL"
+
+BUILD_DEPENDS="intltool libgudev-dev gobject-introspection-dev vala polkit-dev \
+libmbim-dev libqmi-dev"
+SPLIT="modem-manager-dev"
+
+compile_rules() {
+	./configure \
+		--enable-more-warnings=no \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		modem-manager)
+			copy @std
+			DEPENDS="glib libgudev libmbim libqmi polkit"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="modem-manager glib-dev"
+			;;
+	esac
+}

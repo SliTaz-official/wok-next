@@ -3,22 +3,22 @@
 PACKAGE="libesmtp"
 VERSION="1.0.6"
 CATEGORY="network"
-SHORT_DESC="A Library for posting electronic mail"
+SHORT_DESC="A library for posting electronic mail"
 MAINTAINER="erjo@slitaz.org"
-LICENSE="GPL2"
-WEB_SITE="http://www.stafford.uklinux.net/libesmtp/"
+LICENSE="LGPL3"
+WEB_SITE="http://brianstafford.info/libesmtp/"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libesmtp.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.stafford.uklinux.net/libesmtp/$TARBALL"
+WGET_URL="http://brianstafford.info/libesmtp/$TARBALL"
 
 BUILD_DEPENDS="automake libtool openssl-dev"
 SPLIT="libesmtp-dev"
-COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	# fix a build issue with OpenSSL-1.1.0
-	sed 's@SSL_library_init@SSL_new@g' -i configure.ac
+	sed -i 's@SSL_library_init@SSL_new@g' configure.ac
+	mkdir m4
 	autoreconf -fi &&
 
 	./configure $CONFIGURE_ARGS &&
@@ -35,7 +35,6 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libesmtp openssl-dev"
 			;;
 	esac
 }

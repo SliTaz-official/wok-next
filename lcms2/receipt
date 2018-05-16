@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lcms2"
-VERSION="2.8"
+VERSION="2.9"
 CATEGORY="graphics"
 SHORT_DESC="Open source color management engine"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://www.littlecms.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/lcms2.html"
 HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -16,7 +17,9 @@ BUILD_DEPENDS="libjpeg-turbo-dev zlib-dev tiff-dev"
 SPLIT="lcms2-apps lcms2-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -30,7 +33,7 @@ genpkg_rules() {
 		lcms2-apps)
 			copy bin/
 			CAT="graphics|applications"
-			DEPENDS="lcms2 libjpeg-turbo tiff zlib"
+			DEPENDS="lcms2 libjpeg-turbo tiff"
 			;;
 		*-dev) copy @dev;;
 	esac
