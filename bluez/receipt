@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bluez"
-VERSION="5.43"
+VERSION="5.48"
 CATEGORY="system-tools"
 SHORT_DESC="Bluetooth protocol stack"
 MAINTAINER="pankso@slitaz.org"
@@ -29,8 +29,7 @@ compile_rules() {
 	mkdir -p $install/usr/sbin
 	ln -svf ../libexec/bluetooth/bluetoothd $install/usr/sbin
 
-	mkdir -p $install/etc/bluetooth
-	cp src/main.conf $install/etc/bluetooth
+	install -Dm644 src/main.conf $install/etc/bluetooth/main.conf
 
 	cook_pick_docs doc/*.txt
 
@@ -43,16 +42,18 @@ genpkg_rules() {
 			copy bccmd bluemoon ciptool hciattach hciconfig hcidump hcitool \
 			hex2hcd l2ping l2test mpris-proxy rctest rfcomm sdptool
 			CAT="system-tools|tools"
+			DEPENDS="dbus glib   bluez"
 			;;
 		bluez-tools-experimental)
 			copy bin/ @rm
 			rm $fs/usr/bin/bluetoothctl $fs/usr/bin/btmon	# -> main package
 			CAT="system-tools|experimental tools"
+			DEPENDS="dbus eudev glib readline   bluez"
 			;;
 		bluez)
 			copy @std @rm
 			TAGS="bluetooth"
-			DEPENDS="dbus eudev glib libical ncurses readline   linux-bluetooth"
+			DEPENDS="dbus eudev glib libical readline   linux-bluetooth"
 			;;
 		*-dev)
 			copy @dev

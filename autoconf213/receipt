@@ -12,14 +12,18 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/autoconf213.html"
 TARBALL="autoconf-$VERSION.tar.gz"
 WGET_URL="http://ftpmirror.gnu.org/autoconf/$TARBALL"
 
-BUILD_DEPENDS="m4 perl sed"
+BUILD_DEPENDS="m4 perl sed texinfo"
 
 compile_rules() {
+	mv -v autoconf.texi autoconf213.texi
+	rm -v autoconf.info
 	./configure \
 		--prefix=/usr \
 		--program-suffix=-2.13 &&
 	make &&
-	make prefix="$DESTDIR/usr" install
+	make install || return 1
+
+	install -m644 autoconf213.info $install/usr/share/info/
 }
 
 genpkg_rules() {

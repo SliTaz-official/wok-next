@@ -1,37 +1,52 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="at"
-VERSION="3.1.13"
+VERSION="3.1.20"
 CATEGORY="system-tools"
-SHORT_DESC="Schedule commands to be executed once."
+SHORT_DESC="Schedule commands to be executed once"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://packages.debian.org/lenny/at"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/at.html"
+
 TARBALL="${PACKAGE}_${VERSION}.orig.tar.gz"
-WGET_URL="http://ftp.debian.org/debian/pool/main/${PACKAGE:0:1}/$PACKAGE/$TARBALL"
+WGET_URL="http://ftp.debian.org/debian/pool/main/a/at/$TARBALL"
 
-BUILD_DEPENDS="bison flex ssmtp"
+BUILD_DEPENDS="automake bison flex ssmtp"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|/doc|/share/doc|' Makefile*
-	./configure --with-daemon_username=nobody \
-	--with-daemon_groupname=nogroup \
-	--with-atspool=/var/spool/atd \
-	--with-jobdir=/var/spool/atd \
-	$CONFIGURE_ARGS &&
+compile_rules() {
+	addgroup -g 17 -S atd
+	adduser -S -H -D -g "atd daemon" -G atd -u 17 atd
+	mkdir -p /var/spool/cron
+
+	sed -i '/docdir/s|=.*|= @docdir@|' Makefile.in
+	autoreconf
+
+	./configure \
+		--with-daemon_username=atd \
+		--with-daemon_groupname=atd \
+		SENDMAIL=/usr/sbin/sendmail \
+		\
+		--with-atspool=/var/spool/atd \
+		--with-jobdir=/var/spool/atd \
+		$CONFIGURE_ARGS &&
 	make -j1 &&
-	make -j1 IROOT=$DESTDIR install
+	make -j1 \
+		IROOT=$DESTDIR \
+		docdir=/usr/share/doc/$PACKAGE-$VERSION \
+		atdocdir=/usr/share/doc/$PACKAGE-$VERSION \
+		install || return 1
+
+	install -Dm755 $stuff/atd $install/etc/init.d/atd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/etc/init.d
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
-	cp -a $stuff/atd $fs/etc/init.d
+genpkg_rules() {
+	copy @std
+}
+
+post_install() {
+	if ! grep -q '^atd:' "$1/etc/group"; then
+		chroot "$1/" addgroup -g 17 -S atd
+		chroot "$1/" adduser -S -H -D -g "atd daemon" -G atd -u 17 atd
+	fi
 }
