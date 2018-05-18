@@ -1,12 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libboost"
-VERSION="1.64.0"
+VERSION="1.66.0"
 CATEGORY="meta"
 SHORT_DESC="Boost C++ libraries"
 MAINTAINER="chadi.elahmad@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://www.boost.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/boost.html"
 
 TARBALL="boost-$VERSION.tar.bz2"
 WGET_URL="https://dl.bintray.com/boostorg/release/$VERSION/source/boost_${VERSION//./_}.tar.bz2"
@@ -54,15 +55,15 @@ genpkg_rules() {
 	case $PACKAGE in
 		*-chrono)				DEPENDS="$l-system";;
 		*-coroutine)			DEPENDS="$l-chrono $l-context $l-system $l-thread";;
-		*-fiber)				DEPENDS="$l-context";;
+		*-fiber)				DEPENDS="$l-context $l-filesystem $l-system";;
 		*-filesystem)			DEPENDS="$l-system";;
-		*-graph)				DEPENDS="$l-regex icu";;
+		*-graph)				DEPENDS="$l-regex icu libicu";;
 		*-iostreams)			DEPENDS="bzlib zlib";;
-		*-locale)				DEPENDS="$l-chrono $l-system $l-thread icu";;
-		*-log)					DEPENDS="$l-atomic $l-chrono $l-date-time $l-filesystem $l-regex $l-system $l-thread icu";;
+		*-locale)				DEPENDS="$l-chrono $l-system $l-thread icu libicu";;
+		*-log)					DEPENDS="$l-atomic $l-chrono $l-date-time $l-filesystem $l-regex $l-system $l-thread icu libicu";;
 		*-prg-exec-monitor)		DEPENDS="$l-system $l-timer";;
 		*-random)				DEPENDS="$l-system";;
-		*-regex)				DEPENDS="icu";;
+		*-regex)				DEPENDS="icu libicu";;
 		*-thread)				DEPENDS="$l-system";;
 		*-timer)				DEPENDS="$l-chrono $l-system";;
 		*-type-erasure)			DEPENDS="$l-chrono $l-system $l-thread";;
