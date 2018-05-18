@@ -1,0 +1,43 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libosinfo"
+VERSION="1.1.0"
+CATEGORY="libdevel"
+SHORT_DESC="GObject based library API for managing information about operating \
+systems, hypervisors and the (virtual) hardware devices they can support"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://libosinfo.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://releases.pagure.org/libosinfo/$TARBALL"
+
+BUILD_DEPENDS="intltool libxslt-dev libsoup-dev gtk-doc check-dev \
+gobject-introspection-dev vala locale-en-base usbids pciids"
+SPLIT="libosinfo-dev"
+
+compile_rules() {
+	mkdir -p /usr/lib/locale
+	localedef -i 'en_US' -c -f 'UTF-8' /usr/lib/locale/en_US.UTF-8
+
+	./configure \
+		--with-usb-ids-path=/usr/share/hwdata/usb.ids \
+		--with-pci-ids-path=/usr/share/hwdata/pci.ids \
+		--enable-gtk-doc \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libosinfo)
+			copy @std
+			DEPENDS="glib libxml2 libxslt"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libosinfo glib-dev"
+			;;
+	esac
+}

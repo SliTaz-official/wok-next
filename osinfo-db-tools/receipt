@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="osinfo-db-tools"
+VERSION="1.1.0"
+CATEGORY="utilities"
+SHORT_DESC="Tools for managing the osinfo database"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://libosinfo.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://releases.pagure.org/libosinfo/$TARBALL"
+
+BUILD_DEPENDS="intltool libxslt-dev libarchive-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib libarchive libxml2"
+}

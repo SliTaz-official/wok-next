@@ -1,0 +1,24 @@
+# SliTaz package receipt v2.
+
+PACKAGE="osinfo-db"
+VERSION="20180514"
+CATEGORY="database"
+SHORT_DESC="Osinfo database of information about operating systems for \
+virtualization provisioning tools"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://libosinfo.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://releases.pagure.org/libosinfo/$TARBALL"
+
+BUILD_DEPENDS="osinfo-db-tools"
+
+compile_rules() {
+	cp $SRC/$TARBALL $src
+	osinfo-db-import --root "$install" --system $TARBALL
+}
+
+genpkg_rules() {
+	copy @std
+}
