@@ -1,0 +1,82 @@
+# SliTaz package receipt v2.
+
+PACKAGE="aspell-dicts"
+VERSION="0.60.6.1"
+CATEGORY="meta"
+SHORT_DESC="Aspell dictionary"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/aspell.html"
+
+TARBALL="$PACKAGE-$VERSION.html"
+WGET_URL="https://ftp.gnu.org/gnu/aspell/dict/0index.html"
+
+BUILD_DEPENDS="aspell-dev"
+SPLIT="\
+aspell-af:af   aspell-am:am   aspell-ar:ar         aspell-ast:ast \
+aspell-az:az   aspell-be:be   aspell-bg:bg         aspell-bn:bn \
+aspell-br:br   aspell-ca:ca   aspell-cs:cs         aspell-csb:csb \
+aspell-cy:cy   aspell-da:da   aspell-de-alt:de-alt aspell-de:de \
+aspell-el:el   aspell-en:en   aspell-eo:eo         aspell-es:es \
+aspell-et:et   aspell-fa:fa   aspell-fi:fi         aspell-fo:fo \
+aspell-fr:fr   aspell-fy:fy   aspell-ga:ga         aspell-gd:gd \
+aspell-gl:gl   aspell-grc:grc aspell-gu:gu         aspell-gv:gv \
+aspell-he:he   aspell-hi:hi   aspell-hil:hil       aspell-hr:hr \
+aspell-hsb:hsb aspell-hu:hu   aspell-hus:hus       aspell-hy:hy \
+aspell-ia:ia   aspell-id:id   aspell-is:is         aspell-it:it \
+aspell-kn:kn   aspell-ku:ku   aspell-ky:ky         aspell-la:la \
+aspell-lt:lt   aspell-lv:lv   aspell-mg:mg         aspell-mi:mi \
+aspell-mk:mk   aspell-ml:ml   aspell-mn:mn         aspell-mr:mr \
+aspell-ms:ms   aspell-mt:mt   aspell-nb:nb         aspell-nds:nds \
+aspell-nl:nl   aspell-nn:nn   aspell-ny:ny         aspell-or:or \
+aspell-pa:pa   aspell-pl:pl   aspell-pt_BR:pt_BR   aspell-pt_PT:pt_PT \
+aspell-qu:qu   aspell-ro:ro   aspell-ru:ru         aspell-rw:rw \
+aspell-sc:sc   aspell-sk:sk   aspell-sl:sl         aspell-sr:sr \
+aspell-sv:sv   aspell-sw:sw   aspell-ta:ta         aspell-te:te \
+aspell-tet:tet aspell-tk:tk   aspell-tl:tl         aspell-tn:tn \
+aspell-tr:tr   aspell-uk:uk   aspell-uz:uz         aspell-vi:vi \
+aspell-wa:wa   aspell-yi:yi   aspell-zu:zu"
+
+compile_rules() {
+	case $SET in
+		'')
+			wget -O- https://ftp.gnu.org/gnu/aspell/dict/0index.html \
+			| sed '/^<\/table>/,$d; /^<tr>.*/!d; s|[<>]|@|g;' \
+			| awk -F@ '{printf ("%s\t%s\t%s\n", $7, $11, $17)}' \
+			| sed '/^Name.*/d' \
+			> $WOK/$PACKAGE/.data
+			mkdir -p $install
+			;;
+		*)
+			TARBALL=$(awk -F$'\t' -vlang=$SET '{if ($1==lang) print $3}' $WOK/$PACKAGE/.data)
+			VERSION=$(basename ${TARBALL#*$SET-} .tar.bz2)
+			WGET_URL="https://ftp.gnu.org/gnu/aspell/dict/$SET/$TARBALL"
+
+			[ -e "$SRC/$TARBALL" ] || wget -O $SRC/$TARBALL $WGET_URL
+			rm -r $src/*
+			extract_source
+			cd $src/*
+
+			./configure &&
+			make &&
+			make install
+			;;
+	esac
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		aspell-dicts) ;;
+		*)
+			data="$WOK/aspell-dicts/.data"
+			lang=${PACKAGE#aspell-}
+			desc=$(awk -F$'\t' -vlang=$lang '{if ($1==lang) print $2}' $data)
+			TARBALL=$(awk -F$'\t' -vlang=$lang '{if ($1==lang) print $3}' $data)
+			VERSION=$(basename ${TARBALL#*$lang-} .tar.bz2)
+			copy @std
+			DEPENDS="aspell"
+			CAT="text|$desc"
+			;;
+	esac
+}
