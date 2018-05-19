@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="virt-manager"
+VERSION="1.5.1"
+CATEGORY="system-tools"
+SHORT_DESC="Console user interface for managing virtual machines"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://virt-manager.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://virt-manager.org/download/sources/virt-manager/$TARBALL"
+
+BUILD_DEPENDS="grep glib-dev intltool"
+
+compile_rules() {
+	python setup.py build &&
+
+	python setup.py \
+		--no-update-icon-cache \
+		--no-compile-schemas \
+		install --root $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="python libosinfo libvirt-glib libvirt-python pygobject \
+	python-ipaddr python-requests gtk-vnc pycairo spice-gtk vte"
+}

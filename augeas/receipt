@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="augeas"
+VERSION="1.10.1"
+CATEGORY="system-tools"
+SHORT_DESC="A configuration editing tool"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="http://augeas.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://download.augeas.net/$TARBALL"
+
+BUILD_DEPENDS="readline-dev libxml2-dev"
+SPLIT="augeas-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		augeas)
+			copy @std
+			DEPENDS="libxml2 readline"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="augeas libxml2-dev"
+			;;
+	esac
+}

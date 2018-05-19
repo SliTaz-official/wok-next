@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="netcf"
+VERSION="0.2.8"
+CATEGORY="network"
+SHORT_DESC="A library for configuring network interfaces"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://pagure.io/netcf"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://releases.pagure.org/netcf/$TARBALL"
+
+BUILD_DEPENDS="automake libxml2-dev libxslt-dev readline-dev augeas-dev \
+libnl-dev"
+SPLIT="netcf-dev"
+
+compile_rules() {
+	aclocal
+	automake --add-missing
+	autoreconf
+	./configure \
+		--disable-static \
+		--with-driver=redhat \
+		--libexecdir=/usr/lib/netcf \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		netcf)
+			copy @std
+			DEPENDS="augeas libgcrypt libgpg-error libnl libxml2 libxslt \
+			readline"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
