@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libde265"
+VERSION="1.0.3"
+CATEGORY="video"
+SHORT_DESC="Open h.265 video codec implementation"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL3"
+WEB_SITE="http://www.libde265.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/strukturag/libde265/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake libtool libsdl-dev"
+SPLIT="libde265-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libde265)
+			copy @std
+			DEPENDS="libsdl"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

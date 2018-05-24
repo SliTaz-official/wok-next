@@ -1,25 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="iso-codes"
-VERSION="3.77"
+VERSION="3.79"
 CATEGORY="utilities"
 SHORT_DESC="ISO-639, ISO-4217, ISO-3166 and ISO-3166-2 code lists + translations"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://pkg-isocodes.alioth.debian.org/"
+WEB_SITE="https://salsa.debian.org/debian/iso-codes"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/iso-codes.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="https://pkg-isocodes.alioth.debian.org/downloads/$TARBALL"
+TARBALL="$PACKAGE-upstream-$VERSION.tar.bz2"
+WGET_URL="https://salsa.debian.org/debian/iso-codes/-/archive/upstream/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="gettext python3"
+SPLIT="iso-codes-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
-	copy @std *.mo
+	case $PACKAGE in
+		iso-codes)
+			copy @std *.mo
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

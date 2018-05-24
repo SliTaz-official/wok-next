@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libheif"
+VERSION="1.1.0"
+CATEGORY="video"
+SHORT_DESC="ISO/IEC 23008-12:2017 HEIF file format decoder and encoder"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL3"
+WEB_SITE="http://www.libde265.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/strukturag/libheif/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake libtool libde265-dev x265-dev libjpeg-turbo-dev \
+libpng16-dev"
+SPLIT="libheif-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libheif)
+			copy @std
+			DEPENDS="libde265 libjpeg-turbo libpng16 x265"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

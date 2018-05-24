@@ -1,37 +1,52 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lensfun"
-VERSION="0.2.5"
+VERSION="0.3.2"
 CATEGORY="multimedia"
 SHORT_DESC="Database of photographic lenses and a library that allows advanced \
 access to the database"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL3 GPL3"
-WEB_SITE="http://lensfun.berlios.de/"
+WEB_SITE="http://lensfun.sourceforge.net/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://download.berlios.de/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/lensfun/$TARBALL"
 
-BUILD_DEPENDS="python libpng16 glib-dev"
-SPLIT="lensfun-dev"
+BUILD_DEPENDS="cmake glib-dev libpng16-dev"
+SPLIT="lenstool lensfun lensfun-dev"
 
 compile_rules() {
-	sed -i 's/.*GNU Make*/# &/' configure
-	./configure \
-		--prefix=/usr \
-		--libdir=/usr/lib &&
-	make all &&
-	make INSTALL_PREFIX="$DESTDIR" install
+	case $ARCH in
+		i?86) ARCH_ARGS='-DBUILD_FOR_SSE=off -DBUILD_FOR_SSE2=off';;
+		*)    ARCH_ARGS='';;
+	esac
+
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_LENSTOOL=on \
+		$ARCH_ARGS \
+		.. &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		lenstool)
+			copy lenstool
+			CAT="multimedia|reference implementation for Lenstool"
+			DEPENDS="glib lensfun libpng16"
+			;;
 		lensfun)
-			copy @std
+			copy @std @rm
 			DEPENDS="glib"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="lensfun glib-dev"
 			;;
 	esac
 }

@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libmypaint"
+VERSION="1.3.0"
+CATEGORY="graphics"
+SHORT_DESC="Library for making brushstrokes which is used by MyPaint and other projects"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="http://mypaint.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/mypaint/libmypaint/releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="json-c-dev intltool gobject-introspection-dev"
+SPLIT="libmypaint-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libmypaint)
+			copy @std
+			DEPENDS="glib json-c"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libmypaint glib-dev json-c-dev"
+			;;
+	esac
+}

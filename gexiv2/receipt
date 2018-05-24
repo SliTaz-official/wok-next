@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gexiv2"
+VERSION="0.10.8"
+CATEGORY="libs"
+SHORT_DESC="GObject wrapper around the Exiv2 photo metadata library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/gexiv2"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev exiv2-dev gobject-introspection-dev vala"
+SPLIT="gexiv2-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		gexiv2)
+			copy @std
+			DEPENDS="exiv2 glib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gexiv2 exiv2-dev glib-dev"
+			;;
+	esac
+}

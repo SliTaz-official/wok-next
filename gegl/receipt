@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gegl"
-VERSION="0.3.28"
+VERSION="0.4.2"
 CATEGORY="system-tools"
 SHORT_DESC="Generic Graphics Library"
 MAINTAINER="erjo@slitaz.org"
@@ -13,16 +13,20 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://download.gimp.org/pub/gegl/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="babl-dev glib-dev json-glib-dev libjpeg-turbo-dev libpng16-dev \
-gobject-introspection-dev gettext cairo-dev pango-dev gdk-pixbuf-dev \
-librsvg-dev v4l-utils-dev openexr-dev libsdl-dev libraw-dev jasper-dev lua-dev \
-ffmpeg-dev lcms-dev libspiro-dev exiv2-dev tiff-dev libwebp-dev"
+gobject-introspection-dev gettext gexiv2-dev cairo-dev pango-dev \
+gdk-pixbuf-dev lensfun-dev librsvg-dev v4l-utils-dev openexr-dev ilmbase-dev \
+libsdl-dev libraw-dev jasper-dev lua-dev ffmpeg-dev lcms-dev libspiro-dev \
+exiv2-dev tiff-dev libwebp-dev gdb"
 SPLIT="gegl gegl-extra gegl-dev"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	# Note, compiling gegl with all the possible "--without-*" options will
 	# produce "gegl" package. Omitting that options we get *the same* files
 	# plus some more, separated in the package "gegl-extra".
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--enable-workshop \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -35,18 +39,19 @@ genpkg_rules() {
 			copy gcut gegl gegl-imgcmp gegl-c*.so gegl-g*.so grey2.json \
 			jpg-*.so npy-*.so png-*.so ppm-*.so rgbe-*.so seamless-*.so \
 			transformops.so libgegl*.so*
-			DEPENDS="babl glib json-glib libjpeg-turbo libpng16 libspiro"
+			DEPENDS="babl gexiv2 glib json-glib libjpeg-turbo libpng16 libspiro"
 			;;
 		gegl-extra)
 			copy @std @rm
-			DEPENDS="babl cairo ffmpeg gdk-pixbuf gegl-light glib jasper \
-			json-glib lcms2 libjpeg-turbo libpng16 libraw librsvg libsdl \
-			libspiro libwebp pango tiff"
+			DEPENDS="babl cairo ffmpeg gdk-pixbuf gegl glib jasper lcms2 \
+			liblua libraw librsvg libsdl libwebp openexr pango tiff"
 			CAT="system-tools|extra plugins"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="gegl babl-dev glib-dev json-glib-dev"
+			DEPENDS="gegl gegl-extra babl-dev glib-dev json-glib-dev   \
+			cairo-dev" # add cairo-dev to fix gimp building, see similar:
+			# https://mail.gnome.org/archives/gegl-developer-list/2016-February/msg00007.html
 			;;
 	esac
 }

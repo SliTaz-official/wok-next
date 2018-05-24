@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glib"
-VERSION="2.52.3"
+VERSION="2.54.3"
 CATEGORY="x-window"
 SHORT_DESC="C routines"
 MAINTAINER="pankso@slitaz.org"
@@ -12,50 +12,29 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/glib2.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="pcre-dev libffi-dev zlib-dev elfutils-dev libxml2-dev"
-BUILD_DEPENDS="perl indent python zlib-dev libffi-dev gettext-tools elfutils-dev \
-pcre-dev gtk-doc libxslt libxml2-tools dbus-dev util-linux-mount-dev"
+BUILD_DEPENDS="meson ninja locale-en-base pcre-dev libffi-dev zlib-dev gettext \
+util-linux-mount-dev libxml2-tools elfutils-dev dbus-dev libxslt docbook-xsl"
 SPLIT="glib-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		i?86|x86_64)
-			./configure \
-				--with-pcre=system \
-				--enable-static \
-				$CONFIGURE_ARGS ;;
-		arm*)
-			# Native ARM build --> if ARCH != SLITAZ_ARCH ?
-			export LD_LIBRARY_PATH=/cross/$ARCH/sysroot/usr/lib:/usr/lib:/lib
-			export PKG_CONFIG_PATH=/cross/$ARCH/sysroot/usr/lib/pkgconfig
-			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib -Wl,-rpath=/cross/$ARCH/sysroot/usr/lib"
+	mkdir -p /usr/lib/locale
+	localedef -i 'en_US' -c -f 'UTF-8' /usr/lib/locale/en_US.UTF-8
+	export LC_ALL=en_US.UTF-8 LANG=en_US
 
-			# Glib
-			export glib_cv_stack_grows=${glib_cv_stack_grows=no}
-			export glib_cv_uscore=${glib_cv_uscore=no}
-			export ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=no}
-			export ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=no}
-			export ac_cv_type_long_long=${ac_cv_type_long_long=yes}
-			CC="$HOST_SYSTEM-gcc" \
-			LIBTOOL="$HOST_SYSTEM-libtool" \
-			./configure \
-				--sysconfdir=/etc \
-				--with-pcre=system \
-				--build=i486-slitaz-linux \
-				--host=$ARCH-slitaz-linux-gnueabi \
-				--enable-shared=yes \
-				--enable-static=yes \
-				--disable-rpath ;;
-	esac &&
-	fix libtool &&
-	make &&
-	make DESTDIR=/ install &&
-	make DESTDIR=$DESTDIR install
+	mkdir build-glib
+	cd    build-glib
 
-	# we need `make DESTDIR=/ install` first because at the some stage (usual)
-	# `make install` need file glib-2.0.pc installed in the FS.
-	# `cook` is sure than this error is fatal.
-	# Installing into / is safe since we working in the Aufs layer...
+	meson-wrapper \
+		-Dwith-pcre=system \
+		-Dwith-docs=no \
+		&&
+	ninja &&
+	ninja install || return 1
+
+	# fix -rw-rw-r-- (0664) and -rwxrwxr-x (0775)
+	find $install -type f -perm +020 -exec chmod g-w '{}' \;
+	# fix gdbus-codegen and glib-gettextize permissions (was 0644)
+	find $install/usr/bin -type f -exec chmod 0755 '{}' \;
 }
 
 genpkg_rules() {
@@ -66,14 +45,12 @@ genpkg_rules() {
 			cd $fs/usr/bin
 			rm gdbus-codegen gtester* glib-mkenums glib-gettextize
 			rm -r $fs/usr/share
-			DEPENDS="elfutils libffi pcre util-linux-mount zlib"
-			PROVIDE="libgio"	# deprecated
+			DEPENDS="elfutils libffi libpcre util-linux-mount zlib"
 			;;
 		glib-dev)
 			copy @std @dev @rm
-			DEPENDS="glib glibc-dev libffi-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev zlib-dev perl python"
-			PROVIDE="libgio-dev"	# deprecated
+			DEPENDS="glib glibc-dev libffi-dev pcre-dev python3 \
+			util-linux-mount-dev zlib-dev perl"
 			;;
 	esac
 }

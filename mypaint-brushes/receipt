@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mypaint-brushes"
+VERSION="1.3.0"
+CATEGORY="graphics"
+SHORT_DESC="Default MyPaint brushes"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="CC0"
+WEB_SITE="https://github.com/Jehan/mypaint-brushes"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Jehan/mypaint-brushes/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="automake glib-dev intltool"
+SPLIT="mypaint-brushes-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		mypaint-brushes) copy @std;;
+		*-dev)           copy @dev;;
+	esac
+}
