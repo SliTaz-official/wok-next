@@ -11,7 +11,8 @@ WEB_SITE="http://www.torproject.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://www.torproject.org/dist/$TARBALL"
 
-BUILD_DEPENDS="libevent-dev openssl-dev perl zlib-dev zstd-dev"
+BUILD_DEPENDS="libevent-dev openssl-dev perl zlib-dev xz-dev zstd-dev \
+libseccomp-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -23,5 +24,6 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="libevent openssl zstd liblzma lzma"
+	DEPENDS="libevent liblzma libseccomp openssl zlib zstd"
+	CONFIG_FILES="/etc/tor/torrc"
 }
