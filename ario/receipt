@@ -9,10 +9,10 @@ LICENSE="GPL2"
 WEB_SITE="http://ario-player.sourceforge.net/index.php?en"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://freefr.dl.sourceforge.net/sourceforge/ario-player/$TARBALL"
+WGET_URL="$SF_MIRROR/ario-player/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gtk+-dev gnutls-dev taglib-dev intltool libunique-dev \
-libtasn1-dev libgcrypt-dev curl-dev libglade-dev taglib-dev libmpdclient-dev"
+BUILD_DEPENDS="intltool libgcrypt-dev gtk+-dev libunique-dev curl-dev \
+gnutls-dev libmpdclient-dev taglib-dev libgpg-error-dev"
 
 compile_rules() {
 	sed -i 's|.glib/gslist.h.|<glib.h>|' src/ario-util.h src/ario-profiles.h
@@ -32,7 +32,7 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="libgcrypt gtk+ libcurl libglade libmpdclient taglib dbus-glib \
-	libunique libtasn1"
+	DEPENDS="gdk-pixbuf glib gtk+ libcurl libgcrypt libmpdclient libunique \
+	libxml2 pango taglib"
 	TAGS="music audio player mp3 ogg"
 }
