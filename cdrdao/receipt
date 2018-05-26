@@ -11,7 +11,8 @@ WEB_SITE="https://sourceforge.net/projects/cdrdao/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="lame-dev libmad-dev libvorbis-dev libao-dev libao libogg-dev"
+BUILD_DEPENDS="lame-dev libmad-dev libvorbis-dev libao-dev libao libogg-dev \
+GConf"
 SPLIT="cdrdao-utils"
 
 compile_rules() {
@@ -31,7 +32,7 @@ compile_rules() {
 		--prefix=/usr \
 		--with-lame \
 		$CONFIGURE_ARGS &&
-	make &&
+	make -j1 &&
 	make DESTDIR=$DESTDIR install
 }
 
@@ -41,14 +42,14 @@ genpkg_rules() {
 			mkdir -p $fs/usr/bin
 			cp -a $install/usr/bin/cdrdao $fs/usr/bin
 			cp -a $install/usr/share $fs/usr
-			DEPENDS="gcc-lib-base lame libmad libvorbis libao"
+			DEPENDS="libao libmad libvorbis"
 			;;
 		cdrdao-utils)
 			mkdir -p $fs/usr/bin
 			cp -a $install/usr/bin/ $fs/usr
 			rm $fs/usr/bin/cdrdao
 			CAT="multimedia|extra utilities"
-			DEPENDS="lame libao libmad libogg libvorbis"
+			DEPENDS="lame libao libmad libvorbis"
 			;;
 	esac
 }
