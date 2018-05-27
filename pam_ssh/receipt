@@ -1,30 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pam_ssh"
 VERSION="2.1"
 CATEGORY="system-tools"
-SHORT_DESC="PAM Module that provides single sign-on behavior with ssh-agent."
+SHORT_DESC="PAM Module that provides single sign-on behavior with ssh-agent"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://pam-ssh.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pam-ssh/$TARBALL"
-TAGS="ssh"
 
-DEPENDS="pam openssl openssh-pam"
-BUILD_DEPENDS="pam-dev file openssl-dev openssh-pam automake"
+BUILD_DEPENDS="openssh-pam openssl10-dev pam-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+compile_rules() {
+	export CPPFLAGS="$CPPFLAGS -I /usr/include/openssl-1.0"
+
+	./configure \
+		--with-pam-dir=/lib/security \
+		--with-ssl-dir=/usr/lib/openssl-1.0 \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/lib $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl10 pam   openssh-pam"
+	TAGS="ssh"
 }

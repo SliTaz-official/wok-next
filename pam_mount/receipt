@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pam_mount"
-VERSION="2.15"
+VERSION="2.16"
 CATEGORY="system-tools"
 SHORT_DESC="PAM Module that can mount volumes for a user session"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,16 +11,32 @@ WEB_SITE="http://pam-mount.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pam-mount/$TARBALL"
 
-BUILD_DEPENDS="pam-dev libhx libhx-dev openssl-dev libxml2-dev \
-util-linux-mount-dev util-linux-blkid-dev util-linux-uuid-dev pcre-dev perl"
+BUILD_DEPENDS="automake libtool libhx-dev util-linux-mount-dev libxml2-dev \
+pcre-dev openssl-dev cryptsetup-dev pam-dev"
+SPLIT="pam_mount-dev"
 
 compile_rules() {
+	aclocal
+	libtoolize
+	automake --add-missing
+	autoreconf
+
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="pam openssl libxml2 libhx zlib"
+	case $PACKAGE in
+		pam_mount)
+			copy @std
+			DEPENDS="cryptsetup libhx libpcre libxml2 openssl pam \
+			util-linux-mount"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="pam_mount libhx-dev"
+			;;
+	esac
 }
