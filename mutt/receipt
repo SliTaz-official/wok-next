@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mutt"
-VERSION="1.6.1"
+VERSION="1.10.0"
 CATEGORY="network"
 SHORT_DESC="Small and powerful text-based mail client"
 MAINTAINER="paul@slitaz.org"
@@ -11,11 +11,11 @@ WEB_SITE="http://www.mutt.org"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.mutt.org/pub/mutt/$TARBALL"
 
-BUILD_DEPENDS="libidn-dev ncurses-dev openssl-dev perl cyrus-sasl-dev"
+BUILD_DEPENDS="ncurses-dev openssl-dev cyrus-sasl-dev gettext libidn-dev \
+opensp perl libxslt docbook-xsl"
 
 compile_rules() {
 	addgroup mail
-	sed -i 's/STACK \*/STACK_OF(X509) */' mutt_ssl.c
 
 	./configure \
 		--enable-imap \
@@ -26,14 +26,14 @@ compile_rules() {
 		--with-sasl \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
 
 	delgroup mail
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="openssl ncurses zlib libidn libsasl"
+	DEPENDS="libidn libsasl ncurses openssl"
 	CONFIG_FILES="/etc/Muttrc /etc/mime.types"
 }
 
