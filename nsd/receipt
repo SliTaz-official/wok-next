@@ -1,24 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nsd"
-VERSION="4.0.1"
+VERSION="4.1.21"
 CATEGORY="network"
 SHORT_DESC="An authoritative only, high performance, and simple name server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://www.nlnetlabs.nl/projects/nsd/"
+WEB_SITE="https://www.nlnetlabs.nl/projects/nsd/about/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.nlnetlabs.nl/downloads/nsd/$TARBALL"
+WGET_URL="https://www.nlnetlabs.nl/downloads/nsd/$TARBALL"
+TARBALL_SHA1="5f766ce1dd7d6875a4dd61bf7934f73271b9580d"
+TARBALL_SHA256="7858b934a07e1582079d7e724b05855380416b7fd68cdaeeca16305bd66bd2bd"
 
 BUILD_DEPENDS="libevent-dev openssl-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="openssl"
-	CONFIG_FILES="/etc/nsd"
+	DEPENDS="libevent openssl"
+	CONFIG_FILES="/etc/nsd/"
 }
