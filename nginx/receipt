@@ -1,40 +1,56 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="nginx"
-VERSION="1.9.4"
+VERSION="1.14.0"
 CATEGORY="network"
-SHORT_DESC="Asynchronous HTTP server designed for heavy loads + mail proxy."
+SHORT_DESC="Asynchronous HTTP server designed for heavy loads + mail proxy"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-SUGGESTED="php perl python"
+WEB_SITE="https://nginx.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://nginx.org/"
-WGET_URL="${WEB_SITE}download//$TARBALL"
-PROVIDE="lighttpd"
-CONFIG_FILES="/etc/nginx"
+WGET_URL="https://nginx.org/download/$TARBALL"
 
-DEPENDS="pcre openssl zlib"
-BUILD_DEPENDS="pcre-dev openssl-dev zlib-dev"
+BUILD_DEPENDS="pcre-dev openssl-dev zlib-dev libgd-dev geoip-dev libxslt-dev \
+perl-dev"
+SPLIT="nginx-extras:extras"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-#  --with-rtsig_module                enable rtsig module
-#  --with-select_module               enable select module
-#  --with-poll_module                 enable poll module
-#  --with-ipv6                        enable ipv6 support
-#  --with-http_realip_module          enable ngx_http_realip_module
-#  --with-http_addition_module        enable ngx_http_addition_module
-#  --with-http_xslt_module            enable ngx_http_xslt_module
-#  --with-http_image_filter_module    enable ngx_http_image_filter_module
-#  --with-http_geoip_module           enable ngx_http_geoip_module
-#  --with-http_sub_module             enable ngx_http_sub_module
-#  --with-http_random_index_module    enable ngx_http_random_index_module
-#  --with-http_secure_link_module     enable ngx_http_secure_link_module
-#  --with-http_perl_module            enable ngx_http_perl_module
-#  --with-google_perftools_module     enable ngx_google_perftools_module
+compile_rules() {
+	case $SET in
+		'') SET_ARGS="";;
+		extras)
+			SET_ARGS="\
+				--with-http_ssl_module \
+				--with-http_v2_module \
+				--with-http_realip_module \
+				--with-http_addition_module \
+				--with-http_xslt_module \
+				--with-http_image_filter_module \
+				--with-http_geoip_module \
+				--with-http_sub_module \
+				--with-http_mp4_module \
+				--with-http_gunzip_module \
+				--with-http_gzip_static_module \
+				--with-http_auth_request_module \
+				--with-http_random_index_module \
+				--with-http_secure_link_module \
+				--with-http_degradation_module \
+				--with-http_slice_module \
+				--with-http_stub_status_module \
+				--with-stream \
+				--with-stream_ssl_module \
+				--with-stream_realip_module \
+				--with-stream_geoip_module \
+				--with-stream_ssl_preread_module \
+				--with-pcre \
+				--with-pcre-jit \
+				--with-http_perl_module \
+				"
+			;;
+	esac
 
-	./configure --prefix=/usr \
+	./configure \
+		--prefix=/usr \
 		--conf-path=/etc/nginx/nginx.conf \
 		--pid-path=/var/run/nginx.pid \
 		--lock-path=/var/lock/nginx.lock \
@@ -43,54 +59,65 @@ compile_rules()
 		--http-client-body-temp-path=/var/spool/nginx/body \
 		--http-proxy-temp-path=/var/spool/nginx/proxy \
 		--http-fastcgi-temp-path=/var/spool/nginx/fastcgi \
+		--user=80 \
+		--group=80 \
+		\
 		--with-http_stub_status_module \
 		--with-http_flv_module \
 		--with-http_ssl_module \
 		--with-http_dav_module \
-		--with-mail --with-mail_ssl_module \
-		--user=80 --group=80 &&
+		--with-mail \
+		--with-mail_ssl_module \
+		$SET_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	sed -i 's/#user  nobody;/user  www;/' $install/etc/nginx/nginx.conf
+	install -Dm755 $stuff/nginx $install/etc/init.d/nginx
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-# On SliTaz Lighttpd runs as user/group : www/www or 80/80.
-genpkg_rules()
-{
-	cp -a $install/* $fs/
-	rm -rf $fs/usr/html
-	cp -a stuff/* $fs
-	sed -i 's/#user  nobody;/user  www;/' $fs/etc/nginx/nginx.conf
+genpkg_rules() {
+	copy @std
+	CONFIG_FILES="/etc/nginx/"
+	SUGGESTED="php perl python"
+	case $PACKAGE in
+		nginx)
+			DEPENDS="libpcre openssl zlib"
+			PROVIDE="lighttpd"
+			;;
+		nginx-extras)
+			CAT="network|with extra modules"
+			DEPENDS="geoip libgd libpcre libxml2 libxslt openssl perl-core zlib"
+			PROVIDE="lighttpd nginx"
+			;;
+	esac
 }
 
-# Pre and post install commands for Tazpkg.
-# We stop the server by default in case of upgarde.
-pre_install()
-{
-	[ -z "$1" ] && for i in httpd lighttpd apache cherokee $PACKAGE ; do
-		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
-	done
-	# Backup config file.
-	if [ -d "$1/$CONFIG_FILES" ]; then
-		cp -a "$1/$CONFIG_FILES" "$1/$CONFIG_FILES.bak"
+# We stop the server by default in case of upgarde
+pre_install() {
+	[ -z "$1" -a -f /etc/init.d/nginx ] && /etc/init.d/nginx stop
+	# Backup config file
+	if [ -d   "$1/etc/nginx" ]; then
+		cp -a "$1/etc/nginx" "$1/etc/nginx.bak"
 	fi
 }
 
-post_install()
-{
-	mkdir -p /var/spool/nginx
-	# Restore original config.
-	if [ -d "$1/$CONFIG_FILES.bak" ]; then
-		rm -rf "$1/$CONFIG_FILES"
-		mv "$1/$CONFIG_FILES.bak" "$1/$CONFIG_FILES"
+post_install() {
+	mkdir -p "$1/var/spool/nginx"
+
+	# Restore original config
+	if [ -d    "$1/etc/nginx.bak" ]; then
+		rm -rf "$1/etc/nginx"
+		mv     "$1/etc/nginx.bak" "$1/etc/nginx"
 	fi
-	# Just in case.
-	chown www.www "$1/var/log/$PACKAGE"
+
+	# Just in case
+	chown www.www "$1/var/log/nginx/"
+
 	if [ -z "$1" ]; then
-		for i in apache lighttpd ; do
+		for i in apache lighttpd; do
 			[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
 		done
-		/etc/init.d/$PACKAGE start
+		/etc/init.d/nginx start
 	fi
-	true
 }
