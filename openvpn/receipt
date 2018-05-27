@@ -1,43 +1,39 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openvpn"
-VERSION="2.3.6"
+VERSION="2.4.6"
 CATEGORY="network"
 SHORT_DESC="Full-featured open source SSL VPN solution"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://openvpn.net/"
+WEB_SITE="http://openvpn.net/index.php/open-source.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://swupdate.openvpn.net/community/releases/$TARBALL"
+WGET_URL="https://swupdate.openvpn.net/community/releases/$TARBALL"
 
-BUILD_DEPENDS="lzo-dev openssl-dev pam-dev"
-SPLIT="openvpn openvpn-doc openvpn-down-root openvpn-pam"
+BUILD_DEPENDS="lzo-dev openssl-dev pam-dev lz4-dev"
+SPLIT="openvpn openvpn-doc openvpn-down-root openvpn-pam openvpn-dev"
 
 compile_rules() {
 	./configure \
-		--enable-password-save \
+		--sbindir=/usr/bin \
+		--enable-iproute2 \
+		--enable-plugins \
+		--enable-x509-alt-username \
 		$CONFIGURE_ARGS &&
 	make &&
-	( cd plugin/auth-pam/ ; make ) &&
-	( cd plugin/down-root/ ; make ) &&
-	make DESTDIR=$DESTDIR install || return 1
+	make install || return 1
 
 	install -Dm755 $stuff/etc/init.d/openvpn-client $install/etc/init.d/openvpn-client
 	install -Dm755 $stuff/etc/init.d/openvpn-server $install/etc/init.d/openvpn-server
 	install -Dm644 $stuff/etc/openvpn/openvpn.conf  $install/etc/openvpn/openvpn.conf
-
-	install -Dm755 $src/src/plugins/down-root/.libs/openvpn-plugin-down-root.so \
-		$install/usr/share/openvpn/openvpn-plugin-down-root.so
-	install -Dm755 $src/src/plugins/auth-pam/.libs/openvpn-plugin-auth-pam.so \
-		$install/usr/share/openvpn/openvpn-plugin-auth-pam.so
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		openvpn)
 			copy openvpn etc/
-			DEPENDS="lzo openssl"
+			DEPENDS="lz4-lib lzo openssl"
 			TAGS="vpn tunnel network"
 			;;
 		openvpn-doc)
@@ -58,10 +54,13 @@ genpkg_rules() {
 			DEPENDS="openvpn pam"
 			TAGS="vpn tunnel network"
 			;;
+		openvpn-dev)
+			copy @dev
+			;;
 	esac
 }
 
 post_remove_openvpn() {
 	# remove config
-	rm -rf ${root}/etc/openvpn
+	rm -rf "$1/etc/openvpn/"
 }
