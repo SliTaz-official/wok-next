@@ -1,32 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rtorrent"
-VERSION="0.9.3"
+VERSION="0.9.6"
 CATEGORY="network"
 SHORT_DESC="Ncurses based torrent client"
 MAINTAINER="mimas@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://rakshasa.github.io/rtorrent/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://libtorrent.rakshasa.no/"
-WGET_URL="http://libtorrent.rakshasa.no/downloads/$TARBALL"
-TAGS="torrent"
+WGET_URL="https://github.com/rakshasa/rtorrent/archive/$VERSION.tar.gz"
 
-DEPENDS="ncurses libtorrent zlib xmlrpc-c gcc-lib-base"
-BUILD_DEPENDS="ncurses-dev libtorrent-dev libtorrent xmlrpc-c-dev \
-libsigc++-dev curl-dev"
+BUILD_DEPENDS="automake libtool ncurses-dev curl-dev libtorrent-dev \
+xmlrpc-c-dev libxml2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	sed -i '/AM_PATH_CPPUNIT/d' configure.ac
+	./autogen.sh
+	export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+
 	./configure \
 		--with-xmlrpc-c \
+		--disable-debug \
 		$CONFIGURE_ARGS &&
-	make && make install
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	cook_pick_docs doc/rtorrent.rc doc/manual
+	cook_pick_manpages doc/old/rtorrent.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libcurl libtorrent ncurses xmlrpc-c"
+	TAGS="torrent"
 }

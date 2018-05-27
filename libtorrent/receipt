@@ -1,23 +1,33 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libtorrent"
-VERSION="0.13.3"
+VERSION="0.13.6"
 CATEGORY="network"
 SHORT_DESC="Torrent library for rtorrent"
 MAINTAINER="mimas@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://libtorrent.rakshasa.no/"
+WEB_SITE="http://rakshasa.github.io/rtorrent/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://libtorrent.rakshasa.no/downloads/$TARBALL"
+WGET_URL="https://github.com/rakshasa/libtorrent/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="curl-dev libsigc++-dev openssl-dev"
+PATCH_FILE="libtorrent-openssl-1.1.patch"
+PATCH_URL="https://github.com/rakshasa/libtorrent/commit/4607bbf7.patch"
+
+BUILD_DEPENDS="automake libtool zlib-dev openssl-dev"
 SPLIT="libtorrent-dev"
 
-CROSS_BUGS="bug: can not run test program"
-
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	[ -e $SRC/$PATCH_FILE ] || wget -O $SRC/$PATCH_FILE $PATCH_URL
+	patch -p1 -i $SRC/$PATCH_FILE
+
+	sed -i '/AM_PATH_CPPUNIT/d' configure.ac
+	./autogen.sh
+	export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+
+	./configure \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -27,7 +37,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		libtorrent)
 			copy @std
-			DEPENDS="curl libsigc++ openssl"
+			DEPENDS="openssl zlib"
 			;;
 		*-dev)
 			copy @dev
