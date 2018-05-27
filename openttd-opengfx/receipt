@@ -1,27 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openttd-opengfx"
 VERSION="0.3.3"
 CATEGORY="games"
-SHORT_DESC="OpenGFX data files for OpenTTD."
+SHORT_DESC="OpenGFX data files for OpenTTD"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-SOURCE="opengfx"
-TARBALL="$SOURCE-$VERSION.zip"
 WEB_SITE="http://bundles.openttdcoop.org/opengfx/"
-WGET_URL="$WEB_SITE/releases/$VERSION/$TARBALL"
-PROVIDE="opengfx"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+TARBALL="opengfx-$VERSION.zip"
+WGET_URL="$WEB_SITE/releases/$VERSION/$TARBALL"
+
+compile_rules() {
+	datadir="$install/usr/share/games/openttd/data"
+	mkdir -p $datadir
+	cp *.grf opengfx.obg $datadir
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/games/openttd/data
-	cp $src/*.grf $fs/usr/share/games/openttd/data
-	cp $src/opengfx.obg $fs/usr/share/games/openttd/data
+genpkg_rules() {
+	copy @std
+	PROVIDE="opengfx"
 }
