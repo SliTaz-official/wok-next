@@ -1,7 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ola"
-VERSION="0.10.6"
+VERSION="0.10.6+20180519"
+COMMIT="50d1535" # v.0.10.6 require protobuf < 3.2 (I don't like to downgrade it),
+# but somewhere in pre-0.11 ola have accepted protobuf-3.5.1
 CATEGORY="network"
 SHORT_DESC="Open Lighting Architecture"
 MAINTAINER="kult-ex@aon.at"
@@ -9,25 +11,28 @@ LICENSE="LGPL2.1"
 WEB_SITE="https://www.openlighting.org/ola/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/OpenLightingProject/ola/archive/$VERSION.tar.gz"
+WGET_URL="https://github.com/OpenLightingProject/ola/archive/${COMMIT:-$VERSION}.tar.gz"
 
 BUILD_DEPENDS="libtool flex protobuf-dev util-linux-uuid-dev cppunit-dev \
-libmicrohttpd-dev libftdi-dev libusb-dev liblo-dev ncurses-dev"
+libmicrohttpd-dev libftdi-dev libusb-dev liblo-dev ncurses-dev \
+libusb-compat-dev"
 SPLIT="ola-dev"
 
 compile_rules() {
 	autoreconf -i
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		ola)
 			copy @std
-			DEPENDS="libftdi liblo libmicrohttpd ncurses protobuf"
+			DEPENDS="libftdi liblo libmicrohttpd libusb libusb-compat ncurses \
+			protobuf util-linux-uuid"
 			;;
 		*-dev)
 			copy @dev
