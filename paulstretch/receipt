@@ -1,28 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="paulstretch"
 VERSION="2.2-2"
 CATEGORY="multimedia"
-SHORT_DESC="A program for stretching the audio."
+SHORT_DESC="A program for stretching the audio"
 MAINTAINER="pascal.bellard@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 LICENSE="GPL2"
 WEB_SITE="http://hypermammut.sourceforge.net/paulstretch/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/hypermammut/$TARBALL"
 
-DEPENDS="fltk libvorbis audiofile portaudio libmad fftw mxml"
 BUILD_DEPENDS="fltk-dev libvorbis-dev audiofile-dev portaudio-dev libmad-dev \
 fftw-dev xorg-dev mxml-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed 's/mxml/& -lz -lvorbis -logg/' compile_linux_fftw.sh | sh
+
+	install -Dm755 $src/paulstretch $install/usr/bin/paulstretch
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/paulstretch $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="audiofile fftw fltk libmad libogg libvorbis mxml portaudio zlib"
 }
