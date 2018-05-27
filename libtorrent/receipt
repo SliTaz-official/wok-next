@@ -25,8 +25,15 @@ compile_rules() {
 	./autogen.sh
 	export CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
 
+	# see https://github.com/rakshasa/rtorrent/issues/156
+	case $ARCH in
+		x86_64) ARCH_ARGS='';;
+		*)      ARCH_ARGS='--disable-instrumentation';;
+	esac
+
 	./configure \
 		--disable-debug \
+		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
