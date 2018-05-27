@@ -6,27 +6,36 @@ CATEGORY="system-tools"
 SHORT_DESC="Saves partitions in an image file"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.partimage.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.partimage.org/Index.fr.html"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="newt newt-dev slang-dev bzip2-dev openssl-dev zlib-dev pam-dev"
+BUILD_DEPENDS="gettext newt newt-dev slang-dev bzip2-dev openssl-dev zlib-dev \
+pam-dev"
 SPLIT="partimage partimage-pam:pam"
 
 compile_rules() {
+	sed -i 's/CRYPTO_lock/X509_new/g' configure
+
 	case $SET in
-		'')  SET_ARGS='--disable-pam';;
-		pam) SET_ARGS='--enable-pam';;
-	esac
-
-	sed -i 's/gzFile \*m_gzImageFile/gzFile m_gzImageFile/' src/client/imagefile.h
-	sed -i 's/(gzFile \*) gzdopen/gzdopen/' src/client/imagefile.cpp
-
-	./configure \
-		$SET_ARGS \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install || return 1
+		'')
+			./configure \
+				--disable-pam \
+				$CONFIGURE_ARGS &&
+			make &&
+			make install
+				;;
+		pam)
+			./configure \
+				--enable-pam \
+				$CONFIGURE_ARGS &&
+			make &&
+			make pamfile &&
+			make install &&
+			install -Dm644 partimaged.pam $install/etc/pam.d/partimaged
+				;;
+	esac || return 1
 
 	install -Dm600 $stuff/etc/partimaged/partimaged.cert $install/etc/partimaged/partimaged.cert
 	install -Dm600 $stuff/etc/partimaged/partimaged.key  $install/etc/partimaged/partimaged.key
@@ -36,16 +45,15 @@ compile_rules() {
 }
 
 genpkg_rules() {
+	copy @std
 	case $PACKAGE in
 		partimage)
-			copy @std
-			DEPENDS="newt bzip2 openssl slitaz-base-files zlib gcc-lib-base"
+			DEPENDS="bzlib newt openssl slang zlib"
 			;;
 		partimage-pam)
-			copy @std
 			CAT="system-tools|using PAM"
 			PROVIDE="partimage:pam"
-			DEPENDS="newt bzip2 openssl slitaz-base-files zlib pam gcc-lib-base"
+			DEPENDS="bzlib newt openssl pam slang zlib"
 			;;
 	esac
 }
