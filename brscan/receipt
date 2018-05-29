@@ -7,16 +7,26 @@ SHORT_DESC="Brother Scanner driver for SANE"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://solutions.brother.com/linux/sol/printer/linux/sane_drivers.html"
+HOST_ARCH="i486"
 
 TARBALL="brscan-src-$VERSION.tar.gz"
-WGET_URL="http://solutions.brother.com/Library/sol/printer/linux/rpmfiles/sane_source/$TARBALL"
+#WGET_URL="http://solutions.brother.com/Library/sol/printer/linux/rpmfiles/sane_source/$TARBALL"
+WGET_URL="http://mirror1.slitaz.org/sources/packages/b/$TARBALL"
 
 BUILD_DEPENDS="file ncurses-dev libusb-compat-dev"
 SPLIT="brscan2"
 
 compile_rules() {
-	cd $src/brscan
-	./configure $CONFIGURE_ARGS || return 1
+	case $ARCH in
+		i?86)
+			cd brscan
+			./configure $CONFIGURE_ARGS || return 1
+			;;
+		x86_64)
+			cd brscan64
+			;;
+	esac
+
 	sed -i '/mk_package/d' Makefile
 	make -j1 &&
 	{
