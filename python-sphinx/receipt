@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-sphinx"
-VERSION="1.7.1"
+VERSION="latest"
 CATEGORY="python"
 SHORT_DESC="Documentation Tool"
 MAINTAINER="claudinei@slitaz.org"
@@ -20,6 +20,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*Sphinx-||p' $LOGS/$PACKAGE.log)
 	copy @std @dev
 	DEPENDS="$BUILD_DEPENDS"
 }

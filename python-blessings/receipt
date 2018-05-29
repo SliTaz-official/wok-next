@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-blessings"
-VERSION="1.6"
+VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="A thin, practical wrapper around terminal coloring, styling, and positioning"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,15 +10,12 @@ WEB_SITE="https://pypi.python.org/pypi/blessings"
 
 BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	pip install --no-compile --root=$DESTDIR blessings
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*blessings-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }

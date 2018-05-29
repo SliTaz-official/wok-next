@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-numpy"
-VERSION="1.14.1"
+VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="NumPy: array processing for numbers, strings, records, and objects"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -15,6 +15,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*numpy-||p' $LOGS/$PACKAGE.log)
 	copy @std @dev
 	DEPENDS="python"
 }

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-beaker"
-VERSION="1.8.1"
+VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="Cache and Session Library"
 MAINTAINER="taziden@slitaz.org"
@@ -10,15 +10,12 @@ WEB_SITE="https://pypi.python.org/pypi/Beaker"
 
 BUILD_DEPENDS="python-funcsigs"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	pip install --no-compile --root=$DESTDIR Beaker
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*Beaker-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python-funcsigs"
 }

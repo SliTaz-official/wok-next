@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-requests"
-VERSION="2.18.4"
+VERSION="latest"
 CATEGORY="network"
 SHORT_DESC="Python HTTP Requests for Humans"
 MAINTAINER="al.bobylev@gmail.com"
@@ -15,6 +15,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*requests-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="$BUILD_DEPENDS"
 }

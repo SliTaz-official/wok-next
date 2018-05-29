@@ -1,8 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-bpython"
-SOURCE="bpython"
-VERSION="0.16"
+VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="A fancy interface to the Python interpreter"
 MAINTAINER="claudinei@slitaz.org"
@@ -13,15 +12,12 @@ BUILD_DEPENDS="python-dev python-pygments python-greenlet python-requests \
 python-curtsies python-six python-urllib3 python-idna python-certifi \
 python-chardet python-wcwidth python-blessings"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	pip install --no-compile --root=$DESTDIR bpython
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*bpython-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="${BUILD_DEPENDS/python-dev/}"
 }

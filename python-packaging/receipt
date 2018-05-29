@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-packaging"
-VERSION="16.8"
+VERSION="latest"
 CATEGORY="python"
 SHORT_DESC="Core utilities for Python packages"
 MAINTAINER="al.bobylev@gmail.com"
@@ -15,6 +15,7 @@ compile_rules() {
 }
 
 genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*packaging-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }

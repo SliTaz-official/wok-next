@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-greenlet"
-VERSION="0.4.12"
+VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="Lightweight in-process concurrent programming"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,15 +10,12 @@ WEB_SITE="https://pypi.python.org/pypi/greenlet"
 
 BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	pip install --no-compile --root=$DESTDIR greenlet
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*greenlet-||p' $LOGS/$PACKAGE.log)
 	copy @std @dev
 	DEPENDS="python"
 }
