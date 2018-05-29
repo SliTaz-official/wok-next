@@ -3,10 +3,11 @@
 PACKAGE="libav"
 VERSION="0.6.1"
 CATEGORY="multimedia"
-SHORT_DESC="clone of git://git.libav.org/libav"
+SHORT_DESC="Open source audio and video processing tools"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 GPL3 LGPL2.1 LGPL3"
 WEB_SITE="http://www.libav.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/andoma/libav.git"
 BRANCH="v$VERSION"
@@ -18,9 +19,12 @@ libvpx-dev x264 xvidcore-dev \
 zlib-dev bzlib binutils "
 SPLIT="libav-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	case $ARCH in
+		i?86) ARCH_ARGS='--arch=i486 --cpu=i486';;
+		*)    ARCH_ARGS='';;
+	esac
+
 	sed -i 's|config.h"|&\n#include "libavformat/internal.h"\n#include "libavutil/common.h"|' ffserver.c
 	./configure \
 		--prefix=/usr \
@@ -35,28 +39,20 @@ compile_rules()
 		--enable-pthreads \
 		--enable-x11grab \
 		--disable-debug \
-		--arch=i486 \
-		--cpu=i486 && \
-	make && \
+		$ARCH_ARGS &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libav)
-		DEPENDS="libsdl xorg-libXfixes zlib"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/share $fs/usr
-		;;
-	libav-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*.a $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libav)
+			copy @std
+			DEPENDS="libsdl zlib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libav zlib-dev"
+			;;
 	esac
 }
