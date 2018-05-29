@@ -11,7 +11,7 @@ WEB_SITE="http://netatalk.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="db-dev openssl-dev file pam-dev"
+BUILD_DEPENDS="db-dev openssl10-dev file pam-dev libgcrypt-dev"
 SPLIT="netatalk netatalk-pam:pam netatalk-dev"
 
 compile_rules() {
@@ -19,6 +19,9 @@ compile_rules() {
 		'')  SET_ARGS='--without-pam';;
 		pam) SET_ARGS='--with-pam';;
 	esac
+
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
 
 	./configure \
 		--libexecdir=/usr/lib/netatalk \
@@ -35,14 +38,16 @@ genpkg_rules() {
 		netatalk)
 			copy @std
 			rm -rf $fs/etc/pam.d
-			DEPENDS="perl libdb openssl cups gnutls libgcrypt libgpg-error  \
-			libwrap zlib libcomerr3"
+#			DEPENDS="perl libdb openssl cups gnutls libgcrypt libgpg-error  \
+#			libwrap zlib libcomerr3"
+			DEPENDS="attr libdb libgcrypt libgpg-error perl"
 			CONFIG_FILES="/etc/netatalk/"
 			;;
 		netatalk-pam)
 			copy @std
-			DEPENDS="perl libdb openssl cups gnutls libgcrypt libgpg-error  \
-			libwrap zlib libcomerr3 pam"
+#			DEPENDS="perl libdb openssl cups gnutls libgcrypt libgpg-error  \
+#			libwrap zlib libcomerr3 pam"
+			DEPENDS="attr libdb libgcrypt libgpg-error pam perl"
 			PROVIDE="netatalk:pam"
 			CAT="system-tools|using PAM"
 			CONFIG_FILES="/etc/netatalk/"
