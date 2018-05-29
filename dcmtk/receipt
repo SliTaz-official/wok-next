@@ -11,8 +11,8 @@ WEB_SITE="http://dicom.offis.de/dcmtk"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://dicom.offis.de/pub/dicom/offis/software/$PACKAGE/$PACKAGE${VERSION//./}/$TARBALL"
 
-BUILD_DEPENDS="libxml2-dev tiff-dev libpng16-dev zlib-dev libwrap-dev"
-SPLIT="dcmtk dcmtk-dev"
+BUILD_DEPENDS="libxml2-dev tiff-dev libpng16-dev zlib-dev" # libwrap-dev
+#SPLIT="dcmtk dcmtk-dev"
 
 compile_rules() {
 	./configure \
@@ -26,7 +26,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		dcmtk)
 			copy @std
-			DEPENDS="libxml2 tiff libpng16 libwrap"
+			DEPENDS="libpng16 libxml2 tiff zlib" # libwrap
 			;;
 		*-dev)
 			copy @dev
