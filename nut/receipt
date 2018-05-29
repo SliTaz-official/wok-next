@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/source/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="libusb-dev libusb-compat-dev expat-dev neon-dev zlib-dev \
-openssl-dev libwrap-dev"
+openssl-dev" # libwrap-dev
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install || return 1
@@ -24,7 +24,7 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="libusb libusb-compat expat neon zlib openssl libwrap"
+	DEPENDS="libusb-compat neon" # libusb expat zlib openssl libwrap
 	CONFIG_FILES="/etc/nut.conf /etc/ups.conf /etc/upsd.conf /etc/upsd.users \
 	/etc/upsmon.conf /etc/upssched.conf"
 }
