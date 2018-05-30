@@ -1,0 +1,21 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-contextlib2"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Backports and enhancements for the contextlib module"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://pypi.python.org/pypi/contextlib2"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR contextlib2
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*contextlib2-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}
