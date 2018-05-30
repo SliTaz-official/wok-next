@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="dbus-dev polkit-dev dbus-glib-dev glib-dev intltool perl-dev"
+SPLIT="system-tools-backends-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -21,6 +22,13 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="dbus dbus-glib glib glibc-base libffi pcre polkit zlib"
+	case $PACKAGE in
+		system-tools-backends)
+			copy @std
+			DEPENDS="dbus dbus-glib glib perl polkit"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
