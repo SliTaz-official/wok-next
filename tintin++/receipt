@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tintin++"
 VERSION="2.00.9"
@@ -7,23 +7,20 @@ SHORT_DESC="Terminal-based MUD client"
 MAINTAINER="samuel_trassare@yahoo.com"
 LICENSE="GPL2"
 WEB_SITE="http://tintin.sourceforge.net"
+
 TARBALL="tintin-$VERSION.tar.gz"
 WGET_URL="http://sourceforge.net/projects/tintin/files/TinTin%2B%2B%20Source%20Code/$VERSION/$TARBALL"
 
-DEPENDS="pcre"
 BUILD_DEPENDS="zlib-dev pcre-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
-	./configure $CONFIGURE_ARGS && 
-	make && 
+	./configure $CONFIGURE_ARGS &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpcre zlib"
 }

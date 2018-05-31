@@ -40,10 +40,10 @@ genpkg_rules() {
 		perl-image-magick)
 			copy perl5/
 			CAT="perl|Image::Magick Perl module"
-			DEPENDS="perl imagemagick"
+			DEPENDS="imagemagick perl"
 			;;
 		imagemagick)
-			copy @std @rm
+			copy @std @rm *.la
 
 			# CVE-2016-3714 work around v5
 			sed -i '/<policymap>/r/dev/stdin' $fs/etc/ImageMagick-7/policy.xml <<EOT
@@ -57,24 +57,17 @@ genpkg_rules() {
   <policy domain="coder" rights="none" pattern="WIN" />
   <policy domain="coder" rights="none" pattern="PLT" />
 EOT
-			DEPENDS="bzlib cairo fftw fontconfig freetype gdk-pixbuf glib \
-			harfbuzz lcms2 libcroco libffi libgomp libjpeg-turbo \
-			libltdl liblzma libpng16 librsvg xorg-libxcb libxml2 pango pcre xorg-pixman \
-			tiff util-linux-uuid xorg-libICE xorg-libSM xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libXt \
-			zlib"
+			DEPENDS="bzlib cairo fftw fontconfig freetype glib lcms2 libgomp \
+			libjpeg-turbo libltdl liblzma libpng16 librsvg libxml2 openexr \
+			pango tiff xorg-libX11 xorg-libXext zlib"
 			TAGS="image photo toolkit"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="imagemagick bzip2-dev cairo-dev fftw-dev fontconfig-dev \
-			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev harfbuzz-dev \
-			lcms2-dev libcroco-dev libffi-dev libjpeg-turbo-dev \
-			xz-dev libpng16-dev librsvg-dev libtool xorg-libxcb-dev libxml2-dev \
-			pango-dev pcre-dev xorg-pixman-dev tiff-dev util-linux-uuid-dev \
-			xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libXt-dev zlib-dev"
+			DEPENDS="imagemagick \
+			bzip2-dev fftw-dev fontconfig-dev freetype-dev lcms2-dev libgomp \
+			libltdl xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
+			xorg-libXext-dev xorg-libXt-dev xz-dev zlib-dev"
 			;;
 	esac
 }

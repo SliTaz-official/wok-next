@@ -31,26 +31,21 @@ genpkg_rules() {
 			;;
 		*-gtk)
 			copy libpeas-gtk-1.0.so*
-			DEPENDS="libpeas atk cairo gdk-pixbuf gtk+3 pango"
+			DEPENDS="glib gobject-introspection gtk+3 libpeas"
 			;;
 		*-python)
 			copy libpythonloader.so
-			DEPENDS="libpeas python"
+			DEPENDS="glib libpeas python"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
-			gobject-introspection-dev gtk+3-dev harfbuzz-dev libffi-dev \
-			libpng16-dev libxml2-dev pango-dev pcre-dev python \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			DEPENDS="${SPLIT/$PACKAGE/} glib-dev gobject-introspection-dev \
+			gtk+3-dev"
 			;;
 		*-demo)
 			copy peas-demo peas-demo/ hicolor/ @rm
 			find $fs -name '*.la' -delete
-			DEPENDS="libpeas-gtk"
+			DEPENDS="glib gobject-introspection gtk+3 libpeas libpeas-gtk"
 			;;
 	esac
 }

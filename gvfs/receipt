@@ -38,30 +38,29 @@ genpkg_rules() {
 		gvfs-admin)
 			copy gvfsd-admin admin.mount
 			CAT="system-tools|admin backend"
-			DEPENDS="gvfs libcap polkit"
+			DEPENDS="glib gvfs polkit"
 			;;
 		gvfs-afp)
 			copy \
 			gvfsd-afp        afp.mount \
 			gvfsd-afp-browse afp-browse.mount
 			CAT="system-tools|Apple Filing Protocol support - afp:///"
-			DEPENDS="gvfs"
+			DEPENDS="glib gvfs libgcrypt"
 			;;
 		gvfs-archive)
 			copy gvfsd-archive archive.mount
 			CAT="system-tools|archive support - archive:///"
-			DEPENDS="gvfs acl attr bzlib libarchive openssl liblzma libxml2 \
-			lz4-lib lzo nettle"
+			DEPENDS="glib gvfs libarchive"
 			;;
 		gvfs-cdda)
 			copy gvfsd-cdda cdda.mount
 			CAT="system-tools|CDDA support"
-			DEPENDS="gvfs libcdio libcdio-paranoia libgudev"
+			DEPENDS="glib gvfs libcdio libcdio-paranoia libgudev"
 			;;
 		gvfs-fuse)
 			copy gvfsd-fuse
 			CAT="system-tools|FUSE support"
-			DEPENDS="gvfs fuse2"
+			DEPENDS="fuse2 glib gvfs"
 			;;
 		gvfs-gphoto2)
 			copy \
@@ -69,21 +68,19 @@ genpkg_rules() {
 			gvfs-gphoto2-volume-monitor *.GPhoto2VolumeMonitor.service \
 			gphoto2.monitor
 			CAT="system-tools|Gphoto2 support"
-			DEPENDS="gvfs libexif libgphoto2 libgudev libltdl"
+			DEPENDS="glib gvfs libgphoto2 libgudev"
 			;;
 		gvfs-gtk)
 			copy gvfsd-recent recent.mount
 			CAT="system-tools|recent files support (GTK+3) - recent:///"
-			DEPENDS="gvfs atk bzlib cairo fontconfig freetype gdk-pixbuf gtk+3 \
-			libharfbuzz liblzma libpng16 libxml2 pango xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman"
+			DEPENDS="glib gtk+3 gvfs"
 			;;
 		gvfs-http)
 			copy \
 			gvfsd-dav  dav.mount \
 			gvfsd-http http.mount
 			CAT="system-tools|HTTP/WebDAV support"
-			DEPENDS="gvfs liblzma libsoup libsqlite3 libxml2"
+			DEPENDS="glib gvfs libsoup libxml2"
 			;;
 		gvfs-libmtp)
 			copy \
@@ -91,12 +88,12 @@ genpkg_rules() {
 			gvfs-mtp-volume-monitor *.MTPVolumeMonitor.service \
 			mtp.monitor
 			CAT="system-tools|MTP support"
-			DEPENDS="gvfs libgudev libmtp libusb"
+			DEPENDS="glib gvfs libgudev libmtp"
 			;;
 		gvfs-nfs)
 			copy gvfsd-nfs nfs.mount
 			CAT="system-tools|NFS support - nfs:///"
-			DEPENDS="gvfs libnfs"
+			DEPENDS="glib gvfs libnfs"
 			;;
 		gvfs-smb)
 			copy \
@@ -104,29 +101,22 @@ genpkg_rules() {
 			gvfsd-smb-browse smb-browse.mount \
 			gvfs-smb.convert *.smb.gschema.xml
 			CAT="system-tools|Samba support - smb:///"
-			DEPENDS="gvfs samba"
+			DEPENDS="glib gvfs samba"
 			;;
 		gvfs-udisks2)
 			copy gvfs-udisks2-volume-monitor *.UDisks2VolumeMonitor.service \
 			udisks2.monitor
 			CAT="system-tools|Udisks2 volume monitor"
-			DEPENDS="gvfs bzlib fontconfig freetype libbluray libgudev \
-			libharfbuzz liblzma libpng16 libxml2 udisks2"
+			DEPENDS="glib libbluray libgudev libsecret udisks2   gvfs"
 			;;
 		gvfs)
 			copy @std @rm
-			DEPENDS="eudev gcr-base glib libffi libgcrypt libgpg-error \
-			libsecret p11-kit pcre util-linux-blkid util-linux-mount \
-			util-linux-uuid zlib   dbus"
+			DEPENDS="eudev gcr-base glib libsecret   dbus"
 			SUGGESTED="gvfs-afp gvfs-archive gvfs-cdda gvfs-fuse gvfs-gphoto2 \
 			gvfs-http gvfs-libmtp gvfs-obexftp gvfs-smb gvfs-udisks2"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/gvfs-dev/}
-			gcr-dev glib-dev libffi-dev libgcrypt-dev libgpg-error-dev \
-			libsecret-dev p11-kit-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev zlib-dev"
 			;;
 	esac
 }

@@ -42,7 +42,7 @@ genpkg_rules() {
 			copy libalsa-util.so module-alsa-sink.so module-alsa-source.so \
 			module-alsa-card.so alsa-mixer/
 			CAT="multimedia|ALSA support"
-			DEPENDS="pulseaudio alsa-lib"
+			DEPENDS="alsa-lib dbus eudev pulseaudio"
 			;;
 		*-cli)
 			copy libcli.so module-cli.so libprotocol-cli.so \
@@ -59,13 +59,13 @@ genpkg_rules() {
 		*-glib)
 			copy libpulse-mainloop-glib.so*
 			CAT="multimedia|Glib bindings"
-			DEPENDS="pulseaudio glib"
+			DEPENDS="glib pulseaudio"
 			;;
 		*-http)
 			copy libprotocol-http.so module-http-protocol-tcp.so \
 			module-http-protocol-unix.so module-rygel-media-server.so
 			CAT="multimedia|HTTP protocol support"
-			DEPENDS="pulseaudio"
+			DEPENDS="dbus pulseaudio"
 			;;
 		*-native)
 			copy libprotocol-native.so module-native-protocol-tcp.so \
@@ -73,13 +73,13 @@ genpkg_rules() {
 			module-x11-publish.so module-stream-restore.so \
 			module-device-manager.so module-device-restore.so
 			CAT="multimedia|native protocol support"
-			DEPENDS="pulseaudio"
+			DEPENDS="dbus pulseaudio xorg-libxcb"
 			;;
 		*-rtp)
 			copy librtp.so module-rtp-recv.so module-rtp-send.so libraop.so \
 			module-raop-sink.so
 			CAT="multimedia|RTP protocol support"
-			DEPENDS="pulseaudio openssl"
+			DEPENDS="openssl pulseaudio"
 			;;
 		*-simple)
 			copy libprotocol-simple.so module-simple-protocol-tcp.so \
@@ -90,18 +90,13 @@ genpkg_rules() {
 		pulseaudio)
 			copy @std @rm
 			CAT="multimedia|main part"
-			DEPENDS="dbus eudev gdbm libcap libltdl libsndfile speexdsp \
+			DEPENDS="dbus eudev libcap libltdl libsndfile speexdsp \
 			xorg-libICE xorg-libSM xorg-libX11 xorg-libXtst xorg-libxcb"
 			SUGGESTED="consolekit2"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} \
-			dbus-dev flac-dev gdbm-dev glib-dev libcap-dev libogg-dev \
-			libsndfile-dev libtool libvorbis-dev pcre-dev speexdsp-dev \
-			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libxcb-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXi-dev xorg-libXtst-dev"
+			DEPENDS="${SPLIT/$PACKAGE/} glib-dev"
 			;;
 	esac
 }

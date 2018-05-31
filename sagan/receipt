@@ -11,21 +11,48 @@ WEB_SITE="http://sagan.softwink.com/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://sagan.softwink.com/download/$TARBALL"
 
-BUILD_DEPENDS="libesmtp-dev libpcap-dev libdnet-dev liblognorm-dev pcre-dev"
+BUILD_DEPENDS="libesmtp-dev libpcap-dev libdnet-dev liblognorm-dev pcre-dev \
+mysql-dev postgresql-dev"
+SPLIT="sagan-mysql:mysql sagan-pgsql:pgsql"
 
 compile_rules() {
+	case $SET in
+		'')    SET_ARGS="--disable-mysql --disable-postgresql";;
+		mysql) SET_ARGS="--disable-postgresql";;
+		pgsql) SET_ARGS="--disable-mysql \
+				--with-postgresql-includes=/usr/include/postgresql \
+				--with-postgresql-libraries=/usr/lib/postgresql";;
+	esac
+
 	./configure \
 		--sysconfdir=/etc/sagan \
-		--disable-mysql \
-		--disable-postgresql \
 		--disable-prelude \
 		--disable-lognorm \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="libesmtp libpcap libdnet liblognorm sagan-rules pcre"
+	case $PACKAGE in
+		sagan)
+			copy @std
+			DEPENDS="libesmtp libpcap libpcre   libdnet sagan-rules"
+			;;
+		sagan-mysql)
+			copy @std
+			DEPENDS="libesmtp libmysqlclient libpcap libpcre   libdnet \
+			sagan-rules"
+			CATEGORY="security|with MySQL support"
+			PROVIDE="sagan"
+			;;
+		sagan-pgsql)
+			copy @std
+			DEPENDS="libesmtp libpcap libpcre libpostgresqlclient   libdnet \
+			sagan-rules"
+			CATEGORY="security|with PostgreSQL support"
+			PROVIDE="sagan"
+			;;
+	esac
 }

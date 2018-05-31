@@ -1,28 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gsmartcontrol"
 VERSION="0.9.0"
 CATEGORY="system-tools"
-SHORT_DESC="Hard disk drive health inspection tool (GUI for smartctl)."
+SHORT_DESC="Hard disk drive health inspection tool (GUI for smartctl)"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2 GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://gsmartcontrol.sourceforge.io/home/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="pcre glib gtk+ cairomm gtkmm smartmontools"
 BUILD_DEPENDS="pcre-dev glib-dev gtk+-dev cairomm-dev gtkmm-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/gsmartcontrol $fs/usr/bin
+genpkg_rules() {
+	copy @std @ico
+	DEPENDS="atkmm glib glibmm gtk+ gtkmm libpcre libsigc++ pangomm \
+	   smartmontools"
 }

@@ -30,13 +30,13 @@ compile_rules() {
 # On SliTaz Lighttpd runs as user/group : www/www or 80/80.
 genpkg_rules() {
 	case $PACKAGE in
-	lighttpd)
-		CONFIG_FILES="/etc/lighttpd/vhosts.conf /etc/lighttpd/lighttpd.conf"
-		SUGGESTED="lighttpd-modules php perl python"
-		DEPENDS="pcre"
-		# Modules include in this package. Other modules are splited in
-		# the lighttpd-modules packages.
-		BASE_MODULES="
+		lighttpd)
+			CONFIG_FILES="/etc/lighttpd/vhosts.conf /etc/lighttpd/lighttpd.conf"
+			SUGGESTED="lighttpd-modules php perl python"
+			DEPENDS="libpcre"
+			# Modules include in this package. Other modules are splited in
+			# the lighttpd-modules packages.
+			BASE_MODULES="
 access
 accesslog
 alias
@@ -47,29 +47,29 @@ staticfile
 rewrite
 status
 userdir"
-		mkdir -p $fs/usr
-		#cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
+			mkdir -p $fs/usr
+			#cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/sbin $fs/usr
 
-		# Modules.
-		mkdir -p $fs/usr/lib/lighttpd
-		for module in $BASE_MODULES; do
-			cp $install/usr/lib/lighttpd/mod_${module}.so $fs/usr/lib/lighttpd
-			echo -n "Copying : mod_${module}.so" && status
-		done
+			# Modules.
+			mkdir -p $fs/usr/lib/lighttpd
+			for module in $BASE_MODULES; do
+				cp $install/usr/lib/lighttpd/mod_${module}.so $fs/usr/lib/lighttpd
+				echo -n "Copying : mod_${module}.so" && status
+			done
 
-		# Config file.
-		cp -a $stuff/etc $fs
-		chown -R 0.0 $fs/etc
+			# Config file.
+			cp -a $stuff/etc $fs
+			chown -R 0.0 $fs/etc
 
-		# Logs directory.
-		mkdir -p $fs/var/log/lighttpd
-		chown 80.80 $fs/var/log/lighttpd
-		;;
-	lighttpd-modules)
-		CAT="network|Complementary modules for LightTPD Web server."
-		DEPENDS="lighttpd bzip2 zlib"
-		BASE_MODULES="
+			# Logs directory.
+			mkdir -p $fs/var/log/lighttpd
+			chown 80.80 $fs/var/log/lighttpd
+			;;
+		lighttpd-modules)
+			CAT="network|complementary modules"
+			DEPENDS="bzlib libpcre zlib   lighttpd"
+			BASE_MODULES="
 access
 accesslog
 alias
@@ -80,15 +80,14 @@ staticfile
 rewrite
 status
 userdir"
-		# Modules.
-		mkdir -p $fs/usr/
-		cp -a $install/usr/lib $fs/usr
-		for module in $BASE_MODULES
-		do
-			rm -f $fs/usr/lib/lighttpd/mod_${module}.so
-		done
-		rm -f $fs/usr/lib/lighttpd/*.la
-		;;
+			# Modules.
+			mkdir -p $fs/usr/
+			cp -a $install/usr/lib $fs/usr
+			for module in $BASE_MODULES; do
+				rm -f $fs/usr/lib/lighttpd/mod_${module}.so
+			done
+			rm -f $fs/usr/lib/lighttpd/*.la
+			;;
 	esac
 }
 

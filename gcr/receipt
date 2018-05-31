@@ -29,26 +29,17 @@ genpkg_rules() {
 	case $PACKAGE in
 		gcr-base)
 			copy libgcr-base-3.so* libgck-1.so*
-			DEPENDS="glib libffi libgcrypt libgpg-error p11-kit pcre \
-			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			DEPENDS="glib libgcrypt libp11-kit"
 			CAT="security|base files"
 			;;
 		gcr)
 			copy @std @rm *.mo @ico
-			DEPENDS="gcr-base atk bzlib cairo fontconfig freetype gdk-pixbuf \
-			gtk+3 libharfbuzz liblzma libpng16 libxml2 pango shared-mime-info \
-			xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender \
-			xorg-libxcb xorg-pixman"
+			DEPENDS="cairo gcr-base gdk-pixbuf glib gtk+3 libgcrypt pango"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
-			harfbuzz-dev libffi-dev libgcrypt-dev libgpg-error-dev \
-			libpng16-dev libxml2-dev p11-kit-dev pango-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			DEPENDS="gcr gcr-base \
+			glib-dev gtk+3-dev p11-kit-dev"
 			;;
 	esac
 }

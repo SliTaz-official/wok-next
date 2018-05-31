@@ -38,15 +38,6 @@ genpkg_rules() {
 	case $PACKAGE in
 		*-dev)
 			copy @dev
-			DEPENDS="graphviz graphviz-guile graphviz-ocaml graphviz-perl \
-			graphviz-python graphviz-ruby graphviz-tcl \
-			bzip2-dev cairo-dev expat-dev fontconfig-dev freetype-dev \
-			gdk-pixbuf-dev glib-dev gmp-dev harfbuzz-dev libjpeg-turbo-dev \
-			libcroco-dev libffi-dev libgd-dev libpng16-dev librsvg-dev libtool \
-			libxml2-dev pango-dev pcre-dev util-linux-blkid-dev \
-			util-linux-mount-dev util-linux-uuid-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev xorg-libXpm-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
 			SUGGESTED="guile-dev ocaml perl-dev python-dev ruby-dev tcl-dev"
 			;;
 		*-doc)
@@ -56,52 +47,42 @@ genpkg_rules() {
 		*-demo)
 			CAT="development|demo"
 			copy demo/
-			DEPENDS="graphviz perl python ruby tcl"
+			DEPENDS="graphviz perl python"
 			;;
 		*-guile)
 			copy guile/ @rm
 			CAT="x-window|Guile bindings"
-			DEPENDS="graphviz expat gmp guile libltdl zlib"
+			DEPENDS="graphviz guile"
 			;;
 		*-ocaml)
 			copy ocaml/ @rm
 			CAT="x-window|Ocaml bindings"
-			DEPENDS="graphviz expat libltdl zlib"
+			DEPENDS="graphviz"
 			;;
 		*-perl)
 			copy perl/ perl5/ @rm
 			CAT="x-window|Perl bindings"
-			DEPENDS="graphviz expat libltdl perl perl-core zlib"
+			DEPENDS="graphviz perl perl-core"
 			;;
 		*-python)
 			copy python/ python2.7/ @rm
 			CAT="x-window|Python bindings"
-			DEPENDS="graphviz expat libltdl python zlib"
+			DEPENDS="graphviz python"
 			;;
 		*-ruby)
 			copy ruby/ @rm
 			CAT="x-window|Python bindings"
-			DEPENDS="graphviz expat gmp libltdl libruby zlib"
+			DEPENDS="graphviz libruby"
 			;;
 		*-tcl)
 			copy tcl/ tcl8.6/ @rm
 			CAT="x-window|Tcl bindings"
-			DEPENDS="graphviz bzlib cairo expat fontconfig freetype glib \
-			libffi libgd libharfbuzz libjpeg-turbo libltdl liblzma libpng16 \
-			libxml2 pango pcre xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXpm xorg-libXrender xorg-libxcb xorg-pixman \
-			zlib"
+			DEPENDS="graphviz cairo expat glib libgd libltdl pango zlib"
 			;;
 		graphviz)
 			copy @std @rm
-			DEPENDS="bzlib cairo expat fontconfig freetype gdk-pixbuf glib \
-			libcroco libffi libgd libharfbuzz libjpeg-turbo libltdl liblzma \
-			libpng16 librsvg libxml2 pango pcre util-linux-blkid \
-			util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXaw xorg-libXdmcp xorg-libXext \
-			xorg-libXmu xorg-libXpm xorg-libXrender xorg-libXt xorg-libxcb \
-			xorg-pixman zlib"
+			DEPENDS="cairo expat glib libgd libltdl librsvg pango xorg-libX11 \
+			xorg-libXaw xorg-libXmu xorg-libXt zlib"
 			;;
 	esac
-	find $fs -name '*.la' -delete
 }
