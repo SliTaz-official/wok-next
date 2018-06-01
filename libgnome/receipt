@@ -1,23 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libgnome"
-VERSION="2.30.0"
+VERSION="2.32.1"
 CATEGORY="x-window"
 SHORT_DESC="GNOME Library"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.gnome.org"
+WEB_SITE="http://www.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="libbonobo-dev gnome-vfs-dev esound-dev audiofile-dev \
-GConf-dev popt-dev alsa-lib-dev dbus-glib-dev intltool libffi libxml2-dev \
-gnutls-dev libgcrypt-dev"
+BUILD_DEPENDS="automake libtool gettext GConf-dev intltool gnome-vfs-dev \
+libbonobo-dev libcanberra-dev popt-dev libgcrypt-dev"
 SPLIT="libgnome-dev"
 
 compile_rules() {
-	sed -i 's/-DG_DISABLE_DEPRECATED//' libgnome/Makefile*
+	autoreconf -fi
 
 	./configure \
 		--sysconfdir=/etc/gnome \
@@ -36,13 +35,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		libgnome)
 			copy @std
-			DEPENDS="GConf audiofile esound glib gnome-vfs libbonobo orbit2 \
-			popt"
+			DEPENDS="GConf glib gnome-vfs libbonobo libcanberra orbit2 popt"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libgnome GConf-dev esound-dev glib-dev gnome-vfs-dev \
-			libbonobo-dev orbit2-dev popt-dev"
+			DEPENDS="libgnome GConf-dev glib-dev gnome-vfs-dev libbonobo-dev \
+			libcanberra-dev orbit2-dev popt-dev"
 			;;
 	esac
 }
