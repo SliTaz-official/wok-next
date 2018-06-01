@@ -12,11 +12,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/sf-xpaint/$TARBALL"
 
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev freetype-dev libXaw3dXft-dev \
-libjpeg-turbo-dev tiff-dev libtool"
+libjpeg-turbo-dev tiff-dev libtool xorg-libXpm-dev"
 SPLIT="xpaint-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make -j1 && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	make -j1 &&
+	make install || return 1
 
 	mkdir -p $install/usr/share/pixmaps
 	ln -s ../xpaint/XPaintIcon.xpm $install/usr/share/pixmaps/xpaint.xpm
