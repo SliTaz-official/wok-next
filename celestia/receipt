@@ -6,34 +6,37 @@ CATEGORY="games"
 SHORT_DESC="Real-time 3D Space Simulation"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://www.shatters.net/celestia/"
+WEB_SITE="https://celestia.space/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gtk+ glew libtheora lua5.1 gtkglext freeglut xorg-libXmu mesa \
-glu libjpeg jpeg zlib gtk+-dev libtheora-dev lua5.1-dev gtkglext-dev \
-freeglut-dev xorg-libXmu-dev glu mesa-dev libpng16-dev libogg-dev \
-jpeg-dev glew-dev zlib-dev gettext autoconf"
+BUILD_DEPENDS="automake libtool gettext mesa-dev glu-dev gtk+-dev gtkglext-dev \
+lua5.1-dev libjpeg-turbo-dev   libtheora-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -ldl"
+	sed -i 's|AM_CONFIG_HEADER|AC_CONFIG_HEADERS|' configure.in
+	autoreconf -vi || return 1
 
-	sed -i 's|"ray.h"|&\n#include "mathlib.h"|' src/celmath/intersect.h
-	sed -i 's|NULL|0|' src/celengine/frametree.h
-	sed -i 's|"png.h"|&\n#include "zlib.h"|' src/celestia/imagecapture.cpp
-	sed -i 's|<cstdio>|&\n#include <string.h>|' src/celengine/*.cpp
+	# Celestia-1.6.1 has a bug in the font rendering and requires -fsigned-char
+	export CFLAGS="$CFLAGS -fsigned-char"
+	export CXXFLAGS="$CXXFLAGS -fsigned-char"
 
 	./configure \
 		--with-gtk \
+		--disable-rpath \
+		--with-lua \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make \
+		DESTDIR=$DESTDIR \
+		MKDIR_P='mkdir -p' \
+		install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gtk+ glew libtheora lua5.1 gtkglext freeglut xorg-libXmu mesa glu \
-	libjpeg jpeg zlib"
+	DEPENDS="cairo gdk-pixbuf glib glu gtk+ gtkglext libjpeg-turbo libogg \
+	libpng16 libtheora mesa pango"
 }
