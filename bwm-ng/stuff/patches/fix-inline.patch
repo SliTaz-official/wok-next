@@ -1,0 +1,98 @@
+This fixes many link errors:
+
+  ...: undefined reference to `...'
+
+As gcc5 doc about "Different semantics for inline functions":
+
+  > C99 extern inline: An externally visible function is generated; \
+  > same as GNU89 inline.
+
+  > To fix this, either mark the function foo as extern, or add the \
+  > following declaration: extern inline int foo (void);
+
+(from https://gcc.gnu.org/gcc-5/porting_to.html)
+
+--- a/src/bwm-ng.c
++++ b/src/bwm-ng.c
+@@ -26,7 +26,7 @@
+ 
+ /* handle interrupt signal */
+ void sigint(int sig) FUNCATTR_NORETURN;
+-inline void init(void);
++extern inline void init(void);
+ 
+ /* clear stuff and exit */
+ #ifdef __STDC__
+--- a/src/options.c
++++ b/src/options.c
+@@ -30,12 +30,12 @@
+ char *trim_whitespace(char *str);
+ int read_config(const char *config_file);
+ #endif
+-inline int str2output_unit(char *optarg);
++extern inline int str2output_unit(char *optarg);
+ #if EXTENDED_STATS
+-inline int str2output_type(char *optarg);
++extern inline int str2output_type(char *optarg);
+ #endif
+-inline int str2out_method(char *optarg);
+-inline int str2in_method(char *optarg);
++extern inline int str2out_method(char *optarg);
++extern inline int str2in_method(char *optarg);
+ 
+ #ifdef CONFIG_FILE
+  /******************************************************************************
+--- a/src/output.c
++++ b/src/output.c
+@@ -25,13 +25,13 @@
+ #include "output.h"
+ 
+ inline static const char *output_type2str(void);
+-inline const char *input2str(void);
+-inline const char *show_all_if2str(void);
+-inline ullong direction2value(char mode,struct inout_long stats);
++extern inline const char *input2str(void);
++extern inline const char *show_all_if2str(void);
++extern inline ullong direction2value(char mode,struct inout_long stats);
+ #if EXTENDED_STATS
+-inline double direction_max2value(char mode,struct inouttotal_double stats,int items);
++extern inline double direction_max2value(char mode,struct inouttotal_double stats,int items);
+ #endif
+-inline char *dyn_byte_value2str(double value,char *str,int buf_size);
++extern inline char *dyn_byte_value2str(double value,char *str,int buf_size);
+ char *values2str(char mode,t_iface_speed_stats stats,t_iface_stats full_stats,float multiplier,char *str,int buf_size);
+ 
+ inline static const char *output_type2str(void) {
+@@ -306,7 +306,7 @@
+     return str;
+ }
+ 
+-inline char *dyn_bit_value2str(double value,char *str,int buf_size) {
++extern inline char *dyn_bit_value2str(double value,char *str,int buf_size) {
+     if (dynamic) {
+         if (value<1000)
+             snprintf(str,buf_size,"%15.2f  ",value);
+--- a/src/process.c
++++ b/src/process.c
+@@ -29,16 +29,16 @@
+ inline long tvdiff(struct timeval newer, struct timeval older);
+ float get_time_delay(int iface_num);
+ #endif
+-inline ullong calc_new_values(ullong new, ullong old);
++extern inline ullong calc_new_values(ullong new, ullong old);
+ t_iface_speed_stats convert2calced_values(t_iface_speed_stats new, t_iface_speed_stats old);
+ t_iface_speed_stats convert2calced_disk_values(t_iface_speed_stats new, t_iface_speed_stats old);
+ #if EXTENDED_STATS
+-inline void sub_avg_values(struct inouttotal_double *values,struct inouttotal_double data);
+-inline void add_avg_values(struct inouttotal_double *values,struct inouttotal_double data);
+-inline void save_avg_values(struct inouttotal_double *values,struct inouttotal_double *data,struct inout_long calced_stats,float multiplier);
++extern inline void sub_avg_values(struct inouttotal_double *values,struct inouttotal_double data);
++extern inline void add_avg_values(struct inouttotal_double *values,struct inouttotal_double data);
++extern inline void save_avg_values(struct inouttotal_double *values,struct inouttotal_double *data,struct inout_long calced_stats,float multiplier);
+ void save_avg(struct t_avg *avg,struct iface_speed_stats calced_stats,float multiplier);
+ inline void save_sum(struct inout_long *stats,struct inout_long new_stats_values);
+-inline void save_max(struct inouttotal_double *stats,struct inout_long calced_stats,float multiplier);
++extern inline void save_max(struct inouttotal_double *stats,struct inout_long calced_stats,float multiplier);
+ #endif
+ 
+ /* returns the whether to show the iface or not
