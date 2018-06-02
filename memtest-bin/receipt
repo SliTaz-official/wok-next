@@ -1,0 +1,21 @@
+# SliTaz package receipt v2.
+
+PACKAGE="memtest-bin"
+VERSION="5.01"
+CATEGORY="base-system"
+SHORT_DESC="Memory failures detection tool (pre-compiled bootable binary)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://www.memtest.org/"
+
+TARBALL="memtest86+-$VERSION.bin.gz"
+WGET_URL="http://www.memtest.org/download/$VERSION/$TARBALL"
+
+compile_rules() {
+	gzip -d $TARBALL
+	install -Dm644 memtest86+-$VERSION.bin $install/boot/memtest
+}
+
+genpkg_rules() {
+	copy @std
+}

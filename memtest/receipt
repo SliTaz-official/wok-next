@@ -7,60 +7,65 @@ SHORT_DESC="Memory failures detection tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.memtest.org/"
+HOST_ARCH="i486"
 
-SOURCE="memtest86+"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+TARBALL="memtest86+-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="xz gcc3"
-SPLIT="memtest-serial"
+SPLIT="memtest-serial:serial"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i  -e '/scp memtest.bin/d' -e 's/gcc/gcc-3/' \
-		-e 's/-fno-stack-protector//' Makefile
+compile_rules() {
+	sed -i '/scp memtest.bin/d; s/gcc/gcc-3/; s/-fno-stack-protector//' Makefile
 	sed -i 's/0b10/2/' init.c
 
-	make
-	cp $stuff/*.S $stuff/pack .
-	for i in bootloader unpack ; do
-		cc -o $i.o -Wa,-a=$i.lst -c $i.S
-		objcopy -O binary $i.o $i.bin
-	done
-	sed -i "s/VERSION/$VERSION/" pack
-	./pack --build bootloader.bin unpack.bin
-	./pack memtest.bin memtest.packed
-	mv memtest.bin memtest.bin.console
-	sed -i  -e 's/SERIAL_CONSOLE_DEFAULT 0/SERIAL_CONSOLE_DEFAULT 1/' \
-		-e 's/SERIAL_BAUD_RATE 9600/SERIAL_BAUD_RATE 115200/' config.h
-	make clean
-	make
-	./pack memtest.bin memtest.packed-115200
-	mv memtest.bin memtest.bin.serial
-} 
+	case $SET in
+		'')
+			make || return 1
+			cp $stuff/*.S $stuff/pack .
+			for i in bootloader unpack; do
+				cc -o $i.o -Wa,-a=$i.lst -c $i.S
+				objcopy -O binary $i.o $i.bin
+			done
+			sed -i "s/VERSION/$VERSION/" pack
+			./pack --build bootloader.bin unpack.bin
+			./pack memtest.bin memtest.packed
+			mv memtest.bin memtest.bin.console
 
+			install -Dm644 memtest.packed $install/boot/memtest
+			;;
+		serial)
+			sed -i \
+				-e 's/SERIAL_CONSOLE_DEFAULT 0/SERIAL_CONSOLE_DEFAULT 1/' \
+				-e 's/SERIAL_BAUD_RATE 9600/SERIAL_BAUD_RATE 115200/' config.h
+			make clean
+			make || return 1
+			./pack memtest.bin memtest.packed-115200
+			mv memtest.bin memtest.bin.serial
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	case $PACKAGE in
-	memtest)
-		mkdir -p $fs/boot
-		cp $src/memtest.packed $fs/boot/memtest
-		;;
-	memtest-serial)
-		CAT="base-system|using serial port"
-		mkdir -p $fs/boot
-		cp $src/memtest.packed-115200 $fs/boot/memtest
-		;;
+			install -Dm644 memtest.packed-115200 $install/boot/memtest
+			;;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_memtest_serial()
-{
-	cat <<EOT
-Output to vga and serial port. Default kernel cmdline: console=ttyS0,115200e8
+genpkg_rules() {
+	case $PACKAGE in
+		memtest)
+			copy @std
+			;;
+		memtest-serial)
+			copy @std
+			CAT="base-system|using serial port"
+			;;
+	esac
+}
+
+post_install_memtest_serial() {
+	[ -n "$quiet" ] || cat <<EOT
+
+	.------------------------------------------------.
+	| Output to vga and serial port.                 |
+	| Default kernel cmdline: console=ttyS0,115200e8 |
+	'------------------------------------------------'
 EOT
 }
