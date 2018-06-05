@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="leanify"
+VERSION="0.4.3+20180521" # latest release 0.4.3 from 2015-11-26
+COMMIT="2e6b972"         # latest commit        from 2018-05-21
+CATEGORY="utilities"
+SHORT_DESC="Lightweight lossless file minifier/optimizer"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/JayXon/Leanify"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/JayXon/Leanify/archive/${COMMIT:-v$VERSION}.tar.gz"
+
+compile_rules() {
+	# gold linker don't understand '-Os'
+	export LDFLAGS="${LDFLAGS//-Os/-O2}"
+
+	make &&
+	install -Dm755 leanify $install/usr/bin/leanify || return 1
+
+	cook_pick_docs README.md
+}
+
+genpkg_rules() {
+	copy @std
+}
