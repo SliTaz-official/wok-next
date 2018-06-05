@@ -1,42 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dillo"
-VERSION="3.0.4"
+VERSION="3.0.5"
 CATEGORY="network"
 SHORT_DESC="Light and fast web browse using FLTK"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.dillo.org/"
+WEB_SITE="https://www.dillo.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.dillo.org/download/$TARBALL"
+WGET_URL="https://www.dillo.org/download/$TARBALL"
 
-BUILD_DEPENDS="fltk-dev libpng16-dev jpeg-dev zlib-dev openssl-dev \
-xorg-libX11-dev"
+BUILD_DEPENDS="fltk-dev xorg-libX11-dev libjpeg-turbo-dev zlib-dev \
+libpng16-dev openssl10-dev"
 
 compile_rules() {
-	cp -f $stuff/pixmaps.slitaz.h src/pixmaps.h &&
+	cp -f $stuff/pixmaps.slitaz.h src/pixmaps.h
+
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
 
 	./configure \
 		--enable-ssl \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
+
+	install -Dm644 $stuff/dillo.html $install/usr/share/webhome/dillo.html
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr/lib $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/dillo $fs/usr/lib
-	strip -s $fs/usr/lib/dillo/dpi/*/*
-	chmod +x $fs/usr/bin/*
-	# Config files with custom dillorc to have webhome
-	cp -a $install/etc $fs
-	cp -a $stuff/dillorc $fs/etc/dillo
-	cp -a $stuff/webhome $fs/usr/share
-	# Dillo version for user agent string
-	sed -i s"/_dillo_version_/$VERSION/" $fs/etc/dillo/dillorc
-	chown -R root.root $fs
-	DEPENDS="fltk libpng16 jpeg zlib openssl xorg-libX11 gcc-lib-base"
+	copy @std
+	DEPENDS="fltk libjpeg-turbo libpng16 openssl10 xorg-libX11 zlib"
 	TAGS="web-browser"
 }
