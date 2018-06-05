@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="csso-cli"
+VERSION="latest"
+CATEGORY="utilities"
+SHORT_DESC="Command line interface for CSSO"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/css/csso-cli"
+
+BUILD_DEPENDS="node"
+
+compile_rules() {
+	npm install -g csso-cli || return 1
+
+	cook_pick_docs $install/usr/lib/node_modules/csso-cli/README.md
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/csso-cli@/ s|.*csso-cli@||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="node"
+}
