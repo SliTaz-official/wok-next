@@ -16,8 +16,9 @@ BUILD_DEPENDS="gettext GConf-dev gtk-doc python glib-dev orc-dev \
 gstreamer0-dev gst0-plugins-base-dev gtk+-dev libgudev-dev v4l-utils-dev \
 xorg-libXfixes-dev xorg-libXdamage-dev aalib-dev flac-dev gdk-pixbuf-dev \
 jack2-dev libcaca-dev libdv-dev libraw1394-dev libiec61883-dev libavc1394-dev \
-libshout-dev libsoup-dev speex-dev taglib-dev wavpack-dev libjpeg-turbo-dev"
-SPLIT="gst0-plugins-good-extra gst0-plugins-good gst0-plugins-good-dev"
+libshout-dev libsoup-dev speex-dev taglib-dev wavpack-dev libjpeg-turbo-dev \
+xorg-videoproto xorg-libXv-dev"
+SPLIT="gst0-plugins-good-extra gst0-plugins-good"
 
 compile_rules() {
 	sed -i "/input:/d" sys/v4l2/gstv4l2bufferpool.c &&
@@ -49,8 +50,8 @@ genpkg_rules() {
 			*wavpack.so
 			CAT="multimedia|extra plugins"
 			DEPENDS="glib gst0-plugins-base gstreamer0 jack2 libdv libgudev \
-			libshout libsoup libsoup-gnome v4l-utils libxml2 orc taglib wavpack \
-			xorg-libICE xorg-libSM xorg-libX11 xorg-libXext xorg-libXv"
+			libshout libsoup libsoup-gnome libxml2 orc taglib v4l-utils \
+			wavpack xorg-libX11 xorg-libXext xorg-libXv"
 			MAINTAINER="psychomaniak@xakep.ru"
 			;;
 		*-good)
@@ -58,27 +59,8 @@ genpkg_rules() {
 			DEPENDS="GConf aalib bzlib cairo flac gdk-pixbuf glib \
 			gst0-plugins-base gstreamer0 libavc1394 libcaca libiec61883 \
 			libjpeg-turbo libpng16 libraw1394 libxml2 ncurses orc speex \
-			xorg-libICE xorg-libSM xorg-libX11 xorg-libXdamage xorg-libXext \
-			xorg-libXfixes zlib"
+			xorg-libX11 xorg-libXdamage xorg-libXext xorg-libXfixes zlib"
 			SUGGESTED="gst0-plugins-good-extra"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gst0-plugins-good gst0-plugins-good-extra \
-			GConf-dev aalib-dev bzip2-dev cairo-dev eudev-dev flac-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev \
-			gst0-plugins-base-dev gstreamer0-dev harfbuzz-dev jack2-dev \
-			libjpeg-turbo-dev libavc1394-dev libcaca-dev libdv-dev libffi-dev \
-			libgudev-dev libiec61883-dev libogg-dev libpng16-dev \
-			libraw1394-dev libshout-dev libsoup-dev libtheora-dev v4l-utils-dev \
-			libvorbis-dev libxml2-dev ncurses-dev openssl-dev orbit2-dev \
-			orc-dev pcre-dev speex-dev sqlite3-dev taglib-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			wavpack-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11 \
-			xorg-libX11-dev xorg-libXau-dev xorg-libXdamage-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
-			xorg-libXrender-dev xorg-libXv-dev xorg-libxcb-dev xorg-pixman-dev \
-			xz-dev zlib-dev"
 			;;
 	esac
 }
