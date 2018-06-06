@@ -1,27 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="coccinella"
-SOURCE="Coccinella"
 VERSION="0.96.20"
 CATEGORY="network"
-SHORT_DESC="Cross-platform communication tool with a built-in whiteboard."
+SHORT_DESC="Cross-platform communication tool with a built-in whiteboard"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://thecoccinella.org/"
-TARBALL="$SOURCE-${VERSION}Src.tar.gz"
-WGET_URL="$SF_MIRROR/project/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
+HOST_ARCH="i486"
 
-DEPENDS="tk"
-BUILD_DEPENDS=""
+TARBALL="Coccinella-${VERSION}Src.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/applications
-	cp -a $src $fs/usr/share/coccinella
-	rm -rf $fs/usr/share/coccinella/bin/macosx
-	rm -rf $fs/usr/share/coccinella/bin/unix/NetBSD
-	rm -rf $fs/usr/share/coccinella/bin/windows
-	cp $stuff/coccinella $fs/usr/bin
-	cp $stuff/coccinella.desktop $fs/usr/share/applications
+compile_rules() {
+	mkdir -p   $install/usr/share
+	cp -r $src $install/usr/share/coccinella
+	rm -r $install/usr/share/coccinella/bin/macosx
+	rm -r $install/usr/share/coccinella/bin/unix/NetBSD
+	rm -r $install/usr/share/coccinella/bin/windows
+
+	install -Dm755 $stuff/coccinella $install/usr/bin/coccinella
+
+	find $install -name '*.so' -exec chmod 755 '{}' \;
+	chown -R root:root $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="tk"
 }

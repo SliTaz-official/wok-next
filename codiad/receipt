@@ -15,7 +15,6 @@ WGET_URL="https://nodeload.github.com/Fluidbyte/Codiad/tarball/$GITHASH"
 compile_rules() {
 	mkdir -p $install/var/www/codiad $install/etc
 	cp -a $src/* $install/var/www/codiad
-	chown -R www.www $install/var/www/codiad
 	chmod 777 $install/var/www/codiad/data
 	mv $install/var/www/codiad/config.example.php $install/etc/codiad.php
 	ln -s /etc/codiad.php $install/var/www/codiad/config.php
@@ -23,6 +22,7 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
+	chown -R www:www $fs/var/www/codiad
 	DEPENDS="php"
 	CONFIG_FILES="/etc/codiad.php"
 }
