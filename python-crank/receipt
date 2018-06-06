@@ -1,0 +1,21 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-crank"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="Generalization of dispatch mechanism for use across frameworks"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/crank/"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR crank
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*crank-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

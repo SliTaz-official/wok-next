@@ -1,0 +1,21 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-repoze.lru"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="A tiny LRU cache implementation and decorator"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/repoze.lru/"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR repoze.lru
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*repoze.lru-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}
