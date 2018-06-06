@@ -1,35 +1,42 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mediawiki"
-VERSION="1.19.0"
+VERSION="1.30.0"
 CATEGORY="network"
 SHORT_DESC="MediaWiki engine"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://www.mediawiki.org/wiki/MediaWiki"
+WEB_SITE="https://www.mediawiki.org/wiki/MediaWiki"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.wikimedia.org/mediawiki/${VERSION:0:4}/$TARBALL"
+WGET_URL="https://releases.wikimedia.org/mediawiki/${VERSION%.*}/$TARBALL"
 
-DEPENDS="php"
+compile_rules() {
+	mkdir -p \
+		$install/usr/share/webapps \
+		$install/etc/webapps/mediawiki
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/webapps $fs/etc/webapps/mediawiki
-	cp -a $src $fs/usr/share/webapps/mediawiki
-	sed -i -e 's#is_executable#is_file#' -e 's#is_executable#is_file#'$fs/includes/Math.php
-	echo "deny from all" >> $fs/etc/webapps/mediawiki/.htaccess
-	ln -sf /etc/webapps/mediawiki/.htaccess $fs/usr/share/webapps/mediawiki/.htaccess
+	cp -a $src $install/usr/share/webapps/mediawiki
+	rm -r $install/usr/share/webapps/mediawiki/tests
+
+	echo "Deny from all" >> $install/usr/share/webapps/mediawiki/.htaccess
+	echo "Deny from all" >> $install/etc/webapps/mediawiki/.htaccess
+
 	# move cache and images to /var
-	install -vdm0755 -o www -g www $fs/var/cache/mediawiki
-	install -vdm0755 -o www -g www $fs/var/lib/mediawiki
-	cd $fs/usr/share/webapps/mediawiki
-	mv cache/.htaccess $fs/var/cache/mediawiki
-	rmdir cache
-	ln -sf /var/cache/mediawiki cache
-	
-	mv images/* $fs/var/lib/mediawiki
-	mv images/.htaccess $fs/var/lib/mediawiki
-	rmdir images
-	ln -sf /var/lib/mediawiki images
+	mkdir -p $install/var/cache/
+	mv $install/usr/share/webapps/mediawiki/cache $install/var/cache/mediawiki
+	ln -s /var/cache/mediawiki $install/usr/share/webapps/mediawiki/cache
+
+	mkdir -p $install/var/lib/
+	mv $install/usr/share/webapps/mediawiki/images $install/var/lib/mediawiki
+	ln -s /var/lib/mediawiki $install/usr/share/webapps/mediawiki/images
+
+	chown -R www:www $install/var/cache/mediawiki $install/var/lib/mediawiki
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="php"
 }

@@ -11,12 +11,10 @@ WEB_SITE="http://www.nagios.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="libgd-dev libpng16-dev jpeg-dev libtool"
+BUILD_DEPENDS="libgd-dev libpng16-dev libjpeg-turbo-dev libtool"
 SPLIT="nagios-dev"
 
 compile_rules() {
-	sed -i '/sysconfdir=/ s|^|#|' /etc/slitaz/cook.site # default sysconfdir=/etc
-
 	./configure \
 		--sysconfdir=/etc/nagios \
 		--libexecdir=/usr/lib/nagios/plugins \
@@ -38,42 +36,35 @@ compile_rules() {
 	make install-config &&
 	make install-commandmode &&
 	make install-webconf &&
-	make install-classicui
+	make install-classicui || return 1
+
+	install -Dm755 $stuff/nagios         $install/etc/init.d/nagios
+	install -Dm644 $stuff/htpasswd.users $install/etc/nagios/htpasswd.users
+
+	cp -r include/ $install/usr/
+
+	mkdir -p $install/var/log/nagios
+
+	chown -R root:root $install
+	chmod -R g-w $install
+	chmod 755 $install/usr/bin/* # was 754
+	chmod 644 $install/usr/include/locations.h # was 600
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		nagios)
-			mkdir -p \
-				$fs/usr $fs/etc/init.d \
-				$fs/var/lib/nagios/rw \
-				$fs/var/log/nagios \
-				$fs/var/spool/nagios/checkresults \
-				$fs/etc/apache
-
-			cp -a $install/etc/apache $fs/etc
-			cp -a $install/etc/nagios $fs/etc
-			cp -a $stuff/nagios  $fs/etc/init.d
-			install -m644 $stuff/htpasswd.users $fs/etc/nagios/
-
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib $fs/usr
-			cp -a $install/usr/share $fs/usr
-
-			# Put doc in separate package
-			rm -rf $fs/usr/share/nagios/docs
-
+			copy @std
 			# Fix Apache config for Nagvis
-			sed -i 's/Options None/Options FollowSymLinks/' $fs/etc/apache/conf.d/nagios.conf
+			sed -i 's/Options None/Options FollowSymLinks/' \
+			$fs/etc/apache/conf.d/nagios.conf
 
-			# Fix permissions 
-			chmod 755 $fs/usr/bin/nagios*
-			DEPENDS="apache nagios-plugins libpng16 libjpeg libltdl"
+			DEPENDS="libgd libltdl   apache nagios-plugins libpng16 \
+			libjpeg-turbo"
 			SUGGESTED="nagios-nrpe"
 			;;
 		nagios-dev)
-			mkdir -p $fs/usr
-			cp -pa $src/include $fs/usr
+			copy @dev
 			;;
 	esac
 }
@@ -85,7 +76,8 @@ post_install_nagios() {
 	fi
 
 	# Fix perms for files and directories
-	chroot "$1/" chown -R nagios.nagios /var/log/nagios \
+	chroot "$1/" chown -R nagios.nagios \
+		/var/log/nagios \
 		/var/spool/nagios \
 		/var/lib/nagios \
 		/usr/share/nagios \
@@ -112,5 +104,5 @@ EOT
 }
 
 pre_remove_nagios() {
-	[ "$1" ] || /etc/init.d/nagios stop
+	[ -n "$1" ] || /etc/init.d/nagios stop
 }
