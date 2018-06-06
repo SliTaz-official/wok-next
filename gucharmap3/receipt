@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gucharmap3"
-VERSION="10.0.0"
+VERSION="10.0.4"
 CATEGORY="utilities"
 SHORT_DESC="GNOME Character Map for GTK+3"
 MAINTAINER="al.bobylev@gmail.com"
@@ -21,7 +21,8 @@ compile_rules() {
 	./autogen.sh \
 		--enable-vala \
 		--with-unicode-data=download \
-		--program-suffix=3 &&
+		--program-suffix=3 \
+		PROG_UNZIP=/bin/unzip &&
 	fix libtool &&
 	make &&
 	make install || return 1
@@ -41,21 +42,11 @@ genpkg_rules() {
 			;;
 		gucharmap3)
 			copy @std @rm
-			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk+3 \
-			libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
-			util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb \
-			xorg-pixman zlib"
+			DEPENDS="atk cairo glib gtk+3 pango"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} atk-dev bzip2-dev cairo-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev glib-dev gtk+3-dev \
-			harfbuzz-dev libffi-dev libpng16-dev libxml2-dev pango-dev \
-			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			DEPENDS="${SPLIT/$PACKAGE/} glib-dev gtk+3-dev"
 			;;
 	esac
 }
