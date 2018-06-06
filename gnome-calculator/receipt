@@ -1,39 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-calculator"
-VERSION="3.10.2"
+VERSION="3.28.1"
 CATEGORY="utilities"
-LICENSE="GPL3"
-SHORT_DESC="GNOME Calculator is a powerful graphical calculator with financial, logical and scientific modes."
+SHORT_DESC="GNOME Calculator is a powerful graphical calculator with \
+financial, logical and scientific modes"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
+LICENSE="GPL3"
 WEB_SITE="https://wiki.gnome.org/Apps/Calculator"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+3 glib"
-BUILD_DEPENDS="gtk+3-dev glib-dev itstool yelp-xsl vala"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-L10N_MO="af am ar as ast az be@latin be bg bn_IN bn bs ca ca@valencia cs cy da \
-de dz el en_CA en_GB en@shaw en_US eo es et eu fa fi fr ga gl gu he hi hr hu \
-hy id it ja ka kk km kn ko ku lt lv mai mg mk ml mn mr ms my nb ne nl nn oc or \
-pa pl pt_BR pt ro ru rw si sk sl sq sr@latin sr sv ta te tg th tk tr ug uk vi \
-xh zh_CN zh_HK zh_TW"
+BUILD_DEPENDS="meson ninja vala gtk+3-dev gtksourceview3-dev libsoup-dev \
+gettext mpfr-dev gmp-dev mpc-library-dev itstool yelp-xsl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# SliTaz icon theme has no symbolic icons
-	sed -i 's|-symbolic||g' $src/data/buttons*.ui
-
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	make &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	meson-wrapper build &&
+	ninja -C build &&
+	DESTDIR="$install" ninja -C build install
 }
 
-genpkg_rules()
-{
-	cp -a $install/usr $fs
-	rm -rf $fs/usr/share/locale
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk glib gtk+3 gtksourceview3 libsoup libxml2 mpc-library mpfr"
 }
