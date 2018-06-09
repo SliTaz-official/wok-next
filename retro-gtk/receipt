@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="retro-gtk"
+VERSION="0.14.0"
+CATEGORY="gnome"
+SHORT_DESC="Toolkit to write GTK+3 based Libretro frontends"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://gitlab.gnome.org/GNOME/retro-gtk"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="meson ninja libepoxy-dev glib-dev gtk+3-dev pulseaudio-dev \
+gobject-introspection-dev vala"
+SPLIT="retro-gtk-dev"
+
+compile_rules() {
+	meson-wrapper build &&
+	ninja -C build &&
+	DESTDIR=$install ninja -C build install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		retro-gtk)
+			copy @std
+			DEPENDS="cairo gdk-pixbuf glib gtk+3 libepoxy pulseaudio"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="retro-gtk glib-dev"
+			;;
+	esac
+}

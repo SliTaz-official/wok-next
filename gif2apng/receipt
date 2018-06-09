@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gif2apng"
 VERSION="1.9"
@@ -11,20 +11,14 @@ WEB_SITE="http://gif2apng.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION-src.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="zlib"
 BUILD_DEPENDS="zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
-
-	mkdir -p $install/usr/bin
-	cp -a $src/gif2apng $install/usr/bin
+compile_rules() {
+	make &&
+	install -Dm755 gif2apng $install/usr/bin/gif2apng
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy gif2apng
+genpkg_rules() {
+	copy @std
+	DEPENDS="zlib"
 }

@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="tracker"
+VERSION="2.0.3"
+CATEGORY="gnome"
+SHORT_DESC="Desktop-neutral user information store, search tool and indexer"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Projects/Tracker"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev glib-dev gobject-introspection-dev sqlite3-dev \
+libsoup-dev libxml2-dev json-glib-dev vala intltool upower-dev \
+libunistring-dev network-manager-dev python3"
+SPLIT="tracker-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		tracker)
+			copy @std
+			DEPENDS="glib json-glib libsoup libsqlite3 libunistring libxml2 \
+			util-linux-uuid"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="tracker glib-dev"
+			;;
+	esac
+}

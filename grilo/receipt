@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="grilo"
+VERSION="0.3.4"
+CATEGORY="gnome"
+SHORT_DESC="Framework that provides access to various sources of multimedia \
+content"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://wiki.gnome.org/Projects/Grilo"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev libxml2-dev gobject-introspection-dev vala intltool \
+gtk+3-dev liboauth-dev libsoup-dev totem-pl-parser-dev"
+SPLIT="grilo-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		grilo)
+			copy @std
+			DEPENDS="glib gtk+3 liboauth libsoup totem-pl-parser"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="grilo glib-dev libxml2-dev"
+			;;
+	esac
+}

@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lualpeg"
+VERSION="1.0.1"
+CATEGORY="system-tools"
+SHORT_DESC="Pattern-matching library for Lua"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://www.inf.puc-rio.br/~roberto/lpeg"
+
+TARBALL="lpeg-$VERSION.tar.gz"
+WGET_URL="http://www.inf.puc-rio.br/~roberto/lpeg/$TARBALL"
+
+BUILD_DEPENDS="lua5.1-dev"
+
+compile_rules() {
+	sed -i 's|^CFLAGS =|CFLAGS +=|; s|^COPT =|# COPT =|' makefile
+
+	make LUADIR=/usr/include/lua/5.1 || return 1
+
+	install -Dm755 lpeg.so $install/usr/lib/lua/5.1/lpeg.so
+	install -Dm644 re.lua  $install/usr/share/lua/5.1/re.lua
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="lua5.1"
+}

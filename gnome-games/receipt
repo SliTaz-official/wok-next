@@ -1,185 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnome-games"
-VERSION="2.32.1"
-CATEGORY="meta"
-SHORT_DESC="Simple games from GNOME"
+VERSION="3.29.1"
+CATEGORY="games"
+SHORT_DESC="Simple game launcher for GNOME"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.gnome.org/Apps/Games"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gtk+-dev GConf-dev librsvg-dev clutter-dev \
-clutter-gtk-dev pygtk-dev libcanberra-dev intltool guile-dev \
-gnome-doc-utils xorg-libSM-dev xorg-libICE-dev gobject-introspection-dev"
-
-gg='gnome-games'
-SPLIT="\
-$gg-aisleriot  $gg-glchess $gg-glines    $gg-gnect     $gg-gnibbles \
-$gg-gnobots2   $gg-sudoku  $gg-gnomine   $gg-gnotravex $gg-gnotski \
-$gg-gtali      $gg-iagno   $gg-lightsoff $gg-mahjongg  $gg-quadrapassel \
-$gg-swell-foop $gg-common  $gg-help      $gg           $gg-dev"
+BUILD_DEPENDS="intltool vala glib-dev grilo-dev gtk+3-dev libmanette-dev \
+librsvg-dev libsoup-dev libxml2-dev retro-gtk-dev sqlite3-dev tracker-dev"
+SPLIT="gnome-games-dev"
 
 compile_rules() {
-	./configure \
-		--bindir=/usr/games \
-		--disable-scrollkeeper \
-		--enable-introspection \
-		--enable-sound \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install || return 1
-
-	chmod a+w $install/var/games/*.scores
+	make install
 }
 
 genpkg_rules() {
-	COOKOPTS="!menus"
-	game=${PACKAGE/gnome-games-/}
-	case $game in
-		aisleriot) bin='sol';;
-		glchess)   bin='glchess gnome-gnuchess';;
-		sudoku)    bin='gnome-sudoku';;
-		*)         bin="$game";;
-	esac
-	case $game in
-		glchess) py='site-packages/glchess/';;
-		sudoku)  py='site-packages/gnome_sudoku/';;
-		*)       py='';;
-	esac
-	case $game in
-		aisleriot) desktop='freecell.desktop sol.desktop';;
-		sudoku)    desktop='gnome-sudoku.desktop';;
-		*)         desktop="$game.desktop";;
-	esac
-	case $game in
-		aisleriot) icon='gnome-freecell.png gnome-aisleriot.png';;
-		gnotski)   icon='gnome-klotski.png';;
-		gnomine)   icon='gnome-mines.png';;
-		gnobots2)  icon='gnome-robots.png';;
-		gtali)     icon='gnome-tali.png';;
-		gnotravex) icon='gnome-tetravex.png';;
-		*)         icon="gnome-$game.png";;
-	esac
-	case $game in
-		glchess) share='share/glchess/';;
-		sudoku)  share='share/gnome-sudoku/';;
-		*)       share="share/gnome-games/$game/";;
-	esac
-	case $game in
-		glines|gnibbles|gnobots2|gnomine|gnotravex|gnotski|gtali|mahjongg|quadrapassel)
-			scores="var/games/$game*.scores";;
-		*)	scores='';;
-	esac
-	case $game in
-		sudoku) schemas='gnome-sudoku.schemas';;
-		*)      schemas="$game.schemas";;
-	esac
-
-	case $game in
-		gnome-games) ;;
-		dev)    copy @dev;;
-		help)   copy gnome/help/ omf/;;
-		common) copy sounds/ gnome-games-common/ \
-		        share/gnome-games/icons/ share/gnome-games/pixmaps/ \
-		        lib/gnome-games/ar-cards-renderer lib/gnome-games/*.so* ;;
-		*)      copy $bin $py $desktop $icon ${icon//.png/.svg} $share $scores \
-		        $schemas;;
-	esac
-
-	DEPENDS="gnome-games-common"
 	case $PACKAGE in
-		*-common)
-			CAT="games|common files"
-			DEPENDS="GConf atk bzlib cairo fontconfig freetype gdk-pixbuf glib \
-			gtk+ libcanberra libcanberra-gtk2 libcroco libffi libharfbuzz \
-			libltdl liblzma libogg libpng16 librsvg libvorbis libxml2 orbit2 \
-			pango pcre util-linux-blkid util-linux-mount util-linux-uuid \
-			xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
-			;;
-		*-aisleriot)
-			CAT="games|collection of over 80 card games"
-			DEPENDS="gnome-games-common gmp guile"
-			;;
-		*-glchess)
-			CAT="games|classic board game of chess"
-			DEPENDS="gnome-games-common pygtk   mesa"
-			TAGS="chess"
-			;;
-		*-glines)
-			CAT="games|Five or More"
-			;;
-		*-gnect)
-			CAT="games|Four-in-a-Row"
-			;;
-		*-gnibbles)
-			CAT="games|Nibbles"
-			DEPENDS="gnome-games-common clutter clutter-gtk cogl json-glib \
-			libdrm mesa-libegl mesa-libgbm mesa-libwayland-egl wayland \
-			xorg-libXcomposite xorg-libXdamage xorg-libXfixes xorg-libXrandr"
-			;;
-		*-gnobots2)
-			CAT="games|Robots"
-			;;
-		*-sudoku)
-			CAT="games|Sudoku"
-			DEPENDS="gnome-games-common pygtk"
-			;;
-		*-gnomine)
-			CAT="games|Mines"
-			;;
-		*-gnotravex)
-			CAT="games|Tetravex"
-			;;
-		*-gnotski)
-			CAT="games|Klotski"
-			;;
-		*-gtali)
-			CAT="games|Tali"
-			;;
-		*-iagno)
-			CAT="games|Reversi"
-			;;
-		*-lightsoff)
-			CAT="games|Lights Off"
-			DEPENDS="gnome-games-common   seed"
-			;;
-		*-mahjongg)
-			CAT="games|Mahjongg"
-			;;
-		*-quadrapassel)
-			CAT="games|Quadrapassel"
-			DEPENDS="gnome-games-common clutter clutter-gtk cogl json-glib \
-			libdrm mesa-libegl mesa-libgbm mesa-libwayland-egl wayland \
-			xorg-libXcomposite xorg-libXdamage xorg-libXfixes xorg-libXrandr"
-			;;
-		*-swell-foop)
-			CAT="games|Swell Foop"
-			DEPENDS="gnome-games-common   seed"
-			;;
-		*-help)
-			CAT="gnome|help files"
-			;;
 		gnome-games)
-			CAT="meta|full set"
-			DEPENDS="$gg-aisleriot $gg-glchess $gg-glines $gg-gnect \
-			$gg-gnibbles $gg-gnobots2 $gg-sudoku $gg-gnomine $gg-gnotravex \
-			$gg-gnotski $gg-gtali $gg-iagno $gg-lightsoff $gg-mahjongg \
-			$gg-quadrapassel $gg-swell-foop"
+			copy @std
+			DEPENDS="cairo gdk-pixbuf glib grilo gtk+3 libmanette librsvg \
+			libsoup libsqlite3 libxml2 retro-gtk tracker"
 			;;
 		*-dev)
-			DEPENDS="GConf-dev atk-dev bzip2-dev cairo-dev fontconfig-dev \
-			freetype-dev gdk-pixbuf-dev glib-dev gtk+-dev harfbuzz-dev \
-			libcanberra-dev libcroco-dev libffi-dev libogg-dev libpng16-dev \
-			librsvg-dev libtool libvorbis-dev libxml2-dev orbit2-dev pango-dev \
-			pcre-dev util-linux-blkid-dev util-linux-mount-dev \
-			util-linux-uuid-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libXext-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			copy @dev
 			;;
 	esac
 }

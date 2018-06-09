@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="luajson"
+VERSION="1.3.4"
+CATEGORY="system-tools"
+SHORT_DESC="JSON parser/encoder for Lua"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/harningt/luajson"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/harningt/luajson/archive/$VERSION.tar.gz"
+
+compile_rules() {
+	make \
+		PREFIX=/usr \
+		DESTDIR=$install \
+		INSTALL_LMOD='$(INSTALL_TOP)/share/lua/5.1' \
+		INSTALL_CMOD='$(INSTALL_TOP)/lib/lua/5.1' \
+		install || return 1
+
+	chmod -R g-w $install # 664 -> 644
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="lua5.1 lualpeg"
+}

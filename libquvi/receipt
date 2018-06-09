@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libquvi"
+VERSION="0.9.4"
+CATEGORY="network"
+SHORT_DESC="Library for parsing video download links"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="AGPL3"
+WEB_SITE="http://quvi.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/quvi/$TARBALL"
+
+BUILD_DEPENDS="automake gettext libgcrypt-dev libtool lua5.1-dev libproxy-dev \
+curl-dev glib-dev libquvi-scripts-dev"
+SPLIT="libquvi-dev"
+
+compile_rules() {
+	autoreconf -fvi &&
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libquvi)
+			copy @std
+			DEPENDS="glib libcurl libgcrypt libgpg-error libproxy lua5.1"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

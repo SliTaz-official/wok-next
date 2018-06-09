@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lua5.1"
-VERSION="5.1.4"
+VERSION="5.1.5"
 CATEGORY="development"
 SHORT_DESC="Powerful, fast, light-weight, embeddable scripting language"
 MAINTAINER="pankso@slitaz.org"
@@ -15,38 +15,26 @@ BUILD_DEPENDS="readline-dev"
 SPLIT="lua5.1-dev"
 
 compile_rules() {
-	sed -i "s#prefix= /usr/local#prefix= /usr#"     etc/lua.pc
-	sed -i "s#${prefix}/lib#${prefix}/lib/lua/5.1#" etc/lua.pc
-	sed -i "s#/include#/include/lua/5.1#g"          etc/lua.pc
-	sed -i "s#/usr/local/#/usr/#"                   src/luaconf.h
-	sed -i "s#share/lua/5.1/#lib/lua/5.1/#"         src/luaconf.h
-
 	case $ARCH in
-		x86_64) Arch='nocona';;
+		x86_64) Arch='nocona'; export CFLAGS="$CFLAGS -fPIC";;
 		*)      Arch="$ARCH";;
 	esac
-	sed -i s"/-O2/-Os -march=$Arch/"                src/Makefile
+	sed -i s"/-O2/-Os -march=$Arch/" src/Makefile
 
-	make linux &&
-	make install \
-		INSTALL_TOP=$DESTDIR/usr \
-		INSTALL_MAN=$DESTDIR/usr/share/man/man1
+	make MYCFLAGS="$CFLAGS" MYLDFLAGS="$LDFLAGS" linux &&
+	make install || return 1
+
+	install -Dm644 $src/etc/lua.pc $install/usr/lib/pkgconfig/lua5.1.pc
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		lua5.1)
-			mkdir -p $fs/usr/bin $fs/usr/lib/lua/5.1
-			cp -a $install/usr/bin/lua  $fs/usr/bin/lua5.1
-			cp -a $install/usr/bin/luac $fs/usr/bin/luac5.1
-			DEPENDS="readline ncurses"
+			copy @std
+			DEPENDS="readline"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib/pkgconfig $fs/usr/lib/lua/5.1
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/lua/5.1/liblua.a $fs/usr/lib/lua/5.1
-			ln -s liblua.a $fs/usr/lib/lua/5.1/liblua5.1.a
-			cp -a $src/etc/lua.pc $fs/usr/lib/pkgconfig/lua5.1.pc
+			copy @dev
 			;;
 	esac
 }
