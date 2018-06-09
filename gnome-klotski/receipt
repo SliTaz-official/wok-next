@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-klotski"
+VERSION="3.22.3"
+CATEGORY="games"
+SHORT_DESC="Slide blocks to solve the puzzle"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Klotski"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev libgee-dev gtk+3-dev libgnome-games-support-dev \
+librsvg-dev intltool itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo glib gtk+3 libgee libgnome-games-support librsvg"
+}

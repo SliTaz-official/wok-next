@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-mines"
+VERSION="3.28.0"
+CATEGORY="games"
+SHORT_DESC="Clear hidden mines from a minefield"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Mines"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="meson ninja vala libgee-dev gtk+3-dev librsvg-dev \
+libgnome-games-support-dev gettext itstool"
+
+compile_rules() {
+	meson-wrapper build &&
+	ninja -C build &&
+	DESTDIR=$install ninja -C build install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib gtk+3 libgnome-games-support"
+}

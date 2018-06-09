@@ -1,28 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pysolfc"
-SOURCE="PySolFC"
 VERSION="2.0"
 CATEGORY="games"
 SHORT_DESC="PySolFC is an extended version of PySol (a solitaire card game)"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://sourceforge.net/projects/pysolfc"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="python tk"
-BUILD_DEPENDS="$DEPENDS"
+TARBALL="PySolFC-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/pysolfc/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --prefix=$install/usr
+BUILD_DEPENDS="python tk"
+
+compile_rules() {
+	find . -name '*.py' -exec \
+		sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python2|' '{}' \;
+
+	python setup.py install --prefix=$install/usr || return 1
+
+	mv $install/usr/bin/pysol.py $install/usr/bin/pysol
+	sed -i 's|#!/usr/bin/python|#!/usr/bin/python2|' $install/usr/bin/pysol
+
+	# all the next card sets exist in the pysolfc-cardsets package
+	rm -r $install/usr/share/PySolFC/cardset-*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	find $install -type f -name "*.pyc" -delete 2>/dev/null
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python tk   pysolfc-cardsets"
 }

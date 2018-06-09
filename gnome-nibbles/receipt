@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-nibbles"
+VERSION="3.24.0"
+CATEGORY="games"
+SHORT_DESC="Guide a worm around a maze"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Nibbles"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev clutter-dev clutter-gtk-dev libgee-dev gtk+3-dev \
+libcanberra-dev libgnome-games-support-dev intltool itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="clutter clutter-gtk gdk-pixbuf glib gtk+3 libcanberra-gtk3 libgee \
+	libgnome-games-support pango"
+}

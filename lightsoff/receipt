@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lightsoff"
+VERSION="3.28.0"
+CATEGORY="games"
+SHORT_DESC="Turn off all the lights"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://wiki.gnome.org/Apps/Lightsoff"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev gtk+3-dev clutter-dev clutter-gtk-dev librsvg-dev \
+gettext itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="clutter clutter-gtk glib gtk+3"
+}

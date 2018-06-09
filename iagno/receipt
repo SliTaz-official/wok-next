@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="iagno"
+VERSION="3.28.0"
+CATEGORY="games"
+SHORT_DESC="Dominate the board in a classic version of Reversi"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Iagno"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev gtk+3-dev librsvg-dev libcanberra-dev gettext \
+itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo gdk-pixbuf glib gtk+3 libcanberra libcanberra-gtk3 librsvg"
+}

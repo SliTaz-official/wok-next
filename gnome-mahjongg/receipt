@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-mahjongg"
+VERSION="3.22.0"
+CATEGORY="games"
+SHORT_DESC="Disassemble a pile of tiles by removing matching pairs"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Apps/Mahjongg"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev gtk+3-dev librsvg-dev intltool itstool"
+
+compile_rules() {
+	# In order to shrink its size, patch svg icon to fix compressor errors like:
+	# Error: valid FuncIRI(#linearGradient10640) with fallback value is not supported.
+	sed -i 's|) rgb(0, 0, 0)|)|g' data/icons/hicolor/scalable/gnome-mahjongg.svg
+	# Then size shrinks 23690 -> 4705
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo gdk-pixbuf glib gtk+3 librsvg"
+}

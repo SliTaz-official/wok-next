@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-chess"
+VERSION="3.29.1"
+CATEGORY="games"
+SHORT_DESC="Play the classic two-player boardgame of chess"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Chess"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="meson ninja vala gtk+3-dev librsvg-dev gettext itstool"
+
+compile_rules() {
+	meson-wrapper build &&
+	ninja -C build &&
+	DESTDIR=$install ninja -C build install || return 1
+
+	find $install -type f -perm 664 -exec chmod 644 '{}' \;
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo glib gtk+3 librsvg"
+}

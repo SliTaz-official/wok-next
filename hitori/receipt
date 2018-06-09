@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="hitori"
+VERSION="3.22.4"
+CATEGORY="games"
+SHORT_DESC="GTK+ application to generate and let you play games of Hitori"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/Hitori"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev gettext itstool libxml2-tools gtk+3-dev cairo-dev \
+desktop-file-utils-extra"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo glib gtk+3 pango"
+}

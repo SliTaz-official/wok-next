@@ -1,0 +1,81 @@
+# SliTaz package receipt v2.
+
+PACKAGE="pysolfc-cardsets"
+VERSION="2.0"
+CATEGORY="games"
+SHORT_DESC="A collection of cardsets adapted for use with PySolFC"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="http://sourceforge.net/projects/pysolfc"
+
+TARBALL="PySolFC-Cardsets-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/pysolfc/$TARBALL"
+
+BUILD_DEPENDS="gif2apng"
+SPLIT="pysolfc-cardsets-extra"
+
+COOKOPTS="!strip" # no executables to strip, loss of time to find it
+
+compile_rules() {
+	mkdir -p $install/usr/share/PySolFC
+	cp -r *  $install/usr/share/PySolFC
+
+	# Remove all the garbage
+	find $install -type d -name '.thumbnails' -exec rm -r '{}' \; 2>/dev/null
+	find $install -type d -name '.xvpics'     -exec rm -r '{}' \; 2>/dev/null
+	find $install -type f -name '*.xcf'       -delete
+	rm    $install/usr/share/PySolFC/cardset-chitrashala-dashavatara/l
+	rm -r $install/usr/share/PySolFC/cardset-konqi-modern/png/
+	rm -r $install/usr/share/PySolFC/cardset-konqi-modern/t/
+
+	# Fix permissions
+	chmod 644 $install/usr/share/PySolFC/cardset-hannover-court/COPYRIGHT # was 755
+	chmod 644 $install/usr/share/PySolFC/cardset-hannover-hex/COPYRIGHT   # was 755
+
+
+	# Original (mostly in gif, optimized though):
+	#-------------------------------------------------------------------------------
+	# # :  Packed : Compressed : Files : Package name
+	#-------------------------------------------------------------------------------
+	# 1 :    6.2M :       1.5M :  1448 : pysolfc-cardsets-2.0-x86_64.tazpkg
+	# 2 :   73.5M :      25.3M : 14764 : pysolfc-cardsets-extra-2.0-x86_64.tazpkg
+	#===============================================================================
+
+	# Only cardset-greywyvern in png; convert all the gifs to pngs.
+	# Converting gif to png using `optipng` produces errors (and
+	# no output) on 30 files, so using gif2apng instead.
+	for i in $install/usr/share/PySolFC/*; do
+		cd $i
+		for j in ./*.gif; do
+			gif2apng $j >/dev/null
+			[ -f $j ] && rm $j
+		done
+		sed -i 's|\.gif|.png|g' $i/config.txt
+	done
+
+	# All the card sets in png:
+	#-------------------------------------------------------------------------------
+	# # :  Packed : Compressed : Files : Package name
+	#-------------------------------------------------------------------------------
+	# 1 :    6.0M :       1.3M :  1448 : pysolfc-cardsets-2.0-x86_64.tazpkg
+	# 2 :   59.7M :      21.9M : 14764 : pysolfc-cardsets-extra-2.0-x86_64.tazpkg
+	#===============================================================================
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		pysolfc-cardsets)
+			copy cardset-2000/ cardset-crystal-mahjongg/ \
+			cardset-dashavatara-ganjifa/ cardset-dondorf/ \
+			cardset-gnome-mahjongg-1/ cardset-hexadeck/ cardset-kintengu/ \
+			cardset-matrix/ cardset-mughal-ganjifa/ cardset-oxymoron/ \
+			cardset-standard/ cardset-tuxedo/ cardset-vienna-2k/
+			DEPENDS=" "
+			;;
+		pysolfc-cardsets-extra)
+			CAT="games|even more card sets"
+			copy @std @rm
+			DEPENDS=" "
+			;;
+	esac
+}

@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-2048"
+VERSION="3.26.1"
+CATEGORY="games"
+SHORT_DESC="Obtain the 2048 tile"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://wiki.gnome.org/Apps/2048"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev gtk+3-dev clutter-dev clutter-gtk-dev libgee-dev \
+libgnome-games-support-dev desktop-file-utils-extra intltool itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo clutter clutter-gtk glib gtk+3 libgee \
+	libgnome-games-support pango"
+}

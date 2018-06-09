@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="tali"
+VERSION="3.22.0"
+CATEGORY="games"
+SHORT_DESC="Beat the odds in a poker-style dice game"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Apps/Tali"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev gtk+3-dev librsvg-dev intltool itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk gdk-pixbuf glib gtk+3 pango"
+}

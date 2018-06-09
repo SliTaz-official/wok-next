@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-tetravex"
+VERSION="3.22.0"
+CATEGORY="games"
+SHORT_DESC="Complete the puzzle by matching numbered tiles"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Apps/Tetravex"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="vala glib-dev gtk+3-dev intltool itstool"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo glib gtk+3"
+}

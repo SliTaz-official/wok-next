@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="qqwing"
+VERSION="1.3.4"
+CATEGORY="games"
+SHORT_DESC="Sudoku generating and solving software"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://qqwing.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://qqwing.com/$TARBALL"
+
+SPLIT="qqwing-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		qqwing) copy @std;;
+		*-dev)  copy @dev;;
+	esac
+}
