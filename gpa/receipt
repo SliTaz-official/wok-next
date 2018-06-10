@@ -10,28 +10,27 @@ WEB_SITE="https://www.gnupg.org/related_software/gpa/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gpa/$TARBALL"
-#  Integrity check: https://www.gnupg.org/download/integrity_check.html
+# Integrity check: https://www.gnupg.org/download/integrity_check.html
 TARBALL_SHA1="c629348725c1bf5dafd57f8a70187dc89815ce60"
 
 BUILD_DEPENDS="gtk+-dev libgpg-error-dev libassuan-dev gpgme-dev"
 SPLIT="gpa-langpack"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install || return 1
-
-	find $install/usr/share/man -type f -exec gzip -9 \{\} \;
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		gpa)
-			cp -a $install/* $fs
-			rm -r $fs/usr/share/locale
-			DEPENDS="gpgme gtk+ pinentry-gtk"
+			copy @std
+			DEPENDS="gdk-pixbuf glib gpgme gtk+ libassuan libgpg-error zlib   \
+			pinentry-gtk"
 			;;
 		gpa-langpack)
-			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/locale $fs/usr/share
+			copy *.mo
 			CAT="localization|locale files"
 			;;
 	esac

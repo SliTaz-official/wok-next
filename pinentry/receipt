@@ -3,8 +3,7 @@
 PACKAGE="pinentry"
 VERSION="1.1.0"
 CATEGORY="security"
-SHORT_DESC="Collection of dialog programs that allow GnuPG to read passphrases \
-and PIN numbers in a secure manner"
+SHORT_DESC="Allow GnuPG to read passphrases and PIN numbers in a secure manner"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnupg.org/"
@@ -16,18 +15,51 @@ WGET_URL="https://www.gnupg.org/ftp/gcrypt/pinentry/$TARBALL"
 TARBALL_SHA1="693bdf9f48dfb3e040d92f50b1bb464e268b9fb0"
 
 BUILD_DEPENDS="libassuan-dev libgpg-error-dev ncurses-dev libcap-dev \
-libsecret-dev libgcrypt-dev fltk-dev" # gtk+-dev gcr-dev
-SIBLINGS="pinentry-gtk"
+libsecret-dev libgcrypt-dev shared-mime-info gtk+-dev gtk+3-dev gcr-dev \
+fltk-dev"
+SPLIT="pinentry-gtk pinentry-gnome3 pinentry-fltk"
 
 compile_rules() {
 	./configure \
+		--enable-pinentry-curses \
+		--enable-fallback-curses \
 		--enable-pinentry-tty \
+		--enable-pinentry-gtk2 \
+		--enable-pinentry-gnome3 \
+		--disable-pinentry-qt \
+		--enable-pinentry-fltk \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
+
+	# make default pinentry the pinentry-curses
+	ln -sf pinentry-curses $install/usr/bin/pinentry
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="glib libassuan libcap libgpg-error libsecret ncurses"
+	case $PACKAGE in
+		pinentry)
+			copy pinentry-tty pinentry-curses pinentry
+			DEPENDS="glib libassuan libcap libgpg-error libsecret ncurses"
+			CAT="security|for console"
+			;;
+		pinentry-gtk)
+			copy pinentry-gtk-2
+			DEPENDS="glib gtk+ libassuan libcap libgpg-error libsecret \
+			ncurses   pinentry"
+			CAT="security|for GTK+ 2"
+			;;
+		pinentry-gnome3)
+			copy pinentry-gnome3
+			DEPENDS="gcr-base glib libassuan libcap libgpg-error libsecret \
+			ncurses   pinentry"
+			CAT="security|for GNOME 3"
+			;;
+		pinentry-fltk)
+			copy pinentry-fltk
+			DEPENDS="fltk glib libassuan libcap libgpg-error libsecret \
+			ncurses   pinentry"
+			CAT="security|for FLTK"
+			;;
+	esac
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnupg"
 VERSION="2.2.8"
@@ -7,44 +7,47 @@ SHORT_DESC="Free implementation of the OpenPGP"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnupg.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/gnupg.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gnupg/$TARBALL"
-#  https://www.gnupg.org/download/integrity_check.html
+# https://www.gnupg.org/download/integrity_check.html
 TARBALL_SHA1="d87553a125832ea90e8aeb3ceeecf24f88de56fb"
 
 BUILD_DEPENDS="libgpg-error-dev libassuan-dev libgcrypt-dev libksba-dev \
-npth-dev perl libusb-dev sqlite3-dev gettext zlib-dev readline-dev texinfo gnutls-dev openldap-dev"
+npth-dev perl libusb-dev sqlite3-dev gettext zlib-dev bzip2-dev readline-dev \
+texinfo gnutls-dev openldap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--enable-symcryptrun \
 		--enable-maintainer-mode \
-		--docdir=/usr/share/doc/gnupg-$VERSION \
 		$CONFIGURE_ARGS &&
-	make && make install &&
-
+	make &&
 	makeinfo --html --no-split -o doc/gnupg_nochunks.html doc/gnupg.texi &&
 	makeinfo --plaintext       -o doc/gnupg.txt           doc/gnupg.texi &&
+	make install || return 1
 
-	docdir="$install/usr/share/doc/gnupg-$VERSION" &&
-	install -v -m755 -d $docdir/html &&
-	install -v -m644    doc/gnupg_nochunks.html  $docdir/html/gnupg.html &&
-	install -v -m644    doc/*.texi doc/gnupg.txt $docdir &&
+	# FIXME.
+	# Looks like functions install-exec-hook() from g10/Makefile work in
+	# an unexpected manner. It required to spend too many time in debugging, so
+	# better I'll apply here "fast and dirty hack" that will make the same:
+	install -m755 g10/gpg  $install/usr/bin/gpg2
+	install -m755 g10/gpgv $install/usr/bin/gpgv2
+	# The same "hack" for doc/Makefile
+	cook_pick_manpages doc/gpg.1 doc/gpgv.1
 
-	for f in gpg gpgv; do
-		ln -svf ${f}2.1 $install/usr/share/man/man1/$f.1 &&
-		ln -svf ${f}2   $install/usr/bin/$f
-	done
-	unset f
+	docdir="$install/usr/share/doc/gnupg-$VERSION"
+	install -v -m755 -d $docdir/html
+	install -v -m644    doc/gnupg_nochunks.html  $docdir/html/gnupg.html
+	install -v -m644    doc/*.texi doc/gnupg.txt $docdir
+
+	ln -svf gpg2  $install/usr/bin/gpg
+	ln -svf gpgv2 $install/usr/bin/gpgv
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	DEPENDS="libassuan libgcrypt libgpg-error libksba libsqlite3 libusb ncurses \
-	npth readline zlib bzlib pinentry gnutls libldap"
+	DEPENDS="bzlib libassuan libgcrypt libgnutls libgpg-error libksba libldap \
+	libsqlite3 libusb npth readline zlib   pinentry"
 }
