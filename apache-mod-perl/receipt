@@ -20,7 +20,9 @@ compile_rules() {
 		MP_APXS=/usr/bin/apxs \
 		MP_APR_CONFIG=/usr/bin/apr-1-config
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	find $install -type f -exec chmod u+w '{}' \;
 }
 
 genpkg_rules() {

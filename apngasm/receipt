@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="apngasm"
 VERSION="2.91"
@@ -11,20 +11,16 @@ WEB_SITE="http://apngasm.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION-src.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libpng16"
 BUILD_DEPENDS="zlib-dev libpng16-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
+	install -Dm755 apngasm $install/usr/bin/apngasm
 
-	mkdir -p $install/usr/bin
-	cp -a $src/apngasm $install/usr/bin
+	cook_pick_docs readme.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy apngasm
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpng16 zlib"
 }

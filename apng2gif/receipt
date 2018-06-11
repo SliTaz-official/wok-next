@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="apng2gif"
-VERSION="1.7"
+VERSION="1.8"
 CATEGORY="utilities"
 SHORT_DESC="Convert APNG animations into animated GIF format"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,20 +11,16 @@ WEB_SITE="http://apng2gif.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION-src.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="zlib libpng16"
 BUILD_DEPENDS="zlib-dev libpng16-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
+	install -Dm755 apng2gif $install/usr/bin/apng2gif
 
-	mkdir -p $install/usr/bin
-	cp -a $src/apng2gif $install/usr/bin
+	cook_pick_docs readme.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy apng2gif
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpng16 zlib"
 }
