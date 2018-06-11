@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="calcurse"
 VERSION="2.9.2"
 CATEGORY="office"
-SHORT_DESC="Text-based calender and scheduling application."
+SHORT_DESC="Text-based calender and scheduling application"
 MAINTAINER="paul@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://calcurse.org/"
-WGET_URL="http://calcurse.org/files/$TARBALL"
-TAGS="calendar reminder schedule"
 
-DEPENDS="ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://calcurse.org/files/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --disable-nls $CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure \
+		--disable-nls \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
+	TAGS="calendar reminder schedule"
 }
-

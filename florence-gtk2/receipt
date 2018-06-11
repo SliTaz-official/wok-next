@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="florence-gtk2"
+VERSION="0.5.4"
+CATEGORY="utilities"
+SHORT_DESC="On-screen virtual keyboard (GTK2 version)"
+MAINTAINER="psychomaniak@xakep.ru"
+LICENSE="GPL"
+WEB_SITE="http://sourceforge.net/projects/florence/"
+
+TARBALL="florence-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/florence/$TARBALL"
+
+BUILD_DEPENDS="intltool GConf-dev xorg-libX11-dev glib-dev cairo-dev \
+librsvg-dev libxml2-dev gtk+-dev gstreamer0-dev xorg-libXtst-dev \
+at-spi2-core-dev at-spi2-atk-dev gtk+-dev"
+
+compile_rules() {
+	./configure \
+		--without-panelapplet \
+		--without-docs \
+		--without-notification \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make -j1 install
+}
+
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="GConf at-spi2-core cairo gdk-pixbuf glib gstreamer0 gtk+ librsvg \
+	libxml2 pango xorg-libX11 xorg-libXtst"
+	PROVIDE="florence"
+}

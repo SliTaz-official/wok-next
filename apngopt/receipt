@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="apngopt"
 VERSION="1.4"
@@ -11,20 +11,16 @@ WEB_SITE="https://sourceforge.net/projects/apng/"
 TARBALL="$PACKAGE-$VERSION-src.zip"
 WGET_URL="$SF_MIRROR/apng/$TARBALL"
 
-DEPENDS="zlib libpng16"
 BUILD_DEPENDS="zlib-dev libpng16-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make &&
+	install -Dm755 apngopt $install/usr/bin/apngopt || return 1
 
-	mkdir -p $install/usr/bin
-	cp -a $src/apngopt $install/usr/bin
+	cook_copy_docs readme.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy apngopt
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpng16 zlib"
 }

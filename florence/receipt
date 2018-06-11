@@ -1,36 +1,45 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="florence"
-VERSION="0.5.4"
-SHORT_DESC="On-screen virtual keyboard"
-LICENSE="GPL"
+VERSION="0.6.3"
 CATEGORY="utilities"
+SHORT_DESC="On-screen virtual keyboard"
 MAINTAINER="psychomaniak@xakep.ru"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+LICENSE="GPL"
 WEB_SITE="http://sourceforge.net/projects/florence/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$PACKAGE/$VERSION-gtk2/$TARBALL"
 
-DEPENDS="gtk+ GConf librsvg at-spi2-core at-spi2-atk gstreamer0"
-BUILD_DEPENDS="gtk+-dev GConf-dev librsvg-dev at-spi2-core-dev at-spi2-atk-dev \
-gstreamer0-dev libnotify-dev gnome-doc-utils intltool"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+BUILD_DEPENDS="intltool glib-dev xorg-libXext-dev cairo-dev librsvg-dev \
+libxml2-dev gstreamer1-dev gtk+3-dev xorg-libXtst-dev"
+SPLIT="florence-dev"
+
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		--without-panelapplet \
 		--without-docs \
 		--without-notification \
-		--without-xtst \
-		--disable-schemas-compile
-	make && make install
+		--with-xtst \
+		--disable-schemas-compile \
+		--without-at-spi \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make -j1 &&
+	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	sed 's|Categories.*$|&Utility;|' -i \
-		$fs/usr/share/applications/florence.desktop
+genpkg_rules() {
+	case $PACKAGE in
+		florence)
+			copy @std *.mo
+			DEPENDS="cairo gdk-pixbuf glib gstreamer1 gtk+3 librsvg libxml2 \
+			pango xorg-libX11 xorg-libXext xorg-libXtst"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="florence glib-dev"
+			;;
+	esac
 }

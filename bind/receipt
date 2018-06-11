@@ -47,19 +47,19 @@ genpkg_rules() {
 		bind)
 			CONFIG_FILES="/etc/bind/"
 			copy etc/ sbin/
-			DEPENDS="libbind attr openssl perl"
+			DEPENDS="libbind libcap openssl"
 			TAZPANEL_DAEMON="edit::/etc/bind/named.conf|man|options|web::$WEB_SITE"
 			TAGS="DNS daemon"
 			;;
 		bind-client)
 			copy bin/; rm $fs/usr/bin/bind9-config
 			CAT="network|client"
-			DEPENDS="libbind openssl attr libpcap"
+			DEPENDS="libbind libkrb5 readline"
 			;;
 		libbind)
 			copy *.so*
 			CAT="libdevel|shared libraries"
-			DEPENDS="openssl libcap libxml2 zlib attr libkrb5"
+			DEPENDS="libkrb5 openssl"
 			;;
 		bind-dev)
 			copy @dev

@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="alure"
+VERSION="1.2"
+CATEGORY="sound"
+SHORT_DESC="Utility library to help manage common tasks with OpenAL applications"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://kcat.strangesoft.net/alure.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://kcat.strangesoft.net/alure-releases/$TARBALL"
+
+BUILD_DEPENDS="cmake openal-dev   libsndfile-dev libvorbis-dev mpg123-dev \
+fluidsynth-dev"
+SPLIT="alure-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		alure)
+			copy @std
+			DEPENDS="openal"
+			SUGGESTED="libsndfile libvorbis mpg123 fluidsynth"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="alure openal-dev"
+			;;
+	esac
+}
