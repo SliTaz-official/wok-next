@@ -16,7 +16,11 @@ SPLIT="zenity-gnome zenity"
 SIBLINGS="zenity+webkit2"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	fix symlinks
 }
 
 genpkg_rules() {
