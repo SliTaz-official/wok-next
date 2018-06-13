@@ -13,35 +13,39 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev \
 gobject-introspection-dev meson ninja"
-SPLIT="pango-dev"
+SPLIT="pango-typelib pango-dev"
 
 compile_rules() {
 	mkdir build
 	cd    build
 
-	meson \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		.. &&
+	meson-wrapper .. &&
 	ninja &&
 	ninja install || return 1
 
 	rm -rf \
-		$install/usr/libexec/installed-tests \
+		$install/usr/lib/installed-tests \
 		$install/usr/share/installed-tests
+	find $install -type f -perm 664 -exec chmod 644 '{}' \;
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		pango)
-			copy bin/ *.so*
+			copy @std
 			DEPENDS="cairo fontconfig freetype glib libharfbuzz xorg-libX11 \
 			xorg-libXft xorg-libXrender"
 			;;
+		pango-typelib)
+			copy *.typelib
+			CAT="development|typelib files"
+			DEPENDS="pango"
+			;;
 		*-dev)
-			copy @dev
-			DEPENDS="pango cairo-dev fontconfig-dev freetype-dev glib-dev \
-			harfbuzz-dev xorg-libXft-dev"
+			copy @dev @rm
+			DEPENDS="pango pango-typelib \
+			cairo-dev fontconfig-dev freetype-dev glib-dev harfbuzz-dev \
+			xorg-libXft-dev"
 			;;
 	esac
 }

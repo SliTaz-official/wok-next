@@ -1,64 +1,55 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="awesome"
-VERSION="3.5.1"
+VERSION="4.2"
 CATEGORY="x-window"
 SHORT_DESC="Highly configurable framework window manager"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="GPL2"
+WEB_SITE="https://awesomewm.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://awesome.naquadah.org/"
-WGET_URL="${WEB_SITE}download/$TARBALL"
-TAGS="window-manager"
+WGET_URL="https://github.com/awesomeWM/awesome-releases/raw/master/$TARBALL"
 
-DEPENDS="cairo dbus gdk-pixbuf libxdg-basedir lgi lua startup-notification \
-xorg-xcb-util-image xorg-xcb-util-keysyms xorg-xcb-util-wm xorg-libXcursor"
-BUILD_DEPENDS="cmake xorg-libX11-dev xorg-libxcb-dev xorg-xcb-util-dev \
-xorg-xcb-util-keysyms-dev xorg-xcb-util-image-dev xorg-xcb-util-wm-dev lua-dev pango-dev \
-cairo-dev imlib2-dev dbus-dev libev-dev gperf cairo libxdg-basedir-dev \
-startup-notification-dev imagemagick freetype-dev fontconfig-dev \
-libpng16-dev libxdg-basedir-dev openexr libltdl gdk-pixbuf-dev \
-xorg-libXcursor-dev lgi"
+BUILD_DEPENDS="cmake asciidoc xmlto docbook-xsl imagemagick lua-dev \
+xorg-libxcb-dev glib-dev gdk-pixbuf-dev cairo-dev xorg-xcb-util-cursor-dev \
+xorg-xcb-util-dev xorg-xcb-util-keysyms-dev xorg-xcb-util-wm-dev \
+libxkbcommon-dev startup-notification-dev libxdg-basedir-dev xcb-util-xrm-dev \
+dbus-dev lgi pango-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -ldl"
-	export AWESOME_IGNORE_LGI=1
-	make CMAKE_ARGS=" -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-		-DXDG_CONFIG_DIR=/etc/xdg \
-		-DCMAKE_BUILD_TYPE=RELEASE" &&
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_BUILD_TYPE=RELEASE \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DSYSCONFDIR=/etc \
+		-DLUA_LIBRARY=/usr/lib/liblua.so \
+		.. &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-
-	# move lua scripts to lua directory
-	mkdir -p $fs/usr/share/lua
-	mv $fs/usr/share/awesome/lib $fs/usr/share/lua/5.2
-
-	# add pango typelibs
-	# (not need to install pango-dev with full stack of dev packages)
-	mkdir -p $fs/usr/lib
-	cp -a $WOK/pango/install/usr/lib/girepository-1.0 $fs/usr/lib
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo dbus gdk-pixbuf glib liblua libxdg-basedir libxkbcommon-x11 \
+	libxkbcommon startup-notification xcb-util-xrm xorg-libX11 xorg-libxcb \
+	xorg-xcb-util xorg-xcb-util-cursor xorg-xcb-util-keysyms xorg-xcb-util-wm \
+	   pango-typelib lgi"
+	TAGS="window-manager"
 }
 
-post_install()
-{
-	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
-	# Adding WM to SLIM available sessions.
+# Adding WM to SLIM available sessions.
+post_install() {
+	res=$(cat "$1/etc/slim.conf" | grep '^session' | sed 's|sessions. *||')
 	if ! echo "$res" | grep -q $PACKAGE; then
-		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
+		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
 	fi
 }
 
-post_remove()
-{
-	# Remove WM from SLIM available sessions.
+# Remove WM from SLIM available sessions.
+post_remove() {
 	if grep -q $PACKAGE "$1/etc/slim.conf"; then
-		sed -i s/,$PACKAGE// "$1/etc/slim.conf"
+		sed -i "s|,$PACKAGE||" "$1/etc/slim.conf"
 	fi
 }
