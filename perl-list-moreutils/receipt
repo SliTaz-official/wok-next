@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-list-moreutils"
 VERSION="0.428"
@@ -11,20 +11,16 @@ WEB_SITE="https://metacpan.org/release/List-MoreUtils"
 TARBALL="List-MoreUtils-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/R/RE/REHSACK/$TARBALL"
 
-DEPENDS="perl-exporter-tiny"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-dev perl-exporter-tiny perl-list-moreutils-xs"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-exporter-tiny perl-list-moreutils-xs"
 }

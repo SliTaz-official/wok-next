@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="perl-list-moreutils-xs"
+VERSION="0.428"
+CATEGORY="perl"
+SHORT_DESC="List::MoreUtils::XS - Provide compiled List::MoreUtils functions"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/List-MoreUtils-XS"
+
+TARBALL="List-MoreUtils-XS-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/R/RE/REHSACK/$TARBALL"
+
+BUILD_DEPENDS="perl-dev"
+
+compile_rules() {
+	perl Makefile.PL &&
+	make && make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl"
+}
