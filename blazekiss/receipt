@@ -1,8 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="blazekiss"
-GITHASH="d5349fb3e1a14bdf4a85273b29dd24653e2f3177"
-VERSION=${GITHASH:0:7}
+VERSION="20170630"
+COMMIT="c3fa074"
 CATEGORY="office"
 SHORT_DESC="Tiny Wiki Engine in French"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,19 +10,16 @@ LICENSE="GPL2"
 WEB_SITE="http://projet.idleman.fr/blazekiss/"
 
 TARBALL="$PACKAGE-$VERSION.zip"
-WGET_URL="https://github.com/ldleman/$PACKAGE/archive/$GITHASH.zip"
+WGET_URL="https://github.com/ldleman/blazekiss/archive/$COMMIT.zip"
 
 compile_rules() {
-	index=$(find $src -name index.php)
-	src=$(dirname $index)
 	mkdir -p         $install/var/www
 	cp -a $src       $install/var/www/blazekiss
-	rm -f            $install/var/www/blazekiss/historique/*/*.bak
-	chown -R www.www $install/var/www/blazekiss
 }
 
 genpkg_rules() {
 	copy @std
+	chown -R www:www $fs/var/www/blazekiss
 	DEPENDS="lighttpd php"
 	CONFIG_FILES="/var/www/blazekiss/_config.php"
 }
