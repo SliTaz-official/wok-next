@@ -11,24 +11,77 @@ WEB_SITE="https://sites.google.com/site/kdekorte2/gmtk"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/kdekorte/gmtk/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="gettext intltool xorg-libX11-dev gtk+-dev glib-dev GConf-dev \
-alsa-lib-dev pulseaudio-dev"
-SPLIT="gmtk-dev"
+BUILD_DEPENDS="gettext intltool xorg-libX11-dev gtk+3-dev gtk+-dev glib-dev \
+GConf-dev alsa-lib-dev pulseaudio-dev"
+SPLIT="gmlib gmtk gmtk3 gmtk-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	# The goal of this tricky receipt is to provide different GTK2 and GTK3
+	# libraries that can be installed at the same time not overwriting each
+	# other.
+	# Note, it is not enough to rename just *.so library file and symlinks,
+	# take care about SONAME field inside the library.
+
+	# GTK+2 #
+
+	./configure \
+		--disable-static \
+		--disable-gtk3 \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	# stash gmtk.pc
+	mv $install/usr/lib/pkgconfig/gmtk.pc $install/usr/lib/pkgconfig/gmtk.pc.save
+
+	# GTK+3 #
+
+	# libgmtk.so* -> libgmtk3.so*
+	sed -i "/^libname_spec='/s|name'$|{name}3'|" configure
+	make clean
+	./configure \
+		--disable-static \
+		--enable-gtk3 \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	rm $install/usr/lib/libgmlib3.so* # the same as libgmlib.so*
+
+	# make gmtk3.pc
+	mv $install/usr/lib/pkgconfig/gmtk.pc $install/usr/lib/pkgconfig/gmtk3.pc
+	sed -i 's|lgmtk|lgmtk3|' $install/usr/lib/pkgconfig/gmtk3.pc
+	# revert gmtk.pc
+	mv $install/usr/lib/pkgconfig/gmtk.pc.save $install/usr/lib/pkgconfig/gmtk.pc
+
+	# CHECK #
+
+	for i in libgmtk libgmtk3; do
+		echo $i:
+		readelf -a $install/usr/lib/$i.so.$VERSION | fgrep '(SONAME)'
+	done
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		gmtk)
-			copy @std
-			DEPENDS="alsa-lib cairo glib gtk+ pulseaudio pulseaudio-glib"
+		gmlib)
+			copy libgmlib.so*
+			DEPENDS="alsa-lib glib pulseaudio pulseaudio-glib"
+			CAT="libs|common library"
 			;;
-		*-dev)
+		gmtk)
+			copy libgmtk.so*
+			DEPENDS="alsa-lib cairo glib gmlib gtk+ pulseaudio pulseaudio-glib"
+			CAT="libs|GTK2 libs"
+			;;
+		gmtk3)
+			copy libgmtk3.so*
+			DEPENDS="alsa-lib cairo glib gmlib gtk+3 pulseaudio pulseaudio-glib"
+			CAT="libs|GTK3 libs"
+			;;
+		gmtk-dev)
 			copy @dev
 			;;
 	esac
