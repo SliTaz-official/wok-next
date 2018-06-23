@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tklauncher"
 VERSION="0.31"
@@ -11,13 +11,18 @@ WEB_SITE="http://web.tiscali.it/pas80/tklauncher.htm"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://web.tiscali.it/pas80/$TARBALL"
 
-BUILD_DEPENDS="tcl tk libtkimg tcl-dev tk-dev libtkimg-dev"
-BUILD_DEPENDS="tcl-dev tk-dev libtkimg-dev tcl2c"
+BUILD_DEPENDS="tcl-dev tk-dev libtkimg-dev tcl2c tcl2c-fork"
+SPLIT="tklauncher-alt:alt"
 
 compile_rules() {
+	case $SET in
+		'')  tcl2c='tcl2c';;
+		alt) tcl2c='tcl2cf';;
+	esac
+
 	sed -i 's|/usr/local|/usr|; s|8\.5|8.6|g' Makefile
 
-	tcl2c -o tklauncher.c tklauncher.tcl -tcl -tk &&
+	$tcl2c -o tklauncher.c tklauncher.tcl -tcl -tk &&
 	make &&
 	make INSTALLDIR=$install/usr install || return 1
 
@@ -26,6 +31,10 @@ compile_rules() {
 }
 
 genpkg_rules() {
+	case $PACKAGE in
+		tklauncher-alt) CAT="x-window|using tcl2c fork";;
+	esac
+
 	copy @std
 	DEPENDS="tcl tk   libtkimg"
 	SUGGESTED="amiwm"
