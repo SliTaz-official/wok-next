@@ -1,35 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mingw32-gcc"
-SOURCE="gcc-core"
 VERSION="3.4.5-20060117-2"
 CATEGORY="development"
-SHORT_DESC="MinGW32 gcc, for C, C++, and Ada."
+SHORT_DESC="MinGW32 gcc, for C, C++, and Ada"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
-PROVIDE="mingw32-gcc-c"
-TARBALL="$SOURCE-$VERSION-src.tar.gz"
-EXTRA_SOURCE_FILES="gcc-g++-$VERSION-src.tar.gz gcc-ada-$VERSION-src.tar.gz"
 WEB_SITE="http://www.mingw.org/"
-MINGW32_URL="$SF_MIRROR/mingw"
-WGET_URL="$MINGW32_URL/$TARBALL"
-MINGW32_ID="i586-pc-mingw32"
-TAGS="compiler C C++ ada"
 
-DEPENDS="glibc-base mingw32-binutils mingw32-w32api-headers \
-mingw32-runtime-headers mingw32-w32api mingw32-runtime"
+TARBALL="gcc-core-$VERSION-src.tar.gz"
+WGET_URL="$SF_MIRROR/mingw/$TARBALL"
+
+EXTRA_SOURCE_FILES="gcc-g++-$VERSION-src.tar.gz gcc-ada-$VERSION-src.tar.gz"
+MINGW32_ID="i586-pc-mingw32"
+
 BUILD_DEPENDS="slitaz-toolchain bison flex mingw32-binutils \
 mingw32-runtime-headers mingw32-w32api-headers mingw32-gcc-c \
-mingw32-w32api mingw32-runtime"
+mingw32-w32api mingw32-runtime perl"
 
-# Configuration only needs included if we're in the build/wok environment
-if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
-	. $WOK/mingw32-toolchain/stuff/mingw32.conf
-fi
+compile_rules() {
+	export CFLAGS="${CFLAGS/-mindirect-branch=thunk/}"
+	export CXXFLAGS="$CFLAGS"
+	echo "CFLAGS=CXXFLAGS='$CFLAGS'"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+	# Configuration only needs included if we're in the build/wok environment
+	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+		.   $WOK/mingw32-toolchain/stuff/mingw32.conf
+	fi
+
 	mkdir -p $DESTDIR/usr/share/man/man1 $DESTDIR/usr/share/man/man7 
 	if [ "$MINGW32_ID" != "$MINGW32_TARGET" ] ; then
 		echo "ERROR: Conf 'TARGET' string differs from Receipt 'ID' string"
@@ -38,17 +36,17 @@ compile_rules()
 
 	ln -s . gcc-$VERSION
 	for tgz in $EXTRA_SOURCE_FILES; do
-		[ -s $SRC/$tgz ] ||
-			wget -P $SRC $MINGW32_URL/$tgz
-		[ -s $SRC/$tgz ] &&
-			tar xzf $SRC/$tgz && continue
-		echo "Can't download $MINGW32_URL/$tgz abort."
+		[ -s $SRC/$tgz ] || wget -P $SRC $SF_MIRROR/mingw/$tgz
+		[ -s $SRC/$tgz ] && tar xzf $SRC/$tgz && continue
+		echo "Can't download $SF_MIRROR/mingw/$tgz abort."
 		return 1
 	done
 
-	rm -f -r $src/binutils
-	mkdir -p $SOURCE-$VERSION-build
-	cd $SOURCE-$VERSION-build
+	rm -rf $src/binutils
+
+	mkdir -p gcc-core-$VERSION-build
+	cd       gcc-core-$VERSION-build
+
 	$src/configure \
 		--prefix=/usr \
 		--libexecdir=/usr/lib \
@@ -63,34 +61,41 @@ compile_rules()
 		--disable-win32-registry \
 		--enable-sjlj-exceptions \
 		$CONFIGURE_ARGS &&
-	make -j 4 CFLAGS="-O2 -fomit-frame-pointer" LDFLAGS="-s"  &&
-	make DESTDIR=$DESTDIR install 2>&1 | grep -v fixinc/fixincl
+	make -j4 \
+		CFLAGS="-O2 -fomit-frame-pointer" \
+		LDFLAGS="-s" &&
+	make \
+		DESTDIR=$DESTDIR \
+		install 2>&1 | grep -v fixinc/fixincl
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
+	# Configuration only needs included if we're in the build/wok environment
+	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+		.   $WOK/mingw32-toolchain/stuff/mingw32.conf
+	fi
+
 	mkdir -p $fs/usr/lib $fs$MINGW32_ROOT
 	cp -a $install$MINGW32_ROOT/* $fs$MINGW32_ROOT
 	rm $fs$MINGW32_ROOT/lib/*.la
-	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/bin     $fs/usr
 	cp -a $install/usr/include $fs/usr
 	# do not need to copy lib/libiberty.a
 	mkdir -p $fs/usr/lib
 	cp -a $install/usr/lib/gcc $fs/usr/lib
+	DEPENDS="glibc-base mingw32-binutils mingw32-w32api-headers \
+	mingw32-runtime-headers mingw32-w32api mingw32-runtime"
+	PROVIDE="mingw32-gcc-c"
+	TAGS="compiler C C++ ada"
 }
 
-# Rules to setup after installation
-post_install()
-{
+post_install() {
 	MINGW32_ID="i586-pc-mingw32"
 	# Archives get stripped during packaging; need to run ranlib
 	chroot "$1/" find "/usr/lib/gcc/$MINGW32_ID/" -name *.a -exec $MINGW32_ID-ranlib {} \;
-	chroot "$1/" find "/usr/$MINGW32_ID/lib/" -name *.a -exec $MINGW32_ID-ranlib {} \;
+	chroot "$1/" find "/usr/$MINGW32_ID/lib/"     -name *.a -exec $MINGW32_ID-ranlib {} \;
 }
 
-# Rules to clean the package
-clean_wok()
-{
-	rm -rf $SOURCE-$VERSION-build
+clean_wok() {
+	rm -rf gcc-core-$VERSION-build
 }
