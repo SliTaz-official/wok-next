@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="w3m"
 VERSION="0.5.3"
@@ -7,22 +7,24 @@ SHORT_DESC="Text Mode Web Browser"
 MAINTAINER="mojo@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://w3m.sourceforge.net"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$PACKAGE/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="gc openssl ncurses"
-BUILD_DEPENDS="gc gc-dev openssl-dev zlib-dev perl gettext"
+BUILD_DEPENDS="gc-dev openssl10-dev zlib-dev perl gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-       ./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="gc ncurses openssl10 zlib"
+	SUGGESTED="perl"
+	TAGS="web-browser"
 }

@@ -1,0 +1,31 @@
+--- a/src/quota_io.c
++++ b/src/quota_io.c
+@@ -39,7 +39,7 @@
+ 
+ #define min(a,b)	(((a) > (b)) ? (b) : (a))
+ 
+-inline int is_dummy_stat(struct dq_stat *stat)
++extern inline int is_dummy_stat(struct dq_stat *stat)
+ {
+ 	return !(stat->bhardlimit || stat->bsoftlimit || stat->bcurrent ||
+ 		stat->ihardlimit || stat->isoftlimit || stat->icurrent);
+@@ -54,7 +54,7 @@
+ }
+ 
+ /* Hash given id */
+-inline unsigned int hash_dquot(unsigned int id)
++extern inline unsigned int hash_dquot(unsigned int id)
+ {
+ 	return ((id ^ (id << 16)) * 997) & (DQUOTHASHSIZE - 1);
+ }
+--- a/src/quotacheck.c
++++ b/src/quotacheck.c
+@@ -31,7 +31,7 @@
+ #include "quotacheck.h"
+ 
+ 
+-inline struct dir * new_dir_entry(const char * item_name)
++extern inline struct dir * new_dir_entry(const char * item_name)
+ {
+ 	struct dir * new_dir = xmalloc(sizeof(struct dir));
+ 	new_dir->name = xstrdup(item_name);
