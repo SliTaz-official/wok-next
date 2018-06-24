@@ -1,0 +1,35 @@
+SliTaz need to avoid an error too, just like Debian or Ubuntu:
+/usr/include/gtk-2.0/gtk/gtkitemfactory.h:47:1: error: function declaration isn't a prototype [-Werror=strict-prototypes]
+
+--- a/xpra/os_util.py
++++ b/xpra/os_util.py
+@@ -294,6 +294,9 @@
+ def is_RedHat():
+     return is_distribution_variant(b"RedHat")
+ 
++def is_SliTaz():
++    return is_distribution_variant(b"SliTaz")
++
+ 
+ _linux_distribution = None
+ def get_linux_distribution():
+--- a/setup.py
++++ b/setup.py
+@@ -93,7 +93,7 @@
+ # using --with-OPTION or --without-OPTION
+ # only the default values are specified here:
+ #*******************************************************************************
+-from xpra.os_util import get_status_output, is_Ubuntu, is_Debian, is_Raspbian, getUbuntuVersion,\
++from xpra.os_util import get_status_output, is_Ubuntu, is_Debian, is_Raspbian, is_SliTaz, getUbuntuVersion,\
+     PYTHON3, BITS
+ 
+ PKG_CONFIG = os.environ.get("PKG_CONFIG", "pkg-config")
+@@ -706,7 +706,7 @@
+                     ]
+         elif get_gcc_version()>=[4, 4]:
+             eifd = ["-Werror"]
+-            if is_Debian() or is_Ubuntu() or is_Raspbian():
++            if is_Debian() or is_Ubuntu() or is_Raspbian() or is_SliTaz():
+                 #needed on Debian and Ubuntu to avoid this error:
+                 #/usr/include/gtk-2.0/gtk/gtkitemfactory.h:47:1: error: function declaration isn't a prototype [-Werror=strict-prototypes]
+                 eifd.append("-Wno-error=strict-prototypes")

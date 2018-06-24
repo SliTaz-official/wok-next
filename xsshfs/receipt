@@ -1,23 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xsshfs"
 VERSION="0.5"
 CATEGORY="network"
-SHORT_DESC="GUI for sshfs."
+SHORT_DESC="GUI for sshfs"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_$VERSION-all_src.tar.gz"
-WEB_SITE="http://forge.zici.fr/p/xsshfs/"
-WGET_URL="${WEB_SITE}downloads/get/$TARBALL"
+WEB_SITE="https://framagit.org/kepon/xsshfs"
 
-DEPENDS="sshfs perl-config-tiny perl-locale-gettext glade-perl perl-image-librsvg"
-SUGGESTED="pcmanfm"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://framagit.org/kepon/xsshfs/-/archive/master/xsshfs-master.tar.bz2"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $src/usr $fs/
-	sed -i 's|/bin/bash|/bin/sh|' $fs/usr/bin/xsshfs
-	sed -i 's|"/bin/fusermount|"/usr/bin/fusermount|' $fs/usr/share/xsshfs/xsshfs.pm
-	sed -i 's|xdg-open|pcmanfm|' $fs/usr/share/xsshfs/xsshfs.pm
+compile_rules() {
+	install -Dm755 $stuff/xsshfs         $install/usr/bin/xsshfs
+	install -Dm644 $stuff/xsshfs.desktop $install/usr/share/applications/xsshfs.desktop
+	install -Dm644 xsshfs.svg            $install/usr/share/icons/hicolor/scalable/apps/xsshfs.svg
+	install -Dm644 locale/es/LC_MESSAGES/xsshfs.mo $install/usr/share/locale/es/LC_MESSAGES/xsshfs.mo
+	install -Dm644 locale/fr/LC_MESSAGES/xsshfs.mo $install/usr/share/locale/fr/LC_MESSAGES/xsshfs.mo
+	install -Dm644 xsshfs.glade          $install/usr/share/xsshfs/xsshfs.glade
+	install -Dm644 xsshfs.pl             $install/usr/share/xsshfs/xsshfs.pl
+	install -Dm644 xsshfs.pm             $install/usr/share/xsshfs/xsshfs.pm
+
+	sed -i 's|"/bin/fusermount|"/usr/bin/fusermount|; s|xdg-open|pcmanfm|' \
+		$install/usr/share/xsshfs/xsshfs.pm
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="sshfs fuse2 perl-config-tiny perl-locale-gettext glade-perl \
+	perl-image-librsvg"
+	SUGGESTED="pcmanfm"
 }

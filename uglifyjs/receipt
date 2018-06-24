@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="uglifyjs"
+VERSION="latest"
+CATEGORY="utilities"
+SHORT_DESC="JavaScript parser / mangler / compressor / beautifier library for NodeJS"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/mishoo/UglifyJS"
+
+BUILD_DEPENDS="node"
+
+compile_rules() {
+	npm install -g uglify-js@1 || return 1
+
+	cook_pick_docs $install/usr/lib/node_modules/uglify-js/README.html
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/uglify-js@/ s|.*uglify-js@||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="node"
+}
