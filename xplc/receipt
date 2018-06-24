@@ -14,9 +14,9 @@ WGET_URL="$SF_MIRROR/xplc/$TARBALL"
 SPLIT="xplc-dev"
 
 compile_rules() {
+	export LDFLAGS='-ldl' # avoid '--as-needed' for old code
+
 	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
 		--without-libuuid \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -26,8 +26,7 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		xplc)
-			copy @std
-			rm -f $fs/usr/bin/uuidgen
+			copy *.so* # exclude /usr/bin/uuidgen, /usr/bin/uuidcdef
 			DEPENDS="gcc-lib-base"
 			;;
 		*-dev)
