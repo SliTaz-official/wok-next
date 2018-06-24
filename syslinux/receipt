@@ -176,7 +176,7 @@ EOT
 		cp $i $install/usr/share/boot/$(basename $i) 2>/dev/null
 	done
 	install -Dm644 mbr/gptmbr.bin            $install/usr/share/boot/gptmbr.bin
-	install -Dm644 iso2exe/init.custom       $install/usr/share/boot/init.custom
+	install -Dm755 iso2exe/init.custom       $install/usr/share/boot/init.custom
 	install -Dm755 iso2exe/isohybrid.exe     $install/usr/share/boot/isohybrid.exe
 	install -Dm644 mbr/mbr.bin               $install/usr/share/boot/mbr.bin
 	lzma    e      memdisk/memdisk           $install/usr/share/boot/memdisk.lzma 2>/dev/null
@@ -207,8 +207,7 @@ genpkg_rules() {
 			DEPENDS="syslinux posixovl"
 			;;
 		syslinux-modules)
-			copy *.c32 *.com
-			rm $install/boot/linld.com
+			copy share/boot/*.c32 share/boot/*.com
 			CAT="system-tools|modules for syslinux"
 			;;
 		syslinux-tools)
