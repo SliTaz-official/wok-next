@@ -1,33 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vice"
-VERSION="3.1"
+VERSION="3.2"
 CATEGORY="games"
-SHORT_DESC="Commodore 64 and others emulator."
+SHORT_DESC="The Versatile Commodore 8-bit Emulator"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://vice-emu.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.viceteam.org/"
-WGET_URL="http://www.zimmers.net/anonftp/pub/cbm/crossplatform/emulators/VICE/$TARBALL"
+WGET_URL="$SF_MIRROR/vice-emu/$TARBALL"
 
-DEPENDS="gtk+"
-BUILD_DEPENDS="gtk+-dev gettext-tools xorg-bdftopcf xorg-mkfontdir"
+BUILD_DEPENDS="automake xa gettext ffmpeg-dev alsa-lib-dev lame-dev \
+libvorbis-dev flac-dev pciutils-dev readline-dev libpng16-dev giflib-dev \
+libjpeg-turbo-dev portaudio-dev mpg123-dev xorg-libICE-dev gtk+-dev \
+vte-gtk2-dev gtkglext-dev mesa-dev xorg-libXxf86vm-dev xorg-libXrandr-dev \
+xorg-bdftopcf xorg-mkfontdir" # pulseaudio-dev
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	unset HOME
+compile_rules() {
+	rm -r src/lib/liblame src/lib/libx264 src/lib/libffmpeg
+	sed -i 's/lib64/lib/g' configure.ac
+	autoreconf -fi
+	sed \
+		-e 's|CODEC_CAP_VARIABLE_FRAME_SIZE|AV_&|g' \
+		-e 's|CODEC_FLAG_GLOBAL_HEADER|AV_&|g' \
+		-e 's|\& AVFMT_RAWPICTURE||' \
+		-i src/gfxoutputdrv/ffmpegdrv.c # Fix build with ffmpeg 4
+
 	./configure \
 		--prefix=/usr \
+		--libdir=/usr/lib \
 		--enable-gnomeui \
+		--enable-external-ffmpeg \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make -j 1 DESTDIR=$DESTDIR install
+	make &&
+	make -j1 \
+		DESTDIR="$install" \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/
-	cp -a $install/usr/bin $fs/usr/
-	cp -a $install/usr/lib $fs/usr/
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib cairo flac gdk-pixbuf giflib glib gtk+ gtkglext \
+	libjpeg-turbo libogg libpng16 libvorbis mesa mpg123 pango pciutils \
+	portaudio readline vte-gtk2 xorg-libX11 xorg-libXrandr xorg-libXxf86vm zlib"
 }
