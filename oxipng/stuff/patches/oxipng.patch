@@ -1,0 +1,49 @@
+--- a/README.md
++++ b/README.md
+@@ -14,11 +14,13 @@
+ Oxipng can be downloaded from the [Releases](https://github.com/shssoichiro/oxipng/releases) link on the GitHub page.
+ 
+ Oxipng can also be installed from Cargo, via the following command:
++
+ ```
+ cargo install oxipng
+ ```
+ 
+ Alternatively, oxipng can be built from source using the latest stable or nightly Rust:
++
+ ```
+ git clone https://github.com/shssoichiro/oxipng.git
+ cd oxipng
+@@ -40,16 +42,19 @@
+ ```
+ 
+ The most commonly used options are as follows:
++
+ * Optimization: `-o 1` through `-o 6`, lower is faster, higher is better compression.
+ The default (`-o 2`) is sufficiently fast on a modern CPU and provides 30-50% compression
+ gains over an unoptimized PNG. `-o 4` is 6 times slower than `-o 2` but can provide 5-10%
+ extra compression over `-o 2`. Using any setting higher than `-o 4` is unlikely
+ to give any extra compression gains and is not recommended.
++
+ * Interlacing: `-i 1` will enable [Adam7](https://en.wikipedia.org/wiki/Adam7_algorithm)
+ PNG interlacing on any images that are processed. `-i 0` will remove interlacing from all
+ processed images. Not specifying either will keep the same interlacing state as the
+ input image. Note: Interlacing can add 25-50% to the size of an optimized image. Only use
+ it if you believe the benefits outweight the costs for your use case.
++
+ * Strip: Used to remove metadata info from processed images. Used via `--strip [safe,all]`.
+ Can save a few kilobytes if you don't need the metadata. "Safe" removes only metadata that
+ will never affect rendering of the image. "All" removes all metadata that is not critical
+@@ -94,6 +99,7 @@
+ 
+ ## Benchmarks
+ 
++```
+ Tested oxipng 1.0.3 (compiled on rustc 1.25.0 (84203cac6 2018-03-25)) against OptiPNG version 0.7.7 on Intel(R) Core(TM) i7-6700HQ CPU @ 2.60GHz with 8 logical cores
+ 
+ 
+@@ -130,3 +136,4 @@
+ 
+ './target/release/oxipng -o4 -P ./tests/files/rgb_16_should_be_grayscale_8.png' ran
+     4.30x faster than 'optipng -o 4 -simulate ./tests/files/rgb_16_should_be_grayscale_8.png'
++```

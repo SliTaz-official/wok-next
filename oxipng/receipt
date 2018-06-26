@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="oxipng"
+VERSION="1.0.4"
+CATEGORY="graphics"
+SHORT_DESC="PNG optimizer written in Rust"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/shssoichiro/oxipng"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/shssoichiro/oxipng/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="rust"
+
+compile_rules() {
+	# save caches here
+	export CARGO_HOME=/home/cargo
+
+	cargo build --release &&
+	install -Dm755 target/release/oxipng $install/usr/bin/oxipng || return 1
+
+	cook_pick_docs README.md
+}
+
+genpkg_rules() {
+	copy @std
+}

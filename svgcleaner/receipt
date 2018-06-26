@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="svgcleaner"
-VERSION="0.9.3"
+VERSION="0.9.5"
 #COMMIT="9acf547"
 CATEGORY="graphics"
 SHORT_DESC="Clean up SVG files from the unnecessary data"
@@ -22,8 +22,9 @@ compile_rules() {
 	#cargo install svgcleaner --root=$install/usr
 
 	cargo build --release
-	mkdir -p $install/usr/bin
-	cp -a $src/target/release/svgcleaner $install/usr/bin
+	install -Dm755 target/release/svgcleaner $install/usr/bin/svgcleaner || return 1
+
+	cook_pick_docs *.md *.rst
 }
 
 genpkg_rules() {
