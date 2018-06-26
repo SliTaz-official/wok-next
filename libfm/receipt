@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libfm"
-VERSION="1.3.0"
+VERSION="1.3.0.2"
 CATEGORY="system-tools"
 SHORT_DESC="File management support"
 MAINTAINER="pankso@slitaz.org"
@@ -10,16 +10,21 @@ WEB_SITE="https://wiki.lxde.org/en/Libfm"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$SF_MIRROR/pcmanfm/files/$TARBALL"
+#WGET_URL="$SF_MIRROR/pcmanfm/$TARBALL" # SF download problems
+WGET_URL="https://git.lxde.org/gitweb/?p=lxde/libfm.git;a=snapshot;h=$VERSION;sf=txz"
 
 BUILD_DEPENDS_arm="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
 xorg-libxcb-dev xorg-xcb-util-dev menu-cache-dev expat-dev glib-dev \
 shared-mime-info-dev"
-BUILD_DEPENDS="vala intltool gtk+-dev menu-cache-dev libexif-dev"
+BUILD_DEPENDS="automake gtk-doc libtool gettext glib-dev intltool vala \
+gtk+-dev pango-dev cairo-dev menu-cache-dev libexif-dev"
 SIBLINGS="libfm-extra"
 SPLIT="libfm-gtk libfm-dev"
 
 compile_rules() {
+	# tarball from git.lxde.org requires this step
+	[ -e "$src/configure" ] || ./autogen.sh
+
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
@@ -53,7 +58,7 @@ genpkg_rules() {
 		libfm-gtk)
 			copy bin/ applications/ images/ ui/ libfm-gtk.so* gtk*.so
 			CAT="system-tools|GTK+2 GUI library"
-			DEPENDS="libfm atk cairo gdk-pixbuf glib gtk+ menu-cache pango"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libfm menu-cache pango"
 			PROVIDE="lxshortcut"
 			;;
 		libfm-dev)

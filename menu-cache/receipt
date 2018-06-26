@@ -9,13 +9,17 @@ LICENSE="GPL2"
 WEB_SITE="https://github.com/lxde/menu-cache"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/menu-cache.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$SF_MIRROR/lxde/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz" # (.xz from SF)
+#WGET_URL="$SF_MIRROR/lxde/$TARBALL" # SF download problems
+WGET_URL="https://github.com/lxde/menu-cache/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="glib-dev libfm-extra-dev gtk-doc"
+BUILD_DEPENDS="automake gtk-doc libtool glib-dev libfm-extra-dev"
 SPLIT="menu-cache-dev"
 
 compile_rules() {
+	# tarball from github.com requires this step
+	[ -e "$src/configure" ] || ./autogen.sh
+
 	./configure \
 		--disable-static \
 		--enable-gtk-doc \
@@ -27,7 +31,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		*-cache)
+		menu-cache)
 			copy @std
 			DEPENDS="glib libfm-extra"
 			;;
