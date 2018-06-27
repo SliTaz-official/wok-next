@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="tinycompress"
+VERSION="1.1.6"
+CATEGORY="multimedia"
+SHORT_DESC="Library for compress audio offload is ALSA"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD LGPL2.1"
+WEB_SITE="http://www.alsa-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="ftp://ftp.alsa-project.org/pub/tinycompress/$TARBALL"
+
+SPLIT="tinycompress-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		tinycompress) copy @std;;
+		*-dev)        copy @dev;;
+	esac
+}
