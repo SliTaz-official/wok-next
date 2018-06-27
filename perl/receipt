@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="perl"
-VERSION="5.26.2"
+VERSION="5.28.0"
 CATEGORY="development"
 SHORT_DESC="Perl interpreter and modules"
 MAINTAINER="pankso@slitaz.org"
@@ -16,62 +16,28 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/perl.html"
 # etc., you need to update ALL the Perl related packages on ANY change
 # of the Perl version!
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.cpan.org/src/5.0/$TARBALL"
 # Integrity check: http://www.cpan.org/src/5.0/
-TARBALL_SHA256="3f6a6b5bbd43016e5211e24b6631ea84216dd300216a2293b41c9195032f3e81"
+TARBALL_SHA256="059b3cb69970d8c8c5964caced0335b4af34ac990c8e61f7e3f90cd1c2d11e49"
 
 COOKOPTS="!perlz"
 BUILD_DEPENDS="zlib-dev bzip2-dev less gdbm-dev"
-#SPLIT="perl-core perl perl-dev microperl:micro"
 SPLIT="perl-core perl perl-dev"
-# microperl: waiting for 5.26.2: https://rt.perl.org/Public/Bug/Display.html?id=132255
-# sv.c:(.text+0x1aa95): undefined reference to `Perl_fp_class_denorm'
-
-# Rules to compile & install the temporary toolchain.
-cook_tmp_toolchain() {
-	cd $src
-	sh Configure -des \
-		-Dprefix=/tools \
-		-Dstatic_ext='Data/Dumper Fcntl IO' &&
-
-	# Only few tools are needed in the tmp toolchain.
-	make perl utilities ext/Errno/pm_to_blib || return 1
-
-	cp perl pod/pod2man /tools/bin
-	mkdir -p /tools/lib/perl5/$VERSION
-	cp -R lib/* /tools/lib/perl5/$VERSION
-}
 
 compile_rules() {
-	case $SET in
-		micro)
-				patch -p1 -i $stuff/microperl.patch
-				sed -i.orig "s|usr/local|usr|;
-					s|perl5/${VERSION%.*}|perl5/$VERSION|;
-					s|unknown|$HOST_SYSTEM|" uconfig.sh uconfig64.sh
-
-				case $ARCH in
-					x86_64) make -f Makefile.micro regen_uconfig64;;
-					*)      make -f Makefile.micro regen_uconfig;;
-				esac &&
-				make -f Makefile.micro &&
-				install -Dm755 microperl $install/usr/bin/microperl
-				;;
-		*)
-			export BUILD_ZLIB=False
-			export BUILD_BZIP2=0
-			sh Configure -des \
-				-Dprefix=/usr \
-				-Dvendorprefix=/usr \
-				-Dman1dir=/usr/share/man/man1 \
-				-Dman3dir=/usr/share/man/man3 \
-				-Dpager="/usr/bin/less -isR" \
-				-Duseshrplib \
-				-Dusethreads &&
-			make && make install
-			;;
-	esac
+	export BUILD_ZLIB=False
+	export BUILD_BZIP2=0
+	sh Configure -des \
+		-Dprefix=/usr \
+		-Dvendorprefix=/usr \
+		-Dman1dir=/usr/share/man/man1 \
+		-Dman3dir=/usr/share/man/man3 \
+		-Dpager="/usr/bin/less -isR" \
+		-Duseshrplib \
+		-Dusethreads &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
@@ -84,16 +50,11 @@ genpkg_rules() {
 		perl)
 			copy @std @rm
 			DEPENDS="bzlib gdbm zlib perl-core"
-			PROVIDE="microperl perl-thread"
+			PROVIDE="microperl"
 			TAGS="LFS"
 			;;
 		*-dev)
 			copy @dev
-			;;
-		microperl)
-			copy @std
-			CAT="development|micro version"
-			DEPENDS="glibc-base"
 			;;
 	esac
 }
