@@ -1,0 +1,56 @@
+# SliTaz package receipt v2.
+
+PACKAGE="rpm"
+VERSION="4.14.1"
+CATEGORY="system-tools"
+SHORT_DESC="RPM Package Manager"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="http://rpm.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://ftp.rpm.org/releases/rpm-${VERSION%.*}.x/$TARBALL"
+# integrity check: http://rpm.org/download.html -> Release notes
+TARBALL_SHA256="43f40e2ccc3ca65bd3238f8c9f8399d4957be0878c2e83cba2746d2d0d96793b"
+
+BUILD_DEPENDS="p7zip-full gnupg zlib-dev bzip2-dev xz-dev zstd-dev \
+elfutils-dev nss-dev nspr-dev libmagic-dev popt-dev libarchive-dev db-dev \
+gettext dbus-dev"
+SPLIT="rpm-dev"
+
+compile_rules() {
+	./configure \
+		--without-lua \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		rpm)
+			copy @std
+			DEPENDS="bzlib dbus elfutils libarchive libdb liblzma libmagic nss \
+			popt python zlib zstd"
+			SUGGESTED="p7zip-full gnupg"
+			TAGS="package-manager"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="rpm bzip2-dev db-dev nss-dev popt-dev xz-dev zlib-dev \
+			zstd-dev"
+			;;
+	esac
+}
+
+# Building rpm database.
+post_install() {
+	chroot "$1/" rpm --initdb --quiet
+}
+
+pre_remove() {
+	if [ -d "$1/var/lib/rpm" ]; then
+		rm -f "$1"/var/lib/rpm/*
+	fi
+}

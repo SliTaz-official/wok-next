@@ -1,31 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lzip"
-VERSION="1.16"
+VERSION="1.20"
 CATEGORY="utilities"
-SHORT_DESC="LZMA compressor"
+SHORT_DESC="LZMA lossless data compressor"
 MAINTAINER="mimas@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nongnu.org/lzip/lzip.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/lzip/$TARBALL"
 
-DEPENDS="gcc-lib-base"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-#	cp $src/lzdiff $fs/usr/bin
-#	cp $src/lzgrep $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }
-
