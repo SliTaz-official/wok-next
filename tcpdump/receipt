@@ -1,32 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tcpdump"
-VERSION="4.4.0"
+VERSION="4.9.2"
 CATEGORY="security"
-SHORT_DESC="cli wire sniffer"
+SHORT_DESC="Powerful command-line packet analyzer"
 MAINTAINER="sdaigl@lacitec.on.ca"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.tcpdump.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.tcpdump.org/release/$TARBALL"
-TAGS="network security"
 
-DEPENDS="openssl libpcap"
-BUILD_DEPENDS="libpcap libpcap-dev openssl-dev"
+BUILD_DEPENDS="libpcap-dev openssl-dev libcap-ng-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS
-	make
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--with-system-libpcap \
+		--with-crypto \
+		--with-cap-ng \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	find $install -type f -name "tcpdump.$VERSION" -delete # the same as un-suffixed one
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libcap-ng libpcap openssl"
+	TAGS="network security"
 }

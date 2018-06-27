@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libpsl"
+VERSION="0.20.2"
+CATEGORY="network"
+SHORT_DESC="C library for the Public Suffix List"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rockdaboot.github.io/libpsl/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/rockdaboot/libpsl/releases/download/libpsl-$VERSION/$TARBALL"
+
+BUILD_DEPENDS="gettext libidn2-dev libunistring-dev publicsuffix-list"
+SPLIT="libpsl-dev"
+
+compile_rules() {
+	rm -r list # remove outdated list
+
+	./configure \
+		--disable-static \
+		--with-psl-file=/usr/share/publicsuffix/effective_tld_names.dat \
+		--with-psl-testfile=/usr/share/publicsuffix/test_psl.txt \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libpsl)
+			copy @std
+			DEPENDS="libidn2 libunistring"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

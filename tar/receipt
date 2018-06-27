@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tar"
-VERSION="1.29"
+VERSION="1.30"
 CATEGORY="utilities"
 SHORT_DESC="GNU tar archiving tools"
 MAINTAINER="pankso@slitaz.org"
@@ -9,7 +9,7 @@ LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/tar/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/tar.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="acl-dev gettext texinfo"
@@ -19,12 +19,13 @@ compile_rules() {
 	./configure \
 		--bindir=/bin \
 		$CONFIGURE_ARGS &&
-	make && make install &&
-	make -C doc install-html docdir=/usr/share/doc/tar-$VERSION
+	make &&
+	make install &&
+	make -C doc install-html
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="acl attr"
+	DEPENDS="acl"
 	TAGS="LFS archive compression"
 }

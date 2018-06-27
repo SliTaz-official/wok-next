@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="publicsuffix-list"
+VERSION="latest"
+CATEGORY="network"
+SHORT_DESC="Public Suffix List"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="https://publicsuffix.org/"
+
+compile_rules() {
+	mkdir -p $src
+	cd       $src
+	wget https://github.com/publicsuffix/list/archive/master.tar.gz
+	tar -xf master.tar.gz || return 1
+	cd list-master
+
+	mkdir -p $install/usr/share/publicsuffix/
+	cp public_suffix_list.dat tests/test_psl.txt \
+		$install/usr/share/publicsuffix/
+	ln -s public_suffix_list.dat \
+		$install/usr/share/publicsuffix/effective_tld_names.dat
+
+	cook_pick_docs README.md
+}
+
+genpkg_rules() {
+	VERSION="$(date -u -r $src/list-master/public_suffix_list.dat +%Y%m%d-%H%M)"
+	copy @std
+}
