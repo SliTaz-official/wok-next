@@ -1,22 +1,32 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="irssi-scripts"
-VERSION="2.0"
+VERSION="latest"
 CATEGORY="network"
 SHORT_DESC="Perl scripts for Irssi IRC client"
 MAINTAINER="taziden@slitaz.org"
 LICENSE="GPL2 BSD PublicDomain"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://scripts.irssi.org/"
-WGET_URL="http://mirror.slitaz.org/sources/packages/i/$TARBALL"
+WEB_SITE="https://scripts.irssi.org/"
 
-DEPENDS="irssi"
-BUILD_DEPENDS=""
+compile_rules() {
+	mkdir -p $src
+	cd       $src
+	wget https://github.com/irssi/scripts.irssi.org/archive/master.tar.gz
+	tar -xf master.tar.gz || return 1
+	rm      master.tar.gz
+	cd scripts.irssi.org-master
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/irssi/scripts
-	cp -a $src/*.pl $src/*.pm $fs/usr/share/irssi/scripts/
+	mkdir -p       $install/usr/share/irssi/
+	cp -r scripts/ $install/usr/share/irssi/
+
+	# 4 files have 755 mode, other 644
+	find $install -type f -perm +111 -exec chmod 644 '{}' \;
 }
 
+genpkg_rules() {
+	# note, every file (excluding dirs which always new) has the same date,
+	# just pick .gitignore file to check its date
+	VERSION="$(date -u -r $src/scripts.irssi.org-master/.gitignore +%Y%m%d-%H%M)"
+	copy @std
+	DEPENDS="irssi"
+}

@@ -1,12 +1,12 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gawk"
-VERSION="4.1.4"
+VERSION="4.2.1"
 CATEGORY="development"
 SHORT_DESC="GNU awk to handle simple data-reformatting"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.gnu.org/software/gawk/"
+WEB_SITE="https://www.gnu.org/software/gawk/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gawk.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -15,14 +15,10 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="readline-dev gettext"
 SPLIT="gawk-dev"
 
-# Rules to compile & install the temporary toolchain.
-cook_tmp_toolchain() {
-	cd $src
-	./configure && make && make install
-}
-
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	cook_pick_docs doc/awkforai.txt doc/*.eps doc/*.pdf doc/*.jpg
 }

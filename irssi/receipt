@@ -1,29 +1,41 @@
 # SliTaz package receipt v2.
 
 PACKAGE="irssi"
-VERSION="0.8.17"
+VERSION="1.1.1"
 CATEGORY="network"
 SHORT_DESC="Lightweight console IRC client"
 MAINTAINER="mallory@sweetpeople.org"
 LICENSE="GPL2"
-WEB_SITE="http://irssi.org/"
+WEB_SITE="https://irssi.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://irssi.org/files/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/irssi/irssi/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="glib-dev ncurses-dev slitaz-toolchain openssl-dev perl-dev"
+BUILD_DEPENDS="glib-dev openssl-dev ncurses-dev perl-dev"
+SPLIT="irssi-dev"
 
 compile_rules() {
 	./configure \
 		--sysconfdir=/etc/irssi \
+		--with-perl-lib=vendor \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$DESTDIR install || return 1
+
+	find $install -type f -exec chmod u+w '{}' \; # for Perl files
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="glib openssl perl ncurses"
-	TAGS="irc"
+	case $PACKAGE in
+		irssi)
+			copy @std
+			DEPENDS="glib ncurses openssl perl"
+			CONFIG_FILES="/etc/irssi/irssi.conf"
+			TAGS="irc"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
