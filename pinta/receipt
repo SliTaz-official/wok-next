@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pinta"
 VERSION="1.6"
@@ -7,23 +7,27 @@ SHORT_DESC="Free, open source program for drawing and image editing"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://pinta-project.com/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/PintaProject/Pinta/archive/$VERSION.tar.gz"
+
 COOKOPTS="!pixmaps"
 
 DEPENDS="mono gtk-sharp"
-BUILD_DEPENDS="automake mono-dev gtk-sharp-dev"
+BUILD_DEPENDS="automake intltool gettext glib-dev mono-dev gtk-sharp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	# update the project and solution files for mono4 (taken from Fedora)
+	find . -name "*.sln" -print -exec sed -i 's/Format Version 10.00/Format Version 11.00/g' '{}' \;
+	find . \( -name "*.csproj" -o -name "*.proj" \) -print -exec \
+		sed -i 's#ToolsVersion="3.5"#ToolsVersion="4.0"#g; s#<TargetFrameworkVersion>.*</TargetFrameworkVersion>##g; s#<PropertyGroup>#<PropertyGroup><TargetFrameworkVersion>v4.5</TargetFrameworkVersion>#g; s#Mono.Posix, Version.*"#Mono.Posix"#g' '{}' \;
+
 	./autogen.sh
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy pinta *.dll *.exe *.mo
 	cook_copy_icons 16 32 # 48 is absent
 }
