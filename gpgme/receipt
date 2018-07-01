@@ -14,11 +14,13 @@ WGET_URL="https://www.gnupg.org/ftp/gcrypt/gpgme/$TARBALL"
 #  Integrity check: https://www.gnupg.org/download/integrity_check.html
 TARBALL_SHA1="95b1fc427871ca8d30d6d3b1985c816fe0b5077b"
 
-BUILD_DEPENDS="libgpg-error-dev libassuan-dev gnupg"
-SPLIT="gpgme-dev"
+BUILD_DEPENDS="libgpg-error-dev libassuan-dev gnupg swig python-dev"
+SPLIT="python-gpgme gpgme-lisp gpgme gpgme-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--enable-languages=cl,python \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -26,13 +28,24 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
+		python-gpgme)
+			copy python2.7/
+			DEPENDS="gpgme python"
+			CAT="security|Python bindings"
+			;;
+		gpgme-lisp)
+			copy common-lisp/
+			DEPENDS="gpgme"
+			CAT="security|Common Lisp bindings"
+			;;
 		gpgme)
-			copy @std
-			rm -r $fs/usr/share
+			copy @std @rm
+			rm -r $fs/usr/lib/python2.7/ # empty dirs
 			DEPENDS="libassuan libgpg-error   gnupg"
 			;;
 		*-dev)
-			copy @dev common-lisp/
+			copy @dev
+			DEPENDS="gpgme   libgpg-error-dev"
 			;;
 	esac
 }

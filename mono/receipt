@@ -1,49 +1,38 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mono"
-VERSION="2.10.8"
+VERSION="5.12.0.226"
 CATEGORY="development"
-SHORT_DESC="Cross-platform, open source .NET development framework"
+SHORT_DESC="Cross platform, open source .NET framework"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="LGPL2"
-WEB_SITE="http://www.mono-project.com/"
+WEB_SITE="https://www.mono-project.com/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.mono-project.com/sources/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://download.mono-project.com/sources/mono/$TARBALL"
 
-BUILD_DEPENDS="tar bzip2 m4 bison gawk \
-gettext glib-dev perl libgdiplus-dev"
+#BUILD_DEPENDS="tar bzip2 m4 bison gawk gettext glib-dev perl libgdiplus-dev"
+BUILD_DEPENDS="zlib-dev gettext libtool xorg-libX11-dev cmake libgdiplus-dev"
 SPLIT="mono-doc mono mono-dev"
+COOKOPTS="skip-log-errors"
 
-# Build documentation at http://mono-project.com/Compiling_Mono
-# and http://mono-project.com/Release_Notes_Mono_2.4#Installing_Mono_2.4
+# Build documentation at https://www.mono-project.com/docs/compiling-mono/
 
 compile_rules() {
 	./configure \
 		--with-libgdiplus=installed \
+		--with-spectre-mitigation=yes \
+		--with-spectre-indirect-branch-choice=extern \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make -j1 &&
+	make &&
 	make install
-
-	for i in \
-		System.Web_standalone_test_net_2_0 \
-		System.Web_standalone_test_net_4_0 \
-		System.Web.Extensions_standalone_test_net_2_0 \
-		System.Web.Extensions_standalone_test_net_4_0 \
-		net_2_0_standalone-runner-support \
-		net_4_0_standalone-runner-support ; do
-		touch -d 197001010000 mcs/build/deps/$i.dll.makefrag
-	done
 
 	cd $src/mcs/jay
 	make -j1 &&
-	make DESTDIR=$DESTDIR prefix=/usr INSTALL=../../install-sh install
+	make DESTDIR=$DESTDIR prefix=/usr INSTALL=../../install-sh install || return 1
 
-	#fix .pc file to be able to request mono on what it depends, fixes #go-oo build
-	sed -i -e "s:#Requires:Requires:" $DESTDIR/usr/lib/pkgconfig/mono.pc
-
-	chmod +x $install/usr/bin/*
+	chmod +x $install/usr/bin/*.py
 }
 
 genpkg_rules() {
