@@ -11,7 +11,6 @@ WEB_SITE="https://www.mono-project.com/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://download.mono-project.com/sources/mono/$TARBALL"
 
-#BUILD_DEPENDS="tar bzip2 m4 bison gawk gettext glib-dev perl libgdiplus-dev"
 BUILD_DEPENDS="zlib-dev gettext libtool xorg-libX11-dev cmake libgdiplus-dev"
 SPLIT="mono-doc mono mono-dev"
 COOKOPTS="skip-log-errors"
@@ -19,6 +18,10 @@ COOKOPTS="skip-log-errors"
 # Build documentation at https://www.mono-project.com/docs/compiling-mono/
 
 compile_rules() {
+	# mono fails to build for i486...
+	export CFLAGS=${CFLAGS/i486/i686}
+	echo "CFLAGS   : $CFLAGS"
+
 #		--with-spectre-mitigation=yes \
 #		--with-spectre-indirect-branch-choice=extern \
 	./configure \
