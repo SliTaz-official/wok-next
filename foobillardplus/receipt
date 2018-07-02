@@ -7,45 +7,51 @@ SHORT_DESC="FooBillard - free 3D OpenGL billard game for linux"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://foobillard.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="bzlib freetype glu libpng16 libsdl-mixer libsdl-net"
+BUILD_DEPENDS="automake autoconf libsdl-dev libsdl-mixer-dev libsdl-net-dev \
+mesa-dev glu-dev freetype-dev libpng16-dev"
+SPLIT="foobillardplus-music foobillardplus"
 
-BUILD_DEPENDS="bash automake autoconf libsdl-dev libsdl-mixer-dev \
-libsdl-net-dev mesa-dev glu freetype-dev libpng16-dev glu-dev"
-SPLIT="foobillardplus foobillardplus-music"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	aclocal --force
 	autoconf -f
 	autoheader -f
 	automake --gnu -a -c -f
+
 	./configure &&
-	make
+	make || return 1
+
+	# there's an /opt style install, it's better to write it here rather than patch everything there
+	fbdir='/usr/share/foobillardplus'
+
+	install -Dm755 src/foobillardplus $install$fbdir/bin/foobillardplus # bin need to be here
+	mkdir -p $install/usr/bin/
+	ln -s $fbdir/bin/foobillardplus $install/usr/bin/foobillardplus
+	fix symlinks
+
+	mkdir -p $install$fbdir/
+	cp -R data/* $install$fbdir/
+	sed -i 's|firefox|browser|' $install$fbdir/browser.sh # use SliTaz browser
+
+	install -Dm644 foobillardplus.desktop $install/usr/share/applications/foobillardplus.desktop
+	install -Dm644 foobillardplus.png $install/usr/share/icons/hicolor/128x128/apps/foobillardplus.png
+
+	find $install \( -name '*.ttf' -o -name '*.ico' \) -delete
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	foobillardplus)
-		mkdir -p $fs/usr/bin $fs/usr/share/foobillardplus
-		cp -a $src/src/foobillardplus $fs/usr/bin
-		DATADIR=$fs/usr/share/foobillardplus
-		cp -a $src/data/* $DATADIR
-		rm -f $DATADIR/*.ttf
-		rm -f $DATADIR/*.ico
-		# move to package foobillardplus-music
-		rm -rf $DATADIR/music
-		;;
-	foobillardplus-music)
-		CAT="games|Music files for FooBillard++"
-		DEPENDS="foobillardplus"
-		mkdir -p $fs/usr/share/foobillardplus
-		cp -a $src/data/music $fs/usr/share/foobillardplus
-		;;
+		foobillardplus-music)
+			copy music/
+			CAT="games|music files"
+			DEPENDS="foobillardplus"
+			;;
+		foobillardplus)
+			copy @std @rm hicolor/ # 128px icons isn't copied with @std
+			DEPENDS="freetype glu libpng16 libsdl libsdl-mixer libsdl-net mesa"
+			;;
 	esac
 }

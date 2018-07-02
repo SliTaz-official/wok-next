@@ -14,14 +14,9 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="gtk+-dev xorg-libXmu-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
-
 	./configure &&
-	make || return 1
-
-	install -Dm755 $src/fbxkb $install/usr/bin/fbxkb
-	mkdir -p $install/usr/share/fbxkb/images
-	cp $src/images/*.png $install/usr/share/fbxkb/images
+	make LDFLAGS= &&
+	make PREFIX=$install/usr install
 }
 
 genpkg_rules() {

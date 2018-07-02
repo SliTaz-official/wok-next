@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bleachbit"
-VERSION="0.9.4"
+VERSION="2.0"
 CATEGORY="system-tools"
 SHORT_DESC="Deletes unneeded files to free disk space and maintain privacy"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://bleachbit.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://www.bleachbit.org/"
+# see also: https://github.com/bleachbit/bleachbit
 
-DEPENDS="pygtk python"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://download.bleachbit.org/$TARBALL"
+
 BUILD_DEPENDS="python gettext-tools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make -C po local &&
 	make prefix=/usr DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="pygtk python"
 }
