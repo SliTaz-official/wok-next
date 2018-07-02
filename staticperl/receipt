@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="staticperl"
+VERSION="current"
+CATEGORY="meta"
+SHORT_DESC="Perl, libc, 100 modules - all in one self-contained 500kb executable"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Perl5"
+WEB_SITE="http://software.schmorp.de/pkg/App-Staticperl.html"
+HOST_ARCH="i486 x86_64"
+
+SPLIT="smallperl:small bigperl:big"
+
+compile_rules() {
+	mkdir $install
+	[ -z "$SET" ] && return
+	mkdir -p $src
+	cd $src
+
+	wget http://staticperl.schmorp.de/${SET}perl.bin
+	install -Dm755 ${SET}perl.bin $install/usr/bin/staticperl
+}
+
+genpkg_rules() {
+	[ "$PACKAGE" == 'staticperl' ] && return
+	copy @std
+	CAT="development|${PACKAGE%perl} version"
+	DEPENDS=" "
+	VERSION=$($install/usr/bin/staticperl -v | sed '/v5/!d; s|.*(v\(5\.[^)]*\)).*|\1|')
+}
