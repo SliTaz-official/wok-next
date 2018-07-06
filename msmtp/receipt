@@ -1,34 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="msmtp"
-VERSION="1.4.27"
+VERSION="1.6.8"
 CATEGORY="network"
-SHORT_DESC="An SMTP client who transmits a mail to an SMTP server."
+SHORT_DESC="An SMTP client who transmits a mail to an SMTP server"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://msmtp.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://marlam.de/msmtp/"
 
-DEPENDS="openssl"
-BUILD_DEPENDS="openssl-dev"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://marlam.de/msmtp/releases/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="openssl-dev gettext"
+
+compile_rules() {
 	./configure \
-		--with-ssl=openssl \
-		--without-gnome-keyring \
+		--with-tls=openssl \
+		--without-libsecret \
 		--without-libgsasl \
 		--without-libidn \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
 }
