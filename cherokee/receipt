@@ -1,33 +1,38 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cherokee"
-VERSION="1.2.101"
+VERSION="1.2.103.d021376"
 CATEGORY="network"
-SHORT_DESC="A very fast, fiexible and easy to configure Web Server"
+SHORT_DESC="Cherokee Web Server"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://www.cherokee-project.com/"
+WEB_SITE="http://cherokee-project.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.cherokee-project.com/download/${VERSION%.*}/$VERSION/$TARBALL"
+WGET_URL="https://github.com/cherokee/webserver/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl-dev openldap-dev python-dev \
-pam-dev libmysqlclient ffmpeg-dev gettext autoconf automake"
+BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl10-dev openldap-dev python-dev \
+pam-dev libmysqlclient ffmpeg-dev gettext autoconf automake libtool"
 SPLIT="cherokee cherokee-dev cherokee-doc"
 
 compile_rules() {
-	# Update deprecated symbols of ffmpeg
-	sed -i 's|hdl->avformat->file_size|avio_size(hdl->avformat)|' cherokee/handler_streaming.c
-
 	# Use subdirectory for logs
 	sed -i -r 's|(%localstatedir%/log)|\1/cherokee|' cherokee.conf.sample.pre
 
-	autoreconf -v
-	./configure \
+	# Fix pid file location
+	sed -i 's|var/run/|run/|g' admin/PageNewConfig.py
+
+	cp po/admin/ca.po po/admin/cherokee.pot
+
+	CFLAGS="$CFLAGS -I/usr/include/openssl-1.0" \
+	LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0" \
+	./autogen.sh \
 		--prefix=/usr \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
+		--sbindir=/usr/bin \
 		--with-wwwroot=/var/www/cherokee \
+		--with-cgiroot=/var/www/cherokee/cgi-bin \
 		--disable-static \
 		--with-wwwuser=www \
 		--with-wwwgroup=www \

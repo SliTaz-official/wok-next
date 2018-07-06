@@ -1,7 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bastet"
-VERSION="0.43.2"
+VERSION="0.43.2+3" # 3 commits ahead of release 0.43.2 (really fix build)
+COMMIT="1b3e692"
 CATEGORY="games"
 SHORT_DESC="Bastard tetris clone"
 MAINTAINER="pankso@slitaz.org"
@@ -9,21 +10,18 @@ LICENSE="GPL3"
 WEB_SITE="http://fph.altervista.org/prog/bastet.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/fph/bastet/archive/$VERSION.tar.gz"
+WGET_URL="https://github.com/fph/bastet/archive/${COMMIT:-$VERSION}.tar.gz"
 
 BUILD_DEPENDS="ncurses-dev libboost-dev libboost-program-options"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cp $stuff/*.png $src
 
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="libboost-program-options ncurses"
 	TAGS="tetris"
