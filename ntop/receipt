@@ -1,42 +1,49 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ntop"
-VERSION="4.1.0"
+VERSION="5.0.1"
 CATEGORY="network"
 SHORT_DESC="Network traffic probe"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.ntop.org/"
+WEB_SITE="https://www.ntop.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev openssl-dev libpng16-dev libpcap-dev libtool \
-glibc-dev gdbm-dev rrdtool autoconf automake rrdtool-dev geoip-dev \
-libwrap libtool"
+BUILD_DEPENDS="libtool automake autoconf wget subversion libpcap-dev gdbm-dev \
+pcre-dev rrdtool-dev openssl-dev zlib-dev python-dev geoip-dev"
 SPLIT="ntop-dev ntop-man"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	./autogen.sh \
+		--prefix=/usr \
+		--sysconfdir=/usr/share \
 		--localstatedir=/var/lib \
+		--disable-snmp \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install || return 1
+	make install-recursive || return 1
 
-	#~ && make install-data-as
+	mkdir -p $install/var/lib/ntop $install/var/lib/ntop/rrd
 
-	chown -R www.www $install/usr/share/ntop/
+	for i in $install/usr/lib/ntop/plugins/*.so; do
+		ln -sf "../../lib$(basename $i)" $i
+	done
+
 	install -Dm755 $stuff/ntop $install/etc/init.d/ntop
 	mkdir -p $install/var/log/ntop/
+	chown -R root:root $install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		ntop)
 			copy @std
+			chown -R www:www $fs/usr/share/ntop/
 			CONFIG_FILES="/etc/ntop/"
-			DEPENDS="zlib openssl libpng16 libpcap glibc gdbm rrdtool perl \
-			pcre geoip libwrap"
+			DEPENDS="gdbm geoip libpcap openssl python rrdtool zlib" # ? libpng16 perl pcre libwrap
 			TAGS="network"
 			;;
 		ntop-dev)

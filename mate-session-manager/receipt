@@ -12,21 +12,19 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/mate-session-manager/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="mate-common gtk+3-dev dbus-glib-dev xorg-libXtst-dev xmlto \
-libxslt-dev libwrap-dev docbook-xsl"
+libxslt-dev libwrap-dev docbook-xsl xorg-libSM-dev xorg-xtrans"
 
 compile_rules() {
 	./autogen.sh \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
 genpkg_rules() {
 	copy @std @ico # only 16 and 48 icons
-	DEPENDS="atk bzlib cairo dbus dbus-glib fontconfig freetype gdk-pixbuf \
-	glib gtk+3 libffi libharfbuzz liblzma libpng16 libxml2 pango pcre \
-	util-linux-blkid util-linux-mount util-linux-uuid xorg-libICE xorg-libSM \
-	xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXi \
-	xorg-libXrender xorg-libXtst xorg-libxcb xorg-pixman zlib"
+	DEPENDS="cairo dbus dbus-glib gdk-pixbuf glib gtk+3 xorg-libICE xorg-libSM \
+	xorg-libX11 xorg-libXau xorg-libXext xorg-libXrender xorg-libXtst"
 	TAGS="MATE"
 }

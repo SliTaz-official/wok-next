@@ -1,29 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sslh"
 VERSION="1.17"
 CATEGORY="network"
-SHORT_DESC="Accept HTTPS SSH OpenVPN Tinc & XMPP connections on the same port."
+SHORT_DESC="Accept HTTPS SSH OpenVPN Tinc & XMPP connections on the same port"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-v$VERSION.tar.gz"
 WEB_SITE="http://www.rutschle.net/tech/sslh.shtml"
-WGET_URL="http://www.rutschle.net/tech/$TARBALL"
-TAGS="ssh vpn tunnel"
 
-DEPENDS="libwrap libconfig"
+TARBALL="$PACKAGE-v$VERSION.tar.gz"
+WGET_URL="http://www.rutschle.net/tech/$TARBALL"
+
 BUILD_DEPENDS="libwrap-dev libwrap libconfig-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
+	install -Dm755 sslh-fork   $install/usr/sbin/sslh-fork
+	install -Dm755 sslh-select $install/usr/sbin/sslh-select
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin
-	cp -a $src/sslh-fork $fs/usr/sbin
-	cp -a $src/sslh-select $fs/usr/sbin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libwrap libconfig"
+	TAGS="ssh vpn tunnel"
 }
