@@ -1,26 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="sslh"
-VERSION="1.17"
+VERSION="1.19c"
 CATEGORY="network"
 SHORT_DESC="Accept HTTPS SSH OpenVPN Tinc & XMPP connections on the same port"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.rutschle.net/tech/sslh.shtml"
+WEB_SITE="http://www.rutschle.net/tech/sslh/README.html"
 
 TARBALL="$PACKAGE-v$VERSION.tar.gz"
-WGET_URL="http://www.rutschle.net/tech/$TARBALL"
+WGET_URL="http://www.rutschle.net/tech/sslh/$TARBALL"
 
-BUILD_DEPENDS="libwrap-dev libwrap libconfig-dev"
+BUILD_DEPENDS="libconfig-dev pcre-dev libwrap-dev libcap-dev perl"
 
 compile_rules() {
-	make || return 1
-	install -Dm755 sslh-fork   $install/usr/sbin/sslh-fork
-	install -Dm755 sslh-select $install/usr/sbin/sslh-select
+	export CFLAGS="$CFLAGS -std=gnu99"
+	make ENABLE_REGEX=1 USELIBCONFIG=1 USELIBPCRE=1 USELIBWRAP=1 USELIBCAP=1 &&
+	make install || return 1
+
+	install sslh-select -p $install/usr/sbin/sslh-select
+	mv $install/usr/sbin/sslh $install/usr/sbin/sslh-fork
+	ln -s sslh-fork $install/usr/sbin/sslh
+
+	install -Dm644 $stuff/sslh.conf $install/etc/sslh/sslh.conf
+	cp -r scripts/fail2ban/ $install/etc/sslh/
+
+	cook_pick_docs README.md basic.cfg example.cfg
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="libwrap libconfig"
+	DEPENDS="libcap libconfig libpcreposix libwrap"
 	TAGS="ssh vpn tunnel"
 }
