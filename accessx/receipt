@@ -1,35 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="accessx"
 VERSION="0.951"
 CATEGORY="utilities"
-SHORT_DESC="Set and display Xkeyboard (XCB) Accessx features."
+SHORT_DESC="Set and display Xkeyboard (XCB) Accessx features"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE${VERSION//./}.tar.gz"
 WEB_SITE="http://cita.disability.uiuc.edu/software/accessx/freewareaccessx.php"
-WGET_URL="$(dirname $WEB_SITE)/files/$TARBALL"
 
-DEPENDS="tk tcl"
-BUILD_DEPENDS="xorg-libX11-dev xorg-libXext-dev"
+TARBALL="$PACKAGE${VERSION//./}.tar.gz"
+WGET_URL="http://cita.disability.uiuc.edu/software/accessx/files/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/^LLIBS=.*/& -lX11/' Makefile
+BUILD_DEPENDS="xorg-libX11-dev xorg-libXext-dev tk-dev"
 
-	make
+compile_rules() {
+	sed -i 's|$(CC) $(OPTS) ax.C|$(CC) $(LDFLAGS) $(OPTS) ax.C|' Makefile
+
+	make \
+		OPTS="${CXXFLAGS}" \
+		XLIBDIR="-L/usr/lib" \
+		LLIBS="$(pkg-config --libs xext) $(pkg-config --libs x11)" \
+	|| return 1
+
+	install -Dm755 accessx $install/usr/bin/accessx
+	install -Dm755 ax      $install/usr/bin/ax
+
+	cook_pick_docs README
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/ax $fs/usr/bin
-	cp -a $src/accessx* $fs/usr/bin/accessx
-
-	# Change owner & perms accessx
-	chown root.root $fs/usr/bin/accessx
-	chmod 0755 $fs/usr/bin/accessx
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11   tk tcl"
 }
-
