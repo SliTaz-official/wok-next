@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python"
-VERSION="2.7.13"
+VERSION="2.7.15"
 CATEGORY="development"
 SHORT_DESC="The Python programming language"
 MAINTAINER="pankso@slitaz.org"
@@ -21,10 +21,18 @@ COOKOPTS="!menus !zip"
 compile_rules() {
 	# Temporary workaround for FS#22322
 	# See http://bugs.python.org/issue10835 for upstream report
-	sed -i "/progname =/s/python/python${_pybasever}/" Python/pythonrun.c
+	sed -i.orig "/progname =/s/python/python${_pybasever}/" Python/pythonrun.c
 
 	# Enable built-in SQLite3 module to load extensions (fix FS#22122)
-	sed -i "/SQLITE_OMIT_LOAD_EXTENSION/d" setup.py
+	sed -i.orig "/SQLITE_OMIT_LOAD_EXTENSION/d" setup.py
+
+	# If setuptools installed on the host, they will not be installed to the
+	# $DESTDIR. Probably bug. Dirty hack using chroot to resolve it:
+	rm /usr/bin/easy_install* /usr/bin/pip*
+	rm -r /usr/lib/python2.7/site-packages/easy_install.py \
+		  /usr/lib/python2.7/site-packages/pip* \
+		  /usr/lib/python2.7/site-packages/pkg_resources \
+		  /usr/lib/python2.7/site-packages/setuptools*
 
 	case "$ARCH" in
 		arm*)
@@ -78,7 +86,8 @@ EOT
 				--enable-unicode=ucs4 \
 				--build=$HOST_SYSTEM \
 				--host=$HOST_SYSTEM &&
-				make && make DESTDIR=$DESTDIR install &&
+				make &&
+				make DESTDIR=$DESTDIR install &&
 				chmod -v 755 $install/usr/lib/libpython2.7.so.1.0
 			;;
 	esac
