@@ -1,8 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="linux"
-VERSION="4.14.16"
-KBASEVER="4.14"
+VERSION="4.17.7"
+KBASEVER="$(echo $VERSION | cut -d. -f1,2)"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Kernel"
 MAINTAINER="devel@slitaz.org"
@@ -14,8 +14,8 @@ TARBALL="$PACKAGE-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
 BUILD_DEPENDS_arm="xz"
-BUILD_DEPENDS_x86_64="perl xz patch kmod bc elfutils-dev"
-BUILD_DEPENDS="perl xz lzma patch kmod bc elfutils-dev" # git
+BUILD_DEPENDS_x86_64="perl xz patch kmod bc elfutils-dev openssl-dev"
+BUILD_DEPENDS="perl xz lzma patch kmod bc elfutils-dev openssl-dev" # git
 # Removed: lguest, linux-firmware, linux-logfs, linux-toshiba
 SPLIT="\
 linux-acpi            linux-agp               linux-aoe \
@@ -43,6 +43,7 @@ linux-usb-gadget      linux-usb-misc          linux-usbdsl \
 linux-usbip           linux-uwb               linux-video \
 linux-wan             linux-watchdog          linux-wimax \
 linux-wireless        linux-without-modules   linux-zram"
+COOKOPTS="skip-log-errors"
 
 if [ "$KBASEVER" != "${VERSION%.0}" ]; then
 	PATCH="$(dirname $WGET_URL)/patch-$VERSION.xz"

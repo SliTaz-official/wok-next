@@ -20,6 +20,7 @@ cp -a $aufs_dir/Documentation $aufs_dir/fs $aufs_dir/include $src
 # Apply patches
 echo "Applying aufs patches..."
 while read patch_file; do
+	[ ${patch_file:0:1} == '#' ] && continue
 	if [ -f done.$patch_file ]; then
 		echo "Skipping $patch_file"; continue
 	fi
@@ -30,5 +31,5 @@ done <<EOT
 aufs4-base.patch
 aufs4-mmap.patch
 aufs4-standalone.patch
-aufs4-loopback.patch
+# aufs4-loopback.patch
 EOT

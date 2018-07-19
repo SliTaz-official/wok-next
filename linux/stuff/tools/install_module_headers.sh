@@ -57,8 +57,8 @@ cp $src/net/mac80211/*.h $1/$path/net/mac80211/
 
 # add dvb headers for external modules
 # in reference to http://bugs.archlinux.org/task/9912
-mkdir -p                           $1/$path/drivers/media/dvb-core/
-cp $src/drivers/media/dvb-core/*.h $1/$path/drivers/media/dvb-core/
+# mkdir -p                           $1/$path/drivers/media/dvb-core/
+# cp $src/drivers/media/dvb-core/*.h $1/$path/drivers/media/dvb-core/
 # and http://bugs.archlinux.org/task/11194
 if [ -d $src/include/config/dvb/ ]; then
 	mkdir -p                       $1/$path/include/config/dvb/
