@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cryptsetup"
-VERSION="1.7.5"
+VERSION="2.0.3"
 CATEGORY="system-tools"
 SHORT_DESC="dm-crypt setup tool for encryption of block devices"
 MAINTAINER="b1+slitaz@nagel.org"
@@ -11,13 +11,16 @@ WEB_SITE="https://gitlab.com/cryptsetup/cryptsetup"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/cryptsetup/v${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev popt-dev libgcrypt-dev"
+BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev popt-dev libgcrypt-dev \
+argon2-dev"
+BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev gettext popt-dev json-c-dev \
+libgcrypt-dev argon2-dev"
 SPLIT="cryptsetup-dev"
 
 compile_rules() {
 	./configure \
 		--disable-static \
-		--enable-cryptsetup-reencrypt \
+		--enable-libargon2 \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -30,12 +33,10 @@ genpkg_rules()
 	case $PACKAGE in
 		cryptsetup)
 			copy @std
-			DEPENDS="libdevmapper libgcrypt libgpg-error popt util-linux-uuid"
+			DEPENDS="argon2 json-c libdevmapper libgcrypt popt util-linux-uuid"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="cryptsetup libdevmapper-dev libgcrypt-dev \
-			libgpg-error-dev util-linux-uuid-dev"
 			;;
 	esac
 }

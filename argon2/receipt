@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="argon2"
+VERSION="20171227"
+CATEGORY="security"
+SHORT_DESC="Password-hashing function (reference C implementation)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache"
+WEB_SITE="https://github.com/P-H-C/phc-winner-argon2"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/P-H-C/phc-winner-argon2/archive/$VERSION/$TARBALL"
+
+BUILD_DEPENDS=""
+SPLIT="argon2-dev"
+
+compile_rules() {
+	# Make pkg-config file
+	cp $stuff/libargon2.pc .
+	sed -i "s|@VERSION@|$VERSION|" libargon2.pc
+
+	make OPTTARGET=none &&
+	make OPTTARGET=none DESTDIR=$install install &&
+	install -Dm644 libargon2.pc $install/usr/lib/pkgconfig/libargon2.pc
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		argon2) copy @std;;
+		*-dev)  copy @dev;;
+	esac
+}

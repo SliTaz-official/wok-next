@@ -1,24 +1,44 @@
 # SliTaz package receipt v2.
 
-# This receipt will follow actual version on each recook
 PACKAGE="cacerts"
-VERSION="20180309"
+VERSION="latest"
 CATEGORY="security"
 SHORT_DESC="Certificate Authority Certificates"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MPL2"
-WEB_SITE="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/cacerts.html"
+WEB_SITE="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/make-ca.html"
 
 wget_url="https://hg.mozilla.org/releases/mozilla-release/raw-file/tip/security/nss/lib/ckfw/builtins/certdata.txt"
-#wget_url="http://anduin.linuxfromscratch.org/BLFS/other/certdata.txt"
 
 BUILD_DEPENDS="perl openssl locale-en-base"
 
 compile_rules() {
+	mkdir -p $src
+	cd       $src
+	wget $wget_url
+
+	# Insert header (or process will fail)
+	sed -i "1i\
+#CVS_ID @# \$ RCSfile: certdata.txt \$ \$Revision: $date_Ymd \$ \$Date: \$" \
+	certdata.txt
+
+	# Process...
+	cp -a $stuff/* $src
+	./make-ca.sh &&
+	./remove-expired-certs.sh $src/certs
+
+	# "Installing"
+	mkdir -p $install/etc/ssl/certs
+	cp -a $src/certs/*.pem   $install/etc/ssl/certs
+	cp -a $src/ca-bundle.crt $install/etc/ssl
+	ln -s ../ca-bundle.crt   $install/etc/ssl/certs/ca-certificates.crt
+}
+
+genpkg_rules() {
 	# Determine date of certdata.txt
 	# FIXME: please point me to elegant way to determine this file timestamp
 	#        in Mercurial.
-	string=$(wget -O- ${wget_url/raw-/} | fgrep 'date age')
+	string=$(wget -O- -q ${wget_url/raw-/} | fgrep 'date age')
 	# string example:
 	# <td class="date age">Thu, 28 Sep 2017 10:02:22 -0700</td>
 	date_d=$(echo "$string" | cut -d' ' -f5)
@@ -37,45 +57,9 @@ compile_rules() {
 		Dec) date_m='12';;
 	esac
 	date_Y=$(echo "$string" | cut -d' ' -f7)
-	date_Ymd="$date_Y$date_m$date_d"
 
-	[ -f '/tmp/certdata.txt' ] && rm /tmp/certdata.txt
-	wget -P/tmp $wget_url
+	VERSION="$date_Y$date_m$date_d"
 
-	# Insert header (or process will fail)
-	sed -i "1i\
-#CVS_ID @# \$ RCSfile: certdata.txt \$ \$Revision: $date_Ymd \$ \$Date: \$" \
-	/tmp/certdata.txt
-
-	# VERSION=$(sed -n '/\$Revision:/s|.*Revision: \([0-9]*\).*$|\1|p' /tmp/certdata.txt)
-	VERSION="$date_Ymd"
-	echo -e "\nActual version: $VERSION\n"
-
-	# Update receipt version
-	sed -i "s|^VERSION=.*|VERSION=\"$VERSION\"|" $WOK/cacerts/receipt
-
-	src="$WOK/cacerts/source/cacerts-$VERSION"
-	mkdir -p $src
-	mv /tmp/certdata.txt $src
-	cd $src
-
-	# Save certdata in $SRC
-	TARBALL="$PACKAGE-$VERSION.txt"
-	[ -e "$SRC/$TARBALL" ] || cp $src/certdata.txt $SRC/$TARBALL
-
-	# Process...
-	cp -a $stuff/* $src
-	./make-ca.sh &&
-	./remove-expired-certs.sh $src/certs
-
-	# "Installing"
-	mkdir -p $install/etc/ssl/certs
-	cp -a $src/certs/*.pem   $install/etc/ssl/certs
-	cp -a $src/ca-bundle.crt $install/etc/ssl
-	ln -s ../ca-bundle.crt   $install/etc/ssl/certs/ca-certificates.crt
-}
-
-genpkg_rules() {
 	copy @std
 	DEPENDS="openssl"
 }

@@ -1,24 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="asunder"
-VERSION="2.7"
+VERSION="2.9.3"
 CATEGORY="multimedia"
-SHORT_DESC="GTK light CD ripper."
+SHORT_DESC="GTK CD ripper and encoder"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="lame flac"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://littlesvr.ca/asunder/"
-WGET_URL="$WEB_SITE/releases/$TARBALL"
-TAGS="audio rip"
 
-DEPENDS="atk gdk-pixbuf glib gtk+ libcddb"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$WEB_SITE/releases/$TARBALL"
+
 BUILD_DEPENDS="gtk+-dev alsa-lib-dev libcddb-dev cdparanoia-III-dev \
 xorg-libXdamage-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
@@ -26,9 +22,9 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk gdk-pixbuf glib gtk+ libcddb   cdparanoia-III"
+	SUGGESTED="lame flac"
+	TAGS="audio rip"
 }
