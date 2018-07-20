@@ -16,7 +16,7 @@ WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 BUILD_DEPENDS_arm="xz"
 BUILD_DEPENDS_x86_64="perl xz patch kmod bc elfutils-dev openssl-dev"
 BUILD_DEPENDS="perl xz lzma patch kmod bc elfutils-dev openssl-dev" # git
-# Removed: lguest, linux-firmware, linux-logfs, linux-toshiba
+# Removed: lguest, linux-firmware, linux-logfs, linux-irda
 SPLIT="\
 linux-acpi            linux-agp               linux-aoe \
 linux-appletalk       linux-arcnet            linux-autofs \
@@ -29,16 +29,17 @@ linux-exofs           linux-firewire          linux-gfs2 \
 linux-hfs             linux-hfsplus           linux-hid \
 linux-hwmon           linux-ide               linux-input-misc \
 linux-input-tablet    linux-input-touchscreen linux-ipv6 \
-linux-irda            linux-isdn              linux-jfs \
+linux-isdn            linux-jfs \
 linux-joystick        linux-kvm               linux-md \
 linux-media           linux-memstick          linux-minix \
 linux-mmc             linux-module-headers    linux-mwave \
-linux-nbd             linux-ncpfs             linux-netfilter \
+linux-ncpfs           linux-nbd               linux-netfilter \
 linux-nfc             linux-nfs               linux-nfsd \
 linux-ocfs2           linux-orangefs          linux-radio \
 linux-reiserfs        linux-romfs             linux-sched \
 linux-scsi            linux-sound             linux-source \
 linux-speakup         linux-squashfs          linux-staging \
+linux-toshiba \
 linux-usb-gadget      linux-usb-misc          linux-usbdsl \
 linux-usbip           linux-uwb               linux-video \
 linux-wan             linux-watchdog          linux-wimax \
@@ -226,12 +227,10 @@ genpkg_rules() {
 		*-input-tablet)			c="tablet input drivers";;
 		*-input-touchscreen)	c="touchscreen input drivers";;
 		*-ipv6)					c="IPv6 modules"; DEPENDS="linux-netfilter";;
-		*-irda)					c="IRDA modules";;
 		*-isdn)					c="ISDN modules";;
 		*-jfs)					c="JFS module";;
 		*-joystick)				c="joystick modules";;
 		*-kvm)					c="KVM and Virtio modules";;
-		*-logfs)				c="Logfs module";;
 		*-md)					c="MD modules"; DEPENDS="linux-crypto";;
 		*-media)				c="media modules"; DEPENDS="linux-radio";;
 		*-memstick)				c="Sony memory stick modules";;
