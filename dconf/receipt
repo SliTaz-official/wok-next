@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dconf"
-VERSION="0.26.0"
+VERSION="0.28.0"
 CATEGORY="system-tools"
 SHORT_DESC="A low-level configuration system"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,13 +12,15 @@ LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/dconf.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="vala libxslt-dev gtk-doc dbus-dev"
+BUILD_DEPENDS="meson ninja vala libxslt-dev gtk-doc dbus-dev"
 SPLIT="dconf-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
