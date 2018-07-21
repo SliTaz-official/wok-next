@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fuse3"
-VERSION="3.1.1"		# next releases require 'meson' currently unpackaged
+VERSION="3.2.4"
 CATEGORY="system-tools"
 SHORT_DESC="FUSE Filsystem in Userspace"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,28 +10,30 @@ WEB_SITE="https://github.com/libfuse/libfuse"
 LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/fuse.html"
 REPOLOGY="fuse"
 
-TARBALL="fuse-$VERSION.tar.gz"
+TARBALL="fuse-$VERSION.tar.xz"
 WGET_URL="https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$TARBALL"
 
-BUILD_DEPENDS="util-linux-mount"
+BUILD_DEPENDS="meson ninja eudev-dev"
 SPLIT="fuse-common fuse3 fuse3-dev"
 
 compile_rules() {
-	export MOUNT_FUSE_PATH=/usr/bin
-	./configure \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install || return 1
+	mkdir build
+	cd    build
+
+	# -Db_lto: see https://github.com/libfuse/libfuse/issues/198
+	meson-wrapper \
+		-Db_lto=false \
+		.. &&
+	ninja &&
+	ninja install || return 1
 
 	rm -rf $install/etc/init.d
 	# handled by udev
 	rm -rf $install/dev
 
-	cook_pick_docs doc/html/ doc/kernel.txt
+	install -Dm644 $stuff/fuse.conf $install/etc/fuse.conf
 
-	cp $stuff/fuse.conf $install/etc
+	cook_pick_docs $src/doc/html/ $src/doc/*.txt $src/doc/*.pdf
 }
 
 # packaging notes: https://github.com/libfuse/libfuse/releases/tag/fuse-3.0.0
@@ -39,7 +41,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		fuse-common)
 			copy fuse.conf *.rules
-			DEPENDS="util-linux-mount"
+			DEPENDS=" "
 			CAT="system-tools|common files"
 			CONFIG_FILES="/etc/fuse.conf"
 			;;

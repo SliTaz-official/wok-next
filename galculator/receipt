@@ -1,41 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="galculator"
-VERSION="2.1.3"
+VERSION="2.1.4"
 CATEGORY="system-tools"
 SHORT_DESC="Graphical scientific calculator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://galculator.sourceforge.net/"
+WEB_SITE="http://galculator.mnim.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://galculator.mnim.org/downloads/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev flex sdft intltool"
+BUILD_DEPENDS="gtk+-dev flex intltool"
 
 COOKOPTS="!pixmaps !menus"
 
 compile_rules() {
-	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-
 	./configure \
 		--disable-gtk3 \
-		--disable-quadmath \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
 
-	sdft $install/usr/share/applications/galculator.desktop -i -tf \
-		-a "Name[fr]=Calculatrice scientifique" \
-		-a "Name[pt]=Calculadora Científica" \
-		-a "Name[pt_BR]=Calculadora Científica" \
-		-a "Name[ru]=Инженерный калькулятор" \
-		-a "Name[zh_CN]=科学计算器" \
-		-a "Comment[ru]=Выполняйте простые и инженерные вычисления" \
-		-s "Icon=accessories-calculator" \
-		-s "Categories=Utility;Calculator;"
+	sed -i 's|Icon=.*|Icon=accessories-calculator|;
+		s|Categories=.*|Categories=Utility;Calculator;|' \
+		$install/usr/share/applications/galculator.desktop
 }
 
 genpkg_rules() {
@@ -43,5 +33,5 @@ genpkg_rules() {
 	rm -r $fs/usr/share/pixmaps
 	find $fs -name '*gtk3*' -delete
 	sed -i 's|^[ ]*||g' $fs/usr/share/galculator/ui/*
-	DEPENDS="gtk+"
+	DEPENDS="glib gtk+ pango"
 }
