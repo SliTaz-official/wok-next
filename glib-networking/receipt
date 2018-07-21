@@ -1,31 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glib-networking"
-VERSION="2.54.1"
+VERSION="2.56.1"
 CATEGORY="x-window"
 SHORT_DESC="TLS support for glib"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="http://www.gtk.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/glib-networking.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/glib-networking.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS_arm="glib-dev gnutls-dev"
-BUILD_DEPENDS="intltool gnutls-dev gsettings-desktop-schemas glib-dev"
+BUILD_DEPENDS="meson ninja intltool gnutls-dev gsettings-desktop-schemas-dev \
+glib-dev"
 
 compile_rules() {
-	./configure \
-		--without-ca-certificates \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+
+	meson-wrapper \
+		-Dlibproxy_support=false \
+		-Dca_certificates_path=/etc/ssl/ca-bundle.crt &&
+	ninja &&
+	ninja install || return 1
+
+	install -Dm644 $stuff/gio.sh $install/etc/profile.d/gio.sh
 }
 
 genpkg_rules() {
 	copy @std
 	DEPENDS="glib libgnutls libp11-kit"
+	CONFIG_FILES="/etc/profile.d/gio.sh"
 }

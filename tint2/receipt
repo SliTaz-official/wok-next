@@ -1,41 +1,46 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tint2"
-VERSION="0.12.2"
-CATEGORY="misc"
+VERSION="16.4"
+CATEGORY="x-window"
 SHORT_DESC="Lightweight panel/taskbar for Linux"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://gitlab.com/o9000/tint2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/repository/archive.tar.gz?ref=$VERSION"
-BRANCH="$VERSION"
-CONFIG_FILES="/etc/xdg/tint2/tint2rc"
-TAGS="desktop panel taskbar"
 
-DEPENDS="gtk+ imlib2 librsvg startup-notification"
-BUILD_DEPENDS="cmake pango-dev imlib2-dev gtk+-dev startup-notification-dev \
-librsvg-dev xorg-dev"
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/o9000/tint2/-/archive/v$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cp -af $stuff/get_version.sh $src
-	export VERSION
+BUILD_DEPENDS="cmake xorg-libX11-dev xorg-libXcomposite-dev \
+xorg-libXdamage-dev xorg-libXinerama-dev xorg-libXext-dev xorg-libXrender-dev \
+xorg-libXrandr-dev pango-dev imlib2-dev librsvg-dev startup-notification-dev \
+gtk+-dev gettext"
 
-	mkdir build && cd build &&
+compile_rules() {
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		$ARCH_ARGS .. &&
-	make && make install
+		-DCMAKE_INSTALL_SYSCONFDIR=/etc \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		.. &&
+	make &&
+	make install || return 1
+
+	# Use custom configured theme instead
+	# (but I'm unsure config from v.0 will be OK for v.16)
+	mv $install/etc/xdg/tint2/tint2rc $install/etc/xdg/tint2/tint2rc.orig
+	install -Dm644 $stuff/tint2rc $install/etc/xdg/tint2/tint2rc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	# Use custom configured theme instead
-	cp -f $stuff/tint2rc $fs/etc/xdg/tint2/tint2rc
-
-	rm -r $fs/usr/share/doc $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo gdk-pixbuf glib gtk+ imlib2 librsvg pango \
+	startup-notification xorg-libX11 xorg-libXcomposite xorg-libXdamage \
+	xorg-libXext xorg-libXinerama xorg-libXrandr xorg-libXrender"
+	CONFIG_FILES="/etc/xdg/tint2/tint2rc"
+	TAGS="desktop panel taskbar"
 }

@@ -15,7 +15,8 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS_arm="glib-dev gettext tiff-dev libpng16-dev libjpeg-turbo-dev \
 xorg-libX11-dev gtk-doc"
 BUILD_DEPENDS="glib-dev perl gettext tiff-dev libjpeg-turbo-dev libpng16-dev \
-shared-mime-info-dev xorg-libX11-dev gobject-introspection-dev"
+shared-mime-info-dev xorg-libX11-dev gobject-introspection-dev libxslt \
+docbook-xsl"
 
 SPLIT="gdk-pixbuf-dev"
 
@@ -27,8 +28,12 @@ compile_rules() {
 			;;
 	esac
 
+	# build man pages instead of dummy files
+	rm docs/reference/gdk-pixbuf/*.1
+
 	./configure \
 		--with-x11 \
+		--enable-man \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
 	fix libtool &&
 	make &&
