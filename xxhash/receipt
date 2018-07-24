@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xxhash"
+VERSION="0.6.5"
+CATEGORY="utilities"
+SHORT_DESC="Extremely fast non-cryptographic hash algorithm"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="http://cyan4973.github.io/xxHash/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Cyan4973/xxHash/archive/v$VERSION.tar.gz"
+
+SPLIT="xxhash-dev"
+
+compile_rules() {
+	make &&
+	make \
+		prefix=/usr \
+		install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		xxhash) copy @std;;
+		*-dev)  copy @dev;;
+	esac
+}
