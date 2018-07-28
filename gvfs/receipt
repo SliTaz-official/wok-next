@@ -1,35 +1,64 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gvfs"
-VERSION="1.30.3"
+VERSION="1.36.2"
 CATEGORY="system-tools"
 SHORT_DESC="Userspace virtual filesystem"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.gnome.org/Projects/gvfs"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/gvfs.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/gvfs.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gvfs/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="libxslt glib-dev gtk-doc dbus-dev gcr-dev gettext polkit-dev \
-libcap-dev libgphoto2-dev libarchive-dev libsoup-dev libcdio-paranoia-dev \
-libmtp-dev fuse2-dev udisks2-dev gtk+3-dev libbluray-dev libgudev-dev \
-libsecret-dev libxml2-dev openssh samba-dev dbus-glib-dev libnfs-dev"
+BUILD_DEPENDS="meson ninja shared-mime-info libxslt glib-dev gtk-doc dbus-dev \
+gcr-dev gettext polkit-dev libcap-dev libgphoto2-dev libarchive-dev \
+libsoup-dev libcdio-paranoia-dev libmtp-dev fuse2-dev udisks2-dev gtk+3-dev \
+libbluray-dev libgudev-dev libsecret-dev libxml2-dev openssh samba-dev \
+dbus-glib-dev libnfs-dev"
 SPLIT="gvfs-admin gvfs-afp gvfs-archive gvfs-cdda gvfs-fuse gvfs-gphoto2 \
 gvfs-gtk gvfs-http gvfs-libmtp gvfs-nfs gvfs-smb gvfs-udisks2 gvfs gvfs-dev"
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
-	./configure \
-		--enable-gtk-doc \
-		--disable-libsystemd-login \
-		--with-systemduserunitdir=no \
-		--disable-bash-completion \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	sed -i 's|dependendencies|dependencies|' meson.build # typo
+
+	meson-wrapper \
+		build \
+		-Dsystemduserunitdir=no \
+		-Dtmpfilesdir=no \
+		\
+		-Dadmin=true \
+		-Dafc=false \
+		-Dafp=true \
+		-Darchive=true \
+		-Dcdda=true \
+		-Ddnssd=false \
+		-Dgdu=false \
+		-Dgoa=false \
+		-Dgoogle=false \
+		-Dgphoto2=true \
+		-Dhttp=true \
+		-Dmtp=true \
+		-Dnfs=true \
+		-Dsmb=true \
+		-Dudisks2=true \
+		\
+		-Dbluray=true \
+		-Dfuse=true \
+		-Dgcr=true \
+		-Dgcrypt=true \
+		-Dgudev=true \
+		-Dkeyring=true \
+		-Dlogind=false \
+		-Dlibusb=true \
+		\
+		-Ddeprecated_programs=true \
+		-Dman=true \
+		&&
+	ninja -j1 -C build &&
+	ninja -j1 -C build install
 }
 
 genpkg_rules() {
@@ -73,7 +102,7 @@ genpkg_rules() {
 		gvfs-gtk)
 			copy gvfsd-recent recent.mount
 			CAT="system-tools|recent files support (GTK+3) - recent:///"
-			DEPENDS="glib gtk+3 gvfs"
+			DEPENDS="glib gvfs   gtk+3"
 			;;
 		gvfs-http)
 			copy \
@@ -88,7 +117,7 @@ genpkg_rules() {
 			gvfs-mtp-volume-monitor *.MTPVolumeMonitor.service \
 			mtp.monitor
 			CAT="system-tools|MTP support"
-			DEPENDS="glib gvfs libgudev libmtp"
+			DEPENDS="glib gvfs libgudev libmtp libusb"
 			;;
 		gvfs-nfs)
 			copy gvfsd-nfs nfs.mount
@@ -111,7 +140,7 @@ genpkg_rules() {
 			;;
 		gvfs)
 			copy @std @rm
-			DEPENDS="eudev gcr-base glib libsecret   dbus"
+			DEPENDS="gcr-base glib libgudev libsecret   dbus eudev"
 			SUGGESTED="gvfs-afp gvfs-archive gvfs-cdda gvfs-fuse gvfs-gphoto2 \
 			gvfs-http gvfs-libmtp gvfs-obexftp gvfs-smb gvfs-udisks2"
 			;;

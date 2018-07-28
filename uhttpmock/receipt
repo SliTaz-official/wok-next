@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="uhttpmock"
+VERSION="0.5.1"
+CATEGORY="network"
+SHORT_DESC="HTTP web service mocking library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.0"
+WEB_SITE="https://gitlab.com/uhttpmock/uhttpmock"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://tecnocode.co.uk/downloads/uhttpmock/$TARBALL"
+
+BUILD_DEPENDS="glib-dev libsoup-dev gobject-introspection-dev vala"
+SPLIT="uhttpmock-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		uhttpmock)
+			copy @std
+			DEPENDS="glib libsoup"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="uhttpmock glib-dev libsoup-dev"
+			;;
+	esac
+}

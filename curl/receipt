@@ -1,21 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="curl"
-VERSION="7.58.0"
+VERSION="7.61.0"
 CATEGORY="network"
 SHORT_DESC="Tool and libs for transferring files with URL syntax"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://curl.haxx.se/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/curl.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/curl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://curl.haxx.se/download/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev openssl-dev libssh2-dev libidn2-dev"
+BUILD_DEPENDS="zlib-dev openssl-dev libidn2-dev"
+# libssh2-dev c-ares-dev brotli-dev openldap-dev libpsl-dev"
 SPLIT="libcurl curl-dev"
 
 compile_rules() {
+	# --with-libssh2 --with-brotli --enable-ldap --with-nghttp2
+
 	./configure \
 		--disable-static \
 		--enable-threaded-resolver \
@@ -34,16 +37,16 @@ genpkg_rules() {
 	case $PACKAGE in
 		curl)
 			copy curl
-			DEPENDS="libcurl openssl zlib"
+			DEPENDS="libcurl"
 			;;
 		libcurl)
 			copy *.so*
-			DEPENDS="libidn2 libssh2 openssl zlib"
+			DEPENDS="libidn2 openssl zlib"
 			CAT="network|library"
 			;;
 		curl-dev)
 			copy @dev
-			DEPENDS="curl libidn2-dev libssh2-dev openssl-dev zlib-dev"
+			DEPENDS="curl libidn2-dev openssl-dev zlib-dev"
 			;;
 	esac
 }
