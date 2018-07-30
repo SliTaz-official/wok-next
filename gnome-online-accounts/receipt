@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-online-accounts"
+VERSION="3.28.0"
+CATEGORY="network"
+SHORT_DESC="Client for GNOME web services"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://wiki.gnome.org/Projects/GnomeOnlineAccounts"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev libxslt gobject-introspection-dev vala gtk+3-dev \
+webkit2gtk-dev json-glib-dev rest-dev libsecret-dev krb5-dev gettext \
+docbook-xsl"
+SPLIT="gnome-online-accounts-dev"
+
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
+	./configure \
+		--disable-telepathy \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		gnome-online-accounts)
+			copy @std @ico
+			DEPENDS="glib gtk+3 json-glib libsecret libsoup libxml2 rest \
+			webkit2gtk"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gnome-online-accounts glib-dev gtk+3-dev"
+			;;
+	esac
+}

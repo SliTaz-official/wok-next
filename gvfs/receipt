@@ -16,13 +16,28 @@ BUILD_DEPENDS="meson ninja shared-mime-info libxslt glib-dev gtk-doc dbus-dev \
 gcr-dev gettext polkit-dev libcap-dev libgphoto2-dev libarchive-dev \
 libsoup-dev libcdio-paranoia-dev libmtp-dev fuse2-dev udisks2-dev gtk+3-dev \
 libbluray-dev libgudev-dev libsecret-dev libxml2-dev openssh samba-dev \
-dbus-glib-dev libnfs-dev"
-SPLIT="gvfs-admin gvfs-afp gvfs-archive gvfs-cdda gvfs-fuse gvfs-gphoto2 \
-gvfs-gtk gvfs-http gvfs-libmtp gvfs-nfs gvfs-smb gvfs-udisks2 gvfs gvfs-dev"
+dbus-glib-dev libnfs-dev libgdata-dev gnome-online-accounts-dev"
+SPLIT="gvfs-admin gvfs-afp gvfs-archive gvfs-cdda gvfs-fuse gvfs-goa \
+gvfs-google gvfs-gphoto2 gvfs-gtk gvfs-http gvfs-libmtp gvfs-nfs gvfs-smb \
+gvfs-udisks2 gvfs gvfs-dev"
 COOKOPTS="skip-log-errors"
+
+# while webkit2gtk is broken on x86_64...
+case $ARCH in
+	x86_64)
+		BUILD_DEPENDS="$(echo $BUILD_DEPENDS | sed 's|libgdata-dev||; s|gnome-online-accounts-dev||')"
+		SPLIT="$(echo $SPLIT | sed 's|gvfs-goa||; s|gvfs-google||')"
+		;;
+esac
 
 compile_rules() {
 	sed -i 's|dependendencies|dependencies|' meson.build # typo
+
+	# while webkit2gtk is broken on x86_64...
+	case $ARCH in
+		i?86)   ARCH_ARGS='-Dgoa=true  -Dgoogle=true';;
+		x86_64) ARCH_ARGS='-Dgoa=false -Dgoogle=false';;
+	esac
 
 	meson-wrapper \
 		build \
@@ -36,8 +51,7 @@ compile_rules() {
 		-Dcdda=true \
 		-Ddnssd=false \
 		-Dgdu=false \
-		-Dgoa=false \
-		-Dgoogle=false \
+		$ARCH_ARGS \
 		-Dgphoto2=true \
 		-Dhttp=true \
 		-Dmtp=true \
@@ -91,6 +105,17 @@ genpkg_rules() {
 			CAT="system-tools|FUSE support"
 			DEPENDS="fuse2 glib gvfs"
 			;;
+		gvfs-goa)
+			copy gvfs-goa-volume-monitor *.GoaVolumeMonitor.service \
+			goa.monitor
+			CAT="system-tools|GOA support"
+			DEPENDS="glib gnome-online-accounts   gvfs"
+			;;
+		gvfs-google)
+			copy gvfsd-google google.mount
+			CAT="system-tools|Google support"
+			DEPENDS="glib gnome-online-accounts gvfs libgdata"
+			;;
 		gvfs-gphoto2)
 			copy \
 			gvfsd-gphoto2 gphoto2.mount \
@@ -102,7 +127,7 @@ genpkg_rules() {
 		gvfs-gtk)
 			copy gvfsd-recent recent.mount
 			CAT="system-tools|recent files support (GTK+3) - recent:///"
-			DEPENDS="glib gvfs   gtk+3"
+			DEPENDS="glib gvfs" # + gtk+3 ?
 			;;
 		gvfs-http)
 			copy \

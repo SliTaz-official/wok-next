@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="rest"
+VERSION="0.8.1"
+CATEGORY="network"
+SHORT_DESC="Helper library for RESTful services"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://wiki.gnome.org/Projects/Librest"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="glib-dev libsoup-dev gobject-introspection-dev"
+SPLIT="rest-dev"
+
+compile_rules() {
+	./configure \
+		--with-ca-certificates=/etc/ssl/ \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		rest)
+			copy @std
+			DEPENDS="glib libsoup libsoup-gnome libxml2"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="rest glib-dev libsoup-dev libxml2-dev"
+			;;
+	esac
+}

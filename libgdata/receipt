@@ -6,35 +6,37 @@ CATEGORY="network"
 SHORT_DESC="Access library for gdata"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
-WEB_SITE="http://live.gnome.org/libgdata"
+WEB_SITE="https://wiki.gnome.org/Projects/libgdata"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev libxml2-dev libsoup-dev json-glib-dev liboauth-dev \
-gdk-pixbuf-dev uhttpmock-dev intltool gobject-introspection-dev vala"
+gdk-pixbuf-dev uhttpmock-dev intltool gobject-introspection-dev vala \
+gcr-dev gnome-online-accounts-dev"
 SPLIT="libgdata-dev"
 
 compile_rules() {
 	DATADIRNAME=share ./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc \
-		--disable-gnome \
-		&&
+		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make DESTDIR="$install" install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libgdata)
 			copy @std
-			DEPENDS="glib json-glib liboauth libsoup libxml2"
+			DEPENDS="gcr-base glib gnome-online-accounts json-glib liboauth \
+			libsoup libxml2"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libgdata glib-dev json-glib-dev liboauth-dev libsoup-dev \
-			libxml2-dev"
+			DEPENDS="libgdata gcr-dev gnome-online-accounts-dev json-glib-dev \
+			liboauth-dev libsoup-dev libxml2-dev"
 			;;
 	esac
 }
