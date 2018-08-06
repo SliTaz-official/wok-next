@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="expect"
-VERSION="5.45"
+VERSION="5.45.4"
 CATEGORY="utilities"
 SHORT_DESC="A tool for automating interactive applications"
 MAINTAINER="samuel_trassare@yahoo.com"
@@ -9,14 +9,16 @@ LICENSE="PublicDomain"
 WEB_SITE="http://expect.sourceforge.net"
 
 TARBALL="$PACKAGE$VERSION.tar.gz"
-WGET_URL="http://sourceforge.net/projects/$PACKAGE/files/Expect/$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="tcl-dev"
 COOKOPTS="!skip-log-errors" # for:
 # chmod: cannot access './install-sh': No such file or directory
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {

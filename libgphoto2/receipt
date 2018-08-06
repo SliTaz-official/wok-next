@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libgphoto2"
-VERSION="2.5.15"
+VERSION="2.5.19"
 CATEGORY="graphics"
 SHORT_DESC="Core library of gphoto2 to access photos from digital camera"
 MAINTAINER="jozee@slitaz.org"
@@ -12,7 +12,8 @@ REPOLOGY="gphoto2"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
 
-BUILD_DEPENDS="libtool gettext libjpeg-turbo-dev libexif-dev libusb-dev"
+BUILD_DEPENDS="libtool gettext libjpeg-turbo-dev libexif-dev libusb-dev \
+libxml2-dev libgd-dev" # use of libusb-compat-dev disabled while libusb found
 SPLIT="libgphoto2-dev"
 
 compile_rules() {
@@ -23,52 +24,53 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	# Remove recursive symlink
+	rm $install/usr/include/gphoto2/gphoto2
+
+	# fix line:
+	# driverdir=$(libdir)/$(PACKAGE_TARNAME)/$(VERSION)
+	sed -i 's|^driverdir=.*|driverdir=${libdir}/libgphoto2_port/${VERSION}|' \
+		$install/usr/lib/pkgconfig/libgphoto2_port.pc
+
+	mkdir -p $install/lib/udev/rules.d/
+	export LD_LIBRARY_PATH="$install/usr/lib${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH"
+	export CAMLIBS="$install/usr/lib/libgphoto2/$VERSION"
+	$install/usr/lib/libgphoto2/print-camera-list hwdb \
+		| install -Dm644 /dev/stdin $install/lib/udev/hwdb.d/20-gphoto.hwdb
+	# version <num> is UDEV version, one of: "pre-0.98", "0.98", "136", "175", "201"
+	# See #src/packaging/generic/print-camera-list.c.
+	# We use eudev, so maybe udev version here should be changed.
+	$install/usr/lib/libgphoto2/print-camera-list udev-rules version 201 group camera mode 0660 \
+		| install -Dm644 /dev/stdin $install/lib/udev/rules.d/40-gphoto.rules
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libgphoto2)
 			copy @std
-			DEPENDS="eudev libexif libjpeg-turbo libltdl liblzma libusb \
-			libxml2 zlib"
+			DEPENDS="libexif libgd libjpeg-turbo libltdl libusb libxml2   eudev"
 			TAGS="camera photo"
 			;;
 		libgphoto2-dev)
 			copy @dev
-			DEPENDS="libgphoto2 eudev-dev libjpeg-turbo-dev libexif-dev \
-			libtool libusb-dev libxml2-dev xz-dev zlib"
+			DEPENDS="libgphoto2 libexif-dev"
 			;;
 	esac
 }
 
 post_install_libgphoto2() {
-	HAL_FDI="$1/usr/share/hal/fdi/information/20thirdparty/10-camera-libgphoto2.fdi"
-	UDEV_RULE="$1/etc/udev/rules.d/70-libgphoto2.rules"
-	CAM_LIST="$1/usr/lib/libgphoto2/print-camera-list"
-
-	# Let print-camera-list find libgphoto2.so
-	export LD_LIBRARY_PATH="$1/usr/lib"
-	# Let libgphoto2 find its camera-modules before running print-camera-list
-	export CAMLIBS="$1/usr/lib/libgphoto2/$VERSION"
-
-	# HAL file
-	mkdir -p "$(dirname "$HAL_FDI")"
-	"$CAM_LIST" hal-fdi > "$HAL_FDI"
-
-	#udev rule
-	"$CAM_LIST" udev-rules version 0.98 group camera mode 0660 > "$UDEV_RULE"
-
-	# tazpkg reconfigure eudev --root="$1"
-
 	# add group camera
-	if ! grep -q camera "$1/etc/group"; then
-		chroot "$1/" addgroup -g 97 -S camera
-	fi
+	grep -q camera "$1/etc/group" || chroot "$1/" addgroup -g 97 -S camera
 
 	[ -n "$quiet" ] || cat <<EOT
-Don't forget to add yourself to group camera to use libgphoto2:
-    # addgroup tux camera
+
+	.-----------------------------------------------------------------.
+	| Don't forget to add yourself to group camera to use libgphoto2: |
+	|                                                                 |
+	| # addgroup tux camera                                           |
+	'-----------------------------------------------------------------'
 EOT
 }
 

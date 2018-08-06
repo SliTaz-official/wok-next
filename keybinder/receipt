@@ -1,6 +1,6 @@
 # SliTaz package receipt v2.
 
-PACKAGE="libkeybinder"
+PACKAGE="keybinder"
 VERSION="0.3.1"
 CATEGORY="x-window"
 SHORT_DESC="Library for registering global keyboard shortcuts"
@@ -9,12 +9,11 @@ LICENSE="GPL2"
 WEB_SITE="https://github.com/kupferlauncher/keybinder"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/kupferlauncher/keybinder/releases/download/keybinder-3.0-v$VERSION/keybinder-3.0-$VERSION.tar.gz"
-WGET_URL="https://github.com/kupferlauncher/keybinder/releases/download/v$VERSION/keybinder-$VERSION.tar.gz"
+WGET_URL="https://github.com/kupferlauncher/keybinder/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="gtk+-dev gobject-introspection-dev xorg-libXext-dev python-dev \
 pygtk-dev pygobject-dev automake autoconf libtool"
-SPLIT="libkeybinder-python libkeybinder-dev"
+SPLIT="keybinder-python keybinder-dev"
 
 compile_rules() {
 	autoreconf -vif &&
@@ -26,18 +25,18 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libkeybinder)
+		keybinder)
 			copy libkeybinder.so*
 			DEPENDS="glib gtk+ xorg-libX11"
 			;;
-		libkeybinder-python)
+		keybinder-python)
 			copy @std @rm
 			CAT="x-window|python bindings"
-			DEPENDS="glib libkeybinder python"
+			DEPENDS="glib keybinder python"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libkeybinder libkeybinder-python \
+			DEPENDS="keybinder keybinder-python \
 			gtk+-dev"
 			;;
 	esac

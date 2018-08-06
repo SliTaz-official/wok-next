@@ -1,20 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="volume_key"
-VERSION="0.3.9"
+VERSION="0.3.11"
 CATEGORY="libs"
 SHORT_DESC="Manipulating storage volume encryption keys"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://pagure.io/volume_key"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/volume_key.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/volume_key.html"
 REPOLOGY="volume-key"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://releases.pagure.org/volume_key/$TARBALL"
 
 BUILD_DEPENDS="automake gettext gpgme-dev libtool cryptsetup-dev nss-dev \
-python-dev util-linux-blkid-dev glib-dev"
+python3-dev util-linux-blkid-dev glib-dev"
 SPLIT="volume_key-python volume_key volume_key-dev"
 
 compile_rules() {
@@ -30,10 +30,10 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		*-python)
-			copy python2.7/
+			copy python3.*/
 			find $fs -name '*.la' -delete
-			CAT="libs|python bindings"
-			DEPENDS="glib nss python volume_key"
+			CAT="libs|python 3 bindings"
+			DEPENDS="glib nss python3 volume_key"
 			;;
 		volume_key)
 			copy @std @rm

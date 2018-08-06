@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gzip"
-VERSION="1.8"
+VERSION="1.9"
 CATEGORY="system-tools"
 SHORT_DESC="GNU compression utilities"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gzip/"
-LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gzip.html"
+LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/gzip.html"
 HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
@@ -17,7 +17,9 @@ BUILD_DEPENDS="glibc-dev"
 SPLIT="gzip-full"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/bin
 	mv -v $install/usr/bin/gzip $install/bin

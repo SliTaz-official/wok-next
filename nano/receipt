@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nano"
-VERSION="2.6.3"
+VERSION="2.9.8"
 CATEGORY="utilities"
 SHORT_DESC="Nano Text Editor"
 MAINTAINER="pankso@slitaz.org"
@@ -19,16 +19,15 @@ compile_rules() {
 		--disable-wrapping-as-root \
 		--enable-utf8 \
 		$CONFIGURE_ARGS &&
-	make && make install || exit 1
+	make &&
+	make install || exit 1
 
-	# Config file.
-	install -Dm644 $src/doc/nanorc.sample $install/etc/nanorc
-
-	cook_pick_docs doc/texinfo/nano.html
+	# Config file
+	install -Dm644 $src/doc/sample.nanorc $install/etc/nanorc
 }
 
 genpkg_rules() {
-	copy etc/ bin/ nano/
+	copy @std
 
 	# Shrink
 	for i in $fs/usr/share/nano/*.nanorc; do

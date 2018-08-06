@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="keybinder3"
+VERSION="0.3.2"
+CATEGORY="x-window"
+SHORT_DESC="Library for registering global keyboard shortcuts. GTK+3 version"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/kupferlauncher/keybinder"
+REPOLOGY="keybinder-3.0"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/kupferlauncher/keybinder/releases/download/keybinder-3.0-v$VERSION/keybinder-3.0-$VERSION.tar.gz"
+
+BUILD_DEPENDS="gtk+3-dev gobject-introspection-dev xorg-libXext-dev \
+xorg-libXrender-dev"
+SPLIT="keybinder3-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		keybinder3)
+			copy @std
+			DEPENDS="glib gtk+3 xorg-libX11"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="keybinder3 gtk+3-dev"
+			;;
+	esac
+}

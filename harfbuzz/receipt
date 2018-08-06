@@ -1,18 +1,19 @@
 # SliTaz package receipt v2.
 
 PACKAGE="harfbuzz"
-VERSION="1.7.5"
+VERSION="1.8.4"
 CATEGORY="system-tools"
 SHORT_DESC="OpenType text shaping engine"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/HarfBuzz/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/harfbuzz.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/harfbuzz.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.freedesktop.org/software/harfbuzz/release/$TARBALL"
 
-BUILD_DEPENDS="glib-dev cairo-dev freetype-dev fontconfig-dev icu-dev"
+BUILD_DEPENDS="glib-dev gobject-introspection-dev cairo-dev freetype-dev \
+fontconfig-dev icu-dev"
 SPLIT="libharfbuzz libharfbuzz-icu harfbuzz-icu-dev harfbuzz-dev"
 
 compile_rules() {
@@ -37,7 +38,7 @@ genpkg_rules() {
 			DEPENDS="cairo freetype glib libharfbuzz"
 			;;
 		libharfbuzz)
-			copy libharfbuzz.so* libharfbuzz-gobject.so*
+			copy libharfbuzz.so* libharfbuzz-gobject.so* libharfbuzz-subset.so*
 			CAT="libs|shared library"
 			DEPENDS="freetype glib"
 			;;

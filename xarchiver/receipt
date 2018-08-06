@@ -1,27 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xarchiver"
-VERSION="0.5.4"
+VERSION="0.5.4.13"
 CATEGORY="x-window"
 SHORT_DESC="A GTK+ lightweight archive manager"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://wiki.lxde.org/en/Xarchiver"
+#WEB_SITE="https://wiki.lxde.org/en/Xarchiver"
+WEB_SITE="https://github.com/ib/xarchiver"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/xarchiver/$VERSION/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/ib/xarchiver/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="gtk+-dev intltool"
+BUILD_DEPENDS="gtk+-dev intltool libxslt"
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
 
-	mkdir -p $install/var/www/cgi-bin $install/usr/share/doc/xarchiver/html
-	cp $stuff/xarchiver.cgi $install/var/www/cgi-bin
-	cp $stuff/index.html    $install/usr/share/doc/xarchiver/html
+	install -Dm644 $stuff/xarchiver.cgi $install/var/www/cgi-bin/xarchiver.cgi
+	install -Dm644 $stuff/index.html    $install/usr/share/doc/xarchiver/html/index.html
 
 	sed -i 's|multipart/x-zip;||; /Exec/s/.*/& %f/' \
 		$install/usr/share/applications/xarchiver.desktop
@@ -29,7 +30,8 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std @ico
-	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango"
+	rm -r $fs/usr/share/pixmaps/
+	DEPENDS="gdk-pixbuf glib gtk+"
 	# binutils for ar; busybox also contains gzip & cpio; rar is get-rar;
 	# gtar is absent
 	SUGGESTED="arj binutils bzip2 cpio gzip lha lzma lzop p7zip-full rar xz zip"

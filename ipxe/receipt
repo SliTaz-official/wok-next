@@ -1,7 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ipxe"
-VERSION="41f786c"
+VERSION="20180708"
+COMMIT="d2063b7"
 CATEGORY="system-tools"
 SHORT_DESC="Open source network boot firmware"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,7 +10,7 @@ LICENSE="GPL2 UBDL"
 WEB_SITE="http://ipxe.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$GITHUB/ipxe/ipxe/tarball/$VERSION"
+WGET_URL="$GITHUB/ipxe/ipxe/tarball/$COMMIT"
 
 BUILD_DEPENDS="perl xz-dev"
 SPLIT="ipxe-pxe"
@@ -22,13 +23,15 @@ compile_rules() {
 		arch/x86/transitions/librm.S
 
 	#sed -i 's/^ASFLAGS.*/& -adhlns=$(<:.S=.lst)/' Makefile
-	sed -i 's/-llzma/& -lpthread/' Makefile.*
-	sed -i 's|//\(#define.*CONSOLE_FRAMEBUFFER\)|\1|' config/console.h
-	sed -i 's|//\(#define.*CONSOLE_SERIAL\)|\1|' config/console.h
-	sed -i -e 's|//\(#define.*IMAGE_PNG\)|\1|' \
-	    -e 's|//\(#define.*CONSOLE_CMD\)|\1|' \
-	    -e 's|//\(#define.*REBOOT_CMD\)|\1|' config/general.h
-	cp $stuff/lkrnprefix.S arch/i386/prefix
+	sed -i 's|-llzma|& -lpthread|' Makefile.*
+	sed -i '
+		s|//\(#define.*CONSOLE_FRAMEBUFFER\)|\1|;
+		s|//\(#define.*CONSOLE_SERIAL\)|\1|' config/console.h
+	sed -i '
+		s|//\(#define.*IMAGE_PNG\)|\1|;
+		s|//\(#define.*CONSOLE_CMD\)|\1|;
+		s|//\(#define.*REBOOT_CMD\)|\1|' config/general.h
+#	cp $stuff/lkrnprefix.S arch/i386/prefix
 
 	# refer to http://ipxe.org/appnote/buildtargets
 	case $ARCH in

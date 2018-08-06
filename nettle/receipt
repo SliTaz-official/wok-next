@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nettle"
-VERSION="3.3"
+VERSION="3.4"
 CATEGORY="security"
 SHORT_DESC="Nettle cryptographic library"
 MAINTAINER="devl547@gmail.com"
@@ -21,9 +21,13 @@ compile_rules() {
 	esac
 
 	./configure \
+		--libdir=/usr/lib \
 		--disable-static \
 		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
+
+	chmod 0755 $install/usr/lib/*.so*	# was 644
 }
 
 genpkg_rules() {

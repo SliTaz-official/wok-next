@@ -1,0 +1,67 @@
+# SliTaz package receipt v2.
+
+PACKAGE="polkit105"
+LEGACY_OF="polkit"; LEGACY_REASON="without JS"
+VERSION="0.105"
+CATEGORY="base-system"
+SHORT_DESC="Application development toolkit for controlling system-wide \
+privileges"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/polkit/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/polkit.html"
+REPOLOGY="polkit"
+
+TARBALL="polkit-$VERSION.tar.gz"
+WGET_URL="http://www.freedesktop.org/software/polkit/releases/$TARBALL"
+
+BUILD_DEPENDS="libtool automake intltool glib-dev gtk-doc \
+gobject-introspection-dev expat-dev"
+SPLIT="polkit105-dev"
+
+compile_rules() {
+	libtoolize --force &&
+	aclocal &&
+	autoconf &&
+	automake --add-missing
+
+	./configure \
+		--libexecdir=/usr/lib/polkit-1 \
+		--disable-static \
+		--enable-introspection \
+		--with-authfw=shadow \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		polkit105)
+			copy @std
+			DEPENDS="expat glib"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="polkit105 glib-dev"
+			;;
+	esac
+}
+
+post_install_polkit() {
+	if ! grep -q polkitd "$1/etc/group"; then
+		chroot "$1/" /usr/sbin/addgroup -g 27 polkitd
+		chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
+			-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+	fi
+
+	chmod 0700 "$1/etc/polkit-1/localauthority/"
+	chmod 0700 "$1/var/lib/polkit-1/"
+	chmod 4755 "$1/usr/lib/polkit-1/polkit-agent-helper-1"
+	chmod 4755 "$1/usr/bin/pkexec"
+}
+
+post_remove_polkit() {
+	chroot "$1/" deluser  polkitd
+	chroot "$1/" delgroup polkitd
+}

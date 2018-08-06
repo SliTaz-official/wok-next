@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sudoku"
 VERSION="2.3"
@@ -6,26 +6,19 @@ CATEGORY="games"
 SHORT_DESC="Sudoku game in javascript"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="unknown"
-TARBALL="$PACKAGE-$VERSION"
-WEB_SITE="http://10k.aneventapart.com/1/Entry/81"
-WGET_URL="http://10k.aneventapart.com/1/Uploads/81/index.html"
+WEB_SITE="https://web.archive.org/web/20140124072600/http://10k.aneventapart.com/1/Entry/81"
+REPOLOGY="-"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-        mkdir -p $fs/var/www/$PACKAGE $fs/usr/share/applications
-	cp $src/$TARBALL $fs/var/www/$PACKAGE/index.html
-	chown -R 80.80 $fs/var/www/$PACKAGE
-	cat > $fs/usr/share/applications/sudoku.desktop <<EOT
-[Desktop Entry]
-Type=Application
-Name=Sudoku
-Name[zh_CN]=数独
-Exec=sh -c "url=file:///var/www/sudoku/index.html ; tazweb --notoolbar \$url || browser \$url"
-Icon=sudoku
-Terminal=false
-Categories=Game;
-Comment=Sudoku game
-EOT
+TARBALL="$PACKAGE-$VERSION.html"
+#WGET_URL="http://10k.aneventapart.com/1/Uploads/81/index.html"
+WGET_URL="http://mirror1.slitaz.org/sources/packages-4.0/s/$TARBALL"
+
+compile_rules() {
+	install -Dm644 -o80 -g80 $TARBALL $install/var/www/sudoku/index.html
+
+	install -Dm755 $stuff/sudoku $install/usr/bin/sudoku
 }
 
+genpkg_rules() {
+	copy @std
+}

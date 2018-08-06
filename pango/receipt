@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pango"
-VERSION="1.40.14"
+VERSION="1.42.2"
 CATEGORY="x-window"
 SHORT_DESC="Layout and rendering of internationalized text"
 MAINTAINER="pankso@slitaz.org"
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="harfbuzz-dev xorg-libXft-dev cairo-dev \
-gobject-introspection-dev meson ninja"
+gobject-introspection-dev meson ninja fribidi-dev"
 SPLIT="pango-typelib pango-dev"
 
 compile_rules() {
@@ -33,8 +33,8 @@ genpkg_rules() {
 	case $PACKAGE in
 		pango)
 			copy @std
-			DEPENDS="cairo fontconfig freetype glib libharfbuzz xorg-libX11 \
-			xorg-libXft xorg-libXrender"
+			DEPENDS="cairo fontconfig freetype fribidi glib libharfbuzz \
+			xorg-libX11 xorg-libXft xorg-libXrender"
 			;;
 		pango-typelib)
 			copy *.typelib
@@ -44,8 +44,8 @@ genpkg_rules() {
 		*-dev)
 			copy @dev @rm
 			DEPENDS="pango pango-typelib \
-			cairo-dev fontconfig-dev freetype-dev glib-dev harfbuzz-dev \
-			xorg-libXft-dev"
+			cairo-dev fontconfig-dev freetype-dev fribidi-dev glib-dev \
+			harfbuzz-dev xorg-libXft-dev"
 			;;
 	esac
 }

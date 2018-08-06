@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libtirpc"
-VERSION="1.0.2"
+VERSION="1.0.3"
 CATEGORY="system-tools"
 SHORT_DESC="Transport-Independent RPC library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://libtirpc.sourceforge.net/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/libtirpc.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libtirpc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -15,19 +15,12 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 SPLIT="libtirpc-dev"
 
 compile_rules() {
-	# Fix a build issue with glibc-2.26:
-	sed -i '/stdlib.h/a#include <stdint.h>' src/xdr_sizeof.c
-
-	# Fix a symbol name needed by NIS libraries:
-	sed -i '/key_secret_is/s|secret|secretkey|' src/libtirpc.map
-
 	./configure \
+		--sysconfdir=/etc \
 		--disable-static \
 		--disable-gssapi \
 		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install || return 1
+	make && make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libtirpc.so.* $install/lib

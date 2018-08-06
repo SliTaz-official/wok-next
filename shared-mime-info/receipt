@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="shared-mime-info"
-VERSION="1.9"
+VERSION="1.10"
 CATEGORY="system-tools"
 SHORT_DESC="Core database of common types"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/shared-mime-info/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/shared-mime-info.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/shared-mime-info.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://people.freedesktop.org/~hadess/$TARBALL"
@@ -17,10 +17,14 @@ BUILD_DEPENDS="intltool libxml2-dev glib-dev"
 SPLIT="shared-mime-info-dev"
 
 compile_rules() {
-	# Remove unsupported locales
-	for i in $(grep '^-[a-z]' $stuff/patches/slitaz-locales.patch); do
-		rm $src/po/${i#-}.po
-	done
+	# Original size before rebuilding/stripping
+	size0=$(ls -l freedesktop.org.xml | awk '{print $5}')
+
+	# Force to rebuild
+	rm freedesktop.org.xml
+
+	export LINGUAS="ar ca ca@valencia cs da de el en_GB es fa fi fr hr hu id \
+	it ja nb nl nn pl pt pt_BR ro ru sl sv tr uk vi zh_CN zh_TW"
 
 	./configure \
 		--disable-update-mimedb \
@@ -31,14 +35,40 @@ compile_rules() {
 	# Additional MIME-types supported by SliTaz
 	cp $stuff/*.xml $install/usr/share/mime/packages
 
-	# strip a bit
-	sed -i 's|^ *||' "$install/usr/share/mime/packages/freedesktop.org.xml"
+	# Strip
+	xml="$install/usr/share/mime/packages/freedesktop.org.xml"
+	title "Strip $xml"
+	echo "Original size:         $size0 B"
+	echo "Only SliTaz locales:   $(ls -l $xml | awk '{print $5}') B"
+
+	sed -i 's|^ *||' "$xml"
+	echo "Strip whitespace:      $(ls -l $xml | awk '{print $5}') B"
+
+	echo -n "Remove non-translated: "
+
+	awk '{
+		if (index($0, "<comment>")) {
+			comment=$0;
+			gsub("<comment>",  "", comment);
+			gsub("</comment>", "", comment);
+			print $0;
+		} else if (index($0, "<comment ")) {
+			comment2=$0;
+			gsub("<comment [^>]+>", "", comment2);
+			gsub("</comment>", "", comment2);
+			if (comment != comment2)
+				print $0;
+		} else
+			print $0
+	}' $xml > $xml.1
+	mv $xml.1 $xml
+	echo "$(ls -l $xml | awk '{print $5}') B"
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		shared-mime-info)
-			copy bin/ packages/
+			copy @std
 			DEPENDS="glib libxml2"
 			;;
 		*-dev) copy @dev;;

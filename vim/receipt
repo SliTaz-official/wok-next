@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="vim"
-VERSION="8.0.069"
+VERSION="8.1"
 CATEGORY="editors"
 SHORT_DESC="Advanced text editor"
 MAINTAINER="erjo@slitaz.org"
@@ -11,54 +11,66 @@ WEB_SITE="http://www.vim.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.vim.org/pub/vim/unix/$TARBALL"
 
-# python may be removed after "ncursesw problem" solved
 BUILD_DEPENDS="python ncurses-dev acl-dev diffutils gettext"
-SIBLINGS="vim-tiny"
+SPLIT="vim-tiny:tiny"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
+
+	case $SET in
+		'')   SET_ARGS='';;
+		tiny) SET_ARGS='--with-features=tiny --with-vim-name=vim-tiny --disable-acl';;
+	esac
 
 	./configure \
 		--without-x \
 		--disable-gui \
 		--enable-multibyte \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
 
-	mkdir -p $install/etc/vim
-	cp $src/runtime/vimrc_example.vim $install/etc/vim/vimrc
+	install -Dm644 runtime/vimrc_example.vim $install/etc/vim/vimrc
 
 	mkdir -p $install/usr/share/doc
-	ln -s ../vim/vim*/doc $install/usr/share/doc/vim-$VERSION
+	ln -s ../vim/vim${VERSION//./}/doc $install/usr/share/doc/vim-$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy @std
+# TODO: put common files to vim-common package; maybe compile in the single set
+
+genpkg_rules() {
+	case $PACKAGE in
+		vim)
+			copy @std
+			DEPENDS="ncurses acl attr diffutils"
+			;;
+		vim-tiny)
+			copy @std
+			rm -f  $fs/usr/bin/*tutor
+			rm -rf $fs/usr/share/vim/vim*/tutor
+			DEPENDS="ncurses"
+			;;
+	esac
 	CONFIG_FILES="/etc/vim/vimrc"
 	TAGS="text-editor"
-	DEPENDS="ncurses acl attr diffutils"
 }
 
-post_install_vim()
-{
+# common post-install for vim and vim-tiny
+post_install() {
 	cmd=$(readlink "$1/bin/vi")
-	if [ "$cmd" != '/usr/bin/vim' ]; then
+	[ "$cmd" != '/usr/bin/vim' ] || return
+	echo
+	echo "**** Actual VI link : $cmd"
+	echo
+	echo -n 'Do you want vim for /bin/vi (y/N)? : '; read -t 30 anser
+	if [ "$anser" == 'y' ]; then
 		echo
-		echo "**** Actual VI link : $cmd"
+		action 'Removing vi link to make a new one pointing on /usr/bin/vim...'
+		rm "$1/bin/vi"; ln -sf ../usr/bin/vim "$1/bin/vi"
+		status
+	else
 		echo
-		echo -n 'Do you want vim for /bin/vi (y/N)? : '; read -t 30 anser
-		if [ "$anser" == 'y' ]; then
-			echo
-			echo -n 'Removing vi link to make a new one pointing on /usr/bin/vim...'
-			rm "$1/bin/vi" && ln -sf /usr/bin/vim "$1/bin/vi"
-			status
-		else
-			echo
-			echo "Leaving /bin/vi to : $cmd"
-		fi
+		echo "Leaving /bin/vi to $cmd"
 	fi
 }

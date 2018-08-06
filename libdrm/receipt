@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libdrm"
-VERSION="2.4.89"
+VERSION="2.4.92"
 CATEGORY="x-window"
 SHORT_DESC="Freedesktop DRM Library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://dri.freedesktop.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/libdrm.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libdrm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://dri.freedesktop.org/libdrm/$TARBALL"
@@ -18,9 +18,10 @@ SPLIT="libdrm-amdgpu libdrm-etnaviv libdrm-exynos libdrm-intel libdrm-nouveau \
 libdrm-omap libdrm-radeon libdrm-tegra libdrm-dev"
 
 compile_rules() {
-#	sed -i "/pthread-stubs/d" configure.ac &&
 	autoreconf -fiv &&
 
+	# Freedreno API and VC4 API enabled on the ARM
+	GREP=grep \
 	./configure \
 		--enable-udev \
 		--enable-vmwgfx \
@@ -38,7 +39,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		libdrm)
 			copy libdrm.so* libkms.so*
-			DEPENDS="eudev linux-drm xorg-libpciaccess"
+			DEPENDS="eudev linux-drm xorg-libpciaccess" # all deps are implicit
 			;;
 		*-amdgpu)
 			copy libdrm_amdgpu.so* amdgpu.ids

@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="iucode-tool"
+VERSION="2.3.1"
+CATEGORY="kernel"
+SHORT_DESC="Tool to manipulate Intel(R) i686/X86-64 microcode bundles"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://gitlab.com/iucode-tool/iucode-tool/wikis/home"
+
+TARBALL="${PACKAGE}_$VERSION.tar.xz"
+WGET_URL="https://gitlab.com/iucode-tool/releases/raw/master/$TARBALL"
+
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--sbindir=/usr/bin \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS=""
+}

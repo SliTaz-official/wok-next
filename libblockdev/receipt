@@ -1,21 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libblockdev"
-VERSION="2.16"
+VERSION="2.18"
 CATEGORY="libs"
 SHORT_DESC="A library for manipulating block devices"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/storaged-project/libblockdev/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libblockdev.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libblockdev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/storaged-project/libblockdev/releases/download/$VERSION-1/$TARBALL"
 
-BUILD_DEPENDS="automake libtool python glib-dev eudev-dev cryptsetup-dev \
-nss-dev coreutils-file-special libdevmapper-dev kmod-dev parted-dev \
-util-linux-mount-dev util-linux-blkid-dev libbytesize-dev volume_key-dev \
-python3"
+BUILD_DEPENDS="automake libtool python python3 glib-dev \
+gobject-introspection-dev eudev-dev kmod-dev cryptsetup-dev nss-dev \
+coreutils-file-special volume_key-dev libdevmapper-dev parted-dev \
+util-linux-mount-dev util-linux-blkid-dev libbytesize-dev ndctl-dev yaml-dev"
 SPLIT="libblockdev-python libblockdev-python3 libblockdev libblockdev-dev"
 
 compile_rules() {
@@ -44,7 +44,8 @@ genpkg_rules() {
 		libblockdev)
 			copy @std @rm
 			DEPENDS="cryptsetup eudev glib kmod libbytesize libdevmapper \
-			nss parted util-linux-blkid util-linux-mount volume_key"
+			ndctl nss parted util-linux-blkid util-linux-mount util-linux-uuid \
+			volume_key yaml"
 			;;
 		*-dev)
 			copy @dev

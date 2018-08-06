@@ -1,20 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxml2"
-VERSION="2.9.4"
+VERSION="2.9.8"
 CATEGORY="system-tools"
 SHORT_DESC="XML C parser and toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://xmlsoft.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libxml2.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxml2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://xmlsoft.org/libxml2/$TARBALL"
 
 BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="zlib-dev xz-dev python-dev ncurses-dev readline-dev"
-SPLIT="libxml2-tools libxml2-python libxml2-dev"
+SPLIT="libxml2-tools libxml2-python libxml2-dev libxml2-min:min"
 
 # Note: libxml2 can be build using option --with-minimum
 # and binaries are splited into libxml2-tools
@@ -26,13 +26,17 @@ compile_rules() {
 		arm) ARCH_ARGS="--without-lzma" ;;
 	esac
 
+	case $SET in
+		min) SET_ARGS='--with-minimum';;
+	esac
+
 	#	autoreconf -fi
 	./configure \
 		--disable-static \
 		--with-html-dir=/usr/share/doc \
 		--with-threads \
 		--with-history \
-	$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS $ARCH_ARGS $SET_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install || return 1
@@ -52,16 +56,21 @@ genpkg_rules() {
 		libxml2-tools)
 			copy xmllint xmlcatalog
 			CAT="system-tools|xmllint tester and xmlcatalog parser utility"
-			DEPENDS="liblzma libxml2 ncurses readline zlib"
+			DEPENDS="libxml2 readline"
 			;;
 		libxml2-python)
 			copy python2.7/; find $fs -name '*.la' -delete
 			CAT="development|adapter for the Python"
-			DEPENDS="liblzma libxml2 python zlib   libxslt"
+			DEPENDS="libxml2 python" # libxslt
 			;;
 		libxml2-dev)
 			copy @dev *.sh
 			DEPENDS="xz-dev zlib-dev   libxml2-tools"
+			;;
+		libxml2-min)
+			copy libxml2.so*
+			CAT="system-tools|minimally sized library"
+			DEPENDS="liblzma"
 			;;
 	esac
 }

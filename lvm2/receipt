@@ -1,18 +1,19 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lvm2"
-VERSION="2.02.177"
+VERSION="2.02.180"
 CATEGORY="system-tools"
 SHORT_DESC="Linux Logical Volume Manager"
 MAINTAINER="guillaume.michon@laposte.net"
 LICENSE="GPL2"
 WEB_SITE="http://sourceware.org/lvm2/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/lvm2.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/lvm2.html"
 
 TARBALL="LVM2.$VERSION.tgz"
 WGET_URL="ftp://sources.redhat.com/pub/lvm2/$TARBALL"
 
-BUILD_DEPENDS="readline-dev eudev-dev ncurses-dev coreutils-file-format"
+BUILD_DEPENDS="libaio-dev util-linux-blkid-dev eudev-dev ncurses-dev \
+readline-dev coreutils-file-format"
 SPLIT="dmsetup libdevmapper libdevmapper-dev lvm2 lvm2-dev"
 
 compile_rules() {
@@ -28,9 +29,9 @@ compile_rules() {
 		--with-thin-check=   --with-thin-dump=     --with-thin-repair= \
 		--with-thin-restore= --with-cache-check=   --with-cache-dump= \
 		--with-cache-repair= --with-cache-restore= \
+		--enable-write-install \
 		MKDIR_P='mkdir -p' \
 		$CONFIGURE_ARGS &&
-	title "make" &&
 	make &&
 	make -C tools install_dmsetup_dynamic &&
 	make -C udev  install &&
@@ -48,7 +49,7 @@ genpkg_rules() {
 		libdevmapper)
 			# to satisfy package ldd-dependencies: add liblvm2cmd.so*
 			copy *.rules libdevmapper*.so* liblvm2cmd.so*
-			DEPENDS="eudev"
+			DEPENDS="eudev libaio util-linux-blkid"
 			CAT="system-tools|Linux device mapper library"
 			;;
 		libdevmapper-dev)
@@ -59,11 +60,12 @@ genpkg_rules() {
 			;;
 		lvm2)
 			copy @std @rm
-			DEPENDS="eudev libdevmapper ncurses readline   linux-md"
+			DEPENDS="eudev libaio libdevmapper readline util-linux-blkid \
+			   linux-md"
 			;;
 		lvm2-dev)
 			copy lvm2app.h lvm2app.pc
-			DEPENDS="lvm2 libdevmapper-dev"
+			DEPENDS="lvm2 libdevmapper-dev util-linux-blkid-dev"
 			;;
 	esac
 }
