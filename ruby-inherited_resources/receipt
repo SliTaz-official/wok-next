@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-inherited_resources"
+VERSION="1.9.0"
+CATEGORY="ruby"
+SHORT_DESC="Make your controllers inherit all restful actions"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="ruby:inherited-resources"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby ruby-actionpack ruby-has_scope ruby-railties ruby-responders"
+}

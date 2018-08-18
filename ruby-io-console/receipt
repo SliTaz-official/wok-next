@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-io-console" # ruby-stdlib already provides io-console
+VERSION="0.4.6"
+CATEGORY="ruby"
+SHORT_DESC="Console interface"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby"
+}

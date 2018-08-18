@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-rspec-support"
+VERSION="3.8.0"
+CATEGORY="ruby"
+SHORT_DESC="Support utilities for RSpec gems"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="http://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby"
+}

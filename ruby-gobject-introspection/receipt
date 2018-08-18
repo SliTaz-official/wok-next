@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-gobject-introspection"
+VERSION="3.2.9"
+CATEGORY="ruby"
+SHORT_DESC="Bindings of GObject Introspection and a loader module"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev ruby-glib2-dev gobject-introspection-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @ruby-dev
+			DEPENDS="ruby-gobject-introspection gobject-introspection-dev"
+			;;
+		*)
+			copy @ruby
+			DEPENDS="ruby ruby-glib2 glib gobject-introspection"
+			;;
+	esac
+}

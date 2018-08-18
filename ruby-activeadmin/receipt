@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-activeadmin"
+VERSION="1.3.1"
+CATEGORY="ruby"
+SHORT_DESC="administration framework for Ruby on Rails"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby app/ config/ features/ spec/ vendor/
+	DEPENDS="ruby ruby-arbre ruby-coffee-rails ruby-formtastic \
+	ruby-formtastic_i18n ruby-inherited_resources ruby-jquery-rails \
+	ruby-kaminari ruby-railties ruby-ransack ruby-sass ruby-sprockets"
+}

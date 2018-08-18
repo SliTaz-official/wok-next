@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-power_assert" # ruby-stdlib already provides power_assert
+VERSION="1.1.3"
+CATEGORY="ruby"
+SHORT_DESC="Power Assert for Ruby"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="ruby:power-assert"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem &&
+	chmod -R g-w $install
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby"
+}

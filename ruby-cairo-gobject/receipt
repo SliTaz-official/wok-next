@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-cairo-gobject"
+VERSION="3.2.9"
+CATEGORY="ruby"
+SHORT_DESC="Ruby binding of cairo-gobject"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev ruby-glib2 ruby-cairo-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @ruby-dev
+			DEPENDS="ruby-cairo-gobject cairo-dev"
+			;;
+		*)
+			copy @ruby
+			DEPENDS="ruby ruby-cairo ruby-glib2 cairo"
+			;;
+	esac
+}

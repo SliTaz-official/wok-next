@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-gdk_pixbuf2"
+VERSION="3.2.9"
+CATEGORY="ruby"
+SHORT_DESC="Ruby binding of GdkPixbuf-2.x"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="ruby:gdk-pixbuf2"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev ruby-pkg-config ruby-native-package-installer \
+gdk-pixbuf-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby ruby-gio2"
+}

@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-rails"
+VERSION="5.2.1"
+CATEGORY="development"
+SHORT_DESC="Full-stack web application framework"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby ruby-actioncable ruby-actionmailer ruby-actionpack \
+	ruby-actionview ruby-activejob ruby-activemodel ruby-activerecord \
+	ruby-activestorage ruby-activesupport ruby-bundler ruby-railties \
+	ruby-sprockets-rails"
+}

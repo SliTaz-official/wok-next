@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-mini_portile2"
+VERSION="2.3.0"
+CATEGORY="ruby"
+SHORT_DESC="Simplistic port-like solution for developers"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="ruby:mini-portile"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+COOKOPTS="!gz" # error with weird test file
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby"
+}

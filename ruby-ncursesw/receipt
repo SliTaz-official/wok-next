@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-ncursesw"
+VERSION="1.4.10"
+CATEGORY="ruby"
+SHORT_DESC="Ruby extension for the ncurses C library"
+MAINTAINER="paul@slitaz.org"
+LICENSE="LGPL2.1"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev ncurses-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+	# FIXME: many *.{h,c,o} files inside gem base folder; move to lib / ext ?
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @ruby-dev *.h
+			DEPENDS="ruby-ncursesw ncurses-dev"
+			;;
+		*)
+			copy @ruby
+			DEPENDS="ruby ncurses ncurses-libform ncurses-libmenu \
+			ncurses-libpanel"
+			;;
+	esac
+}

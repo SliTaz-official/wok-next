@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ruby"
-VERSION="2.5.0"
+VERSION="2.5.1"
 CATEGORY="development"
 SHORT_DESC="Dynamic programming language focused on simplicity and productivity"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.ruby-lang.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/ruby.html"
+WEB_SITE="https://www.ruby-lang.org/en/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/ruby.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://cache.ruby-lang.org/pub/ruby/${VERSION%.*}/$TARBALL"
@@ -15,51 +15,49 @@ WGET_URL="http://cache.ruby-lang.org/pub/ruby/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS_arm="zlib-dev tcl-dev openssl-dev db-dev readline-dev"
 BUILD_DEPENDS="gmp-dev db-dev libffi-dev openssl-dev tcl-dev tk-dev zlib-dev \
 gdbm-dev readline-dev"
-SPLIT="libruby libruby-extras ruby-doc ruby-dev"
+SPLIT="ruby libruby ruby-stdlib ruby-dev"
 
 compile_rules() {
 	case "$ARCH" in
 		arm*)
 			# executable host ruby is required. use --with-baseruby option.
-			# --with-arch=arm 
+			# --with-arch=arm
 			export ac_cv_func_getpgrp_void=yes
 			export ac_cv_func_setpgrp_void=yes
 			ARCH_ARGS="--with-baseruby=/usr/bin/ruby" ;;
 	esac
 
+	#	--disable-rubygems
 	./configure \
 		--enable-shared \
+		--disable-install-doc \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
-	make install
+	make install &&
+	rm $install/usr/lib/ruby/gems/*/cache/*.gem
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		ruby)
 			copy /usr/bin/
-			TAGS="ruby language programming"
-			SUGGESTED="tk"
 			DEPENDS="libruby"
+			SUGGESTED="tk"
+			TAGS="ruby language programming"
 			;;
 		libruby)
 			copy libruby.so*
 			CAT="libdevel|shared libraries"
 			DEPENDS="gmp"
 			;;
-		libruby-extras)
+		ruby-stdlib)
 			copy /usr/lib/ruby/
 			CAT="libdevel|native libraries"
 			DEPENDS="gdbm libdb libffi libruby openssl readline zlib"
 			;;
-		ruby-doc)
-			copy /usr/share/ri/
-			CAT="development|ri documentation"
-			;;
 		ruby-dev)
 			copy @dev
-			DEPENDS="ruby libruby libruby-extras" # all but doc
 			;;
 	esac
 }

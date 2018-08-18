@@ -1,0 +1,39 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-strscan" # ruby-stdlib already provides strscan
+VERSION="1.0.0"
+CATEGORY="ruby"
+SHORT_DESC="Lexical scanning operations on a String"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @ruby-dev
+			;;
+		*)
+			copy @ruby
+			DEPENDS="ruby"
+			;;
+	esac
+}

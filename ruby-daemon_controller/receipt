@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-daemon_controller"
+VERSION="1.2.0"
+CATEGORY="ruby"
+SHORT_DESC="Daemon management capabilities"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="ruby:daemon-controller"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby"
+}

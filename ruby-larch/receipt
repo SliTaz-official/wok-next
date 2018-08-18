@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-larch"
+VERSION="1.1.2"
+CATEGORY="ruby"
+SHORT_DESC="Copies messages from one IMAP server to another"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+#REPOLOGY="${PACKAGE/-/:}"
+REPOLOGY="larch" # but why???
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby"
+}

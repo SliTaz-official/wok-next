@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-rb-fsevent"
+VERSION="0.10.3"
+CATEGORY="ruby"
+SHORT_DESC="Very simple & usable FSEvents API"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="i486 x86_64"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	# FIXME: hmm... look at the binary file, is it gem OSX-based only?..
+	# dependency chain: activeadmin -> sass -> sass-listen -> rb-fsevent
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @ruby-dev
+			;;
+		*)
+			copy @ruby
+			DEPENDS="ruby"
+			;;
+	esac
+}
