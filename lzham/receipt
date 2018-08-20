@@ -1,0 +1,47 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lzham"
+VERSION="1.0.1"
+CATEGORY="base-system"
+SHORT_DESC="Lossless data compression codec with LZMA-like ratios but 1.5x-8x \
+faster decompression speed"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://github.com/richgel999/lzham_codec"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GITHUB/richgel999/lzham_codec/tarball/v1_0_stable1"
+
+BUILD_DEPENDS="cmake libunistring"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	case $ARCH in
+		i?86)   ARCH_ARGS='-DBUILD_X64=OFF';;
+		x86_64) ARCH_ARGS='';;
+	esac
+
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		$ARCH_ARGS \
+		.. &&
+	make &&
+	make install || return 1
+
+	install -Dm755 lzhamtest/lzhamtest $install/usr/bin/lzhamtest
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			;;
+		*)
+			copy @std
+			TAGS="compression"
+			;;
+	esac
+}
