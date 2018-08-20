@@ -1,0 +1,100 @@
+# SliTaz package receipt v2.
+
+PACKAGE="boost"
+VERSION="1.68.0"
+CATEGORY="meta"
+SHORT_DESC="Boost C++ libraries"
+MAINTAINER="chadi.elahmad@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.boost.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/boost.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://dl.bintray.com/boostorg/release/$VERSION/source/${PACKAGE}_${VERSION//./_}.tar.bz2"
+# https://www.boost.org/users/download/
+TARBALL_SHA256="7f6130bc3cf65f56a618888ce9d5ea704fa10b462be126ad053e80e553d6d8b7"
+
+BUILD_DEPENDS="icu-dev zlib-dev bzip2-dev python-dev"
+b="boost"
+SPLIT="$b-atomic $b-chrono $b-container $b-context $b-coroutine $b-date-time \
+$b-fiber $b-filesystem $b-graph $b-iostreams $b-locale $b-log $b-math \
+$b-math-tr1 $b-prg-exec-monitor $b-program-options $b-python $b-random \
+$b-regex $b-serialization $b-signals $b-system $b-thread $b-timer \
+$b-type-erasure $b-unit-test-framework $b-wave $b-wserialization $b-doc $b-dev"
+
+# About splitting: there's complex relationships between header files.
+# Previously, for example, the /usr/include/boost/chrono/* files were packed
+# into libboost-chrono-dev package. And so on for many /usr/include/boost/*/
+#
+# But, for example:
+# 1. /usr/include/boost/chrono/config.hpp (former boost-chrono-dev package)
+# includes <boost/config.hpp> (boost-dev package)
+# 2. /usr/include/boost/compute/detail/duration.hpp (former boost-dev package)
+# includes <boost/chrono/duration.hpp> (boost-chrono package)
+#
+# And many other circular dependencies between boost-dev and boost-*-dev
+# packages.
+#
+# Solution: make single solid big boost-dev package with all development
+# files.
+#
+# How to change dependencies of packages that depends on boost?
+# Substitute boost-?-dev by the pair: boost-? and boost-dev.
+
+
+compile_rules() {
+	./bootstrap.sh --prefix=$install/usr &&
+	./b2 stage   threading=multi link=shared &&
+	./b2 install threading=multi link=shared || return 1
+
+	cook_pick_docs doc/html/*
+
+	find $install -name '*.hpp' -exec chmod 644 '{}' \;
+}
+
+genpkg_rules() {
+	DEPENDS=" "
+	case $PACKAGE in
+		*-chrono)				DEPENDS="$b-system";;
+		*-coroutine)			DEPENDS="$b-chrono $b-context $b-system $b-thread";;
+		*-fiber)				DEPENDS="$b-context $b-filesystem $b-system";;
+		*-filesystem)			DEPENDS="$b-system";;
+		*-graph)				DEPENDS="$b-regex icu libicu";;
+		*-iostreams)			DEPENDS="bzlib zlib";;
+		*-locale)				DEPENDS="$b-chrono $b-system $b-thread icu libicu";;
+		*-log)					DEPENDS="$b-atomic $b-chrono $b-date-time $b-filesystem $b-regex $b-system $b-thread icu libicu";;
+		*-prg-exec-monitor)		DEPENDS="$b-system $b-timer";;
+		*-random)				DEPENDS="$b-system";;
+		*-regex)				DEPENDS="icu libicu";;
+		*-thread)				DEPENDS="$b-system";;
+		*-timer)				DEPENDS="$b-chrono $b-system";;
+		*-type-erasure)			DEPENDS="$b-chrono $b-system $b-thread";;
+		*-unit-test-framework)	DEPENDS="$b-system $b-timer";;
+		*-wave)					DEPENDS="$b-chrono $b-date-time $b-filesystem $b-system $b-thread";;
+		*-wserialization)		DEPENDS="$b-serialization";;
+	esac
+
+	case $PACKAGE in
+		boost)
+			DEPENDS="$b-date-time $b-iostreams $b-regex $b-serialization \
+			$b-system $b-thread"
+			CAT="meta|meta-package to install base modules"
+			;;
+		*-doc)
+			copy doc/
+			CAT="doc|documentation"
+			;;
+		boost-dev)
+			copy @dev @rm
+			;;
+		*)
+			p=${PACKAGE#*-}
+			copy libboost_${p//-/_}*.so*
+			CAT="libdevel|${PACKAGE#*-}"
+			;;
+	esac
+
+	case $PACKAGE in
+		*-math)	rm -f $fs/usr/lib/*math_tr1*.so*;;
+	esac
+}
