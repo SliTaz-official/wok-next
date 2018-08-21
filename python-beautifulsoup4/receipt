@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-beautifulsoup4"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="Python HTML-XML parser"
+MAINTAINER="paul@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/beautifulsoup4/"
+REPOLOGY="python:beautifulsoup"
+
+BUILD_DEPENDS="python-dev"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR beautifulsoup4
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*beautifulsoup4-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+	TAGS="parser XML HTML"
+}
