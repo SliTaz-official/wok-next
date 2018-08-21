@@ -16,11 +16,12 @@ TARBALL_SHA256="7f6130bc3cf65f56a618888ce9d5ea704fa10b462be126ad053e80e553d6d8b7
 
 BUILD_DEPENDS="icu-dev zlib-dev bzip2-dev python-dev"
 b="boost"
-SPLIT="$b-atomic $b-chrono $b-container $b-context $b-coroutine $b-date-time \
-$b-fiber $b-filesystem $b-graph $b-iostreams $b-locale $b-log $b-math \
-$b-math-tr1 $b-prg-exec-monitor $b-program-options $b-python $b-random \
-$b-regex $b-serialization $b-signals $b-system $b-thread $b-timer \
-$b-type-erasure $b-unit-test-framework $b-wave $b-wserialization $b-doc $b-dev"
+SPLIT="$b-atomic $b-chrono $b-container $b-context $b-contract $b-coroutine \
+$b-date-time $b-fiber $b-filesystem $b-graph $b-iostreams $b-locale $b-log \
+$b-math $b-math-tr1 $b-prg-exec-monitor $b-program-options $b-python $b-random \
+$b-regex $b-serialization $b-signals $b-stacktrace $b-system $b-thread \
+$b-timer $b-type-erasure $b-unit-test-framework $b-wave $b-wserialization \
+$b-dev"
 
 # About splitting: there's complex relationships between header files.
 # Previously, for example, the /usr/include/boost/chrono/* files were packed
@@ -55,7 +56,9 @@ compile_rules() {
 genpkg_rules() {
 	DEPENDS=" "
 	case $PACKAGE in
+		boost)					DEPENDS="$b-date-time $b-iostreams $b-regex $b-serialization $b-system $b-thread";;
 		*-chrono)				DEPENDS="$b-system";;
+		*-contract)				DEPENDS="$b-system";;
 		*-coroutine)			DEPENDS="$b-chrono $b-context $b-system $b-thread";;
 		*-fiber)				DEPENDS="$b-context $b-filesystem $b-system";;
 		*-filesystem)			DEPENDS="$b-system";;
@@ -76,13 +79,7 @@ genpkg_rules() {
 
 	case $PACKAGE in
 		boost)
-			DEPENDS="$b-date-time $b-iostreams $b-regex $b-serialization \
-			$b-system $b-thread"
 			CAT="meta|meta-package to install base modules"
-			;;
-		*-doc)
-			copy doc/
-			CAT="doc|documentation"
 			;;
 		boost-dev)
 			copy @dev @rm

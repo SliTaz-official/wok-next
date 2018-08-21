@@ -11,8 +11,8 @@ WEB_SITE="https://libopenraw.freedesktop.org/wiki/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://libopenraw.freedesktop.org/download/$TARBALL"
 
-BUILD_DEPENDS="boost-dev libjpeg-turbo-dev libxml2-dev curl-dev glib-dev \
-gdk-pixbuf-dev"
+BUILD_DEPENDS="boost-dev boost-unit-test-framework libjpeg-turbo-dev \
+libxml2-dev curl-dev glib-dev gdk-pixbuf-dev"
 SPLIT="libopenraw-gnome libopenraw libopenraw-dev"
 
 compile_rules() {
@@ -26,19 +26,15 @@ genpkg_rules() {
 	case $PACKAGE in
 		libopenraw-gnome)
 			copy libopenrawgnome.so*
-			DEPENDS="libopenraw"
+			DEPENDS="gdk-pixbuf glib libopenraw"
 			CAT="gnome|GNOME support"
 			;;
 		libopenraw)
 			copy @std @rm
-			DEPENDS="gdk-pixbuf glib libffi libjpeg-turbo libpng16 pcre \
-			util-linux-blkid util-linux-mount util-linux-uuid zlib"
+			DEPENDS="gdk-pixbuf glib libjpeg-turbo"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libopenraw libopenraw-gnome gdk-pixbuf-dev glib-dev \
-			libjpeg-turbo-dev libffi-dev libpng16-dev pcre-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev zlib"
 			;;
 	esac
 }
