@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pycparser"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="C parser in Python"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/pycparser/"
+HOST_ARCH="any"
+REPOLOGY="python:pycparser"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR pycparser
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*pycparser-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

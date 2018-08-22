@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-asn1crypto"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Fast ASN.1 parser and serializer"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/asn1crypto/"
+HOST_ARCH="any"
+REPOLOGY="python:asn1crypto"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR asn1crypto
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*asn1crypto-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

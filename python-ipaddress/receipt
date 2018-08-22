@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-ipaddress"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="IPv4/IPv6 manipulation library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PSFL"
+WEB_SITE="https://pypi.org/project/ipaddress/"
+HOST_ARCH="any"
+REPOLOGY="python:ipaddress"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR ipaddress
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*ipaddress-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

@@ -1,0 +1,22 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-bcrypt"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Modern password hashing for your software and your servers"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://pypi.org/project/bcrypt/"
+REPOLOGY="python:bcrypt"
+
+BUILD_DEPENDS="python python-six python-cffi"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR bcrypt
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*bcrypt-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

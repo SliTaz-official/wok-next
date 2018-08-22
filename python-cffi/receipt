@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-cffi"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Foreign Function Interface for Python calling C code"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://pypi.org/project/cffi/"
+REPOLOGY="python:cffi"
+
+BUILD_DEPENDS="python python-pycparser"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR cffi
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*cffi-||p' $LOGS/${PACKAGE%-dev}.log)
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			;;
+		*)
+			copy @std
+			DEPENDS="python python-pycparser"
+			;;
+	esac
+}

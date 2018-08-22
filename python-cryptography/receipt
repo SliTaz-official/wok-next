@@ -1,0 +1,24 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-cryptography"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Provide cryptographic recipes and primitives"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/cryptography/"
+REPOLOGY="python:cryptography"
+
+BUILD_DEPENDS="python python-enum34 python-cffi python-asn1crypto python-idna \
+python-six python-ipaddress"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR cryptography
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*cryptography-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python python-enum34 python-cffi python-asn1crypto python-idna \
+	python-six python-ipaddress"
+}

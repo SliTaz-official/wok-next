@@ -1,0 +1,22 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pynacl"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Python binding to the Networking and Cryptography library (NaCl)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://pypi.org/project/PyNaCl/"
+REPOLOGY="python:pynacl"
+
+BUILD_DEPENDS="python python-cffi python-six"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR PyNaCl
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*PyNaCl-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python python-cffi python-six"
+}
