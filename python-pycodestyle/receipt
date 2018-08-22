@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pycodestyle"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="Python style guide checker"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/pycodestyle/"
+HOST_ARCH="any"
+REPOLOGY="python:pycodestyle"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR pycodestyle
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*pycodestyle-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-configparser"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="Updated configparser from Python 3.5 to Python 2.7"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/configparser/"
+HOST_ARCH="any"
+REPOLOGY="python:configparser"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR configparser
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*configparser-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

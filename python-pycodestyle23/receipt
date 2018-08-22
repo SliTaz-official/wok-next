@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pycodestyle23"
+VERSION="latest2.3"
+CATEGORY="development"
+SHORT_DESC="Python style guide checker (for python-flake8)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/pycodestyle/"
+HOST_ARCH="any"
+REPOLOGY="python:pycodestyle"
+
+BUILD_DEPENDS="python"
+
+LEGACY_OF="python-pycodestyle" # python-flake8 requres 'pycodestyle<2.4.0,>=2.0.0' while latest is 2.4.0
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR 'pycodestyle<2.4.0,>=2.0.0'
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*pycodestyle-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

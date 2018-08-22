@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-flake8"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="The modular source code checker for Python"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/flake8/"
+HOST_ARCH="any"
+REPOLOGY="python:flake8"
+
+BUILD_DEPENDS="python python-enum34 python-configparser python-mccabe \
+python-pyflakes16 python-pycodestyle23"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR flake8
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*flake8-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python python-enum34 python-configparser python-mccabe \
+	python-pyflakes16 python-pycodestyle23"
+}

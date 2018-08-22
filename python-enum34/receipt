@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-enum34"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="Python 3.4 Enum backported to 2.7"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/enum34/"
+HOST_ARCH="any"
+REPOLOGY="python:enum34"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR enum34
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*enum34-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}
