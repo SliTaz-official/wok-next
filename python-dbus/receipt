@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-dbus"
+VERSION="latest"
+CATEGORY="system-tools"
+SHORT_DESC="D-Bus Python bindings"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="http://freedesktop.org/wiki/Software/DBusBindings"
+REPOLOGY="python:dbus-python"
+
+BUILD_DEPENDS="dbus-dev glib-dev python-dev dbus-glib-dev"
+SPLIT="$PACKAGE-dev"
+
+# Python packages name should start with "python-", but "python-dbus-python"
+# is pretty ugly name, so strip it to "python-dbus"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR dbus-python &&
+
+	# fix installation
+	mv $install/tmp/pip-build-*/dbus-python/build/lib.*/* \
+		$install/usr/lib/python2.7/site-packages/ &&
+	rm -r $install/tmp
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*dbus-python-||p' $LOGS/${PACKAGE%-dev}.log)
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			;;
+		*)
+			copy @std
+			DEPENDS="dbus glib python dbus-glib"
+			;;
+	esac
+}
