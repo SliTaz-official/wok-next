@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="picamera"
+VERSION="latest"
+CATEGORY="multimedia"
+SHORT_DESC="A pure Python interface for the Raspberry Pi camera module"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/picamera/"
+HOST_ARCH="arm"
+REPOLOGY="python:picamera"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR picamera
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*picamera-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}
