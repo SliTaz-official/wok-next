@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-hg-git"
+VERSION="latest"
+CATEGORY="misc"
+SHORT_DESC="Git plugin for Mercurial"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://pypi.org/project/hg-git/"
+HOST_ARCH="any"
+REPOLOGY="python:hg-git"
+
+BUILD_DEPENDS="python-dev python-dulwich"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR hg-git
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*hg-git-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="mercurial python-dulwich python"
+}
