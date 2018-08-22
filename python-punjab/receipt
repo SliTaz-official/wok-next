@@ -1,0 +1,24 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-punjab"
+VERSION="latest"
+CATEGORY="network"
+SHORT_DESC="HTTP jabber proxy allowing persistent client connections"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://pypi.org/project/punjab/"
+HOST_ARCH="any"
+REPOLOGY="python:punjab"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR punjab
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*punjab-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python   twisted pyopenssl"
+	CONFIG_FILES="/etc/punjab.tac"
+}
