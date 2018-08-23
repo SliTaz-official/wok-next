@@ -1,22 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-ipaddr"
-VERSION="2.1.11"
+VERSION="latest"
 CATEGORY="python"
 SHORT_DESC="Google's Python IP address manipulation library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="Apache"
-WEB_SITE="https://github.com/google/ipaddr-py"
+WEB_SITE="https://pypi.org/project/ipaddr/"
 REPOLOGY="python:ipaddr"
 
-TARBALL="ipaddr-$VERSION.tar.gz"
-WGET_URL="https://pypi.python.org/packages/source/i/ipaddr/$TARBALL"
+BUILD_DEPENDS="python"
 
 compile_rules() {
-	python setup.py install --root=$install
+	pip install --no-compile --root=$DESTDIR ipaddr
 }
 
 genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*ipaddr-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }

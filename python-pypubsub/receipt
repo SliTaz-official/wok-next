@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pypubsub"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Python Publish-Subscribe Package"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/PyPubSub/"
+HOST_ARCH="any"
+REPOLOGY="python:pypubsub"
+
+BUILD_DEPENDS="python python-typing"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR PyPubSub
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*PyPubSub-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python python-typing"
+}

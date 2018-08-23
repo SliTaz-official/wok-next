@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xorg-xfs"
-VERSION="1.1.4"
+VERSION="1.2.0"
 CATEGORY="x-window"
 SHORT_DESC="X Font Server"
 MAINTAINER="al.bobylev@gmail.com"
@@ -9,12 +9,11 @@ LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
 REPOLOGY="xfs"
 
-TARBALL="xfs-$VERSION.tar.bz2"
+TARBALL="${PACKAGE#*-}-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/app/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-font-util-dev xorg-xproto \
-xorg-libXfont-dev xorg-xtrans"
-PKG_RULE="std"
+xorg-libXfont2-dev xorg-xtrans"
 
 compile_rules() {
 	touch /root/missing /missing
@@ -26,6 +25,6 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="xorg-libXfont"
+	DEPENDS="xorg-libXfont2"
 	CONFIG_FILES="/etc/X11/fs/config"
 }

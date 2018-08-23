@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-wxpython"
+VERSION="latest"
+CATEGORY="x-window"
+SHORT_DESC="GUI toolkit for the Python programming language"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL"
+WEB_SITE="https://www.wxpython.org/"
+REPOLOGY="python:wxpython"
+
+BUILD_DEPENDS="python python-six python-pypubsub zlib-dev libpng16-dev \
+libjpeg-turbo-dev tiff-dev expat-dev gtk+3-dev glib-dev xorg-libXxf86vm-dev \
+xorg-libSM-dev mesa-dev glu-dev libsdl-dev webkit2gtk-dev gstreamer1-dev"
+BUILD_DEPENDS_x86_64="python python-six python-pypubsub zlib-dev libpng16-dev \
+libjpeg-turbo-dev tiff-dev expat-dev gtk+3-dev glib-dev xorg-libXxf86vm-dev \
+xorg-libSM-dev mesa-dev glu-dev libsdl-dev gstreamer1-dev \
+gst1-plugins-base-dev libnotify-dev cppunit-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR wxPython
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*wxPython-||p' $LOGS/${PACKAGE%-dev}.log)
+	case $PACKAGE in
+		python-wxpython)
+			copy @std
+			DEPENDS="python python-six python-pypubsub" # ...
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

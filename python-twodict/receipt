@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-twodict"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Simple two way ordered dictionary for Python"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PublicDomain"
+WEB_SITE="https://pypi.org/project/twodict/"
+HOST_ARCH="any"
+REPOLOGY="python:twodict"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR twodict
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*twodict-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}
