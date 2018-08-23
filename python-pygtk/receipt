@@ -1,6 +1,6 @@
 # SliTaz package receipt v2.
 
-PACKAGE="pygtk"
+PACKAGE="python-pygtk"
 VERSION="2.24.0"
 CATEGORY="development"
 SHORT_DESC="GTK+ for Python"
@@ -9,12 +9,12 @@ LICENSE="LGPL2.1"
 WEB_SITE="http://www.pygtk.org/"
 REPOLOGY="python:pygtk"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL="pygtk-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/pygtk/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="python-dev pycairo-dev python-pygobject2-dev expat-dev gtk+-dev \
 libglade-dev libxml2-dev libffi-dev python-numpy"
-SPLIT="pygtk-dev"
+SPLIT="$PACKAGE-demos $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -27,13 +27,18 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		pygtk)
-			copy @std
+		*-demos)
+			copy demos/ pygtk-demo pygtk-demo.py
+			CAT="development|demos"
+			;;
+		python-pygtk)
+			copy @std @rm
+			rm -r $fs/usr/lib/pygtk/
 			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libglade pango python"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="pygtk gtk+-dev python-pygobject2-dev"
+			DEPENDS="python-pygtk gtk+-dev python-pygobject2-dev"
 			;;
 	esac
 }
