@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
-PACKAGE="pygobject"
-VERSION="2.28.6"
+PACKAGE="python-pygobject2"
+VERSION="2.28.7"
 CATEGORY="development"
 SHORT_DESC="Python bindings for the GObject library"
 MAINTAINER="erjo@slitaz.org"
@@ -9,12 +9,12 @@ LICENSE="LGPL2.1"
 WEB_SITE="http://www.pygtk.org/docs/pygobject/index.html"
 REPOLOGY="python:pygobject2"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL="pygobject-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/pygobject/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="python python-dev glib-dev pycairo-dev \
 cairo-dev libffi-dev util-linux-mount-dev"
-SPLIT="pygobject-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -27,13 +27,13 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		pygobject)
+		python-pygobject2)
 			copy @std
 			DEPENDS="python pycairo glib libffi"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="pygobject libffi-dev"
+			DEPENDS="python-pygobject2 libffi-dev"
 			;;
 	esac
 }
