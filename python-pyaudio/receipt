@@ -1,0 +1,22 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pyaudio"
+VERSION="latest"
+CATEGORY="development"
+SHORT_DESC="PyAudio provides Python bindings for PortAudio"
+MAINTAINER="paul@slitaz.org"
+LICENSE="unknown"
+WEB_SITE="https://pypi.org/project/PyAudio/"
+REPOLOGY="python:pyaudio"
+
+BUILD_DEPENDS="python-dev portaudio-dev"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR PyAudio
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*PyAudio-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python portaudio"
+}
