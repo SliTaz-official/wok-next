@@ -1,27 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="duktape"
-VERSION="2.2.0"
+VERSION="2.3.0"
 CATEGORY="libs"
 SHORT_DESC="Embeddable Javascript engine"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="http://duktape.org/"
+WEB_SITE="https://duktape.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://duktape.org/$TARBALL"
+WGET_URL="https://duktape.org/$TARBALL"
+TARBALL_MD5="352105b39979fc766bbd0b3721e8c2b5"
 
 SPLIT="duktape-dev"
 
 compile_rules() {
 	mv Makefile.sharedlibrary Makefile
-	sed -i 's|-Wall -Wextra|$(CFLAGS)|g' Makefile
+	sed -i.orig 's|-Wall -Wextra|$(CFLAGS)|g' Makefile
 	sed -i "s|/usr/local|$install/usr|" Makefile
 	cp $stuff/duktape.pc .
 	sed -i "s|@@VERSION@@|$VERSION|" duktape.pc
 
 	CFLAGS="$CFLAGS -D DUK_USE_FASTINT -w" \
-	make
+	make || return 1
 
 	mkdir -p \
 		$install/usr/lib/pkgconfig/ \
