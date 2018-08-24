@@ -1,23 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cmake"
-VERSION="3.9.1"
+VERSION="3.12.1"
 CATEGORY="development"
 SHORT_DESC="Cross-platform build system generator"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://cmake.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/cmake.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/cmake.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.cmake.org/files/v${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev xz-dev libarchive-dev \
-expat-dev ncurses-dev gfortran"
+expat-dev ncurses-dev gfortran libuv-dev"
 
 compile_rules() {
-	sed -i '/CMAKE_USE_LIBUV 1/s/1/0/' CMakeLists.txt &&
-	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake &&
+	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
+	fix math
 
 	./bootstrap \
 		--prefix=/usr \
@@ -32,5 +32,8 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std @dev
-	DEPENDS="expat libarchive libcurl ncurses ncurses-libform zlib"
+	DEPENDS="expat libarchive libcurl libuv ncurses ncurses-libform zlib"
 }
+
+# CMake should be updated both with Boost:
+# https://stackoverflow.com/questions/42123509/cmake-finds-boost-but-the-imported-targets-not-available-for-boost-version

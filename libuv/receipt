@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libuv"
+VERSION="1.23.0"
+CATEGORY="libs"
+SHORT_DESC="Cross-platform asychronous I/O"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://libuv.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libuv.html"
+
+TARBALL="$PACKAGE-v$VERSION.tar.gz"
+WGET_URL="https://dist.libuv.org/dist/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="automake libtool libnsl-dev"
+SPLIT="libuv-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libuv)
+			copy @std
+			DEPENDS="libnsl"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}
