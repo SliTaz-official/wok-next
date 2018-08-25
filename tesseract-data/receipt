@@ -1,0 +1,158 @@
+# SliTaz package receipt v2.
+
+PACKAGE="tesseract-data"
+VERSION="3.04.00"
+CATEGORY="meta"
+SHORT_DESC="Language data for Tesseract OCR"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="Apache"
+WEB_SITE="https://github.com/tesseract-ocr/tessdata"
+HOST_ARCH="any"
+REPOLOGY="tesseract-ocr-data"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/tesseract-ocr/tessdata/archive/$VERSION.tar.gz"
+
+t='tesseract'
+SPLIT="$t-afr $t-amh $t-ara $t-asm $t-aze $t-aze_cyrl $t-bel $t-ben $t-bod \
+$t-bos $t-bul $t-cat $t-ceb $t-ces $t-chi_sim $t-chi_tra $t-chr $t-cym $t-dan \
+$t-dan_frak $t-deu $t-deu_frak $t-dzo $t-ell $t-eng $t-enm $t-epo $t-equ \
+$t-est $t-eus $t-fas $t-fin $t-fra $t-frk $t-frm $t-gle $t-glg $t-grc $t-guj \
+$t-hat $t-heb $t-hin $t-hrv $t-hun $t-iku $t-ind $t-isl $t-ita $t-ita_old \
+$t-jav $t-jpn $t-kan $t-kat $t-kat_old $t-kaz $t-khm $t-kir $t-kor $t-kur \
+$t-lao $t-lat $t-lav $t-lit $t-mal $t-mar $t-mkd $t-mlt $t-msa $t-mya $t-nep \
+$t-nld $t-nor $t-ori $t-osd $t-pan $t-pol $t-por $t-pus $t-ron $t-rus $t-san \
+$t-sin $t-slk $t-slk_frak $t-slv $t-spa $t-spa_old $t-sqi $t-srp $t-srp_latn \
+$t-swa $t-swe $t-syr $t-tam $t-tel $t-tgk $t-tgl $t-tha $t-tir $t-tur $t-uig \
+$t-ukr $t-urd $t-uzb $t-uzb_cyrl $t-vie $t-yid"
+
+compile_rules() {
+	mkdir -p $install/usr/share/tessdata/
+	mv * $install/usr/share/tessdata/
+	chmod -R g-w $install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		tesseract-data)
+			DEPENDS="$SPLIT"
+			;;
+		*)
+			l=${PACKAGE#*-}
+			copy $l.*
+			DEPENDS="tesseract"
+			while read i j; do
+				[ "$l" == "$i" ] && lang="$j"
+			done << EOT
+afr      Afrikaans
+amh      Amharic
+ara      Arabic
+asm      Assamese
+aze      Azerbaijani
+aze_cyrl Azerbaijani Cyrillic
+bel      Belarusian
+ben      Bengali
+bod      Tibetan Standard
+bos      Bosnian
+bul      Bulgarian
+cat      Catalan
+ceb      Cebuano
+ces      Czech
+chi_sim  Simplified Chinese
+chi_tra  Traditional Chinese
+chr      Cherokee
+cym      Welsh
+dan      Danish
+dan_frak Danish Fraktur
+deu      German
+deu_frak German Fraktur
+dzo      Dzongkha
+ell      Greek
+eng      English
+enm      English, Middle (1100-1500)
+epo      Esperanto
+equ      equations
+est      Estonian
+eus      Basque
+fas      Persian
+fin      Finnish
+fra      French
+frk      Frankish
+frm      French, Middle (ca.1400-1600)
+gle      Irish
+glg      Galician
+grc      Greek, Ancient (to 1453)
+guj      Gujarati
+hat      Haitian
+heb      Hebrew
+hin      Hindi
+hrv      Croatian
+hun      Hungarian
+iku      Inuktitut
+ind      Indonesian
+isl      Icelandic
+ita      Italian
+ita_old  Italian - Old
+jav      Javanese
+jpn      Japanese
+kan      Kannada
+kat      Georgian
+kat_old  Old Georgian
+kaz      Kazakh
+khm      Khmer
+kir      Kyrgyz
+kor      Korean
+kur      Kurdish
+lao      Lao
+lat      Latin
+lav      Latvian
+lit      Lithuanian
+mal      Malayalam
+mar      Marathi
+mkd      Macedonian
+mlt      Maltese
+msa      Malay
+mya      Burmese
+nep      Nepali
+nld      Dutch
+nor      Norwegian
+ori      Oriya
+osd      script and orientation
+pan      Punjabi
+pol      Polish
+por      Portuguese
+pus      Pashto
+ron      Romanian
+rus      Russian
+san      Sanskrit
+sin      Sinhala
+slk      Slovak
+slk_frak Slovak Fractur
+slv      Slovenian
+spa      Spanish
+spa_old  Spanish, Castilian - Old
+sqi      Albanian
+srp      Serbian
+srp_latn Serbian (Latin)
+swa      Swahili
+swe      Swedish
+syr      Syriac
+tam      Tamil
+tel      Telugu
+tgk      Tajik
+tgl      Tagalog
+tha      Thai
+tir      Tigrinya
+tur      Tukish
+uig      Uyghur
+ukr      Ukrainian
+urd      Urdu
+uzb      Uzbek
+uzb_cyrl Uzbek (Cyrillic)
+vie      Vietnamese
+yid      Yiddish
+EOT
+			CAT="office|$lang"
+		;;
+	esac
+}

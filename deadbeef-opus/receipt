@@ -1,15 +1,15 @@
 # SliTaz package receipt v2.
 
 PACKAGE="deadbeef-opus"
-VERSION="0.6"
+VERSION="0.8"
 CATEGORY="multimedia"
 SHORT_DESC="Ogg Opus decoder plugin for DeaDBeeF"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://bitbucket.org/Lithopsian/deadbeef-opus/overview"
 
-TARBALL="opus-$VERSION.tar.gz"
-WGET_URL="https://bitbucket.org/Lithopsian/deadbeef-opus/downloads/$TARBALL"
+TARBALL="opus-$VERSION.tar.bz2"
+WGET_URL="https://bitbucket.org/Lithopsian/deadbeef-opus/get/v$VERSION.tar.bz2"
 
 BUILD_DEPENDS="opusfile-dev deadbeef-dev"
 
@@ -18,10 +18,18 @@ compile_rules() {
 	sed -i '/FILE_OFFSET_BITS/ s|^# ||' Makefile
 
 	make PREFIX=/usr &&
-	make PREFIX=$install/usr install
+	make PREFIX=$install/usr install || return 1
+
+	sed '1s|^|# |; s|^[PRST][AERU]|## &|; s|-\([0-9]\)|−\1|g;
+		/^[^#]/s|\(R128[^ ]*\)|`\1`|g;
+		/^[^#]/s|\(REPLAYGAIN[^ ,]*\)|`\1`|g;
+		/^[^#]/s|\(METADATA[^ ,]*\)|`\1`|g;
+		/^[^#]/s|\(OPUS[^ ,]*\)|`\1`|g;
+		s|ISRC|`&`|; s|EAN|`&`|; s|UPN|`&`|' README > README.md
+	cook_pick_docs README.md
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="deadbeef openssl libogg opus opusfile"
+	DEPENDS="libogg opusfile   deadbeef openssl opus"
 }
