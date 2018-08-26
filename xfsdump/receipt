@@ -1,17 +1,18 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xfsdump"
-VERSION="3.1.6"
+VERSION="3.1.8"
 CATEGORY="system-tools"
 SHORT_DESC="XFS commands and utilities"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://oss.sgi.com/projects/xfs/"
+WEB_SITE="https://xfs.wiki.kernel.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://oss.sgi.com/projects/xfs/cmd_tars/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://mirrors.edge.kernel.org/pub/linux/utils/fs/xfs/xfsdump/$TARBALL"
 
-BUILD_DEPENDS="libtool gettext util-linux-uuid-dev xfsprogs-dev"
+BUILD_DEPENDS="libtool gettext util-linux-uuid-dev xfsprogs-dev \
+util-linux-uuid-dev attr-dev"
 
 compile_rules() {
 	rm /bin/rpm # busybox rpm is useless here
@@ -20,11 +21,11 @@ compile_rules() {
 		CFLAGS=-D_FILE_OFFSET_BITS=64 \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make && make install
+	make &&
+	make install || return 1
 
 	# change absolute symlinks to relative ones
-	ln -sf ../../sbin/xfsdump    $install/usr/sbin/xfsdump
-	ln -sf ../../sbin/xfsrestore $install/usr/sbin/xfsrestore
+	fix symlinks
 }
 
 genpkg_rules() {
