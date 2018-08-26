@@ -8,18 +8,18 @@ MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/solus-project/brisk-menu"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
+TARBALL="$PACKAGE-v$VERSION.tar.xz"
 WGET_URL="https://github.com/solus-project/brisk-menu/releases/download/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="intltool automake libtool gtk+3-dev mate-menus-dev \
-mate-panel-dev"
+BUILD_DEPENDS="meson ninja gtk+3-dev mate-panel-dev mate-menus-dev \
+libnotify-dev gettext"
 
 compile_rules() {
-	./autogen.sh \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
