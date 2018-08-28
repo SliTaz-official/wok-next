@@ -1,30 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="yelp-xsl"
-VERSION="3.12.0"
+VERSION="3.28.0"
 CATEGORY="utilities"
-LICENSE="GPL2"
-SHORT_DESC="The Yelp XSL package contains XSL stylesheets that are used by the Yelp."
+LICENSE="GPL2 LGPL2.1 MIT"
+SHORT_DESC="XSL stylesheets that are used by the Yelp"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wiki.gnome.org/Apps/Yelp"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS="libxslt itstool intltool"
 BUILD_DEPENDS="libxslt-dev itstool intltool"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	cook_pick_docs README NEWS
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		yelp-xsl)
+			copy @std
+			DEPENDS="libxslt itstool intltool"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

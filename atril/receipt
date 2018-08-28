@@ -1,40 +1,58 @@
 # SliTaz package receipt v2.
 
 PACKAGE="atril"
-VERSION="1.18.1"
+VERSION="1.20.2"
 CATEGORY="office"
 SHORT_DESC="A document viewer for MATE"
 MAINTAINER="yuripourre@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/mate-desktop/atril"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/mate-desktop/atril/archive/v$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="http://pub.mate-desktop.org/releases/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="mate-common yelp-tools gtk-doc gtk+3-dev libsecret-dev caja-dev \
-gobject-introspection-dev poppler-dev libspectre-dev djvulibre-dev \
-webkit2gtk-dev itstool"
-SPLIT="atril-comics atril-djvu atril-epub atril-pdf atril-psd atril-tiff atril \
-atril-dev"
+BUILD_DEPENDS="mate-common yelp-tools-dev gtk-doc gtk+3-dev libsecret-dev \
+caja-dev gobject-introspection-dev poppler-dev libspectre-dev tiff-dev \
+djvulibre-dev webkit2gtk-dev itstool xorg-libSM-dev"
+SPLIT="atril-caja atril-comics atril-djvu atril-epub atril-pdf atril-psd \
+atril-tiff atril atril-dev"
+
+case $ARCH in
+	x86_64)
+		BUILD_DEPENDS="${BUILD_DEPENDS/webkit2gtk-dev/}"
+		SPLIT="${SPLIT/atril-epub/}"
+		;;
+esac
 
 compile_rules() {
-	./autogen.sh \
+	./configure \
+		--enable-pixbuf \
+		--enable-comix \
+		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	fix symlinks
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		*-caja)
+			copy caja/extensions-2.0/*.so
+			CAT="office|Caja extension"
+			DEPENDS="atril caja glib gtk+3"
+			;;
 		*-comics)
 			copy comicsdocument.atril-backend libcomicsdocument.so
 			CAT="office|comix book backend"
-			DEPENDS="atril"
+			DEPENDS="atril gdk-pixbuf glib gtk+3"
 			;;
 		*-djvu)
 			copy djvudocument.atril-backend libdjvudocument.so
 			CAT="office|DjVu backend"
-			DEPENDS="atril djvulibre libjpeg-turbo"
+			DEPENDS="atril cairo djvulibre gdk-pixbuf glib gtk+3"
 			;;
 		*-epub)
 			copy epubdocument.atril-backend libepubdocument.so
@@ -44,45 +62,27 @@ genpkg_rules() {
 		*-pdf)
 			copy pdfdocument.atril-backend libpdfdocument.so
 			CAT="office|PDF backend"
-			DEPENDS="atril lcms2 libjpeg-turbo poppler tiff"
+			DEPENDS="atril cairo gdk-pixbuf glib gtk+3 libxml2 pango poppler"
 			;;
 		*-psd)
 			copy psdocument.atril-backend libpsdocument.so
 			CAT="office|PSD backend"
-			DEPENDS="atril ghostscript libspectre"
+			DEPENDS="atril cairo glib libspectre"
 			;;
 		*-tiff)
 			copy tiffdocument.atril-backend libtiffdocument.so
 			CAT="office|TIFF backend"
-			DEPENDS="atril libjpeg-turbo tiff"
+			DEPENDS="atril cairo gdk-pixbuf glib tiff"
 			;;
 		atril)
 			copy @std @rm
-			DEPENDS="at-spi2-atk at-spi2-core atk bzlib cairo caja dbus \
-			fontconfig freetype gdk-pixbuf glib gtk+3 libepoxy libffi \
-			libgcrypt libgpg-error libharfbuzz liblzma libpng16 libsecret \
-			libsoup libsqlite3 libxml2 pango pcre util-linux-blkid \
-			util-linux-mount util-linux-uuid webkit2gtk xorg-libICE xorg-libSM \
-			xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXdamage \
-			xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXi \
-			xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libxcb \
-			xorg-pixman zlib"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+3 libsecret libxml2 pango \
+			xorg-libICE xorg-libSM zlib"
 			TAGS="MATE pdf djvu"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} at-spi2-atk-dev at-spi2-core-dev \
-			atk-dev bzip2-dev cairo-dev caja-dev dbus-dev djvulibre-dev \
-			fontconfig-dev freetype-dev gdk-pixbuf-dev ghostscript-dev \
-			glib-dev gtk+3-dev harfbuzz-dev libjpeg-turbo-dev lcms2-dev \
-			libepoxy-dev libffi-dev libpng16-dev libsoup-dev libspectre-dev \
-			libxml2-dev pango-dev pcre-dev poppler-dev sqlite3-dev tiff-dev \
-			util-linux-blkid-dev util-linux-mount-dev util-linux-uuid-dev \
-			webkit2gtk-dev xorg-libICE-dev xorg-libSM-dev xorg-libX11-dev \
-			xorg-libXau-dev xorg-libXcomposite-dev xorg-libXdamage-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libXfixes-dev \
-			xorg-libXi-dev xorg-libXinerama-dev xorg-libXrandr-dev \
-			xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev xz-dev zlib-dev"
+			DEPENDS="${SPLIT/$PACKAGE/} glib-dev gtk+3-dev"
 			TAGS="MATE"
 			;;
 	esac

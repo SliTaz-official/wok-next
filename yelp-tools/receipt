@@ -1,30 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="yelp-tools"
-VERSION="3.12.0"
+VERSION="3.28.0"
 CATEGORY="utilities"
 LICENSE="GPL2"
-SHORT_DESC="Tools to create documentation."
+SHORT_DESC="Tools to create documentation"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wiki.gnome.org/Apps/Yelp/Tools"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="yelp-xsl"
+BUILD_DEPENDS="yelp-xsl-dev libxml2-tools"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	cook_pick_docs README NEWS
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
+genpkg_rules() {
+	case $PACKAGE in
+		yelp-tools)
+			copy @std
+			DEPENDS="libxslt"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

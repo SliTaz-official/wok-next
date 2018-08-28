@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="poppler"
-VERSION="0.62.0"
+VERSION="0.68.0"
 CATEGORY="office"
 SHORT_DESC="PDF rendering library"
 MAINTAINER="pankso@slitaz.org"
@@ -18,13 +18,15 @@ gdk-pixbuf-dev openjpeg2-dev lcms2-dev curl-dev poppler-data"
 SPLIT="poppler-apps poppler-dev"
 
 compile_rules() {
+	fix math
+
 	mkdir build
 	cd    build
 
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DTESTDATADIR=$PWD/testfiles \
+		-DTESTDATADIR=$PWD/test \
 		-DENABLE_XPDF_HEADERS=ON \
 		.. &&
 	make &&
