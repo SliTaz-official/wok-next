@@ -3,7 +3,7 @@
 # From official github repo:
 # xombrero has been retired and is no longer under development and supported.
 PACKAGE="xombrero"
-VERSION="1.6.4.7" # Latest release 1.6.4 + 7 commits
+VERSION="1.6.4.postgit20160506"
 COMMIT="28d1406"
 CATEGORY="network"
 SHORT_DESC="A minimalist web browser with sophisticated security features"
@@ -17,9 +17,7 @@ WGET_URL="https://github.com/conformal/xombrero/archive/$COMMIT.tar.gz"
 BUILD_DEPENDS="glib-dev gtk+-dev webkitgtk-dev libsoup-dev gnutls-dev \
 libbsd-dev perl mdocml" # groff absent yet, so we use mdocml and patch
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	find -type f -print0 | xargs -0 sed -i 's|/usr/local|/usr|'
 	cp -f $stuff/xombrero.desktop .
 	sed -i 's|https://www.cyphertite.com|http://www.slitaz.org/|' \
@@ -40,9 +38,7 @@ compile_rules()
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	CONFIG_FILES="/etc/xombrero.conf"
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ libbsd \

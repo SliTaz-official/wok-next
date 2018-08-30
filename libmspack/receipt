@@ -1,8 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libmspack"
-VERSION="1.5+16" # latest released v. 1.5 (2015-01-24) plus 16 commits ahead (2016-04-16)
-COMMIT="ee850e8"
+VERSION="0.7.1alpha"
 CATEGORY="development"
 SHORT_DESC="A library for Microsoft compression formats"
 MAINTAINER="nneul@neulinger.org"
@@ -10,31 +9,26 @@ LICENSE="LGPL2"
 WEB_SITE="https://www.cabextract.org.uk/libmspack/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-#WGET_URL="https://www.cabextract.org.uk/libmspack/$TARBALL"
-WGET_URL="https://github.com/kyz/libmspack/archive/$COMMIT.tar.gz"
+WGET_URL="https://github.com/kyz/libmspack/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="automake libtool doxygen" # for github non-release sources
+BUILD_DEPENDS="automake libtool doxygen"
 SPLIT="libmspack-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# github sources need preparation (see libmspack/rebuild.sh)
+compile_rules() {
 	cd libmspack
-	mkdir m4
-	autoreconf -i -W all &&
+	./autogen.sh &&
 
-	./configure $CONFIGURE_ARGS &&
-	make && make -C doc && make install &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	make &&
+	make -C doc &&
+	make install || return 1
 
-	docdir=$install/usr/share/doc/libmspack-$VERSION &&
-	mkdir -p $docdir &&
-	cp -r doc/search/ doc/*.html doc/*.png doc/*.css doc/*.js $docdir
+	cook_pick_docs doc/search/ doc/*.html doc/*.png doc/*.css doc/*.js
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libmspack) copy @std;;
 		*-dev)     copy @dev;;

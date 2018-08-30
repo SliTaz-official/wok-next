@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cabextract"
-VERSION="1.6"
+VERSION="1.7"
 CATEGORY="utilities"
 SHORT_DESC="Extracting Microsoft cabinet files"
 MAINTAINER="erjo@slitaz.org"
@@ -9,17 +9,21 @@ LICENSE="GPL3"
 WEB_SITE="https://www.cabextract.org.uk/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://www.cabextract.org.uk/$TARBALL"
+WGET_URL="https://github.com/kyz/libmspack/archive/$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+BUILD_DEPENDS="automake gettext"
+
+compile_rules() {
+	cd cabextract
+	./cleanup.sh &&
+	autoreconf -i -W all &&
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	TAGS="extract cab exe"
 }
