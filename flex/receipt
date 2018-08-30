@@ -15,6 +15,8 @@ TARBALL_MD5="2882e3179748cc9f9c23ec593d6adc8d"
 
 BUILD_DEPENDS="bison gettext help2man indent"
 
+SPLIT="libflex flex"
+
 compile_rules() {
 	case "$ARCH" in
 		arm*)
@@ -34,7 +36,14 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std @dev
-	DEPENDS="bison"
-	TAGS="LFS"
+	case $PACKAGE in
+		libflex)
+			copy *.so*
+			;;
+		*)
+			copy @std @dev @rm
+			DEPENDS="libflex   bison"
+			TAGS="LFS"
+			;;
+	esac
 }
