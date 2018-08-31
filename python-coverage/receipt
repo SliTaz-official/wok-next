@@ -1,0 +1,22 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-coverage"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Code coverage measurement for Python"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://pypi.org/project/coverage/"
+REPOLOGY="python:coverage"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR coverage
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*coverage-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

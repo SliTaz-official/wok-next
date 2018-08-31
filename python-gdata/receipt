@@ -1,31 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-gdata"
-VERSION="2.0.16"
-CATEGORY="development"
-SHORT_DESC="The Google Data APIs for Python."
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Python client library for Google data APIs"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
-WEB_SITE="http://http://code.google.com/p/gdata-python-client/"
+WEB_SITE="https://pypi.org/project/gdata/"
 REPOLOGY="python:gdata"
 
-SOURCE="gdata"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://gdata-python-client.googlecode.com/files/$TARBALL"
+BUILD_DEPENDS="python"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev python"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR gdata
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	VERSION=$(sed -n '/^Successfully installed/ s|.*gdata-||p' $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
 }
