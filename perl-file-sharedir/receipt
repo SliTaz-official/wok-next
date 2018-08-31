@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-file-sharedir"
-VERSION="1.106"
+VERSION="1.116"
 CATEGORY="perl"
 SHORT_DESC="File::ShareDir - Locate per-dist and per-module shared files"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,20 +12,16 @@ REPOLOGY="perl:file-sharedir"
 TARBALL="File-ShareDir-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/R/RE/REHSACK/$TARBALL"
 
-DEPENDS="perl-class-inspector"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-class-inspector"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-class-inspector"
 }

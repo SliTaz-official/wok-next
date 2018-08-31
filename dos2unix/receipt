@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="dos2unix"
+VERSION="7.4.0"
+CATEGORY="utilities"
+SHORT_DESC="Text file format converters"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="http://waterlan.home.xs4all.nl/dos2unix.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://waterlan.home.xs4all.nl/dos2unix/$TARBALL"
+
+BUILD_DEPENDS=""
+
+compile_rules() {
+	sed -e '/^LDFLAGS/s|=|+=|' \
+		-e '/CFLAGS_OS \+=/d' \
+		-e '/LDFLAGS_EXTRA \+=/d' \
+		-e "/^CFLAGS/s|-O2|$CFLAGS|" \
+		-i Makefile
+
+	make ENABLE_NLS= &&
+	make prefix=/usr \
+		docsubdir=dos2unix \
+		ENABLE_NLS= \
+		DESTDIR=$install \
+		install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS=""
+}

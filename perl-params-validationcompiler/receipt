@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-params-validationcompiler"
-VERSION="0.27"
+VERSION="0.30"
 CATEGORY="perl"
 SHORT_DESC="Params::ValidationCompiler - Build an optimized subroutine \
 parameter validator once, use it forever"
@@ -13,21 +13,17 @@ REPOLOGY="perl:params-validationcompiler"
 TARBALL="Params-ValidationCompiler-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-eval-closure perl-exception-class"
-BUILD_DEPENDS="$DEPENDS perl-specio perl-test2-suite \
-perl-test2-plugin-nowarnings perl-test-without-module"
+BUILD_DEPENDS="perl-eval-closure perl-exception-class perl-specio \
+perl-test2-suite perl-test2-plugin-nowarnings perl-test-without-module"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-eval-closure perl-exception-class"
 }

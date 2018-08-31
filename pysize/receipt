@@ -1,27 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pysize"
 VERSION="0.2"
 CATEGORY="utilities"
-SHORT_DESC="Console and graphical tool for exploring the size of directories."
+SHORT_DESC="Console and graphical tool for exploring the size of directories"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://guichaz.free.fr/pysize/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://guichaz.free.fr/pysize/files/$TARBALL"
 
-DEPENDS="python ncurses python-pygtk librsvg"
 BUILD_DEPENDS="python-dev ncurses-dev python-pygtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
+compile_rules() {
+	python setup.py build &&
 	python setup.py install --root=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python ncurses python-pygtk librsvg"
 }

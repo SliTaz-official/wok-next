@@ -13,6 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.midnight-commander.org/$TARBALL"
 
 BUILD_DEPENDS="check-dev glib-dev gettext gpm-dev libssh2-dev"
+SPLIT="mc-noarch"
 
 COOKOPTS="!menus"
 
@@ -35,9 +36,17 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="glib libssh2 ncurses"
-	SUGGESTED="perl python openssl gpm xz cdrkit-isoinfo lynx w3m wv \
-	poppler-apps file"
-	TAGS="file-manager text-editor"
+	case $PACKAGE in
+		mc)
+			copy mc mcdiff mcedit mcview cons.saver
+			DEPENDS="glib libssh2 ncurses"
+			SUGGESTED="perl python openssl gpm xz cdrkit-isoinfo lynx w3m wv \
+			poppler-apps file"
+			TAGS="file-manager text-editor"
+			;;
+		mc-noarch)
+			copy @std @rm
+			CAT="system-tools|common files"
+			;;
+	esac
 }

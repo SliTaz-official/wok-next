@@ -1,27 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pycurl"
 VERSION="7.19.0"
 CATEGORY="development"
-SHORT_DESC="A Python interface to libcurl."
+SHORT_DESC="A Python interface to libcurl"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://pycurl.sourceforge.net"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://pycurl.sourceforge.net/download/$TARBALL"
 
-DEPENDS="python libcurl"
 BUILD_DEPENDS="openssl-dev curl-dev python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --curl-config=/usr/bin/curl-config --prefix $DESTDIR/usr
+compile_rules() {
+	python setup.py install \
+		--curl-config=/usr/bin/curl-config \
+		--prefix $DESTDIR/usr
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python libcurl"
 }

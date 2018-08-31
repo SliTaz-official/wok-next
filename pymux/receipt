@@ -1,27 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pymux"
-SOURCE="pymux"
 VERSION="0.6"
 CATEGORY="utilities"
 SHORT_DESC="A terminal multiplexer (like tmux) in Python."
 MAINTAINER="paul@slitaz.org"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/jonathanslenders/pymux"
+
+SOURCE="pymux"
+TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="https://pypi.python.org/packages/source/p/$SOURCE/$TARBALL"
 
-DEPENDS="python python-pyte python-prompt-toolkit python-docopt"
 BUILD_DEPENDS="python-dev python-pyte python-prompt-toolkit python-docopt"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	python setup.py install --root=$DESTDIR
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-pyte python-prompt-toolkit python-docopt"
 }
-

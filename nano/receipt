@@ -14,6 +14,9 @@ WGET_URL="${WEB_SITE}dist/v${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS_arm="ncurses-dev zlib-dev"
 BUILD_DEPENDS="gettext ncurses-dev zlib-dev groff libmagic-dev"
 
+SPLIT="nano-noarch"
+COOKOPTS="!menus"
+
 compile_rules() {
 	./configure \
 		--disable-wrapping-as-root \
@@ -27,13 +30,21 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
+	case $PACKAGE in
+		nano)
+			copy bin/
+			DEPENDS="libmagic ncurses zlib"
+			TAGS="text-editor"
+			SUGGESTED="gpm"
+			;;
+		nano-noarch)
+			copy @std @rm
+			CAT="utilities|common files"
 
-	# Shrink
-	for i in $fs/usr/share/nano/*.nanorc; do
-		sed -i '/^#/d;/^$/d' $i
-	done
-	DEPENDS="libmagic ncurses zlib"
-	TAGS="text-editor"
-	SUGGESTED="gpm"
+			# Shrink
+			for i in $fs/usr/share/nano/*.nanorc; do
+				sed -i '/^#/d;/^$/d' $i
+			done
+			;;
+	esac
 }
