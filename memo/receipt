@@ -1,21 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="memo"
-VERSION="1.0"
+VERSION="0.6"
 CATEGORY="office"
 SHORT_DESC="Memo is a command line, Unix-style note-taking software"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.ideabyte.net/memo/"
+WEB_SITE="http://palovandalo.com/memo/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.ideabyte.net/memo/$TARBALL"
+WGET_URL="https://github.com/mrVanDalo/memo/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="ncurses-dev"
 
 compile_rules() {
-	make &&
-	install -Dm 755 $src/memo $install/usr/bin/memo
+	install -Dm 755 memo $install/usr/bin/memo || return 1
+
+	cook_pick_manpages doc/memo.1
 }
 
 genpkg_rules() {

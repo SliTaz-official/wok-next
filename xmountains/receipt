@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xmountains"
+VERSION="2.9.postgit20180126"
+COMMIT="8c3d8c8"
+CATEGORY="x-window"
+SHORT_DESC="X11 based fractal landscape generator"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://spbooth.github.io/xmountains/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/spbooth/xmountains/archive/$COMMIT.tar.gz"
+
+# original web page is down
+# original version 2.9 available here:
+# http://archive.ubuntu.com/ubuntu/pool/universe/x/xmountains/xmountains_2.9.orig.tar.gz
+
+BUILD_DEPENDS="xorg-imake xorg-xorgproto xorg-libX11-dev xorg-xbitmaps"
+
+compile_rules() {
+	xmkmf &&
+	sed -i 's|/usr/man|/usr/share/man|' Makefile &&
+	make &&
+	make install &&
+	make install.man || return 1
+
+	install -Dm644 xmountains.fr.man $install/usr/share/man/fr/man1/xmountains.1x
+
+	rm docs/google*
+	cook_pick_docs docs/*
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11"
+}
