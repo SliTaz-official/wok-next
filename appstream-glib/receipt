@@ -1,0 +1,43 @@
+# SliTaz package receipt v2.
+
+PACKAGE="appstream-glib"
+VERSION="0.7.12"
+CATEGORY="libs"
+SHORT_DESC="Library for AppStream metadata"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://people.freedesktop.org/~hughsient/appstream-glib/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://people.freedesktop.org/~hughsient/appstream-glib/releases/$TARBALL"
+
+BUILD_DEPENDS="meson ninja util-linux-uuid-dev glib-dev libarchive-dev \
+libsoup-dev json-glib-dev gdk-pixbuf-dev gtk+3-dev yaml-dev gperf \
+gobject-introspection-dev gettext libxslt docbook-xsl"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+
+	meson-wrapper \
+		-D rpm=false \
+		-D stemmer=false &&
+	ninja &&
+	ninja install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		appstream-glib)
+			copy bin/ *.so*
+			DEPENDS="cairo fontconfig freetype gdk-pixbuf glib gtk+3 json-glib \
+			libarchive libsoup pango util-linux-uuid yaml"
+			;;
+		*-dev)
+			copy @std @dev @rm
+			DEPENDS="appstream-glib gdk-pixbuf-dev glib-dev libarchive-dev \
+			util-linux-uuid-dev"
+			;;
+	esac
+}
