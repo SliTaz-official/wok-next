@@ -1,63 +1,87 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xorg-server"
-VERSION="1.19.3"
+VERSION="1.20.1"
 CATEGORY="x-window"
 SHORT_DESC="X server"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.x.org/wiki/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/xorg-server.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/xorg-server.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xserver/$TARBALL"
 
 BUILD_DEPENDS="patch xorg-util-macros xorg-pixman-dev eudev-dev dbus-dev \
-xorg-libxshmfence-dev libdrm-dev xorg-libX11-dev \
-mesa-dev xorg-libXdmcp-dev libgcrypt-dev \
-xorg-xorgproto \
-xorg-libxkbfile-dev xorg-libXfont2-dev xorg-libpciaccess-dev \
-xorg-libXxf86dga-dev xorg-libdmx-dev xorg-libXaw-dev xorg-libXpm-dev \
-xorg-libXtst-dev xorg-libXres-dev \
-xorg-libXmu-dev xorg-libXext-dev xorg-libXrender-dev \
-xorg-libXfixes-dev xorg-libXi-dev xorg-libXau-dev \
-xorg-libXdmcp-dev libepoxy-dev tslib-dev xorg-xcb-util-renderutil-dev \
-xorg-xcb-util-dev xorg-xcb-util-image-dev xorg-xcb-util-wm-dev \
-xorg-xcb-util-keysyms-dev expat-dev xorg-xtrans"
-SPLIT="xorg-server-Xdmx xorg-server-Xephyr xorg-server-Xfbdev \
-xorg-server-Xnest xorg-server-Xvfb xorg-server-module-glamor xorg-server-dev \
-xorg-server"
+xorg-libxshmfence-dev libdrm-dev xorg-libX11-dev mesa-dev xorg-libXdmcp-dev \
+libgcrypt-dev xorg-xorgproto xorg-libxkbfile-dev xorg-libXfont2-dev \
+xorg-libpciaccess-dev xorg-libXxf86dga-dev xorg-libdmx-dev xorg-libXaw-dev \
+xorg-libXpm-dev xorg-libXtst-dev xorg-libXres-dev xorg-libXmu-dev \
+xorg-libXext-dev xorg-libXrender-dev xorg-libXfixes-dev xorg-libXi-dev \
+xorg-libXau-dev xorg-libXdmcp-dev libepoxy-dev tslib-dev \
+xorg-xcb-util-renderutil-dev xorg-xcb-util-dev xorg-xcb-util-image-dev \
+xorg-xcb-util-wm-dev xorg-xcb-util-keysyms-dev expat-dev xorg-xtrans \
+xorg-xkbcomp-dev openssl-dev"
+SPLIT="xorg-server-Xdmx xorg-server-Xephyr xorg-server-Xnest xorg-server-Xvfb \
+xorg-server-module-glamor xorg-server-dev xorg-server xorg-server-light:light"
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
+	case $SET in
+		'')
+			SET_ARGS="
+				--disable-static \
+				--enable-glamor \
+				--enable-suid-wrapper \
+				--disable-xwayland \
+				--enable-dmx \
+				--enable-kdrive \
+				--enable-xephyr \
+				--enable-config-udev \
+				"
+			;;
+		light)
+			SET_ARGS="
+				--disable-screensaver \
+				--disable-glx \
+				--disable-dri \
+				--disable-dri2 \
+				--disable-dri3 \
+				--disable-xinerama \
+				--disable-config-udev \
+				--disable-libdrm \
+				--enable-xorg \
+				--disable-xvfb \
+				--disable-xnest \
+				--disable-glamor \
+				--disable-xephyr \
+				--disable-ipv6 \
+				--with-serverconfig-path=/etc/X11 \
+				"
+			;;
+	esac
+
 	./configure \
-		--disable-static \
-		--enable-glamor \
 		--enable-install-setuid \
-		--enable-suid-wrapper \
 		--disable-systemd-logind \
-		--disable-xwayland \
-		--disable-docs --disable-devel-docs \
+		--disable-docs \
+		--disable-devel-docs \
 		--with-xkb-output=/var/lib/xkb \
-		--enable-tslib \
-		--enable-dmx \
-		--enable-kdrive \
-		--enable-kdrive-kbd \
-		--enable-kdrive-mouse \
-		--enable-kdrive-evdev \
-		--enable-xfbdev \
-		--enable-xephyr \
-		--enable-config-udev \
 		--with-fontrootdir=/usr/share/fonts/X11 \
 		--with-os-name="SliTaz GNU/Linux" \
 		--with-vendor-web="http://www.slitaz.org/" \
 		--with-builder-addr="devel@slitaz.org" \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install &&
 
 	mkdir -pv $install/etc/X11/xorg.conf.d
+}
+
+testsuite() {
+	readelf -h $install/usr/bin/Xorg
 }
 
 genpkg_rules() {
@@ -79,13 +103,6 @@ genpkg_rules() {
 			xorg-pixman xorg-xcb-util xorg-xcb-util-image \
 			xorg-xcb-util-keysyms xorg-xcb-util-renderutil xorg-xcb-util-wm"
 			;;
-		*-Xfbdev)
-			copy Xfbdev
-			# chmod 4711 $fs/usr/bin/Xfbdev
-			CAT="x-window|Xfbdev framebuffer X server"
-			DEPENDS="eudev libgcrypt tslib xorg-libXau xorg-libXdmcp \
-			xorg-libXfont2 xorg-pixman"
-			;;
 		*-Xnest)
 			copy Xnest
 			# chmod 4711 $fs/usr/bin/Xnest
@@ -103,16 +120,14 @@ genpkg_rules() {
 		*-module-glamor)
 			copy libglamoregl.so libglx.so
 			CAT="x-window|Glamor DIX (Device Independent X) module"
-			DEPENDS="libdrm libepoxy mesa mesa-libgbm"
+			DEPENDS="libepoxy mesa mesa-libgbm"
 			;;
 		*-dev)
 			copy @dev protocol.txt
 			DEPENDS="xorg-server xorg-server-Xdmx xorg-server-Xephyr \
 			xorg-server-Xfbdev xorg-server-Xnest xorg-server-Xvfb \
 			xorg-server-module-glamor \
-			mesa-dev xorg-xorgproto \
-			xorg-libpciaccess-dev \
-			xorg-pixman-dev"
+			mesa-dev xorg-xorgproto xorg-libpciaccess-dev xorg-pixman-dev"
 			;;
 		*-server)
 			copy @std var/log/ xorg.conf.d/ @rm
@@ -122,6 +137,14 @@ genpkg_rules() {
 			xorg-libpciaccess xorg-libxshmfence xorg-pixman   \
 			xorg-xkeyboard-config xorg-xkbcomp"
 			SUGGESTED="xorg-xf86-input-evdev xorg-xf86-video-vesa"
+			;;
+		xorg-server-light)
+			copy @std
+			CAT="x-window|light version without dri, gl, and friends"
+			DEPENDS="libgcrypt xorg-libXau xorg-libXdmcp xorg-libXfont2 \
+			xorg-libpciaccess xorg-libxshmfence xorg-pixman"
+			SUGGESTED="xorg-xf86-video-vesa xorg-xf86-video-fbdev"
+			PROVIDE="xorg-server"
 			;;
 	esac
 }
@@ -143,4 +166,8 @@ post_install_xorg_server_Xnest() {
 }
 post_install_xorg_server_Xvfb() {
 	install -dm1777 -oroot -groot "$1/tmp/.ICE-unix" "$1/tmp/.X11-unix"
+}
+# We need /var/tmp rw to let xkbcomp build XKB definition.
+post_install_xorg_server_light() {
+	chmod 1777 "$1/var/tmp"
 }

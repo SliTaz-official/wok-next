@@ -1,7 +1,8 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xorg-xf86-video-fbturbo"
-VERSION="0.2.0"
+VERSION="0.4.0.postgit20151006"
+COMMIT="f9a6ed7"
 CATEGORY="x-window"
 SHORT_DESC="Xorg DDX driver for ARM devices (Allwinner, RPi and others)"
 MAINTAINER="pankso@slitaz.org"
@@ -10,15 +11,9 @@ WEB_SITE="https://github.com/ssvb/xf86-video-fbturbo"
 REPOLOGY="xdrv:fbturbo"
 
 TARBALL="xf86-video-fbturbo-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/${COMMIT:-VERSION}.tar.gz"
 
-# 0.4.0 ---> fatal error: dri2.h: No such file or directory
-#
-# We must have DRI support into Xorg server. This is not the case 
-# actually because I stripped down Xorg build since it mesa are not
-# ported yet.
-
-BUILD_DEPENDS="xorg-server-dev automake autoconf libtool"
+BUILD_DEPENDS="xorg-util-macros xorg-server-dev automake autoconf libtool"
 
 compile_rules() {
 	autoreconf -vi
