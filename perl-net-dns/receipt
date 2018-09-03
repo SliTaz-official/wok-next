@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-net-dns"
-VERSION="1.15"
+VERSION="1.17"
 CATEGORY="perl"
 SHORT_DESC="Net::DNS - Perl Interface to the Domain Name System"
 MAINTAINER="erjo@slitaz.org"
@@ -12,20 +12,17 @@ REPOLOGY="perl:net-dns"
 TARBALL="Net-DNS-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/N/NL/NLNETLABS/$TARBALL"
 
-DEPENDS="perl-digest-hmac"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-digest-hmac"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-digest-hmac"
 }

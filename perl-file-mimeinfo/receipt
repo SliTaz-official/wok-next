@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-file-mimeinfo"
-VERSION="0.28"
+VERSION="0.29"
 CATEGORY="perl"
 SHORT_DESC="File::MimeInfo - Determine file type from the file name"
 MAINTAINER="paul@slitaz.org"
@@ -12,20 +12,17 @@ REPOLOGY="perl:file-mimeinfo"
 TARBALL="File-MimeInfo-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl-file-basedir perl-file-desktopentry"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

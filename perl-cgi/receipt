@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-cgi"
-VERSION="4.38"
+VERSION="4.40"
 CATEGORY="perl"
 SHORT_DESC="CGI - Handle Common Gateway Interface requests and responses"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -12,20 +12,18 @@ REPOLOGY="perl:cgi"
 TARBALL="CGI-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEEJO/$TARBALL"
 
-DEPENDS="perl-html-parser"
-BUILD_DEPENDS="$DEPENDS perl-test-deep perl-test-nowarnings perl-test-warn"
+BUILD_DEPENDS="perl-html-parser perl-test-deep perl-test-nowarnings \
+perl-test-warn"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-html-parser"
 }

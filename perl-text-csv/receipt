@@ -1,7 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-text-csv"
-VERSION="1.95"
+VERSION="1.97"
 CATEGORY="perl"
 SHORT_DESC="Text::CSV - comma-separated values manipulator (using XS or \
 PurePerl)"
@@ -9,25 +9,22 @@ MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Text-CSV"
 REPOLOGY="perl:text-csv"
-SUGGESTED="perl-text-csv_xs"
 
 TARBALL="Text-CSV-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
+	SUGGESTED="perl-text-csv_xs"
 }
