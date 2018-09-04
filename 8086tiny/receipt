@@ -12,23 +12,13 @@ WEB_SITE="https://github.com/adriancable/8086tiny"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$COMMIT.tar.gz"
 
-BUILD_DEPENDS_arm="libsdl-dev"
 BUILD_DEPENDS="libsdl-dev nasm"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			make CC=$HOST_SYSTEM-gcc 8086tiny_slowcpu
-			nasm bios_source/bios.asm &&
-			echo "Skipping: strip: Unable to recognise the format"
-			;;
-		*)
-			make CC=gcc no_graphics &&
-			mv 8086tiny 8086tiny.nographics &&
-			make CC=gcc &&
-			nasm bios_source/bios.asm
-			;;
-	esac || return 1
+	make CC=gcc no_graphics &&
+	mv 8086tiny 8086tiny.nographics &&
+	make CC=gcc &&
+	nasm bios_source/bios.asm || return 1
 
 	install -Dm755 $src/8086tiny            $install/usr/bin/8086tiny
 	[ -x "$src/8086tiny.nographics" ] &&

@@ -22,22 +22,18 @@ compile_rules() {
 	LDFLAGS=-fPIC \
 	./configure \
 		$CONFIGURE_ARGS &&
-	make -j1 && make install
+	make -j1 &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		gsoap)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/share/gsoap $fs/usr/share
+			copy @std
 			DEPENDS="openssl zlib"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

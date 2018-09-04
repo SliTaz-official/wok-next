@@ -11,20 +11,18 @@ WEB_SITE="https://github.com/tomm/cryptkeeper/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/tomm/cryptkeeper/archive/$COMMIT.tar.gz"
 
-DEPENDS="gtk+ GConf encfs"
-BUILD_DEPENDS="gtk+-dev GConf-dev xorg-libX11-dev"
+BUILD_DEPENDS="gtk+-dev gconf-dev xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mv po/ru_RU.gmo po/ru.gmo
 	export LDFLAGS="-lX11"
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy usr/
+	DEPENDS="gtk+ gconf encfs"
 }

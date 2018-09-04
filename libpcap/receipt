@@ -1,33 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libpcap"
-VERSION="1.8.1"
+VERSION="1.9.0"
 CATEGORY="libdevel"
 SHORT_DESC="Functions for user-level packet capture, used in low-level network \
 monitoring"
 MAINTAINER="sdaigl@lacitec.on.ca"
 LICENSE="BSD"
 WEB_SITE="http://www.tcpdump.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/basicnet/libpcap.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libpcap.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.tcpdump.org/release/$TARBALL"
 
-BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="flex bison libnl-dev"
 SPLIT="libpcap-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm)
-			ARCH_ARGS="--with-pcap=linux"
-			export ac_cv_linux_vers=2
-			;;
-	esac
+	./configure $CONFIGURE_ARGS &&
+	make || return 1
 
-	./configure \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install
+	# disable static
+	sed -i '/INSTALL_DATA.*libpcap.a\|RANLIB.*libpcap.a/ s/^/#/' Makefile
+
+	make install
 }
 
 genpkg_rules() {
@@ -36,6 +32,9 @@ genpkg_rules() {
 			copy @std
 			DEPENDS="libnl"
 			;;
-		*-dev) copy @dev;;
+		*-dev)
+			copy @dev
+			DEPENDS="libnl-dev"
+			;;
 	esac
 }

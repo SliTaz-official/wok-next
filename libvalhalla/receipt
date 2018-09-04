@@ -37,23 +37,19 @@ compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$ARCH_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libvalhalla)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="ffmpeg ffmpeg-compat libexif libsqlite3 libxml2 libgcrypt \
 			libcurl openssl"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			DEPENDS="libvalhalla sqlite3-dev"
 			;;
 	esac

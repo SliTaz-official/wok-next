@@ -1,32 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="arp-scan"
-VERSION="1.9"
+VERSION="1.9.5"
 CATEGORY="network"
 SHORT_DESC="The ARP Scanner"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/royhills/arp-scan"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
-DEPENDS="libpcap perl"
 BUILD_DEPENDS="autoconf automake libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf --install
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make check | sed '/0$/d' &&
-	make DESTDIR=$DESTDIR install
+	make check &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/arp-scan $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpcap perl"
 }

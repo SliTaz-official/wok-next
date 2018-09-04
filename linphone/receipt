@@ -15,6 +15,8 @@ BUILD_DEPENDS="intltool libsdl-dev ffmpeg-dev osip-dev exosip-dev speex-dev \
 xorg-libXv-dev v4l-utils-dev libglade-dev gtk+-dev glib-dev speex-dev"
 SPLIT="linphone-dev"
 
+COOKOPTS="skip-log-errors"
+
 compile_rules() {
 	sed -i -e 's/CodecID/AV&/' -e 's/avcodec_init();//' \
 		-e 's/avcodec_open(\([^)]*\)/avcodec_open2(\1, NULL/' \
@@ -22,6 +24,7 @@ compile_rules() {
 		-e 's/avcodec_alloc_context(\([^)]*\)/avcodec_alloc_context3(\1 NULL/' \
 			mediastreamer2/src/*.c
 	sed -i 's/g_thread_init(NULL);//' gtk/*.c
+
 	# Define deprecated ffmepg flags ...
 	CFLAGS="-Wno-deprecated-declarations -DCODEC_FLAG_PART=0x0080 -DCODEC_FLAG_H263P_UMV=0x0200000 -DCODEC_FLAG_H263P_SLICE_STRUCT=0x01000000 -DFF_I_TYPE=1" \
 	LIBS="-lavutil -lz" \
@@ -32,32 +35,19 @@ compile_rules() {
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install 2>&1 | sed \
-		-e "s/css': No such file/css': no such file/" \
-		-e "s/html': No such file/html': no such file/"
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		linphone)
-			mkdir -p $fs/usr/lib $fs/usr/share
-			cp -a $install/usr/share/applications $fs/usr/share
-			cp -a $install/usr/share/pixmaps $fs/usr/share
-			cp -a $install/usr/share/sounds $fs/usr/share
-			cp -a $install/usr/share/locale $fs/usr/share
-			cp -a $install/usr/share/images $fs/usr/share
-			cp -a $install/usr/share/linphone $fs/usr/share
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="osip exosip speex ffmpeg xorg-libXv v4l-utils libglade gtk+ \
 			glib"
 			TAGS="softphone telephony"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

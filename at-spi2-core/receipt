@@ -1,26 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="at-spi2-core"
-VERSION="2.26.2"
+VERSION="2.28.0"
 CATEGORY="libdevel"
 SHORT_DESC="Service Provider Interface for the Assistive Technologies"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://developer.gnome.org/libatspi/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/at-spi2-core.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/at-spi2-core.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gettext dbus-dev xorg-libX11-dev xorg-libXtst-dev \
-gobject-introspection-dev"
+BUILD_DEPENDS="meson ninja dbus-dev glib-dev xorg-libX11-dev xorg-libXtst-dev \
+gobject-introspection-dev gettext"
 SPLIT="at-spi2-core-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {

@@ -14,18 +14,18 @@ WGET_URL="http://ftp.acc.umu.se/pub/GNOME/sources/$PACKAGE/$VERSION/$TARBALL"
 SPLIT="mobile-broadband-provider-info-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		mobile-broadband-provider-info)
-			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/$PACKAGE $fs/usr/share
+			copy @std
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/share/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

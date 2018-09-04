@@ -1,24 +1,52 @@
 # SliTaz package receipt v2.
 
 PACKAGE="jq"
-VERSION="1.4"
+VERSION="1.5"
 CATEGORY="utilities"
-SHORT_DESC="jq is a lightweight and flexible command-line JSON processor"
+SHORT_DESC="Lightweight and flexible command-line JSON processor"
 MAINTAINER="nneul@neulinger.org"
 LICENSE="MIT"
-WEB_SITE="http://stedolan.github.io/jq/"
+WEB_SITE="https://stedolan.github.io/jq/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}download/source/$TARBALL"
+WGET_URL="https://github.com/stedolan/jq/releases/download/jq-$VERSION/$TARBALL"
+
+BUILD_DEPENDS="oniguruma-dev"
+SPLIT="jq-dev jq-static:static"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	case $SET in
+		static) SET_ARGS="--disable-shared --enable-all-static";;
+		*)      SET_ARGS="";;
+	esac
+
+	./configure \
+		--disable-static \
+		$SET_ARGS \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	# clean
+	if [ "$SET" == 'static' ]; then
+		rm -r $install/usr/include $install/usr/lib $install/usr/share
+	fi
 }
 
 genpkg_rules() {
-	copy @std
-	TAGS="json"
+	case $PACKAGE in
+		jq)
+			copy @std
+			DEPENDS="oniguruma"
+			TAGS="json"
+			;;
+		jq-static)
+			copy jq
+			CAT="utilities|statically linked"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }

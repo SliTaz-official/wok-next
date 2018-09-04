@@ -1,33 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gyrus"
 VERSION="0.3.8"
 CATEGORY="network"
-SHORT_DESC="Small tool for the administration of mailboxes in IMAP/Cyrus servers."
+SHORT_DESC="Small tool for the administration of mailboxes in IMAP/Cyrus servers"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://projects.gnome.org/gyrus/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.gnome.org/pub/gnome/sources/gyrus/${VERSION%.*}/$TARBALL"
 
-DEPENDS="gtk+ dbus orbit2 gnet libglade GConf"
-BUILD_DEPENDS="gtk+ dbus-dev orbit2-dev gnet-dev libglade-dev GConf-dev \
+BUILD_DEPENDS="gtk+ dbus-dev orbit2-dev gnet-dev libglade-dev gconf-dev \
 intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	if ! grep ^Icon= $install/usr/share/applications/gyrus.desktop; then
-		echo 'Icon=web-browser' >> $install/usr/share/applications/gyrus.desktop
-	fi
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk+ dbus orbit2 gnet libglade gconf"
 }

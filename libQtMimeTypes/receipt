@@ -16,26 +16,21 @@ WGET_URL="$WEB_SITE/archive/$BRANCH.tar.gz"
 BUILD_DEPENDS="Qt4-dev qmake"
 SPLIT="libQtMimeTypes-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	qmake && make && INSTALL_ROOT=$install make install
+compile_rules() {
+	qmake &&
+	make &&
+	INSTALL_ROOT=$install make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libQtMimeTypes)
-		DEPENDS="libQtCore"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	libQtMimeTypes-dev)
-		DEPENDS="libQtMimeTypes"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+		libQtMimeTypes)
+			copy @std
+			DEPENDS="libQtCore"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libQtMimeTypes"
+			;;
 	esac
 }

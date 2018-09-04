@@ -20,23 +20,18 @@ compile_rules() {
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		.. &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		soprano)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/soprano $fs/usr/lib
-			cp -a $install/usr/share $fs/usr
+			copy @std
 			DEPENDS="libQtCore libQtNetwork raptor libiodbc"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			copy @dev
 			;;
 	esac
 }

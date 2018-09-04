@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="appdata-tools"
-VERSION="0.1.7"
+VERSION="0.1.8"
 CATEGORY="utilities"
 SHORT_DESC="AppData is a subset of AppStream"
 MAINTAINER="yuripourre@gmail.com"
@@ -11,7 +11,8 @@ WEB_SITE="https://people.freedesktop.org/~hughsient/appdata/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://people.freedesktop.org/~hughsient/releases/$TARBALL"
 
-BUILD_DEPENDS="gdk-pixbuf-dev libsoup-dev glib-dev sqlite3-dev intltool"
+BUILD_DEPENDS="gdk-pixbuf-dev libsoup-dev glib-dev sqlite3-dev intltool \
+appstream-glib-dev python-lxml"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -21,6 +22,6 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std @dev
-	DEPENDS="gdk-pixbuf glib libsoup"
+	copy @std @dev appdata/
+	DEPENDS="appstream-glib glib"
 }

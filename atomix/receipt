@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="atomix"
-VERSION="3.22.0"
+VERSION="3.29.3"
 CATEGORY="games"
 SHORT_DESC="Build molecules out of single atoms"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,15 +11,17 @@ WEB_SITE="https://wiki.gnome.org/Apps/Atomix"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk+3-dev gdk-pixbuf-dev glib-dev intltool"
+BUILD_DEPENDS="meson ninja gtk+3-dev libgnome-games-support-dev gettext"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gdk-pixbuf glib gtk+3"
+	DEPENDS="gdk-pixbuf glib gtk+3 libgnome-games-support"
 }

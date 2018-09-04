@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnaughty"
 VERSION="1.2.4"
@@ -6,26 +6,24 @@ CATEGORY="utilities"
 SHORT_DESC="Gnaughty is an utility to automatically download adult sex content."
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gnaughty.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="curl-dev gtk+-dev glib-dev pcre-dev libglade-dev GConf-dev"
-DEPENDS="curl gtk+ glib pcre libglade GConf"
+BUILD_DEPENDS="curl-dev gtk+-dev glib-dev pcre-dev libglade-dev gconf-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lgthread-2.0"
 	sed -i 's|curl/types|curl/curl|' src/http.c
 	sed -i 's/test -z "\$(gladedir)".*/& || true/' src/Makefile.in
+
 	./configure --prefix=/usr &&
-	make &&	make -j 1 install
+	make &&
+	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/ $fs/usr/
+genpkg_rules() {
+	copy @std
+	DEPENDS="curl gtk+ glib pcre libglade gconf"
 }

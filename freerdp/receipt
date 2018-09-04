@@ -14,31 +14,26 @@ BUILD_DEPENDS="zlib-dev openssl-dev cups-dev alsa-lib-dev xorg-libxcb-dev xorg-d
 xorg-dev-proto cmake ffmpeg-dev xorg-libXv-dev pcsc-lite-dev"
 SPLIT="freerdp freerdp-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cmake -DWITH_PCSC=ON -DCMAKE_INSTALL_PREFIX=/usr . &&
+compile_rules() {
+	cmake \
+		-DWITH_PCSC=ON \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	freerdp)
-		TAGS="rdp remote-desktop"
-		DEPENDS="zlib libkrb5 openssl libcomerr cups alsa-lib xorg-libxcb \
+		freerdp)
+			copy @std
+			DEPENDS="zlib libkrb5 openssl libcomerr cups alsa-lib xorg-libxcb \
 			xorg-libXcursor ffmpeg xorg-libXv pcsc-lite"
-		mkdir -p $fs/usr/lib/freerdp $fs/usr/share
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	freerdp-dev)
-		DEPENDS="fftw openssl-dev"
-		mkdir -p $fs/usr/lib/freerdp
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		;;
+			TAGS="rdp remote-desktop"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="fftw openssl-dev"
+			;;
 	esac
 }

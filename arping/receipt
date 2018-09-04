@@ -1,28 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="arping"
-VERSION="2.13"
+VERSION="2.19"
 CATEGORY="network"
 SHORT_DESC="ARP ping utility"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.habets.pp.se/synscan/programs.php?prog=arping"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.habets.pp.se/synscan/files/$TARBALL"
 
-DEPENDS="libnet libpcap"
-BUILD_DEPENDS="libpcap-dev libnet-dev"
+BUILD_DEPENDS="automake libpcap-dev libnet-dev libcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	./bootstrap.sh &&
+
 	./configure $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libcap libnet libpcap"
 }

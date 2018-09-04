@@ -15,22 +15,15 @@ SPLIT="libmowgli-dev"
 
 compile_rules() {
 	sed -i "s/touch -t 0001010000 /touch /g" configure
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libmowgli)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/libmowgli*.so* $fs/usr/lib
-			;;
-		*-dev)
-			mkdir -p $fs/usr/lib/pkgconfig
-			cp -a $install/usr/include $fs/usr
-			#cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig
-			;;
+		libmowgli) copy @std;;
+		*-dev)     copy @dev;;
 	esac
 }

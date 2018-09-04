@@ -15,10 +15,12 @@ BUILD_DEPENDS="bluez sqlite3 libusb-compat libcurl cmake"
 SPLIT="gammu-dev"
 
 compile_rules() {
-	mkdir -p build && cd build
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DBUILD_SHARED_LIBS=ON .. &&
+		-DBUILD_SHARED_LIBS=ON \
+		.. &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
@@ -26,18 +28,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		gammu)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			rm $fs/usr/bin/gammu-config
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="bluez sqlite3 libusb-compat libcurl"
 			;;
 		*-dev)
-			mkdir -p $fs/usr/lib $fs/usr/bin
-			cp -a $install/usr/bin/gammu-config $fs/usr/bin
-			#cp -a $install/usr/lib/*.*a $fs/usr/lib
-			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }
