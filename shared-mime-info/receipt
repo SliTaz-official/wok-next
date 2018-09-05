@@ -14,7 +14,7 @@ WGET_URL="https://people.freedesktop.org/~hadess/$TARBALL"
 
 BUILD_DEPENDS_arm="glib-dev libxml2-dev"
 BUILD_DEPENDS="intltool libxml2-dev glib-dev"
-SPLIT="$PACKAGE $PACKAGE-common $PACKAGE-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# Original size before rebuilding/stripping
@@ -68,12 +68,8 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		shared-mime-info)
-			copy bin/
-			DEPENDS="glib libxml2 shared-mime-info-common"
-			;;
-		*-common)
-			copy @std @rm
-			CAT="system-tools|common files"
+			copy @std
+			DEPENDS="glib libxml2"
 			;;
 		*-dev)
 			copy @dev

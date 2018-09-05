@@ -1,27 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="aaphoto"
-VERSION="0.41"
+VERSION="0.45"
 CATEGORY="graphics"
 SHORT_DESC="Automatic photo adjusting"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://log69.com/aaphoto_en.html"
 
-TARBALL="aaphoto_sources_v$VERSION.tar.gz"
-#WGET_URL="http://log69.com/downloads/$TARBALL"
-WGET_URL="http://ftp.uni-erlangen.de/pub/FreeBSD/ports/distfiles/$TARBALL"
+TARBALL="aaphoto_sources_$VERSION.tar.gz"
+WGET_URL="http://log69.com/downloads/$TARBALL"
 
-BUILD_DEPENDS="libjpeg-turbo-dev jasper-dev libpng16-dev autoconf"
+BUILD_DEPENDS="libgomp libjpeg-turbo-dev libpng16-dev"
 
 compile_rules() {
-	sed -i 's/#include <png.h>/#include <zlib.h>\n&/' aaphoto.c
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
-	./configure --prefix=/usr && make && make DESTDIR=$DESTDIR install
+	cook_pick_docs ChangeLog README
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="jasper libgomp libjpeg-turbo libpng16"
-	TAGS="photo jpeg jpg png bmp"
+	DEPENDS="libgomp libjpeg-turbo libpng16"
+	TAGS="photo jpeg jpg png"
 }

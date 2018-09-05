@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="cmocka"
+VERSION="1.1.2"
+CATEGORY="development"
+SHORT_DESC="Unit testing framework for C with support for mock objects"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://cmocka.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://cmocka.org/files/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="cmake doxygen graphviz"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		.. &&
+	make &&
+	make docs &&
+	make install || return 1
+
+	cook_pick_docs $src/README.md
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		cmocka) copy @std;;
+		*-dev)  copy @dev;;
+	esac
+}

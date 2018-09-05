@@ -1,26 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libbonoboui"
-VERSION="2.24.3"
+VERSION="2.24.5"
 CATEGORY="x-window"
-SHORT_DESC="The libbonoboui package contains libbonoboui libraries"
+SHORT_DESC="Library for compound documents in GNOME"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="GPL2"
-WEB_SITE="https://www.gnome.org/"
+LICENSE="GPL2 LGPL2.1"
+WEB_SITE="https://developer.gnome.org/libbonoboui/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gtk+-dev libgnome-dev libgnomecanvas-dev libglade-dev \
-gconf-dev alsa-lib-dev popt-dev libbonobo-dev util-linux-uuid-dev intltool \
-dbus-glib-dev audiofile esound libffi xorg-libXinerama-dev xorg-libXrandr-dev \
-xorg-libXcursor-dev xorg-libXcomposite-dev xorg-libXdamage-dev libgcrypt-dev"
+BUILD_DEPENDS="intltool gtk+-dev pangox-compat-dev xorg-libICE-dev popt-dev \
+libgnomecanvas-dev libbonobo-dev libgnome-dev gconf-dev libglade-dev \
+xorg-libSM-dev libgcrypt-dev"
 SPLIT="libbonoboui-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc/gnome \
-		--libexecdir=/usr/lib/bonobo \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -31,12 +29,13 @@ genpkg_rules() {
 	case $PACKAGE in
 		libbonoboui)
 			copy @std
-			DEPENDS="glib gtk+ libgnome libgnomecanvas libglade gconf alsa-lib \
-			popt libbonobo"
+			DEPENDS="atk gconf gdk-pixbuf glib gtk+ libart_lgpl libbonobo \
+			libglade libgnome libgnomecanvas libxml2 orbit2 popt xorg-libX11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libbonoboui libgnomecanvas-dev"
+			DEPENDS="libbonoboui glib-dev libbonobo-dev libgnome-dev \
+			libgnomecanvas-dev libxml2-dev orbit2-dev"
 			;;
 	esac
 }

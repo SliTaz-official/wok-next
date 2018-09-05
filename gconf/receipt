@@ -1,23 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gconf"
-VERSION="2.32.3"
+VERSION="3.2.6"
 CATEGORY="utilities"
 SHORT_DESC="A configuration database system"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="LGPL2"
-WEB_SITE="http://projects.gnome.org/gconf/"
+WEB_SITE="https://projects-old.gnome.org/gconf/"
 
-TARBALL="GConf-$VERSION.tar.bz2"
+TARBALL="GConf-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/GConf/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gettext openssl libcomerr3 gobject-introspection-dev \
-orbit2-dev dbus-dev dbus-glib-dev polkit-dev libxml2-dev"
-SPLIT="gconf-dev"
+BUILD_DEPENDS="glib-dev libxml2-dev dbus-dev dbus-glib-dev orbit2-dev intltool \
+gobject-introspection-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
-		--libexecdir=/usr/lib/GConf \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -28,15 +28,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		gconf)
 			copy @std
-			DEPENDS="glibc-base glib dbus dbus-glib expat libxml2 zlib polkit \
-			orbit2 atk cairo gtk+ fontconfig freetype pango xorg-pixman \
-			libpng16 xorg-libX11 xorg-libXau xorg-libXcomposite \
-			xorg-libXcursor xorg-libXdamage xorg-libXdmcp xorg-libXext \
-			xorg-libXfixes xorg-libXinerama xorg-libXrender"
+			DEPENDS="dbus dbus-glib glib libxml2 orbit2"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="gconf orbit2-dev"
+			DEPENDS="gconf glib-dev orbit2-dev"
 			;;
 	esac
 }
