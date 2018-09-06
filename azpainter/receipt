@@ -1,31 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="azpainter"
-VERSION="2.0.4"
+VERSION="2.1.2"
 CATEGORY="graphics"
 SHORT_DESC="Full color painting software for illustration drawing"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3 BSD"
 WEB_SITE="https://osdn.net/projects/azpainter/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://rwthaachen.dl.osdn.jp/azpainter/67264/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://osdn.net/dl/azpainter/$TARBALL"
 
-DEPENDS="fontconfig freetype libjpeg-turbo libpng16 xorg-libX11 xorg-libXext \
-xorg-libXi zlib"
-BUILD_DEPENDS="freetype-dev fontconfig-dev libjpeg-turbo-dev xorg-libX11-dev \
-xorg-libXext-dev xorg-libXi-dev"
+# Use GNU wget because Busybox wget can't follow redirection
+BUILD_DEPENDS="wget freetype-dev fontconfig-dev libjpeg-turbo-dev \
+xorg-libX11-dev xorg-libXext-dev xorg-libXi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	# regenerate translations after patching
+	cd translation
+	make
+	for i in en be ja pt_BR ru uk zh_CN; do
+		./mtrconv $i $i.mtr
+	done
+	cd -
+
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install-strip
+	make install-strip || return 1
+
+	cp -f translation/*.mtr $install/usr/share/azpainter/tr/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="fontconfig freetype libjpeg-turbo libpng16 xorg-libX11 \
+	xorg-libXext xorg-libXi zlib"
 }

@@ -1,33 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="autossh"
-VERSION="1.4d"
+VERSION="1.4f"
 CATEGORY="network"
-SHORT_DESC="Automatically restart SSH sessions and tunnels."
+SHORT_DESC="Automatically restart SSH sessions and tunnels"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="CC-SA"
 WEB_SITE="http://www.harding.motd.ca/autossh/"
+
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="${WEB_SITE}$TARBALL"
-TAGS="ssh"
 
-DEPENDS="openssh"
 BUILD_DEPENDS="openssh"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make
-
-	cook_pick_manpages $src/autossh.1
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/autossh $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssh"
+	TAGS="ssh"
 }

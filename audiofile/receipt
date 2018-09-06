@@ -1,23 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="audiofile"
-VERSION="0.3.4"
+VERSION="0.3.6"
 CATEGORY="development"
 SHORT_DESC="Uniform and elegant API for various audio file formats"
 MAINTAINER="allan316@gmail.com"
-LICENSE="GPL2"
-WEB_SITE="http://www.68k.org/~michael/audiofile/"
+LICENSE="GPL2 LGPL2.1"
+WEB_SITE="https://audiofile.68k.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://audiofile.68k.org/$TARBALL"
 
-BUILD_DEPENDS="alsa-lib-dev"
+BUILD_DEPENDS="alsa-lib-dev flac-dev"
 SPLIT="audiofile-dev"
 
 compile_rules() {
 	sed -i 's|-1 <<|-1U <<|' libaudiofile/modules/SimpleModule.h
 
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$DESTDIR install
@@ -27,7 +29,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		audiofile)
 			copy @std
-			DEPENDS="alsa-lib"
+			DEPENDS="flac   alsa-lib"
 			;;
 		*-dev)
 			copy @dev

@@ -1,29 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="axel"
-VERSION="2.4"
+VERSION="2.16.1"
 CATEGORY="network"
-SHORT_DESC="Download accelerator."
+SHORT_DESC="Download accelerator"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/axel-download-accelerator/axel"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/axel-download-accelerator/axel/archive/v$VERSION.tar.gz"
-CONFIG_FILES="/etc/axelrc"
-TAGS="web internet"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		--i18n=0 \
-		$CONFIGURE_ARGS &&
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/axel-download-accelerator/axel/releases/download/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="openssl-dev gettext"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make install DESTDIR=$DESTDIR
+	make install || return 1
+
+	install -Dm644 doc/axelrc.example $install/etc/axelrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy axel axelrc
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
+	CONFIG_FILES="/etc/axelrc"
+	TAGS="web internet"
 }

@@ -1,51 +1,75 @@
 # SliTaz package receipt v2.
 
 PACKAGE="alsaplayer"
-VERSION="0.99.81"
+VERSION="0.99.82.postgit20180627"
+COMMIT="ece53f6"
 CATEGORY="multimedia"
 SHORT_DESC="ALSA GTK+ PCM audio player"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://alsaplayer.sourceforge.net/"
+WEB_SITE="http://alsaplayer.sourceforge.net/" # http://www.alsaplayer.org/
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}$TARBALL"
+WGET_URL="https://github.com/alsaplayer/alsaplayer/archive/$COMMIT.tar.gz"
 
-BUILD_DEPENDS="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev flac-dev"
-BUILD_DEPENDS_arm="gtk+-dev alsa-lib-dev libmad-dev libogg-dev libvorbis-dev"
-SPLIT="alsaplayer-scopes alsaplayer alsaplayer-dev"
+BUILD_DEPENDS="intltool automake libtool libmad-dev libid3tag-dev flac-dev \
+libmikmod-dev libogg-dev libvorbis-dev mesa-dev glib-dev gtk+-dev pango-dev \
+libsndfile-dev alsa-lib-dev "
+SPLIT="alsaplayer-scopes-gl alsaplayer-scopes alsaplayer-mod alsaplayer \
+alsaplayer-dev"
 
 compile_rules() {
+	# substitute large pixmap (165 KB) with small one
 	i="$src/interface/gtk2/pixmaps"
+	mv     $i/logo.xpm    $i/logo.orig.xpm
 	cp  -f $i/note.xpm    $i/logo.xpm
 	sed -i 's/note/logo/' $i/logo.xpm
 
+	./autogen.sh &&
+
 	./configure \
-		--enable-gtk2 \
-		--enable-flac \
+		--enable-systray \
 		--disable-jack \
 		--disable-esd \
+		--disable-sparc \
+		--disable-oss \
+		--disable-sgi \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	# Chmod install-sh to avoid install error.
-	chmod 755 install-sh &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	install -Dm644 $stuff/alsaplayer16.png $install/usr/share/icons/hicolor/16x16/apps/alsaplayer.png
+	install -Dm644 $stuff/alsaplayer48.png $install/usr/share/icons/hicolor/48x48/apps/alsaplayer.png
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		alsaplayer-scopes-gl)
+			copy liboglspectrum.so
+			CAT="multimedia|GL visualisation"
+			DEPENDS="mesa   alsaplayer"
+			;;
 		alsaplayer-scopes)
-			copy scopes2/*.so
+			copy scopes2/*.so @rm
 			CAT="multimedia|visualisations"
 			DEPENDS="glib gtk+   alsaplayer"
 			;;
+		alsaplayer-mod)
+			copy libmod.so
+			CAT="multimedia|play tracker music"
+			DEPENDS="libmikmod   alsaplayer"
+			;;
 		alsaplayer)
 			copy @std @rm
-			DEPENDS="alsa-lib flac gdk-pixbuf glib gtk+ libmad libvorbis pango"
+			DEPENDS="alsa-lib flac gdk-pixbuf glib gtk+ libmad libsndfile \
+			libvorbis pango"
 			TAGS="music audio player mp3 ogg flac"
 			SUGGESTED="alsaplayer-scopes libid3tag"
 			;;
-		*-dev) copy @dev;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }
