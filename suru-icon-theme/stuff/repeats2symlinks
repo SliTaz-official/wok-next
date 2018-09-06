@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Substitute repeated files by symlinks
+
+where="$1"
+
+md5sums=$(mktemp)
+find $where -type f -exec md5sum '{}' \; | sort > $md5sums
+
+# Return shortest line
+shortest_line() {
+	shortest=$1; shift
+	for line in $@; do
+		[ "${#line}" -lt "${#shortest}" ] && shortest="$line"
+	done
+	echo "$shortest"
+}
+
+
+# Replace the same files by symlinks, $@ - list of identical files
+make_symlinks() {
+	target=$(shortest_line $@)
+	for file in $@; do
+		[ "$target" != "$file" ] && ln -sf $target $file
+	done
+}
+
+# substitute repeated files by symlinks
+for md in $(uniq -d -w32 $md5sums | cut -c1-32); do
+	make_symlinks $(grep $md $md5sums | cut -c35-)
+done
+
+# clean
+rm $md5sums
+
+# make all symlinks relative
+symlinks -crs $where 2>/dev/null

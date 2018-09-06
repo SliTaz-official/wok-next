@@ -1,27 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bchunk"
-VERSION="1.2.0"
+VERSION="1.2.2"
 CATEGORY="misc"
-SHORT_DESC="Converts a CD image in a '.bin / .cue' format to '.iso'."
+SHORT_DESC="CD image converter from .bin/.cue to .iso/.cdr/.wav"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://he.fi/bchunk"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/$TARBALL"
-TAGS="convert CD bin cue iso"
+WEB_SITE="http://he.fi/bchunk/"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE$TARBALL"
+
+compile_rules() {
+	make || return 1
+	install -Dm755 bchunk $install/usr/bin/bchunk
 
 	cook_pick_manpages bchunk.1
+	cook_pick_docs README ChangeLog
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp $src/bchunk $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	TAGS="convert CD bin cue iso"
 }

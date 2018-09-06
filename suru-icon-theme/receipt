@@ -1,0 +1,42 @@
+# SliTaz package receipt v2.
+
+PACKAGE="suru-icon-theme"
+VERSION="git20180831"
+COMMIT="172098e"
+CATEGORY="customization"
+SHORT_DESC="Suru icon theme & cursors"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="CCBYSA GPL3"
+WEB_SITE="https://snwh.org/suru"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/snwh/suru-icon-theme/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="meson ninja symlinks"
+SPLIT="$PACKAGE-2x $PACKAGE"
+
+compile_rules() {
+	mkdir build
+	cd    build
+
+	meson-wrapper &&
+	ninja &&
+	ninja install || return 1
+
+	# Reduce installed size (44.3M -> 27.8M) and package size (6.3M -> 5.9M)
+	# using symlinks for repeated icons
+	$stuff/repeats2symlinks $install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-2x)
+			copy *@2x/
+			CAT="customization|double density icons"
+			DEPENDS="suru-icon-theme"
+			;;
+		*)
+			copy @std @rm
+			;;
+	esac
+}

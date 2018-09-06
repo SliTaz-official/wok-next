@@ -1,34 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bridge-utils"
-VERSION="1.5"
+VERSION="1.6"
 CATEGORY="system-tools"
 SHORT_DESC="IEEE 802.1d ethernet bridging"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="https://sourceforge.net/projects/bridge/"
-WGET_URL="$SF_MIRROR/bridge/$TARBALL"
-TAGS="ethernet bridge"
+WEB_SITE="https://mirrors.edge.kernel.org/pub/linux/utils/net/bridge-utils/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://mirrors.edge.kernel.org/pub/linux/utils/net/bridge-utils/$TARBALL"
 
 BUILD_DEPENDS="automake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoconf
-	./configure --prefix=/usr &&
-	make && make DESTDIR=$DESTDIR install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin  $fs/usr
-}
-
-post_remove()
-{
-	ln -s /bin/busybox "$1/usr/sbin/brctl"
+genpkg_rules() {
+	copy @std
+	TAGS="ethernet bridge"
 }

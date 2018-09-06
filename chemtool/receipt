@@ -1,48 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="chemtool"
-VERSION="1.6.12"
+VERSION="1.6.14"
 CATEGORY="graphics"
-SHORT_DESC="Small program for drawing chemical structures."
+SHORT_DESC="Drawing chemical structures"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://ruby.chemie.uni-freiburg.de/~martin/chemtool/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE$TARBALL"
-TAGS="chemistry"
 
-DEPENDS="gtk+ xorg-libXdamage"
-BUILD_DEPENDS="gtk+-dev xorg-xorgproto"
+BUILD_DEPENDS="gettext gtk+-dev xorg-libX11-dev xorg-libICE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--enable-stockgtk \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	# Desktop integration
+	install -Dm644 $stuff/chemtool.desktop $install/usr/share/applications/chemtool.desktop
+	install -Dm644 gnome/chemtool.png $install/usr/share/icons/hicolor/48x48/apps/chemtool.png
+	install -Dm644 gnome/gnome-application-chemtool.png $install/usr/share/icons/hicolor/48x48/mimetypes/application-x-chemtool.png
+	install -Dm644 $stuff/chemtool.xml $install/usr/share/mime/packages/chemtool.xml
+
+	# Examples
+	mkdir -p $install/usr/share/examples/chemtool/
+	cp examples/* $install/usr/share/examples/chemtool/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	# Needed directories.
-	mkdir -p $fs/usr/share/locale $fs/usr/share/pixmaps \
-	$fs/usr/share/examples/chemtool 
-	
-	# Binary file.
-	cp -a $install/usr/bin $fs/usr
-	
-	# French locale, pixmap and menu.
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	cp -a $src/gnome/chemtool.png $fs/usr/share/pixmaps
-	
-	# Examples.
-	cp -a $src/examples/a*.cht $fs/usr/share/examples/chemtool
-	cp -a $src/examples/c*.cht $fs/usr/share/examples/chemtool
-	cp -a $src/examples/p*.cht $fs/usr/share/examples/chemtool
-	cp -a $src/examples/t*.cht $fs/usr/share/examples/chemtool
-
-	chown -R root:root $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango \
+	xorg-libX11   shared-mime-info"
+	TAGS="chemistry"
 }
