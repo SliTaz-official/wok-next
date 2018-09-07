@@ -1,0 +1,56 @@
+# SliTaz package receipt v2.
+
+PACKAGE="aubio"
+VERSION="0.4.6"
+CATEGORY="multimedia"
+SHORT_DESC="A collection of tools for music analysis"
+MAINTAINER="jozee@slitaz.org"
+LICENSE="GPL3"
+WEB_SITE="https://aubio.org/"
+
+TARBALL="aubio-$VERSION.tar.bz2"
+WGET_URL="https://aubio.org/pub/$TARBALL"
+
+BUILD_DEPENDS="python-dev fftw-dev libsndfile-dev libsamplerate-dev jack-dev \
+ffmpeg-dev python-numpy"
+SPLIT="$PACKAGE-dev python-aubio:py"
+
+COOKOPTS="instant-pack"
+
+compile_rules() {
+	case $SET in
+		'')
+			./waf configure build \
+				--enable-fftw3f \
+				--prefix=/usr \
+				--libdir=/usr/lib \
+				&&
+			./waf install \
+				--destdir=$install
+			;;
+		py)
+			# python-aubio require freshly built aubio-dev
+			tazpkg -gi --quiet --local --cookmode aubio-dev
+
+			python -B setup.py install --root=$install
+			;;
+	esac
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		aubio)
+			copy @std
+			DEPENDS="ffmpeg fftw jack libsamplerate libsndfile"
+			TAGS="audio label multimedia"
+			;;
+		*-dev)
+			copy @dev
+			;;
+		python-aubio)
+			copy @std
+			CAT="python|Python bindings"
+			DEPENDS="aubio python"
+			;;
+	esac
+}
