@@ -1,26 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="minicom"
-VERSION="2.6"
+VERSION="2.7.1"
 CATEGORY="development"
 SHORT_DESC="Menu driven communications program"
 MAINTAINER="f.lombard@free.fr"
 LICENSE="GPL2"
-WEB_SITE="http://alioth.debian.org/projects/minicom/"
+WEB_SITE="https://salsa.debian.org/minicom-team/minicom"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://alioth.debian.org/frs/download.php/3195/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://salsa.debian.org/minicom-team/minicom/-/archive/master/v$VERSION.tar.bz2"
 
-BUILD_DEPENDS="ncurses-dev"
+BUILD_DEPENDS="automake gettext ncurses-dev"
 
 compile_rules() {
-	sed -i 's/getline/get_line/' src/minicom.c
+	./autogen.sh &&
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make install || return 1
 
-	mkdir -p $install/etc
-	touch $install/etc/minirc.dfl
+	install -Dm644 doc/minirc.dfl $install/etc/minirc.dfl
 }
 
 genpkg_rules() {
