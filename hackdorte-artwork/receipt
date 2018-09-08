@@ -1,0 +1,219 @@
+# SliTaz package receipt v2.
+
+PACKAGE="hackdorte-artwork"
+VERSION="1.0"
+CATEGORY="meta"
+SHORT_DESC="SliTaz artwork by Leonardo Laporte"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PublicDomain"
+WEB_SITE="https://github.com/SliTaz-official/hackdorte-artwork"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/SliTaz-official/hackdorte-artwork/archive/$VERSION.tar.gz"
+
+SPLIT="blinder-theme chrommo-theme woodland-theme sandfive-theme \
+slim-theme-clean slim-theme-esperanza slim-theme-japan-art slim-theme-leaves \
+slim-theme-montanhoso conky-theme-onsea slitaz-backgrounds"
+
+COOKOPTS="!pngquant" # SLiM don't like such images processed by pngquant
+
+compile_rules() {
+	mkdir -p $install/usr/share/
+	cp -r conky/ images/ slim/ themes/ $install/usr/share/
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		hackdorte-artwork)
+			DEPENDS="$SPLIT"
+			;;
+		blinder-theme)
+			copy Blinder/
+			CAT="customization|Blinder theme for GTK+2 and Openbox3"
+			TAGS="hackdorte openbox theme"
+			# openbox-theme-blinder 20150606
+			# https://web.archive.org/web/20151101012710/http://desktopstylish.tumblr.com/post/120897023300/blinder-the-openbox-3-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlQURSR3V5dzB4aXc
+			;;
+		chrommo-theme)
+			copy Chrommo/
+			CAT="customization|Chrommo theme for GTK+2 and Openbox3"
+			TAGS="hackdorte openbox theme"
+			# openbox-theme-chrommo 20150601
+			# http://desktopstylish.tumblr.com/post/120497586780/chrommo-openbox-3-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlcms4OHBWTVBWMmc
+			;;
+		woodland-theme)
+			copy Woodland/
+			CAT="customization|Woodland nature theme for Openbox3"
+			TAGS="hackdorte openbox theme"
+			# openbox-theme-woodland 1.0
+			# https://web.archive.org/web/20151101012710/http://desktopstylish.tumblr.com/post/120897023300/blinder-the-openbox-3-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlQURSR3V5dzB4aXc
+			# http://people.slitaz.org/~leonardolaporte/lab.slitaz/5.0/pkg/openbox/3.6.1/openbox-theme-woodland-1.0.tar.gz
+			;;
+		sandfive-theme)
+			copy SliTaz-SandFive/
+			CAT="customization|complete SliTaz 5.0 SandFive theme"
+			# sandfive-theme 1.0
+			# http://elegantspider.blogspot.com.br/2014/06/slitaz-sand-five-theme.html
+			# sources was in the stuff near the receipt
+			;;
+		slim-theme-clean)
+			copy Clean/
+			DEPENDS="slim"
+			CAT="customization|Clean theme for SLiM"
+			TAGS="hackdorte slim"
+			# slim-theme-clean 20150602
+			# http://desktopstylish.tumblr.com/post/120566561330/clean-slim-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlczlac2tXa01wbTQ
+			;;
+		slim-theme-esperanza)
+			copy Esperanza/
+			DEPENDS="slim"
+			CAT="customization|Esperanza theme for SLiM"
+			TAGS="hackdorte slim"
+			# slim-theme-esperanza 20150602
+			# http://desktopstylish.tumblr.com/post/120505013200/esperanza-slim-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqldmFkeEcyXzRpLVk
+			;;
+		slim-theme-japan-art)
+			copy JapanArt/
+			DEPENDS="slim"
+			CAT="customization|Japan Art theme for SLiM"
+			TAGS="hackdorte slim"
+			# slim-theme-japan-art 20150603
+			# http://desktopstylish.tumblr.com/post/120590949085/japan-art-slim-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlUkJHVDJrXzVFRUk
+			;;
+		slim-theme-leaves)
+			copy Leaves/
+			DEPENDS="slim"
+			CAT="customization|Leaves theme for SLiM"
+			TAGS="hackdorte slim"
+			# slim-theme-leaves 20150602
+			# http://desktopstylish.tumblr.com/post/120510224250/leaves-slim-theme-download
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqldkFkbmRCRFZVQ0k
+			;;
+		slim-theme-montanhoso)
+			copy Montanhoso/
+			DEPENDS="slim"
+			CAT="customization|Montanhoso theme for SLiM"
+			TAGS="hackdorte slim"
+			# slim-theme-montanhoso 20150526
+			# http://desktopstylish.tumblr.com/post/120406192590/montanhoso-theme-for-the-slim-login-manager
+			# https://drive.google.com/uc?export=download&id=0B4Re2DvqOMqlTXZZRDJWaFI4NkE
+			;;
+		conky-theme-onsea)
+			copy onsea/
+			CAT="customization|smooth theme for conky with smoke color"
+			;;
+		slitaz-backgrounds)
+			copy slitaz-bg-control.png slitaz-bg-core.png slitaz-bg-enigma.png \
+			slitaz-bg-fusion.png slitaz-bg-lights.png slitaz-bg-panel.png \
+			slitaz-bg-sand.png slitaz-bg-spiders-eyes.png slitaz-bg-voyage.png \
+			slitaz-bg-wood.png slitaz-black-floral.png slitaz-black-zen.png \
+			slitaz-dust.png slitaz-meditation.jpg slitaz-secret-orion.png \
+			slitaz-the-force.png slitaz-varnish.png slitaz-woodland.jpg
+			CAT="customization|additional backgrounds for Slitaz GNU/Linux"
+			# slitaz-backgrounds 2.1
+			# https://github.com/hackdorte/slitaz-backgrounds
+			# https://github.com/hackdorte/slitaz-backgrounds/archive/8f027a0.tar.gz
+	esac
+}
+
+
+# Set Openbox theme
+post_install_blinder_theme() {
+	for i in $1/etc/xdg/openbox/rc.xml $1/home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>Blinder<|' $i
+	done
+	[ -z "$1" ] && pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+# Restore Openbox theme (SliTaz)
+pre_remove_blinder_theme() {
+	for i in $1/etc/xdg/openbox/rc.xml $1/home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>SliTaz<|' $i
+	done
+	[ -z "$1" ] && pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+
+# Set Openbox theme
+post_install_chrommo_theme() {
+	for i in $1/etc/xdg/openbox/rc.xml $1/home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>Chrommo<|' $i
+	done
+	[ -z "$1" ] && pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+# Restore Openbox theme (SliTaz)
+pre_remove_chrommo_theme() {
+	for i in $1/etc/xdg/openbox/rc.xml $1/home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>SliTaz<|' $i
+	done
+	[ -z "$1" ] && pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+
+# Set Openbox theme
+post_install_woodland_theme() {
+	for i in $1/etc/xdg/openbox/rc.xml $1/home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>Woodland<|' $i
+	done
+	[ -z "$1" ] && pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+# Restore Openbox theme (SliTaz)
+pre_remove_woodland_theme() {
+	for i in $1/etc/xdg/openbox/rc.xml $1/home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>SliTaz<|' $i
+	done
+	[ -z "$1" ] && pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+
+post_install_slim_theme_clean() {
+	chroot "$1/" slim-theme -s Clean
+}
+
+pre_remove_slim_theme_clean() {
+	chroot "$1/" slim-theme -f Clean
+}
+
+
+post_install_slim_theme_esperanza() {
+	chroot "$1/" slim-theme -s Esperanza
+}
+
+pre_remove_slim_theme_esperanza() {
+	chroot "$1/" slim-theme -f Esperanza
+}
+
+
+post_install_slim_theme_japan_art() {
+	chroot "$1/" slim-theme -s JapanArt
+}
+
+pre_remove_slim_theme_japan_art() {
+	chroot "$1/" slim-theme -f JapanArt
+}
+
+
+post_install_slim_theme_leaves() {
+	chroot "$1/" slim-theme -s Leaves
+}
+
+pre_remove_slim_theme_leaves() {
+	chroot "$1/" slim-theme -f Leaves
+}
+
+
+post_install_slim_theme_montanhoso() {
+	chroot "$1/" slim-theme -s Montanhoso
+}
+
+pre_remove_slim_theme_montanhoso() {
+	chroot "$1/" slim-theme -f Montanhoso
+}
