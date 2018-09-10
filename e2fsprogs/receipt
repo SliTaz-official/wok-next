@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="e2fsprogs"
-VERSION="1.44.3"
+VERSION="1.44.4"
 CATEGORY="base-system"
 SHORT_DESC="Filesystem utilities for use with ext2 and ext3"
 MAINTAINER="pankso@slitaz.org"
@@ -12,13 +12,13 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/e2fsprogs.ht
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="util-linux-uuid-dev util-linux-blkid-dev gettext attr-dev \
 acl-dev texinfo"
 SPLIT="libcomerr-dev e2fsprogs-dev e2fsprogs-fsck libcomerr e2fsprogs"
 
 compile_rules() {
-	sed -i -e 's:\[\.-\]::' tests/filter.sed
+#	mkdir -p $install/usr/share/man/man8/
+
 	mkdir build
 	cd    build
 
@@ -32,8 +32,7 @@ compile_rules() {
 		--disable-fsck \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install &&
-	make install-libs || return 1
+	make -j1 MKDIR_P="mkdir -p" install install-libs || return 1
 
 	for i in libcom_err libe2p libext2fs libss; do
 		chmod u+w $install/usr/lib/$i.a
@@ -60,11 +59,11 @@ genpkg_rules() {
 		libcomerr-dev)
 			copy libcom_err.a com_err.h com_err.pc
 			CAT="development|libcomerr development files"
-			DEPENDS=" "
+			DEPENDS="libcomerr"
 			;;
 		e2fsprogs-dev)
-			copy @dev *.sed *.awk @rm
-			DEPENDS="libcomerr-dev"
+			copy @dev *.sed *.awk @rm compile_et mk_cmds
+			DEPENDS="e2fsprogs e2fsprogs-fsck libcomerr-dev"
 			;;
 		e2fsprogs-fsck)
 			copy sbin/fsck.*
