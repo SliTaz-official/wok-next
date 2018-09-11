@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libmanette"
-VERSION="0.2.0"
+VERSION="0.2.1"
 CATEGORY="libs"
 SHORT_DESC="Simple GObject game controller library"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,13 +12,15 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="meson ninja glib-dev libgudev-dev libevdev-dev \
-gobject-introspection-dev vala"
+gobject-introspection-dev vala libxml2-tools"
 SPLIT="libmanette-dev"
 
 compile_rules() {
-	meson-wrapper build &&
-	ninja -C build &&
-	DESTDIR=$install ninja -C build install
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {

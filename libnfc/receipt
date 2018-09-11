@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libnfc"
-VERSION="1.7.0"
+VERSION="1.7.1"
 CATEGORY="development"
 SHORT_DESC="Near Field Communication (NFC) library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,29 +9,33 @@ LICENSE="LGPL3"
 WEB_SITE="http://nfc-tools.org/index.php?title=Libnfc"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://libnfc.googlecode.com/files/$TARBALL"
+WGET_URL="https://bintray.com/artifact/download/nfc-tools/sources/$TARBALL"
 
-BUILD_DEPENDS="libusb-dev libusb-compat-dev pcsc-lite-dev eudev-dev"
+BUILD_DEPENDS="automake libtool libusb-dev libusb-compat-dev pcsc-lite-dev \
+eudev-dev readline-dev"
 SPLIT="libnfc-dev"
 
 compile_rules() {
+	autoreconf -vifs
+
 	./configure \
+		--disable-static \
 		--with-drivers=all \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libnfc)
 			copy @std
-			DEPENDS="libusb pcsc-lite"
+			DEPENDS="libusb-compat pcsc-lite readline"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libnfc pcsc-lite-dev libusb-dev libusb-compat-dev"
+			DEPENDS="libnfc libusb-compat-dev pcsc-lite-dev"
 			;;
 	esac
 }
