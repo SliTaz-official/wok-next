@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lftp"
-VERSION="4.8.3"
+VERSION="4.8.4"
 CATEGORY="network"
 SHORT_DESC="Small but powerful FTP client"
 MAINTAINER="mimas@slitaz.org"
@@ -11,12 +11,12 @@ WEB_SITE="http://lftp.yar.ru/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}ftp/$TARBALL"
 
-BUILD_DEPENDS="gmp-dev ncurses-dev readline-dev expat-dev gperf gnutls-dev"
-
-CROSS="bug: failed at test"
+BUILD_DEPENDS="gmp-dev ncurses-dev readline-dev expat-dev gperf gnutls-dev \
+gettext"
 
 compile_rules() {
 	./configure \
+		--disable-static \
 		--with-gnutls \
 		--without-openssl \
 		$CONFIGURE_ARGS &&
@@ -27,5 +27,5 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gmp readline expat gnutls gcc-lib-base"
+	DEPENDS="expat libgnutls libidn2 ncurses readline zlib"
 }

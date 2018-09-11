@@ -1,20 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="jp2a"
-VERSION="1.0.6"
+VERSION="1.0.7"
 CATEGORY="graphics"
 SHORT_DESC="Converts JPG images to ASCII"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://csl.name/jp2a/"
+WEB_SITE="https://github.com/cslarsen/jp2a"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/cslarsen/jp2a/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="libjpeg-turbo-dev curl-dev"
+BUILD_DEPENDS="automake libjpeg-turbo-dev curl-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	autoreconf -vi
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	mv README README.md
+	cook_pick_docs README.md BUGS ChangeLog
 }
 
 genpkg_rules() {

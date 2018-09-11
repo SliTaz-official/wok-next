@@ -217,3 +217,20 @@ post_install_slim_theme_montanhoso() {
 pre_remove_slim_theme_montanhoso() {
 	chroot "$1/" slim-theme -f Montanhoso
 }
+
+
+post_install_conky_theme_onsea() {
+	for i in $1/home/*; do
+		[ -e $i/.conkyrc ] || return
+		mv $i/.conkyrc $i/.conkyrc.bak
+		ln -s /usr/share/conky/themes/onsea/.conkyrc $i/.conkyrc
+	done
+}
+
+post_remove_conky_theme_onsea() {
+	for i in $1/home/*; do
+		[ -e $i/.conkyrc.bak ] || return
+		rm $i/.conkyrc
+		mv $i/.conkyrc.bak $i/.conkyrc
+	done
+}

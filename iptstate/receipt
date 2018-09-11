@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="iptstate"
-VERSION="2.2.5"
+VERSION="2.2.6"
 CATEGORY="network"
 SHORT_DESC="IPTState is a top-like interface to your netfilter \
 connection-tracking table"
@@ -10,16 +10,18 @@ LICENSE="zlib/libpng"
 WEB_SITE="https://www.phildev.net/iptstate/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://github.com/jaymzh/iptstate/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev libnetfilter_conntrack-dev libnfnetlink-dev"
 
 compile_rules() {
 	make &&
-	install -Dm755 $src/iptstate $install/usr/sbin/iptstate
+	make PREFIX=$install/usr install || return 1
+
+	cook_pick_docs README.md WISHLIST BUGS Changelog
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="ncurses libnetfilter_conntrack libnfnetlink iptables"
+	DEPENDS="libnetfilter_conntrack ncurses   libnfnetlink iptables"
 }

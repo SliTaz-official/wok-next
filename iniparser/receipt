@@ -18,18 +18,16 @@ compile_rules() {
 
 	mkdir -p $install/usr/lib $install/usr/include
 	cp -a *.so*   $install/usr/lib
-	cp    *.*a    $install/usr/lib
+	ln -s libiniparser.so.1 $install/usr/lib/libiniparser.so
+#	cp    *.*a    $install/usr/lib
 	cp    src/*.h $install/usr/include
+
 	cook_pick_docs html/ AUTHORS README.md LICENSE FAQ*
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		iniparser)
-			copy @std
-			;;
-		*-dev)
-			copy @dev
-			;;
+		iniparser) copy @std;;
+		*-dev)     copy @dev;;
 	esac
 }
