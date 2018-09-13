@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="z3"
+VERSION="4.7.1"
+CATEGORY="development"
+SHORT_DESC="The Z3 Theorem Prover"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/Z3Prover/z3"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Z3Prover/z3/releases/download/$PACKAGE-$VERSION/$TARBALL"
+
+BUILD_DEPENDS="python"
+SPLIT="z3-dev"
+
+compile_rules() {
+	python scripts/mk_make.py
+	cd build
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		z3)
+			copy @std
+			DEPENDS="libgomp"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

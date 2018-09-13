@@ -1,22 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-beaker"
+ORIGIN="Beaker"
 VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="Cache and Session Library"
 MAINTAINER="taziden@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.python.org/pypi/Beaker"
+WEB_SITE="https://pypi.org/project/Beaker/"
 REPOLOGY="python:beaker"
 
 BUILD_DEPENDS="python-funcsigs"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR Beaker
+	pip install --no-compile --root=$DESTDIR $ORIGIN
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*Beaker-||p' $LOGS/$PACKAGE.log)
+	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python-funcsigs"
 }

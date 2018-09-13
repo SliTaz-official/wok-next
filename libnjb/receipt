@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libnjb"
-VERSION="2.2.6"
+VERSION="2.2.7"
 CATEGORY="system-tools"
 SHORT_DESC="Communicating with the Creative Nomad JukeBox and Dell DJ"
 MAINTAINER="keupont@no-log.org"
@@ -15,21 +15,23 @@ BUILD_DEPENDS="libusb-compat libusb-compat-dev libusb-dev eudev-dev"
 SPLIT="libnjb-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libnjb)
 			copy @std
-			DEPENDS="libusb-compat"
+			DEPENDS="libusb-compat ncurses"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libnjb libusb zlib"
+			DEPENDS="libnjb libusb-compat-dev"
 			;;
 	esac
 }

@@ -1,6 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-bcrypt"
+ORIGIN="bcrypt"
 VERSION="latest"
 CATEGORY="python"
 SHORT_DESC="Modern password hashing for your software and your servers"
@@ -12,11 +13,11 @@ REPOLOGY="python:bcrypt"
 BUILD_DEPENDS="python python-six python-cffi"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR bcrypt
+	pip install --no-compile --root=$DESTDIR $ORIGIN
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*bcrypt-||p' $LOGS/$PACKAGE.log)
+	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }

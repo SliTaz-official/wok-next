@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libpano13"
-VERSION="2.9.18"
+VERSION="2.9.19"
 CATEGORY="development"
 SHORT_DESC="Panorama tools library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,21 +11,24 @@ WEB_SITE="http://panotools.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/panotools/$TARBALL"
 
-BUILD_DEPENDS="bash libpng16-dev jpeg-dev tiff-dev"
+BUILD_DEPENDS="zlib-dev libpng16-dev libjpeg-turbo-dev tiff-dev"
 SPLIT="libpano13-dev"
 
 compile_rules() {
+	# to fix: undefined reference to `float2rgbe'; undefined reference to `rgbe2float'
+	sed -i 's|^INLINE ||' rgbe.h rgbe.c
+
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libpano13)
 			copy @std
-			DEPENDS="libpng16 jpeg tiff"
+			DEPENDS="libjpeg-turbo libpng16 tiff"
 			;;
 		*-dev)
 			copy @dev

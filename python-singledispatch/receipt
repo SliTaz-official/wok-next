@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-singledispatch"
+ORIGIN="singledispatch"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="Brings functools.singledispatch from Python 3.4 to Python 2.6-3.3"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+REPOLOGY="${PACKAGE/-/:}"
+
+BUILD_DEPENDS="python python-six"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR $ORIGIN
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python python-six"
+}

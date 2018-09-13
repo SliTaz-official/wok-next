@@ -1,6 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-antlr"
+ORIGIN="antlr4-python2-runtime"
 VERSION="latest"
 CATEGORY="development"
 SHORT_DESC="Language tool for constructing recognizers, compilers for Python"
@@ -12,11 +13,11 @@ REPOLOGY="antlr4"
 BUILD_DEPENDS="python"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR antlr4-python2-runtime
+	pip install --no-compile --root=$DESTDIR $ORIGIN
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*antlr4-python2-runtime-||p' $LOGS/$PACKAGE.log)
+	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }

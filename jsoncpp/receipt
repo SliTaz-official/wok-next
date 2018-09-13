@@ -11,19 +11,20 @@ WEB_SITE="https://github.com/open-source-parsers/jsoncpp"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="cmake"
+BUILD_DEPENDS="meson ninja"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_CXX_FLAGS="-ffloat-store" \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		.. &&
-	make &&
-	make DESTDIR=$DESTDIR install
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
-	copy @dev
+	case $PACKAGE in
+		jsoncpp) copy @std;;
+		*-dev)   copy @dev;;
+	esac
 }

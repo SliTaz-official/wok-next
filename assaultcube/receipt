@@ -1,41 +1,62 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="assaultcube"
-VERSION="1.1.0.4"
+VERSION="1.2.0.2"
 CATEGORY="games"
-SHORT_DESC="A realistic team oriented multiplayer FPS based on the cube engine."
+SHORT_DESC="A realistic team oriented multiplayer FPS based on the Cube engine"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="zlib/libpng"
-SOURCE="AssaultCube"
-TARBALL="${SOURCE}_v${VERSION}_source.tar.bz2"
-SOURCE="AssaultCube-Source"
 WEB_SITE="http://assault.cubers.net/"
-WGET_URL="$SF_MIRROR/actiongame/$TARBALL"
 
-DEPENDS="openal libsdl-image libsdl-mixer mesa glu assaultcube-data"
-BUILD_DEPENDS="openal-dev libsdl-image-dev libsdl-mixer-dev mesa-dev \
-glu-dev zlib-dev"
+TARBALL="AssaultCube_v$VERSION.tar.bz2"
+WGET_URL="https://github.com/assaultcube/AC/releases/download/v$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{	
-	cd $src/source/src
-	sed -i 's/lvorbisfile/& -lX11/' Makefile
+BUILD_DEPENDS="automake libtool clang-dev openal-dev libsdl-image-dev \
+libsdl-mixer-dev mesa-dev glu-dev zlib-dev curl-dev"
+# xorg-libX11-dev libogg-dev libvorbis-dev
+SPLIT="$PACKAGE-data"
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
+	export CXX='clang++'
+
+	cd $src/source/enet
+	autoreconf -vfi
+	./configure $CONFIGURE_ARGS &&
 	make
-	mkdir -p $DESTDIR/usr/bin
-	cp -a ac_client $DESTDIR/usr/bin
-	cp -a ac_server $DESTDIR/usr/bin
-	
+
+	cd $src/source/src
+	make || return 1
+
+	# install executables
+	install -Dm755 ac_client $install/usr/bin/ac_client
+	install -Dm755 ac_server $install/usr/bin/ac_server
+
+	# install shell wrappers
+	install -Dm755 $stuff/assaultcube        $install/usr/bin/assaultcube
+	install -Dm755 $stuff/assaultcube-server $install/usr/bin/assaultcube-server
+
+	# install data
+	mkdir -p $install/usr/share/assaultcube/
+	cp -r config/ packages/ docs/ mods/ $install/usr/share/assaultcube/
+	find $install -type f -exec chmod a-x '{}' \;
+
+	# remove CR line endings
+	find ./config ./packages ./docs ./mods -type f \
+	\( -name '*.cfg' -o -name '*.txt' \) \
+	| xargs -n1 dos2unix
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin/ac_client $fs/usr/bin
-	cp -a $install/usr/bin/ac_server $fs/usr/bin
-	cp -a $stuff/assaultcube $fs/usr/bin
-	cp -a $stuff/assaultcube-server $fs/usr/bin
-	chmod +x $fs/usr/bin/assaultcube
-	chmod +x $fs/usr/bin/assaultcube-server
+genpkg_rules() {
+	case $PACKAGE in
+		assaultcube)
+			copy bin/
+			DEPENDS="openal libsdl-image libsdl-mixer mesa glu assaultcube-data"
+			;;
+		*-data)
+			copy assaultcube/
+			DEPENDS=" "
+			CAT="games|data files"
+			;;
+	esac
 }

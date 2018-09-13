@@ -13,7 +13,8 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.cmake.org/files/v${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev xz-dev libarchive-dev \
-expat-dev ncurses-dev gfortran libuv-dev"
+expat-dev ncurses-dev gfortran libuv-dev jsoncpp-dev"
+SPLIT="$PACKAGE-common"
 
 compile_rules() {
 	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
@@ -23,7 +24,6 @@ compile_rules() {
 		--prefix=/usr \
 		--system-libs \
 		--mandir=/share/man \
-		--no-system-jsoncpp \
 		--no-system-librhash \
 		--docdir=/share/doc/$PACKAGE-$VERSION &&
 	make &&
@@ -31,8 +31,17 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std @dev
-	DEPENDS="expat libarchive libcurl libuv ncurses ncurses-libform zlib"
+	case $PACKAGE in
+		cmake)
+			copy bin/
+			DEPENDS="cmake-common expat jsoncpp libarchive libcurl libuv \
+			ncurses ncurses-libform zlib"
+			;;
+		cmake-common)
+			copy @std @dev @rm
+			CAT="development|common files"
+			;;
+	esac
 }
 
 # CMake should be updated both with Boost:

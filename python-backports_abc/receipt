@@ -1,0 +1,23 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-backports_abc"
+ORIGIN="backports_abc"
+VERSION="latest"
+CATEGORY="python"
+SHORT_DESC="A backport of recent additions to the 'collections.abc' module"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PSF"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+REPOLOGY="python:backports-abc"
+
+BUILD_DEPENDS="python"
+
+compile_rules() {
+	pip install --no-compile --root=$DESTDIR $ORIGIN
+}
+
+genpkg_rules() {
+	VERSION=$(sed -n "/^Successfully installed/ s|.*${ORIGIN//_/-}-||p" $LOGS/$PACKAGE.log)
+	copy @std
+	DEPENDS="python"
+}

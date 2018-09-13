@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="liburcu"
-VERSION="0.10.0"
+VERSION="0.10.1"
 CATEGORY="system-tools"
 SHORT_DESC="Userspace RCU (read-copy-update) library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -14,15 +14,22 @@ WGET_URL="http://www.lttng.org/files/urcu/$TARBALL"
 SPLIT="liburcu-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		liburcu) copy @std;;
-		*-dev)   copy @dev;;
+		liburcu)
+			copy @std
+			;;
+		*-dev)
+			copy @dev
+			rm -r $fs/usr/share/ # Makefiles in doc/
+			;;
 	esac
 }

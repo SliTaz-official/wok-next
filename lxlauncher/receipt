@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lxlauncher"
-VERSION="0.2.4"
+VERSION="0.2.5"
 CATEGORY="x-window"
 SHORT_DESC="LXDE launcher for netbooks"
 LICENSE="GPL3"
@@ -18,7 +18,7 @@ intltool"
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make install || return 1
 
 	# SliTaz homemade config file
 	install -Dm644 $stuff/gtkrc $install/etc/xdg/lxlauncher/gtkrc
@@ -26,7 +26,7 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="xorg-libX11 gtk+ gnome-menus startup-notification menu-cache \
-	xorg-libXdamage"
+	DEPENDS="cairo gdk-pixbuf glib gtk+ menu-cache startup-notification \
+	xorg-libX11   gnome-menus"
 	TAGS="LXDE netbook"
 }

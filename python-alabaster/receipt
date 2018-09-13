@@ -1,6 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python-alabaster"
+ORIGIN="alabaster"
 VERSION="latest"
 CATEGORY="python"
 SHORT_DESC="A configurable sidebar-enabled Sphinx theme"
@@ -12,11 +13,11 @@ REPOLOGY="python:alabaster"
 BUILD_DEPENDS="python"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR alabaster
+	pip install --no-compile --root=$DESTDIR $ORIGIN
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*alabaster-||p' $LOGS/$PACKAGE.log)
+	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }
