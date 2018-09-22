@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="incremental"
+PACKAGE="python-incremental"
+VERSION="17.5.0"
+CATEGORY="python"
+SHORT_DESC="Version Python projects"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:incremental"
+
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
+}

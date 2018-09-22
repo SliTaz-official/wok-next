@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="PyYAML"
 PACKAGE="python-pyyaml"
-VERSION="3.08"
-CATEGORY="development"
-SHORT_DESC="YAML parser and emitter for the Python programming language."
+VERSION="3.13"
+CATEGORY="python"
+SHORT_DESC="YAML parser and emitter for Python"
 MAINTAINER="rocky@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pyyaml.org/wiki/PyYAML/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pyyaml"
 
-SOURCE="PyYAML"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://pyyaml.org/download/pyyaml/$TARBALL"
+BUILD_DEPENDS="python-dev python3-dev yaml-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev yaml-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py yaml"
 }

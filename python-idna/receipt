@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="idna"
 PACKAGE="python-idna"
-VERSION="latest"
+VERSION="2.7"
 CATEGORY="network"
 SHORT_DESC="Internationalized Domain Names in Applications"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/idna/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:idna"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR idna
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*idna-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

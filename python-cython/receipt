@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Cython"
 PACKAGE="python-cython"
-VERSION="latest"
-CATEGORY="development"
+VERSION="0.28.5"
+CATEGORY="python"
 SHORT_DESC="Language to write C extensions for Python"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="Apache"
-WEB_SITE="http://cython.org/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:cython"
 
-BUILD_DEPENDS="python-dev"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR Cython
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*Cython-||p' $LOGS/$PACKAGE.log)
-	copy @std
-	DEPENDS="python"
+	copy @std @dev
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }

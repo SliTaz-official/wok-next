@@ -1,41 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="psutil"
 PACKAGE="python-psutil"
-VERSION="0.6.1"
-CATEGORY="development"
-SHORT_DESC="A process and system utilities module for Python."
+VERSION="5.4.7"
+CATEGORY="python"
+SHORT_DESC="Cross-platform lib for process and system monitoring in Python"
 MAINTAINER="paul@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/psutil/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:psutil"
 
-SOURCE="psutil"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://psutil.googlecode.com/files/$TARBALL" # FIXME
+BUILD_DEPENDS="python-dev python3-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Cross compilation hack
-	case "$ARCH" in
-		arm*)
-			mv /usr/bin/i486-slitaz-linux-gcc /tmp &&
-			ln -s /cross/${ARCH}/tools/bin/arm-slitaz-linux-gnueabi-gcc \
-				/usr/bin/i486-slitaz-linux-gcc ;;
-	esac &&
-	python setup.py install --root=$DESTDIR
-	case "$ARCH" in
-		arm*) 
-			rm /usr/bin/i486-slitaz-linux-gcc &&
-			mv /tmp/i486-slitaz-linux-gcc /usr/bin ;;
-	esac
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

@@ -1,54 +1,46 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Pygame"
 PACKAGE="python-pygame"
-VERSION="1.9.1release"
-CATEGORY="development"
-SHORT_DESC="Python game library"
+VERSION="1.9.4"
+CATEGORY="python"
+SHORT_DESC="Python Game Development"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="LGPL"
-WEB_SITE="http://www.pygame.org/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pygame"
 
-TARBALL="pygame-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/ftp/$TARBALL"
+# pip version include all the external dependencies (like png, sdl, ...)
+# inside the package. Use native compilation with external dependencies
+# to save some space:
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/pygame/pygame/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="python-dev libsmpeg-dev libsdl-dev libsdl-image-dev \
-libsdl-mixer-dev libsdl-ttf-dev v4l-utils-dev"
-SPLIT="python-pygame-dev"
+BUILD_DEPENDS="python-dev python3-dev \
+libsdl-dev libsdl-ttf-dev libsdl-image-dev libsdl-mixer-dev libpng16-dev \
+libjpeg-turbo-dev xorg-libX11-dev portmidi-dev freetype-dev"
+SPLIT="$PACKAGE-dev $PACKAGE \
+${PACKAGE/python/python3}-dev:3 ${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	sed -i "s|linux/videodev.h|libv4l1-videodev.h|" src/camera.h
-	python config.py -auto &&
-	python setup.py install --root=$DESTDIR
+	PORTMIDI_INC_PORTTIME=True \
+	python$SET -B setup.py install --root=$install
+
+	find $install -type f -exec chmod g-w '{}' \; # 664 -> 644
 }
 
 genpkg_rules() {
+	py="${PACKAGE%%-*}" # python/python3
 	case $PACKAGE in
-		python-pygame)
-			PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-			mkdir -p $fs/usr
-			cp -a $install/usr/lib $fs/usr
-			chmod 644 $fs/usr/lib/$PYTHON_LIB/site-packages/pygame/freesansbold.ttf
-			# examples and tests in python-pygame-dev
-			rm -rf $fs/usr/lib/$PYTHON_LIB/site-packages/pygame/examples
-			rm -rf $fs/usr/lib/$PYTHON_LIB/site-packages/pygame/tests
-			DEPENDS="python libsdl libsdl-image libsdl-mixer libsdl-ttf \
-			python-numpy libsmpeg gcc-lib-base"
-			;;
 		*-dev)
-			PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-			mkdir -p $fs/usr/lib/$PYTHON_LIB/site-packages/pygame
-			cp -a $install/usr/include $fs/usr
-			cp -a $install/usr/lib/$PYTHON_LIB/site-packages/pygame/examples \
-				$fs/usr/lib/$PYTHON_LIB/site-packages/pygame
-			cp -a $install/usr/lib/$PYTHON_LIB/site-packages/pygame/tests \
-				$fs/usr/lib/$PYTHON_LIB/site-packages/pygame
+			copy @dev pygame/examples/ pygame/tests/
+			DEPENDS="${PACKAGE%%-dev}"
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="$py freetype libjpeg-turbo libpng16 libsdl libsdl-image \
+			libsdl-mixer libsdl-ttf portmidi xorg-libX11"
 			;;
 	esac
-}
-
-# Remove old package.
-post_install_python_pygame() {
-	[ ! -d "$1/var/lib/tazpkg/installed/pygame/examples" ] ||
-	rm -rf "$1/var/lib/tazpkg/installed/pygame/examples"
 }

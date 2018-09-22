@@ -1,27 +1,27 @@
 # SliTaz package receipt v2.
 
+ORIGIN="python-efl"
 PACKAGE="python-efl"
-VERSION="1.20.0"
+VERSION="1.21.0"
 CATEGORY="base-system"
 SHORT_DESC="Python bindings for EFL"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3 LGPL3"
-WEB_SITE="https://www.enlightenment.org/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 REPOLOGY="python:efl"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="https://download.enlightenment.org/rel/bindings/python/$TARBALL"
-
 BUILD_DEPENDS="efl-dev python-dbus-dev python-dev"
+BUILD_DEPENDS="python-dev python3-dev efl-dev python-dbus-dev python3-dbus-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
 	# note, it required about 1.7 GB RAM on compiling
-	python setup.py build &&
-	python setup.py install --root=$install
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="dbus efl python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py dbus efl"
 	TAGS="e enlightenment efl python"
 }

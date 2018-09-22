@@ -1,22 +1,26 @@
 # SliTaz package receipt v2.
 
+ORIGIN="curtsies"
 PACKAGE="python-curtsies"
-VERSION="latest"
+VERSION="0.3.0"
 CATEGORY="development"
 SHORT_DESC="Curses-like terminal wrapper, with colored strings"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/curtsies/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:curtsies"
 
-BUILD_DEPENDS="python-wcwidth python-blessings python-typing"
+BUILD_DEPENDS="python-wcwidth python-blessings python-typing \
+python3-wcwidth python3-blessings python3-typing"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR curtsies
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*curtsies-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="$BUILD_DEPENDS"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-wcwidth $py-blessings $py-typing"
 }

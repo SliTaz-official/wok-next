@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="psycopg2"
 PACKAGE="python-psycopg2"
-VERSION="latest"
-CATEGORY="development"
+VERSION="2.7.5"
+CATEGORY="python"
 SHORT_DESC="PostgreSQL database adapter for the Python"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL ZPL"
-WEB_SITE="https://pypi.org/project/psycopg2/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:psycopg2"
 
-BUILD_DEPENDS="python-dev"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR psycopg2
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*psycopg2-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

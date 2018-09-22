@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pyOpenSSL"
+PACKAGE="python-pyopenssl"
+VERSION="18.0.0"
+CATEGORY="python"
+SHORT_DESC="OpenSSL library subset wrapper for Python"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="Apache"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:pyopenssl"
+
+BUILD_DEPENDS="python python-cryptography python-six \
+python3 python3-cryptography python3-six \
+openssl-dev"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-cryptography $py-six   openssl"
+}

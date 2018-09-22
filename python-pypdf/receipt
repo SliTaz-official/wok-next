@@ -1,37 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="pyPdf"
 PACKAGE="python-pypdf"
-VERSION="1.12"
-CATEGORY="development"
-SHORT_DESC="A Pure-Python library built as a PDF tookit."
+VERSION="1.13"
+CATEGORY="python"
+SHORT_DESC="PDF toolkit"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://pybrary.net/pyPdf"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:pypdf"
 
-SOURCE="pyPdf"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/$TARBALL"
+BUILD_DEPENDS="python-dev python3-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
-}
-
-# Remove old package.
-post_install()
-{
-	[ ! -d "$1/var/lib/tazpkg/installed/pypdf" ] ||
-	rm -rf "$1/var/lib/tazpkg/installed/pypdf"
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

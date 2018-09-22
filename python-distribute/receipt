@@ -1,22 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="distribute"
 PACKAGE="python-distribute"
-VERSION="latest"
-CATEGORY="development"
+VERSION="0.7.3"
+CATEGORY="python"
 SHORT_DESC="Distribute legacy wrapper"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="PSL"
-WEB_SITE="https://pypi.org/project/distribute/"
+WEB_SITE="http://pypi.python.org/pypi/$ORIGIN"
+HOST_ARCH="any"
 REPOLOGY="python:distribute"
 
 BUILD_DEPENDS="python"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR distribute
+	# Python3 based compilation produce error
+	pip install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*distribute-||p' $LOGS/$PACKAGE.log)
 	copy @std
 	DEPENDS="python"
 }

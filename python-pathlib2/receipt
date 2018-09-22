@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pathlib2"
+PACKAGE="python-pathlib2"
+VERSION="2.3.2"
+CATEGORY="python"
+SHORT_DESC="Object-oriented filesystem paths"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:pathlib2"
+
+BUILD_DEPENDS="python python-scandir python-six \
+python3 python3-six"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	case $PACKAGE in
+		python-*)  DEPENDS="$py $py-scandir $py-six";;
+		python3-*) DEPENDS="$py $py-six";;
+	esac
+}

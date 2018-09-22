@@ -1,34 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="python-dateutil"
 PACKAGE="python-dateutil"
-VERSION="1.5"
+VERSION="2.7.3"
 CATEGORY="development"
 SHORT_DESC="Extensions to the standart python 2.3+ datetime module"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="PSL"
-WEB_SITE="http://labix.org/python-dateutil"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:dateutil"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://labix.org/download/$PACKAGE/$TARBALL"
+BUILD_DEPENDS="python python-six  python3 python3-six"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	for file in `find $install | grep 'pyc$'`; do
-		rm $file
-	done
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-six"
 }
-

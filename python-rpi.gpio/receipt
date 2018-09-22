@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+ORIGIN="RPi.GPIO"
+PACKAGE="python-rpi.gpio"
+VERSION="0.6.3"
+CATEGORY="system-tools"
+SHORT_DESC="A module to control Raspberry Pi GPIO channels"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
+REPOLOGY="python:rpi-gpio"
+
+BUILD_DEPENDS="python-dev python3-dev"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
+	TAGS="raspberrypi rpi"
+}

@@ -1,23 +1,26 @@
 # SliTaz package receipt v2.
 
-PACKAGE="python-terminado"
 ORIGIN="terminado"
-VERSION="latest"
-CATEGORY="development"
+PACKAGE="python-terminado"
+VERSION="0.8.1"
+CATEGORY="python"
 SHORT_DESC="Terminals served to xterm.js using Tornado websockets"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/terminado/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:terminado"
 
-BUILD_DEPENDS="python python-tornado"
+BUILD_DEPENDS="python python-ptyprocess python-tornado \
+python3 python3-ptyprocess python3-tornado"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR $ORIGIN
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python-tornado"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-ptyprocess $py-tornado"
 }

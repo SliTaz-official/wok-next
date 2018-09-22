@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="pyalsaaudio"
 PACKAGE="python-pyalsaaudio"
-VERSION="0.5"
+VERSION="0.8.4"
 CATEGORY="multimedia"
-SHORT_DESC="ALSA wrapper for Python."
+SHORT_DESC="ALSA bindings"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="PSL"
-WEB_SITE="https://sourceforge.net/projects/pyalsaaudio/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pyalsaaudio"
 
-SOURCE="pyalsaaudio"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$SOURCE/$TARBALL"
-TAGS="python"
+BUILD_DEPENDS="python-dev python3-dev alsa-lib-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="alsa-lib python"
-BUILD_DEPENDS="python python-dev alsa-lib-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py alsa-lib"
 }

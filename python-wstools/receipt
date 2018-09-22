@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="wstools"
+PACKAGE="python-wstools"
+VERSION="0.4.8"
+CATEGORY="python"
+SHORT_DESC="WSDL parsing services package for Web Services for Python"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:wstools"
+
+BUILD_DEPENDS="python python-pbr python-six  python3 python3-pbr python3-six"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-pbr $py-six"
+}

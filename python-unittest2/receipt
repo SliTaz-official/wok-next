@@ -1,32 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="unittest2"
 PACKAGE="python-unittest2"
-VERSION="0.5.1"
-CATEGORY="development"
-SHORT_DESC="New features backport to the unittest testing framework."
+VERSION="1.1.0"
+CATEGORY="python"
+SHORT_DESC="The new features in unittest backported to Python 2.4+"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/unittest2/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:unittest2"
 
-SOURCE="unittest2"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/${SOURCE:0:1}/$SOURCE/$TARBALL"
+BUILD_DEPENDS="python python-argparse python-six python-traceback2 \
+python3 python3-argparse python3-six python3-traceback2"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py test
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-argparse $py-six $py-traceback2"
 }

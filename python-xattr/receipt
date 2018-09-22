@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+ORIGIN="xattr"
+PACKAGE="python-xattr"
+VERSION="0.9.6"
+CATEGORY="python"
+SHORT_DESC="Python wrapper for extended filesystem attributes"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
+REPOLOGY="python:xattr"
+
+BUILD_DEPENDS="python-dev python-cffi-dev \
+python3-dev python3-cffi-dev libffi-dev"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-cffi"
+}

@@ -1,23 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="pycparser"
 PACKAGE="python-pycparser"
-VERSION="latest"
+VERSION="2.18"
 CATEGORY="python"
 SHORT_DESC="C parser in Python"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/pycparser/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:pycparser"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR pycparser
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*pycparser-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

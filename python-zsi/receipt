@@ -1,31 +1,29 @@
 # SliTaz package receipt.
 
+ORIGIN="ZSI"
 PACKAGE="python-zsi"
 VERSION="2.1-a1"
 CATEGORY="development"
-SHORT_DESC="The Zolera Soap Infrastructure for Python."
+SHORT_DESC="The Zolera Soap Infrastructure for Python"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://pywebsvcs.sourceforge.net/zsi.html"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:zsi"
 
-SOURCE="ZSI"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/project/pywebsvcs/$SOURCE/$SOURCE-${VERSION/-/_}/$TARBALL"
+# pypi didn't provide downloads; project is unmaintained since 2007;
+# latest version is Alpha one
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/pywebsvcs/$TARBALL"
 
-DEPENDS="python python-pyxml"
-BUILD_DEPENDS="python-dev python"
+BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+#	python setup.py build &&
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-pyxml"
 }

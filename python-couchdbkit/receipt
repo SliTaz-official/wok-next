@@ -1,30 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="couchdbkit"
 PACKAGE="python-couchdbkit"
-VERSION="0.6.2"
-CATEGORY="development"
+VERSION="0.6.5"
+CATEGORY="python"
 SHORT_DESC="A framework for python applications to access and manage CouchDB"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/couchdbkit/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:couchdbkit"
 
-SOURCE="couchdbkit"
-TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="https://github.com/benoitc/$SOURCE/archive/$VERSION.zip"
+BUILD_DEPENDS="python-dev python-restkit"
 
-DEPENDS="python couchdb python-simplejson python-restkit"
-BUILD_DEPENDS="python python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	# Python3 based compilation produce error
+	pip install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-restkit"
 }

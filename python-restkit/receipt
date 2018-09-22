@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="restkit"
 PACKAGE="python-restkit"
-VERSION="4.2.1"
-CATEGORY="development"
-SHORT_DESC="An HTTP resource kit for Python"
+VERSION="4.2.2"
+CATEGORY="python"
+SHORT_DESC="Python REST kit"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://restkit.readthedocs.org"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:restkit"
 
-SOURCE="restkit"
-TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="https://github.com/benoitc/$SOURCE/archive/$VERSION.zip"
+BUILD_DEPENDS="python-dev python-http-parser python-socketpool \
+python3-dev python3-http-parser python3-socketpool"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python python-http-parser python-socketpool"
-BUILD_DEPENDS="python-dev"
+compile_rules() {
+	fix utf-8; export LC_ALL=en_US.UTF-8
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	rm -rf $install/usr/restkit
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-http-parser $py-socketpool"
 }

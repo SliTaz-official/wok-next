@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+ORIGIN="service_identity"
+PACKAGE="python-service_identity"
+VERSION="17.0.0"
+CATEGORY="python"
+SHORT_DESC="Service identity verification for pyOpenSSL"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:service-identity"
+
+BUILD_DEPENDS="python python-attrs python-pyasn1 python-pyasn1-modules \
+python-pyopenssl \
+python3 python3-attrs python3-pyasn1 python3-pyasn1-modules python3-pyopenssl"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-attrs $py-pyasn1 $py-pyasn1-modules $py-pyopenssl"
+}

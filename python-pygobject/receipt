@@ -1,32 +1,35 @@
 # SliTaz package receipt v2.
 
+ORIGIN="PyGObject"
 PACKAGE="python-pygobject"
-VERSION="latest"
-CATEGORY="development"
+VERSION="3.30.1"
+CATEGORY="python"
 SHORT_DESC="Python Bindings for GLib/GObject/GIO/GTK+"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="LGPL2.1"
-WEB_SITE="https://pypi.org/project/PyGObject/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pygobject3"
 
-BUILD_DEPENDS="python-dev pycairo-dev gobject-introspection-dev"
-SPLIT="$PACKAGE-dev"
+BUILD_DEPENDS="python-dev python-pycairo-dev  python3-dev python3-pycairo-dev \
+glib-dev gobject-introspection-dev cairo-dev"
+SPLIT="$PACKAGE-dev \
+${PACKAGE/python/python3}:3 ${PACKAGE/python/python3}-dev:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR PyGObject
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*PyGObject-||p' $LOGS/${PACKAGE%-dev}.log)
 	case $PACKAGE in
-		python-pygobject)
-			copy @std
-			DEPENDS="cairo glib gobject-introspection libffi python"
-			PROVIDE="python-gi"
-			;;
 		*-dev)
 			copy @dev
-			DEPENDS="python-pygobject glib-dev libffi-dev"
+			DEPENDS="${PACKAGE%%-dev} glib-dev libffi-dev"
+			;;
+		*)
+			copy @std
+			py="${PACKAGE%%-*}" # python/python3
+			DEPENDS="$py cairo glib gobject-introspection libffi"
 			;;
 	esac
 }

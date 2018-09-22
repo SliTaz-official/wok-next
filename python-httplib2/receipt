@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="httplib2"
 PACKAGE="python-httplib2"
-VERSION="0.8"
-CATEGORY="development"
+VERSION="0.11.3"
+CATEGORY="python"
 SHORT_DESC="A comprehensive HTTP client library for python"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/httplib2/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:httplib2"
 
-SOURCE="httplib2"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://$SOURCE.googlecode.com/files/$TARBALL" # FIXME
+BUILD_DEPENDS="python-dev python3-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

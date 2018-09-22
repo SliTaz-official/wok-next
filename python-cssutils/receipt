@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="cssutils"
 PACKAGE="python-cssutils"
-VERSION="0.9.10b1"
-CATEGORY="development"
-SHORT_DESC="A Python package to parse and build CSS Cascading Style Sheets."
+VERSION="1.0.2"
+CATEGORY="python"
+SHORT_DESC="A CSS Cascading Style Sheets library for Python"
 MAINTAINER="monghitri@aruba.it"
 LICENSE="GPL3"
-WEB_SITE="http://cthedot.de/cssutils/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:cssutils"
 
-SOURCE="cssutils"
-TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="https://files.pythonhosted.org/packages/source/c/cssutils/$TARBALL"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python"
+COOKOPTS="!gifz" # contains bad zero-size gifs
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

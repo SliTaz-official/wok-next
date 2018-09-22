@@ -1,24 +1,35 @@
 # SliTaz package receipt v2.
 
+ORIGIN="cryptography"
 PACKAGE="python-cryptography"
-VERSION="latest"
+VERSION="2.3.1"
 CATEGORY="python"
 SHORT_DESC="Provide cryptographic recipes and primitives"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
 WEB_SITE="https://pypi.org/project/cryptography/"
+#HOST_ARCH
 REPOLOGY="python:cryptography"
 
-BUILD_DEPENDS="python python-enum34 python-cffi python-asn1crypto python-idna \
-python-six python-ipaddress"
+BUILD_DEPENDS="python python-asn1crypto python-cffi python-enum34 python-idna \
+python-ipaddress python-six \
+python3 python3-asn1crypto python3-cffi python3-idna python3-six"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR cryptography
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*cryptography-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python python-enum34 python-cffi python-asn1crypto python-idna \
-	python-six python-ipaddress"
+	py="${PACKAGE%%-*}" # python/python3
+	case $PACKAGE in
+		python-*)
+			DEPENDS="$py $py-asn1crypto $py-cffi $py-enum34 $py-idna \
+			$py-ipaddress $py-six"
+			;;
+		python3-*)
+			DEPENDS="$py $py-asn1crypto $py-cffi $py-idna $py-six"
+			;;
+	esac
 }

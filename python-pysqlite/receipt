@@ -1,31 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="pysqlite"
 PACKAGE="python-pysqlite"
-VERSION="2.6.0"
-CATEGORY="development"
-SHORT_DESC="Python interface for the SQLite database"
+VERSION="2.8.3"
+CATEGORY="python"
+SHORT_DESC="DB-API 2.0 interface for SQLite 3.x"
 MAINTAINER="sygne@ombres.eu"
 LICENSE="zlib/libpng"
-WEB_SITE="https://pypi.org/project/pysqlite/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pysqlite"
 
-SOURCE="pysqlite"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://pysqlite.googlecode.com/files/$TARBALL" # FIXME
+BUILD_DEPENDS="python-dev sqlite3-dev"
 
-DEPENDS="sqlite3 python"
-BUILD_DEPENDS="python python-dev sqlite3-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cp $stuff/setup.cfg .
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	# Python3 based compilation produce error:
+	#   pysqlite is not supported on Python 3. When using Python 3, use the
+	#   sqlite3 module from the standard library.
+	pip install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python libsqlite3"
 }

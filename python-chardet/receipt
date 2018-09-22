@@ -1,22 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="chardet"
 PACKAGE="python-chardet"
-VERSION="latest"
+VERSION="3.0.4"
 CATEGORY="development"
 SHORT_DESC="Python module for character encoding auto-detection"
 MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="https://pypi.org/project/chardet/"
+WEB_SITE="https://pypi.python.org/pypi/chardet"
+HOST_ARCH="any"
 REPOLOGY="python:chardet"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR chardet
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*chardet-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

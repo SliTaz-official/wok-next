@@ -1,30 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Pylons"
 PACKAGE="python-pylons"
-VERSION="1.0"
-CATEGORY="development"
-SHORT_DESC="Lightweight web framework"
+VERSION="1.0.3"
+CATEGORY="python"
+SHORT_DESC="Pylons Web Framework"
 MAINTAINER="taziden@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://pylonshq.com"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:pylons"
 
-SOURCE="Pylons"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://cdn.pylonshq.com/download/$VERSION/$TARBALL"
-TAGS="python"
+BUILD_DEPENDS="python python-beaker python-decorator python-formencode \
+python-mako python-markupsafe python-nose python-paste python-pastedeploy \
+python-pastescript python-routes python-simplejson python-tempita \
+python-weberror python-webhelpers python-webob python-webtest \
+python3 python3-beaker python3-decorator python3-formencode python3-mako \
+python3-markupsafe python3-nose python3-paste python3-pastedeploy \
+python3-pastescript python3-routes python3-simplejson python3-tempita \
+python3-weberror python3-webhelpers python3-webob python3-webtest"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+	# '--no-compile' used, but these files still installed...
+	find $install -type f -name '*.pyc' -delete
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-beaker $py-decorator $py-formencode $py-mako \
+	$py-markupsafe $py-nose $py-paste $py-pastedeploy $py-pastescript \
+	$py-routes $py-simplejson $py-tempita $py-weberror $py-webhelpers \
+	$py-webob $py-webtest"
 }

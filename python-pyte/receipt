@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="pyte"
 PACKAGE="python-pyte"
-VERSION="0.5.1"
-CATEGORY="development"
-SHORT_DESC="Simple VTXXX-compatible terminal emulator."
+VERSION="0.8.0"
+CATEGORY="python"
+SHORT_DESC="Simple VTXXX-compatible terminal emulator"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL3"
-WEB_SITE="http://pyte.readthedocs.org/en/latest/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:pyte"
 
-SOURCE="pyte"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/p/$SOURCE/$TARBALL"
+BUILD_DEPENDS="python python-wcwidth  python3 python3-wcwidth"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python python-wcwidth"
-BUILD_DEPENDS="python-dev python-wcwidth"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-wcwidth"
 }
-

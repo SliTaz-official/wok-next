@@ -1,24 +1,26 @@
 # SliTaz package receipt v2.
 
+ORIGIN="beautifulsoup4"
 PACKAGE="python-beautifulsoup4"
-VERSION="latest"
+VERSION="4.6.3"
 CATEGORY="development"
 SHORT_DESC="Python HTML-XML parser"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/beautifulsoup4/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:beautifulsoup"
 
-BUILD_DEPENDS="python-dev"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR beautifulsoup4
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*beautifulsoup4-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 	TAGS="parser XML HTML"
 }

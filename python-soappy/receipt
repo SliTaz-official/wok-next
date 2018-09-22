@@ -1,29 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="SOAPpy"
 PACKAGE="python-soappy"
 VERSION="0.12.22"
-CATEGORY="development"
-SHORT_DESC="SOAP services for python."
+CATEGORY="python"
+SHORT_DESC="SOAP services for Python"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/SOAPpy/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:soappy"
 
-SOURCE="SOAPpy"
-TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="https://files.pythonhosted.org/packages/source/S/SOAPpy/$TARBALL"
+BUILD_DEPENDS="python python-defusedxml python-wstools \
+python3 python3-defusedxml python3-wstools"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
+compile_rules() {
+	fix utf-8; export LC_ALL=en_US.UTF-8
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --prefix=/usr --root=$DESTDIR
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr/ $fs/
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-defusedxml $py-wstools"
 }

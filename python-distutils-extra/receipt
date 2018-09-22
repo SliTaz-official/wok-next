@@ -1,26 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-distutils-extra"
-VERSION="2.39"
-CATEGORY="development"
+VERSION="2.41"
+CATEGORY="python"
 SHORT_DESC="Add support for i18n, documentation and icons to distutils"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://launchpad.net/python-distutils-extra"
+HOST_ARCH="any"
 REPOLOGY="python:distutils-extra"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/trunk/$VERSION/+download/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://salsa.debian.org/debian/$PACKAGE/-/archive/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	python setup.py install \
-		--prefix=/usr \
-		--root=$install
+	python$SET -B setup.py install --root=$install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }

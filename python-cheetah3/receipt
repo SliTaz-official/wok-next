@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="Cheetah3"
+PACKAGE="python-cheetah3"
+VERSION="3.1.0"
+CATEGORY="development"
+SHORT_DESC="Cheetah is a template engine and code generation tool"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:cheetah3"
+
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
+}

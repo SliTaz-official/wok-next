@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="certifi"
 PACKAGE="python-certifi"
-VERSION="latest"
+VERSION="2018.8.24"
 CATEGORY="network"
 SHORT_DESC="Python package for providing Mozilla's CA Bundle"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="ISC"
-WEB_SITE="https://pypi.org/project/certifi/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:certifi"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR certifi
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*certifi-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

@@ -1,23 +1,30 @@
 # SliTaz package receipt v2.
 
-PACKAGE="python-futures"
 ORIGIN="futures"
-VERSION="latest"
+PACKAGE="python-futures"
+VERSION="3.2.0"  # for Python2
+VERSION3="3.1.1" # for Python3
 CATEGORY="python"
 SHORT_DESC="Backport of the concurrent.futures package from Python 3"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PSF"
 WEB_SITE="https://pypi.org/project/$ORIGIN/"
-REPOLOGY="${PACKAGE/-/:}"
+HOST_ARCH="any"
+REPOLOGY="python:futures"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR $ORIGIN
+	case $SET in
+		3) VERSION="$VERSION3";;
+	esac
+
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n "/^Successfully installed/ s|.*$ORIGIN-||p" $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

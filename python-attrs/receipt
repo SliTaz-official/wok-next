@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="attrs"
+PACKAGE="python-attrs"
+VERSION="18.2.0"
+CATEGORY="python"
+SHORT_DESC="Classes Without Boilerplate"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:attrs"
+
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
+}

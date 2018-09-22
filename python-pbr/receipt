@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pbr"
+PACKAGE="python-pbr"
+VERSION="4.2.0"
+CATEGORY="python"
+SHORT_DESC="Python Build Reasonableness"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:pbr"
+
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
+}

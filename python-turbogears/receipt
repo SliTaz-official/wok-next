@@ -1,24 +1,27 @@
 # SliTaz package receipt v2.
 
+ORIGIN="TurboGears2"
 PACKAGE="python-turbogears"
-VERSION="latest"
+VERSION="2.3.12"
 CATEGORY="network"
 SHORT_DESC="Python web application framework"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/TurboGears2/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:turbogears2"
 
-BUILD_DEPENDS="python python-webob python-crank python-repoze.lru \
-python-markupsafe"
+BUILD_DEPENDS="python python-crank python-markupsafe python-repoze.lru \
+python-webob17 \
+python3 python3-crank python3-markupsafe python3-repoze.lru python3-webob17"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR TurboGears2
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*TurboGears2-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python python-webob python-crank python-repoze.lru \
-	python-markupsafe"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-crank $py-markupsafe $py-repoze.lru $py-webob17"
 }

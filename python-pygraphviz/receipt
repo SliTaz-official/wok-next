@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="pygraphviz"
 PACKAGE="python-pygraphviz"
-VERSION="0.99.1"
-CATEGORY="development"
-SHORT_DESC="A Python wrapper for the Graphviz Agraph data structure."
+VERSION="1.5"
+CATEGORY="python"
+SHORT_DESC="Python interface to Graphviz"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/pygraphviz/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pygraphviz"
 
-SOURCE="pygraphviz"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://networkx.lanl.gov/download/$SOURCE/$TARBALL"
+BUILD_DEPENDS="python-dev python3-dev graphviz-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="graphviz python"
-BUILD_DEPENDS="graphviz-dev python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py graphviz"
 }

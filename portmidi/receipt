@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="portmidi"
 VERSION="217"
@@ -6,38 +6,32 @@ CATEGORY="multimedia"
 SHORT_DESC="Platform Independent Library for MIDI I/O"
 MAINTAINER="slaxemulator@gmail.com"
 LICENSE="MIT"
-TARBALL="$PACKAGE-src-$VERSION.zip"
 WEB_SITE="http://portmedia.sourceforge.net/portmidi/"
-WGET_URL="$SF_MIRROR/portmedia/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="alsa-lib"
-BUILD_DEPENDS="alsa-lib-dev cmake unzip"
+TARBALL="$PACKAGE-src-$VERSION.zip"
+WGET_URL="$SF_MIRROR/portmedia/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	 # Prefix Fix
-	sed -i "s_\(/usr\)/local_\1_" \
-	*/CMakeLists.txt \
-	pm_python/setup.py
+BUILD_DEPENDS="alsa-lib-dev cmake"
+SPLIT="$PACKAGE-dev"
 
-	 # Installation Fix
-	#mkdir -p pm_java/Release
+compile_rules() {
+	sed -i 's|/usr/local|/usr|g' */CMakeLists.txt pm_python/setup.py
 
-	 # CMake configuration
-	cmake . \
-	-DCMAKE_INSTALL_PREFIX=/usr \
-	-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=Release \
-	-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=Release \
-	-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=Release
-
-	make && make DESTDIR=$DESTDIR install
+	mkdir build
+	cd    build
+	cmake .. &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/* $fs/usr
+genpkg_rules() {
+	case $PACKAGE in
+		portmidi)
+			copy @std
+			DEPENDS="alsa-lib"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
 }
-

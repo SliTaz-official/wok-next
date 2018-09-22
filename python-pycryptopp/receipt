@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="pycryptopp"
 PACKAGE="python-pycryptopp"
-VERSION="0.6.0"
-CATEGORY="development"
-SHORT_DESC="Wrapper around a few algorithms from Crypto++ and python-Ed25519."
+VERSION="0.7.1"
+RANDOM_NUM="869544967005693312591928092448767568728501330214"
+CATEGORY="python"
+SHORT_DESC="Wrapper around a few algorithms from Crypto++ and python-Ed25519"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://pypi.org/project/pycryptopp/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pycryptopp"
 
-SOURCE="pycryptopp"
-TARBALL="$SOURCE-$VERSION.1206569328141510525648634803928199668821045408958.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/${SOURCE:0:1}/$SOURCE/$TARBALL"
-
-DEPENDS="python"
 BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	# Python3 based compilation produce error
+	pip install --no-compile --root=$install $ORIGIN==$VERSION.$RANDOM_NUM
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

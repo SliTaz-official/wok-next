@@ -1,25 +1,28 @@
 # SliTaz package receipt v2.
 
+ORIGIN="paramiko"
 PACKAGE="python-paramiko"
-VERSION="latest"
-CATEGORY="development"
+VERSION="2.4.2"
+CATEGORY="python"
 SHORT_DESC="SSH2 protocol library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="https://pypi.org/project/paramiko/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:paramiko"
 
-BUILD_DEPENDS="python python-pyasn1 python-bcrypt python-cryptography \
-python-pynacl"
+BUILD_DEPENDS="python python-bcrypt python-cryptography python-pyasn1 \
+python-pynacl \
+python3 python3-bcrypt python3-cryptography python3-pyasn1 python3-pynacl"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR paramiko
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*paramiko-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python python-pyasn1 python-bcrypt python-cryptography \
-	python-pynacl"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-bcrypt $py-cryptography $py-pyasn1 $py-pynacl"
 	TAGS="ssh"
 }

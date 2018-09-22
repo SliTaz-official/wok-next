@@ -1,22 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="wcwidth"
 PACKAGE="python-wcwidth"
-VERSION="latest"
+VERSION="0.1.7"
 CATEGORY="development"
 SHORT_DESC="Measures number of Terminal column cells of wide-character codes"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/wcwidth/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:wcwidth"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR wcwidth
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*wcwidth-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

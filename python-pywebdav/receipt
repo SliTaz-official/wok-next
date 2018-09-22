@@ -1,32 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="PyWebDAV"
 PACKAGE="python-pywebdav"
 VERSION="0.9.8"
-CATEGORY="development"
-SHORT_DESC="A WebDAV client library for Python."
+CATEGORY="python"
+SHORT_DESC="WebDAV library including a standalone server for Python"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://pypi.org/project/PyWebDAV/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:pywebdav"
 
-SOURCE="PyWebDAV"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://pywebdav.googlecode.com/files/$TARBALL" # FIXME
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev python"
+compile_rules() {
+	fix utf-8; export LC_ALL=en_US.UTF-8
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py develop &&
-	python setup.py install --root=$DESTDIR
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }
-

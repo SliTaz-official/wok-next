@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+ORIGIN="more-itertools"
+PACKAGE="python-more-itertools"
+VERSION="4.3.0"
+CATEGORY="python"
+SHORT_DESC="More routines for operating on iterables, beyond itertools"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:more-itertools"
+
+BUILD_DEPENDS="python python-six \
+python3 python3-six"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-six"
+}

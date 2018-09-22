@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="mechanize"
 PACKAGE="python-mechanize"
-VERSION="0.2.5"
+VERSION="0.3.7"
 CATEGORY="network"
-SHORT_DESC="Stateful programmatic web browsing in Python."
+SHORT_DESC="Stateful programmatic web browsing"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://wwwsearch.sourceforge.net/mechanize/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:mechanize"
 
-SOURCE="mechanize"
-TARBALL="${SOURCE}-${VERSION}.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/m/mechanize/$TARBALL"
+BUILD_DEPENDS="python python-html5lib"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev python-distribute"
+compile_rules() {
+	# Python3 based compilation produce error: 'mechanize only works on python 2.x'
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root="$DESTDIR" --optimize=1
+	pip install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-html5lib"
 }

@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+ORIGIN="youtube_dl"
+PACKAGE="python-youtube-dl"
+VERSION="2018.09.18"
+VERSION_PIP="2018.9.18" # some inconsistancy in the pipy version
+CATEGORY="utilities"
+SHORT_DESC="Downloads videos from various streaming websites"
+MAINTAINER="gokhlayeh@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://rg3.github.io/youtube-dl/"
+HOST_ARCH="any"
+REPOLOGY="youtube-dl"
+
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION_PIP
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
+	PROVIDE="youtube-dl"
+}

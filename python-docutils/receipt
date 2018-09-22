@@ -1,23 +1,26 @@
 # SliTaz package receipt v2.
 
+ORIGIN="docutils"
 PACKAGE="python-docutils"
-VERSION="latest"
+VERSION="0.14"
 CATEGORY="python"
 SHORT_DESC="Text processing system"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="PublicDomain GPL3 BSD"
-WEB_SITE="http://docutils.sourceforge.net"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:docutils"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR docutils
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*docutils-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
-	SUGGESTED="python-pil"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
+	SUGGESTED="$py-pil"
 }

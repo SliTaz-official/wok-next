@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Pygments"
 PACKAGE="python-pygments"
-VERSION="latest"
+VERSION="2.2.0"
 CATEGORY="development"
 SHORT_DESC="Generic syntax highlighter"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/Pygments/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:pygments"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR Pygments
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*Pygments-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

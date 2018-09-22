@@ -1,24 +1,38 @@
 # SliTaz package receipt v2.
 
+ORIGIN="WebOb"
 PACKAGE="python-webob"
-VERSION="latest-1.7"
-CATEGORY="development"
+VERSION="1.8.2"
+VERSION17="1.7.4" # python-turbogears require "WebOb<1.8.0,>=1.2"
+CATEGORY="python"
 SHORT_DESC="WSGI request and response object"
 MAINTAINER="taziden@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/WebOb/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:webob"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="python3-webob:3 \
+python-webob17:17 python3-webob17:173"
 
 compile_rules() {
-	# python-turbogears require "WebOb<1.8.0,>=1.2"
-	pip install --no-compile --root=$DESTDIR "WebOb<1.8.0,>=1.2"
+	case $SET in
+		'')  pip  install --no-compile --root=$install $ORIGIN==$VERSION;;
+		3)   pip3 install --no-compile --root=$install $ORIGIN==$VERSION;;
+		17)  pip  install --no-compile --root=$install $ORIGIN==$VERSION17;;
+		173) pip3 install --no-compile --root=$install $ORIGIN==$VERSION17;;
+	esac
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*WebOb-||p' $LOGS/$PACKAGE.log)
+	case $PACKAGE in
+		*-webob17)
+			VERSION="$VERSION17"
+			CAT="python|legacy version $VERSION17"
+			;;
+	esac
 	copy @std
-	DEPENDS="python"
-	TAGS="python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }

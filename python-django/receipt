@@ -1,35 +1,35 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Django"
 PACKAGE="python-django"
-VERSION="latest"
-CATEGORY="development"
+VERSION="2.1.1"    # version for Python3
+VERSION2="1.11.15" # version for Python2
+CATEGORY="python"
 SHORT_DESC="High-level Python Web framework"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/Django/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:django"
 
-BUILD_DEPENDS="python python-pytz python3 python3-pytz"
-SPLIT="python3-django:py3"
+BUILD_DEPENDS="python python-pytz  python3 python3-pytz"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
 	case $SET in
-		'')  pip='pip';;
-		py3) pip='pip3';;
+		'') VERSION="$VERSION2";;
 	esac
-
-	$pip install --no-compile --root=$DESTDIR Django &&
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION || return 1
 
 	sed -i 's|fill="ABABA7"|fill="#ABABA7"|' \
 		$install/usr/lib/python*/site-packages/django/contrib/gis/static/gis/img/draw_polygon_off.svg
 }
 
 genpkg_rules() {
-	VERSION=$(find $install -type d -name 'Django-*.dist-info' -exec basename '{}' \; \
-	| sed 's|Django-\(.*\)\.dist-info|\1|')
-	copy @std
 	case $PACKAGE in
-		python-django)  DEPENDS="python python-pytz";;
-		python3-django) DEPENDS="python3 python3-pytz";;
+		python-*) VERSION="$VERSION2";;
 	esac
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-pytz"
 }

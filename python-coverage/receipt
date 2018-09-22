@@ -1,22 +1,27 @@
 # SliTaz package receipt v2.
 
+ORIGIN="coverage"
 PACKAGE="python-coverage"
-VERSION="latest"
+VERSION="4.5.1"
 CATEGORY="python"
 SHORT_DESC="Code coverage measurement for Python"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="Apache2"
-WEB_SITE="https://pypi.org/project/coverage/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH=""
 REPOLOGY="python:coverage"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR coverage
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+
+	find $install -type f -name '*.png' -exec chmod a-x '{}' \;
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*coverage-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

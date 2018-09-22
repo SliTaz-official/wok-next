@@ -1,39 +1,50 @@
 # SliTaz package receipt v2.
 
+ORIGIN="PyGObject"
 PACKAGE="python-pygobject2"
 VERSION="2.28.7"
-CATEGORY="development"
-SHORT_DESC="Python bindings for the GObject library"
+CATEGORY="python"
+SHORT_DESC="Python Bindings for GLib/GObject/GIO/GTK+"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://www.pygtk.org/docs/pygobject/index.html"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pygobject2"
 
+# pip drops 2.x branch, get it from GNOME mirror:
 TARBALL="pygobject-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/pygobject/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="python python-dev glib-dev pycairo-dev \
-cairo-dev libffi-dev util-linux-mount-dev"
-SPLIT="$PACKAGE-dev"
+BUILD_DEPENDS="python-dev python-pycairo-dev  python3-dev python3-pycairo-dev \
+glib-dev gobject-introspection-dev cairo-dev"
+BUILD_DEPENDS="python-dev python3-dev glib-dev"
+SPLIT="$PACKAGE-dev \
+${PACKAGE/python/python3}:3 ${PACKAGE/python/python3}-dev:3"
 
 compile_rules() {
+	export PYTHON=/usr/bin/python$SET
+
+	# enabling introspection leads to compiling errors
 	./configure \
 		--disable-introspection \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	find $install -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		python-pygobject2)
-			copy @std
-			DEPENDS="python pycairo glib libffi"
-			;;
 		*-dev)
 			copy @dev
-			DEPENDS="python-pygobject2 libffi-dev"
+			DEPENDS="${PACKAGE%%-dev} glib-dev libffi-dev"
+			;;
+		*)
+			copy @std
+			py="${PACKAGE%%-*}" # python/python3
+			DEPENDS="$py glib libffi"
 			;;
 	esac
 }

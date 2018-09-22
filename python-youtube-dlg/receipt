@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+ORIGIN="youtube-dlg"
+PACKAGE="python-youtube-dlg"
+VERSION="0.4"
+CATEGORY="multimedia"
+SHORT_DESC="Front-end GUI of the popular youtube-dl written in wxPython"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PublicDomain"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="youtube-dl-gui"
+
+BUILD_DEPENDS="python python-wxpython3-dev python-twodict gettext"
+COOKOPTS="!pixmaps"
+
+compile_rules() {
+	# Python3 based compilation produce error
+	pip install --no-compile --root=$install $ORIGIN==$VERSION || return 1
+
+	install -Dm644 $stuff/youtube-dl-gui.desktop $install/usr/share/applications/youtube-dl-gui.desktop
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-youtube-dl python-wxpython3 python-twodict"
+	PROVIDE="youtube-dl-gui"
+}

@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="PyBluez"
 PACKAGE="python-pybluez"
-VERSION="0.18"
-CATEGORY="development"
-SHORT_DESC="Python wrappers around system Bluetooth."
+VERSION="0.22"
+CATEGORY="python"
+SHORT_DESC="Python wrappers around system Bluetooth"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://pypi.org/project/PyBluez/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pybluez"
 
-SOURCE="PyBluez"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://pybluez.googlecode.com/files/$TARBALL" # FIXME
+BUILD_DEPENDS="python-dev python3-dev bluez-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python bluez"
-BUILD_DEPENDS="$DEPENDS python-dev bluez-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py bluez"
 }

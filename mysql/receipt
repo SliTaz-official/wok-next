@@ -104,9 +104,11 @@ genpkg_rules() {
 
 pre_install_mysql() {
 	# Cleanup old files
-	rm -f "$1/usr/libexec/mysql"*
+	rm -f "$1"/usr/libexec/mysql*
 	# Move old config
-	[ -f "$1/etc/my.cnf" ] && mv -f "$1/etc/my.cnf" "$1/etc/mysql/my.cnf"
+	if [ -f "$1/etc/my.cnf" ]; then
+		mv -f "$1/etc/my.cnf" "$1/etc/mysql/my.cnf"
+	fi
 }
 
 post_install_mysql() {
@@ -130,7 +132,12 @@ post_install_mysql() {
 	#chroot "$1/" /bin/chown $user.$group $(cat "$1/$INSTALLED/$PACKAGE/files.list")
 	mkdir -p "$1/var/lib/mysql"
 	chroot "$1/" /bin/chown -R $user.$group /var/lib/mysql
-	chroot "$1/" mysql_install_db --user=$user --basedir=/usr
+
+	if [ -n "$quiet" ]; then
+		chroot "$1/" mysql_install_db --user=$user --basedir=/usr >/dev/null 2>&1
+	else
+		chroot "$1/" mysql_install_db --user=$user --basedir=/usr
+	fi
 
 	[ -n "$quiet" ] || cat <<EOF
 

@@ -1,24 +1,31 @@
 # SliTaz package receipt v2.
 
+ORIGIN="bpython"
 PACKAGE="python-bpython"
-VERSION="latest"
+VERSION="0.17.1"
 CATEGORY="development"
 SHORT_DESC="A fancy interface to the Python interpreter"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/bpython/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:bpython"
 
 BUILD_DEPENDS="python-dev python-pygments python-greenlet python-requests \
 python-curtsies python-six python-urllib3 python-idna python-certifi \
-python-chardet python-wcwidth python-blessings"
+python-chardet python-wcwidth python-blessings \
+python3-dev python3-pygments python3-greenlet python3-requests \
+python3-curtsies python3-six python3-urllib3 python3-idna python3-certifi \
+python3-chardet python3-wcwidth python3-blessings"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR bpython
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*bpython-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="${BUILD_DEPENDS/python-dev/}"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py-pygments $py-greenlet $py-requests $py-curtsies $py-six \
+	$py-urllib3 $py-idna $py-certifi $py-chardet $py-wcwidth $py-blessings"
 }

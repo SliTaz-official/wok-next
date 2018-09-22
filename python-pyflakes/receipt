@@ -1,23 +1,38 @@
 # SliTaz package receipt v2.
 
+ORIGIN="pyflakes"
 PACKAGE="python-pyflakes"
-VERSION="latest"
-CATEGORY="development"
+VERSION="2.0.0"
+VERSION16="1.6.0" # python-flake8 requres 'pyflakes<1.7.0,>=1.5.0'
+CATEGORY="python"
 SHORT_DESC="A simple program which checks Python source files for errors"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/pyflakes/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:pyflakes"
 
-BUILD_DEPENDS="python-dev"
+BUILD_DEPENDS="python python3"
+SPLIT="python3-pyflakes:3 \
+python-pyflakes16:16 python3-pyflakes16:163"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR pyflakes
+	case $SET in
+		'')  pip  install --no-compile --root=$install $ORIGIN==$VERSION;;
+		3)   pip3 install --no-compile --root=$install $ORIGIN==$VERSION;;
+		16)  pip  install --no-compile --root=$install $ORIGIN==$VERSION16;;
+		163) pip3 install --no-compile --root=$install $ORIGIN==$VERSION16;;
+	esac
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*pyflakes-||p' $LOGS/$PACKAGE.log)
+	case $PACKAGE in
+		*-pyflakes16)
+			VERSION="$VERSION16"
+			CAT="python|legacy version $VERSION16"
+			;;
+	esac
 	copy @std
-	DEPENDS="python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }

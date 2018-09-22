@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="future"
+PACKAGE="python-future"
+VERSION="0.16.0"
+CATEGORY="python"
+SHORT_DESC="Clean single-source support for Python 3 and 2"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:future"
+
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
+}

@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="foolscap"
 PACKAGE="python-foolscap"
-VERSION="0.8.0"
-CATEGORY="development"
-SHORT_DESC="Foolscap contains an RPC protocol for Twisted.."
+VERSION="0.13.1"
+CATEGORY="python"
+SHORT_DESC="Foolscap contains an RPC protocol for Twisted"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/foolscap/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:foolscap"
 
-SOURCE="foolscap"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/f/foolscap/$TARBALL"
+BUILD_DEPENDS="python-dev python-pyopenssl python-twisted \
+python-service_identity \
+python3-dev python3-pyopenssl python3-twisted python3-service_identity"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --prefix=/usr --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs/
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-pyopenssl $py-twisted $py-service_identity"
 }

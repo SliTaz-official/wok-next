@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="socketpool"
 PACKAGE="python-socketpool"
-VERSION="0.5.2"
-CATEGORY="development"
-SHORT_DESC="A simple python socket pool."
+VERSION="0.5.3"
+CATEGORY="python"
+SHORT_DESC="Python socket pool"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://github.com/benoitc/socketpool/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:socketpool"
 
-SOURCE="socketpool"
-TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="https://github.com/benoitc/$SOURCE/archive/$VERSION.zip"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
+compile_rules() {
+	fix utf-8; export LC_ALL=en_US.UTF-8
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	rm -rf $install/usr/socketpool
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

@@ -1,29 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="PEAK-Rules"
 PACKAGE="python-peak-rules"
 VERSION="0.5a1.dev-r2713"
 CATEGORY="misc"
 SHORT_DESC="Generic functions and business rules support systems"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="ZPL2.1"
-WEB_SITE="https://pypi.org/project/PEAK-Rules"
+WEB_SITE="https://pypi.org/project/$ORIGIN"
+HOST_ARCH="any"
 REPOLOGY="python:peak-rules"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://peak.telecommunity.com/snapshots/PEAK-Rules-$VERSION.tar.gz"
+WGET_URL="http://peak.telecommunity.com/snapshots/$ORIGIN-$VERSION.tar.gz"
 
-DEPENDS="python"
 BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$install
+compile_rules() {
+	# Python3 based compilation produce error
+	python -B setup.py install --root=$install
+
+	find $install -type f -exec chmod g-w '{}' \; # 664 -> 644
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

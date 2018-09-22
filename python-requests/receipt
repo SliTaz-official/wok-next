@@ -1,22 +1,26 @@
 # SliTaz package receipt v2.
 
+ORIGIN="requests"
 PACKAGE="python-requests"
-VERSION="latest"
+VERSION="2.19.1"
 CATEGORY="network"
 SHORT_DESC="Python HTTP Requests for Humans"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="Apache"
-WEB_SITE="https://pypi.org/project/requests/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:requests"
 
-BUILD_DEPENDS="python-urllib3 python-idna python-certifi python-chardet"
+BUILD_DEPENDS="python python-urllib3 python-idna python-certifi python-chardet \
+python3 python3-urllib3 python3-idna python3-certifi python3-chardet"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR requests
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*requests-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="$BUILD_DEPENDS"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-urllib3 $py-idna $py-certifi $py-chardet"
 }

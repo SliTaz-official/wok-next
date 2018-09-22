@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+ORIGIN="jaraco.functools"
+PACKAGE="python-jaraco.functools"
+VERSION="1.20"
+CATEGORY="python"
+SHORT_DESC="Additional functools in the spirit of stdlib’s functools"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:jaraco.functools"
+
+BUILD_DEPENDS="python python-backports.functools-lru-cache \
+python-more-itertools \
+python3 python3-more-itertools"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	case $PACKAGE in
+		python-*)  DEPENDS="$py $py-backports.functools-lru-cache \
+			$py-more-itertools";;
+		python3-*) DEPENDS="$py $py-more-itertools";;
+	esac
+}

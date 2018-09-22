@@ -1,25 +1,34 @@
 # SliTaz package receipt v2.
 
+ORIGIN="libvirt-python"
 PACKAGE="python-libvirt"
-VERSION="latest"
+VERSION="4.7.0"
 CATEGORY="python"
 SHORT_DESC="Python bindings for libvirt"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 LGPL2.1"
-WEB_SITE="https://pypi.org/project/libvirt-python/"
+#WEB_SITE="https://pypi.org/project/$ORIGIN/" # not in hurry: 4.6.0
+WEB_SITE="https://libvirt.org/"
+#HOST_ARCH
 REPOLOGY="python:libvirt-python"
 
-BUILD_DEPENDS="libvirt-dev python-dev"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://libvirt.org/sources/python/$TARBALL"
+
+BUILD_DEPENDS="python-dev python3-dev libvirt-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
 # Python packages name should start with "python-", but "python-libvirt-python"
 # is pretty ugly name, so strip it to "python-libvirt"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR libvirt-python
+#	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+
+	python$SET -B setup.py install --root=$install
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*libvirt-python-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="libvirt python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py libvirt"
 }

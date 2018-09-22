@@ -1,19 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="PyGTK"
 PACKAGE="python-pygtk"
 VERSION="2.24.0"
-CATEGORY="development"
+CATEGORY="python"
 SHORT_DESC="GTK+ for Python"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://www.pygtk.org/"
+WEB_SITE="https://pygobject.readthedocs.io/en/latest/"
+#HOST_ARCH
 REPOLOGY="python:pygtk"
 
 TARBALL="pygtk-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/pygtk/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="python-dev pycairo-dev python-pygobject2-dev expat-dev gtk+-dev \
-libglade-dev libxml2-dev libffi-dev python-numpy"
+# using Python3 produce errors
+BUILD_DEPENDS="python-dev python-pygobject2-dev python-pycairo-dev \
+python-numpy glib-dev atk-dev pango-dev gtk+-dev libglade-dev"
 SPLIT="$PACKAGE-demos $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
@@ -22,23 +25,25 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make install
+	make install || return 1
+
+	find $install -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		*-demos)
 			copy demos/ pygtk-demo pygtk-demo.py
+			DEPENDS="python-pygtk"
 			CAT="development|demos"
-			;;
-		python-pygtk)
-			copy @std @rm
-			rm -r $fs/usr/lib/pygtk/
-			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libglade pango python"
 			;;
 		*-dev)
 			copy @dev
 			DEPENDS="python-pygtk gtk+-dev python-pygobject2-dev"
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="python atk cairo gdk-pixbuf glib gtk+ libglade pango"
 			;;
 	esac
 }

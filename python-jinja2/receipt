@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN=Jinja2
 PACKAGE="python-jinja2"
-VERSION="latest"
+VERSION="2.10"
 CATEGORY="python"
 SHORT_DESC="Stand-alone template engine"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://jinja.pocoo.org"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:jinja2"
 
-BUILD_DEPENDS="python-markupsafe"
+BUILD_DEPENDS="python python-markupsafe  python3 python3-markupsafe"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR Jinja2
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*Jinja2-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python-markupsafe"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-markupsafe"
 }

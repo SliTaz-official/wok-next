@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+ORIGIN="ldap3"
+PACKAGE="python-ldap3"
+VERSION="2.5.1"
+CATEGORY="python"
+SHORT_DESC="A strictly RFC 4510 conforming LDAP V3 pure Python client library"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL3"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:ldap3"
+
+BUILD_DEPENDS="python python-pyasn1  python3 python3-pyasn1 \
+openldap-dev openssl-dev cyrus-sasl-dev"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-pyasn1   openldap openssl cyrus-sasl"
+}

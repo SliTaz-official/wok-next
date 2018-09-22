@@ -1,32 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="html2text"
 PACKAGE="python-html2text"
-VERSION="3.200.3"
+VERSION="2018.1.9"
 CATEGORY="network"
-SHORT_DESC="Converts a page of HTML into clean, easy-to-read plain ASCII text."
+SHORT_DESC="Turn HTML into equivalent Markdown-structured text"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.aaronsw.com/2002/html2text/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:html2text"
 
-SOURCE="html2text"
-TARBALL="${SOURCE}-${VERSION}.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/h/html2text/$TARBALL"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev python-distribute"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root="$DESTDIR" --optimize=1
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }
-

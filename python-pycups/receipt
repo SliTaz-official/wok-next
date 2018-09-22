@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pycups"
+PACKAGE="python-pycups"
+VERSION="1.9.73"
+CATEGORY="python"
+SHORT_DESC="Python bindings for libcups"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
+REPOLOGY="python:pycups"
+
+BUILD_DEPENDS="python-dev python3-dev cups-dev"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py libcups"
+}

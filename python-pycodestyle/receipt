@@ -1,23 +1,38 @@
 # SliTaz package receipt v2.
 
+ORIGIN="pycodestyle"
 PACKAGE="python-pycodestyle"
-VERSION="latest"
-CATEGORY="development"
+VERSION="2.4.0"
+VERSION23="2.3.1" # python-flake8 requres 'pycodestyle<2.4.0,>=2.0.0'
+CATEGORY="python"
 SHORT_DESC="Python style guide checker"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/pycodestyle/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:pycodestyle"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="python3-pycodestyle:3 \
+python-pycodestyle23:23 python3-pycodestyle23:233"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR pycodestyle
+	case $SET in
+		'')  pip  install --no-compile --root=$install $ORIGIN==$VERSION;;
+		3)   pip3 install --no-compile --root=$install $ORIGIN==$VERSION;;
+		23)  pip  install --no-compile --root=$install $ORIGIN==$VERSION23;;
+		233) pip3 install --no-compile --root=$install $ORIGIN==$VERSION23;;
+	esac
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*pycodestyle-||p' $LOGS/$PACKAGE.log)
+	case $PACKAGE in
+		*-pycodestyle23)
+			VERSION="$VERSION23"
+			CAT="python|legacy version $VERSION23"
+			;;
+	esac
 	copy @std
-	DEPENDS="python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }

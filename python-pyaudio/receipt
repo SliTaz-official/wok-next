@@ -1,22 +1,26 @@
 # SliTaz package receipt v2.
 
+ORIGIN="PyAudio"
 PACKAGE="python-pyaudio"
-VERSION="latest"
-CATEGORY="development"
-SHORT_DESC="PyAudio provides Python bindings for PortAudio"
+VERSION="0.2.11"
+CATEGORY="python"
+SHORT_DESC="Bindings for PortAudio v19, the cross-platform audio input/output \
+stream library"
 MAINTAINER="paul@slitaz.org"
 LICENSE="unknown"
-WEB_SITE="https://pypi.org/project/PyAudio/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:pyaudio"
 
-BUILD_DEPENDS="python-dev portaudio-dev"
+BUILD_DEPENDS="python-dev python3-dev portaudio-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR PyAudio
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*PyAudio-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python portaudio"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py portaudio"
 }

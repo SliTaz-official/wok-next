@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="traceback2"
+PACKAGE="python-traceback2"
+VERSION="1.4.0"
+CATEGORY="python"
+SHORT_DESC="Backports of the traceback module"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PSFL"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:traceback2"
+
+BUILD_DEPENDS="python python-linecache2  python3 python3-linecache2"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-linecache2"
+}

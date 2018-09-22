@@ -1,40 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="MySQL-python"
 PACKAGE="python-mysql"
-VERSION="1.2.3"
-CATEGORY="development"
-SHORT_DESC="A Python interface to MySQL ."
+VERSION="1.2.5"
+CATEGORY="python"
+SHORT_DESC="Python interface to MySQL"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="http://mysql-python.sourceforge.net/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:mysql-python"
 
-SOURCE="MySQL-python"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/mysql-python/$TARBALL"
-
-DEPENDS="python libmysqlclient zlib openssl"
 BUILD_DEPENDS="python-dev mysql-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/threadsafe = True/threadsafe = False/' $src/site.cfg
-	python setup.py build
-	python setup.py install --root=$DESTDIR
+# Python packages name should start with "python-", but "python-mysql-python"
+# is pretty ugly name, so strip it to "python-mysql"
+
+compile_rules() {
+	# Python3 based compilation produce error and currently unsupported
+	pip install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python libmysqlclient"
 }
-
-# Remove old package.
-post_install()
-{
-	[ ! -d "$1/var/lib/tazpkg/installed/mysql-python" ] ||
-		rm -rf "$1/var/lib/tazpkg/installed/mysql-python"
-}
-

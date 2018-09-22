@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="typing"
 PACKAGE="python-typing"
-VERSION="latest"
+VERSION="3.6.6"
 CATEGORY="python"
 SHORT_DESC="Type Hints for Python"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PSF"
-WEB_SITE="https://pypi.org/project/typing/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:typing"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR typing
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*typing-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

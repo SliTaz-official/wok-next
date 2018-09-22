@@ -1,30 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="oauth2"
 PACKAGE="python-oauth2"
-VERSION="1.5.211"
-CATEGORY="development"
-SHORT_DESC="Library for OAuth version 1.0."
+VERSION="1.9.0.post1"
+CATEGORY="python"
+SHORT_DESC="Library for OAuth version 1.9"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://github.com/simplegeo/python-oauth2"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:oauth2"
 
-SOURCE="oauth2"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/o/$SOURCE/$TARBALL"
-TAGS="python"
+BUILD_DEPENDS="python python-httplib2  python3 python3-httplib2"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std @dev
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-httplib2"
 }

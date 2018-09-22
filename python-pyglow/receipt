@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="python-pyglow"
+VERSION="0.2"
+CATEGORY="system-tools"
+SHORT_DESC="Controlling the PiGlow from Python"
+MAINTAINER="pankso@slitaz.org"
+LICENSE="BSD"
+WEB_SITE="https://github.com/benleb/PyGlow"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/benleb/PyGlow/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="python-dev python-rpi.gpio python3-dev python3-rpi.gpio git"
+BUILD_DEPENDS="python-dev python3-dev"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	python$SET -B setup.py install --root=$install || return 1
+
+	mkdir -p $install/usr/share/
+	cp -r $src/examples $install/usr/share/pyglow
+	install -Dm755 $stuff/vortex.py $install/usr/share/pyglow/vortex.py
+	install -Dm755 $stuff/pyglow    $install/usr/bin/pyglow
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-smbus $py-psutil $py-rpi.gpio"
+	TAGS="raspberrypi rpi"
+}

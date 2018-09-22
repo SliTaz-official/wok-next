@@ -1,30 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="python-openid" # and python3-openid
 PACKAGE="python-openid"
-VERSION="2.2.4"
-CATEGORY="development"
-SHORT_DESC="OpenID libraries for Python."
+VERSION="3.1.0"  # Python3 package python3-openid version
+VERSION2="2.2.5" # Python2 package python-openid version
+CATEGORY="python"
+SHORT_DESC="OpenID support for servers and consumers"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
-WEB_SITE="http://www.janrain.com/openid-enabled/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:openid"
 
-TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
-WGET_URL="http://ftp.debian.org/debian/pool/main/${PACKAGE:0:1}/$PACKAGE/$TARBALL"
+BUILD_DEPENDS="python python3 python3-defusedxml"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev python"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	case $SET in
+		'') VERSION="$VERSION2";;
+	esac
+	pip$SET install --no-compile --root=$install python$SET-openid==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	case $PACKAGE in
+		python-*)
+			VERSION="$VERSION2"
+			DEPENDS="$py"
+			;;
+		python3-*)
+			DEPENDS="$py $py-defusedxml"
+			;;
+	esac
 }

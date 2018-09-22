@@ -1,22 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="greenlet"
 PACKAGE="python-greenlet"
-VERSION="latest"
+VERSION="0.4.15"
 CATEGORY="development"
 SHORT_DESC="Lightweight in-process concurrent programming"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/greenlet/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:greenlet"
 
-BUILD_DEPENDS="python-dev"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR greenlet
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*greenlet-||p' $LOGS/$PACKAGE.log)
 	copy @std @dev
-	DEPENDS="python"
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py"
 }

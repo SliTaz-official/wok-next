@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pycairo"
+PACKAGE="python-pycairo"
+VERSION="1.17.1"
+CATEGORY="python"
+SHORT_DESC="Python interface for cairo"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="MPL LGPL2.1"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
+REPOLOGY="python:pycairo"
+
+BUILD_DEPENDS="python-dev python3-dev cairo-dev"
+SPLIT="$PACKAGE-dev ${PACKAGE/python/python3}:3 ${PACKAGE/python/python3}-dev:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			DEPENDS="${PACKAGE%%-dev} cairo-dev"
+			;;
+		*)
+			copy @std
+			py="${PACKAGE%%-*}" # python/python3
+			DEPENDS="$py cairo"
+			;;
+	esac
+}

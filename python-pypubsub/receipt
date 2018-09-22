@@ -1,23 +1,28 @@
 # SliTaz package receipt v2.
 
+ORIGIN="PyPubSub"
 PACKAGE="python-pypubsub"
-VERSION="latest"
+VERSION="4.0.0"
 CATEGORY="python"
 SHORT_DESC="Python Publish-Subscribe Package"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/PyPubSub/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:pypubsub"
 
-BUILD_DEPENDS="python python-typing"
+BUILD_DEPENDS="python-dev python-typing  python3-dev"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR PyPubSub
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*PyPubSub-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python python-typing"
+	py="${PACKAGE%%-*}" # python/python3
+	case $PACKAGE in
+		python-*)  DEPENDS="$py $py-typing";;
+		python3-*) DEPENDS="$py";;
+	esac
 }

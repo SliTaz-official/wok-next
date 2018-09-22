@@ -1,25 +1,35 @@
 # SliTaz package receipt v2.
 
+ORIGIN="flake8"
 PACKAGE="python-flake8"
-VERSION="latest"
-CATEGORY="development"
+VERSION="3.5.0"
+CATEGORY="python"
 SHORT_DESC="The modular source code checker for Python"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://pypi.org/project/flake8/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:flake8"
 
-BUILD_DEPENDS="python python-enum34 python-configparser python-mccabe \
-python-pyflakes16 python-pycodestyle23"
+BUILD_DEPENDS="python python-configparser python-enum34 python-mccabe \
+python-pycodestyle23 python-pyflakes16 \
+python3 python3-mccabe python3-pycodestyle23 python3-pyflakes16"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR flake8
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*flake8-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python python-enum34 python-configparser python-mccabe \
-	python-pyflakes16 python-pycodestyle23"
+	py=${PACKAGE%%-*} # python/python3
+	case $PACKAGE in
+		python-*)
+			DEPENDS="$py $py-configparser $py-enum34 $py-mccabe \
+			$py-pycodestyle23 $py-pyflakes16"
+			;;
+		python3-*)
+			DEPENDS="$py $py-mccabe $py-pycodestyle23 $py-pyflakes16"
+			;;
+	esac
 }

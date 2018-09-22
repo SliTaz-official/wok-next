@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+ORIGIN="Automat"
+PACKAGE="python-automat"
+VERSION="0.7.0"
+CATEGORY="python"
+SHORT_DESC="Self-service finite-state machines for the programmer on the go"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:automat"
+
+BUILD_DEPENDS="python python-attrs python-six \
+python3 python3-attrs python3-six"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-attrs $py-six"
+}

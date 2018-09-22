@@ -1,26 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="DecoratorTools"
 PACKAGE="python-decoratortools"
 VERSION="1.8"
-CATEGORY="development"
+CATEGORY="python"
 SHORT_DESC="Class, function, and metaclass decorators"
 MAINTAINER="taziden@slitaz.org"
 LICENSE="PSL"
-WEB_SITE="https://pypi.org/project/DecoratorTools/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
 REPOLOGY="python:decoratortools"
 
-SOURCE="DecoratorTools"
-TARBALL="$SOURCE-$VERSION.zip"
-WGET_URL="https://files.pythonhosted.org/packages/source/D/$SOURCE/$TARBALL"
-
-BUILD_DEPENDS="python python-dev"
+BUILD_DEPENDS="python"
 
 compile_rules() {
-	python setup.py install --root=$DESTDIR
+	# Python3 based compilation produce error
+	pip install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
 	copy @std
 	DEPENDS="python"
-	TAGS="python"
 }

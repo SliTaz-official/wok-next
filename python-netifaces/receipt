@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="netifaces"
 PACKAGE="python-netifaces"
-VERSION="0.8"
-CATEGORY="development"
-SHORT_DESC="Portable access to network interfaces from Python."
+VERSION="0.10.7"
+CATEGORY="python"
+SHORT_DESC="Portable network interface information"
 MAINTAINER="monghitri@aruba.it"
 LICENSE="MIT"
-WEB_SITE="https://alastairs-place.net/projects/netifaces/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
 REPOLOGY="python:netifaces"
 
-SOURCE="netifaces"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://alastairs-place.net/projects/$SOURCE/$TARBALL"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
-DEPENDS="python"
-BUILD_DEPENDS="python-dev"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }

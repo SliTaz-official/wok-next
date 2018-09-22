@@ -1,23 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="pyasn1"
 PACKAGE="python-pyasn1"
-VERSION="latest"
-CATEGORY="development"
+VERSION="0.4.4"
+CATEGORY="python"
 SHORT_DESC="ASN.1 types and codecs"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="https://pypi.org/project/pyasn1/"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:pyasn1"
 
-BUILD_DEPENDS="python"
+BUILD_DEPENDS="python python3"
+SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip install --no-compile --root=$DESTDIR pyasn1
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
 genpkg_rules() {
-	VERSION=$(sed -n '/^Successfully installed/ s|.*pyasn1-||p' $LOGS/$PACKAGE.log)
 	copy @std
-	DEPENDS="python"
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py"
 }
