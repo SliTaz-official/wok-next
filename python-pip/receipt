@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pip"
+PACKAGE="python-pip"
+VERSION="18.0"
+CATEGORY="python"
+SHORT_DESC="The PyPA recommended tool for installing Python packages"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:pip"
+
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://files.pythonhosted.org/packages/source/p/pip/$TARBALL"
+
+BUILD_DEPENDS="python python-setuptools  python3 python3-setuptools"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	python$SET -B setup.py install --root=$install
+
+}
+
+genpkg_rules() {
+	copy @std
+	py=${PACKAGE%%-*} # python/python3
+	DEPENDS="$py $py-setuptools"
+}
