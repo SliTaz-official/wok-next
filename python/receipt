@@ -26,14 +26,6 @@ compile_rules() {
 	# Enable built-in SQLite3 module to load extensions (fix FS#22122)
 	sed -i.orig "/SQLITE_OMIT_LOAD_EXTENSION/d" setup.py
 
-	# If setuptools installed on the host, they will not be installed to the
-	# $DESTDIR. Probably bug. Dirty hack using chroot to resolve it:
-	rm /usr/bin/easy_install* /usr/bin/pip*
-	rm -r /usr/lib/python2.7/site-packages/easy_install.py \
-		  /usr/lib/python2.7/site-packages/pip* \
-		  /usr/lib/python2.7/site-packages/pkg_resources \
-		  /usr/lib/python2.7/site-packages/setuptools*
-
 	case "$ARCH" in
 		arm*)
 			# First pass for build host tools
@@ -91,9 +83,6 @@ EOT
 				chmod -v 755 $install/usr/lib/libpython2.7.so.1.0
 			;;
 	esac
-
-	# Upgrade pip unless it will throw noisy warnings on every pip-based package
-	pip install --upgrade --root=$install pip
 }
 
 genpkg_rules() {
@@ -111,7 +100,8 @@ genpkg_rules() {
 		python)
 			# Now pyconfig.h is required for Mercurial.
 			copy @std pyconfig.h @rm
-			DEPENDS="bzlib expat gdbm libffi libsqlite3 ncurses \
+			DEPENDS="python-setuptools python-pip \
+			bzlib expat gdbm libffi libsqlite3 ncurses \
 			ncurses-libpanel openssl readline zlib"
 			;;
 		*-dev)

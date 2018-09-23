@@ -31,16 +31,14 @@ compile_rules() {
 
 	chmod 755 $install/usr/lib/libpython${VERSION%.*}m.so
 	chmod 755 $install/usr/lib/libpython${VERSION%%.*}.so
-
-	# Upgrade pip unless it will throw noisy warnings on every pip-based package
-	pip3 install --upgrade --root=$install pip
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		python3)
 			copy @std pyconfig.h
-			DEPENDS="bzlib expat gdbm liblzma libsqlite3 ncurses \
+			DEPENDS="python3-setuptools python3-pip \
+			bzlib expat gdbm liblzma libsqlite3 ncurses \
 			ncurses-libpanel openssl readline tcl tk xorg-libX11 zlib"
 			PROVIDE="py3k"
 			TAGS="LFS"
