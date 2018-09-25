@@ -15,7 +15,7 @@ WGET_URL="https://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.xz"
 
 BUILD_DEPENDS="openssl-dev bzip2-dev readline-dev sqlite3-dev zlib-dev \
 ncurses-dev tcl-dev tk-dev db-dev gdbm-dev libffi-dev expat-dev"
-SPLIT="python-idle python-tcltk python python-dev"
+SPLIT="python-dev python-idle python-tcltk python"
 COOKOPTS="!menus !zip"
 
 compile_rules() {
@@ -74,38 +74,40 @@ EOT
 				--enable-shared \
 				--with-system-expat \
 				--with-system-ffi \
-				--with-ensurepip=yes \
+				--without-ensurepip \
 				--enable-unicode=ucs4 \
-				--build=$HOST_SYSTEM \
-				--host=$HOST_SYSTEM &&
+				$CONFIGURE_ARGS &&
 				make &&
 				make DESTDIR=$DESTDIR install &&
 				chmod -v 755 $install/usr/lib/libpython2.7.so.1.0
 			;;
 	esac
+
+	find $install -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
 }
 
 genpkg_rules() {
 	case $PACKAGE in
+		*-dev)
+			copy @dev test/ distutils/command/*.exe
+			find $fs -type f -name pyconfig.h -delete # move to python package
+			;;
 		*-idle)
 			copy idle idlelib/ python-idle.desktop
 			CAT="development|GUI IDE using TK Toolkit"
 			DEPENDS="python-tcltk tcl tk"
 			;;
 		*-tcltk)
-			copy _tkinter.so lib-tk/
+			copy _tkinter.so lib-tk/ @rm
 			CAT="development|Tcl/Tk files"
 			DEPENDS="python tcl tk xorg-libX11"
 			;;
 		python)
 			# Now pyconfig.h is required for Mercurial.
-			copy @std pyconfig.h @rm
+			copy @std @rm pyconfig.h
 			DEPENDS="python-setuptools python-pip \
 			bzlib expat gdbm libffi libsqlite3 ncurses \
 			ncurses-libpanel openssl readline zlib"
-			;;
-		*-dev)
-			copy @dev @rm
 			;;
 	esac
 }

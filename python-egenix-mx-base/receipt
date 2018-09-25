@@ -1,0 +1,45 @@
+# SliTaz package receipt v2.
+
+ORIGIN="egenix-mx-base"
+PACKAGE="python-egenix-mx-base"
+VERSION="3.2.9"
+CATEGORY="python"
+SHORT_DESC="eGenix.com mx Extension series"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="PSL"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+#HOST_ARCH
+REPOLOGY="python:egenix-mx-base"
+
+# pip produce syntax error, use tarball method instead
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="http://downloads.egenix.com/python/$TARBALL"
+
+BUILD_DEPENDS="python-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	# Python3 based compilation produce error
+	python -B setup.py install --root=$install || return 1
+
+	# move documentation
+	docdir="$install/usr/share/doc/$PACKAGE-$VERSION/"
+	mkdir -p $docdir
+	find $install -type f -name '*.pdf' -exec mv '{}' $docdir \;
+	find $install -type d -name 'Doc' | xargs rmdir
+
+	# fix permissions
+	find $install -type f -exec chmod g-w,o+r '{}' \; # 664->644; 640->644
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev)
+			copy @dev
+			;;
+		*)
+			copy @std
+			DEPENDS="python"
+			;;
+	esac
+}

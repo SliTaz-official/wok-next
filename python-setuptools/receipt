@@ -2,7 +2,7 @@
 
 ORIGIN="setuptools"
 PACKAGE="python-setuptools"
-VERSION="40.4.2"
+VERSION="40.4.3"
 CATEGORY="python"
 SHORT_DESC="Easily download, build, install, upgrade, and uninstall Python packages"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,11 +11,17 @@ WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:setuptools"
 
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://github.com/pypa/setuptools/archive/v$VERSION.tar.gz"
+
 BUILD_DEPENDS="python python3"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+	python$SET bootstrap.py &&
+	python$SET -B setup.py install --root=$install
+
+	find $install -type f -exec chmod g-w '{}' \; # 664->644
 }
 
 genpkg_rules() {

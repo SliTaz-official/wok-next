@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libsmi"
+VERSION="0.5.0"
+CATEGORY="system-tools"
+SHORT_DESC="Library to access SMI management information"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2 BSD"
+WEB_SITE="https://www.ibr.cs.tu-bs.de/projects/libsmi/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://www.ibr.cs.tu-bs.de/projects/libsmi/download/$TARBALL"
+
+SPLIT="$PACKAGE-dev"
+COOKOPTS="skip-log-errors"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev) copy @dev;;
+		*)     copy @std;;
+	esac
+}

@@ -12,18 +12,22 @@ HOST_ARCH="any"
 REPOLOGY="python:pip"
 
 TARBALL="$ORIGIN-$VERSION.tar.gz"
-WGET_URL="https://files.pythonhosted.org/packages/source/p/pip/$TARBALL"
+WGET_URL="https://github.com/pypa/pip/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="python python-setuptools  python3 python3-setuptools"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
 	python$SET -B setup.py install --root=$install
-
 }
 
 genpkg_rules() {
 	copy @std
 	py=${PACKAGE%%-*} # python/python3
 	DEPENDS="$py $py-setuptools"
+
+	# python3-pip: do not overwrite pip from python-pip (when both in use)
+	case $py in
+		python3) rm $fs/usr/bin/pip;;
+	esac
 }
