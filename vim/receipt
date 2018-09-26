@@ -1,15 +1,15 @@
 # SliTaz package receipt v2.
 
 PACKAGE="vim"
-VERSION="8.1"
+VERSION="8.1.0436"
 CATEGORY="editors"
 SHORT_DESC="Advanced text editor"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://www.vim.org/"
+WEB_SITE="https://www.vim.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="ftp://ftp.vim.org/pub/vim/unix/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/vim/vim/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="python ncurses-dev acl-dev diffutils gettext"
 SPLIT="vim-tiny:tiny"
@@ -58,8 +58,11 @@ genpkg_rules() {
 
 # common post-install for vim and vim-tiny
 post_install() {
+	if [ -n "$quiet" ]; then return; fi
+
 	cmd=$(readlink "$1/bin/vi")
 	[ "$cmd" != '/usr/bin/vim' ] || return
+
 	echo
 	echo "**** Actual VI link : $cmd"
 	echo

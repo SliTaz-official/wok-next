@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+ORIGIN="websockify"
+PACKAGE="python-websockify"
+VERSION="0.8.0"
+CATEGORY="python"
+SHORT_DESC="WebSockets support for any application/server"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL3"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:websockify"
+
+BUILD_DEPENDS="python python-numpy  python3 python3-numpy"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std @dev # not a dev files really in include/
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py $py-numpy"
+}

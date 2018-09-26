@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="itaka"
 VERSION="0.2.2"
@@ -6,25 +6,20 @@ CATEGORY="network"
 SHORT_DESC="Itaka on-demand screenshot server. Start server and let client connect via http"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://web.archive.org/web/20140701101226/http://itaka.jardinpresente.com.ar/"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="screenshot"
 
-DEPENDS="python-pygtk python-twisted"
+compile_rules() {
+	make PREFIX=$install/usr || return 1
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make PREFIX=$DESTDIR/usr
+	ln -sf ../lib/itaka/itaka.py $install/usr/bin/itaka
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/itaka $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="python-pygtk python-twisted"
+	TAGS="screenshot"
 }
