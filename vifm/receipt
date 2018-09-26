@@ -1,34 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="vifm"
-VERSION="0.7.6"
+VERSION="0.9.1"
 CATEGORY="utilities"
-SHORT_DESC="Vi File Manager."
+SHORT_DESC="Ncurses based file manager with vi-like keybindings"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-DEPENDS="ncurses libmagic xorg-libX11 vim file"
-BUILD_DEPENDS="ncurses-dev libmagic-dev xorg-libX11-dev util-linux-whereis vim file"
+WEB_SITE="https://vifm.info/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://vifm.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="ncurses-dev libmagic-dev xorg-libX11-dev util-linux-whereis vim \
+file mdocml util-linux-column perl"
+
+compile_rules() {
+	sed -i 's|PACKAGE_DATA_DIR|"/usr/share/vifm"|' src/int/vim.c
+
 	./configure \
-		--prefix=/usr \
-	 	$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+		--disable-build-timestamp \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share $fs/usr
-	# rm stuff
-	rm -rf $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses libmagic xorg-libX11 vim file"
 }
-
