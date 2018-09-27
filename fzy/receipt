@@ -1,28 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fzy"
-VERSION="0.7"
+VERSION="1.0"
 CATEGORY="utilities"
-SHORT_DESC="A fast, simple fuzzy finder."
+SHORT_DESC="A fast, simple fuzzy finder"
 MAINTAINER="paul@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+LICENSE="MIT"
 WEB_SITE="https://github.com/jhawthorn/fzy"
-WGET_URL="git|git://github.com/jhawthorn/fzy"
 
-DEPENDS=""
-BUILD_DEPENDS="git bzip2"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/jhawthorn/fzy/releases/download/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
-	make PREFIX=/usr DESTDIR=$DESTDIR install
+compile_rules() {
+	make PREFIX=/usr install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }
-

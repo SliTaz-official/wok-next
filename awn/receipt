@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="awn"
-VERSION="0.4.2.16" # latest release 0.4.2 plus 16 commits ahead (13/11/27 -> 15/10/17)
-COMMIT="b8c2248"
+VERSION="0.4.2post20171025"
+COMMIT="dbdccc0"
 CATEGORY="x-window"
 SHORT_DESC="Dock-like bar which sits at the bottom of the screen"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://launchpad.net/awn/"
+WEB_SITE="https://github.com/p12tic/awn"
 REPOLOGY="avant-window-navigator"
 
 TARBALL="avant-window-navigator-${COMMIT:-$VERSION}.tar.gz"
@@ -19,7 +19,6 @@ gtkmm-dev dbus-glib-dev xorg-libXcomposite-dev libwnck2-dev libgtop-dev"
 SPLIT="awn-dev"
 COOKOPTS="skip-log-errors"
 
-# Rules to configure and make the package.
 compile_rules() {
 	./autogen.sh &&
 	./configure \
@@ -27,7 +26,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make  install || return 1
+	make install || return 1
 
 	# Custom autostart script so we ensure xcompmgr is also started.
 	install -m755 $stuff/awn-autostart $install/usr/bin

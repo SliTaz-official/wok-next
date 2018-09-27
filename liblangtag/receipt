@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="liblangtag"
+VERSION="0.6.2"
+CATEGORY="utilities"
+SHORT_DESC="Interface library to access/deal with tags for identifying languages"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL3"
+WEB_SITE="https://bitbucket.org/tagoh/liblangtag/overview"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://bitbucket.org/tagoh/liblangtag/downloads/$TARBALL"
+
+BUILD_DEPENDS="libtool libxml2-dev gobject-introspection-dev sed"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		liblangtag)
+			copy @std
+			DEPENDS="glib libxml2"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="liblangtag glib-dev libxml2-dev"
+			;;
+	esac
+}

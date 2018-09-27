@@ -11,23 +11,31 @@ WEB_SITE="http://www.galago-project.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.galago-project.org/files/releases/source/notify-python/$TARBALL"
 
-BUILD_DEPENDS="python-dev libnotify-dev python-pygtk-dev"
-SPLIT="notify-python-dev"
+BUILD_DEPENDS="gfortran python-dev libnotify-dev python-pygtk-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	sed -i 's/, attach//;s/ attach[^;]*//;/GtkWidget .attach/d' src/pynotify.c
+#	sed -i 's|, attach||; s| attach[^;]*||; /GtkWidget .attach/d' src/pynotify.c
 
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
+	./configure $CONFIGURE_ARGS || return 1
+
+	fix libtool
+
+	# we touch src/pynotify.override in build because upstream did not rebuild
+	# pynotify.c from the input definitions, this forces pynotify.c to be
+	# regenerated, at some point this can be removed
+	touch src/pynotify.override
+
+	make clean &&
 	make &&
-	make -j 1 DESTDIR=$DESTDIR install
+	make -j1 install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		notify-python)
 			copy @std
-			DEPENDS="python libnotify"
+			DEPENDS="gdk-pixbuf glib libnotify python   python-pygtk"
 			TAGS="python"
 			;;
 		*-dev)

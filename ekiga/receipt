@@ -1,45 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ekiga"
-VERSION="3.2.6"
+VERSION="4.0.1"
 CATEGORY="network"
 SHORT_DESC="SIP and H.323 compatible VoIP telephony and video conferencing"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.ekiga.org/"
+WEB_SITE="https://www.ekiga.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="opal-dev opal ptlib-dev ptlib gtk+-dev intltool libsigc++ \
-libsigc++-dev openssl-dev libsdl-dev libunixODBC dbus-dev dbus-glib-dev \
-libxml2-dev file"
+BUILD_DEPENDS="intltool gtk+-dev gnome-icon-theme boost-dev boost-signals \
+gconf-dev libnotify-dev xorg-libXv-dev dbus-dev dbus-glib-dev ptlib-dev \
+opal-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11 -lXext -lpt"
-	sed -i 's/CXXFLAGS="-g -O2"/CXXFLAGS="-g -fexceptions -O2"/' configure
-
 	./configure \
-		--libexecdir=/usr/bin \
-		--with-boost-libdir=/usr/lib \
-		--disable-gnome \
-		--disable-gconf \
 		--disable-eds \
-		--disable-notify \
-		--disable-xv \
-		--disable-avahi \
-		--disable-scrollkeeper \
-		--disable-gdu \
 		--disable-ldap \
+		--disable-gdu \
+		--disable-scrollkeeper \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make &&
+	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="opal ptlib cyrus-sasl openssl libsdl libunixODBC dbus \
-	dbus-glib expat gtk+ libsigc++ libxml2 xorg-libXdamage"
+	copy @std @ico
+	DEPENDS="atk boost-signals dbus-glib gconf gdk-pixbuf glib gtk+ libnotify \
+	libxml2 opal pango ptlib xorg-libX11 xorg-libXext xorg-libXv"
 	TAGS="telephony"
 }

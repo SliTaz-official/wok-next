@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gdk-pixbuf"
-VERSION="2.36.12"
+VERSION="2.38.0"
 CATEGORY="x-window"
 SHORT_DESC="An image loading library for GTK+2"
 MAINTAINER="slaxemulator@gmail.com"
@@ -12,51 +12,39 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gdk-pixbuf.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="glib-dev gettext tiff-dev libpng16-dev libjpeg-turbo-dev \
-xorg-libX11-dev gtk-doc"
-BUILD_DEPENDS="glib-dev perl gettext tiff-dev libjpeg-turbo-dev libpng16-dev \
-shared-mime-info-dev xorg-libX11-dev gobject-introspection-dev libxslt \
-docbook-xsl"
-
-SPLIT="gdk-pixbuf-dev"
+BUILD_DEPENDS="meson ninja glib-dev shared-mime-info-dev libpng16-dev \
+libjpeg-turbo-dev tiff-dev gobject-introspection-dev xorg-libX11-dev gettext \
+libxslt docbook-xsl libxml2-tools"
+SPLIT="$PACKAGE-dev $PACKAGE"
 
 compile_rules() {
-	case "$ARCH" in
-		arm)
-			ARCH_ARGS="--enable-introspection=no --cache-file=arm.cache"
-			echo "gio_can_sniff=yes" > arm.cache
-			;;
-	esac
+	mkdir build
+	cd    build
 
-	# build man pages instead of dummy files
-	rm docs/reference/gdk-pixbuf/*.1
+	meson-wrapper \
+		-Dinstalled_tests=false \
+		&&
+	ninja &&
+	ninja install || return 1
 
-	./configure \
-		--with-x11 \
-		--enable-man \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	fix libtool &&
-	make &&
-	make install || return 1
-
-	mkdir -p $install/usr/lib/gdk-pixbuf-2.0/2.10.0
-	touch    $install/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+	touch $install/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		gdk-pixbuf)
-			copy @std
-			DEPENDS="glib libjpeg-turbo libpng16 tiff xorg-libX11"
-			;;
 		*-dev)
-			copy @dev
-			DEPENDS="gdk-pixbuf glib-dev libpng16-dev"
+			copy @dev gdk-pixbuf-csource
+			DEPENDS="gdk-pixbuf glib-dev shared-mime-info-dev xorg-libX11-dev"
+			# gdk-pixbuf-csource use shared-mime-info to detect the image file format
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="glib libjpeg-turbo libpng16 tiff xorg-libX11"
 			;;
 	esac
 }
 
 # Updating gdk pixbuf loaders cache file...
 post_install_gdk_pixbuf() {
-	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders --update-cache
+	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders > /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 }
