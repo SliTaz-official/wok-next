@@ -11,17 +11,19 @@ WEB_SITE="http://dvdauthor.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="imagemagick6-dev tiff-dev jpeg-dev libxml2-dev libdvdread-dev \
-libpng16-dev"
+BUILD_DEPENDS="libpng16-dev freetype-dev libdvdread-dev libxml2-dev   \
+fontconfig-dev fribidi-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-rpath \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="imagemagick6 tiff jpeg libxml2 fribidi libdvdread"
+	DEPENDS="fontconfig freetype fribidi libdvdread libpng16 libxml2"
 }

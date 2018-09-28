@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libtorrent-rasterbar"
-VERSION="1.1.3"
+VERSION="1.1.9"
 CATEGORY="development"
 SHORT_DESC="A C++ bittorrent implementation library"
 MAINTAINER="slaxemulator@gmail.com"
@@ -13,11 +13,12 @@ WGET_URL="https://github.com/arvidn/libtorrent/releases/download/libtorrent-${VE
 
 BUILD_DEPENDS="boost-dev boost-system boost-chrono boost-random \
 openssl-dev python-dev boost-python"
-SPLIT="libtorrent-rasterbar-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
 		--enable-python-binding \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -28,8 +29,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		libtorrent-rasterbar)
 			copy @std
-			DEPENDS="boost-chrono boost-python boost-random \
-			boost-system openssl python"
+			DEPENDS="boost-python boost-system openssl python"
 			;;
 		*-dev)
 			copy @dev
