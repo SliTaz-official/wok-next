@@ -1,21 +1,26 @@
 # SliTaz package receipt v2.
 
 PACKAGE="binclock"
-VERSION="0.3.2"
+VERSION="1.5"
 CATEGORY="utilities"
-SHORT_DESC="Fullscreen console binary clock"
+SHORT_DESC="Prints time in binary format"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://binclock.sourceforge.net/"
+WEB_SITE="http://www.ngolde.de/binclock.html"
 
-TARBALL="${PACKAGE}_${VERSION}-1.tar.gz"
-WGET_URL="$SF_MIRROR/binclock/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.ngolde.de/download/$TARBALL"
 
 compile_rules() {
-	install -Dm755 binclock.py $install/usr/bin/binclock
+	make || return 1
+
+	install -Dm755 binclock   $install/usr/bin/binclock
+	install -Dm644 binclockrc $install/etc/binclockrc
+	cook_pick_manpages doc/binclock.1
+	cook_pick_docs README CHANGELOG
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="ncurses python"
+	CONFIG_FILES="/etc/binclockrc"
 }
