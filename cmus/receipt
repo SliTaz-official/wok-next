@@ -1,32 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cmus"
-VERSION="v2.5.0"
+VERSION="2.7.1"
 CATEGORY="multimedia"
-SHORT_DESC="Cmus is a small, fast and powerful console music player."
+SHORT_DESC="Small, fast and powerful console music player"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://cmus.sourceforge.net"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WEB_SITE="https://cmus.github.io/"
 
-DEPENDS="ncurses libmad libvorbis alsa-lib flac"
-BUILD_DEPENDS="ncurses-dev libmad-dev libvorbis-dev alsa-lib-dev flac-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/cmus/cmus/archive/v$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure prefix=/usr && 
-	make && make install
+BUILD_DEPENDS="ncurses-dev libcddb-dev libcdio-paranoia-dev flac-dev \
+libmad-dev libmodplug-dev libvorbis-dev opusfile-dev wavpack-dev faad2-dev \
+ffmpeg-dev libcue-dev pulseaudio-dev alsa-lib-dev jack-dev libsamplerate-dev \
+libao-dev"
+SPLIT="$PACKAGE-plugins $PACKAGE"
+
+compile_rules() {
+	# can't use $CONFIGURE_ARGS
+	./configure \
+		prefix=/usr &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	mkdir -p $fs/usr/bin
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin/cmus* $fs/usr/bin
-	cp -a $install/usr/lib/cmus $fs/usr/lib
-	cp -a $install/usr/share/cmus $fs/usr/share
+genpkg_rules() {
+	case $PACKAGE in
+		*-plugins)
+			# cue.so in the main package because bin/cmus depends on libcue too
+			copy aac.so cdio.so modplug.so wavpack.so ao.so jack.so oss.so \
+			pulse.so
+			CAT="multimedia|extra plugins"
+			DEPENDS="cmus faad2 jack libao libcddb libcdio libcdio-paranoia \
+			libmodplug libsamplerate pulseaudio wavpack"
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="alsa-lib flac libcue libmad libvorbis ncurses opusfile"
+			;;
+	esac
 }

@@ -1,26 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dmidecode"
-VERSION="3.1"
+VERSION="3.2"
 CATEGORY="system-tools"
 SHORT_DESC="Desktop Management Interface table related utilities"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.nongnu.org/dmidecode/"
+WEB_SITE="https://www.nongnu.org/dmidecode/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://download.savannah.gnu.org/releases/dmidecode/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/usr/local|/usr|' Makefile
-	make && make DESTDIR=$install install
+
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy sbin/
+genpkg_rules() {
+	copy @std
 }
-

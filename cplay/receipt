@@ -1,44 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cplay"
-VERSION="1.49"
+VERSION="1.50"
 CATEGORY="multimedia"
-SHORT_DESC="Cplay is an ncurses front-end for various audio players."
+SHORT_DESC="Ncurses front-end for various audio players"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-DEPENDS="python ncurses linux-sound"
-BUILD_DEPENDS="python-dev ncurses-dev git bzip2 gettext"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="https://github.com/res0nat0r/cplay"
-WGET_URL="git|git://github.com/res0nat0r/cplay"
+WEB_SITE="https://github.com/hukka/cplay"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
-	make cplayrc
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/hukka/cplay/archive/v$VERSION.tar.gz"
 
-	cook_pick_manpages cplay.1
+BUILD_DEPENDS="gettext"
+
+compile_rules() {
+	make &&
+	make cplayrc &&
+	make install || return 1
+
+	install -Dm644 cplayrc $install/etc/cplayrc
+	install -Dm644 lircrc  $install/usr/share/doc/cplay/examples/lircrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/etc $fs/usr/share/doc/cplay/examples
-	cp -a $src/cplay $fs/usr/bin
-	cp -a $src/cplayrc $fs/etc
-	# Copy locale cplay.mo files
-	for lang in da de hu pl; do
-		mkdir -p $fs/usr/share/locale/$lang/LC_MESSAGES
-		cp -a $src/po/$lang.mo \
-			$fs/usr/share/locale/$lang/LC_MESSAGES/cplay.mo
-	done
-	# Copy remote control files
-	cp -a $src/lircrc $fs/usr/share/doc/cplay/examples
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="python ncurses linux-sound"
 }
 
-post_install()
-{
+post_install() {
 	newline
 	action 'Modprobing snd-pcm-oss for legacy volume controls...'
 	[ "$1" ] || modprobe snd-pcm-oss

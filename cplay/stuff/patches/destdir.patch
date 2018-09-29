@@ -1,0 +1,36 @@
+--- a/Makefile
++++ b/Makefile
+@@ -1,4 +1,4 @@
+-PREFIX = /usr/local
++PREFIX = /usr
+ ENV = PREFIX=$(PREFIX)
+ 
+ SUBDIRS = po
+@@ -6,9 +6,11 @@
+ all: recursive-all
+ 
+ install: recursive-install
+-	install -c -m 755 cplay $(PREFIX)/bin
+-	install -c -m 755 cnq $(PREFIX)/bin
+-	install -c -m 644 cplay.1 $(PREFIX)/man/man1
++	install -d $(DESTDIR)$(PREFIX)/bin
++	install -c -m 755 cplay $(DESTDIR)$(PREFIX)/bin
++	install -c -m 755 cnq $(DESTDIR)$(PREFIX)/bin
++	install -d $(DESTDIR)$(PREFIX)/share/man/man1
++	install -c -m 644 cplay.1 $(DESTDIR)$(PREFIX)/share/man/man1
+ 
+ clean: recursive-clean
+ 
+--- a/po/Makefile
++++ b/po/Makefile
+@@ -8,8 +8,8 @@
+ 
+ install: all
+ 	for i in $(MOFILES); do \
+-		mkdir -p $(PREFIX)/share/locale/$${i%.mo}/LC_MESSAGES; \
+-		install -c -m 644 $$i $(PREFIX)/share/locale/$${i%.mo}/LC_MESSAGES/cplay.mo; \
++		mkdir -p $(DESTDIR)$(PREFIX)/share/locale/$${i%.mo}/LC_MESSAGES; \
++		install -c -m 644 $$i $(DESTDIR)$(PREFIX)/share/locale/$${i%.mo}/LC_MESSAGES/cplay.mo; \
+ 	done
+ 
+ clean:

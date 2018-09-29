@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dar"
-VERSION="2.4.18"
+VERSION="2.5.16"
 CATEGORY="system-tools"
 SHORT_DESC="Disk archive"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,8 +11,8 @@ WEB_SITE="http://dar.linux.free.fr/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="lzo-dev libgcrypt-dev bzip2-dev e2fsprogs-dev attr-dev gettext \
-zlib-dev upx"
+BUILD_DEPENDS="gettext zlib-dev bzip2-dev lzo-dev xz-dev libgpg-error-dev \
+libgcrypt-dev attr-dev e2fsprogs-dev upx gpgme-dev"
 SPLIT="dar-dev"
 
 compile_rules() {
@@ -21,18 +21,21 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		dar)
 			copy @std
-			DEPENDS="gcc-lib-base lzo libgcrypt bzip2 attr"
+			DEPENDS="bzlib gpgme libgcrypt liblzma lzo zlib   upx"
+			CONFIG_FILES="/etc/darrc"
 			TAGS="backup"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="dar attr-dev bzip2-dev gpgme-dev libassuan-dev libcap-dev \
+			libgcrypt-dev libgpg-error-dev lzo-dev xz-dev zlib-dev"
 			;;
 	esac
 }

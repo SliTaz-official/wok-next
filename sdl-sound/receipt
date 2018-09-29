@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl-sound"
+VERSION="1.0.3"
+CATEGORY="multimedia"
+SHORT_DESC="An abstract SDL sound-file decoder"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2.1"
+WEB_SITE="https://icculus.org/SDL_sound/"
+
+TARBALL="SDL_sound-$VERSION.tar.gz"
+WGET_URL="https://icculus.org/SDL_sound/downloads/$TARBALL"
+
+BUILD_DEPENDS="gfortran libsdl-dev libsmpeg-dev libmikmod-dev libmodplug-dev \
+libogg-dev libvorbis-dev flac-dev speex-dev physfs-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		sdl-sound)
+			copy @std
+			DEPENDS="flac libmikmod libmodplug libogg libsdl libvorbis physfs \
+			speex"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

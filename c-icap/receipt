@@ -1,19 +1,18 @@
 # SliTaz package receipt v2.
 
-PACKAGE="c_icap"
-VERSION="0.5.3"
+PACKAGE="c-icap"
+VERSION="0.5.5"
 CATEGORY="network"
 SHORT_DESC="Implementation of an ICAP server"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://c-icap.sourceforge.net/"
-REPOLOGY="c-icap"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="c_icap-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/c-icap/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev zlib-dev bzip2-dev brotli-dev openldap-dev pcre-dev"
-SPLIT="c_icap-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -37,9 +36,10 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		c_icap)
+		c-icap)
 			copy @std var/log/c-icap/
 			DEPENDS="brotli bzlib libldap libpcre openssl zlib"
+			CONFIG_FILES="/etc/c-icap/"
 			;;
 		*-dev)
 			copy @dev
@@ -52,13 +52,13 @@ post_install_c_icap() {
 
 	[ -n "$quiet" ] || cat <<EOF
 
-	.----------------------------------------------.
-	| To start c_icap server you can run:          |
-	|                                              |
-	|    /etc/init.d/c_icap start                  |
-	|                                              |
-	|Or add c_icap to RUN_DAEMONS in /etc/rcS.conf |
-	'----------------------------------------------'
+	.-----------------------------------------------.
+	| To start c-icap server you can run:           |
+	|                                               |
+	|    /etc/init.d/c-icapd start                  |
+	|                                               |
+	|Or add c-icapd to RUN_DAEMONS in /etc/rcS.conf |
+	'-----------------------------------------------'
 EOF
 }
 
