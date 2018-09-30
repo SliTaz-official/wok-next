@@ -1,39 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="adwaita-icon-theme"
-VERSION="3.22.0" # please, synchronize with the gtk+3 version (3.22.x)
+VERSION="3.30.0"
 CATEGORY="customization"
 SHORT_DESC="A collection of icons used at the basis for GNOME themes"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL3 CC-BY-SA-3"
 WEB_SITE="https://github.com/GNOME/adwaita-icon-theme"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/adwaita-icon-theme.html"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/x/adwaita-icon-theme.html
-
+compile_rules() {
 	./configure \
-		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make && make install &&
-
-	# fix icons
-	sed -i 's|-inkscape-font-specification:&apos;Cantarell Bold&apos;;||' \
-		$install/usr/share/icons/Adwaita/scalable/actions/address-book-new-symbolic.svg &&
-	sed -i 's|-inkscape-font-specification:&apos;Bitstream Vera Sans&apos;;||' \
-		$install/usr/share/icons/Adwaita/scalable/actions/call-stop-symbolic.svg &&
-	sed -i '/<<<<<<< HEAD/,/=======/d; />>>>>>>/d' \
-		$install/usr/share/icons/Adwaita/scalable/actions/send-to-symbolic.svg &&
-	sed -i 's|-inkscape-font-specification:&apos;Andale Mono&apos;;||' \
-		$install/usr/share/icons/Adwaita/scalable/places/folder-download-symbolic.svg
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

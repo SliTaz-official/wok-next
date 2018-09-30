@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="aubio"
-VERSION="0.4.6"
+VERSION="0.4.7"
 CATEGORY="multimedia"
 SHORT_DESC="A collection of tools for music analysis"
 MAINTAINER="jozee@slitaz.org"
@@ -12,8 +12,8 @@ TARBALL="aubio-$VERSION.tar.bz2"
 WGET_URL="https://aubio.org/pub/$TARBALL"
 
 BUILD_DEPENDS="python-dev fftw-dev libsndfile-dev libsamplerate-dev jack-dev \
-ffmpeg-dev python-numpy"
-SPLIT="$PACKAGE-dev python-aubio:py"
+ffmpeg-dev python-numpy  python3-dev python3-numpy"
+SPLIT="$PACKAGE-dev python-aubio:py python3-aubio:py3"
 
 COOKOPTS="instant-pack"
 
@@ -34,6 +34,12 @@ compile_rules() {
 
 			python -B setup.py install --root=$install
 			;;
+		py3)
+			# python3-aubio require freshly built aubio-dev
+			tazpkg -gi --quiet --local --cookmode aubio-dev
+
+			python3 -B setup.py install --root=$install
+			;;
 	esac
 }
 
@@ -46,11 +52,17 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="aubio"
 			;;
 		python-aubio)
 			copy @std
 			CAT="python|Python bindings"
 			DEPENDS="aubio python"
+			;;
+		python3-aubio)
+			copy @std
+			CAT="python|Python3 bindings"
+			DEPENDS="aubio python3"
 			;;
 	esac
 }

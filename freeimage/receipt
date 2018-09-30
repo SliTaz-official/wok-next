@@ -1,31 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="freeimage"
-VERSION="3141"
+VERSION="3.18.0"
 CATEGORY="graphics"
 SHORT_DESC="Library to support popular graphics image formats like PNG, BMP, \
 JPEG, TIFF and others"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://freeimage.sourceforge.net/" 
+WEB_SITE="http://freeimage.sourceforge.net/"
 
-TARBALL="FreeImage$VERSION.zip"
-WGET_URL="http://downloads.sourceforge.net/$PACKAGE/$TARBALL"
+TARBALL="FreeImage${VERSION//.}.zip"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-SPLIT="freeimage-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	pkgdir=$DESTDIR
-	incl=$pkgdir/usr/include
-	dest=$pkgdir/usr/lib
-	install -d $dest
-	install -d $incl
-	sed -e "s|INCDIR = /usr/include|INCDIR = $incl|g" -i Makefile.gnu
-	sed -e "s|INSTALLDIR = /usr/lib|INSTALLDIR = $dest|g" -i Makefile.gnu
-	sed -e "s|ldconfig||g" -i Makefile.gnu
-	export CXXFLAGS="-Wno-narrowing"
 	make &&
-	make DESTDIR=$pkgdir install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
