@@ -1,0 +1,66 @@
+# SliTaz package receipt v2.
+
+PACKAGE="thunderbird-langpack"
+VERSION="17.0.11esr"
+CATEGORY="meta"
+SHORT_DESC="Thunderbird language pack"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="https://www.thunderbird.net/en-GB/"
+HOST_ARCH="any"
+REPOLOGY="-"
+
+SPLIT="$PACKAGE-cs $PACKAGE-da $PACKAGE-de $PACKAGE-el $PACKAGE-en_GB \
+$PACKAGE-en_US $PACKAGE-es_AR $PACKAGE-es_ES $PACKAGE-fr $PACKAGE-hu \
+$PACKAGE-id $PACKAGE-it $PACKAGE-pl $PACKAGE-pt_BR $PACKAGE-pt_PT $PACKAGE-ru \
+$PACKAGE-sl $PACKAGE-sv_SE $PACKAGE-zh_CN $PACKAGE-zh_TW"
+COOKOPTS="!strip" # waste of time to search, nothing to strip
+
+compile_rules() {
+	for i in $SPLIT; do
+		lang=${i##*-}
+		Lang=${lang/_/-}
+		TARBALL="$PACKAGE-$lang-$VERSION.zip"
+		WGET_URL="http://ftp.mozilla.org/pub/thunderbird/releases/$VERSION/linux-i686/xpi/$Lang.xpi"
+		[ -e "$SRC/$TARBALL" ] || wget -O $SRC/$TARBALL $WGET_URL
+
+		extdir="$install/usr/lib/thunderbird-$VERSION/extensions/langpack-$Lang@thunderbird.mozilla.org"
+		mkdir -p $extdir
+		unzip -q $SRC/$TARBALL -d $extdir
+
+		find $install -type f -name '.mkdir.done' -delete
+		for i in mac win; do
+			rm -r $extdir/chrome/$Lang/locale/$Lang/global-platform/$i
+		done
+	done
+}
+
+genpkg_rules() {
+	[ "$PACKAGE" == 'thunderbird-langpack' ] && return
+	lang="${PACKAGE##*-}"
+	copy langpack-${lang/_/-}@thunderbird.mozilla.org/
+	case $lang in
+		cs)    desc="Czech";;
+		da)    desc="Danish";;
+		de)    desc="German";;
+		el)    desc="Greek";;
+		en_GB) desc="British English";;
+		en_US) desc="American English";;
+		es_AR) desc="Argentinian Spanish";;
+		es_ES) desc="Spanish";;
+		fr)    desc="French";;
+		hu)    desc="Hungarian";;
+		id)    desc="Indonesian";;
+		it)    desc="Italian";;
+		pl)    desc="Polish";;
+		pt_BR) desc="Brazilian Portuguese";;
+		pt_PT) desc="Portuguese";;
+		ru)    desc="Russian";;
+		sl)    desc="Slovenian";;
+		sv_SE) desc="Swedish";;
+		zh_CN) desc="Simplified Chinese";;
+		zh_TW) desc="Chinese Traditional";;
+	esac
+	CAT="localization|$desc"
+	DEPENDS="thunderbird"
+}

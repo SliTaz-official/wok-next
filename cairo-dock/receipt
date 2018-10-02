@@ -1,21 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cairo-dock"
-VERSION="3.3.2"
+VERSION="3.4.1"
 CATEGORY="x-window"
-SHORT_DESC="Cairo-Dock is a light and eye-candy dock to launch"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Light and eye-candy dock to launch"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://www.glx-dock.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/Cairo-Dock/cairo-dock-core/archive/$VERSION.tar.gz"
+WGET_URL="https://github.com/Cairo-Dock/cairo-dock-core/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="gtk+ cairo librsvg xorg-xcompmgr mesa gtkglext dbus libcurl \
-cmake gtk+-dev cairo-dev librsvg-dev mesa-dev \
-gtkglext-dev dbus-dev dbus-glib-dev curl-dev libcroco wget libxml2-dev \
-xorg-libXtst-dev xorg-libXcomposite-dev glu-dev gettext-tools"
-SPLIT="cairo-dock cairo-dock-dev"
+BUILD_DEPENDS="cmake glib-dev cairo-dev librsvg-dev dbus-dev dbus-glib-dev \
+libxml2-dev mesa-dev glu-dev curl-dev xorg-libXtst-dev xorg-libXcomposite-dev \
+xorg-libXrandr-dev gtk+3-dev gettext"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	mkdir build
@@ -24,22 +23,27 @@ compile_rules() {
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	chmod a+x $install/usr/lib/libgldi.so.$VERSION
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		cairo-dock)
 			copy @std
-			DEPENDS="cairo dbus-glib gdk-pixbuf glib glu gtk+ libcurl librsvg \
-			libxml2 mesa pango" # xorg-xcompmgr gtkglext dbus
+			DEPENDS="cairo dbus-glib gdk-pixbuf glib glu gtk+3 libcurl librsvg \
+			libxml2 mesa pango xorg-libX11 xorg-libXcomposite xorg-libXinerama \
+			xorg-libXrandr xorg-libXrender xorg-libXtst   bash" # xorg-xcompmgr
 			SUGGESTED="cairo-dock-plugins"
 			;;
 		*-dev)
 			copy @dev
 			DEPENDS="cairo-dock \
 			cairo-dev curl-dev dbus-dev dbus-glib-dev glib-dev glu-dev \
-			gtk+-dev librsvg-dev libxml2-dev mesa-dev xorg-libX11-dev"
+			gtk+3-dev librsvg-dev libxml2-dev mesa-dev wayland-dev \
+			xorg-libX11-dev xorg-libXcomposite-dev xorg-libXrandr-dev \
+			xorg-libXrender-dev xorg-libXtst-dev"
 			;;
 	esac
 }

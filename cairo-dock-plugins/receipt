@@ -1,32 +1,61 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cairo-dock-plugins"
-VERSION="3.3.2"
+VERSION="3.4.1"
 CATEGORY="x-window"
-SHORT_DESC="Set of plugins for Cairo-Dock"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Plugins for Cairo-Dock"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://www.glx-dock.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/Cairo-Dock/cairo-dock-plug-ins/archive/$VERSION.tar"
+TARBALL="cairo-dock-plug-ins-$VERSION.tar.gz"
+WGET_URL="https://github.com/Cairo-Dock/cairo-dock-plug-ins/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="wget dbus-glib-dev cairo-dock-dev cmake alsa-lib \
-gtk+-dev cairo-dev librsvg-dev dbus-dev libxml2-dev gtkglext-dev mesa-dev \
-xorg-libXtst-dev xorg-libXcomposite-dev alsa-lib-dev libical-dev glu-dev \
-libdbusmenu-gtk2-dev libindicator-gtk2-dev gnome-menus-dev"
+BUILD_DEPENDS="cmake cairo-dock-dev gettext libdbusmenu-gtk3-dev \
+libindicator-gtk3-dev  upower-dev alsa-lib-dev libical-dev python3 ruby \
+ruby-stdlib mono vala pulseaudio-dev fftw-dev libxklavier-dev libetpan-dev \
+libzeitgeist-dev libexif-dev lm-sensors-dev vte-dev "
+SPLIT="$PACKAGE-python $PACKAGE-python3 $PACKAGE-ruby $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
+	sed -i 's|gmcs|mcs|' CMakeLists.txt
+
 	mkdir build
 	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="dbus-glib cairo-dock"
+	case $PACKAGE in
+		*-python)
+			copy python2*/
+			CAT="python|Python2 bindings"
+			DEPENDS="cairo-dock-plugins python"
+			;;
+		*-python3)
+			copy python3*/
+			CAT="python|Python3 bindings"
+			DEPENDS="cairo-dock-plugins python3"
+			;;
+		*-ruby)
+			copy ruby/
+			CAT="ruby|Ruby bindings"
+			DEPENDS="cairo-dock-plugins ruby"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="cairo-dock-plugins glib-dev"
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="alsa-lib cairo dbus-glib fftw gdk-pixbuf glib gtk+3 \
+			libdbusmenu-gtk3 libetpan libexif libical libindicator-gtk3 \
+			librsvg libxklavier libxml2 libzeitgeist lm-sensors mesa pango \
+			pulseaudio upower vte xorg-libX11 xorg-libXrandr xorg-libXxf86vm"
+			;;
+	esac
 }

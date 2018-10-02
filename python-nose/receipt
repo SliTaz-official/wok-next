@@ -15,7 +15,13 @@ BUILD_DEPENDS="python python3"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION || return 1
+
+	mkdir -p $install/usr/share/
+	mv $install/usr/man/ $install/usr/share/
+	# fix displaying (it just work :-)
+	sed -i '/^\.de/,/\.\./d; /^\.INDENT/d; /^\.UNINDENT/d' \
+		$install/usr/share/man/man1/nosetests.1
 }
 
 genpkg_rules() {
