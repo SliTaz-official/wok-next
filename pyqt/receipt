@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="pyqt"
+VERSION="4.12.1"
+CATEGORY="development"
+SHORT_DESC="PyQt"
+MAINTAINER="allan316@gmail.com"
+LICENSE="GPL"
+WEB_SITE="http://www.riverbankcomputing.com/software/pyqt/intro"
+
+TARBALL="PyQt4_gpl_x11-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/pyqt/$TARBALL"
+
+BUILD_DEPENDS="python-dev sip-dev Qt4-dev qmake"
+
+compile_rules() {
+	yes yes | python configure.py
+	make $MAKEFLAGS &&
+	make DESTDIR=$DESTDIR install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="python libQtDesigner libQtScript libQtCore libQtGui libQtWebkit \
+	libQtXml libQtNetwork libQtSvg libQtSql libQtDBus libQtClucene sip \
+	gcc-lib-base dbus"
+}
