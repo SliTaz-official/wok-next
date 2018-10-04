@@ -1,17 +1,70 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="web-applications"
 VERSION="1.6"
 CATEGORY="network"
-SHORT_DESC="Set of desktop files for Web applications."
+SHORT_DESC="Set of desktop files for Web applications"
 MAINTAINER="pankso@slitaz.org"
-LICENSE="BSD"
+LICENSE="BSD Freeware Microsoft GPL3 WhatsApp-Inc"
 WEB_SITE="http://www.slitaz.org/"
+HOST_ARCH="any"
 REPOLOGY="-"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a stuff/* $fs/usr/share
+SPLIT="web-google-services web-picozu web-skype web-telegram web-tweetdeck \
+web-whatsapp web-applications"
+
+compile_rules() {
+	mkdir -p $install/usr/share/
+	cp -r $stuff/bin/          $install/usr/
+	cp -r $stuff/applications/ $install/usr/share/
+	cp -r $stuff/pixmaps/      $install/usr/share/
+	chmod a+x $install/usr/bin/*
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		web-google-services)
+			copy web-google*
+			SHORT_DESC="Google online services and Google online Office for your desktop"
+			VERSION="0.1"
+			TAGS="cloud google"
+			;;
+		web-picozu)
+			copy web-picozu*
+			SHORT_DESC="Picozu is a online HTML5 image editor"
+			VERSION="0.1"
+			DEPENDS="tazweb"
+			TAGS="cloud editor image picozu"
+			;;
+		web-skype)
+			copy web-skype*
+			SHORT_DESC="Makes it easier to connect with family and friends"
+			VERSION="0.1"
+			DEPENDS="firefox-official"
+			TAGS="cloud skype"
+			;;
+		web-telegram)
+			copy web-telegram*
+			SHORT_DESC="Telegram web for all platforms"
+			VERSION="0.1"
+			TAGS="cloud telegram"
+			;;
+		web-tweetdeck)
+			copy web-tweetdeck*
+			SHORT_DESC="A social media dashboard application for management of Twitter accounts"
+			VERSION="0.1a"
+			DEPENDS="tazweb"
+			TAGS="social twitter tweetdeck"
+			;;
+		web-whatsapp)
+			copy web-whatsapp*
+			SHORT_DESC="Send and receive WhatsApp messages right from your computer"
+			VERSION="0.1"
+			DEPENDS="firefox-official"
+			TAGS="cloud whatsapp"
+			;;
+		web-applications)
+			copy @std @rm
+			;;
+	esac
 }

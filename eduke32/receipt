@@ -1,33 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="eduke32"
-VERSION="20110319-1850"
+VERSION="20181002-6989"
 CATEGORY="games"
 SHORT_DESC="A port of the classic first-person shooter, Duke Nukem 3D"
-MAINTAINER="mallory@sweetpeople.org"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://eduke32.com/"
 
-TARBALL="${PACKAGE}_src_${VERSION}.tar.bz2"
-WEB_SITE="http://www.eduke32.com/"
-WGET_URL="http://dukeworld.duke4.net/$PACKAGE/synthesis/$VERSION/$TARBALL"
-TAGS="shooting"
+TARBALL="eduke32_src_$VERSION.tar.xz"
+WGET_URL="https://dukeworld.com/eduke32/synthesis/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libsdl-dev libsdl-mixer-dev libvorbis-dev gtk+-dev nasm \
-mesa-dev glu-dev gcc49"
+BUILD_DEPENDS="libsdl2-dev glu-dev mesa-dev libsdl2-mixer-dev libvpx-dev \
+libvorbis-dev flac-dev fluidsynth-dev"
+BUILD_DEPENDS_i486="$BUILD_DEPENDS nasm"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	case $ARCH in
-		x86_64) Arch='nocona';;
-		*)      Arch="$ARCH";;
-	esac
-
-	make \
-		CC=gcc-49 \
-		CXX=g++-49 \
-		CFLAGS="-march=$Arch -Os -pipe" \
-		$MAKEFLAGS || return 1
+compile_rules() {
+	make $MAKEFLAGS || return 1
 
 	install -Dm755 eduke32   $install/usr/bin/eduke32
 	install -Dm755 mapster32 $install/usr/bin/mapster32
@@ -35,5 +24,7 @@ compile_rules()
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="libsdl libsdl-mixer libvorbis gtk+ eduke32-data"
+	DEPENDS="flac libsdl2 libsdl2-mixer libvorbis libvpx"
+	SUGGESTED="eduke32-shareware-data fluidsynth"
+	TAGS="shooting"
 }

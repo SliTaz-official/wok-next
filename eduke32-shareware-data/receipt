@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="eduke32-shareware-data"
+VERSION="1.3d"
+CATEGORY="games"
+SHORT_DESC="Duke Nukem 3D shareware episode for EDuke32"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="shareware"
+WEB_SITE="https://3drealms.com/catalog/duke-nukem-3d_27/"
+HOST_ARCH="any"
+
+TARBALL="3dduke13.zip"
+WGET_URL="ftp://ftp.3drealms.com/share/$TARBALL"
+
+compile_rules() {
+	rm LICENSE.TXT # or unzip will ask interactively to replace it
+	unzip "DN3DSW13.SHR"
+
+	# convert to lowercase
+	for i in $(find . -type f); do
+		mv $i $(echo $i | tr '[:upper:]' '[:lower:]')
+	done
+
+	dos2unix ultramid.ini
+
+	mv readme.doc readme.txt
+	cook_pick_docs readme.txt
+
+	mkdir -p  $install/usr/share/games/eduke32/
+	cp *.con *.dmo license.txt duke.rts duke3d.grp modem.pck ultramid.ini \
+		$install/usr/share/games/eduke32/
+}
+
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="eduke32"
+}
