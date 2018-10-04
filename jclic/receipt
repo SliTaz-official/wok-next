@@ -1,33 +1,47 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jclic"
-VERSION="0.2.1.0"
+VERSION="0.3.2.9"
 CATEGORY="games"
 SHORT_DESC="A platform for multimedia educational activities"
-MAINTAINER="claudinei@slitaz.org"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="https://github.com/projectestac/jclic"
+# https://clic.xtec.cat/legacy/en/index.html
+HOST_ARCH="any"
+
 TARBALL="$PACKAGE-$VERSION.zip"
-WEB_SITE="https://clic.xtec.cat/legacy/en/index.html"
-WGET_URL="http://clic.xtec.cat/dist/jclic/$TARBALL"
-TAGS="java multimedia education"
+WGET_URL="https://github.com/projectestac/jclic/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="java-jre"
+BUILD_DEPENDS="advancecomp"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	rm -rf icons
+compile_rules() {
+	# icons
+	mkdir -p \
+		$install/usr/share/icons/hicolor/48x48/apps/ \
+		$install/usr/share/icons/hicolor/scalable/apps/
+	cp icons/author.png icons/jclic.png icons/reports.png \
+		$install/usr/share/icons/hicolor/48x48/apps/
+	cp icons/author.svg icons/jclic.svg icons/reports.svg \
+		$install/usr/share/icons/hicolor/scalable/apps/
+
+	# menus
+	mkdir -p $install/usr/share/applications/
+	cp $stuff/*.desktop $install/usr/share/applications/
+
+	# java applets
+	mkdir -p $install/usr/lib/jclic/
+	cp *.jar *.js $install/usr/lib/jclic/
+
+	# docs
+	cook_pick_docs *.md *.txt
+
+	title "Recompressing jars"
+	advzip -zk3 $install/usr/lib/jclic/*.jar
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib/jclic $fs/usr/share/pixmaps $fs/usr/share/applications
-	cp -a $src/* $fs/usr/lib/jclic
-	cp $stuff/jclicauthor.desktop $fs/usr/share/applications
-	cp $stuff/jclicreports.desktop $fs/usr/share/applications
-	cp $stuff/author.png $fs/usr/share/pixmaps
-	cp $stuff/reports.png $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="java-jre"
+	TAGS="java multimedia education"
 }
-

@@ -1,20 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="acme"
-VERSION="0.91"
+VERSION="0.96.1"
+COMMIT="6f42edb" # 2017-03-29
 CATEGORY="development"
 SHORT_DESC="A Crossassembler for Multiple Environments (6502, 65c02 and 65816)"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://www.esw-heim.tu-clausthal.de/~marco/smorbrod/acme"
+WEB_SITE="https://github.com/meonwax/acme"
 
-TARBALL="$PACKAGE${VERSION/./}src.tar.bz2"
-WGET_URL="$WEB_SITE/current/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/meonwax/acme/archive/$COMMIT.tar.gz"
 
 compile_rules() {
 	cd $src/src
-	make &&
-	install -Dm755 $src/src/acme $install/usr/bin/acme
+	make || return 1
+
+	install -Dm755 acme $install/usr/bin/acme
+
+	cook_pick_docs $src/README.md $src/docs/
 }
 
 genpkg_rules() {
