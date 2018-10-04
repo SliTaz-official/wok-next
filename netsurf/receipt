@@ -1,73 +1,62 @@
 # SliTaz package receipt v2.
 
 PACKAGE="netsurf"
-COMMIT=""
-VERSION="3.7"
+VERSION="3.8"
 CATEGORY="network"
 SHORT_DESC="Lightweight and fast web browser"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.netsurf-browser.org/"
 
-TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.bz2"
-BASE_URL="http://source.netsurf-browser.org/$PACKAGE.git/snapshot"
-if [ -n "$COMMIT" ]; then
-	WGET_URL="$BASE_URL/$PACKAGE-$COMMIT.tar.bz2"
-else
-	WGET_URL="$BASE_URL/release/$VERSION.tar.bz2"
-fi
+TARBALL="$PACKAGE-all-$VERSION.tar.gz"
+WGET_URL="http://download.netsurf-browser.org/netsurf/releases/source-full/$TARBALL"
 
-BUILD_DEPENDS="libjpeg-turbo-dev libharu-dev duktape-dev libcss-dev libdom-dev \
-libnsutils-dev libutf8proc-dev curl-dev openssl-dev libpng16-dev libnsbmp-dev \
-libnsgif-dev libsvgtiny-dev libnspsl-dev libnslog-dev gstreamer0-dev gtk+-dev \
-check-dev perl-html-parser nsgenbind" # librsvg-dev
+BUILD_DEPENDS="bison flex perl expat-dev gperf libjpeg-turbo-dev curl-dev \
+openssl-dev libpng16-dev librsvg-dev gtk+-dev check-dev perl-html-parser"
+# libharu-dev gstreamer0-dev
 
 compile_rules() {
-	[ -z "$COMMIT" ] && cd $VERSION
+	cat > netsurf/Makefile.config <<EOT
+# Enable NetSurf's use of gstreamer for displaying videos.
+# Currently disabled: not maintained and produce build errors.
+# override NETSURF_USE_VIDEO := YES
 
-	# Enable NetSurf's use of gstreamer for displaying videos
-#	echo 'override NETSURF_USE_VIDEO := YES' > Makefile.config
-	# Enable NetSurf's use of libharu for PDF export and GTK printing support.
-#	echo 'override NETSURF_USE_HARU_PDF := YES' >> Makefile.config
-	# Template used for constructing the User Agent: string.
-	# 1,2: major & minor version numbers; 3 `uname -s`; 4 `uname -m`
-	echo 'override NETSURF_UA_FORMAT_STRING := "NetSurf/%d.%d (SliTaz GNU/%s %s)"' >> Makefile.config
-	# Default home page, if one is not defined by the user.
-	echo 'override NETSURF_HOMEPAGE := "file:///usr/share/webhome/index.html"' >> Makefile.config
+# Enable NetSurf's use of libharu for PDF export and GTK printing support.
+# Currently disabled: not maintained and produce build errors.
+# override NETSURF_USE_HARU_PDF := YES
 
+# Default home page, if one is not defined by the user.
+override NETSURF_HOMEPAGE := "file:///usr/share/webhome/index.html"
+EOT
 
-	# fix installing
-	sed -i '/install \$(EXETARGET)/ s|^|#|' frontends/gtk/Makefile
+	sed -i 's|-Werror||' libsvgtiny/Makefile
 
 	make \
 		PREFIX=/usr \
-		LIBDIR=lib \
-		INCLUDEDIR=include \
 		TARGET=gtk \
-		NETSURF_GTK_MAJOR=2 \
 		install || return 1
-	# FIXME: it is job for `make`
-	cp -af nsgtk $install/usr/bin/netsurf-gtk
 
 	# desktop shortcut
-	mkdir -p $install/usr/share/applications
-	sed 's|netsurf.png|netsurf|' \
-		< frontends/gtk/res/netsurf-gtk.desktop \
-		> $install/usr/share/applications/netsurf-gtk.desktop
-	# desktop icons
-	mkdir -p $install/usr/share/icons
-	cp -r $stuff/hicolor $install/usr/share/icons
+	mkdir -p $install/usr/share/applications/
+	sed 's|netsurf.png|netsurf|; s|netsurf-gtk|netsurf|' \
+		< netsurf/frontends/gtk/res/netsurf-gtk.desktop \
+		> $install/usr/share/applications/netsurf.desktop
 
-	chown -R root:root $install
+	# desktop icons
+	mkdir -p $install/usr/share/icons/
+	cp -r $stuff/hicolor/ $install/usr/share/icons/
+
+	# wrapper
+	install -Dm755 $stuff/netsurf $install/usr/bin/netsurf
+
+	chown -R root:root $install # fix 107:nogroop somewhere
 }
 
 genpkg_rules() {
 	copy @std
 	# Remove files to save some space
 	rm -rf $fs/usr/share/netsurf/*.xpm
-	DEPENDS="atk cairo expat fontconfig freetype gdk-pixbuf glib gstreamer0 \
-	gtk+ openssl libcss libcurl libdom libhubbub libjpeg-turbo libnsbmp \
-	libnsgif libnslog libnspsl libnsutils libparserutils libpng16 \
-	libsvgtiny libutf8proc libwapcaplet libxml2 pango zlib"
-	TAGS="web-browser netsurf"
+	DEPENDS="cairo expat gdk-pixbuf glib gtk+ libcurl libjpeg-turbo libpng16 \
+	librsvg openssl pango zlib"
+	TAGS="web-browser"
 }
