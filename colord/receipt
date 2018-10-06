@@ -1,19 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="colord"
-VERSION="1.2.12"
+VERSION="1.4.3"
 CATEGORY="utilities"
 SHORT_DESC="System activated daemon that maps devices to color profiles"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL2"
+LICENSE="LGPL2.1"
 WEB_SITE="https://www.freedesktop.org/software/colord/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/colord.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/colord.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.freedesktop.org/software/colord/releases/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gobject-introspection-dev gtk-doc intltool libxslt \
-libgusb-dev lcms2-dev sqlite3-dev libgudev-dev polkit-dev dbus-dev vala"
+BUILD_DEPENDS="meson ninja glib-dev lcms2-dev sqlite3-dev libgusb-dev \
+libgudev-dev vala polkit-dev gobject-introspection-dev gettext docbook-utils \
+libxml2-tools gtk-doc dbus-dev"
 SPLIT="colord-dev"
 
 compile_rules() {
@@ -23,18 +24,23 @@ compile_rules() {
 			-G colord -s /bin/false -D colord
 	fi
 
-	./configure \
-		--with-daemon-user=colord \
-		--enable-vala \
-		--enable-systemd-login=no \
-		--disable-argyllcms-sensor \
-		--disable-bash-completion \
-		--disable-static \
-		--with-systemdsystemunitdir=no \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	fix utf-8; export LC_ALL=en_US.UTF-8
+
+	mkdir build
+	cd    build
+
+	meson-wrapper \
+		-Ddaemon_user="colord" \
+		-Dvapi=true \
+		-Dsystemd=false \
+		-Dargyllcms_sensor=false \
+		-Dbash_completion=false \
+		&&
+	ninja &&
+	ninja install
+
+	# > ignoring invalid country code: fur
+	# https://bugs.freedesktop.org/show_bug.cgi?id=106288 : unresolved
 }
 
 genpkg_rules() {

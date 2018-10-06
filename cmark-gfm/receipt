@@ -1,8 +1,7 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cmark-gfm"
-VERSION="0.27.1.76"
-COMMIT="a81db63"
+VERSION="0.28.3.gfm.17"
 CATEGORY="text"
 SHORT_DESC="Github fork of CommonMark parsing and rendering program in C"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,22 +9,28 @@ LICENSE="BSD"
 WEB_SITE="https://github.com/github/cmark"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$GITHUB/github/cmark/tarball/${COMMIT:-$VERSION}"
+WGET_URL="https://github.com/github/cmark/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="cmake python3"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build; cd build
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
 	make &&
 	make test &&
-	make install
+	make install || return 1
+
+	cd $src
+	cook_pick_docs README.md benchmarks.md changelog.txt why-cmark-and-not-x.md
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	copy cmark-gfm
+genpkg_rules() {
+	case $PACKAGE in
+		*-dev) copy @dev;;
+		*)     copy @std;;
+	esac
 }
