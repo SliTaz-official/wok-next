@@ -1,32 +1,37 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsde-utils-x11"
-BRANCH="461fb9326645f245734041068332e14b22d500cd"
-VERSION=${BRANCH:0:7}
+VERSION="git20161207" # no releases there
+COMMIT="46bed17"
 CATEGORY="development"
 SHORT_DESC="SDE X11 Utility Library"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL"
-WEB_SITE="http://make-linux.org/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://make-linux.org/sde/libsde-utils-x11.git"
+LICENSE="MIT"
+WEB_SITE="https://github.com/sde-gui/libsde-utils-x11"
 
-DEPENDS="libsde-utils xorg-libX11"
-BUILD_DEPENDS="git cmake xorg-dev libsde-utils"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/libsde-utils-x11/archive/$COMMIT.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	rm -rf $src/.git
-	cmake -DCMAKE_INSTALL_PREFIX=/usr . &&
+BUILD_DEPENDS="automake libtool libsde-utils-dev xorg-libX11-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	# cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/* $fs
+genpkg_rules() {
+	case $PACKAGE in
+		libsde-utils-x11)
+			copy @std
+			DEPENDS="glib libsde-utils xorg-libX11"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsde-utils-x11 xorg-libX11-dev"
+			;;
+	esac
 }

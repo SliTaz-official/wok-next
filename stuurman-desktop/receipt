@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="stuurman-desktop"
+VERSION="git20170112" # no releases there
+COMMIT="ddc04c9"
+CATEGORY="x-window"
+SHORT_DESC="Stuurman Desktop Manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/sde-gui/stuurman-desktop"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/stuurman-desktop/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="automake libtool gettext glib-dev intltool xorg-libX11-dev \
+libsde-utils-x11-dev pango-dev shared-mime-info libsmfm-core-dev gtk+-dev \
+libsmfm-gtk-dev"
+
+compile_rules() {
+	# hardcoded to use automake-1.11 ... 1.15, but we have automake-1.16 only
+	sed -i 's|1\.15|1.16|' autogen.sh
+
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="cairo gdk-pixbuf glib gtk+ libsde-utils-x11 libsmfm-core \
+	libsmfm-gtk pango xorg-libX11"
+}

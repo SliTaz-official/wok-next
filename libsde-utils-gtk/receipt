@@ -1,34 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsde-utils-gtk"
-VERSION="3c571f0"
+VERSION="git20161208" # no releases there
+COMMIT="d2dea90"
 CATEGORY="development"
 SHORT_DESC="SDE GTK Utility Library"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL"
-WEB_SITE="http://make-linux.org/"
-REPOLOGY="libsde-utils-gtk2"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/sde-gui/libsde-utils-gtk"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://git.make-linux.org/sde/$PACKAGE.git/snapshot/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/libsde-utils-gtk/archive/$COMMIT.tar.gz"
 
-DEPENDS="gtk+ libsde-utils"
-BUILD_DEPENDS="cmake gtk+-dev gdk-pixbuf-dev libsde-utils"
+BUILD_DEPENDS="automake libtool glib-dev gtk+-dev gdk-pixbuf-dev \
+libsde-utils-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	rm -rf $src/.git
-	cmake -DCMAKE_INSTALL_PREFIX=/usr . &&
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	# cp -a $install/usr/lib/*.so* $fs/usr/lib
-	# cp -a $install/usr/share $fs/usr
-	cp -a $install/* $fs
+genpkg_rules() {
+	case $PACKAGE in
+		libsde-utils-gtk)
+			copy @std
+			DEPENDS="gdk-pixbuf glib gtk+ libsde-utils pango"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsde-utils-gtk glib-dev"
+			;;
+	esac
 }

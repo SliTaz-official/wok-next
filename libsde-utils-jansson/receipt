@@ -1,34 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libsde-utils-jansson"
-BRANCH="55463cbbfd2e10d19cb0561684bc8036070dae75"
-VERSION=${BRANCH:0:7}
+VERSION="git20161208" # no releases there
+COMMIT="2389d86"
 CATEGORY="development"
 SHORT_DESC="SDE Jansson Utility Library"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL"
-WEB_SITE="http://make-linux.org/"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://make-linux.org/sde/libsde-utils-jansson.git"
+LICENSE="MIT"
+WEB_SITE="https://github.com/sde-gui/libsde-utils-jansson"
 
-DEPENDS="jansson libsde-utils-gtk"
-BUILD_DEPENDS="git cmake gtk+-dev glib-dev jansson-dev \
-libsde-utils libsde-utils-gtk"
-#libsde-utils-dev libsde-utils-gtk-dev"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/libsde-utils-jansson/archive/$COMMIT.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	rm -rf $src/.git
-	cmake -DCMAKE_INSTALL_PREFIX=/usr . &&
+BUILD_DEPENDS="automake libtool glib-dev gtk+-dev jansson-dev libsde-utils-dev \
+libsde-utils-gtk-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	# cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/* $fs
+genpkg_rules() {
+	case $PACKAGE in
+		libsde-utils-jansson)
+			copy @std
+			DEPENDS="glib gtk+ jansson libsde-utils-gtk"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsde-utils-jansson   jansson-dev"
+			;;
+	esac
 }

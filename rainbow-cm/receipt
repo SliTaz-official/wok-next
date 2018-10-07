@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="rainbow-cm"
+VERSION="git20161213" # no releases there
+COMMIT="6a163d7"
+CATEGORY="x-window"
+SHORT_DESC="Rainbow Clipboard Manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL3"
+WEB_SITE="https://github.com/sde-gui/rainbow-cm"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/rainbow-cm/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="automake gettext intltool gtk+-dev"
+
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib gtk+ pango xorg-libX11"
+}

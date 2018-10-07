@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="stuurman"
+VERSION="git20170112" # latest release 1.1.0 @ 2012-10-31
+COMMIT="7cbd80e"
+CATEGORY="x-window"
+SHORT_DESC="Stuurman File Manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/sde-gui/stuurman"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/stuurman/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="automake libtool gettext glib-dev intltool xorg-libX11-dev \
+pango-dev shared-mime-info libsmfm-core-dev gtk+-dev libsmfm-gtk-dev"
+
+compile_rules() {
+	# hardcoded to use automake-1.11 ... 1.15, but we have automake-1.16 only
+	sed -i 's|1\.15|1.16|' autogen.sh
+
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glib gtk+ libsmfm-core libsmfm-gtk"
+}

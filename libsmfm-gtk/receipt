@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libsmfm-gtk"
+VERSION="git20170110" # no releases there
+COMMIT="52cbf70"
+CATEGORY="development"
+SHORT_DESC="File manager development library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/sde-gui/libsmfm-gtk"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/libsmfm-gtk/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="automake gtk-doc libtool gettext shared-mime-info \
+libsmfm-core-dev intltool pango-dev gtk+-dev menu-cache-dev"
+SPLIT="$PACKAGE-dev"
+
+# WARNING: custom actions support isn't ready yet (as for git20170110 version)
+
+compile_rules() {
+	# hardcoded to use automake-1.11 ... 1.15, but we have automake-1.16 only
+	sed -i 's|1\.15|1.16|' autogen.sh
+
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	rmdir --parents --ignore-fail-on-non-empty $install/usr/include/libsmfm-gtk/
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libsmfm-gtk)
+			copy @std
+			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libsmfm-core menu-cache \
+			pango"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsmfm-gtk glib-dev gtk+-dev libsmfm-core-dev"
+			;;
+	esac
+}

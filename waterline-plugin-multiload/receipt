@@ -1,35 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="waterline-plugin-multiload"
-VERSION="f8b592a"
+VERSION="git20161201" # no releases there
+COMMIT="24ccfd0"
 CATEGORY="x-window"
-SHORT_DESC="multiload-nandhp is a port of the GNOME multiload applet to SDE waterline panel"
+SHORT_DESC="Port of the GNOME multiload applet to SDE waterline panel"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-WEB_SITE="http://git.make-linux.org/sde/waterline-plugin-multiload"
+WEB_SITE="https://github.com/sde-gui/waterline-plugin-multiload"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://git.make-linux.org/sde/$PACKAGE.git/snapshot/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/waterline-plugin-multiload/archive/$COMMIT.tar.gz"
 
-BUILD_DEPENDS="automake libtool intltool gtk+-dev jansson-dev libsde-utils \
-libsde-utils-x11 libsde-utils-jansson libsde-utils-gtk \
-xorg-libXcomposite-dev menu-cache-dev alsa-lib-dev xz \
-libgtop-dev lxpanel-dev waterline-dev xorg-dev intltool gettext"
-SPLIT="waterline-plugin-multiload lxpanel-plugin-multiload"
+BUILD_DEPENDS="automake glib-dev gtk+-dev libtool intltool libgtop-dev \
+waterline-dev libsde-utils-jansson-dev" # lxpanel-dev
+# SPLIT="lxpanel-plugin-multiload"
+# WARNING: not compatible with LXPanel now
+
+COOKOPTS="skip-log-errors"
 
 compile_rules() {
-	rm -rf $src/.git
-	./autogen.sh || return 1
-	sed 's#ls $srcdir/po/\*.po #& 2>/dev/null#' -i configure
-	./configure \
-		--libexec=/usr/lib \
-		--disable-static \
-		--disable-maintainer-mode \
-		--enable-silent-rules \
-		--with-waterline \
-		--with-lxpanel \
-		--without-xfce4 \
-		$CONFIGURE_ARGS &&
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -39,11 +31,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		waterline-plugin-multiload)
 			copy waterline/plugins/*.so
-			DEPENDS="waterline libgtop"
+			DEPENDS="cairo glib gtk+ libgtop libsde-utils-jansson   waterline"
 			;;
 		lxpanel-plugin-multiload)
 			copy lxpanel/plugins/*.so
-			DEPENDS="lxpanel libgtop"
+			DEPENDS="cairo glib gtk+ libgtop libsde-utils-jansson   lxpanel"
 			;;
 	esac
 	TAGS="desktop panel"

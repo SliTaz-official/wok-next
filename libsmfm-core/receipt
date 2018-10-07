@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libsmfm-core"
+VERSION="git20170118" # no releases there
+COMMIT="1ec94e4"
+CATEGORY="development"
+SHORT_DESC="File manager development core library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/sde-gui/libsmfm-core"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/sde-gui/libsmfm-core/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="automake gtk-doc libtool gettext glib-dev intltool pango-dev \
+menu-cache-dev   libexif-dev"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	# hardcoded to use automake-1.11 ... 1.15, but we have automake-1.16 only
+	sed -i 's|1\.15|1.16|' autogen.sh
+
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libsmfm-core)
+			copy @std
+			DEPENDS="glib libexif menu-cache"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="libsmfm-core glib-dev"
+			;;
+	esac
+}
