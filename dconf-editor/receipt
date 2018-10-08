@@ -1,30 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dconf-editor"
-VERSION="3.22.3"
+VERSION="3.30.2"
 CATEGORY="system-tools"
 SHORT_DESC="A low-level configuration system (graphical editor)"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://wiki.gnome.org/Projects/dconf"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/dconf.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/dconf.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="vala glib-dev gtk+3-dev dconf-dev gettext intltool"
+BUILD_DEPENDS="meson ninja vala libxml2-tools dconf-dev gtk3-dev gettext"
 
 compile_rules() {
-	# sdft can't process keywords
-	sed -i '/_Keywords=/d' editor/ca.desrt.dconf-editor.desktop.in.in
+	mkdir build
+	cd    build
 
-	./configure $CONFIGURE_ARGS &&
-	make &&
-	make install
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
 	copy @std @ico # only 16 and 48 icons
-	rm -r $fs/usr/share/appdata
-	DEPENDS="atk cairo dconf gdk-pixbuf glib gtk+3 pango   dbus"
+	DEPENDS="dconf glib gtk3   dbus"
 }

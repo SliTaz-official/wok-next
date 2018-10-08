@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cpu-g"
 VERSION="0.9.0"
@@ -6,31 +6,27 @@ CATEGORY="utilities"
 SHORT_DESC="Shows useful information about your hardware"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://cpug.sourceforge.net/"
+WEB_SITE="https://sourceforge.net/projects/cpug/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/cpug/$TARBALL"
 
-DEPENDS="python-pygtk"
+compile_rules() {
+	sed -i 's|data/logos/|/usr/share/cpu-g/logos/|'         cpu-g
+	sed -i 's|cpu-g.glade|/usr/share/cpu-g/cpu-g.glade|'    cpu-g
+	sed -i 's|data/cpu-g.png|/usr/share/pixmaps/cpu-g.png|' cpu-g.glade
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cook_pick_manpages doc/*
+	install -Dm755 cpu-g          $install/usr/bin/cpu-g
+	install -Dm644 cpu-g.glade    $install/usr/share/cpu-g/cpu-g.glade
+	install -Dm644 data/cpu-g.png $install/usr/share/pixmaps/cpu-g.png
+	mkdir -p          $install/usr/share/cpu-g/
+	cp -r data/logos/ $install/usr/share/cpu-g/
+
+	cook_pick_manpages doc/cpu-g.1
+	cook_pick_docs README
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	sed -i 's|data/logos/|/usr/share/cpu-g/logos/|' $src/cpu-g
-	sed -i 's|cpu-g.glade|/usr/share/cpu-g/cpu-g.glade|' $src/cpu-g
-	sed -i 's|data/cpu-g.png|/usr/share/pixmaps/cpu-g.png|' $src/cpu-g.glade
-	mkdir -p \
-		$fs/usr/bin \
-		$fs/usr/share/applications \
-		$fs/usr/share/cpu-g \
-		$fs/usr/share/pixmaps
-	cp -a $src/cpu-g $fs/usr/bin
-	cp -a $src/cpu-g.glade $fs/usr/share/cpu-g
-	cp -a $src/data/logos $fs/usr/share/cpu-g
-	cp -a $src/data/cpu-g.png $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="python-pygtk"
 }
