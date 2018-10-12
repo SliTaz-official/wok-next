@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fuse3"
-VERSION="3.2.4"
+VERSION="3.2.6"
 CATEGORY="system-tools"
 SHORT_DESC="FUSE Filsystem in Userspace"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/libfuse/libfuse"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/postlfs/fuse.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/fuse.html"
 REPOLOGY="fuse"
 
 TARBALL="fuse-$VERSION.tar.xz"
@@ -20,9 +20,10 @@ compile_rules() {
 	mkdir build
 	cd    build
 
-	# -Db_lto: see https://github.com/libfuse/libfuse/issues/198
-	meson-wrapper \
-		-Db_lto=false \
+	meson \
+		--prefix=/usr \
+		--sbindir=bin \
+		--libdir=lib \
 		.. &&
 	ninja &&
 	ninja install || return 1

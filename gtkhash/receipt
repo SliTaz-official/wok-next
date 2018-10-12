@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gtkhash"
-VERSION="1.1"
+VERSION="1.1.1"
 CATEGORY="utilities"
 SHORT_DESC="A GTK+ utility for computing message digests or checksums"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,19 +11,18 @@ WEB_SITE="https://github.com/tristanheaven/gtkhash"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/releases/download/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="gettext intltool automake libtool gtk+3-dev libb2-dev mhash-dev \
-caja-dev"
-SPLIT="gtkhash-caja gtkhash"
+BUILD_DEPENDS="gettext intltool automake libtool gtk3-dev libb2-dev mhash-dev \
+caja-dev libgcrypt-dev openssl-dev"
+SPLIT="$PACKAGE-caja $PACKAGE"
 
 compile_rules() {
 	# --enable-nautilus --enable-nemo --enable-thunar
-	# --enable-libcrypto : openssl-dev >= 1.1
 	# --enable-mbedtls   :
-	# --enable-gcrypt    : libgcrypt-dev
 	# --enable-nettle    : nettle-dev
 
 	./autogen.sh &&
 	./configure \
+		--enable-libcrypto \
 		--enable-blake2 \
 		--enable-linux-crypto \
 		--enable-mhash \
@@ -38,12 +37,13 @@ genpkg_rules() {
 	case $PACKAGE in
 		*-caja)
 			copy libgtkhash-properties-caja.so
-			DEPENDS="gtkhash caja"
+			DEPENDS="gtkhash \
+			caja glib gtk3 libb2 libgcrypt mhash openssl zlib"
 			CAT="utilities|plugin for Caja"
 			;;
 		gtkhash)
 			copy @std @rm *.mo
-			DEPENDS="glib gtk+3 libb2 mhash zlib"
+			DEPENDS="glib gtk3 libb2 libgcrypt mhash openssl zlib"
 			;;
 	esac
 }

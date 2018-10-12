@@ -1,20 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ubuntu-font-family"
-VERSION="0.80"
+VERSION="0.83"
 CATEGORY="fonts"
-SHORT_DESC="Set of new libre/open fonts"
+SHORT_DESC="Ubuntu font family"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="other"
-WEB_SITE="http://font.ubuntu.com/"
+WEB_SITE="https://design.ubuntu.com/font/"
+HOST_ARCH="any"
 REPOLOGY="fonts:ubuntu"
 
 TARBALL="$PACKAGE-$VERSION.zip"
-WGET_URL="$WEB_SITE/download/$TARBALL"
+WGET_URL="https://assets.ubuntu.com/v1/fad7939b-$TARBALL"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/fonts/truetype/ubuntu
-	cp $src/* $fs/usr/share/fonts/truetype/ubuntu
+compile_rules() {
+	mkdir -p $install/usr/share/fonts/truetype/ubuntu/
+	cp *.ttf LICENCE.txt $install/usr/share/fonts/truetype/ubuntu/
+
+	cook_pick_docs *.txt
+}
+
+genpkg_rules() {
+	copy @std
 }

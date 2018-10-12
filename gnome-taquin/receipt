@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnome-taquin"
-VERSION="3.28.0"
+VERSION="3.30.0"
 CATEGORY="games"
 SHORT_DESC="Move tiles so that they reach their places"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,9 +11,9 @@ WEB_SITE="https://wiki.gnome.org/Apps/Taquin"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="vala glib-dev gtk+3-dev librsvg-dev libcanberra-dev intltool \
+BUILD_DEPENDS="vala glib-dev gtk3-dev librsvg-dev libcanberra-dev intltool \
 itstool"
-SPLIT="gnome-taquin-cats gnome-taquin"
+SPLIT="$PACKAGE-cats $PACKAGE"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -22,8 +22,8 @@ compile_rules() {
 
 	fix symlinks
 
-	# cats theme moved to a separate package due to a big size,
-	# make remaining numbers theme the default one
+	# 'cats' theme moved to a separate package due to a big size,
+	# make remaining 'numbers' theme the default one
 	sed -i "s|<default>'cats'|<default>'numbers'|" \
 		$install/usr/share/glib-2.0/schemas/org.gnome.taquin.gschema.xml
 }
@@ -37,7 +37,7 @@ genpkg_rules() {
 			;;
 		gnome-taquin)
 			copy @std @rm
-			DEPENDS="cairo gdk-pixbuf glib gtk+3 libcanberra-gtk3"
+			DEPENDS="cairo gdk-pixbuf glib gtk3 libcanberra-gtk3"
 			;;
 	esac
 }

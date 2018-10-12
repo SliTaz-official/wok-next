@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glade"
-VERSION="3.20.1"
+VERSION="3.22.1"
 CATEGORY="development"
 SHORT_DESC="A user interface designer for GTK+3"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,18 +11,18 @@ WEB_SITE="https://glade.gnome.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev intltool gtk-doc gtk+3-dev python-pygobject-dev python-dev \
-itstool"
-SPLIT="glade-python glade glade-dev"
+BUILD_DEPENDS="glib-dev intltool gtk-doc gtk3-dev python-pygobject-dev \
+python-dev itstool"
+SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	# sdft can't work with keywords
-	sed -i '/_Keywords=/d' data/glade.desktop.in.in
+#	# sdft can't work with keywords
+#	sed -i '/_Keywords=/d' data/glade.desktop.in.in
 
 	# introspection produces error
 	./configure \
-		--disable-introspection \
 		--enable-gladeui \
+		--disable-introspection \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -38,12 +38,12 @@ genpkg_rules() {
 			;;
 		glade)
 			copy @std @rm
-			DEPENDS="cairo gdk-pixbuf glib gtk+3 libxml2 pango"
+			DEPENDS="cairo gdk-pixbuf glib gtk3 libxml2 pango"
 			;;
 		*-dev)
 			copy @dev
 			DEPENDS="glade glade-python \
-			gtk+3-dev libxml2-dev"
+			gtk3-dev libxml2-dev"
 			;;
 	esac
 }

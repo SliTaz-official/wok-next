@@ -7,16 +7,15 @@ SHORT_DESC="Monospaced font designed for long work with computers"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="OFL"
 WEB_SITE="http://terminus-font.sourceforge.net/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="python3 xorg-bdftopcf patch"
-SPLIT="terminus-font-x11 terminus-font-base terminus-font"
+SPLIT="$PACKAGE-x11 $PACKAGE-base $PACKAGE"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	for i in dv1 gq2 ij1 ll2 br1; do
 		[ -f "patch-$i.done" ] && continue
 		echo "Applying patch alt/$i.diff"
@@ -29,12 +28,14 @@ compile_rules()
 		--prefix=/usr \
 		--psfdir=/usr/share/kbd/consolefonts \
 		--x11dir=/usr/share/fonts/X11 &&
-	make && make DESTDIR=$install install
+	make &&
+	make DESTDIR=$install install || return 1
+
+	mv OFL.TXT OFL.txt
+	cook_pick_docs OFL.txt README README-BG CHANGES
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		terminus-font-x11)
 			copy *.pcf*

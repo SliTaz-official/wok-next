@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cantarell-fonts"
-VERSION="0.101"
+VERSION="0.111"
 CATEGORY="fonts"
 SHORT_DESC="Sans serif font family designed for on-screen readability"
 MAINTAINER="al.bobylev@gmail.com"
@@ -21,7 +21,10 @@ compile_rules() {
 
 	meson-wrapper &&
 	ninja &&
-	ninja install
+	ninja install || return 1
+
+	cd $src
+	cook_pick_docs COPYING NEWS README.md
 }
 
 genpkg_rules() {

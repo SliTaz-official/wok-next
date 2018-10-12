@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="grilo"
-VERSION="0.3.4"
+VERSION="0.3.6"
 CATEGORY="gnome"
 SHORT_DESC="Framework that provides access to various sources of multimedia \
 content"
@@ -13,11 +13,13 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev libxml2-dev gobject-introspection-dev vala intltool \
-gtk+3-dev liboauth-dev libsoup-dev totem-pl-parser-dev"
+gtk3-dev liboauth-dev libsoup-dev totem-pl-parser-dev"
 SPLIT="grilo-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -27,7 +29,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		grilo)
 			copy @std
-			DEPENDS="glib gtk+3 liboauth libsoup totem-pl-parser"
+			DEPENDS="glib gtk3 liboauth libsoup totem-pl-parser"
 			;;
 		*-dev)
 			copy @dev
