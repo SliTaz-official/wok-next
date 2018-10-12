@@ -7,12 +7,15 @@ SHORT_DESC="Misc bitmap fixed fonts"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PublicDomain"
 WEB_SITE="https://www.x.org/wiki/"
+HOST_ARCH="any"
 REPOLOGY="font-misc-misc"
 
 TARBALL="font-misc-misc-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/font/$TARBALL"
 
 BUILD_DEPENDS="xorg-util-macros xorg-font-util-dev xorg-mkfontdir xorg-bdftopcf"
+SPLIT="xorg-base-fonts $PACKAGE"
+
 COOKOPTS="!gz" # too long
 
 compile_rules() {
@@ -24,7 +27,17 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
+	case $PACKAGE in
+		xorg-base-fonts)
+			copy 6x13.pcf.gz
+			CAT="x-window|minimal set"
+			DEPENDS=" "
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="xorg-base-fonts"
+			;;
+	esac
 	TAGS="font"
 }
 

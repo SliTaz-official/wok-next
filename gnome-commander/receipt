@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnome-commander"
-VERSION="1.8.0"
+VERSION="1.8.1"
 CATEGORY="utilities"
-SHORT_DESC="A full featured, twin-panel file manager for Gnome2"
+SHORT_DESC="Full featured, twin-panel file manager for GNOME2"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://gcmd.github.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-#WGET_URL="https://download.gnome.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev glib-dev gnome-doc-utils libgnome-dev \
-libgnomeui-dev gdk-pixbuf-dev cairo-dev pango-dev atk-dev libbonoboui-dev \
-libgnomecanvas-dev libart_lgpl-dev xorg-libXinerama-dev xorg-libXrandr-dev \
-xorg-dev libgnome-keyring-dev libgcrypt-dev rarian-dev rarian exiv2-dev \
-taglib-dev libgsf-dev poppler-dev chmlib-dev lcms2-dev flex python-dev \
-util-linux-uuid-dev libunique-dev intltool itstool"
-SPLIT="gnome-commander-i18n"
+BUILD_DEPENDS="itstool docbook-xml glib-dev gettext gtk+-dev libgnome-dev \
+libgnomeui-dev libunique-dev exiv2-dev taglib-dev chmlib-dev libgsf-dev \
+poppler-dev"
 
 compile_rules() {
-
 	./configure \
-		--disable-scrollkeeper \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	# update-mime-database is useless in DESTDIR install, and although it is
@@ -33,19 +27,13 @@ compile_rules() {
 	make &&
 	make \
 		GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 \
-		install
+		install || return 1
+
+	fix symlinks
 }
 
 genpkg_rules() {
-	case $PACKAGE in
-		gnome-commander)
-			copy @std
-			DEPENDS="exiv2 lcms libgnome-keyring libgnomeui libgsf poppler \
-			taglib libunique"
-			;;
-		gnome-commander-i18n)
-			copy locale/
-			CAT="localization|language files"
-			;;
-	esac
+	copy @std
+	DEPENDS="exiv2 gdk-pixbuf glib gnome-vfs gtk+ libgnome libgnomeui libgsf \
+	libunique pango poppler taglib"
 }

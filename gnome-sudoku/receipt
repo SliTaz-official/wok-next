@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnome-sudoku"
-VERSION="3.28.0"
+VERSION="3.30.0"
 CATEGORY="games"
 SHORT_DESC="Test your logic skills in this number grid puzzle"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,19 +11,20 @@ WEB_SITE="https://wiki.gnome.org/Apps/Sudoku"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="vala glib-dev gtk+3-dev libgee-dev qqwing-dev json-glib-dev \
+BUILD_DEPENDS="meson ninja vala libgee-dev gtk3-dev json-glib-dev qqwing-dev \
 gettext itstool"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install || return 1
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install || return 1
 
 	fix symlinks
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="cairo glib gtk+3 json-glib libgee pango qqwing"
+	DEPENDS="cairo glib gtk3 json-glib libgee pango qqwing"
 }

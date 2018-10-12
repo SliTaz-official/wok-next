@@ -1,52 +1,48 @@
 # SliTaz package receipt v2.
 
 PACKAGE="brasero"
-VERSION="2.30.0"
+VERSION="3.12.2"
 CATEGORY="utilities"
-SHORT_DESC="Brasero (aka Bonfire) is yet another application to burn CD/DVD \
-for the GNOME desktop"
-MAINTAINER="devl547@gmail.com"
+SHORT_DESC="Burn CD/DVD for the GNOME3 desktop"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://www.gnome.org/projects/brasero"
+WEB_SITE="https://wiki.gnome.org/Apps/Brasero"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gtk+-dev gconf-dev gstreamer0-dev gst0-plugins-base-dev \
-libxml2-dev libunique-dev dbus-glib-dev gnome-doc-utils xorg-libxcb-dev \
-libpthread-stubs xorg-xcb-util-dev orbit2-dev dbus-dev libcanberra-dev \
-libxml2-python libvorbis-dev libogg-dev util-linux-uuid-dev \
-intltool libtool xorg-libICE-dev xorg-libSM-dev"
-SPLIT="brasero-dev"
+BUILD_DEPENDS="glib-dev itstool libxml2-tools gstreamer1-dev \
+gst1-plugins-base-dev libxml2-dev xorg-libSM-dev xorg-libICE-dev gtk3-dev \
+libnotify-dev libcanberra-dev intltool libburn-dev libisofs-dev \
+gobject-introspection-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	export LDFLAGS="$LDFLAGS -lICE"
-
 	./configure \
-		--disable-schemas-install \
-		--disable-scrollkeeper \
 		--disable-caches \
 		--disable-gtk-doc-html \
 		--disable-nautilus \
 		--disable-gtk-doc \
 		--disable-search \
-		--disable-playlist &&
+		--disable-playlist \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make install || return 1
+
+	fix symlinks
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		brasero)
 			copy @std
-			DEPENDS="gconf cairo dbus-glib gdk-pixbuf glib gst0-plugins-base \
-			gstreamer0 gtk+ libcanberra-gtk2 libunique libxml2 pango \
-			xorg-libICE xorg-libSM" # cdrdao dvd+rw-tools libvorbis libogg
+			DEPENDS="cairo gdk-pixbuf glib gst1-plugins-base gstreamer1 gtk3 \
+			libburn libcanberra-gtk3 libisofs libnotify libxml2 pango"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="brasero dbus-glib-dev glib-dev gtk+-dev"
+			DEPENDS="brasero glib-dev gtk3-dev"
 			;;
 	esac
 }

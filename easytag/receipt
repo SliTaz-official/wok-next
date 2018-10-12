@@ -1,38 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="easytag"
-VERSION="2.2.6"
+VERSION="2.4.3"
 CATEGORY="multimedia"
-SHORT_DESC="Utility for viewing and editing tags on sound files."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Utility for viewing and editing tags on sound files"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wiki.gnome.org/Apps/EasyTAG"
-WGET_URL="https://download.gnome.org/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
-TAGS="audio"
 
-DEPENDS="gtk+ id3lib flac libvorbis xorg-libXdamage gcc-lib-base libid3tag"
-BUILD_DEPENDS="gtk+-dev id3lib-dev id3lib expat-dev libid3tag-dev itstool \
-intltool"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+BUILD_DEPENDS="intltool appstream-glib glib-dev gdk-pixbuf-dev libxml2-tools \
+libxslt docbook-xml docbook-xsl desktop-file-utils-extra itstool \
+yelp-tools-dev gtk3-dev libogg-dev libvorbis-dev opus-dev opusfile-dev \
+speex-dev flac-dev libid3tag-dev id3lib-dev taglib-dev wavpack-dev"
+
+compile_rules() {
 	./configure \
-		--prefix=/usr \
+		--enable-mp3 \
+		--enable-id3v23 \
+		--enable-ogg \
+		--enable-opus \
+		--enable-speex \
+		--enable-flac \
+		--enable-mp4 \
+		--enable-wavpack \
 		$CONFIGURE_ARGS &&
-	make -j1 &&
-	make -j1 DESTDIR=$DESTDIR install
+	make &&
+	make install || return 1
+
+	fix symlinks
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/icons/hicolor
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons/hicolor/16x16 $install/usr/share/icons/hicolor/48x48 \
-		$fs/usr/share/icons/hicolor
+genpkg_rules() {
+	copy @std
+	DEPENDS="flac gdk-pixbuf glib gtk3 id3lib libid3tag libogg libvorbis opus \
+	opusfile speex taglib wavpack"
+	TAGS="audio"
 }
-

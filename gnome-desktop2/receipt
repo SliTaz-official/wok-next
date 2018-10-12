@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="gnome-desktop2"
+VERSION="2.32.1"
+CATEGORY="x-window"
+SHORT_DESC="GNOME2 Desktop"
+MAINTAINER="erjo@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://www.gnome.org/"
+
+TARBALL="gnome-desktop-$VERSION.tar.bz2"
+WGET_URL="$GNOME_MIRROR/gnome-desktop/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="intltool startup-notification-dev xorg-libX11-dev \
+xorg-libXrandr-dev gdk-pixbuf-dev gtk+-dev glib-dev gconf-dev gnome-doc-utils \
+rarian-dev"
+SPLIT="$PACKAGE-about $PACKAGE $PACKAGE-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-about)
+			copy gnome-about gnome-about.desktop gnome-about/
+			CAT="x-window|about GNOME"
+			DEPENDS="gnome-desktop2 python-pygtk python-pygobject2 \
+			python-pycairo"
+			;;
+		gnome-desktop2)
+			copy @std @rm
+			DEPENDS="cairo gconf gdk-pixbuf glib gtk+ startup-notification \
+			xorg-libX11 xorg-libXrandr"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="gnome-desktop2 gtk+-dev startup-notification-dev"
+			;;
+	esac
+}
