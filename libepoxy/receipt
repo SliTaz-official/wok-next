@@ -1,30 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libepoxy"
-VERSION="1.4.0"
+VERSION="1.5.3"
 CATEGORY="x-window"
 SHORT_DESC="Library for handling OpenGL function pointer management"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://github.com/anholt/libepoxy/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/libepoxy.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libepoxy.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="https://github.com/anholt/libepoxy/releases/download/v${VERSION%.*}/$TARBALL"
+WGET_URL="https://github.com/anholt/libepoxy/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-util-macros python mesa-dev"
-SPLIT="libepoxy-dev"
+BUILD_DEPENDS="meson ninja xorg-libX11-dev mesa-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		libepoxy) copy @std;;
-		*-dev)    copy @dev;;
+		libepoxy)
+			copy @std
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="mesa-dev"
+			;;
 	esac
 }

@@ -1,30 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libinput"
-VERSION="1.8.1"
+VERSION="1.12.1"
 CATEGORY="x-window"
 SHORT_DESC="Library that handles input devices for display servers"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/libinput/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/x7driver.html#libinput"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#libinput"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.freedesktop.org/software/libinput/$TARBALL"
 
-BUILD_DEPENDS="mtdev-dev eudev-dev libevdev-dev cairo-dev gtk+3-dev check-dev"
-SPLIT="libinput-debug-gui libinput libinput-dev"
+BUILD_DEPENDS="meson ninja eudev-dev mtdev-dev libevdev-dev gtk3-dev check-dev"
+SPLIT="$PACKAGE-debug-gui $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	./configure \
-		--disable-static \
-		--disable-libwacom \
-		--with-udev-dir=/lib/udev \
-		--disable-documentation \
-		--without-libunwind \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make && make install
+	mkdir build
+	cd    build
+	meson-wrapper \
+		-Dudev-dir=/lib/udev \
+		-Dlibwacom=false \
+		-Dtests=false \
+		-Ddocumentation=false \
+		&&
+	ninja &&
+	ninja install
 }
 
 genpkg_rules() {
@@ -32,7 +33,7 @@ genpkg_rules() {
 		*-gui)
 			copy libinput-debug-gui
 			CAT="x-window|debug GUI"
-			DEPENDS="cairo eudev glib gtk+3 libevdev libinput"
+			DEPENDS="cairo eudev glib gtk3 libevdev libinput"
 			;;
 		libinput)
 			copy @std @rm
@@ -40,7 +41,7 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libinput eudev-dev"
+			DEPENDS="libinput"
 			;;
 	esac
 }

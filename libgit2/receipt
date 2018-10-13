@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libgit2"
-VERSION="0.26.0"
+VERSION="0.27.5"
 CATEGORY="libs"
 SHORT_DESC="A linkable library for Git"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,21 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/libgit2/libgit2/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="cmake curl-dev python"
-SPLIT="libgit2-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DTHREADSAFE=ON &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libgit2)
 			copy @std
