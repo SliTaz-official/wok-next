@@ -7,13 +7,13 @@ SHORT_DESC="Document type definitions for verification of SGML data files agains
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://docbook.org/sgml/"
+HOST_ARCH="any"
 
 TARBALL="docbook-$VERSION.zip"
-WGET_URL="http://www.docbook.org/sgml/$VERSION/$TARBALL"
+WGET_URL="https://docbook.org/sgml/$VERSION/$TARBALL"
 
 compile_rules() {
-	sed -i -e '/ISO 8879/d' \
-		-e '/gml/d' docbook.cat
+	sed -i '/ISO 8879/d; /gml/d' docbook.cat
 
 	local dtd="$install/usr/share/sgml/docbook/sgml-dtd-$VERSION"
 
@@ -49,8 +49,8 @@ pre_remove() {
 	local p3="/etc/sgml/sgml-docbook.cat"
 
 	touch  "$1/etc/sgml/catalog"
-	chroot "$1/" install-catalog --remove $p1 $p2 > /dev/null
-	chroot "$1/" install-catalog --remove $p1 $p3 > /dev/null
+	chroot "$1/" install-catalog --remove $p1 $p2 >/dev/null
+	chroot "$1/" install-catalog --remove $p1 $p3 >/dev/null
 }
 
 post_install() {
@@ -62,6 +62,6 @@ post_install() {
 	[ -e "$1$p1" ] && pre_remove
 
 	touch "$1/etc/sgml/catalog" "$1$p1"
-	chroot "$1/" install-catalog --add $p1 $p2 > /dev/null
-	chroot "$1/" install-catalog --add $p1 $p3 > /dev/null
+	chroot "$1/" install-catalog --add $p1 $p2 >/dev/null
+	chroot "$1/" install-catalog --add $p1 $p3 >/dev/null
 }

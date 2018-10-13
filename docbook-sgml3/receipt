@@ -7,14 +7,14 @@ SHORT_DESC="Legacy docbook-sgml"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://docbook.org/sgml/"
+HOST_ARCH="any"
 REPOLOGY="docbook-sgml"
 
 TARBALL="docbk31.zip"
-WGET_URL="http://www.docbook.org/sgml/3.1/$TARBALL"
+WGET_URL="https://docbook.org/sgml/3.1/$TARBALL"
 
 compile_rules() {
-	sed -i -e '/ISO 8879/d' \
-		-e 's|DTDDECL "-//OASIS//DTD DocBook V3.1//EN"|SGMLDECL|g' \
+	sed -i '/ISO 8879/d; s|DTDDECL "-//OASIS//DTD DocBook V3.1//EN"|SGMLDECL|g' \
 		docbook.cat
 
 	local dtd="$install/usr/share/sgml/docbook/sgml-dtd-$VERSION"

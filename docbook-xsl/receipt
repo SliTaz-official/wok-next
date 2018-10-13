@@ -7,21 +7,27 @@ SHORT_DESC="DocBook XSL stylesheets"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://github.com/docbook/xslt10-stylesheets"
+HOST_ARCH="any"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/pst/docbook-xsl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F$VERSION/$TARBALL"
+WGET_URL="$WEB_SITE/releases/download/release%2F$VERSION/$TARBALL"
 
 compile_rules() {
-	mkdir -p $install/usr/share/xml/docbook/stylesheet/docbook-xsl/
+	dest="$install/usr/share/xml/docbook/stylesheet/docbook-xsl"
+	mkdir -p $dest
 
-	cp -R \
-		VERSION assembly common eclipse epub epub3 extensions fo highlighting \
-		html htmlhelp images javahelp lib manpages params profiling roundtrip \
-		slides template tests tools webhelp website xhtml xhtml-1_1 xhtml5 \
-		$install/usr/share/xml/docbook/stylesheet/docbook-xsl/ &&
+	cp VERSION VERSION.xsl $dest
 
-	ln -s VERSION $install/usr/share/xml/docbook/stylesheet/docbook-xsl/VERSION.xsl &&
+	for i in assembly common eclipse epub epub3 fo highlighting html htmlhelp \
+		javahelp lib manpages params profiling roundtrip template website \
+		xhtml xhtml-1_1 xhtml5; do
+		mkdir -p $dest/$i
+		cp $i/*.xml $i/*.xsl $i/*.dtd $i/*.ent $dest/$i/ 2>/dev/null
+	done
+	find $install -type f -name build.xml -delete
+
+	mkdir -p $install/etc/xml/
 
 	cook_pick_docs README RELEASE-NOTES* NEWS*
 }
@@ -32,32 +38,23 @@ genpkg_rules() {
 }
 
 post_install() {
-	if [ -n "$1" ]; then
-		mv -f "$1/etc/resolv.conf" "$1/etc/recolv.conf.$$" 2>/dev/null
-		cp /etc/resolv.conf "$1/etc/resolv.conf"
-	fi
+	local U="http://docbook.sourceforge.net/release/xsl"
+	local F="file:///usr/share/xml/docbook/stylesheet/docbook-xsl"
+	local C="/etc/xml/catalog"
 
-	U="http://docbook.sourceforge.net/release/xsl"
-	F="/usr/share/xml/docbook/stylesheet/docbook-xsl"
-	C="/etc/xml/catalog"
+	# Create a /etc/xml/catalog if it absent
+	[ -s "$1/etc/xml/catalog" ] || chroot "$1/" xmlcatalog --noout --create "$C"
 
-	# Create a /etc/xml/catalog file
-	mkdir -p "$1/etc/xml"
-	if [ ! -f "$1/etc/xml/catalog" ]; then
-		chroot "$1/" xmlcatalog --noout --create "$C"
-	fi &&
+	# Remove the catalog items prior to upgrading
+	chroot "$1/" xmlcatalog --noout --del "$F" "$C"
 
-	chroot "$1/" xmlcatalog --noout --add rewriteSystem "$U/$VERSION" "$F" $C &&
-	chroot "$1/" xmlcatalog --noout --add rewriteURI    "$U/$VERSION" "$F" $C &&
-	chroot "$1/" xmlcatalog --noout --add rewriteSystem "$U/current"  "$F" $C &&
+	chroot "$1/" xmlcatalog --noout --add rewriteSystem "$U/$VERSION" "$F" $C
+	chroot "$1/" xmlcatalog --noout --add rewriteURI    "$U/$VERSION" "$F" $C
+	chroot "$1/" xmlcatalog --noout --add rewriteSystem "$U/current"  "$F" $C
 	chroot "$1/" xmlcatalog --noout --add rewriteURI    "$U/current"  "$F" $C
+}
 
-#	# link nwalsh dir
-#	ln -sf docbook-xsl "$1/usr/share/xml/docbook/stylesheet/nwalsh"
-
-	if [ -n "$1" ]; then
-		mv -f "$1/etc/resolv.conf.$$" "$1/etc/recolv.conf" 2>/dev/null
-	fi
-
-	:
+# In most cases xmlcatalog unavailable at this point, use sed instead
+post_remove() {
+	sed -i '/file:\/\/\/usr\/share\/xml\/docbook\/stylesheet\/docbook-xsl/d' "$1/etc/xml/catalog"
 }

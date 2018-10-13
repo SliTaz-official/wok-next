@@ -260,27 +260,24 @@ genpkg_rules() {
 }
 
 post_install() {
-	[ -d "$1/etc/xml/catalog" ] &&
-	chroot "$1/" xmlcatalog --noout --del file:///etc/xml/docbook-xml /etc/xml/catalog
+	local F="file:///etc/xml/docbook-xml"
+	local C="/etc/xml/catalog"
 
-	chroot "$1/" xmlcatalog --noout --add "delegatePublic" \
-		"-//OASIS//ENTITIES DocBook XML" \
-		"file:///etc/xml/docbook-xml" \
-		"/etc/xml/catalog"
-	chroot "$1/" xmlcatalog --noout --add "delegatePublic" \
-		"-//OASIS//DTD DocBook XML" \
-		"file:///etc/xml/docbook-xml" \
-		"/etc/xml/catalog"
-	chroot "$1/" xmlcatalog --noout --add "delegateSystem" \
-		"http://www.oasis-open.org/docbook/" \
-		"file:///etc/xml/docbook-xml" \
-		"/etc/xml/catalog"
-	chroot "$1/" xmlcatalog --noout --add "delegateURI" \
-		"http://www.oasis-open.org/docbook/" \
-		"file:///etc/xml/docbook-xml" \
-		"/etc/xml/catalog"
+	# Create a /etc/xml/catalog if it absent
+	[ -s "$1/etc/xml/catalog" ] ||
+	chroot "$1/" xmlcatalog --noout --create "$C"
+
+	# Remove the catalog items prior to upgrading
+	chroot "$1/" xmlcatalog --noout --del "$F" "$C"
+
+	chroot "$1/" xmlcatalog --noout --add "delegatePublic" "-//OASIS//ENTITIES DocBook XML"     "$F" "$C"
+	chroot "$1/" xmlcatalog --noout --add "delegatePublic" "-//OASIS//DTD DocBook XML"          "$F" "$C"
+	chroot "$1/" xmlcatalog --noout --add "delegateSystem" "http://www.oasis-open.org/docbook/" "$F" "$C"
+	chroot "$1/" xmlcatalog --noout --add "delegateURI"    "http://www.oasis-open.org/docbook/" "$F" "$C"
 }
 
+# In most cases xmlcatalog unavailable at this point, use sed instead of:
+# chroot "$1/" xmlcatalog --noout --del file:///etc/xml/docbook-xml /etc/xml/catalog
 post_remove() {
-	chroot "$1/" xmlcatalog --noout --del file:///etc/xml/docbook-xml /etc/xml/catalog
+	sed -i '/file:\/\/\/etc\/xml\/docbook-xml/d' "$1/etc/xml/catalog"
 }

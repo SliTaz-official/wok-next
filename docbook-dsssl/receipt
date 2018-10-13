@@ -7,24 +7,29 @@ SHORT_DESC="DSSSL stylesheets for DocBook"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="custom"
 WEB_SITE="http://docbook.sourceforge.net/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/docbook/$TARBALL"
 
 compile_rules() {
-	mkdir -p \
-		$install/usr/bin \
-		$install/usr/share/man/man1 \
-		$install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+	install -Dm755 bin/collateindex.pl $install/usr/bin/collateindex.pl
 
-	install -m755 bin/collateindex.pl   $install/usr/bin &&
-	install -m644 bin/collateindex.pl.1 $install/usr/share/man/man1 &&
-	cp -R * $install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+	mkdir -p $install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+	cp -R *  $install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+
+	cook_pick_manpages bin/collateindex.pl.1
+	cook_pick_docs BUGS ChangeLog README RELEASE-NOTES.* WhatsNew
+
+	# clean
+	cd $install/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION
+	rm BUGS ChangeLog README RELEASE-NOTES.* WhatsNew
+	rmdir doc/ docsrc/
 }
 
 genpkg_rules() {
-	copy bin/ *.dcl *.dtd *.gml *.dsl *.ent *.sgm *.mod *.css *.js \
-	frames/*.htm *.gif catalog VERSION
+	copy @std
+	find $fs -type f -name ChangeLog -delete
 	DEPENDS="sgml-common"
 }
 
@@ -34,9 +39,9 @@ pre_remove() {
 	local p3="/usr/share/sgml/docbook/dsssl-stylesheets-$VERSION"
 
 	touch  "$1/etc/sgml/catalog"
-	chroot "$1/" install-catalog --remove $p1 $p3/catalog >/dev/null
+	chroot "$1/" install-catalog --remove $p1 $p3/catalog        >/dev/null
 	chroot "$1/" install-catalog --remove $p1 $p3/common/catalog >/dev/null
-	chroot "$1/" install-catalog --remove $p2 $p1 >/dev/null
+	chroot "$1/" install-catalog --remove $p2 $p1                >/dev/null
 }
 
 post_install() {
@@ -48,7 +53,7 @@ post_install() {
 	[ -e "$1$p1" -a -e "$1$p2" ] && pre_remove
 
 	touch "$1/etc/sgml/catalog" "$1$p1" "$1$p2"
-	chroot "$1/" install-catalog --add $p1 $p3/catalog >/dev/null
+	chroot "$1/" install-catalog --add $p1 $p3/catalog        >/dev/null
 	chroot "$1/" install-catalog --add $p1 $p3/common/catalog >/dev/null
-	chroot "$1/" install-catalog --add $p2 $p1 >/dev/null
+	chroot "$1/" install-catalog --add $p2 $p1                >/dev/null
 }

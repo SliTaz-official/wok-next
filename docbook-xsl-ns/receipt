@@ -1,77 +1,52 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="docbook-xsl-ns"
 VERSION="1.79.1"
 CATEGORY="development"
-SHORT_DESC="DocBook XSL (namespaced) stylesheets."
+SHORT_DESC="DocBook XSL-NS stylesheets"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://docbook.sourceforge.net/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/docbook/$TARBALL"
 
-DEPENDS="libxml2-tools libxslt"
+compile_rules() {
+	dest="$install/usr/share/xml/docbook/stylesheet/docbook-xsl-ns"
+	mkdir -p $dest
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cd $src
-	pkgroot=$fs/usr/share/xml/docbook/stylesheet/$PACKAGE
-	install -dm755 $pkgroot/common
-	install -dm755 $pkgroot/params
+	cp VERSION VERSION.xsl $dest
 
-	for fn in xml xsl dtd ent; do
-		install -m644 common/*.${fn} $pkgroot/common/
+	for i in assembly common eclipse epub epub3 fo highlighting html htmlhelp \
+		javahelp lib manpages params profiling roundtrip template website \
+		xhtml xhtml-1_1 xhtml5; do
+		mkdir -p $dest/$i
+		cp $i/*.xml $i/*.xsl $i/*.dtd $i/*.ent $dest/$i/ 2>/dev/null
 	done
+	find $install -type f -name build.xml -delete
 
-	for fn in fo highlighting html roundtrip; do
-		install -dm755 ${pkgroot}/${fn}
-		install -m644 ${fn}/*.xml ${pkgroot}/${fn}/
-		install -m644 ${fn}/*.xsl ${pkgroot}/${fn}/
-	done
+	mkdir -p $install/etc/xml/
 
-	for fn in eclipse htmlhelp javahelp lib manpages profiling template website xhtml xhtml-1_1; do
-		install -dm755 ${pkgroot}/${fn}
-		install -m644 ${fn}/*.xsl ${pkgroot}/${fn}/
-	done
+	cook_pick_docs README RELEASE-NOTES* NEWS*
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
-	if [ "$1" ]; then
-		mv -f "$1/etc/resolv.conf" "$1/etc/recolv.conf.$$" 2>/dev/null
-		cp /etc/resolv.conf "$1/etc/resolv.conf"
-	fi
+genpkg_rules() {
+	copy @std
+	DEPENDS="libxml2-tools libxslt"
+}
 
-	# Create a /etc/xml/catalog file
-	if [ ! -d "$1/etc/xml" ]; then install -v -m755 -d "$1/etc/xml"; fi &&
-	if [ ! -f "$1/etc/xml/catalog" ]; then
-		chroot "$1/" xmlcatalog --noout --create /etc/xml/catalog
-	fi &&
+post_install() {
+	local U="http://docbook.sourceforge.net/release/xsl-ns"
+	local F="file:///usr/share/xml/docbook/stylesheet/docbook-xsl-ns/catalog.xml"
+	local C="/etc/xml/catalog"
 
-	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" \
-		"http://docbook.sourceforge.net/release/xsl-ns/$VERSION" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE/catalog.xml" \
-	/etc/xml/catalog &&
+	# Create a /etc/xml/catalog if it absent
+	mkdir -p "$1/etc/xml/"
+	[ -s "$1/etc/xml/catalog" ] || chroot "$1/" xmlcatalog --noout --create "$C"
 
-	chroot "$1/" xmlcatalog --noout --add "rewriteURI" \
-		"http://docbook.sourceforge.net/release/xsl-ns/$VERSION" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE/catalog.xml" \
-	/etc/xml/catalog &&
-
-	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" \
-		"http://docbook.sourceforge.net/release/xsl-ns/current" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE/catalog.xml" \
-	/etc/xml/catalog &&
-
-	chroot "$1/" xmlcatalog --noout --add "rewriteURI" \
-		"http://docbook.sourceforge.net/release/xsl-ns/current" \
-		"/usr/share/xml/docbook/stylesheet/$PACKAGE/catalog.xml" \
-	/etc/xml/catalog
-
-	if [ "$1" ]; then
-		mv -f "$1/etc/resolv.conf.$$" "$1/etc/recolv.conf" 2>/dev/null
-	fi
+	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" "$U/$VERSION" "$F" "$C"
+	chroot "$1/" xmlcatalog --noout --add "rewriteURI"    "$U/$VERSION" "$F" "$C"
+	chroot "$1/" xmlcatalog --noout --add "rewriteSystem" "$U/current"  "$F" "$C"
+	chroot "$1/" xmlcatalog --noout --add "rewriteURI"    "$U/current"  "$F" "$C"
 }
