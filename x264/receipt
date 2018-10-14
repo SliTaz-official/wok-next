@@ -1,33 +1,33 @@
 # SliTaz package receipt v2.
 
 PACKAGE="x264"
-VERSION="20170601-2245"
+VERSION="20181013"
 CATEGORY="multimedia"
 SHORT_DESC="Free H.264/AVC encoder"
 MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.videolan.org/developers/x264.html"
 
-TARBALL="x264-snapshot-$VERSION-stable.tar.bz2"
+TARBALL="x264-snapshot-$VERSION-2245-stable.tar.bz2"
 WGET_URL="http://ftp.videolan.org/pub/videolan/x264/snapshots/$TARBALL"
 
-BUILD_DEPENDS="yasm"
+BUILD_DEPENDS="nasm"
 SPLIT="x264-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--enable-shared \
-		$CONFIGURE_ARGS &&
-	make && make install
+		&&
+	make &&
+	make install || return 1
+
+	cook_pick_docs doc/*.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		x264) copy @std;;
+		x264)  copy @std;;
 		*-dev) copy @dev;;
 	esac
 }
