@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mate-user-share"
-VERSION="1.20.0"
+VERSION="1.20.1"
 CATEGORY="system-tools"
 SHORT_DESC="Easy to use user-level file sharing"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,7 +11,7 @@ WEB_SITE="https://github.com/mate-desktop/mate-user-share"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/mate-user-share/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="mate-common yelp-tools itstool xorg-libX11-dev gtk+3-dev \
+BUILD_DEPENDS="mate-common yelp-tools-dev itstool xorg-libX11-dev gtk3-dev \
 dbus-glib-dev libnotify-dev libcanberra-dev caja-dev"
 
 compile_rules() {
@@ -19,11 +19,13 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	fix symlinks
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="caja glib gtk+3 pango xorg-libX11"
+	DEPENDS="caja glib gtk3 pango xorg-libX11"
 	TAGS="MATE"
 }

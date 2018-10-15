@@ -1,0 +1,45 @@
+# SliTaz package receipt v2.
+
+PACKAGE="mandoc"
+VERSION="1.14.4"
+CATEGORY="base-system"
+SHORT_DESC="UNIX manpage compiler"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="ISC"
+WEB_SITE="http://mdocml.bsd.lv/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://mdocml.bsd.lv/snapshots/$TARBALL"
+
+BUILD_DEPENDS="zlib-dev"
+SPLIT="$PACKAGE-cgi $PACKAGE $PACKAGE-dev"
+
+# see also: https://github.com/trentm/mdocml/tree/html5
+
+compile_rules() {
+	sed "s|@CFLAGS@|$CFLAGS|" $stuff/configure.local.in > configure.local
+	cp $stuff/cgi.h .
+
+	./configure $CONFIGURE_ARGS &&
+	make -j1 &&
+	make -j1 DESTDIR=$install \
+		base-install lib-install cgi-install catman-install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		*-cgi)
+			copy var/www/
+			CAT="development|CGI files"
+			DEPENDS=" "
+			;;
+		mandoc)
+			copy @std @rm
+			DEPENDS="zlib"
+			PROVIDE="mdocml"
+			;;
+		*-dev)
+			copy @dev
+			;;
+	esac
+}

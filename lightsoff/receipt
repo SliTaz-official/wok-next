@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lightsoff"
-VERSION="3.28.0"
+VERSION="3.30.0"
 CATEGORY="games"
 SHORT_DESC="Turn off all the lights"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,18 +11,23 @@ WEB_SITE="https://wiki.gnome.org/Apps/Lightsoff"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="vala glib-dev gtk+3-dev clutter-dev clutter-gtk-dev librsvg-dev \
-gettext itstool"
+BUILD_DEPENDS="meson ninja vala gtk3-dev clutter-dev clutter-gtk-dev \
+librsvg-dev gettext itstool"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	make &&
-	make install || return 1
+	mv data/icons/hicolor/symbolic/apps/lightsoff-symbolic \
+	   data/icons/hicolor/symbolic/apps/lightsoff-symbolic.svg
+
+	mkdir build
+	cd    build
+	meson-wrapper &&
+	ninja &&
+	ninja install || return 1
 
 	fix symlinks
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="clutter clutter-gtk glib gtk+3"
+	DEPENDS="clutter clutter-gtk gdk-pixbuf glib gtk3 librsvg"
 }
