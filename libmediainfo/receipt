@@ -1,46 +1,42 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libmediainfo"
-VERSION="0.7.79"
+VERSION="18.08.1"
 CATEGORY="libs"
 SHORT_DESC="Library reading metadata from media files"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="zlib/libpng"
+LICENSE="BSD"
 WEB_SITE="http://mediaarea.net/"
 
 TARBALL="${PACKAGE}_$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}download/source/$PACKAGE/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libzen libtool automake autoconf curl-dev libmms-dev"
-SPLIT="libmediainfo-dev"
+BUILD_DEPENDS="cmake libzen-dev zlib-dev tinyxml2-dev curl-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	cd Project/GNU/Library
-	./autogen.sh
-	./configure \
-		--enable-shared \
-		--enable-minimize-size \
-		--with-libcurl \
-		--with-libmms \
-		$CONFIGURE_ARGS &&
-	make &&
-	make install || return 1
+	rm -r Project/MS* Project/zlib Source/ThirdParty/tinyxml2
 
-	install -Dm755 libmediainfo-config $install/usr/bin/libmediainfo-config
-	sed \
-		-e "s|$src/Project/GNU/Library|/usr/lib|" \
-		-e 's|.libs||' \
-		-i $install/usr/bin/libmediainfo-config
+	cd Project/CMake
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_VERBOSE_MAKEFILE=ON \
+		-DBUILD_SHARED_LIBS=ON \
+		&&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		libmediainfo)
 			copy @std
-			DEPENDS="libcurl libmms"
+			DEPENDS="libcurl libzen tinyxml2 zlib"
 			;;
 		*-dev)
 			copy @dev
+			DEPENDS="libmediainfo curl-dev libzen-dev zlib-dev"
 			;;
 	esac
 }

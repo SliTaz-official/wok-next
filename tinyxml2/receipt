@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="tinyxml2"
+VERSION="6.2.0"
+CATEGORY="system-tools"
+SHORT_DESC="Simple XML parser made for easy integration"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="http://www.grinninglizard.com/tinyxml2/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/leethomason/tinyxml2/archive/$VERSION.tar.gz"
+
+BUILD_DEPENDS="cmake ninja"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake  \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=Release \
+		-G Ninja \
+		.. &&
+	ninja &&
+	ninja install || return 1
+
+	cook_pick_docs $src/docs/*
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		tinyxml2) copy @std;;
+		*-dev)    copy @dev;;
+	esac
+}
+

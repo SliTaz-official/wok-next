@@ -1,29 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mediainfo"
-VERSION="0.7.79"
+VERSION="18.08.1"
 CATEGORY="utilities"
 SHORT_DESC="Command-line utility for reading information from media files"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
 WEB_SITE="http://mediaarea.net/"
+
 TARBALL="${PACKAGE}_$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}download/source/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="libmediainfo"
-BUILD_DEPENDS="libtool automake autoconf libzen libmediainfo-dev curl-dev \
-libmms-dev"
+BUILD_DEPENDS="libtool automake libzen-dev libmediainfo-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	rm -r Project/MS*
+
 	cd Project/GNU/CLI
-	./autogen.sh
-	./configure $CONFIGURE_ARGS && make && make install
+	./autogen.sh &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="libmediainfo libzen"
 }

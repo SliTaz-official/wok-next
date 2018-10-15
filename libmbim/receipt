@@ -1,19 +1,19 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libmbim"
-VERSION="1.16.0"
+VERSION="1.16.2"
 CATEGORY="libs"
 SHORT_DESC="MBIM modem protocol helper library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/libmbim/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libmbim.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libmbim.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.freedesktop.org/software/libmbim/$TARBALL"
 
 BUILD_DEPENDS="glib-dev libgudev-dev help2man"
-SPLIT="libmbim-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -26,13 +26,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libmbim)
-			copy @std
-			DEPENDS=""
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS=""
-			;;
+		libmbim) copy @std;;
+		*-dev)   copy @dev;;
 	esac
 }

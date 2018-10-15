@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libzen"
-VERSION="0.4.32"
+VERSION="0.4.37"
 CATEGORY="development"
 SHORT_DESC="ZenLib - small C++ derivative class to have a simpler life"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,21 +11,24 @@ WEB_SITE="http://mediaarea.net/"
 TARBALL="${PACKAGE}_$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}download/source/$PACKAGE/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libtool"
+BUILD_DEPENDS="cmake"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	cd Project/GNU/Library
-	./autogen.sh
-	./configure $CONFIGURE_ARGS &&
+	cd Project/CMake
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=/usr/lib \
+		-DCMAKE_VERBOSE_MAKEFILE=ON \
+		&&
 	make &&
-	make install || return 1
-
-	sed \
-		-e "s|$src/Project/GNU/Library|/usr/lib|" \
-		-e 's|/.libs||' \
-		-i $install/usr/bin/libzen-config
+	make install
 }
 
 genpkg_rules() {
-	copy @dev
+	case $PACKAGE in
+		libzen) copy @std;;
+		*-dev)  copy @dev;;
+	esac
 }

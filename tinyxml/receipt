@@ -1,32 +1,43 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tinyxml"
 VERSION="2.6.2"
 CATEGORY="system-tools"
-SHORT_DESC="TinyXML is a simple, small, C++ XML parser."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="A simple, small, C++ XML parser"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_${VERSION//./_}.zip"
 WEB_SITE="http://www.grinninglizard.com/tinyxml/"
-WGET_URL="$SF_MIRROR/project/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $install/usr/lib $install/usr/bin
+TARBALL="${PACKAGE}_${VERSION//./_}.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	sed -i -e '/^TINYXML_USE_STL/ s|=.*|=YES|' \
+		-e "s|^RELEASE_CFLAGS.*|& ${CXXFLAGS} -fPIC|" Makefile
+
 	make &&
-	${HOST_SYSTEM}-g++ -m32 -fPIC "$CXXFLAGS" -shared \
-		-o $install/usr/lib/libtinyxml.so.0.$VERSION \
-		-Wl,-soname,libtinyxml.so.0 $(ls *.o | grep -v xmltest)
-	cp xmltest $install/usr/bin
+	g++ -fPIC $CXXFLAGS -shared -o libtinyxml.so.0.$VERSION \
+		-Wl,-soname,libtinyxml.so.0 $(ls *.o | grep -v xmltest) || return 1
+
+	install -Dm755 libtinyxml.so.0.$VERSION $install/usr/lib/libtinyxml.so.0.$VERSION
+	ln -s libtinyxml.so.0.$VERSION $install/usr/lib/libtinyxml.so.0
+	ln -s libtinyxml.so.0          $install/usr/lib/libtinyxml.so
+
+	install -Dm644 tinyxml.h         $install/usr/include/tinyxml.h
+	install -Dm644 tinystr.h         $install/usr/include/tinystr.h
+	install -Dm644 $stuff/tinyxml.pc $install/usr/lib/pkgconfig/tinyxml.pc
+
+	install -Dm755 xmltest $install/usr/bin/xmltest
+
+	cook_pick_docs docs/*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/. $fs/.
-	cd  $fs/usr/lib
-	ln -s libtinyxml.so.0.$VERSION libtinyxml.so.0
-	ln -s libtinyxml.so.0.$VERSION libtinyxml.so
+genpkg_rules() {
+	case $PACKAGE in
+		tinyxml) copy @std;;
+		*-dev)   copy @dev;;
+	esac
 }
 
