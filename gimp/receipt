@@ -3,7 +3,7 @@
 PACKAGE="gimp"
 VERSION="2.10.2"
 CATEGORY="graphics"
-SHORT_DESC="GNU Image Manipulation Program (GIMP)"
+SHORT_DESC="GNU Image Manipulation Program"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gimp.org/"
@@ -12,13 +12,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://download.gimp.org/pub/gimp/v${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="intltool iso-codes-dev babl-dev gegl-dev atk-dev glib-dev \
-glib-networking xorg-libX11-dev xorg-libICE-dev gtk+-dev gexiv2-dev \
+glib-networking xorg-libX11-dev xorg-libICE-dev gtk2-dev gexiv2-dev \
 xorg-libXmu-dev xorg-libXfixes-dev ghostscript-dev libmng-dev aalib-dev \
 xorg-libXpm-dev openexr-dev ilmbase-dev libwebp-dev libheif-dev libmypaint-dev \
 mypaint-brushes-dev librsvg-dev poppler-dev poppler-data libwmf-dev \
 openjpeg2-dev xorg-libXcursor-dev libgudev-dev xdg-utils libxslt \
 shared-mime-info-dev desktop-file-utils-extra gtk-doc"
-SPLIT="gimp-brushes gimp-console gimp-dev gimp-plug-ins gimp"
+SPLIT="$PACKAGE-brushes $PACKAGE-console $PACKAGE-dev $PACKAGE-plug-ins $PACKAGE"
 
 compile_rules() {
 	./configure \
@@ -35,37 +35,37 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		gimp-brushes)
+		*-brushes)
 			copy gimp/2.0/brushes/
 			rm -r $fs/usr/share/gimp/2.0/brushes/Basic/ # -> main package
 			CAT="graphics|brushes set"
 			DEPENDS="gimp"
 			;;
-		gimp-console)
+		*-console)
 			copy bin/gimp-console*
 			CAT="graphics|console"
 			DEPENDS="babl cairo fontconfig freetype gdk-pixbuf gegl gexiv2 \
 			gimp glib lcms2 libharfbuzz libmypaint pango zlib"
 			;;
-		gimp-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="gimp gimp-brushes gimp-console gimp-plug-ins \
-			cairo-dev gdk-pixbuf-dev gegl-dev gtk+-dev"
+			cairo-dev gdk-pixbuf-dev gegl-dev gtk2-dev"
 			;;
-		gimp-plug-ins)
+		*-plug-ins)
 			copy gimp/2.0/plug-ins/
 			find $fs \( -name file-jpeg -o -name file-png -o -name pixelize \
 				-o -name screenshot \) -delete # -> main package
 			CAT="graphics|plug-ins suite for advanced users"
 			DEPENDS="aalib babl bzlib cairo gdk-pixbuf gegl gexiv2 gimp glib \
-			gtk+ ilmbase lcms2 libheif libjpeg-turbo liblzma libmng libpng16 \
+			gtk2 ilmbase lcms2 libheif libjpeg-turbo liblzma libmng libpng16 \
 			librsvg libwebp libwmf openexr openjpeg2 pango poppler tiff \
 			xorg-libX11 xorg-libXcursor xorg-libXpm zlib"
 			;;
 		gimp)
 			copy @std @rm # all the rest
 			DEPENDS="babl cairo fontconfig freetype gdk-pixbuf gegl gexiv2 \
-			glib gtk+ lcms2 libgudev libharfbuzz libjpeg-turbo libmypaint \
+			glib gtk2 lcms2 libgudev libharfbuzz libjpeg-turbo libmypaint \
 			libpng16 pango xorg-libX11 xorg-libXext xorg-libXfixes xorg-libXmu \
 			zlib"
 			SUGGESTED="gimp-plug-ins gimp-brushes gimp-console \

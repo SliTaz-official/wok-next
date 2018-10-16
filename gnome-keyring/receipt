@@ -11,8 +11,8 @@ WEB_SITE="https://www.gnome.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="libgcrypt-dev libtasn1-dev python-dev dbus-dev intltool gtk+-dev"
-SPLIT="gnome-keyring-dev"
+BUILD_DEPENDS="libgcrypt-dev libtasn1-dev python-dev dbus-dev intltool gtk2-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i	-e 's|<glib.h>|&\n#include <libtasn1.h>|' \
@@ -32,7 +32,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		gnome-keyring)
 			copy @std
-			DEPENDS="libgcrypt libtasn1 python dbus gtk+"
+			DEPENDS="libgcrypt libtasn1 python dbus gtk2"
 			;;
 		*-dev)
 			copy @dev

@@ -1,34 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="airstrike"
 VERSION="pre6a"
 CATEGORY="games"
-SHORT_DESC="Juego batalla aerea."
+SHORT_DESC="Incredibly addictive 2D dogfight game"
 MAINTAINER="arca2@hotmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://icculus.org/airstrike/"
+
 TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="http://offload1.icculus.org:9090/$PACKAGE/$TARBALL"
 
-DEPENDS="libsdl-image libsdl"
 BUILD_DEPENDS="libsdl-image-dev libsdl-dev"
 
 # Packaging for SliTaz by Rene Rivero.
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/-lSDL_image/& -lm/' src/Makefile
 	sed -i 's|"airstrikerc"|"/usr/share/airstrike/airstrikerc"|' src/config.h
 	sed -i 's|"data/|"/usr/share/airstrike/data/|g' src/airstrike.c
-	make
+
+	make || return 1
 
 	cook_pick_manpages $src/doc/airstrike.6
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share/airstrike $fs/usr/share/applications
 	cp $src/airstrike $fs/usr/bin
 	cp -ar $src/data $src/airstrikerc $fs/usr/share/airstrike
@@ -36,4 +33,5 @@ genpkg_rules()
 	mkdir -p $fs/usr/share/applications
 	cp $stuff/airstrike.desktop $fs/usr/share/applications
 	chown -R root.root $fs
+	DEPENDS="libsdl-image libsdl"
 }

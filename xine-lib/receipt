@@ -9,23 +9,17 @@ LICENSE="GPL2"
 WEB_SITE="http://www.xine-project.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://downloads.sourceforge.net/project/xine/$PACKAGE/$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/xine/$TARBALL"
 
 BUILD_DEPENDS="xorg-libXvMC-dev xorg-libXv-dev xorg-xorgproto \
 alsa-lib-dev libogg-dev libvorbis-dev libtheora-dev freetype-dev perl \
 util-linux-uuid-dev xorg-libxcb-dev libcaca-dev ffmpeg-dev file \
 libmodplug-dev xorg-libXinerama-dev speex-dev gettext-tools"
-SPLIT="xine-fonts xine-lib xine-lib-dev"
+SPLIT="xine-fonts $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-			export LIBTOOL=${HOST_SYSTEM}-libtool 
-			ARCH_ARGS="--disable-xinerama" ;;
-	esac
-
 	sed -i 's/grep -x/grep/' configure
+
 	CPPFLAGS="$CPPFLAGS -DHAVE_NANO_SLEEP" \
 	./configure \
 		--with-freetype \
@@ -41,9 +35,10 @@ compile_rules() {
 		--without-esound \
 		--disable-vcd \
 		--disable-musepack \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
@@ -60,7 +55,7 @@ genpkg_rules() {
 			xorg-libxcb ffmpeg libmodplug"
 			SUGGESTED="xine-fonts faad2"
 			;;
-		xine-lib-dev)
+		*-dev)
 			copy @dev
 			;;
 	esac

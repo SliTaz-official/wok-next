@@ -12,14 +12,9 @@ REPOLOGY="wbar"
 TARBALL="wbar-$VERSION.tgz"
 WGET_URL="http://wbar.googlecode.com/files/$TARBALL"
 
-BUILD_DEPENDS_arm="imlib2-dev gtk+-dev libglade-dev xorg-libX11-dev"
-BUILD_DEPENDS="imlib2-dev gtk+-dev libglade-dev xorg-libX11-dev intltool file"
+BUILD_DEPENDS="imlib2-dev gtk2-dev libglade-dev xorg-libX11-dev intltool file"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--disable-wbar-config";;
-	esac
-
 	./configure \
 		CXXFLAGS="-Wno-error=literal-suffix" \
 		--exec-prefix=/usr \
@@ -30,15 +25,12 @@ compile_rules() {
 	mkdir -p $install/usr/share/applications/
 	mv $install/etc/wbar.d/wbar.desktop $install/usr/share/applications/
 
-	case "$ARCH" in
-		arm*) cp $stuff/wbar-arm.cfg $install/etc/wbar.d/wbar.cfg;;
-		*)    cp $stuff/wbar.cfg     $install/etc/wbar.d/wbar.cfg;;
-	esac
+	cp $stuff/wbar.cfg $install/etc/wbar.d/wbar.cfg
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="ttf-dejavu imlib2 gtk+ libglade"
+	DEPENDS="ttf-dejavu imlib2 gtk2 libglade"
 	CONFIG_FILES="/etc/default/wbar/wbar.cfg"
 	TAGS="desktop launchbar"
 }

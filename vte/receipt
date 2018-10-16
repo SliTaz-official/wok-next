@@ -7,26 +7,20 @@ SHORT_DESC="Terminal capabilities for GTK+ widgets"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/vte.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="gtk+-dev ncurses-dev"
-BUILD_DEPENDS="intltool pango-dev gtk+3-dev pcre2-dev gnutls-dev \
+BUILD_DEPENDS="intltool pango-dev gtk3-dev pcre2-dev gnutls-dev \
 gobject-introspection-dev vala gperf"
 
-SPLIT="vte-terminal vte vte-dev"
+SPLIT="$PACKAGE-terminal $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--enable-introspection=no";;
-		*)    ARCH_ARGS="--enable-introspection=yes";;
-	esac
-
 	./configure \
 		--disable-static \
-		$ARCH_ARGS \
+		--enable-introspection \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -43,19 +37,19 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		vte-terminal)
+		*-terminal)
 			copy bin/
 			CAT="development|X Terminal"
-			DEPENDS="glib gtk+3 pango vte"
+			DEPENDS="glib gtk3 pango vte"
 			;;
 		vte)
 			copy @std @rm
-			DEPENDS="atk cairo glib gtk+3 libgnutls libpcre2-8 pango zlib"
+			DEPENDS="atk cairo glib gtk3 libgnutls libpcre2-8 pango zlib"
 			;;
-		vte-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="vte vte-terminal \
-			glib-dev gnutls-dev gtk+3-dev pango-dev pcre2-dev zlib-dev"
+			glib-dev gnutls-dev gtk3-dev pango-dev pcre2-dev zlib-dev"
 			;;
 	esac
 }

@@ -7,17 +7,14 @@ SHORT_DESC="File management support"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/Libfm"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/libfm.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/libfm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 #WGET_URL="$SF_MIRROR/pcmanfm/$TARBALL" # SF download problems
 WGET_URL="https://git.lxde.org/gitweb/?p=lxde/libfm.git;a=snapshot;h=$VERSION;sf=txz"
 
-BUILD_DEPENDS_arm="gtk+-dev dbus-glib-dev dbus-dev startup-notification-dev \
-xorg-libxcb-dev xorg-xcb-util-dev menu-cache-dev expat-dev glib-dev \
-shared-mime-info-dev"
 BUILD_DEPENDS="automake gtk-doc libtool gettext glib-dev intltool vala \
-gtk+-dev pango-dev cairo-dev menu-cache-dev libexif-dev"
+gtk2-dev pango-dev cairo-dev menu-cache-dev libexif-dev"
 SIBLINGS="libfm-extra"
 SPLIT="libfm-gtk libfm-dev"
 
@@ -58,13 +55,13 @@ genpkg_rules() {
 		libfm-gtk)
 			copy bin/ applications/ images/ ui/ libfm-gtk.so* gtk*.so
 			CAT="system-tools|GTK+2 GUI library"
-			DEPENDS="atk cairo gdk-pixbuf glib gtk+ libfm menu-cache pango"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk2 libfm menu-cache pango"
 			PROVIDE="lxshortcut"
 			;;
 		libfm-dev)
 			copy @dev
 			DEPENDS="libfm libfm-gtk libfm-extra-dev \
-			glib-dev gtk+-dev"
+			glib-dev gtk2-dev"
 			;;
 	esac
 }

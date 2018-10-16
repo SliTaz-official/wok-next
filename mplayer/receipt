@@ -11,11 +11,7 @@ WEB_SITE="http://www.mplayerhq.hu/design7/news.html"
 TARBALL="MPlayer-$VERSION.tar.xz"
 WGET_URL="http://www1.mplayerhq.hu/MPlayer/releases/$TARBALL"
 
-BUILD_DEPENDS_arm="gtk+-dev libmad-dev xorg-libXv-dev libtheora-dev \
-alsa-lib-dev ncurses-dev lame-dev xorg-libXdamage-dev giflib-dev \
-xorg-libXxf86vm-dev esound-dev audiofile-dev libogg-dev libvorbis-dev \
-xvidcore-dev zlib-dev xorg-xorgproto pkg-config yasm libsdl-dev"
-BUILD_DEPENDS="gtk+-dev libmad-dev xorg-libXv-dev libtheora-dev \
+BUILD_DEPENDS="gtk2-dev libmad-dev xorg-libXv-dev libtheora-dev \
 alsa-lib-dev ncurses-dev lame-dev xorg-libXdamage-dev giflib-dev \
 xorg-libXxf86vm-dev esound-dev audiofile-dev libogg-dev libvorbis-dev \
 xvidcore-dev zlib-dev xorg-xorgproto yasm cdparanoia-III-dev \
@@ -27,10 +23,6 @@ compile_rules() {
 	case "$ARCH" in
 		i?86)
 			ARCH_ARGS="--target=i386-linux --disable-sdl --enable-runtime-cpudetection"
-			;;
-		arm*)
-			export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH
-			ARCH_ARGS="--target=arm-linux --enable-cross-compile --enable-sdl"
 			;;
 	esac
 
@@ -53,7 +45,7 @@ compile_rules() {
 		--disable-speex \
 		${ARCH_ARGS} &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install | sed '/install: strip: .*/'d
+	make DESTDIR=$DESTDIR install
 }
 
 genpkg_rules() {
@@ -73,24 +65,12 @@ genpkg_rules() {
 			tar xjf $stuff/productive-1.0.tar.bz2 -C $fs/usr/share/mplayer/skins
 			cd $fs/usr/share/mplayer/skins && ln -s productive default
 			# Font
-			cd .. && ln -s ../fonts/truetype/ttf-dejavu/DejaVuSans.ttf subfont.ttf
-			# Xv support dont work for ARM and gmplayer symlink not created
-			case "$ARCH" in
-				arm*)
-					cp -f $stuff/mplayer-arm.conf $fs/etc/mplayer/mplayer.conf 
-					cd $fs/usr/bin && ln -s mplayer gmplayer ;;
-			esac
-			DEPENDS="gtk+ cdparanoia-III libmad xorg-libXv libtheora alsa-lib \
+			cd ..
+			ln -s ../fonts/truetype/ttf-dejavu/DejaVuSans.ttf subfont.ttf
+			DEPENDS="gtk2 cdparanoia-III libmad xorg-libXv libtheora alsa-lib \
 			ncurses lame xorg-libXdamage giflib enca lirc xorg-libXxf86vm \
 			esound libmng audiofile libvorbis libogg zlib xvidcore x264 \
 			xorg-libXScrnSaver"
-			# Handle arch package install. Less deps and no GTK gui for ARM
-			case "$SLITAZ_ARCH" in
-				arm*)
-					DEPENDS="alsa-lib zlib libmad xorg-libXv xorg-libXxf86vm \
-					libogg libvorbis libtheora libsdl xvidcore lame esound gtk+"
-					;;
-			esac
 			;;
 		mencoder)
 			copy /usr/bin/mencoder
@@ -98,13 +78,6 @@ genpkg_rules() {
 			DEPENDS="libtheora alsa-lib cdparanoia-III expat libogg libvorbis \
 			fontconfig freetype x264 xvidcore jpeg libmad ncurses zlib lame \
 			libpng16 giflib enca lirc"
-			# Handle arch package install
-			case "$SLITAZ_ARCH" in
-				arm*)
-					DEPENDS="alsa-lib zlib libmad xorg-libXv xorg-libXxf86vm \
-					libogg libvorbis libtheora xvidcore lame esound"
-					;;
-			esac
 			;;
 	esac
 }

@@ -7,6 +7,7 @@ SHORT_DESC="XviD, a high performance/quality MPEG-4 video de-/encoding solution"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.xvid.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/xvid.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.xvid.org/downloads/$TARBALL"
@@ -14,28 +15,24 @@ WGET_URL="http://downloads.xvid.org/downloads/$TARBALL"
 BUILD_DEPENDS="yasm"
 SPLIT="xvidcore-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/multimedia/xvid.html
-	cd build/generic &&
-	sed -i 's/^LN_S=@LN_S@/& -f -v/' platform.inc.in &&
+compile_rules() {
+	cd build/generic
+	sed -i 's/^LN_S=@LN_S@/& -f -v/' platform.inc.in
+
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	sed -i '/libdir.*STATIC_LIB/ s/^/#/' Makefile &&
-	make DESTDIR=$install install &&
+	make DESTDIR=$install install || return 1
 
-	find $install/usr/lib/ -name 'libxvidcore.so.*' -type f -exec chmod -v 755 '{}' \; &&
+	find $install/usr/lib/ -name 'libxvidcore.so.*' -type f -exec chmod -v 755 '{}' \;
 
-	mkdir -p $install/usr/share/doc/xvidcore-$VERSION/examples &&
-	install -v -m644 ../../doc/* $install/usr/share/doc/xvidcore-$VERSION &&
+	mkdir -p $install/usr/share/doc/xvidcore-$VERSION/examples
+	install -v -m644 ../../doc/* $install/usr/share/doc/xvidcore-$VERSION
 	install -v -m644 ../../examples/* \
 		$install/usr/share/doc/xvidcore-$VERSION/examples
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		xvidcore) copy @std;;
 		*-dev)    copy *.h;;

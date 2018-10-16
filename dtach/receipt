@@ -1,31 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dtach"
 VERSION="0.8"
 CATEGORY="system-tools"
-SHORT_DESC="Emulates the detach feature of screen."
+SHORT_DESC="Emulates the detach feature of screen"
 MAINTAINER="christophe.paris@free.fr"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://dtach.sourceforge.net/"
-WGET_URL="http://downloads.sourceforge.net/dtach/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
 	make || return 1
-	# no install rules, let's do it by hand
-	mkdir -p $DESTDIR/usr/bin $DESTDIR/usr/share/man/man1
-	cp dtach $DESTDIR/usr/bin
-	cp dtach.1 $DESTDIR/usr/share/man/man1
+
+	install -Dm755 dtach $install/usr/bin/dtach
+	cook_pick_manpages dtach.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }

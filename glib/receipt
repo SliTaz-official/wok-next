@@ -7,7 +7,7 @@ SHORT_DESC="C routines"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/glib/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/glib2.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/glib2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
@@ -15,7 +15,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="automake libtool zlib-dev libffi-dev gettext \
 util-linux-mount-dev pcre-dev glib-dev   elfutils-dev gtk-doc libxslt \
 docbook-xsl dbus-dev"
-SPLIT="glib-static glib-dev"
+SPLIT="$PACKAGE-static $PACKAGE-dev"
 
 # glib require glib to be built.
 # And if glib failed to build and not present on the mirror, you will catch
@@ -44,12 +44,12 @@ genpkg_rules() {
 			rm -r $fs/usr/share
 			DEPENDS="elfutils libffi libpcre util-linux-mount zlib"
 			;;
-		glib-static)
+		*-static)
 			copy *.a
 			DEPENDS=" "
 			CAT="development|static libraries"
 			;;
-		glib-dev)
+		*-dev)
 			copy @std @dev @rm
 			DEPENDS="glib libffi-dev pcre-dev python util-linux-mount-dev \
 			zlib-dev   perl"

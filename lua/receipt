@@ -7,7 +7,7 @@ SHORT_DESC="Powerful, fast, light-weight, embeddable scripting language"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.lua.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/lua.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/lua.html"
 REPOLOGY="lua53"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -16,15 +16,12 @@ WGET_URL="https://www.lua.org/ftp/$TARBALL"
 TARBALL_SHA1="79790cfd40e09ba796b01a571d4d63b52b1cd950"
 
 BUILD_DEPENDS="readline-dev"
-SPLIT="liblua lua-dev"
+SPLIT="liblua $PACKAGE-dev"
 
 compile_rules() {
 	sed -i '/#define LUA_ROOT/ s:/usr/local/:/usr/:' src/luaconf.h
 
 	case "$ARCH" in
-		arm)
-			make CC=${HOST_SYSTEM}-gcc posix
-			;;
 		i486)
 			sed -i "s|-O2|-Os -march=$ARCH|" src/Makefile
 			make MYCFLAGS="-DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" linux

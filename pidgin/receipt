@@ -11,7 +11,7 @@ WEB_SITE="http://www.pidgin.im/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev libgcrypt-dev gnutls-dev \
+BUILD_DEPENDS="gtk2-dev libgcrypt-dev gnutls-dev \
 startup-notification-dev libgpg-error-dev libxml2-dev xorg-libxcb-dev \
 libidn-dev libtasn1-dev intltool expat-dev nss-dev \
 ncurses-dev xorg-xcb-util-dev gmp-dev"
@@ -23,6 +23,7 @@ compile_rules() {
 
 	# Pidgin doesn't explicitly link to libm
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
+
 	./configure \
 		--disable-perl \
 		--disable-screensaver \
@@ -41,7 +42,7 @@ compile_rules() {
 		--disable-sm \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make -j 4 &&
+	make -j4 &&
 	make install
 }
 
@@ -58,7 +59,7 @@ genpkg_rules() {
 			;;
 		pidgin)
 			copy @std @rm
-			DEPENDS="gtk+ gnutls libgcrypt libgpg-error libpurple \
+			DEPENDS="gtk2 gnutls libgcrypt libgpg-error libpurple \
 			startup-notification gmp xorg-libXdamage libxml2 \
 			xorg-libxcb xorg-xcb-util libidn ncurses libtasn1 nss"
 			PROVIDE="purple"

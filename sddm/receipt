@@ -7,14 +7,14 @@ SHORT_DESC="QML based X11 and Wayland display manager"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 CC-BY-3"
 WEB_SITE="https://github.com/sddm/sddm"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/sddm.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/sddm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/sddm/sddm/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="cmake extra-cmake-modules xorg-libxcb-dev qt5-dev mesa-dev \
 python-docutils"
-SPLIT="sddm-theme-elarun sddm-theme-maldives sddm-theme-maya sddm"
+SPLIT="$PACKAGE-theme-elarun $PACKAGE-theme-maldives $PACKAGE-theme-maya $PACKAGE"
 
 compile_rules() {
 	sed -i '/UPOWER_SERVICE)/ s|^|//|' src/daemon/PowerManager.cpp
@@ -31,7 +31,8 @@ EOT
 	adduser  -g "SDDM Daemon"   -h /var/lib/sddm   -u 64   -G sddm \
 		-s /bin/false   -D   sddm
 
-	mkdir build; cd build
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
@@ -50,15 +51,15 @@ EOT
 
 genpkg_rules() {
 	case $PACKAGE in
-		sddm-theme-elarun)
+		*-theme-elarun)
 			copy elarun/
 			CAT="customization|theme Elarun"
 			;;
-		sddm-theme-maldives)
+		*-theme-maldives)
 			copy maldives/
 			CAT="customization|theme Maldives"
 			;;
-		sddm-theme-maya)
+		*-theme-maya)
 			copy maya/
 			CAT="customization|theme Maya"
 			;;

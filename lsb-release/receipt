@@ -7,34 +7,26 @@ SHORT_DESC="Linux Standards Base (LSB) status of the distribution"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="OSI"
 WEB_SITE="https://sourceforge.net/projects/lsb/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/lsb-release.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/lsb/$TARBALL"
 
 BUILD_DEPENDS="help2man"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/lsb-release.html
+compile_rules() {
 	sed -i "s|n/a|unavailable|" lsb_release
 	./help2man -N \
 		--include ./lsb_release.examples \
 		--alt_version_key=program_version \
 		./lsb_release > lsb_release.1
 
-	mkdir -p $install/usr/share/man/man1/
-	install -v -m644 lsb_release.1 $install/usr/share/man/man1/
+	install -Dm755 lsb_release        $install/usr/bin/lsb_release
+	install -Dm644 $stuff/lsb-release $install/etc/lsb-release
 
-	mkdir -p $install/usr/bin/
-	install -v -m755 lsb_release   $install/usr/bin/
-
-	mkdir -p $install/etc/
-	cp $stuff/lsb-release $install/etc/
+	cook_pick_manpages lsb_release.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

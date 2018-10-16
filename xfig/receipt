@@ -3,46 +3,48 @@
 PACKAGE="xfig"
 VERSION="3.2.6a"
 CATEGORY="x-window"
-SHORT_DESC="Vector graphics editor for X."
+SHORT_DESC="Vector graphics editor for X"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-full-$VERSION.tar.xz"
 WEB_SITE="http://www.xfig.org/"
-WGET_URL="https://downloads.sourceforge.net/mcj/files/$TARBALL"
+
+TARBALL="$PACKAGE-full-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/mcj/$TARBALL"
 
 BUILD_DEPENDS="xorg-imake xorg-cf-files xorg-gccmakedep jpeg-dev \
 libpng16-dev xorg-libXp xorg-libX11-dev xorg-libXt-dev xorg-libXpm-dev \
 xorg-libXmu-dev xorg-libXaw-dev xorg-libXaw3d-dev xorg-libXt-dev"
 SPLIT="transfig"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/$PACKAGE-$VERSION
-	./configure --prefix=/usr \
+
+	./configure \
+		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR/xfig install
+	make DESTDIR=$DESTDIR/xfig install || return 1
+
 	cd $src/fig2dev-$VERSION
-	./configure --prefix=/usr \
+
+	./configure \
+		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR/transfig install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	xfig)
-		SUGGESTED="transfig"
-		DEPENDS="jpeg libpng16 xorg xorg-libXp"
-		cp -a $install/xfig/* $fs
-		;;
-	transfig)
-		CAT="x-window|Utilities for converting XFig figure files."
-		DEPENDS="xorg xorg-libXpm libpng16 zlib"
-		cp -a $install/transfig/* $fs
-		;;
+		xfig)
+			cp -a $install/xfig/* $fs
+			SUGGESTED="transfig"
+			DEPENDS="jpeg libpng16 xorg xorg-libXp"
+			;;
+		transfig)
+			cp -a $install/transfig/* $fs
+			SHORT_DESC="Utilities for converting XFig figure files"
+			DEPENDS="xorg xorg-libXpm libpng16 zlib"
+			;;
 	esac
 }

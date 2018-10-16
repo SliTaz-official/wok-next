@@ -7,25 +7,19 @@ SHORT_DESC="Terminal capabilities for GTK+ widgets"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/vte.html" # (for gtk+3 version)
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/vte.html" # (for gtk3 version)
 
 TARBALL="vte-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/vte/0.28/$TARBALL"
 
-BUILD_DEPENDS_arm="gtk+-dev ncurses-dev"
-BUILD_DEPENDS="intltool gtk+-dev python-dev gobject-introspection-dev \
+BUILD_DEPENDS="intltool gtk2-dev python-dev gobject-introspection-dev \
 python-pygtk-dev"
-SPLIT="vte-gtk2-terminal vte-gtk2-python vte-gtk2 vte-gtk2-dev"
+SPLIT="$PACKAGE-terminal $PACKAGE-python $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--enable-introspection=no";;
-		*)    ARCH_ARGS="--enable-introspection=yes";;
-	esac
-
 	./configure \
 		--disable-static \
-		$ARCH_ARGS \
+		--enable-introspection \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
@@ -37,25 +31,25 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		vte-gtk2-terminal)
+		*-terminal)
 			copy bin/
 			CAT="development|X Terminal"
-			DEPENDS="glib gtk+ pango vte-gtk2"
+			DEPENDS="glib gtk2 pango vte-gtk2"
 			;;
-		vte-gtk2-python)
+		*-python)
 			copy vtemodule.so vte.defs
 			CAT="development|Python bindings"
-			DEPENDS="gdk-pixbuf glib gtk+ pango vte-gtk2   python"
+			DEPENDS="gdk-pixbuf glib gtk2 pango vte-gtk2   python"
 			PROVIDE="python-vte"
 			;;
 		vte-gtk2)
 			copy @std @rm
-			DEPENDS="atk cairo gdk-pixbuf glib gtk+ ncurses pango xorg-libX11"
+			DEPENDS="atk cairo gdk-pixbuf glib gtk2 ncurses pango xorg-libX11"
 			;;
-		vte-gtk2-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="vte-gtk2 vte-gtk2-terminal vte-gtk2-python \
-			cairo-dev glib-dev gtk+-dev pango-dev xorg-libX11-dev"
+			cairo-dev glib-dev gtk2-dev pango-dev xorg-libX11-dev"
 			;;
 	esac
 }

@@ -7,12 +7,12 @@ SHORT_DESC="Open source MPEG-4 and MPEG-2 AAC encoder"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.audiocoding.com/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/faac.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/faac.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/faac/$TARBALL"
 
-SPLIT="faac-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i '/obj-type/d; /Long Term/d' frontend/main.c
@@ -28,7 +28,12 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		faac)  copy @std; TAGS="mp4 mpeg encoder";;
-		*-dev) copy @dev;;
+		faac)
+			copy @std
+			TAGS="mp4 mpeg encoder"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

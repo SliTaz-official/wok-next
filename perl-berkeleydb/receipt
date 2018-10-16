@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-berkeleydb"
 VERSION="0.55"
@@ -12,20 +12,16 @@ REPOLOGY="perl:berkeleydb"
 TARBALL="BerkeleyDB-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/P/PM/PMQS/$TARBALL"
 
-DEPENDS="perl db"
 BUILD_DEPENDS="perl-dev db-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl db"
 }

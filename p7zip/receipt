@@ -8,17 +8,16 @@ MAINTAINER="milka@konstelacioj.info"
 LICENSE="LGPL2.1"
 #WEB_SITE="http://p7zip.sourceforge.net/"
 WEB_SITE="https://sourceforge.net/projects/sevenzip/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/p7zip.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/p7zip.html"
 
 TARBALL="${PACKAGE}_${VERSION}_src_all.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="nasm yasm"
-SPLIT="p7zip p7zip-full"
+SPLIT="$PACKAGE-full"
 
 compile_rules() {
 	case $ARCH in
-		arm)    cp makefile.linux_cross_arm       makefile.machine;;
 		i?86)   cp makefile.linux_x86_asm_gcc_4.X makefile.machine;;
 		x86_64) cp makefile.linux_amd64_asm       makefile.machine;;
 	esac
@@ -38,7 +37,7 @@ genpkg_rules() {
 			copy 7zr
 			CAT="utilities|supports only 7z archives"
 			;;
-		p7zip-full)
+		*-full)
 			copy @std @rm
 			CAT="utilities|full version with restricted codecs"
 			DEPENDS="p7zip"

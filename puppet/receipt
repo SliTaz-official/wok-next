@@ -1,22 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="puppet"
 VERSION="2.7.19"
 CATEGORY="system-tools"
-SHORT_DESC="A system for automating system administration tasks."
+SHORT_DESC="A system for automating system administration tasks"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="Apache"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.puppetlabs.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.puppetlabs.com/puppet/$TARBALL"
 
-DEPENDS="ruby ruby-facter"
 BUILD_DEPENDS="ruby-dev ruby-facter"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	ruby ./install.rb \
 		--destdir=$DESTDIR \
 		--bindir=/usr/bin \
@@ -24,12 +21,11 @@ compile_rules()
 		--mandir=/usr/share/man
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/etc $fs
 	cp -a $install/usr/*bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cd $fs/usr/bin && mv pi puppet-pi
+	DEPENDS="ruby ruby-facter"
 }

@@ -1,23 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnugo"
 VERSION="3.8"
 CATEGORY="games"
-SHORT_DESC="A free program that plays the game of Go."
+SHORT_DESC="A free program that plays the game of Go"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/gnugo/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-SUGGESTED="quarry"
 
-DEPENDS="ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--libexecdir=/usr/lib \
@@ -28,9 +24,9 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="ncurses"
+	SUGGESTED="quarry"
 }

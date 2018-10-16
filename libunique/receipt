@@ -7,16 +7,15 @@ SHORT_DESC="Library for writing single instance application"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://wiki.gnome.org/Attic/LibUnique"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/libunique.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libunique.html"
 REPOLOGY="unique"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="cairo-dev gtk+-dev glib-dev expat-dev"
-BUILD_DEPENDS="patch automake glib-dev gettext libtool gtk+-dev \
+BUILD_DEPENDS="patch automake glib-dev gettext libtool gtk2-dev \
 xorg-libICE-dev gobject-introspection-dev gtk-doc"
-SPLIT="libunique-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	autoreconf -fi &&
@@ -34,11 +33,11 @@ genpkg_rules() {
 	case $PACKAGE in
 		libunique)
 			copy @std
-			DEPENDS="glib gtk+ xorg-libX11"
+			DEPENDS="glib gtk2 xorg-libX11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libunique gtk+-dev"
+			DEPENDS="libunique gtk2-dev"
 			;;
 	esac
 }

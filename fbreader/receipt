@@ -1,36 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fbreader"
 VERSION="0.12.10"
 CATEGORY="utilities"
-SHORT_DESC="E-Book Reader. Supports many e-book formats."
+SHORT_DESC="E-Book Reader supporting many e-book formats"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-sources-$VERSION.tgz"
 WEB_SITE="http://www.fbreader.org/"
+
+TARBALL="$PACKAGE-sources-$VERSION.tgz"
 WGET_URL="http://www.fbreader.org/$TARBALL"
 
 BUILD_DEPENDS="expat-dev liblinebreak-dev curl-dev fribidi-dev bzip2-dev \
-sqlite3-dev gtk+-dev xorg-dev glib-dev gettext intltool"
-DEPENDS="expat liblinebreak curl fribidi bzip2 sqlite3 gtk+"
+sqlite3-dev gtk2-dev xorg-dev glib-dev gettext intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	# GCC 4.5.0 fix
 	sed -i 's/Library::Library /Library /' fbreader/src/library/Library.cpp
 	echo "UI_TYPE = gtk" >> makefiles/target.mk
 	echo "TARGET_STATUS = release" >> makefiles/target.mk
+
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="expat liblinebreak curl fribidi bzip2 sqlite3 gtk2"
 }

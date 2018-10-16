@@ -7,14 +7,14 @@ SHORT_DESC="GObject Plugin System"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.gnome.org/Projects/Libpeas"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/gnome/libpeas.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/libpeas.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/libpeas/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool gobject-introspection-dev gtk+3-dev python-dev \
+BUILD_DEPENDS="intltool gobject-introspection-dev gtk3-dev python-dev \
 python-pygobject-dev gtk-doc"
-SPLIT="libpeas-gtk libpeas-python libpeas-dev libpeas-demo"
+SPLIT="$PACKAGE-gtk $PACKAGE-python $PACKAGE-dev $PACKAGE-demo"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -31,7 +31,7 @@ genpkg_rules() {
 			;;
 		*-gtk)
 			copy libpeas-gtk-1.0.so*
-			DEPENDS="glib gobject-introspection gtk+3 libpeas"
+			DEPENDS="glib gobject-introspection gtk3 libpeas"
 			;;
 		*-python)
 			copy libpythonloader.so
@@ -40,12 +40,12 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			DEPENDS="${SPLIT/$PACKAGE/} glib-dev gobject-introspection-dev \
-			gtk+3-dev"
+			gtk3-dev"
 			;;
 		*-demo)
 			copy peas-demo peas-demo/ hicolor/ @rm
 			find $fs -name '*.la' -delete
-			DEPENDS="glib gobject-introspection gtk+3 libpeas libpeas-gtk"
+			DEPENDS="glib gobject-introspection gtk3 libpeas libpeas-gtk"
 			;;
 	esac
 }

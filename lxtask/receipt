@@ -7,27 +7,24 @@ SHORT_DESC="LXDE task manager"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/LXTask"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/lxtask.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev intltool"
+BUILD_DEPENDS="gtk2-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxtask.html
-
+compile_rules() {
 	# remove keywords from desktop file
 	sed -i '/^_Keywords=/d' data/lxtask.desktop.in
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango"
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk2 pango"
 	TAGS="LXDE"
 }

@@ -1,22 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xsane"
 VERSION="0.998"
 CATEGORY="office"
-SHORT_DESC="XSane - graphical scanning frontend."
+SHORT_DESC="XSane - graphical scanning frontend"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.xsane.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.xsane.org/download/$TARBALL"
 
-DEPENDS="sane-backends gtk+ tiff xorg-libXdamage lcms v4l-utils libltdl"
-BUILD_DEPENDS="gtk+-dev sane-backends-dev lcms-dev eudev"
+BUILD_DEPENDS="gtk2-dev sane-backends-dev lcms-dev eudev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/xsane-save.c
+
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
@@ -26,11 +25,10 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs/usr/share
-    cp -a $install/usr/bin $fs/usr
-    cp -a $install/usr/share/sane $fs/usr/share
-    rm -rf $fs/usr/share/sane/xsane/doc
+genpkg_rules() {
+	mkdir -p $fs/usr/share
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/share/sane $fs/usr/share
+	rm -rf $fs/usr/share/sane/xsane/doc
+	DEPENDS="sane-backends gtk2 tiff xorg-libXdamage lcms v4l-utils libltdl"
 }

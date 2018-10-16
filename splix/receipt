@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="splix"
 VERSION="2.0.0"
@@ -7,30 +7,27 @@ MAINTAINER="jozee@slitaz.org"
 LICENSE="GPL2"
 SHORT_DESC="CUPS drivers for SPL (Samsung Printer Language) printers"
 WEB_SITE="http://splix.ap2c.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://downloads.sourceforge.net/splix/$TARBALL"
-TAGS=""
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="cups gcc gcc-lib-base"
-BUILD_DEPENDS="cups cups-dev jbigkit"
-
-# Rules to configure and make the package.
+BUILD_DEPENDS="cups-dev jbigkit"
 
 compile_rules() {
-	  cd $src
-	  sed -i 's/Value::Value &val/Value \&val/' src/ppdfile.cpp
-	  make &&
-	  make  CUPSFILTER=/`cups-config --serverbin`/filter \
-			CUPSPPD=/`cups-config --datadir`/model \
-			install
+	sed -i 's/Value::Value &val/Value \&val/' src/ppdfile.cpp
+
+	make &&
+	make \
+		CUPSFILTER=/$(cups-config --serverbin)/filter \
+		CUPSPPD=/$(cups-config --datadir)/model \
+		install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+
+genpkg_rules() {
 	mkdir -p $fs/usr/lib $fs/usr/share
 	cp -a $install/usr/lib/cups $fs/usr/lib/
 	cp -a $install/usr/share/cups $fs/usr/share		
 	# gzip all ppd files
 	find $fs/usr/share/cups/model -name "*.ppd" | xargs gzip -n9
+	DEPENDS="cups"
 }

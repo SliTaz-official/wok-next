@@ -1,23 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="connman-ui"
-GITHASH="e4a8ddcca0870eb2ece5a7e3ea0296de9c86e5b2"
-VERSION=${GITHASH:0:7}
+VERSION="git20150622"
+COMMIT="fce0af9"
 CATEGORY="network"
 SHORT_DESC="A full-featured GTK based trayicon UI for ConnMan"
 MAINTAINER="domcox@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/tbursztyka/connman-ui"
-TARBALL="$PACKAGE-$VERSION.zip"
-WGET_URL="https://github.com/tbursztyka/connman-ui/archive/$GITHASH.zip"
 
-DEPENDS="connman dbus gtk+3"
-BUILD_DEPENDS="autoconf automake libtool connman-dev gtk+3-dev dbus-dev \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/tbursztyka/connman-ui/archive/$COMMIT.tar.gz"
+
+BUILD_DEPENDS="autoconf automake libtool connman-dev gtk3-dev dbus-dev \
 libxml2-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh &&
 	./configure $CONFIGURE_ARGS &&
 	# remove Exite menu
@@ -28,8 +26,7 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="connman dbus gtk3"
 }

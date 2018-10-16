@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtk-theme-vertex"
 VERSION="20170128"
@@ -7,15 +7,13 @@ SHORT_DESC="Vertex is a theme for GTK 3, GTK 2, Gnome-Shell and Cinnamon"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/horst3180/vertex-theme"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
-DEPENDS="gtk2-engine-murrine"
-BUILD_DEPENDS="autoconf automake gtk+3-dev"
+BUILD_DEPENDS="autoconf automake gtk3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh \
 		--prefix=/usr \
 		--disable-cinnamon \
@@ -24,8 +22,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2-engine-murrine"
 }

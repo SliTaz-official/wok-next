@@ -11,7 +11,7 @@ WEB_SITE="https://launchpad.net/libdbusmenu"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://launchpad.net/libdbusmenu/${VERSION%.*}/$VERSION/+download/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk-doc gtk+3-dev gtk+-dev json-glib-dev vala \
+BUILD_DEPENDS="intltool gtk-doc gtk3-dev gtk2-dev json-glib-dev vala \
 gobject-introspection-dev"
 SPLIT="libdbusmenu-gtk2-apps libdbusmenu-gtk2 libdbusmenu-gtk2-dev \
 libdbusmenu-gtk3-apps:3 libdbusmenu-gtk3:3 libdbusmenu-gtk3-dev:3"
@@ -34,35 +34,35 @@ genpkg_rules() {
 	case $PACKAGE in
 		libdbusmenu-gtk2-apps)
 			copy libexec/
-			DEPENDS="glib gtk+ json-glib libdbusmenu-gtk2 xorg-libX11"
+			DEPENDS="glib gtk2 json-glib libdbusmenu-gtk2 xorg-libX11"
 			CAT="development|GTK+2 applications"
 			;;
 		libdbusmenu-gtk2)
 			copy @std @rm
-			DEPENDS="atk gdk-pixbuf glib gtk+ json-glib pango"
+			DEPENDS="atk gdk-pixbuf glib gtk2 json-glib pango"
 			CAT="x-window|GTK+2"
 			;;
 		libdbusmenu-gtk2-dev)
 			copy @dev
 			DEPENDS="libdbusmenu-gtk2-apps libdbusmenu-gtk2 \
-			gdk-pixbuf-dev gtk+-dev json-glib-dev"
+			gdk-pixbuf-dev gtk2-dev json-glib-dev"
 			CAT="development|GTK+2 development files"
 			;;
 
 		libdbusmenu-gtk3-apps)
-			copy libexec/ # note "gtk+" in depends
-			DEPENDS="glib gtk+ json-glib libdbusmenu-gtk3 xorg-libX11"
+			copy libexec/ # note "gtk2" in depends
+			DEPENDS="glib gtk2 json-glib libdbusmenu-gtk3 xorg-libX11"
 			CAT="development|GTK+3 applications"
 			;;
 		libdbusmenu-gtk3)
 			copy @std @rm
-			DEPENDS="atk gdk-pixbuf glib gtk+3 json-glib pango"
+			DEPENDS="atk gdk-pixbuf glib gtk3 json-glib pango"
 			CAT="x-window|GTK+3"
 			;;
 		libdbusmenu-gtk3-dev)
 			copy @dev
 			DEPENDS="libdbusmenu-gtk3-apps libdbusmenu-gtk3 \
-			gdk-pixbuf-dev gtk+3-dev json-glib-dev"
+			gdk-pixbuf-dev gtk3-dev json-glib-dev"
 			CAT="development|GTK+3 development files"
 			;;
 	esac

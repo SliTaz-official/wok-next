@@ -3,7 +3,7 @@
 PACKAGE="gnome-icon-theme"
 VERSION="3.12.0"
 CATEGORY="customization"
-SHORT_DESC="Default GNOME icon theme."
+SHORT_DESC="Default GNOME icon theme"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="LGPL3"
 WEB_SITE="https://www.gnome.org/"
@@ -11,19 +11,17 @@ WEB_SITE="https://www.gnome.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="icon-naming-utils intltool gtk+"
+BUILD_DEPENDS="icon-naming-utils intltool gtk2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr
-	make
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		&&
+	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share $fs/usr/lib
 	cp -a $install/usr/share/icons $fs/usr/share
 	# pkgconfig in /usr/lib

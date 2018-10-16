@@ -7,17 +7,14 @@ SHORT_DESC="LXDE monitor configuration tool"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/LXRandR"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/lxrandr.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk+-dev"
+BUILD_DEPENDS="intltool gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxrandr.html
-
+compile_rules() {
 	# change icon and remove keywords from desktop file
 	sed -i 's|^Icon=.*$|Icon=preferences-desktop-display|;
 		/^_Keywords=/d' data/lxrandr.desktop.in
@@ -27,10 +24,8 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
-	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango"
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk2 pango"
 	TAGS="LXDE"
 }

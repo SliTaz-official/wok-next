@@ -1,34 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnome-hearts"
 VERSION="0.3.1"
 CATEGORY="games"
 LICENSE="GPL3"
-SHORT_DESC="GNOME hearts card game."
+SHORT_DESC="GNOME hearts card game"
 MAINTAINER="yuripourre@gmail.com"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://web.archive.org/web/20131231235520/http://www.jejik.com/gnome-hearts"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.jejik.com/files/gnome-hearts/$TARBALL"
 
-DEPENDS="gtk+ libglade python libgnomeui libgnome-keyring librsvg"
-BUILD_DEPENDS="gtk+-dev libglade-dev python-dev libgnome-dev \
+BUILD_DEPENDS="gtk2-dev libglade-dev python-dev libgnome-dev \
 libgnomeui-dev glib-dev itstool rarian-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure  \
+compile_rules() {
+	./configure \
 		--disable-scrollkeeper \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-	cp -a $install/usr/share/applications $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2 libglade python libgnomeui libgnome-keyring librsvg"
 }

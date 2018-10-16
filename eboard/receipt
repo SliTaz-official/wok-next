@@ -1,25 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="eboard"
 VERSION="1.1.1"
 CATEGORY="games"
-SHORT_DESC="Chess board interface."
+SHORT_DESC="Chess board interface"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.bergo.eng.fr/eboard/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-SUGGESTED="gnuchess"
-TAGS="chess"
 
-DEPENDS="gtk+ gcc-lib-base"
-BUILD_DEPENDS="gtk+-dev perl zlib-dev"
+BUILD_DEPENDS="gtk2-dev perl zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/pngp->//g' cimg.cc
 	sed -i 's/strchr(text/strchr((char *)text/' ntext.cc
+
 	./configure \
 		--prefix=/usr \
 		--man-prefix=/usr/share/man \
@@ -29,11 +26,12 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/pixmaps
 	cp -a $install/usr/share $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp $src/r18.xpm $fs/usr/share/pixmaps/eboard.xpm
+	DEPENDS="gtk2 gcc-lib-base"
+	SUGGESTED="gnuchess"
+	TAGS="chess"
 }

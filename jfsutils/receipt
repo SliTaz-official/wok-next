@@ -7,24 +7,22 @@ SHORT_DESC="Utilities for manipulating jfs file-system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://jfs.sourceforge.net/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/jfsutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}project/pub/$TARBALL"
 
 BUILD_DEPENDS="util-linux-uuid-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/postlfs/jfsutils.html
-	sed "s@<unistd.h>@&\n#include <sys/types.h>@g" -i fscklog/extract.c &&
+compile_rules() {
+	sed "s@<unistd.h>@&\n#include <sys/types.h>@g" -i fscklog/extract.c
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="util-linux-uuid"
 	TAGS="filesystem"

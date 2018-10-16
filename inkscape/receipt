@@ -7,21 +7,21 @@ SHORT_DESC="Professional quality vector graphics software"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://inkscape.org/en/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/xsoft/inkscape.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/xsoft/inkscape.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://gitlab.com/inkscape/inkscape/repository/INKSCAPE_${VERSION//./_}/archive.tar.bz2"
 
 BUILD_DEPENDS="cmake gtest pango-dev fontconfig-dev glib-dev gsl-dev \
 gnome-vfs-dev lcms2-dev gc-dev poppler-dev libwpg-dev libvisio-dev libcdr-dev \
-libwpd-dev popt-dev potrace-dev gtkmm-dev gtk+-dev gtkspell-dev boost-dev \
+libwpd-dev popt-dev potrace-dev gtkmm-dev gtk2-dev gtkspell-dev boost-dev \
 aspell-dev libxslt-dev imagemagick6-dev gettext dbus-dev"
 COOKOPTS="!svgz" # don't process svg or they will be broken
-SPLIT="inkscape-examples inkscape-tutorials inkscape"
+SPLIT="$PACKAGE-examples $PACKAGE-tutorials $PACKAGE"
 
 compile_rules() {
-	mkdir -p build
-	cd       build
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -55,7 +55,7 @@ genpkg_rules() {
 		inkscape)
 			copy @std @rm
 			DEPENDS="aspell atk atkmm cairo cairomm fontconfig freetype gc \
-			gdk-pixbuf glib glibmm gnome-vfs gsl gtk+ gtkmm gtkspell \
+			gdk-pixbuf glib glibmm gnome-vfs gsl gtk2 gtkmm gtkspell \
 			imagemagick6 lcms2 libcdr libgiomm libgomp libjpeg-turbo libpng16 \
 			librevenge libsigc++ libvisio libwpg libxml2 libxslt pango pangomm \
 			perl poppler popt potrace python xorg-libX11 zlib"

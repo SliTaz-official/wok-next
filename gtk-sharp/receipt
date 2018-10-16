@@ -12,11 +12,13 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 SERIES=${VERSION%.*}
 WGET_URL="http://download.mono-project.com/sources/gtk-sharp${SERIES//./}/$TARBALL"
 
-BUILD_DEPENDS="gtk+-dev mono-dev libglade-dev"
-SPLIT="gtk-sharp-dev"
+BUILD_DEPENDS="gtk2-dev mono-dev libglade-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
@@ -24,7 +26,7 @@ genpkg_rules() {
 		gtk-sharp)
 			copy *.so *.dll *.config
 			DEPENDS="atk bzlib cairo fontconfig freetype gdk-pixbuf glib \
-			glibc-base gtk+ harfbuzz libffi libglade libpng16 xorg-libxcb \
+			glibc-base gtk2 harfbuzz libffi libglade libpng16 xorg-libxcb \
 			libxml2 pango pcre xorg-pixman xorg-libX11 xorg-libXau \
 			xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
 			xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrandr \

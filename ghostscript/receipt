@@ -11,11 +11,11 @@ WEB_SITE="http://pages.cs.wisc.edu/~ghost/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${VERSION/./}/$TARBALL"
 
-# build depends are optional ; ghostscripts still build but does not compile in cups support
-BUILD_DEPENDS="cairo-dev gtk+-dev expat-dev fontconfig-dev freetype-dev \
+# build depends are optional; ghostscripts still build but does not compile in cups support
+BUILD_DEPENDS="cairo-dev gtk2-dev expat-dev fontconfig-dev freetype-dev \
 gnutls-dev libgcrypt-dev libgpg-error-dev libpng16-dev tiff-dev \
 zlib-dev cups-dev jbig2dec jasper-dev libjpeg-turbo-dev"
-SPLIT="ghostscript ghostscript-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# force it to use system-libs
@@ -48,7 +48,7 @@ genpkg_rules() {
 			rm -rf $fs/usr/bin/gs
 			ln -s gsc $fs/usr/bin/gs
 
-			DEPENDS="atk cairo cups fontconfig freetype gdk-pixbuf glib gtk+ \
+			DEPENDS="atk cairo cups fontconfig freetype gdk-pixbuf glib gtk2 \
 			libcups libgnutls libidn libjpeg-turbo libpng16 pango tiff zlib"
 			;;
 		*-dev)

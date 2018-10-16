@@ -1,9 +1,9 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gvim"
 VERSION="7.3"
 CATEGORY="editors"
-SHORT_DESC="Advanced text editor, with gtk+ GUI"
+SHORT_DESC="Advanced text editor with GTK+ GUI"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="other"
 WEB_SITE="http://www.vim.org/"
@@ -12,15 +12,10 @@ REPOLOGY="vim"
 SOURCE="vim"
 TARBALL="$SOURCE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.vim.org/pub/vim/unix/$TARBALL"
-CONFIG_FILES="/etc/vim/vimrc"
-TAGS="text-editor"
 
-DEPENDS="ncurses gtk+ xorg-libXt xorg-libXau xorg-libXdmcp"
-BUILD_DEPENDS="gtk+-dev"
+BUILD_DEPENDS="gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# define the place for the global vimrc file (set to /etc/vim/vimrc)
 	# (patch from Arch Linux PKGBUILD)
 	sed -i 's|^.*\(#define SYS_VIMRC_FILE\).*$|\1 "/etc/vim/vimrc"|' $src/src/feature.h
@@ -39,16 +34,17 @@ compile_rules()
 		--disable-athena-check \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
+	make \
+		VIMRCLOC=/etc/vim \
+		VIMRUNTIMEDIR=/usr/share/vim/vim73 \
+		MAKE="make -e" &&
+	make DESTDIR=$DESTDIR install || return 1
 
-	make VIMRCLOC=/etc/vim VIMRUNTIMEDIR=/usr/share/vim/vim73 MAKE="make -e" &&
-	make DESTDIR=$DESTDIR install
 	mkdir -p $DESTDIR/etc/vim
 	cp -a $src/runtime/vimrc_example.vim $DESTDIR/etc/vim/vimrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/icons/hicolor/16x16/apps $fs/usr/share/applications $fs/etc
 
 	cp -a $install/usr/bin $fs/usr
@@ -56,10 +52,12 @@ genpkg_rules()
 	cp -a $src/runtime/vim16x16.png $fs/usr/share/icons/hicolor/16x16/apps/gvim.png
 	cp -a stuff/gvim.desktop $fs/usr/share/applications
 	cp -a $install/etc/vim $fs/etc
+	DEPENDS="ncurses gtk2 xorg-libXt xorg-libXau xorg-libXdmcp"
+	CONFIG_FILES="/etc/vim/vimrc"
+	TAGS="text-editor"
 }
 
-post_install()
-{
+post_install() {
 	cmd=$(readlink "$1/bin/vi")
 	if [ ! "$cmd" == '/usr/bin/vim' ]; then
 		echo ""
@@ -78,8 +76,7 @@ post_install()
 	fi
 }
 
-post_remove()
-{
+post_remove() {
 	# restore previous symlink
 	ln -sf busybox "$1/bin/vi"
 }

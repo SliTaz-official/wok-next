@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-apache-dbi"
 VERSION="1.12"
@@ -12,20 +12,16 @@ REPOLOGY="perl:apache-dbi"
 TARBALL="Apache-DBI-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/P/PH/PHRED/$TARBALL"
 
-DEPENDS="perl-dbi perl-digest-sha1"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-dbi perl-digest-sha1"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="$BUILD_DEPENDS"
 }

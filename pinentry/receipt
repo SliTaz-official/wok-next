@@ -7,7 +7,7 @@ SHORT_DESC="Allow GnuPG to read passphrases and PIN numbers in a secure manner"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnupg.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/general/pinentry.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/pinentry.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/pinentry/$TARBALL"
@@ -15,9 +15,9 @@ WGET_URL="https://www.gnupg.org/ftp/gcrypt/pinentry/$TARBALL"
 TARBALL_SHA1="693bdf9f48dfb3e040d92f50b1bb464e268b9fb0"
 
 BUILD_DEPENDS="libassuan-dev libgpg-error-dev ncurses-dev libcap-dev \
-libsecret-dev libgcrypt-dev shared-mime-info gtk+-dev gtk+3-dev gcr-dev \
+libsecret-dev libgcrypt-dev shared-mime-info gtk2-dev gtk3-dev gcr-dev \
 fltk-dev"
-SPLIT="pinentry-gtk pinentry-gnome3 pinentry-fltk"
+SPLIT="$PACKAGE-gtk $PACKAGE-gnome3 $PACKAGE-fltk"
 
 compile_rules() {
 	./configure \
@@ -43,19 +43,19 @@ genpkg_rules() {
 			DEPENDS="glib libassuan libcap libgpg-error libsecret ncurses"
 			CAT="security|for console"
 			;;
-		pinentry-gtk)
+		*-gtk)
 			copy pinentry-gtk-2
-			DEPENDS="glib gtk+ libassuan libcap libgpg-error libsecret \
+			DEPENDS="glib gtk2 libassuan libcap libgpg-error libsecret \
 			ncurses   pinentry"
 			CAT="security|for GTK+ 2"
 			;;
-		pinentry-gnome3)
+		*-gnome3)
 			copy pinentry-gnome3
 			DEPENDS="gcr-base glib libassuan libcap libgpg-error libsecret \
 			ncurses   pinentry"
 			CAT="security|for GNOME 3"
 			;;
-		pinentry-fltk)
+		*-fltk)
 			copy pinentry-fltk
 			DEPENDS="fltk glib libassuan libcap libgpg-error libsecret \
 			ncurses   pinentry"

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lxinput"
 VERSION="0.3.5"
@@ -7,17 +7,14 @@ SHORT_DESC="LXDE keyboard and mouse configuration"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://lxde.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/lxinput.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk+-dev"
+BUILD_DEPENDS="intltool gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxinput.html
-
+compile_rules() {
 	sed -i 's|^Icon=.*$|Icon=preferences-desktop-keyboard|' \
 		data/lxinput.desktop.in
 
@@ -26,12 +23,10 @@ compile_rules()
 	make && make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	# skip icons (found in the icon theme)
 	copy bin/ *.ui
-	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango \
+	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk2 pango \
 	xorg-libX11   xorg-xset"
 	TAGS="LXDE keyboard mouse"
 }

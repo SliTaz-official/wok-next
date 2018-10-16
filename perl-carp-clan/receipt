@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-carp-clan"
 VERSION="6.06"
@@ -13,20 +13,16 @@ REPOLOGY="perl:carp-clan"
 TARBALL="Carp-Clan-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/K/KE/KENTNL/$TARBALL"
 
-DEPENDS="perl-test-exception"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-test-exception"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-test-exception"
 }

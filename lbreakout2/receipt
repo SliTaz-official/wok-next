@@ -1,34 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lbreakout2"
 VERSION="2.6.5"
 CATEGORY="games"
-SHORT_DESC="Breakout clone."
+SHORT_DESC="Breakout clone"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://lgames.sourceforge.net/index.php?project=LBreakout2"
-WGET_URL="http://prdownloads.sourceforge.net/lgames/$TARBALL"
 
-DEPENDS="libpng16 libsdl libsdl-mixer zlib"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/lgames/$TARBALL"
+
 BUILD_DEPENDS="libpng16-dev libsdl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/usr/doc|/usr/share/doc|' configure*
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--disable-sdltest --mandir=/usr/share/man $CONFIGURE_ARGS &&
+
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--disable-sdltest \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share $fs/usr
 	rm -rf $fs/usr/share/doc
 	cp -a stuff/* $fs
+	DEPENDS="libpng16 libsdl libsdl-mixer zlib"
 }

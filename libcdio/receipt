@@ -7,13 +7,13 @@ SHORT_DESC="GNU Compact Disc Input and Control Library"
 MAINTAINER="rj.rohit@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/libcdio/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcdio.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/libcdio.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://ftp.gnu.org/gnu/libcdio/$TARBALL"
 
 BUILD_DEPENDS="perl libcddb-dev ncurses-dev"
-SPLIT="libcdio-utils libcdio-dev"
+SPLIT="$PACKAGE-utils $PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -24,8 +24,15 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libcdio) copy *.so*;;
-		*-utils) copy bin/; DEPENDS="libcdio libcddb ncurses";;
-		*-dev)   copy @dev;;
+		libcdio)
+			copy *.so*
+			;;
+		*-utils)
+			copy bin/
+			DEPENDS="libcdio libcddb ncurses"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

@@ -7,18 +7,20 @@ SHORT_DESC="LXDE terminal emulator"
 MAINTAINER="gokhlayeh@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/LXTerminal"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/lxde/lxterminal.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/lxterminal.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 
-BUILD_DEPENDS="intltool gtk+-dev vte-gtk2-dev"
+BUILD_DEPENDS="intltool gtk2-dev vte-gtk2-dev"
 SPLIT="lxterminal-locales"
 
 compile_rules() {
 	sed -i '/_Keywords=/d; /TryExec=/d' $src/data/lxterminal.desktop.in
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
@@ -26,7 +28,7 @@ genpkg_rules() {
 		lxterminal)
 			copy @std
 			rm -r $fs/usr/share/icons
-			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk+ pango \
+			DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk2 pango \
 			vte-gtk2 xorg-libX11 xorg-libXext"
 			SUGGESTED="lxterminal-locales"
 			TAGS="LXDE terminal"

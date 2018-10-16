@@ -1,22 +1,19 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="epdfview"
 VERSION="0.1.8"
 CATEGORY="office"
-SHORT_DESC="Lightweight PDF document viewer using Poppler."
+SHORT_DESC="Lightweight PDF document viewer using Poppler"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/jristz/epdfview"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/jristz/epdfview/archive/$VERSION.tar.gz"
-TAGS="pdf viewer"
 
-DEPENDS="gtk+ poppler glib libpng16 xorg-libXdamage gcc-lib-base"
-BUILD_DEPENDS="gtk+-dev poppler-dev poppler cairo-dev"
+BUILD_DEPENDS="gtk2-dev poppler-dev poppler cairo-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/FORMAT_RGB24/FORMAT_ARGB32/g' src/PDFDocument.cxx
 	sed -i 's/firefox/browser/g' src/Config.cxx
 	sed -i 's/<config.h>/&\n#include <stdio.h>\n#define g_fopen fopen/' \
@@ -26,15 +23,17 @@ compile_rules()
 	./configure \
 		--without-cups \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
+
 	cp -f $stuff/*.desktop $install/usr/share/applications
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy epdfview *.desktop *.xml
 	mkdir -p $fs/usr/share/icons/hicolor/48x48/apps
 	cp $install/usr/share/epdfview/pixmaps/icon_epdfview-48.png \
 		$fs/usr/share/icons/hicolor/48x48/apps/epdfview.png
+	DEPENDS="gtk2 poppler glib libpng16 xorg-libXdamage gcc-lib-base"
+	TAGS="pdf viewer"
 }

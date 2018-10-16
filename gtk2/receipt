@@ -1,22 +1,17 @@
 # SliTaz package receipt v2.
 
-PACKAGE="gtk+"
+PACKAGE="gtk2"
 VERSION="2.24.31"
 CATEGORY="x-window"
 SHORT_DESC="The GIMP Toolkit"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gtk.org/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/x/gtk2.html"
-REPOLOGY="gtk2"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gtk2.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
+TARBALL="gtk+-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/gtk+/${VERSION:0:4}/$TARBALL"
 
-BUILD_DEPENDS_arm="atk-dev pango-dev gdk-pixbuf-dev dbus-dev dbus-glib-dev \
-xorg-xorgproto xorg-libxcb-dev fontconfig-dev freetype-dev xorg-pixman-dev libxml2-dev \
-libpng16-dev libffi-dev harfbuzz-dev faenza-icon-theme optipng \
-xorg-libX11-dev xorg-libXext-dev xorg-libXrender-dev automake"
 BUILD_DEPENDS="paper-icon-theme rsvg-convert optipng-static pngquant-static \
 symlinks \
 glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
@@ -24,20 +19,9 @@ gobject-introspection-dev gtk-doc automake gettext xorg-libXinerama-dev"
 BUILD_DEPENDS="glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
 gobject-introspection-dev gtk-doc gettext xorg-libXinerama-dev \
 shared-mime-info-dev"
-SPLIT="gtk+-demo gtk+ gtk+-dev"
+SPLIT="$PACKAGE-demo $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			BUILD_DEPENDS=$BUILD_DEPENDS_arm
-			ARCH_ARGS="--enable-introspection=no --disable-glibtest --disable-cups \
-			--disable-papi --with-gdktarget=x11 --with-xinput gio_can_sniff=yes"
-			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib"
-			export CPPFLAGS="$CPPFLAGS -I/cross/$ARCH/sysroot/usr/include"
-			export LIBTOOL=${HOST_SYSTEM}-libtool
-			;;
-	esac
-
 #	. $stuff/replace-icons-paper; cd $src
 
 #	find $src -type f -name 'Makefile.in' -exec sed -i 's|1.15|1.15.1|' '{}' \;
@@ -45,7 +29,7 @@ compile_rules() {
 #	autoreconf -fi && # fix 'version mismatch' between 1.15 and 1.15.1
 	./configure \
 		--enable-debug=no \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS $LIBTOOL &&
 	make install || return 1
@@ -59,12 +43,12 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		gtk+-demo)
+		*-demo)
 			copy gtk-demo demo/ *.desktop
 			CAT="development|example code and demo"
-			DEPENDS="cairo gdk-pixbuf glib gtk+ pango"
+			DEPENDS="cairo gdk-pixbuf glib gtk2 pango"
 			;;
-		gtk+)
+		gtk2)
 			COOKOPTS="!menus"
 			copy @std @rm
 			DEPENDS="atk cairo fontconfig gdk-pixbuf glib libcups pango \
@@ -72,9 +56,9 @@ genpkg_rules() {
 			CONFIG_FILES="/etc/gtk-2.0/im-multipress.conf"
 			SUGGESTED="cups gnutls libgcrypt libgpg-error"
 			;;
-		gtk+-dev)
+		*-dev)
 			copy @dev
-			DEPENDS="gtk+ \
+			DEPENDS="gtk2 \
 			atk-dev cairo-dev gdk-pixbuf-dev glib-dev pango-dev"
 			;;
 	esac

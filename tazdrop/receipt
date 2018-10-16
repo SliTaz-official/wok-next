@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tazdrop"
 VERSION="1024"
@@ -12,21 +12,17 @@ REPOLOGY="-"
 TARBALL="slitaz-tools-$VERSION.tar.gz"
 WGET_URL="http://hg.slitaz.org/slitaz-tools/archive/$VERSION.tar.gz"
 
-DEPENDS="gtk+ yad"
 BUILD_DEPENDS="gettext"
 SIBLINGS="slitaz-tools slitaz-tools-boxes"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make msgfmt
 	cd $src/tazdrop
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/* $fs
+	DEPENDS="gtk2 yad"
 }

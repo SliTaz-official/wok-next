@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-b-hooks-endofscope"
 VERSION="0.24"
@@ -13,20 +13,17 @@ REPOLOGY="perl:b-hooks-endofscope"
 TARBALL="B-Hooks-EndOfScope-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
 
-DEPENDS="perl-module-implementation perl-sub-exporter-progressive"
-BUILD_DEPENDS="$DEPENDS perl-dev perl-variable-magic"
+BUILD_DEPENDS="perl-module-implementation perl-sub-exporter-progressive \
+perl-dev perl-variable-magic"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-module-implementation perl-sub-exporter-progressive"
 }

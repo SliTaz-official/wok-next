@@ -1,24 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="grsync"
 VERSION="1.2.2"
 CATEGORY="network"
-SHORT_DESC="GTK+ intuitive interface to rsync."
+SHORT_DESC="GTK+ intuitive interface to rsync"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.opbyte.it/grsync/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.opbyte.it/release/$TARBALL"
 
-DEPENDS="gtk+ rsync xorg-libXdamage acl"
-BUILD_DEPENDS="gtk+-dev xorg-xorgproto perl-xml-parser intltool"
+BUILD_DEPENDS="gtk2-dev xorg-xorgproto perl-xml-parser intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	cd $src
+
 	chmod +x install-sh
 	./configure \
 		--prefix=/usr \
@@ -30,13 +28,11 @@ compile_rules()
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    	mkdir -p $fs/usr/share
-    	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	mkdir -p $fs/usr/share
+	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/grsync $fs/usr/share
-    	sed -i s'|#!/bin/bash|#!/bin/sh|' $fs/usr/bin/grsync-batch
+	sed -i s'|#!/bin/bash|#!/bin/sh|' $fs/usr/bin/grsync-batch
 	chmod +x $fs/usr/bin/*
+	DEPENDS="gtk2 rsync xorg-libXdamage acl"
 }
-

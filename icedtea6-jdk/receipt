@@ -4,7 +4,7 @@ PACKAGE="icedtea6-jdk"
 SOURCE="icedtea6"
 VERSION="1.9.9"
 CATEGORY="development"
-SHORT_DESC="A Free Software harness for OpenJDK."
+SHORT_DESC="A Free Software harness for OpenJDK"
 MAINTAINER="rcx@zoominternet.net"
 LICENSE="GPL2"
 WEB_SITE="http://www.iced-tea.org/"
@@ -16,10 +16,10 @@ WGET_URL="http://icedtea.wildebeest.org/download/source/$TARBALL"
 BUILD_DEPENDS="gcc+gcj autoconf automake m4 diffutils gawk cups-dev cpio \
 coreutils-file-special coreutils-file-summarize alsa-lib-dev file patch perl \
 zip unzip findutils  bzip2 tar glib-dev fastjar rhino ecj apache-ant jpeg-dev \
-xalan-xerces-j gtk+-dev giflib-dev libpng16-dev xorg-dev xorg-libXtst-dev \
+xalan-xerces-j gtk2-dev giflib-dev libpng16-dev xorg-dev xorg-libXtst-dev \
 xorg-libXp-dev xorg-dev-proto nss nss-dev jdk6-jaxws jdk6-jaxp jdk6-jaf \
 openjdk-6-src"
-SPLIT="icedtea6-jdk icedtea6-jre java-jdk java-jre"
+SPLIT="$PACKAGE icedtea6-jre java-jdk java-jre"
 
 # Note to icedtea6 updaters,
 # You should check version into receipts:
@@ -34,9 +34,7 @@ EXTRA_SOURCE_FILES="jdk6-jaxws-$openjdk_version.zip \
 jdk6-jaxp-$openjdk_version.zip jdk6-jaf-$openjdk_version.zip \
 openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Limit memory usage
 	ulimit -v $(awk '/MemTotal/ { print int(($2*80)/100) }' < /proc/meminfo)
 
@@ -152,48 +150,43 @@ EOT
 	fi
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	icedtea6-jdk)
-		DEPENDS="icedtea6-jre xorg xorg-libXtst xorg-libXp cups"
-		mkdir -p $fs/usr/lib/jvm/java-icedtea
-		cp -a $install/usr/lib/jvm/java-icedtea/bin $fs/usr/lib/jvm/java-icedtea
-		cp -a $install/usr/lib/jvm/java-icedtea/lib $fs/usr/lib/jvm/java-icedtea
-		;;
-	icedtea6-jre)
-		CAT="development|A Free Software harness for OpenJDK JRE."
-		DEPENDS="glibc-base gcc-lib-base util-linux-uuid alsa-lib \
+		icedtea6-jdk)
+			mkdir -p $fs/usr/lib/jvm/java-icedtea
+			cp -a $install/usr/lib/jvm/java-icedtea/bin $fs/usr/lib/jvm/java-icedtea
+			cp -a $install/usr/lib/jvm/java-icedtea/lib $fs/usr/lib/jvm/java-icedtea
+			DEPENDS="icedtea6-jre xorg xorg-libXtst xorg-libXp cups"
+			;;
+		icedtea6-jre)
+			mkdir -p $fs/usr/lib/jvm/java-icedtea
+			cp -a $install/usr/lib/jvm/java-icedtea/jre $fs/usr/lib/jvm/java-icedtea
+			CAT="development|JRE"
+			DEPENDS="glibc-base gcc-lib-base util-linux-uuid alsa-lib \
 			freetype giflib libjpeg libpng16 zlib xorg-libICE \
 			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
 			xorg-libXext xorg-libXi xorg-libXrender xorg-libXtst"
-		mkdir -p $fs/usr/lib/jvm/java-icedtea
-		cp -a $install/usr/lib/jvm/java-icedtea/jre $fs/usr/lib/jvm/java-icedtea
-		;;
-	java-jdk)
-		CAT="development|Symlinks for the default Java Development Kit (icedtea6)."
-		TAGS="java"
-		DEPENDS="icedtea6-jdk"
-		mkdir -p $fs/usr
-		cp -a $install/usr/jdk-bin $fs/usr/bin
-		;;
-	java-jre)
-		CAT="development|Symlinks for the default Java Runtime Environment (icedtea6)."
-		DEPENDS="icedtea6-jre"
-		mkdir -p $fs/usr
-		cp -a $install/usr/jre-bin $fs/usr/bin
-		;;
+			;;
+		java-jdk)
+			mkdir -p $fs/usr
+			cp -a $install/usr/jdk-bin $fs/usr/bin
+			CAT="development|symlinks for the default Java Development Kit (icedtea6)"
+			TAGS="java"
+			DEPENDS="icedtea6-jdk"
+			;;
+		java-jre)
+			mkdir -p $fs/usr
+			cp -a $install/usr/jre-bin $fs/usr/bin
+			CAT="development|symlinks for the default Java Runtime Environment (icedtea6)"
+			DEPENDS="icedtea6-jre"
+			;;
 	esac
 }
 
-# Post install/remove commands for Tazpkg.
-post_install_icedtea6_jre()
-{
+post_install_icedtea6_jre() {
 	ln -sf /usr/lib/jvm/java-icedtea/bin/java "$1/usr/bin/java"
 }
 
-post_remove_icedtea6_jre()
-{
+post_remove_icedtea6_jre() {
 	rm -f "$1/usr/bin/java"
 }

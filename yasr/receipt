@@ -1,42 +1,36 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="yasr"
 VERSION="0.6.9"
 CATEGORY="utilities"
-SHORT_DESC="General purpose console screen reader."
+SHORT_DESC="General purpose console screen reader"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://yasr.sourceforge.net/"
-WGET_URL="http://prdownloads.sourceforge.net/yasr/$TARBALL"
 
-DEPENDS="speech-dispatcher espeak bash"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
-		--prefix=/usr $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/yasr $fs/usr/share
+	DEPENDS="speech-dispatcher espeak bash"
 }
 
-post_install()
-{
+post_install() {
 	# Enable speech-synthesizer in config file
-	echo -n "Enabling config file..."
-	cd "$1/usr/share/yasr"
-	sed -i 's/synthesizer=emacspeak/#synthesizer=emacspeak/; \
-	s/#synthesizer=speech/synthesizer=speech/; \
-	s/synthesizer port=|/#synthesizer port=|/; \
-	s/#synthesizer port=127./synthesizer port=127./' yasr.conf
-	status	
+	sed 's!synthesizer=emacspeak!#synthesizer=emacspeak!;
+		s!#synthesizer=speech!synthesizer=speech!;
+		s!synthesizer port=|!#synthesizer port=|!;
+		s!#synthesizer port=127.!synthesizer port=127.!' \
+		-i "$1/usr/share/yasr/yasr.conf"
 }
-

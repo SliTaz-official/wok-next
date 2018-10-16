@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-cairo"
 VERSION="1.106"
@@ -12,20 +12,17 @@ REPOLOGY="perl:cairo"
 TARBALL="Cairo-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
 
-DEPENDS="cairo freetype perl-extutils-depends perl-extutils-pkgconfig"
-BUILD_DEPENDS="$DEPENDS perl-dev cairo-dev"
+BUILD_DEPENDS="cairo freetype perl-extutils-depends perl-extutils-pkgconfig \
+perl-dev cairo-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
 	make && make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std *.h
+	DEPENDS="cairo freetype perl-extutils-depends perl-extutils-pkgconfig"
 }

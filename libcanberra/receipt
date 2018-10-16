@@ -7,13 +7,13 @@ SHORT_DESC="Portable sound event library"
 MAINTAINER="devl547@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="http://0pointer.de/lennart/projects/libcanberra/"
-LFS="http://www.linuxfromscratch.org/blfs/view/stable/multimedia/libcanberra.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/libcanberra.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-BUILD_DEPENDS="libtool gtk+-dev libvorbis-dev alsa-lib-dev eudev-dev \
-gstreamer1-dev gtk+3-dev"
+BUILD_DEPENDS="libtool gtk2-dev libvorbis-dev alsa-lib-dev eudev-dev \
+gstreamer1-dev gtk3-dev"
 SPLIT="libcanberra-gnome libcanberra-gstreamer1 libcanberra-gtk2 \
 libcanberra-gtk3 libcanberra libcanberra-dev"
 
@@ -42,12 +42,12 @@ genpkg_rules() {
 		*-gtk2)
 			copy gtk-2.0/modules/*.so libcanberra-gtk.so*
 			CAT="sound|GTK+2 integration"
-			DEPENDS="glib gtk+ libcanberra xorg-libX11"
+			DEPENDS="glib gtk2 libcanberra xorg-libX11"
 			;;
 		*-gtk3)
 			copy gtk-3.0/modules/*.so libcanberra-gtk3.so* canberra-gtk-play
 			CAT="sound|GTK+3 integration"
-			DEPENDS="glib gtk+3 libcanberra xorg-libX11"
+			DEPENDS="glib gtk3 libcanberra xorg-libX11"
 			;;
 		libcanberra)
 			copy @std @rm
@@ -56,7 +56,7 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			DEPENDS="${SPLIT/$PACKAGE/} \
-			gtk+-dev gtk+3-dev xorg-libX11-dev"
+			gtk2-dev gtk3-dev xorg-libX11-dev"
 			;;
 	esac
 }

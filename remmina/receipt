@@ -6,43 +6,44 @@ CATEGORY="network"
 SHORT_DESC="Remote desktop client written in GTK+"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://$PACKAGE.sourceforge.net/"
-WGET_URL="https://github.com/FreeRDP/Remmina/archive/v$VERSION.tar.gz"
-PROVIDE="remmina-plugins"
-TAGS="rdp vnc nx xdmcp"
 
-DEPENDS="gtk+ libgcrypt libssh vte freerdp"
-BUILD_DEPENDS="gtk+-dev intltool cmake libgcrypt-dev libssh-dev vte-dev \
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/FreeRDP/Remmina/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="gtk2-dev intltool cmake libgcrypt-dev libssh-dev vte-dev \
 freerdp-dev libvncserver-dev libgnome-keyring-dev gettext telepathy-glib-dev \
 libappindicator-gtk3-dev xorg-libxkbfile-dev"
-SPLIT="remmina-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Here `sed -i '/external_tools/d' ...` because cmake (make install)
 	# produce error trying to install "external tools" to
 	# "$install/root/.remmina/external_tools/"
 	mkdir build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr -DWITH_TELEPATHY=OFF \
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DWITH_TELEPATHY=OFF \
 		-DWITH_AVAHI=OFF &&
-	make &&
-	sed -i '/external_tools/d' $src/remmina/cmake_install.cmake &&
-	make DESTDIR=$DESTDIR install
+	make || return 1
+
+	sed -i '/external_tools/d' $src/remmina/cmake_install.cmake
+	make DESTDIR=$DESTDIR install || return 1
+
 	cp -a remmina/include $DESTDIR/usr
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	remmina)
-		cp -a $install/* $fs
-		;;
-	remmina-dev)
-		mkdir -p $fs/usr
-		cp -a $install/usr/include $fs/usr
-		;;
+		remmina)
+			copy @std
+			DEPENDS="gtk2 libgcrypt libssh vte freerdp"
+			PROVIDE="remmina-plugins"
+			TAGS="rdp vnc nx xdmcp"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

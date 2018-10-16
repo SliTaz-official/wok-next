@@ -1,36 +1,33 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="devilspie"
 VERSION="0.22"
 CATEGORY="x-window"
-SHORT_DESC="Windows matching utility."
+SHORT_DESC="Windows matching utility"
 MAINTAINER="pankso@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.burtonini.com/blog/tag/devilspie.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://burtonini.com/computing/$TARBALL"
 
-DEPENDS="libwnck2 expat gtk+ xorg-libX11 xorg-libXau xorg-libXcomposite \
-xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
-xorg-libXrandr xorg-libXrender xorg-libXdamage"
 BUILD_DEPENDS="intltool libwnck2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
-	sed -i \
-	  -e 's/gdk_display/GDK_DISPLAY_XDISPLAY(gdk_display_get_default())/' \
-	  -e 's/GDK_DISPLAY(/gdk_display_get_default(/' \
-		src/xutils.c src/actions.c
-	./configure $CONFIGURE_ARGS && 
-	make && make install
+	sed \
+		-e 's/gdk_display/GDK_DISPLAY_XDISPLAY(gdk_display_get_default())/' \
+		-e 's/GDK_DISPLAY(/gdk_display_get_default(/' \
+		-i src/xutils.c src/actions.c
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libwnck2 expat gtk2 xorg-libX11 xorg-libXau xorg-libXcomposite \
+	xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
+	xorg-libXrandr xorg-libXrender xorg-libXdamage"
 }

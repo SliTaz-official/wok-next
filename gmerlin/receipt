@@ -11,7 +11,7 @@ WEB_SITE="http://gmerlin.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="texinfo libxml2-dev expat-dev gavl-dev gtk+-dev alsa-lib-dev \
+BUILD_DEPENDS="texinfo libxml2-dev expat-dev gavl-dev gtk2-dev alsa-lib-dev \
 libpng16-dev mesa-dev xorg-libxshmfence-dev gettext"
 COOKOPTS="skip-log-errors"
 
@@ -21,16 +21,18 @@ compile_rules() {
 
 	./configure \
 		--without-doxygen \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
+		$CONFIGURE_ARGS || return 1
+
+	fix libtool
 	sed -i 's|LIBS = -lgavl|LIBS = -lgavl -ldl -lpthread -lgtk-x11-2.0 -lgobject-2.0 -lglib-2.0 -lxml2 -lgdk-x11-2.0 -lgdk_pixbuf-2.0 -lX11|' \
-		apps/*/Makefile lib/Makefile tests/Makefile &&
-	sed -i 's|ln -sf $(DESTDIR)$(pkgdatadir)|ln -sf $(pkgdatadir)|' icons/Makefile &&
+		apps/*/Makefile lib/Makefile tests/Makefile
+	sed -i 's|ln -sf $(DESTDIR)$(pkgdatadir)|ln -sf $(pkgdatadir)|' icons/Makefile
+
 	make &&
-	make -j 1 install
+	make -j1 install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="libxml2 expat gavl gtk+ alsa-lib libpng16"
+	DEPENDS="libxml2 expat gavl gtk2 alsa-lib libpng16"
 }

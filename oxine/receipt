@@ -1,30 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="oxine"
 VERSION="0.7.1"
 CATEGORY="multimedia"
-SHORT_DESC="oxine is a lightweight, purely osd based xine frontend for set-top boxes and home entertainment systems."
+SHORT_DESC="Lightweight, purely OSD based xine frontend for set-top boxes and home entertainment systems"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://oxine.sourceforge.net/"
-WGET_URL="http://downloads.sourceforge.net/project/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="libcdio xine-lib curl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="shared-mime-info libcdio-dev xine-lib-dev curl-dev \
 xorg-libX11-dev xorg-libXtst-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make &&	make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/ $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libcdio xine-lib curl"
 }

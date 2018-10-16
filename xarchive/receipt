@@ -1,35 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xarchive"
 VERSION="0.2.8-6"
 CATEGORY="x-window"
-SHORT_DESC="A GTK+ front-end for command line archiving tools."
+SHORT_DESC="A GTK+ front-end for command line archiving tools"
 MAINTAINER="erjo@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-SUGGESTED="zip rar unace arj lha p7zip lzop linux-squashfs cromfs cabextract \
-xz lrzip"
 WEB_SITE="http://xarchive.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk+ xorg-libXdamage"
-BUILD_DEPENDS="gtk+-dev"
+BUILD_DEPENDS="gtk2-dev"
 
-# Rules to configure and make the package.ls sr	
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$DESTDIR install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/lib/xarchive/wrappers
 	cp -a $install/usr/bin $fs/usr
 	sed -i 's|#!\s*/bin/bash|#!/bin/sh|' $install/usr/lib/xarchive/wrappers/*
 	cp $stuff/slitaz-wrap.sh $fs/usr/lib/xarchive/wrappers
+	DEPENDS="gtk2 xorg-libXdamage"
+	SUGGESTED="zip rar unace arj lha p7zip lzop linux-squashfs cromfs \
+	cabextract xz lrzip"
 }
