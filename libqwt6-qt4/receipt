@@ -4,46 +4,40 @@ PACKAGE="libqwt6-qt4"
 VERSION="6.0.1"
 CATEGORY="graphics"
 SHORT_DESC="Lib Qt Widgets for Technical applications"
-MAINTAINER="slitaz@objectif-securite.ch"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://qwt.sourceforge.net"
+WEB_SITE="http://qwt.sourceforge.net/"
 REPOLOGY="qwt"
 
 SOURCE="qwt"
 TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="http://switch.dl.sourceforge.net/sourceforge/qwt/$TARBALL"
+WGET_URL="$SF_MIRROR/qwt/$TARBALL"
 
 BUILD_DEPENDS="qmake Qt4-dev"
-SPLIT="libqwt6-qt4-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i \
-		-e 's/$${QWT_INSTALL_PREFIX}\/include/\/usr\/include\/qwt\//' \
-		-e 's/$${QWT_INSTALL_PREFIX}\/lib/\/usr\/lib\//' \
-		-e 's/$${QWT_INSTALL_PREFIX}\/plugins\/designer/\/usr\/lib\/qt\/plugins\/designer\//' \
-		-e 's/$${QWT_INSTALL_PREFIX}\/features/\/usr\/share\/qwt\/features\//' \
-		qwtconfig.pri
+compile_rules() {
+	sed \
+		-e 's|$${QWT_INSTALL_PREFIX}/include|/usr/include/qwt/|' \
+		-e 's|$${QWT_INSTALL_PREFIX}/lib|/usr/lib/|' \
+		-e 's|$${QWT_INSTALL_PREFIX}/plugins/designer|/usr/lib/qt/plugins/designer/|' \
+		-e 's|$${QWT_INSTALL_PREFIX}/features|/usr/share/qwt/features/|' \
+		-i qwtconfig.pri
+
 	qmake &&
 	make -j1 &&
-	make INSTALL_ROOT=$DESTDIR install
+	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libqwt6-qt4)
-		DEPENDS="libQtCore libQtGui libQtScript libQtXml libQtDesigner gcc-lib-base"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/usr/share/qwt $fs/usr/share
-		;;
-	libqwt6-qt4-dev)
-		DEPENDS="qt-x11-opensource-src libqwt6-qt4"
-		mkdir -p $fs/usr
-		cp -a $install/usr/include $fs/usr
-		;;
+		libqwt6-qt4)
+			copy @std
+			DEPENDS="libQtCore libQtGui libQtScript libQtXml libQtDesigner"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="qt-x11-opensource-src libqwt6-qt4"
+			;;
 	esac
 }

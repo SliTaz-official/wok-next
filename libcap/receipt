@@ -4,7 +4,7 @@ PACKAGE="libcap"
 VERSION="2.25"
 CATEGORY="system-tools"
 SHORT_DESC="Support for getting/setting POSIX.1e capabilities"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://sites.google.com/site/fullycapable/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/libcap.html"
@@ -12,21 +12,15 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/libcap.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/$TARBALL"
 
-BUILD_DEPENDS_arm="gperf pam-dev attr-dev"
 BUILD_DEPENDS="pam-dev attr-dev perl" # no gperf:
 # libcap-2.25 incompatible with gperf 3.1: https://bugs.gentoo.org/604802
-SPLIT="libcap-pam libcap libcap-dev"
+SPLIT="$PACKAGE-pam $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	# Handle cross compilation.
-	case "$ARCH" in
-		arm*) ARCH_ARGS="CC=$HOST_SYSTEM-gcc BUILD_CC=gcc" ;;
-	esac
-
 	# Prevent a static library from being installed
 	sed -i '/install.*STALIBNAME/d' libcap/Makefile
 
-	make $ARCH_ARGS &&
+	make &&
 	make \
 		RAISE_SETFCAP=no \
 		lib=lib \

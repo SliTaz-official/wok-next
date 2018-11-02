@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-extutils-pkgconfig"
 VERSION="1.16"
@@ -12,20 +12,17 @@ REPOLOGY="perl:extutils-pkgconfig"
 TARBALL="ExtUtils-PkgConfig-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
 
-DEPENDS="perl pkg-config"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl pkg-config"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl pkg-config"
 }

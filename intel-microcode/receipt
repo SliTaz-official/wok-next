@@ -17,7 +17,7 @@ WGET_URL="https://downloadmirror.intel.com/$DL_ID/eng/microcode-$VERSION.tgz"
 TARBALL_MD5="873f2bdd7c0edf317f416f54fee74b42"
 
 BUILD_DEPENDS="iucode-tool"
-SPLIT="intel-microcode-initrd"
+SPLIT="$PACKAGE-initrd"
 
 compile_rules() {
 	mkdir -p $install/lib/firmware/
@@ -55,8 +55,7 @@ post_install_intel_microcode() {
 	fi
 }
 post_install_intel_microcode_initrd() {
-	if [ -n "$quiet" ]; then
-		cat <<EOT
+	[ -n "$quiet" ] || cat <<EOT
 
 	.------------------------------------------------------------------.
 	| In order to update the Intel CPU microcode on boot, add the file |
@@ -65,5 +64,4 @@ post_install_intel_microcode_initrd() {
 	'------------------------------------------------------------------'
 
 EOT
-	fi
 }

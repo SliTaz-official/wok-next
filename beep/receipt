@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="beep"
 VERSION="1.3"
 CATEGORY="system-tools"
-SHORT_DESC="Advanced pc-speaker beeper."
+SHORT_DESC="Advanced PC-speaker beeper"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.johnath.com/beep/README"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.johnath.com/beep/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
 
+	install -Dm755 beep $install/usr/bin/beep
 	cook_pick_manpages beep.1.gz
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/beep $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }
 
-post_remove()
-{
+post_remove() {
 	ln -s /bin/busybox "$1/usr/bin/beep"
 }

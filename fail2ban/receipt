@@ -3,7 +3,7 @@
 PACKAGE="fail2ban"
 VERSION="0.9.0"
 CATEGORY="network"
-SHORT_DESC="Scans log files to bans IP that makes too many password failures."
+SHORT_DESC="Scans log files to bans IP that makes too many password failures"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -15,15 +15,11 @@ CONFIG_FILES="/etc/fail2ban"
 DEPENDS="iptables"
 BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/etc/logrotate.d $fs/etc/init.d
 	cp -a $install/* $fs
 	sed -i 's/= \\s\*(/= \\s*\\S+\\s\*(/'  $fs/etc/fail2ban/filter.d/common.conf
@@ -35,7 +31,6 @@ genpkg_rules()
 
 	cat >> $fs/etc/fail2ban/jail.conf <<EOT
 [apache-noscript]
-
 enabled  = false
 port     = http,https
 filter   = apache-noscript
@@ -44,7 +39,6 @@ logpath  = /var/log/apache/*errors
 maxretry = 2
 
 [apache-proxy]
-
 enabled  = false
 port     = http,https
 filter   = apache-proxy
@@ -54,15 +48,14 @@ bantime  = 172800
 maxretry = 2
 
 [apache-w00tw00t]
-enabled = false
-filter = apache-w00tw00t
-action = iptables[name=Apache-w00tw00t,port=80,protocol=tcp]
-        logpath = /var/log/apache/*access
-        maxretry = 1
-        bantime  = 172800
+enabled  = false
+filter   = apache-w00tw00t
+action   = iptables[name=Apache-w00tw00t,port=80,protocol=tcp]
+logpath  = /var/log/apache/*access
+maxretry = 1
+bantime  = 172800
 
 [lighttpd-fastcgi]
-
 enabled  = false
 port     = http,https
 filter   = lighttpd-fastcgi
@@ -71,7 +64,6 @@ logpath  = /var/log/lighttpd/*error*.log
 maxretry = 2
 
 [ssh-ddos]
-
 enabled  = true
 port     = ssh,sftp
 filter   = sshd-ddos

@@ -5,10 +5,10 @@ VERSION="2.15.5_gs_r7"
 _VERSION=gs-r7
 CATEGORY="games"
 SHORT_DESC="An emulator for Sega Genesis, Sega CD and 32X"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://info.sonicretro.org/Gens/GS"
-HOST_ARCH="i486" # cite: configure: error: 64-bit is currently not supported.
+WEB_SITE="https://segaretro.org/Gens/GS"
+HOST_ARCH="i486" # quote: configure: error: 64-bit is currently not supported.
 
 TARBALL="Gens-${_VERSION}.tar.gz"
 WGET_URL="http://segaretro.org/images/6/6d/$TARBALL"
@@ -19,7 +19,8 @@ compile_rules() {
 	chmod +x install-sh
 	./configure $CONFIGURE_ARGS
 	find -name "Makefile" | xargs sed -i 's|-DGTK_DISABLE_DEPRECATED||g'
-	make -j1 && make -j1 DESTDIR=$DESTDIR install
+	make -j1 &&
+	make -j1 DESTDIR=$install install
 }
 
 genpkg_rules() {

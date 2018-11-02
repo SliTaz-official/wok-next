@@ -12,7 +12,9 @@ TARBALL="ZoneMinder-$VERSION.tar.gz"
 WGET_URL="http://www2.zoneminder.com/downloads/$TARBALL"
 
 BUILD_DEPENDS="mysql-dev jpeg-dev ffmpeg-dev gnutls-dev libav-dev \
-linux-api-headers $DEPENDS"
+linux-api-headers bzlib zlib x264 perl perl-dbi-dbd perl-dbd-mysql \
+perl-time-hires perl-getopt-long perl-date-manip perl-libwww-perl \
+perl-archive-zip"
 
 compile_rules() {
 	sed -i 's/.*fcntl.h.*/#include <limits.h>\n&/' src/zm_event.cpp \
@@ -29,7 +31,7 @@ compile_rules() {
 		--enable-mmap=no \
 		$CONFIGURE_ARGS &&
 	make &&
-	make -j 1 DESTDIR=$DESTDIR install || return 1
+	make -j1 DESTDIR=$install install || return 1
 
 	install -Dm644 $stuff/etc/logrotate.d/zoneminder $install/etc/logrotate.d/zoneminder
 	install -Dm644 $stuff/etc/mysql.d/zoneminder     $install/etc/mysql.d/zoneminder

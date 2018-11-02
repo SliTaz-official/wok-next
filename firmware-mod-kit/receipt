@@ -3,7 +3,7 @@
 PACKAGE="firmware-mod-kit"
 VERSION="099"
 CATEGORY="misc"
-SHORT_DESC="Scripts and utilities to rebuild openwrt based images."
+SHORT_DESC="Scripts and utilities to rebuild openwrt based images"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://github.com/rampageX/firmware-mod-kit/wiki"
@@ -11,21 +11,18 @@ WEB_SITE="https://github.com/rampageX/firmware-mod-kit/wiki"
 TARBALL="fmk_$VERSION.tar.gz"
 WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/$PACKAGE/$TARBALL"
 
-DEPENDS="liblzma zlib bash python-magic coreutils-file-special"
 BUILD_DEPENDS="xz-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
-	./configure $CONFIGURE_ARGS && make -j1
+	./configure $CONFIGURE_ARGS &&
+	make -j1 || return 1
 
 	mkdir -p $install/usr/share
 	cp -a $src $install/usr/share/firmware-mod-kit
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="liblzma zlib bash python-magic coreutils-file-special"
 }

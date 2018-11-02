@@ -1,34 +1,32 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="parcellite"
 VERSION="0.9.3"
 CATEGORY="utilities"
 SHORT_DESC="Lightweight GTK+ clipboard manager"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://parcellite.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk2 xorg-libX11 xorg-libXdamage"
 BUILD_DEPENDS="xorg-libX11-dev gtk2-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{	
+compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
 	find . -name '*.[ch]*' | xargs sed -i 's|<glib/.*h|<glib.h|'
-	./configure \
-		$CONFIGURE_ARGS &&
-	make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/applications $fs/etc
 	cp -a $install/usr/bin $fs/usr
 	cp -a $stuff/skel $fs/etc
 	chown -R 0.0 $fs
+	DEPENDS="gtk2 xorg-libX11 xorg-libXdamage"
 }

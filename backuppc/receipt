@@ -20,39 +20,43 @@ perl-net-ftp-retrhandle perl-net-ftp-autoreconnect smbclient postfix \
 bzip2 openssh perl-libwww-perl"
 BUILD_DEPENDS="par2 perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR/etc/apache/conf.d
+compile_rules() {
+	mkdir -p $install/etc/apache/conf.d
 	grep -q share/BackupPC/doc configure.pl ||
 	sed -i -e 's|/doc|/share/BackupPC/doc|' \
 		-e 's|bin doc|bin share/BackupPC/doc|' \
 		configure.pl
-	perl configure.pl --batch --dest-dir=$DESTDIR --install-dir=/usr \
-		--data-dir=/var/lib/BackupPC --config-dir=/etc/BackupPC \
-		--log-dir=/var/log/BackupPC --backuppc-user=www \
-		--hostname=localhost --html-dir=/usr/share/BackupPC/www \
+
+	perl configure.pl \
+		--batch \
+		--dest-dir=$install \
+		--install-dir=/usr \
+		--data-dir=/var/lib/BackupPC \
+		--config-dir=/etc/BackupPC \
+		--log-dir=/var/log/BackupPC \
+		--backuppc-user=www \
+		--hostname=localhost \
+		--html-dir=/usr/share/BackupPC/www \
 		--html-dir-url=/BackupPC/img \
-		--cgi-dir=/usr/share/BackupPC/cgi &&
-	cp httpd/BackupPC.conf $DESTDIR/etc/apache/conf.d
+		--cgi-dir=/usr/share/BackupPC/cgi \
+		&&
+	cp httpd/BackupPC.conf $install/etc/apache/conf.d
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	cp -a $stuff/* $fs
-	sed -i -e "s/''http/'http/;s/min''/min'/" \
-	       -e 's/-E -N -d/-E -d/' \
-	       -e "s/^\\\$Conf{CgiAdminUsers}.*/\$Conf{CgiAdminUsers} = 'root';/" \
-	       -e 's|sshPath -q -x|sshPath -o UserKnownHostsFile=/etc/BackupPC/.ssh/known_hosts -i /etc/BackupPC/.ssh/id_rsa -q -x|' \
-		$fs/etc/BackupPC/config.pl
+	sed \
+		-e "s/''http/'http/;s/min''/min'/" \
+		-e 's/-E -N -d/-E -d/' \
+		-e "s/^\\\$Conf{CgiAdminUsers}.*/\$Conf{CgiAdminUsers} = 'root';/" \
+		-e 's|sshPath -q -x|sshPath -o UserKnownHostsFile=/etc/BackupPC/.ssh/known_hosts -i /etc/BackupPC/.ssh/id_rsa -q -x|' \
+		-i $fs/etc/BackupPC/config.pl
 	chown www.www $fs/etc/BackupPC/config.pl
 	chmod 755 $fs/etc $fs/var $fs/var/*
 }
 
-post_install()
-{
+post_install() {
 	grep -qs backuppc "$1/etc/rcS.conf" ||
 	sed -i 's/^RUN_DAEMONS="/RUN_DAEMONS="backuppc /' "$1/etc/rcS.conf"
 	loc=$LANG
@@ -71,13 +75,19 @@ post_install()
 		/etc/init.d/backuppc start
 		/etc/init.d/apache start
 	fi
-	cat <<EOT
 
-Now you should :
-- append /etc/BackupPC/.ssh/id_rsa.pub to every unix client /root/.ssh/authorized_keys file
-- update \$Conf{CgiAdminUsers} in /etc/BackupPC/config.pl 
-- enable web access with 'htpasswd -c root /etc/BackupPC/BackupPC.users'
-- update passwords in /etc/BackupPC/*.sh
-- ... and maybe jail /var/lib/BackupPC into a xfs/noatime for ext4 users.
+	[ -n "$quiet" ] || cat <<"EOT"
+
+	.-------------------------------------------------------------.
+	| Now you should:                                             |
+	| - append /etc/BackupPC/.ssh/id_rsa.pub to every unix client |
+	|   /root/.ssh/authorized_keys file                           |
+	| - update $Conf{CgiAdminUsers} in /etc/BackupPC/config.pl    |
+	| - enable web access with                                    |
+	|   'htpasswd -c root /etc/BackupPC/BackupPC.users'           |
+	| - update passwords in /etc/BackupPC/*.sh                    |
+	| - ... and maybe jail /var/lib/BackupPC into a xfs/noatime   |
+	|   for ext4 users.                                           |
+	'-------------------------------------------------------------'
 EOT
 }

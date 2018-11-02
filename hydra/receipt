@@ -4,21 +4,17 @@ PACKAGE="hydra"
 VERSION="7.3"
 CATEGORY="system-tools"
 SHORT_DESC="THC password cracker for FTP, HTTP, HTTPS, SMB, etc."
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WEB_SITE="https://github.com/vanhauser-thc/thc-hydra"
+
+TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="http://freeworld.thc.org/releases/$TARBALL"
 
-DEPENDS="gtk2 openssl xorg-libXdamage apr libssh libmysqlclient \
-libidn libpostgresqlclient libsvn"
 BUILD_DEPENDS="openssl-dev apr-dev gtk2-dev libssh-dev libmysqlclient \
 postgresql-dev subversion-dev libidn-dev mysql-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS
@@ -30,10 +26,10 @@ compile_rules()
 	[ -f hydra ]
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp -a $src/hydra $fs/usr/bin
 	cp -a $src/xhydra $fs/usr/bin
+	DEPENDS="gtk2 openssl xorg-libXdamage apr libssh libmysqlclient \
+	libidn libpostgresqlclient libsvn"
 }

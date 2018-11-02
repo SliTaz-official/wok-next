@@ -10,27 +10,21 @@ WEB_SITE="http://www.umplayer.com/"
 REPOLOGY="umplayer"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="subversion|https://umplayer.svn.sourceforge.net/svnroot/umplayer/umplayer/trunk"
 BRANCH="$VERSION"
-TAGS="player audio video movie"
+WGET_URL="subversion|https://umplayer.svn.sourceforge.net/svnroot/umplayer/umplayer/trunk"
 
-DEPENDS="mplayer libQtCore libQtGui libQtXml"
 BUILD_DEPENDS="subversion qt4 Qt4-dev qmake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src	
+compile_rules() {
 	make PREFIX=/usr &&
-	make PREFIX=/usr DESTDIR=$DESTDIR install
+	make PREFIX=/usr DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share $fs/usr
 	rm -rf $fs/usr/share/man
+	DEPENDS="mplayer libQtCore libQtGui libQtXml"
+	TAGS="player audio video movie"
 }
-

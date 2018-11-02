@@ -4,27 +4,23 @@ PACKAGE="luajit"
 VERSION="2.0.3"
 CATEGORY="development"
 SHORT_DESC="Just-In-Time Compiler for Lua"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://luajit.org"
+WEB_SITE="http://luajit.org/"
 
 TARBALL="LuaJIT-$VERSION.tar.gz"
 WGET_URL="http://luajit.org/download/$TARBALL"
 
-SPLIT="luajit-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	make amalg PREFIX=/usr &&
-	make install DESTDIR=$DESTDIR PREFIX=/usr
+	make PREFIX=/usr amalg &&
+	make DESTDIR=$install PREFIX=/usr install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		luajit)
-			copy @std
-			;;
-		*-dev)
-			copy @dev
-			;;
+		luajit) copy @std;;
+		*-dev)  copy @dev;;
 	esac
 }

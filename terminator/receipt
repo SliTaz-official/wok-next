@@ -3,26 +3,23 @@
 PACKAGE="terminator"
 VERSION="0.96"
 CATEGORY="x-window"
-SHORT_DESC="Tool for arranging terminals."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Tool for arranging terminals"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WEB_SITE="https://launchpad.net/terminator/"
+
+TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="https://launchpad.net/terminator/trunk/$VERSION/+download/$TARBALL"
 
-DEPENDS="python python-pygtk notify-python"
-BUILD_DEPENDS="python-dev gettext intltool"
+BUILD_DEPENDS="python-dev gettext-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR 2>&1 | grep -v "GTK icon cache"
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
+	DEPENDS="python python-pygtk notify-python"
 }

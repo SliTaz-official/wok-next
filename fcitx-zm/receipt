@@ -4,32 +4,29 @@ PACKAGE="fcitx-zm"
 VERSION="4.0"
 CATEGORY="x-window"
 SHORT_DESC="Zhengma Table for FCITX-4.0"
-WEB_SITE="https://fcitx-im.org/wiki/Fcitx"
 MAINTAINER="lufeng369@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://fcitx-im.org/wiki/Fcitx"
+
 TARBALL="zm.mb"
 WGET_URL="https://download.fcitx-im.org/data/$TARBALL"
 
-DEPENDS="fcitx"
 BUILD_DEPENDS="fcitx-tools"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-compile_rules()
-{
-	echo -n "Remove All Words,Remained Hanzi only"
-	mkdir $DESTDIR
-	cd $DESTDIR
+compile_rules() {
+	# Remove all words, remained Hanzi only
+	mkdir $install
+	cd $install
 	[ -s $SRC/zm.mb ] || wget -P $SRC $WGET_URL || return 1
 	cp $stuff/zm.conf .
 	mb2txt $SRC/zm.mb | awk 'NR<=10{print} NR>10{if(length($2)==3)print}' > zm.txt
 	txt2mb zm.txt zm.mb
 }
 
-genpkg_rules()
-{
+genpkg_rules() {
 	EXTDIR="$fs/usr/share/fcitx/data/table"
 	mkdir -p $EXTDIR
-	cp $install/zm.mb $EXTDIR	
+	cp $install/zm.mb $EXTDIR
 	cp $install/zm.conf $EXTDIR
+	DEPENDS="fcitx"
 }
-

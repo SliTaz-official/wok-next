@@ -3,8 +3,8 @@
 PACKAGE="cdrkit"
 VERSION="1.1.11"
 CATEGORY="utilities"
-SHORT_DESC="Wodim for recording/blanking CDs/DVDs and genisoimage for ISO."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Wodim for recording/blanking CDs/DVDs and genisoimage for ISO"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.cdrkit.org/"
 
@@ -13,7 +13,7 @@ WGET_URL="http://cdrkit.org/releases/$TARBALL"
 EXTRA_SOURCE_FILES="cdrkit-1.1.9-efi-boot.patch"
 
 BUILD_DEPENDS="cmake libcap-dev zlib-dev bzip2-dev attr-dev"
-SPLIT="cdrkit cdrkit-audio cdrkit-isoinfo readom"
+SPLIT="$PACKAGE-audio $PACKAGE-isoinfo readom"
 
 compile_rules() {
 	sed -i -e '/USE_MAGIC/d' -e '/(MAGICLIBS magic)/d' \
@@ -21,7 +21,9 @@ compile_rules() {
 	[ -s $SRC/cdrkit-1.1.9-efi-boot.patch ] ||
 		wget -P $SRC https://github.com/NixOS/nixpkgs/raw/master/pkgs/tools/cd-dvd/cdrkit/cdrkit-1.1.9-efi-boot.patch
 	patch -p1 < $SRC/cdrkit-1.1.9-efi-boot.patch
-	make PREFIX=/usr && make install PREFIX=/usr
+
+	make PREFIX=/usr &&
+	make PREFIX=/usr install
 }
 
 genpkg_rules() {
@@ -30,7 +32,7 @@ genpkg_rules() {
 			DEPENDS="libcap zlib bzlib attr"
 			mkdir -p $fs/usr/bin
 			cp $install/usr/bin/genisoimage $fs/usr/bin
-			cp $install/usr/bin/wodim $fs/usr/bin	
+			cp $install/usr/bin/wodim $fs/usr/bin
 			# Make symlinks for cdrtools compatibility
 			cd $fs/usr/bin
 			ln -s wodim cdrecord

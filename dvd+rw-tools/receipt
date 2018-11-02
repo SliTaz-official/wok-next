@@ -4,9 +4,9 @@ PACKAGE="dvd+rw-tools"
 VERSION="7.1"
 CATEGORY="multimedia"
 SHORT_DESC="DVD RW tools"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://fy.chalmers.se/~appro/linux/DVD+RW"
+WEB_SITE="http://fy.chalmers.se/~appro/linux/DVD+RW/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/tools/$TARBALL"
@@ -18,9 +18,9 @@ compile_rules() {
 	grep -qs 'define u8' growisofs.c ||
 	sed -i 's|#include <scsi/scsi.h>|#define u8 __u8\n&|' growisofs.c
 	make
-	mkdir -p $DESTDIR/usr/bin/
+	mkdir -p $install/usr/bin/
 	for bin in growisofs dvd+rw-booktype dvd+rw-format dvd+rw-mediainfo dvd-ram-control; do
-		install -m755 $bin $DESTDIR/usr/bin/
+		install -m755 $bin $install/usr/bin/
 	done
 }
 

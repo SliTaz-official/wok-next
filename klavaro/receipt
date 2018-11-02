@@ -3,36 +3,32 @@
 PACKAGE="klavaro"
 VERSION="1.2.2"
 CATEGORY="system-tools"
-SHORT_DESC="Free touch typing tutor program."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Free touch typing tutor program"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://klavaro.sourceforge.net/en/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="typing"
 
-DEPENDS="gtk2 xorg-libXdamage gtkdatabox libcurl libsexy"
-BUILD_DEPENDS="$DEPENDS gtk2-dev xorg-xorgproto gtkdatabox-dev \
-curl-dev libsexy-dev"
+BUILD_DEPENDS="xorg-libXdamage gtk2-dev xorg-xorgproto gtkdatabox-dev curl-dev \
+libsexy-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lgmodule-2.0"
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/pixmaps
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/klavaro $fs/usr/share
 	cp -a $install/usr/share/icons/hicolor/24x24/apps/* \
 		$fs/usr/share/pixmaps
+	DEPENDS="gtk2 xorg-libXdamage gtkdatabox libcurl libsexy"
+	TAGS="typing"
 }

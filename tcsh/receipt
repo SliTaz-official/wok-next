@@ -1,37 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tcsh"
 VERSION="6.18.01"
 CATEGORY="system-tools"
-SHORT_DESC="Enhanced, compatible Berkeley UNIX C shell."
-MAINTAINER="samuel_trassare@yahoo.com"
+SHORT_DESC="Enhanced, compatible Berkeley UNIX C shell"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.tsch.org/Welcome"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.astron.com/pub/$PACKAGE/$TARBALL"
-#The following build dep will be necessary when glibc ups to 2.14.
-#BUILD_DEPENDS="libtirpc"
 
-DEPENDS="ncurses"
+#The following build dep will be necessary when glibc up to 2.14: libtirpc
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/(__ANDROID__)/& \&\& !defined(__GLIBC__)/' sh.proc.c
-	mkdir -p $DESTDIR/usr/bin
-	touch $DESTDIR/usr/bin/tcsh
-	./configure $CONFIGURE_ARGS && 
-	make && 
-	make install &&
-	rm -f $DESTDIR/usr/bin/tcsh.old
+	mkdir -p $install/usr/bin
+	touch $install/usr/bin/tcsh
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	rm -f $install/usr/bin/tcsh.old
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin \
-		$fs/usr/share
-	cp -a $install/usr/bin/tcsh $fs/usr/bin
-	cp -ar $install/usr/share/locale $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }

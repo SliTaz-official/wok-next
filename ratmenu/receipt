@@ -4,26 +4,25 @@ PACKAGE="ratmenu"
 VERSION="2.3.20"
 CATEGORY="x-window"
 SHORT_DESC="Menu generator created for ratpoison, but works with any WM"
-MAINTAINER="gokhlayeh@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="other"
+WEB_SITE="https://www.debian.org/distrib/packages" # and ..?
+
 TARBALL="${PACKAGE}_$VERSION.tar.gz"
-WEB_SITE="http://packages.debian.org"
 WGET_URL="http://ftp.de.debian.org/debian/pool/main/r/ratmenu/$TARBALL"
 
-DEPENDS="xorg-libX11"
 BUILD_DEPENDS="xorg-libX11-dev xorg-xorgproto"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make PREFIX=/usr &&
-	make PREFIX=$DESTDIR/usr MANDIR=$DESTDIR/usr/share/man install
+	make \
+		PREFIX=$install/usr \
+		MANDIR=$install/usr/share/man \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="xorg-libX11"
 }
-

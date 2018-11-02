@@ -3,8 +3,8 @@
 PACKAGE="frogatto"
 VERSION="1.3.1"
 CATEGORY="games"
-SHORT_DESC="Frogatto & Friends is an action-adventure game, starring a certain quixotic frog"
-MAINTAINER="gokhlayeh@slitaz.org"
+SHORT_DESC="Action-adventure game, starring a certain quixotic frog"
+MAINTAINER="devel@slitaz.org"
 LICENSE="CC-BY-3 custom"
 WEB_SITE="https://frogatto.com/"
 
@@ -14,7 +14,7 @@ WGET_URL="https://github.com/frogatto/frogatto/archive/$VERSION.tar.gz"
 BUILD_DEPENDS="xorg-libX11-dev libsdl-dev mesa-dev glu-dev glew-dev \
 libsdl-image-dev libpng16-dev zlib-dev boost-dev libsdl-ttf-dev \
 libsdl-mixer-dev coreutils-file-format ccache"
-SPLIT="frogatto-data"
+SPLIT="$PACKAGE-data"
 
 compile_rules() {
 	CXXFLAGS="$CXXFLAGS -std=gnu++98" make game server || return 1
@@ -22,9 +22,9 @@ compile_rules() {
 	mkdir -p $install/opt/frogatto/
 	cp game server *.ttf $install/opt/frogatto/
 	cp -r data/ images/ modules/ music/ $install/opt/frogatto
-	install -Dm 755 $stuff/frogatto $install/usr/bin/frogatto
-	install -Dm 644 $stuff/frogatto.desktop $install/usr/share/applications/frogatto.desktop
-	install -Dm 644 $src/images/window-icon.png $install/usr/share/pixmaps/frogatto.png
+	install -Dm755 $stuff/frogatto $install/usr/bin/frogatto
+	install -Dm644 $stuff/frogatto.desktop $install/usr/share/applications/frogatto.desktop
+	install -Dm644 $src/images/window-icon.png $install/usr/share/pixmaps/frogatto.png
 }
 
 genpkg_rules() {

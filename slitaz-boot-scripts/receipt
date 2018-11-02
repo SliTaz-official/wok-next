@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-boot-scripts"
 VERSION="444"
 CATEGORY="base-system"
 SHORT_DESC="Provide all the initialisation scripts used at boot time"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
@@ -12,23 +12,11 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
-CONFIG_FILES="
-/etc/inittab
-/etc/init.d/local.sh
-/etc/rcS.conf
-/etc/network.conf"
-
-# Needed to fetch the keymaps and test the filesystem.
-DEPENDS="kbd-base e2fsprogs busybox slitaz-tools"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-#
 # This package is all build by genpkg, it provide the boot scripts found
 # in /etc/init.d with the main config file /etc/rcS.conf. It provide also
 # the default inittab and the network config file used with network.sh
-#
-genpkg_rules()
-{
+
+genpkg_rules() {
 	cp -a $src/etc $fs
 	cp -a $src/usr $fs
 	cp -a $src/init $fs
@@ -37,31 +25,12 @@ genpkg_rules()
 	chmod 755 $fs/etc/init.d/*.sh
 	chmod 755 $fs/etc/init.d/rc*
 	chmod 755 $fs/init
-
-	case "$ARCH" in
-		arm*)
-			# Provided by slitaz-arm-configs
-			rm \
-				$fs/etc/rcS.conf \
-				$fs/etc/inittab \
-				$fs/etc/init.d/rcS \
-				$fs/etc/init.d/rc.shutdown \
-				$fs/etc/init.d/system.sh
-			;;
-	esac
+	# Needed to fetch the keymaps and test the filesystem.
+	DEPENDS="kbd-base e2fsprogs busybox slitaz-tools"
+	CONFIG_FILES="/etc/inittab /etc/init.d/local.sh /etc/rcS.conf /etc/network.conf"
 }
 
-# Post install commands.
-#
-post_install()
-{
-	case "$SLITAZ_ARCH" in
-		i?86)
-			echo
-			chroot "$1/" /usr/bin/rcSconf up ;;
-		arm)
-			if [ ! -d "/var/lib/tazpkg/installed/slitaz-arm-configs" ]; then
-				spk-add slitaz-arm-configs
-			fi ;;
-	esac
+post_install() {
+	echo
+	chroot "$1/" /usr/bin/rcSconf up
 }

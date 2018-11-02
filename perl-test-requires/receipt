@@ -4,7 +4,7 @@ PACKAGE="perl-test-requires"
 VERSION="0.10"
 CATEGORY="perl"
 SHORT_DESC="Test::Requires - Checks to see if the module can be loaded"
-MAINTAINER="nneul@neulinger.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Test-Requires"
 REPOLOGY="perl:test-requires"
@@ -12,20 +12,17 @@ REPOLOGY="perl:test-requires"
 TARBALL="Test-Requires-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/T/TO/TOKUHIROM/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

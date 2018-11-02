@@ -13,14 +13,13 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/snwh/paper-gtk-theme/archive/$COMMIT.tar.gz"
 
 BUILD_DEPENDS="autoconf automake"
-SPLIT="paper-gtk-theme-extra"
+SPLIT="$PACKAGE-extra"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	chmod a+x autogen.sh
 	./autogen.sh &&
-	make && make install
+	make &&
+	make install || return 1
 
 	# Define small icons is 16x16
 	sed -i '20 i\
@@ -40,16 +39,14 @@ gtk-icon-sizes="gtk-large-toolbar=16,16:gtk-small-toolbar=16,16:panel-menu=16,16
 	cp -f $stuff/Buttons/*.png $install/usr/share/themes/Paper/gtk-2.0/Buttons/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		paper-gtk-theme)
 			copy gtk-*/ index.theme
 			CAT="customization|GTK+2 and GTK+3 theme"
 			DEPENDS="gtk2-engine-murrine"
 			;;
-		paper-gtk-theme-extra)
+		*-extra)
 			copy @std @rm
 			CAT="customization|extra files"
 			;;

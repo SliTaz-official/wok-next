@@ -1,43 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cgal"
-SOURCE="CGAL"
 VERSION="4.11"
 CATEGORY="misc"
-SHORT_DESC="Computational Geometry Algorithms Library."
+SHORT_DESC="Computational Geometry Algorithms Library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3 LGPL3"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="https://www.cgal.org/"
+
+TARBALL="CGAL-$VERSION.tar.xz"
 WGET_URL="https://github.com/CGAL/cgal/releases/download/releases%2FCGAL-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="cmake boost-dev gmp-dev mpfr-dev boost-thread"
-SPLIT="cgal cgal-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .
-	make
+compile_rules() {
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	cgal)
-		DEPENDS="boost-thread boost-system gcc-lib-base"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	cgal-dev)
-		CAT="development|Computational Geometry Algorithms Library, development files."
-		DEPENDS="cgal"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/CGAL $fs/usr/lib
+		cgal)
+			copy @std
+			DEPENDS="boost-thread boost-system gcc-lib-base"
+			;;
+		*-dev)
+			copy @dev
 		;;
 	esac
 }

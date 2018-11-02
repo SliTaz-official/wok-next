@@ -3,36 +3,31 @@
 PACKAGE="billardgl"
 VERSION="1.75"
 CATEGORY="games"
-SHORT_DESC="OpenGL billard game."
+SHORT_DESC="OpenGL billard game"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://sourceforge.net/projects/billardgl/"
+
 SOURCE="BillardGL"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="https://sourceforge.net/projects/billardgl/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="glu freeglut"
-BUILD_DEPENDS="glu xorg-libXmu-dev xorg-libXi-dev mesa-dev \
-glu-dev freeglut-dev"
+BUILD_DEPENDS="glu xorg-libXmu-dev xorg-libXi-dev mesa-dev glu-dev freeglut-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
 	sed -i 's/stream.h/stream/' bmp.cpp
 	grep -q namespace bmp.cpp ||
 	sed -i 's/"bmp.h"/"bmp.h"\nusing namespace std;/' bmp.cpp
 	make || return 1
-	mkdir -p $DESTDIR/usr/share/BillardGL  $DESTDIR/usr/games
-	cp $src/src/BillardGL $DESTDIR/usr/games
-	cp -R $src/src/Texturen $DESTDIR/usr/share/BillardGL
-	cp -R $src/src/lang $DESTDIR/usr/share/BillardGL
-	cp -R $src/src/README $DESTDIR/usr/share/BillardGL
+	mkdir -p $install/usr/share/BillardGL  $install/usr/games
+	cp $src/src/BillardGL $install/usr/games
+	cp -R $src/src/Texturen $install/usr/share/BillardGL
+	cp -R $src/src/lang $install/usr/share/BillardGL
+	cp -R $src/src/README $install/usr/share/BillardGL
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
+	DEPENDS="glu freeglut"
 }
-

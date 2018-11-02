@@ -8,13 +8,12 @@ SHORT_DESC="Recompression utilities for .ZIP, .PNG, .MNG and .GZ"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.advancemame.it/comp-readme"
-HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.gz"
 WGET_URL="$GITHUB/amadvance/advancecomp/tarball/${COMMIT:-v$VERSION}"
 
 BUILD_DEPENDS="automake zlib-dev"
-SPLIT="advancecomp advancecomp-static:static"
+SPLIT="$PACKAGE-static:static"
 
 compile_rules() {
 	./autogen.sh &&
@@ -28,7 +27,8 @@ compile_rules() {
 			./configure $CONFIGURE_ARGS;;
 	esac &&
 
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

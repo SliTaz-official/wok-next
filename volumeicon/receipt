@@ -3,30 +3,30 @@
 PACKAGE="volumeicon"
 VERSION="0.4.6"
 CATEGORY="multimedia"
-SHORT_DESC="Volumeicon is a lightweight volume control in your systray."
+SHORT_DESC="Lightweight volume control in systray"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://softwarebakery.com/maato/volumeicon.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://softwarebakery.com/maato/files/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk2 alsa-lib libnotify"
 BUILD_DEPENDS="gtk2-dev alsa-lib-dev libnotify-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --enable-notify $CONFIGURE_ARGS && 
-	make && make install
+compile_rules() {
+	./configure \
+		--enable-notify \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/etc/xdg
-	cp -rf ${stuff}/autostart $fs/etc/xdg
-	cp -rf ${stuff}/skel $fs/etc
+	cp -rf $stuff/autostart $fs/etc/xdg
+	cp -rf $stuff/skel $fs/etc
 	cp -rf $install/* $fs
-	rm -rf $fs/usr/share/${PACKAGE}/icons/*Gnone
-	rm -rf $fs/usr/share/${PACKAGE}/icons/tango
+	rm -rf $fs/usr/share/$PACKAGE/icons/*Gnone
+	rm -rf $fs/usr/share/$PACKAGE/icons/tango
+	DEPENDS="gtk2 alsa-lib libnotify"
 }

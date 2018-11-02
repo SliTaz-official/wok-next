@@ -1,32 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pktstat"
 VERSION="1.8.5"
 CATEGORY="network"
-SHORT_DESC="Real-time interface traffic viewer for ncurses."
+SHORT_DESC="Real-time interface traffic viewer for ncurses"
 MAINTAINER="paul@slitaz.org"
 LICENSE="PublicDomain"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/dleonard0/pktstat"
-WGET_URL="http://www.adaptive-enterprises.com.au/~d/software/pktstat/$TARBALL" # FIXME
 
-DEPENDS="ncurses libpcap"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/dleonard0/pktstat/archive/v$VERSION.tar.gz"
+
 BUILD_DEPENDS="ncurses-dev libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses libpcap"
 }

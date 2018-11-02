@@ -11,32 +11,26 @@ REPOLOGY="-"
 
 TAGS="virtual 8086 vm86"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $src
 	cd $src
 	#tarball=$(wget -O - $WEB_SITE/tech.html | \
 	#	  sed '/linuxstart/!d;s/.*href="\([^"]*\)".*/\1/')
 	#wget $WEB_SITE/$tarball
 	#tar xzf $tarball
-	mkdir -p $DESTDIR/usr/bin
-	cc -o $DESTDIR/usr/bin/runcom $stuff/runcom.c
+	mkdir -p $install/usr/bin
+	cc -o $install/usr/bin/runcom $stuff/runcom.c
 	cc -o $src/debug.o -Wa,-a=$src/debug.lst -c $stuff/debug.S
-	objcopy -O binary $src/debug.o $DESTDIR/usr/bin/debug.bin
-	cp $stuff/debug.com $DESTDIR/usr/bin
-	chmod +x $DESTDIR/usr/bin/debug.*
+	objcopy -O binary $src/debug.o $install/usr/bin/debug.bin
+	cp $stuff/debug.com $install/usr/bin
+	chmod +x $install/usr/bin/debug.*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 }
 
-# Post install command for Tazpkg.
-post_install()
-{
+post_install() {
 	fmt="binfmt_misc"
 	proc="/proc/sys/fs/binfmt_misc"
 	bin=":BOOTBIN:E::bin::/usr/bin/runcom:"
@@ -53,8 +47,7 @@ EOT
 }
 
 # Pre remove command for Tazpkg.
-pre_remove()
-{
+pre_remove() {
 	echo -1 > /proc/sys/fs/binfmt_misc/BOOTBIN
 	echo -1 > /proc/sys/fs/binfmt_misc/DOSCOM
 	sed -i '/binfmt_misc/{NN;/DOSCOM:E::com/d}' "$1/etc/init.d/local.sh"

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dvtm"
 VERSION="0.9"
@@ -6,22 +6,21 @@ CATEGORY="system-tools"
 SHORT_DESC="A tiling window management for the console"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://www.brain-dump.org/projects/dvtm"
+WEB_SITE="http://www.brain-dump.org/projects/dvtm/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev ncurses-extra"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/usr/local|/usr|' config.mk
-	make && make install
+
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr/bin $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }

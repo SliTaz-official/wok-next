@@ -4,32 +4,27 @@ PACKAGE="wget"
 VERSION="1.19.5"
 CATEGORY="network"
 SHORT_DESC="GNU Wget - the non-interactive network downloader"
-MAINTAINER="sygne@ombres.eu"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/wget/"
 
 TARBALL="$PACKAGE-$VERSION.tar.lz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="lzip openssl-dev libidn2-dev util-linux-uuid-dev gettext \
+BUILD_DEPENDS="lzip openssl-dev libidn2-dev util-linux-uuid-dev gettext-dev \
 zlib-dev perl pcre-dev libpsl-dev gnutls-dev"
 SPLIT="wget+gnutls:gnutls"
 
 compile_rules() {
-	case "$ARCH" in
-		arm) ARCH_ARGS="--with-libssl-prefix=/cross/$ARCH/sysroot/usr/lib" ;;
-	esac
-
 	case $SET in
 		'')     SET_ARGS='--with-ssl=openssl';;
 		gnutls) SET_ARGS='--with-ssl=gnutls';;
 	esac
 
 	./configure \
-		$ARCH_ARGS \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

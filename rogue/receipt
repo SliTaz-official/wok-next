@@ -1,21 +1,19 @@
-# SliTaz package receipt. 
+# SliTaz package receipt.
 
 PACKAGE="rogue"
 VERSION="5.4.4"
 CATEGORY="non-free"
 SHORT_DESC="The classic dungeon exploration game"
-MAINTAINER="domcox@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WEB_SITE="https://web.archive.org/web/20160604020207/http://rogue.rogueforge.net/"
+
+TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="http://rogue.rogueforge.net/files/rogue${VERSION%.*}/$TARBALL" # FIXME
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
@@ -23,12 +21,11 @@ compile_rules()
 		--enable-scorefile=/usr/games/rogue.scr \
 		--enable-lockfile=/var/lock/rogue.lck \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/rogue
 	mkdir -p $fs/usr/games
 	mkdir -p $fs/usr/share/licenses
@@ -42,4 +39,5 @@ genpkg_rules()
 	cp -a $src/rogue.png $fs/usr/share/pixmaps
 	sed -i 's/Exec.*/Exec=xterm -e rogue/' $src/rogue.desktop
 	cp -a $src/rogue.desktop $fs/usr/share/applications
+	DEPENDS="ncurses"
 }

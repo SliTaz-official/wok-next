@@ -11,17 +11,17 @@ WEB_SITE="https://www.gnu.org/software/help2man/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="perl gettext texinfo perl-locale-gettext"
+BUILD_DEPENDS="perl gettext-dev texinfo perl-locale-gettext"
 
 compile_rules() {
 	./configure \
 		--enable-nls \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$install install
+	make &&
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
 	copy @std
 	DEPENDS="perl-locale-gettext"
 }
-

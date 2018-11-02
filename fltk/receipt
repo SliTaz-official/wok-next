@@ -4,41 +4,33 @@ PACKAGE="fltk"
 VERSION="1.3.4"
 CATEGORY="system-tools"
 SHORT_DESC="Fast Light Tool Kit"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2"
-WEB_SITE="http://www.fltk.org/"
+WEB_SITE="http://www.fltk.org/index.php"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/fltk.html"
 
 TARBALL="$PACKAGE-$VERSION-source.tar.gz"
 WGET_URL="http://fltk.org/pub/fltk/$VERSION/$TARBALL"
 
-BUILD_DEPENDS_arm="jpeg-dev libpng16-dev xorg-libXft-dev"
 BUILD_DEPENDS="alsa-lib-dev libjpeg-turbo-dev zlib-dev libpng16-dev \
 xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev mesa-dev xorg-libXinerama-dev \
 freetype-dev xorg-libXft-dev xorg-libXcursor-dev xorg-xprop"
-SPLIT="fltk-blocks fltk-checkers fltk-sudoku fltk-colbrowser fltk-editor \
-fltk-doc fltk fltk-dev"
+SPLIT="$PACKAGE-blocks $PACKAGE-checkers $PACKAGE-sudoku $PACKAGE-colbrowser \
+$PACKAGE-editor $PACKAGE-doc $PACKAGE $PACKAGE-dev"
 COOKOPTS="!menus"
 
 compile_rules() {
-	case "$ARCH" in
-		arm) ARCH_ARGS="--x-includes=/cross/$ARCH/sysroot/usr/include \
-			--x-libraries=/cross/$ARCH/sysroot/usr/lib";;
-		*) ARCH_ARGS='';;
-	esac
-
 	sed -i -e '/cat./d' documentation/Makefile
 
 	./configure \
 		--enable-shared \
 		--enable-xft \
 		--enable-threads \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	sed -i 's| -shared | -Wl,-Os,--as-needed\0|g' makeinclude &&
 	sed -i s'#"rgb.txt"#"/usr/share/fltk/rgb.txt"#' test/colbrowser.cxx &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	sed -i '/mimelnk/d' fluid/Makefile
 	make -C fluid install-linux || return 1
@@ -102,15 +94,9 @@ genpkg_rules() {
 			;;
 		fltk)
 			copy @std @rm
-			case "$SLITAZ_ARCH" in
-				arm*)
-					DEPENDS="expat fontconfig freetype jpeg libpng16 \
-					xorg-libXft" ;;
-				*)
-					DEPENDS="fontconfig libjpeg-turbo libpng16 mesa \
-					xorg-libX11 xorg-libXcursor xorg-libXext xorg-libXfixes \
-					xorg-libXft xorg-libXinerama xorg-libXrender"
-			esac
+			DEPENDS="fontconfig libjpeg-turbo libpng16 mesa \
+			xorg-libX11 xorg-libXcursor xorg-libXext xorg-libXfixes \
+			xorg-libXft xorg-libXinerama xorg-libXrender"
 			;;
 		fltk-dev)
 			copy @dev @rm # remove examples in doc

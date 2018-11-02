@@ -3,27 +3,25 @@
 PACKAGE="zile"
 VERSION="2.4.14"
 CATEGORY="development"
-SHORT_DESC="GNU Zile is a lightweight Emacs clone."
-MAINTAINER="domcox@slitaz.org"
+SHORT_DESC="Lightweight Emacs clone"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnu.org/software/zile/"
-WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-TAGS="text-editor"
 
-DEPENDS="ncurses"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev gc-dev perl help2man"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="ncurses"
+	TAGS="text-editor"
 }

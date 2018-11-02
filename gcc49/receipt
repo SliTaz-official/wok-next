@@ -4,7 +4,7 @@ PACKAGE="gcc49"
 VERSION="4.9.2"
 CATEGORY="development"
 SHORT_DESC="The GNU Compiler Collection"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gcc.gnu.org/"
 REPOLOGY="gcc"
@@ -17,11 +17,10 @@ TAGS="compiler C C++"
 # for cookutils that are not used by tazwok/cook-toolchain since it installs
 # and uses its own copy.
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
-SPLIT="gcc49-lib-base"
+SPLIT="$PACKAGE-lib-base"
 
 compile_rules() {
 	case $ARCH in
-		arm*)   ARCH_ARGS="--with-tune=armv6";;
 		i?86)   ARCH_ARGS="--with-tune=$ARCH";;
 		x86_64) ARCH_ARGS="--with-tune=nocona";;
 	esac
@@ -41,7 +40,7 @@ compile_rules() {
 	$src/configure \
 		--libexecdir=/usr/lib \
 		--enable-nls \
-		--enable-languages=${languages} \
+		--enable-languages=$languages \
 		--enable-shared \
 		--with-system-zlib \
 		--enable-clocale=gnu \
@@ -56,7 +55,8 @@ compile_rules() {
 		--disable-multilib \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

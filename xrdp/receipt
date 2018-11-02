@@ -12,13 +12,13 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/neutrinolabs/xrdp/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="autoconf automake libtool openssl-dev pam-dev xorg-dev nasm"
-SPLIT="xrdp-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/etc/init.d/
 	mv $install/etc/xrdp/xrdp.sh $install/etc/init.d/xrdp

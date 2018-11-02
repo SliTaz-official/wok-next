@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-datetime-format-w3cdtf"
 VERSION="0.07"
@@ -12,20 +12,17 @@ REPOLOGY="perl:datetime-format-w3cdtf"
 TARBALL="DateTime-Format-W3CDTF-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/G/GW/GWILLIAMS/$TARBALL"
 
-DEPENDS="perl-datetime"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-datetime"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-datetime"
 }

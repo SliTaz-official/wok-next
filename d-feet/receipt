@@ -1,27 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="d-feet"
 VERSION="0.1.15"
 CATEGORY="system-tools"
-SHORT_DESC="D-Feet is an easy to use D-Bus debugger."
-MAINTAINER="monghitri@aruba.it"
+SHORT_DESC="Easy to use D-Bus debugger"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="https://live.gnome.org/DFeet/"
-WGET_URL="ftp://ftp.gnome.org/pub/GNOME/sources/$PACKAGE/${VERSION:0:3}/$TARBALL"
+WEB_SITE="https://wiki.gnome.org/Apps/DFeet"
 
-DEPENDS="dbus python-dbus python-pygtk python"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:3}/$TARBALL"
+
 BUILD_DEPENDS="dbus-dev python-dbus-dev python-pygtk-dev python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="dbus python-dbus python-pygtk python"
 }

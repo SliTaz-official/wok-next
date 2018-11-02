@@ -6,38 +6,37 @@ CATEGORY="development"
 SHORT_DESC="Editor classes & widgets"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-WEB_SITE="http://www.riverbankcomputing.co.uk/software/qscintilla"
+WEB_SITE="https://www.riverbankcomputing.com/software/qscintilla/intro"
 REPOLOGY="qscintilla"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/pyqt/QScintilla-gpl-$VERSION.tar.gz"
 
 BUILD_DEPENDS="Qt4-dev cmake qmake pyqt"
-SPLIT="libqscintilla libqscintilla-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.BUILD_TYPE=Release
-compile_rules()
-{
-	cd $src ; rm -rf doc Qt3 ; cd $src/Qt4Qt5
+compile_rules() {
+	rm -rf doc Qt3
+	cd $src/Qt4Qt5
+
 	qmake qscintilla.pro
-	sed -i 's/-O2/-Os/g' Makefile && make
-	make DESTDIR=$DESTDIR INSTALL_ROOT=$install install
+	sed -i 's/-O2/-Os/g' Makefile &&
+	make &&
+	make DESTDIR=$install INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libqscintilla)
-		DEPENDS="libQtGui"
-		SUGGESTED="juffed"
-		mkdir $fs/usr ; cp -a $install/usr/lib $fs/usr
-		;;
-	libqscintilla-dev)
-		CAT="development|Editor classes & widgets: qm, dev files."
-		DEPENDS="libqscintilla"
-		cp -a $install/* $fs
-		rm -rf $fs/usr/lib
-		;;
+		libqscintilla)
+			mkdir $fs/usr
+			cp -a $install/usr/lib $fs/usr
+			DEPENDS="libQtGui"
+			SUGGESTED="juffed"
+			;;
+		*-dev)
+			cp -a $install/* $fs
+			rm -rf $fs/usr/lib
+			DEPENDS="libqscintilla"
+			;;
 	esac
 }

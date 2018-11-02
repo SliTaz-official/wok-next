@@ -4,47 +4,29 @@ PACKAGE="fpc"
 VERSION="2.6.4"
 CATEGORY="development"
 SHORT_DESC="The Free Pascal Compiler"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="https://www.freepascal.org/"
 
 TARBALL="fpcbuild-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/source/$TARBALL"
 
-BUILD_DEPENDS_arm=""
 BUILD_DEPENDS="fpc-bootstrap"
-SPLIT="fpc-src fpc"
-
-CROSS_BUGS="arm-slitaz-gnueabi-as: Command not found"
+SPLIT="$PACKAGE-src $PACKAGE"
 
 compile_rules() {
 	sed -i 's|/man$|/share/man|' $src/install/man/Makefile # fix man install path
 
 	case $ARCH in
-		arm*)   Arch='arm';;
 		i?86)   Arch='386';;
 		x86_64) Arch='x64';;
 	esac
 
-	case "$ARCH" in
-		arm*)
-			make crossinstall \
-				NOGDB=1 \
-				CPU_TARGET=arm \
-				OS_TARGET=linux \
-				OPT=-dFPC_ARMEL \
-				CROSSBINDIR=/cross/$ARCH/tools/bin \
-				BINUTILSPREFIX=arm-slitaz-gnueabi- \
-				INSTALL_PREFIX=$install/usr
-				;;
-		*)
-			make     NOGDB=1 FPC=/usr/bin/ppc$Arch build &&
-			make -j1 NOGDB=1 FPC=/usr/bin/ppc$Arch PREFIX=$install/usr install
-			;;
-	esac || return 1
+	make     NOGDB=1 FPC=/usr/bin/ppc$Arch build &&
+	make -j1 NOGDB=1 FPC=/usr/bin/ppc$Arch PREFIX=$install/usr install || return 1
 
 	# install package license
-	install -Dm 644 $src/fpcsrc/rtl/COPYING.FPC \
+	install -Dm644 fpcsrc/rtl/COPYING.FPC \
 		$install/usr/share/licenses/fpc/COPYING.FPC
 
 	# create symlink for compiler
@@ -68,7 +50,7 @@ genpkg_rules() {
 		fpc)
 			copy @std @rm
 			DEPENDS="ncurses"
-			CONFIG_FILE="/etc/fpc.cfg"
+			CONFIG_FILES="/etc/fpc.cfg"
 			TAGS="compiler pascal"
 			;;
 	esac

@@ -1,28 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="kivy"
-SOURCE="Kivy"
 VERSION="1.4.1"
 CATEGORY="development"
-SHORT_DESC="Cross platform library for rapid development of applications."
+SHORT_DESC="Cross platform library for rapid development of applications"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL3"
-WEB_SITE="http://kivy.org/"
+WEB_SITE="https://kivy.org/"
+
+SOURCE="Kivy"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="https://files.pythonhosted.org/packages/source/${SOURCE:0:1}/$SOURCE/$TARBALL"
 
-DEPENDS="python"
 BUILD_DEPENDS="python-dev python-cython mesa-dev glew-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py build &&
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-pango"
 VERSION="1.227"
@@ -12,21 +12,18 @@ REPOLOGY="perl:pango"
 TARBALL="Pango-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
 
-DEPENDS="perl-cairo perl-glib cairo freetype glib pango"
-BUILD_DEPENDS="$DEPENDS perl-dev perl-extutils-depends perl-extutils-pkgconfig \
-pango-dev"
+BUILD_DEPENDS="perl-cairo perl-glib cairo freetype glib pango perl-dev \
+perl-extutils-depends perl-extutils-pkgconfig pango-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
+	DEPENDS="perl-cairo perl-glib cairo freetype glib pango"
 }

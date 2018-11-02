@@ -1,54 +1,44 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="strigi"
 VERSION="0.7.8"
 CATEGORY="system-tools"
-SHORT_DESC="Strigi is a fast and light desktop search engine."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Fast and light desktop search engine"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2"
-SUGGESTED="strigi-client"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.vandenoever.info/software/strigi/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.vandenoever.info/software/strigi/$TARBALL"
 
-BUILD_DEPENDS="$DEPENDS libxml2-dev cmake Qt4-dev bzlib expat-dev sqlite3-dev \
+BUILD_DEPENDS="libQtXml libxml2-dev cmake Qt4-dev bzlib expat-dev sqlite3-dev \
 dbus-dev libQtCore libQtDBus qmake bzip2-dev xorg-libX11-dev"
-SPLIT="strigi strigi-client strigi-dev"
+SPLIT="$PACKAGE-client $PACKAGE $PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p build && cd build
+compile_rules() {
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		.. &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	strigi)
-		DEPENDS="libxml2 expat sqlite3 dbus libQtDBus libQtXml libQtCore"
-		mkdir -p $fs/usr/lib/$PACKAGE
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/$PACKAGE/*.so* $fs/usr/lib/$PACKAGE
-		cp -a $install/usr/share $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		# QT GUI split into strigi-client
-		rm -f $fs/usr/bin/strigiclient	
-		;;
-	strigi-client)
-		CAT="system-tools|Strigi GUI client using QT."
-		DEPENDS="strigi libQtCore libQtDBus"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/strigiclient $fs/usr/bin
-		;;
-	strigi-dev)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
+		*-client)
+			copy strigiclient
+			CAT="system-tools|GUI client using Qt"
+			DEPENDS="strigi libQtCore libQtDBus"
+			;;
+		strigi)
+			copy @std @rm
+			DEPENDS="libxml2 expat sqlite3 dbus libQtDBus libQtXml libQtCore"
+			SUGGESTED="strigi-client"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

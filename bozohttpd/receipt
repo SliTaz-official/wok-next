@@ -1,32 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bozohttpd"
 VERSION="20111118"
 CATEGORY="network"
-SHORT_DESC="Small and secure http version 1.1 server"
-MAINTAINER="milka@konstelacioj.info"
+SHORT_DESC="Small and secure HTTP/1.1 server"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.eterna.com.au/$PACKAGE/"
+WEB_SITE="http://www.eterna.com.au/bozohttpd/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.eterna.com.au/$PACKAGE/$TARBALL"
-TAGS="http server lightweight CGI ipv6 ssl"
-PROVIDE="lighttpd"
 
-DEPENDS="openssl"
 BUILD_DEPENDS="openssl-dev"
-SUGGESTED="haserl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make -f Makefile.boot all
+compile_rules() {
+	make -f Makefile.boot all || return 1
 
+	install -Dm755 bozohttpd $install/usr/bin/bozohttpd
 	cook_pick_manpages bozohttpd.8
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/bozohttpd $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
+	PROVIDE="lighttpd"
+	SUGGESTED="haserl"
+	TAGS="http server lightweight CGI ipv6 ssl"
 }

@@ -12,20 +12,17 @@ REPOLOGY="perl:dbd-pg"
 TARBALL="DBD-Pg-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/T/TU/TURNSTEP/$TARBALL"
 
-DEPENDS="perl-dbi libpostgresqlclient"
-BUILD_DEPENDS="$DEPENDS perl-dev postgresql-dev"
+BUILD_DEPENDS="perl-dbi libpostgresqlclient perl-dev postgresql-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-dbi libpostgresqlclient"
 }

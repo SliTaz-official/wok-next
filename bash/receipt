@@ -5,7 +5,7 @@ VERSION="4.4.p23"
 BASEVERSION="${VERSION%.*}"
 CATEGORY="shells"
 SHORT_DESC="The GNU bourne shell"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/bash/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/bash.html"
@@ -18,8 +18,8 @@ BASHCHECK="$(basename $BASHCHECKURL)"
 BASHPATCHES="$(for i in $(seq 1 ${VERSION##*.p}); do printf "bash${BASEVERSION/./}-%03d " $i; done)"
 EXTRA_SOURCE_FILES="$BASHCHECK $BASHPATCHES"
 
-BUILD_DEPENDS="ncurses-dev readline-dev texinfo gettext patch"
-SPLIT="bash-dev"
+BUILD_DEPENDS="ncurses-dev readline-dev texinfo gettext-dev patch"
+SPLIT="$PACKAGE-dev"
 
 patch_bash() {
 	for i in $BASHPATCHES; do
@@ -31,12 +31,12 @@ patch_bash() {
 	done
 }
 
-# Rules to compile & install the temporary toolchain.
 cook_tmp_toolchain() {
 	cd $src
 	patch_bash
 	./configure --without-bash-malloc &&
-	make && make install
+	make &&
+	make install
 }
 
 compile_rules() {
@@ -71,7 +71,7 @@ EOF
 		$CONFIGURE_ARGS &&
 	make &&
 	# Bash doesn't care about DESTDIR in environnment variable.
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	# Config files
 	cp -a $stuff/etc $install
@@ -81,7 +81,7 @@ EOF
 	[ -s "$SRC/$BASHCHECK" ] ||
 		wget -O "$SRC/$BASHCHECK" $BASHCHECKURL
 	echo
-	$DESTDIR/bin/bash $SRC/$BASHCHECK $DESTDIR/bin/bash | \
+	$install/bin/bash $SRC/$BASHCHECK $install/bin/bash | \
 	tee bashcheck.log
 	echo
 	grep Vulnerable bashcheck.log && echo "ERROR: Vulnerable"

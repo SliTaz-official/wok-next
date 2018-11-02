@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-package-stash"
 VERSION="0.37"
@@ -12,21 +12,18 @@ REPOLOGY="perl:package-stash"
 TARBALL="Package-Stash-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DO/DOY/$TARBALL"
 
-DEPENDS="perl-dist-checkconflicts perl-module-implementation"
-BUILD_DEPENDS="$DEPENDS perl-package-stash-xs perl-test-fatal \
-perl-test-requires"
+BUILD_DEPENDS="perl-dist-checkconflicts perl-module-implementation \
+perl-package-stash-xs perl-test-fatal perl-test-requires"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-dist-checkconflicts perl-module-implementation"
 }

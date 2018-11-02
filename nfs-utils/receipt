@@ -15,18 +15,13 @@ BUILD_DEPENDS="libtirpc-dev libcap-dev libwrap-dev util-linux-blkid-dev \
 util-linux-uuid-dev util-linux-blkid"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			ARCH_ARGS="--with-tirpcinclude=/cross/$ARCH/sysroot/usr/include/tirpc
-			--without-tcp-wrappers CC_FOR_BUILD=${HOST_SYSTEM}-gcc" ;;
-	esac
-
 	#sh autogen.sh
 	./configure \
 		--disable-nfsv4 \
 		--disable-gss \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
-	make && make install || return 1
+		$CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	cp -a $stuff/* $install
 }
@@ -35,10 +30,6 @@ genpkg_rules() {
 	copy @std
 	DEPENDS="libtirpc libwrap libcap util-linux-blkid util-linux-uuid rpcbind \
 	linux-nfsd"
-	case "$SLITAZ_ARCH" in
-		arm*) DEPENDS="libtirpc libwrap libcap util-linux-blkid \
-			util-linux-uuid rpcbind";;
-	esac
 	CONFIG_FILES="/etc/exports"
 	TAGS="filesystem"
 }

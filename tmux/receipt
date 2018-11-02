@@ -3,29 +3,26 @@
 PACKAGE="tmux"
 VERSION="2.0"
 CATEGORY="utilities"
-SHORT_DESC="Terminal multiplexer."
+SHORT_DESC="Terminal multiplexer"
 MAINTAINER="paul@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/tmux/tmux/wiki"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="ncurses libevent"
 BUILD_DEPENDS="ncurses-dev libevent-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make PREFIX=/usr &&
-	make PREFIX=/usr install &&
-	install -d m755 "$DESTDIR/usr/share/tmux/" &&
-	install -m 644 examples/* "$DESTDIR/usr/share/tmux/"
+	make PREFIX=/usr install || return 1
+
+	install -dm755 $install/usr/share/tmux/
+	install -m644 examples/* $install/usr/share/tmux/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/terminfo/s/
 	cp -a $install/usr/bin $fs/usr
 
@@ -37,5 +34,5 @@ genpkg_rules()
 	cp -a $src/ncurses-extra/usr/share/terminfo/s/screen \
 	$fs/usr/share/terminfo/s/
 	rm -r $src/ncurses-extra
+	DEPENDS="ncurses libevent"
 }
-

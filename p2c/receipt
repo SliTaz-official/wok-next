@@ -3,44 +3,41 @@
 PACKAGE="p2c"
 VERSION="1.21alpha2"
 CATEGORY="development"
-SHORT_DESC="A Pascal to C translator."
+SHORT_DESC="A Pascal to C translator"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://schneider.ncifcrf.gov/p2c/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://darkstar.ist.utl.pt/slackware/slackware_source/d/p2c/$TARBALL"
-TAGS="pascal"
 
-DEPENDS="perl"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
-	sed -i  -e 's|^HOMEDIR.*|HOMEDIR=/usr/lib/p2c|' \
+	sed \
+		-e 's|^HOMEDIR.*|HOMEDIR=/usr/lib/p2c|' \
 		-e 's|^INCDIR.*|INCDIR=/usr/include/p2c|' \
 		-e 's|^BINDIR.*|BINDIR=/usr/bin|' \
 		-e 's|^LIBDIR.*|LIBDIR=/usr/lib|' \
 		-e 's|^ABSHOMEDIR.*|ABSHOMEDIR=/usr/lib/p2c|' \
 		-e 's|^ABSINCDIR.*|ABSINCDIR=/usr/include/p2c|' \
 		-e 's|^ABSLIBDIR.*|ABSLIBDIR=/usr/lib|' \
-	    Makefile
+		-i Makefile
 	grep -q getlinep2c lex.c || sed -i 's/getline/getlinep2c/' *
-	make all p2cc
-	mkdir -p $DESTDIR/usr/lib/p2c $DESTDIR/usr/include/p2c $DESTDIR/usr/bin
-	cp p2c p2cc $DESTDIR/usr/bin
-	cp libp2c.a $DESTDIR/usr/lib
-	ranlib $DESTDIR/usr/lib/libp2c.a
-	cp p2c.h $DESTDIR/usr/include/p2c
+
+	make all p2cc || return 1
+
+	mkdir -p $install/usr/lib/p2c $install/usr/include/p2c $install/usr/bin
+	cp p2c p2cc $install/usr/bin
+	cp libp2c.a $install/usr/lib
+	ranlib $install/usr/lib/libp2c.a
+	cp p2c.h $install/usr/include/p2c
 	cp sys.p2crc loc.p2crc system.imp system.m2 turbo.imp string.pas \
-		$DESTDIR/usr/lib/p2c
-	mv $DESTDIR/usr/lib/p2c/sys.p2crc $DESTDIR/usr/lib/p2c/p2crc
-	
+		$install/usr/lib/p2c
+	mv $install/usr/lib/p2c/sys.p2crc $install/usr/lib/p2c/p2crc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="perl"
+	TAGS="pascal"
 }
-

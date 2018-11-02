@@ -3,28 +3,25 @@
 PACKAGE="traceroute"
 VERSION="2.0.19"
 CATEGORY="network"
-SHORT_DESC="The full-featured traceroute program."
-MAINTAINER="samuel_trassare@yahoo.com"
+SHORT_DESC="The full-featured traceroute program"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://traceroute.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make && make prefix=/usr DESTDIR=$DESTDIR install
+compile_rules() {
+	make &&
+	make prefix=/usr DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp $install/usr/bin/traceroute $fs/usr/bin
 }
 
-post_remove()
-{
+post_remove() {
 	# Restore the symlink to busybox.
 	ln -s /bin/busybox /usr/bin/traceroute
 }

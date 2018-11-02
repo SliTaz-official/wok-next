@@ -12,18 +12,13 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev gmp-dev texinfo"
-SPLIT="nettle-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm) ARCH_ARGS='--enable-arm-neon';;
-		*)   ARCH_ARGS='';;
-	esac
-
 	./configure \
 		--libdir=/usr/lib \
 		--disable-static \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 

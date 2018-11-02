@@ -4,14 +4,14 @@ PACKAGE="jpeg"
 VERSION="9b"
 CATEGORY="x-window"
 SHORT_DESC="JPEG image programs"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.ijg.org/"
 
-TARBALL="jpegsrc.v${VERSION}.tar.gz"
+TARBALL="jpegsrc.v$VERSION.tar.gz"
 WGET_URL="http://www.ijg.org/files/$TARBALL"
 
-SPLIT="libjpeg jpeg jpeg-dev"
+SPLIT="libjpeg $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -19,7 +19,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	install -Dm644 $src/jpegint.h $install/usr/include/jpegint.h
 }

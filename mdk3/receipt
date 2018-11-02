@@ -1,30 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mdk3"
 VERSION="v6"
 CATEGORY="security"
 SHORT_DESC="WLAN penetration tool"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://aspj.aircrack-ng.org/index.html#mdk3"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://homepages.tu-darmstadt.de/~p_larbig/wlan/$TARBALL"
 
-DEPENDS=""
+compile_rules() {
+	sed -i "s|/usr/local|/usr|" Makefile
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	sed -i -e "s:/usr/local:/usr:" Makefile
-	make -C osdep
-	make
-	make DESTDIR="$DESTDIR" install
+	make -C osdep &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
 }

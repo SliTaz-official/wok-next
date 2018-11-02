@@ -4,7 +4,7 @@ PACKAGE="boxbackup"
 VERSION="0.12"
 CATEGORY="meta"
 SHORT_DESC="BoxBackup on-line backup system"
-MAINTAINER="domcox@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.boxbackup.org/"
 
@@ -14,7 +14,7 @@ TARBALL="BoxBackup-0.12.mark_master_builds_as_full_releases.180326.161ceef.tar.g
 WGET_URL="https://github.com/boxbackup/boxbackup/archive/$TARBALL"
 
 BUILD_DEPENDS="automake zlib-dev libedit-dev db-dev openssl-dev libxslt"
-SPLIT="boxbackup-client boxbackup-server"
+SPLIT="$PACKAGE-client $PACKAGE-server"
 
 compile_rules() {
 	./bootstrap
@@ -119,7 +119,7 @@ pre_install_boxbackup_server() {
 }
 
 post_install_boxbackup_server() {
-	HOSTNAME=$(ifconfig | awk -F ":" '/cast/ {print substr($2,0, index($2," ")-1) }')
+	HOSTNAME=$(ifconfig | awk -F ":" '/cast/ {print substr($2,0, index($2," ")-1) }')	#'MC
 	CONF_DIR="/etc/boxbackup"
 	DATA_DIR="/var/lib/bbstored"
 	CA_DIR="${CONF_DIR}/ca"
@@ -191,16 +191,16 @@ post_install_boxbackup_server() {
 		# Sign the server certificate
 		action "Sign the server certificate..."
 		chroot "$1/" openssl x509 -req -sha1 -extensions usr_crt \
-			-in $CONF_DIR/$BBUSER/${HOSTNAME}-csr.pem \
+			-in $CONF_DIR/$BBUSER/$HOSTNAME-csr.pem \
 			-CA $CA_DIR/roots/serverCA.pem \
 			-CAkey $CA_DIR/keys/serverRootKey.pem \
-			-out $CA_DIR/servers/${HOSTNAME}-cert.pem \
+			-out $CA_DIR/servers/$HOSTNAME-cert.pem \
 			-days 5000 2>1 > /dev/null
 		status
 
 		# Preparing the server certificates
 		action "Installing server certificate..."
-		cp -a "$1$CA_DIR/servers/${HOSTNAME}-cert.pem" "$1$CONF_DIR/$BBUSER"
+		cp -a "$1$CA_DIR/servers/$HOSTNAME-cert.pem" "$1$CONF_DIR/$BBUSER"
 		status
 		action "Installing client certificate..."
 		cp -a "$1$CA_DIR/roots/clientCA.pem" "$1$CONF_DIR/$BBUSER"

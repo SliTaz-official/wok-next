@@ -4,7 +4,7 @@ PACKAGE="perl-dbd-sqlite"
 VERSION="1.58"
 CATEGORY="perl"
 SHORT_DESC="DBD::SQLite - Self-contained RDBMS in a DBI Driver"
-MAINTAINER="admin@trixarian.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/DBD-SQLite"
 REPOLOGY="perl:dbd-sqlite"
@@ -13,20 +13,17 @@ TARBALL="DBD-SQLite-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/$TARBALL"
 
 # FIXME: sqlite3-dev and libsqlite3 aren't detected as (b)deps
-DEPENDS="perl-dbi libsqlite3"
-BUILD_DEPENDS="$DEPENDS perl-dev sqlite3-dev"
+BUILD_DEPENDS="perl-dbi libsqlite3 perl-dev sqlite3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
+	DEPENDS="perl-dbi libsqlite3"
 }

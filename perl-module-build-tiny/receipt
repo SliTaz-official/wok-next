@@ -12,20 +12,19 @@ REPOLOGY="perl:module-build-tiny"
 TARBALL="Module-Build-Tiny-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
 
-DEPENDS="perl-extutils-config perl-extutils-helpers perl-extutils-installpaths"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-extutils-config perl-extutils-helpers \
+perl-extutils-installpaths"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Build.PL &&
-	./Build && ./Build install --destdir $install &&
+	./Build &&
+	./Build install --destdir $install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-extutils-config perl-extutils-helpers \
+	perl-extutils-installpaths"
 }

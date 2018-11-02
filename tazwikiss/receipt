@@ -15,27 +15,21 @@ CONFIG_FILES="/var/www/wiki/config.sh /var/www/wiki/config-de.sh \
 TARBALL="slitaz-dev-tools-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
 
-DEPENDS="busybox slitaz-base-files"
 SIBLINGS="mirror-tools qemu-box slitaz-dev-tools slitaz-mercurial-style \
 tazchroot tazdev yaff"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR 2>/dev/null
-	cp -a $src/$PACKAGE/rootfs/* $DESTDIR
+compile_rules() {
+	mkdir -p $install
+	cp -a $src/$PACKAGE/rootfs/* $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	chown -R 80.80 $fs/var/www
+	DEPENDS="busybox slitaz-base-files"
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install() {
 	server=busybox
 	# Configure lighttpd server
 	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then

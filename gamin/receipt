@@ -4,17 +4,15 @@ PACKAGE="gamin"
 VERSION="0.1.10"
 CATEGORY="system-tools"
 SHORT_DESC="File and directory monitoring system"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2"
-WEB_SITE="http://www.gnome.org/~veillard/gamin/"
+WEB_SITE="https://people.gnome.org/~veillard/gamin/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.gnome.org/~veillard/gamin/sources/$TARBALL"
 
-CROSS_BUGS="error: cannot run test program while cross compiling"
-
 BUILD_DEPENDS="glib-dev gtk2-dev"
-SPLIT="gamin-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# Don't use deprecated G_CONST_RETURN. Fixes building with newer glib versions.
@@ -33,8 +31,8 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	mkdir -p $DESTDIR/usr/include &&
-	make -j1 DESTDIR=$DESTDIR install
+	mkdir -p $install/usr/include &&
+	make -j1 DESTDIR=$install install
 }
 
 genpkg_rules() {

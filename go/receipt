@@ -4,15 +4,15 @@ PACKAGE="go"
 VERSION="1.10.2"
 CATEGORY="development"
 SHORT_DESC="The Go programming language"
-MAINTAINER="domcox@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://golang.org/"
+WEB_SITE="https://golang.org/"
 
 TARBALL="$PACKAGE$VERSION.src.tar.gz"
 WGET_URL="https://dl.google.com/go/$TARBALL"
 
 BUILD_DEPENDS="go-bin bash bison make ed"
-SPLIT="go-sources emacs-pkg-go-mode go"
+SPLIT="$PACKAGE-sources emacs-pkg-go-mode $PACKAGE"
 
 compile_rules() {
 	cd $src/src
@@ -38,16 +38,10 @@ compile_rules() {
 			# A mature implementation. The compiler has an effective optimizer
 			# (registerizer) and generates good code (although gccgo can do
 			# noticeably better sometimes).
-			export GOARCH="amd64" ;;
+			export GOARCH="amd64";;
 		i486)
 			# Comparable to the amd64
-			export GOARCH="386" ;;
-		arm)
-			# Supports Linux, FreeBSD and NetBSD binaries. Less widely used
-			# than the other ports.
-			export GOARCH="arm"
-			# ARM11 (VFPv1) or better cores + cross-compiling.
-			export GOARM=6 ;;
+			export GOARCH="386";;
 	esac
 
 	# Build go
@@ -110,7 +104,7 @@ genpkg_rules() {
 		go)
 			copy @std @rm
 			TAGS="go"
-			DEPENDS=""
+			DEPENDS=" "
 			;;
 	esac
 }

@@ -9,24 +9,14 @@ SHORT_DESC="Program to compress initramfs images"
 WEB_SITE="https://www.kernel.org/"
 REPOLOGY="-"
 
-TARBALL=""
-WGET_URL=""
-TAGS=""
-
-DEPENDS="glibc-base"
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-
-compile_rules()
-{
+compile_rules() {
 	cd $stuff
-	make && make DESTDIR=$DESTDIR install &&
+	make &&
+	make DESTDIR=$install install &&
 	rm gen_init_cpio *.o
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/sbin $fs
+	DEPENDS="glibc-base"
 }

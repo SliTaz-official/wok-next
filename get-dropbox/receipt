@@ -1,21 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="get-dropbox"
 VERSION="1.00"
 CATEGORY="non-free"
-SHORT_DESC="Get Dropbox daemon and client for online storage."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Get Dropbox daemon and client for online storage"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.getdropbox.com/"
+WEB_SITE="https://www.dropbox.com/?landing=dbv2"
 REPOLOGY="-"
 
-DEPENDS="wget"
-TAGS="sync storage"
+compile_rules() {
+	install -Dm755 $stuff/$PACKAGE    $install/usr/bin/$PACKAGE
+	install -Dm644 $stuff/dropbox.png $install/usr/share/pixmaps/dropbox.png
+}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/pixmaps
-	cp stuff/get-dropbox $fs/usr/bin
-	cp stuff/dropbox.png $fs/usr/share/pixmaps
+genpkg_rules() {
+	copy @std
+	DEPENDS="wget"
+	TAGS="sync storage"
 }

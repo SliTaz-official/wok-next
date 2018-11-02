@@ -4,29 +4,23 @@ PACKAGE="wicd"
 VERSION="1.7.2.4"
 CATEGORY="network"
 SHORT_DESC="Network connection manager"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://wicd.sourceforge.net/"
 WGET_URL="https://launchpad.net/wicd/${VERSION:0:3}/$VERSION/+download/$TARBALL"
-TAGS="wireless ethernet"
 
-DEPENDS="python python-dbus ethtool wpa_supplicant python-pygtk"
 BUILD_DEPENDS="python-distribute python-babel python-dev python-dbus-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	python setup.py configure
 	#HACK for https://bugs.launchpad.net/wicd/+bug/928589
 	mkdir -p translations/ast/LC_MESSAGES
 	msgfmt po/ast.po -o translations/ast/LC_MESSAGES/wicd.mo
-	python setup.py install --root=$DESTDIR
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr $fs/etc $fs/var
 	cp -a $install/usr/* $fs/usr
 	cp -a $install/etc/* $fs/etc
@@ -47,14 +41,17 @@ genpkg_rules()
 	# change bash to sh
 	sed -i 's/bash/sh/' $fs/usr/sbin/wicd \
 						$fs/usr/bin/wicd-client
+	DEPENDS="python python-dbus ethtool wpa_supplicant python-pygtk"
+	TAGS="wireless ethernet"
 }
 
 # edit daemons.conf.
-post_install()
-{
+post_install() {
 	if ! grep -q ^WICD_OPTIONS "$1/etc/daemons.conf"; then
-		echo '# wicd options.' >> "$1/etc/daemons.conf"
-		echo 'WICD_OPTIONS=""' >> "$1/etc/daemons.conf"
-		echo '' >> "$1/etc/daemons.conf"
+		cat >> "$1/etc/daemons.conf" <<EOT
+# wicd options.
+WICD_OPTIONS=""
+
+EOT
 	fi
 }

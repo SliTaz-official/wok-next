@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-html-formatter"
 VERSION="2.16"
@@ -12,20 +12,17 @@ REPOLOGY="perl:html-formatter"
 TARBALL="HTML-Formatter-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/N/NI/NIGELM/$TARBALL"
 
-DEPENDS="perl-font-afm perl-html-tree"
-BUILD_DEPENDS="$DEPENDS perl-file-slurper perl-test-warnings"
+BUILD_DEPENDS="perl-font-afm perl-html-tree perl-file-slurper perl-test-warnings"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-font-afm perl-html-tree"
 }

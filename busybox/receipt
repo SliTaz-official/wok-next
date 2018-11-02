@@ -11,28 +11,14 @@ WEB_SITE="https://busybox.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
-BUILD_DEPENDS_arm="bzip2"
-BUILD_DEPENDS="patch bzip2 gettext perl pam-dev libtirpc-dev" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
+BUILD_DEPENDS="patch bzip2 gettext-dev perl pam-dev libtirpc-dev" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
 case "$ARCH" in
-	arm*)   SPLIT='';;
-	x86_64) SPLIT="busybox busybox-pam:pam";;
-	*)      SPLIT="busybox busybox-pam:pam ssfs-busybox:ssfs" # busybox-boot:boot busybox-static:static
+	x86_64) SPLIT="$PACKAGE-pam:pam";;
+	*)      SPLIT="$PACKAGE-pam:pam ssfs-busybox:ssfs" # $PACKAGE-boot:boot $PACKAGE-static:static
 	        ;;
 esac
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			echo "cook: CROSS_COMPILE=$CROSS_COMPILE"
-			cp $stuff/arm/$PACKAGE.config .config
-			make oldconfig &&
-			make && make install || return 1
-			chmod 4755 $src/_install/bin/busybox
-			return 0
-			;;
-	esac
-
-	# Next both for i?86 and x86_64 native compilation
 	export CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libtirpc)"
 	case "$SET" in
 		'')
@@ -166,7 +152,6 @@ testsuite() {
 	readelf -h $WOK/busybox/install/bin/busybox
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		busybox)
@@ -298,7 +283,7 @@ EOF
 
 # We can't remove this package!
 pre_remove_busybox() {
-	exit 1
+	return 1
 }
 
 pre_remove_busybox_pam() {

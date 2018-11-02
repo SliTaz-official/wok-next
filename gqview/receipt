@@ -1,33 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gqview"
 VERSION="2.0.4"
 CATEGORY="graphics"
-SHORT_DESC="Images viewer and manager using GTK+."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Images viewer and manager using GTK+"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gqview.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk2 xorg-libXdamage"
-BUILD_DEPENDS="gtk2-dev gettext-tools"
+BUILD_DEPENDS="gtk2-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
-	./configure --prefix=/usr --mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2 xorg-libXdamage"
 }

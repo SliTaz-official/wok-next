@@ -4,25 +4,24 @@ PACKAGE="qt4"
 SOURCE="qt-everywhere-opensource-src"
 VERSION="4.8.6"
 CATEGORY="meta"
-SHORT_DESC="qt x11 toolkit"
+SHORT_DESC="Qt x11 toolkit"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL3 LGPL2.1"
-TARBALL="$SOURCE-$VERSION.tar.gz"
 WEB_SITE="http://qt-project.org/"
-WGET_URL="http://download.qt-project.org/archive/qt/${VERSION%.*}/$VERSION/$TARBALL"
-PROVIDE="qt-x11-opensource-src Qt4"
-TAGS="qt"
 
-BUILD_DEPENDS="xorg-libX11-dev dbus-dev gstreamer0-dev gst0-python-dev libmng-dev \
-cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev mesa-libegl glu \
-glw postgresql-dev gst0-plugins-base-dev atk-dev autoconf automake bash \
+TARBALL="$SOURCE-$VERSION.tar.gz"
+WGET_URL="http://download.qt-project.org/archive/qt/${VERSION%.*}/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="xorg-libX11-dev dbus-dev gstreamer0-dev gst0-python-dev \
+libmng-dev cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev mesa-libegl \
+glu glw postgresql-dev gst0-plugins-base-dev atk-dev autoconf automake bash \
 binutils bison bzip2-dev cairo-dev coreutils expat-dev flex fontconfig-dev \
-freetype-dev gettext glib-dev jpeg-dev libIDL libcap-dev libpng16-dev libtool \
-libxml2-dev linux-api-headers m4 make mercurial ncurses-dev openssl-dev \
+freetype-dev gettext-dev glib-dev jpeg-dev libIDL libcap-dev libpng16-dev \
+libtool libxml2-dev linux-api-headers m4 make mercurial ncurses-dev openssl-dev \
 pango-dev patch pcre-dev perl perl-xml-parser perl-xml-simple xorg-pixman-dev \
 tiff-dev xorg-dev-proto xorg-dev zip unzip gtk2-dev alsa-lib-dev \
 sqlite3-dev glu-dev glw-dev wayland-dev"
-SPLIT="qt4 libQt3Support libQtClucene libQtCore libQtDBus libQtDeclarative \
+SPLIT="libQt3Support libQtClucene libQtCore libQtDBus libQtDeclarative \
 libQtDesigner libQtGui libQtHelp libQtMultimedia libQtNetwork libQtOpenGL \
 libQtPlugins libQtScript libQtScriptTools libQtSql libQtSvg libQtTest \
 libQtWebkit-video libQtXml qmake Qt4-dev qt4-phonon qtconfig-phonon QtDesigner \
@@ -30,33 +29,31 @@ qt-locale-cs qt-locale-da qt-locale-de qt-locale-es qt-locale-fr qt-locale-hu \
 qt-locale-pl qt-locale-pt qt-locale-ru qt-locale-sl qt-locale-sv qt-locale-uk \
 qt-locale-zh_CN qt-locale-zh_TW"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export CXXFLAGS="$CXXFLAGS -std=gnu++98"
 
 	#ugly fix for missing files, you probably could do better
-	
 	mkdir -p $src/src/3rdparty/webkit/Source/WebKit2/generated
 
 	for i in $(grep MessageReceiver.cpp $stuff/missinglist); do
-	fileprefix=${i%MessageReceiver.cpp}
-	cppfilename=$(find $src/src/3rdparty/webkit/Source/WebKit2  -name $fileprefix.cpp)
-	dname=$(dirname $cppfilename)
-	/usr/bin/python $src/src/3rdparty/webkit/Source/WebKit2/Scripts/generate-message-receiver.py $dname/$fileprefix.messages.in > $src/src/3rdparty/webkit/Source/WebKit2/generated/$i
+		fileprefix=${i%MessageReceiver.cpp}
+		cppfilename=$(find $src/src/3rdparty/webkit/Source/WebKit2  -name $fileprefix.cpp)
+		dname=$(dirname $cppfilename)
+		/usr/bin/python $src/src/3rdparty/webkit/Source/WebKit2/Scripts/generate-message-receiver.py $dname/$fileprefix.messages.in > $src/src/3rdparty/webkit/Source/WebKit2/generated/$i
 	done
-	
+
 	for i in $(grep Messages.h $stuff/missinglist); do
-	fileprefix=${i%Messages.h}
-	hfilename=$(find $src/src/3rdparty/webkit/Source/WebKit2  -name $fileprefix.h)
-	dname=$(dirname $hfilename)
-	/usr/bin/python $src/src/3rdparty/webkit/Source/WebKit2/Scripts/generate-messages-header.py $dname/$fileprefix.messages.in > $src/src/3rdparty/webkit/Source/WebKit2/generated/$i
+		fileprefix=${i%Messages.h}
+		hfilename=$(find $src/src/3rdparty/webkit/Source/WebKit2  -name $fileprefix.h)
+		dname=$(dirname $hfilename)
+		/usr/bin/python $src/src/3rdparty/webkit/Source/WebKit2/Scripts/generate-messages-header.py $dname/$fileprefix.messages.in > $src/src/3rdparty/webkit/Source/WebKit2/generated/$i
 	done
-	
+
 	./configure \
 		-silent \
 		-prefix /usr \
-		-confirm-license -opensource \
+		-confirm-license \
+		-opensource \
 		-sysconfdir /etc \
 		-plugindir /usr/lib/qt/plugins \
 		-importdir /usr/lib/qt/imports \
@@ -81,14 +78,13 @@ compile_rules()
 		-optimized-qmake \
 		-opengl \
 		-gtkstyle \
-		2>&1 | sed 's/such file or directory/file/' &&
+		&&
 	make $MAKEFLAGS &&
-	make INSTALL_ROOT=$DESTDIR install
+	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz locale qt package.
-genpkg_locale()
-{
+# Generate a SliTaz locale Qt package.
+genpkg_locale() {
 	LICENSE="GPL3 LGPL2.1 FDL other"
 	usqt=/usr/share/qt/translations
 	mkdir -p $fs$usqt
@@ -104,333 +100,303 @@ genpkg_locale()
 	fi
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	qt4)
-		DEPENDS="glibc-locale libQtCore libQtGui libQtNetwork libQtSvg \
-			libQtXml libQtDesigner libQtScript libQt3Support \
-			libQtClucene libQtDBus libQtHelp libQtOpenGL libQtSql \
-			libQtWebkit gstreamer0"
-		# dummy tree to avoid 'tazwok cmp --cook' building loop
-		mkdir $fs/etc
-		;;
-	libQt3Support)
-		CAT="development|Qt3 support Library"
-		DEPENDS="libQtGui libQtSql libQtXml"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQt3Support.so* $fs/usr/lib
-		;;
-	libQtClucene)
-		CAT="development|Qt clucene Library"
-		DEPENDS="libQtCore"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtCLucene.so* $fs/usr/lib
-		;;
-	libQtCore)
-		CAT="development|Qt Core files"
-		DEPENDS="glib zlib gcc-lib-base"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtCore.so* $fs/usr/lib
-		;;
-	libQtDBus)
-		CAT="development|Qt Dbus Library"
-		DEPENDS="libQtXml"
-		mkdir -p $fs/usr/lib $fs/usr/bin
-		cp -a $install/usr/lib/libQtDBus.so* $fs/usr/lib
-		cp -a $install/usr/bin/qdbus $fs/usr/bin
-		;;
-	libQtDeclarative)
-		CAT="development|Qt Declarative Library"
-		DEPENDS="libQtCore libQtNetwork libQtGui libQtXml libQtSql \
+		qt4)
+			DEPENDS="glibc-locale libQtCore libQtGui libQtNetwork libQtSvg \
+			libQtXml libQtDesigner libQtScript libQt3Support libQtClucene \
+			libQtDBus libQtHelp libQtOpenGL libQtSql libQtWebkit gstreamer0"
+			PROVIDE="qt-x11-opensource-src Qt4"
+			TAGS="qt"
+			;;
+		libQt3Support)
+			CAT="development|Qt3 support Library"
+			DEPENDS="libQtGui libQtSql libQtXml"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQt3Support.so* $fs/usr/lib
+			;;
+		libQtClucene)
+			CAT="development|Qt clucene Library"
+			DEPENDS="libQtCore"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtCLucene.so* $fs/usr/lib
+			;;
+		libQtCore)
+			CAT="development|Qt Core files"
+			DEPENDS="glib zlib gcc-lib-base"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtCore.so* $fs/usr/lib
+			;;
+		libQtDBus)
+			CAT="development|Qt Dbus Library"
+			DEPENDS="libQtXml"
+			mkdir -p $fs/usr/lib $fs/usr/bin
+			cp -a $install/usr/lib/libQtDBus.so* $fs/usr/lib
+			cp -a $install/usr/bin/qdbus $fs/usr/bin
+			;;
+		libQtDeclarative)
+			CAT="development|Qt Declarative Library"
+			DEPENDS="libQtCore libQtNetwork libQtGui libQtXml libQtSql \
 			libQtSvg libQtScript"
-		mkdir -p $fs/usr/lib
-		cp -a $src/lib/libQtDeclarative.so* $fs/usr/lib
-		;;
-	libQtDesigner)
-		CAT="development|Qt Designer"
-		DEPENDS="libQtCore libQtGui libQtScript libQtXml"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtDesigner*.so* $fs/usr/lib
-		;;
-	libQtGui)
-		CAT="development|Qt Gui Library"
-		DEPENDS="libQtCore expat fontconfig freetype xorg-libICE \
+			mkdir -p $fs/usr/lib
+			cp -a $src/lib/libQtDeclarative.so* $fs/usr/lib
+			;;
+		libQtDesigner)
+			CAT="development|Qt Designer"
+			DEPENDS="libQtCore libQtGui libQtScript libQtXml"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtDesigner*.so* $fs/usr/lib
+			;;
+		libQtGui)
+			CAT="development|Qt Gui Library"
+			DEPENDS="libQtCore expat fontconfig freetype xorg-libICE \
 			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
 			xorg-libXext xorg-libXi xorg-libXrandr xorg-libXrender \
 			libpng16"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtGui.so* $fs/usr/lib
-	
-		mkdir -p $fs/usr/lib/qt/plugins/imageformats
-		cp -a $install/usr/lib/qt/plugins/imageformats/libqjpeg.so $fs/usr/lib/qt/plugins/imageformats
-		cp -a $install/usr/lib/qt/plugins/imageformats/libqgif.so $fs/usr/lib/qt/plugins/imageformats
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtGui.so* $fs/usr/lib
 
-		mkdir -p $fs/etc/skel/.config
-		cp -a $stuff/Trolltech.conf $fs/etc/skel/.config
-		;;
-	libQtHelp)
-		CAT="development|Qt help Library"
-		DEPENDS="libQtGui libQtClucene libQtSql libQtXml"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtHelp.so* $fs/usr/lib
-		;;
-	libQtMultimedia)
-		CAT="development|Qt Multimedia Library"
-		DEPENDS="libQtGui alsa-lib"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtMultimedia.so* $fs/usr/lib
-		;;
-	libQtNetwork)
-		CAT="development|Qt Network Library"
-		DEPENDS="libQtCore"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtNetwork.so* $fs/usr/lib
-		;;
-	libQtOpenGL)
-		CAT="development|Qt OpenGL Library"
-		DEPENDS="libQtGui mesa glu xorg-libXxf86vm xorg-libXdamage libdrm"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtOpenGL.so* $fs/usr/lib
-		;;
-	libQtPlugins)
-		CAT="development|qt x11 toolkit plugins"
-		DEPENDS="libQtSql libQt3Support libQtGui libQtCore libQtXml \
+			mkdir -p $fs/usr/lib/qt/plugins/imageformats
+			cp -a $install/usr/lib/qt/plugins/imageformats/libqjpeg.so $fs/usr/lib/qt/plugins/imageformats
+			cp -a $install/usr/lib/qt/plugins/imageformats/libqgif.so $fs/usr/lib/qt/plugins/imageformats
+
+			mkdir -p $fs/etc/skel/.config
+			cp -a $stuff/Trolltech.conf $fs/etc/skel/.config
+			;;
+		libQtHelp)
+			CAT="development|Qt help Library"
+			DEPENDS="libQtGui libQtClucene libQtSql libQtXml"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtHelp.so* $fs/usr/lib
+			;;
+		libQtMultimedia)
+			CAT="development|Qt Multimedia Library"
+			DEPENDS="libQtGui alsa-lib"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtMultimedia.so* $fs/usr/lib
+			;;
+		libQtNetwork)
+			CAT="development|Qt Network Library"
+			DEPENDS="libQtCore"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtNetwork.so* $fs/usr/lib
+			;;
+		libQtOpenGL)
+			CAT="development|Qt OpenGL Library"
+			DEPENDS="libQtGui mesa glu xorg-libXxf86vm xorg-libXdamage libdrm"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtOpenGL.so* $fs/usr/lib
+			;;
+		libQtPlugins)
+			CAT="development|qt x11 toolkit plugins"
+			DEPENDS="libQtSql libQt3Support libQtGui libQtCore libQtXml \
 			libQtNetwork libQtDBus libQtWebkit libQtScript \
 			libQtDesigner libQtOpenGL libQtScriptTools libQtSvg \
 			libQtTest libQtHelp"
-		mkdir -p $fs/usr/lib/qt
-		cp -a $install/usr/lib/qt/plugins $fs/usr/lib/qt
-		find $fs -regex \
-		'.*\(gstreamer\|libqsqlite\|qjpeg\|bqgif\|libqsvg\).*' -delete
-		;;
-	libQtScript)
-		CAT="development|Qt Script Lib"
-		DEPENDS="libQtCore"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtScript.so* $fs/usr/lib
-		;;
-	libQtScriptTools)
-		CAT="development|Qt ScriptTools Lib"
-		DEPENDS="libQtScript libQtGui"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtScriptTools.so* $fs/usr/lib
-		;;
-	libQtSql)
-		CAT="development|Qt sql Library"
-		DEPENDS="libQtCore sqlite3"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtSql.so* $fs/usr/lib
-	
-		#file from libQtPlugins usable with sqlite preinstalled in core slitaz
-		mkdir -p $fs/usr/lib/qt/plugins/sqldrivers
-		cp -a $install/usr/lib/qt/plugins/sqldrivers/libqsqlite.so $fs/usr/lib/qt/plugins/sqldrivers/libqsqlite.so
-		;;
-	libQtSvg)
-		CAT="development|Qt Svg Library"
-		DEPENDS="libQtCore libQtGui libQtXml libpng16"
-		mkdir -p $fs/usr/lib/qt/plugins/imageformats $fs/usr/lib/qt/plugins/iconengines
-		cp -a $install/usr/lib/libQtSvg.so*	$fs/usr/lib
-		cp -a $install/usr/lib/qt/plugins/imageformats/libqsvg.so	$fs/*/*/*/*/imageformats
-		cp -a $install/usr/lib/qt/plugins/iconengines/libqsvgicon.so	$fs/*/*/*/*/iconengines
-		;;
-	libQtTest)
-		CAT="development|Qt Test library"
-		DEPENDS="libQtCore"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtTest.so* $fs/usr/lib
-		;;
-	libQtWebkit-video)
-		CAT="multimedia|Web browser engine for Qt (with gstreamer HTML5 audio video support)"
-		DEPENDS="libQtCore libQtGui libQtNetwork libpng16 \
+			mkdir -p $fs/usr/lib/qt
+			cp -a $install/usr/lib/qt/plugins $fs/usr/lib/qt
+			find $fs -regex \
+			'.*\(gstreamer\|libqsqlite\|qjpeg\|bqgif\|libqsvg\).*' -delete
+			;;
+		libQtScript)
+			CAT="development|Qt Script Lib"
+			DEPENDS="libQtCore"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtScript.so* $fs/usr/lib
+			;;
+		libQtScriptTools)
+			CAT="development|Qt ScriptTools Lib"
+			DEPENDS="libQtScript libQtGui"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtScriptTools.so* $fs/usr/lib
+			;;
+		libQtSql)
+			CAT="development|Qt sql Library"
+			DEPENDS="libQtCore sqlite3"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtSql.so* $fs/usr/lib
+
+			#file from libQtPlugins usable with sqlite preinstalled in core slitaz
+			mkdir -p $fs/usr/lib/qt/plugins/sqldrivers
+			cp -a $install/usr/lib/qt/plugins/sqldrivers/libqsqlite.so $fs/usr/lib/qt/plugins/sqldrivers/libqsqlite.so
+			;;
+		libQtSvg)
+			CAT="development|Qt Svg Library"
+			DEPENDS="libQtCore libQtGui libQtXml libpng16"
+			mkdir -p $fs/usr/lib/qt/plugins/imageformats $fs/usr/lib/qt/plugins/iconengines
+			cp -a $install/usr/lib/libQtSvg.so*	$fs/usr/lib
+			cp -a $install/usr/lib/qt/plugins/imageformats/libqsvg.so	$fs/*/*/*/*/imageformats
+			cp -a $install/usr/lib/qt/plugins/iconengines/libqsvgicon.so	$fs/*/*/*/*/iconengines
+			;;
+		libQtTest)
+			CAT="development|Qt Test library"
+			DEPENDS="libQtCore"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtTest.so* $fs/usr/lib
+			;;
+		libQtWebkit-video)
+			CAT="multimedia|Web browser engine for Qt (with gstreamer HTML5 audio video support)"
+			DEPENDS="libQtCore libQtGui libQtNetwork libpng16 \
 			gst0-plugins-base gst0-plugins-good gst0-ffmpeg"
-		SUGGESTED="gst0-plugins-bad gst0-plugins-ugly"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtWebKit.so* $fs/usr/lib
-		;;
-	libQtXml)
-		CAT="development|Qt Xml library"
-		DEPENDS="libQtNetwork"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libQtXml.so* $fs/usr/lib
-		cp -a $install/usr/lib/libQtXmlPatterns.so* $fs/usr/lib
-		;;
-	qmake)
-		CAT="development|Qt make"
-		TAGS="qt"
-		DEPENDS="zlib gcc-lib-base"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/qmake $fs/usr/bin
-		cp -a $install/usr/bin/moc $fs/usr/bin
-		cp -a $install/usr/bin/uic $fs/usr/bin
-		;;
-	Qt4-dev)
-		CAT="development|qt x11 toolkit"
-		SUGGESTED="libmng nvidia"
-		DEPENDS="QtDesigner jpeg tiff libpng16 mesa glu \
+			SUGGESTED="gst0-plugins-bad gst0-plugins-ugly"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtWebKit.so* $fs/usr/lib
+			;;
+		libQtXml)
+			CAT="development|Qt Xml library"
+			DEPENDS="libQtNetwork"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libQtXml.so* $fs/usr/lib
+			cp -a $install/usr/lib/libQtXmlPatterns.so* $fs/usr/lib
+			;;
+		qmake)
+			CAT="development|Qt make"
+			TAGS="qt"
+			DEPENDS="zlib gcc-lib-base"
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/qmake $fs/usr/bin
+			cp -a $install/usr/bin/moc $fs/usr/bin
+			cp -a $install/usr/bin/uic $fs/usr/bin
+			;;
+		Qt4-dev)
+			CAT="development|qt x11 toolkit"
+			SUGGESTED="libmng nvidia"
+			DEPENDS="QtDesigner jpeg tiff libpng16 mesa glu \
 			freetds libmysqlclient libpostgresqlclient libunixODBC \
 			xorg-xcb-util libQt3Support libQtClucene libQtPlugins \
 			libQtDBus libQtHelp libQtOpenGL libQtScript libQtSql \
 			libQtScriptTools libQtWebkit libQtTest qtconfig \
 			gcc-lib-base"
-		mkdir -p $fs/usr/lib $fs/usr/include/private
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/pkgconfig  $fs/usr/lib
-		cp -a $install/usr/lib/*.*a  $fs/usr/lib/	
-		cp -a $install/usr/lib/*.prl  $fs/usr/lib/	
-		cp -a $install/usr/share  $fs/usr	
-		cp -a $install/usr/lib/qt $fs/usr/lib
+			mkdir -p $fs/usr/lib $fs/usr/include/private
+			cp -a $install/usr/include        $fs/usr
+			cp -a $install/usr/lib/pkgconfig  $fs/usr/lib
+			cp -a $install/usr/lib/*.*a       $fs/usr/lib/
+			cp -a $install/usr/lib/*.prl      $fs/usr/lib/
+			cp -a $install/usr/share          $fs/usr
+			cp -a $install/usr/lib/qt         $fs/usr/lib
 
-		#private qt includes
-		for i in $src/include/*/private/*; do cp $src/$(cat $i | sed 's/^#include "[./]*\([a-z].*\)"$/\1/') $fs/usr/include/private; done
-	
-		# all qt plugins are in libQtPlugins
-		rm -rf $fs/usr/lib/qt/plugins
-		# all bin and remove QT applications designer, qmake, assistant, linguist: provide seperate packages
-		cp -a $install/usr/bin $fs/usr	
-		rm $fs/usr/bin/qmake
-		rm $fs/usr/bin/designer
-		# Linguist and assistant are now part of QTDesigner packages
-		rm $fs/usr/bin/linguist
-		rm $fs/usr/bin/assistant
-		# qtconfig packaged now in separate package
-		rm $fs/usr/bin/qtconfig
-		rm $fs/usr/share/qt/translations/qtconfig*.qm
-		;;
-	qt4-phonon)
-		CAT="multimedia|Qt phonon library"
-		DEPENDS="glib zlib gcc-lib-base"
-		SUGGESTED="gst0-plugins-good"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libphonon.so* $fs/usr/lib
-		mkdir -p $fs/usr/lib/qt/plugins/phonon_backend
-		cp -a $install/usr/lib/qt/plugins/phonon_backend/libphonon_gstreamer.so $fs/usr/lib/qt/plugins/phonon_backend/libphonon_gstreamer.so
-		;;
-	qtconfig-phonon)
-		CAT="x-window|Qtconfig is a tool that allows users to customize the default settings for Qt applications."
-		DEPENDS="gst0-plugins-base libQt3Support libQtNetwork libQtDBus qt4-phonon"
-		mkdir -p $fs/usr/bin $fs/usr/share/qt/translations
-		cp -a $install/usr/bin/qtconfig $fs/usr/bin
-		cp -a $install/usr/share/qt/translations/qtconfig*.qm $fs/usr/share/qt/translations
-		;;
-	QtDesigner)
-		CAT="development|Qt Designer"
-		TAGS="qt"
-		DEPENDS="libQtCore libQtGui libQtNetwork libQtSvg libQtXml \
+			#private qt includes
+			for i in $src/include/*/private/*; do
+				cp $src/$(cat $i | sed 's/^#include "[./]*\([a-z].*\)"$/\1/') $fs/usr/include/private	#"MC
+			done
+
+			# all qt plugins are in libQtPlugins
+			rm -rf $fs/usr/lib/qt/plugins
+			# all bin and remove QT applications designer, qmake, assistant, linguist: provide seperate packages
+			cp -a $install/usr/bin $fs/usr
+			rm $fs/usr/bin/qmake
+			rm $fs/usr/bin/designer
+			# Linguist and assistant are now part of QTDesigner packages
+			rm $fs/usr/bin/linguist
+			rm $fs/usr/bin/assistant
+			# qtconfig packaged now in separate package
+			rm $fs/usr/bin/qtconfig
+			rm $fs/usr/share/qt/translations/qtconfig*.qm
+			;;
+		qt4-phonon)
+			CAT="multimedia|Qt phonon library"
+			DEPENDS="glib zlib gcc-lib-base"
+			SUGGESTED="gst0-plugins-good"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libphonon.so* $fs/usr/lib
+			mkdir -p $fs/usr/lib/qt/plugins/phonon_backend
+			cp -a $install/usr/lib/qt/plugins/phonon_backend/libphonon_gstreamer.so $fs/usr/lib/qt/plugins/phonon_backend/libphonon_gstreamer.so
+			;;
+		qtconfig-phonon)
+			CAT="x-window|Qtconfig is a tool that allows users to customize the default settings for Qt applications."
+			DEPENDS="gst0-plugins-base libQt3Support libQtNetwork libQtDBus qt4-phonon"
+			mkdir -p $fs/usr/bin $fs/usr/share/qt/translations
+			cp -a $install/usr/bin/qtconfig $fs/usr/bin
+			cp -a $install/usr/share/qt/translations/qtconfig*.qm $fs/usr/share/qt/translations
+			;;
+		QtDesigner)
+			CAT="development|Qt Designer"
+			TAGS="qt"
+			DEPENDS="libQtCore libQtGui libQtNetwork libQtSvg libQtXml \
 			libQtDesigner libQtScript expat fontconfig freetype \
 			glib xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
 			xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXrandr \
 			xorg-libXrender zlib libpng16 gcc-lib-base"
-		mkdir -p $fs/usr/bin \
-			 $fs/usr/share/pixmaps \
-			 $fs/usr/share/applications
+			mkdir -p $fs/usr/bin \
+				$fs/usr/share/pixmaps \
+				$fs/usr/share/applications
 
-		cp -a $install/usr/bin/designer* $fs/usr/bin
-		cp -a $install/usr/bin/linguist* $fs/usr/bin
-		cp -a $install/usr/bin/assistant* $fs/usr/bin
-		
-		# add missing icons
-		cp -a $src/tools/assistant/tools/assistant/images/assistant.png $fs/usr/share/pixmaps
-		cp -a $src/tools/designer/src/designer/images/designer.png $fs/usr/share/pixmaps
-		cp -a $src/tools/linguist/linguist/images/icons/linguist-16-32.png  $fs/usr/share/pixmaps
-	
-		# add .desktop files
-		cp -a stuff/*  $fs/usr/share/applications
-		;;
-	qt-locale-cs)
-		CAT="localization|Czech locale for Qt"
-		LICENSE="GPL3 LGPL2.1 FDL other"
-		LOCALE="cs"
-		BOOK=""
-		genpkg_locale
-		;;
-	qt-locale-da)
-		CAT="localization|Danish locale for Qt"
-		LOCALE="da"
-		BOOK="danish"
-		genpkg_locale
-		;;
-	qt-locale-de)
-		CAT="localization|German locale for Qt"
-		LOCALE="de"
-		BOOK="german"
-		genpkg_locale
-		;;
-	qt-locale-es)
-		CAT="localization|Spanish locale for Qt"
-		LOCALE="es"
-		BOOK="spanish"
-		genpkg_locale
-		;;
-	qt-locale-fr)
-		CAT="localization|French locale for Qt"
-		LOCALE="fr"
-		BOOK="french"
-		genpkg_locale
-		;;
-	qt-locale-hu)
-		CAT="localization|Hungarian locale for Qt"
-		LOCALE="hu"
-		BOOK="hungarian"
-		genpkg_locale
-		;;
-	qt-locale-pl)
-		CAT="localization|Polish locale for Qt"
-		LOCALE="pl"
-		BOOK="polish"
-		genpkg_locale
-		;;
-	qt-locale-pt)
-		CAT="localization|Portuguese locale for Qt"
-		LOCALE="pt"
-		BOOK=""
-		genpkg_locale
-		;;
-	qt-locale-ru)
-		CAT="localization|Russian locale for Qt"
-		LOCALE="ru"
-		BOOK="russian"
-		genpkg_locale
-		;;
-	qt-locale-sl)
-		CAT="localization|Slovenian locale for Qt"
-		LOCALE="sl"
-		BOOK=""
-		genpkg_locale
-		;;
-	qt-locale-sv)
-		CAT="localization|Swedish locale for Qt"
-		LOCALE="sv"
-		BOOK="swedish"
-		genpkg_locale
-		;;
-	qt-locale-uk)
-		CAT="localization|Ukrainian locale for Qt"
-		LOCALE="uk"
-		BOOK=""
-		genpkg_locale
-		;;
-	qt-locale-zh_CN)
-		CAT="localization|Chinese Simplified locale for Qt"
-		LOCALE="zh_CN"
-		BOOK=""
-		genpkg_locale
-		;;
-	qt-locale-zh_TW)
-		CAT="localization|Chinese Traditional locale for Qt"
-		LOCALE="zh_TW"
-		BOOK=""
-		genpkg_locale
-		;;
+			cp -a $install/usr/bin/designer* $fs/usr/bin
+			cp -a $install/usr/bin/linguist* $fs/usr/bin
+			cp -a $install/usr/bin/assistant* $fs/usr/bin
+
+			# add missing icons
+			cp -a $src/tools/assistant/tools/assistant/images/assistant.png $fs/usr/share/pixmaps
+			cp -a $src/tools/designer/src/designer/images/designer.png $fs/usr/share/pixmaps
+			cp -a $src/tools/linguist/linguist/images/icons/linguist-16-32.png  $fs/usr/share/pixmaps
+
+			# add .desktop files
+			cp -a $stuff/*  $fs/usr/share/applications
+			;;
+		qt-locale-cs)
+			CAT="localization|Czech locale for Qt"
+			LICENSE="GPL3 LGPL2.1 FDL other"
+			LOCALE="cs" BOOK="" genpkg_locale
+			;;
+		qt-locale-da)
+			CAT="localization|Danish locale for Qt"
+			LOCALE="da" BOOK="danish" genpkg_locale
+			;;
+		qt-locale-de)
+			CAT="localization|German locale for Qt"
+			LOCALE="de" BOOK="german" genpkg_locale
+			;;
+		qt-locale-es)
+			CAT="localization|Spanish locale for Qt"
+			LOCALE="es" BOOK="spanish" genpkg_locale
+			;;
+		qt-locale-fr)
+			CAT="localization|French locale for Qt"
+			LOCALE="fr" BOOK="french" genpkg_locale
+			;;
+		qt-locale-hu)
+			CAT="localization|Hungarian locale for Qt"
+			LOCALE="hu" BOOK="hungarian" genpkg_locale
+			;;
+		qt-locale-pl)
+			CAT="localization|Polish locale for Qt"
+			LOCALE="pl" BOOK="polish" genpkg_locale
+			;;
+		qt-locale-pt)
+			CAT="localization|Portuguese locale for Qt"
+			LOCALE="pt" BOOK="" genpkg_locale
+			;;
+		qt-locale-ru)
+			CAT="localization|Russian locale for Qt"
+			LOCALE="ru" BOOK="russian" genpkg_locale
+			;;
+		qt-locale-sl)
+			CAT="localization|Slovenian locale for Qt"
+			LOCALE="sl" BOOK="" genpkg_locale
+			;;
+		qt-locale-sv)
+			CAT="localization|Swedish locale for Qt"
+			LOCALE="sv" BOOK="swedish" genpkg_locale
+			;;
+		qt-locale-uk)
+			CAT="localization|Ukrainian locale for Qt"
+			LOCALE="uk" BOOK="" genpkg_locale
+			;;
+		qt-locale-zh_CN)
+			CAT="localization|Chinese Simplified locale for Qt"
+			LOCALE="zh_CN" BOOK="" genpkg_locale
+			;;
+		qt-locale-zh_TW)
+			CAT="localization|Chinese Traditional locale for Qt"
+			LOCALE="zh_TW" BOOK="" genpkg_locale
+			;;
 	esac
 }
 
-post_install_libQtGui()
-{
-        for i in $(ls "$1/home" 2> /dev/null); do
-                [ -f "$1/home/$i/.config/Trolltech.conf" ] && continue
-                cp "$1/etc/skel/.config/Trolltech.conf" "$1/home/$i/.config"
-                chroot "$1/" chown -R $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.config"
-        done
+post_install_libQtGui() {
+	for i in $(ls "$1/home" 2>/dev/null); do
+		[ -f "$1/home/$i/.config/Trolltech.conf" ] && continue
+		cp "$1/etc/skel/.config/Trolltech.conf" "$1/home/$i/.config"
+		chroot "$1/" chown -R $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.config"
+	done
 }

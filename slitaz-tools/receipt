@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-tools"
 VERSION="1028"
 CATEGORY="system-tools"
-SHORT_DESC="SliTaz tools provide installer and utils usable on terminal."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz tools provide installer and utils usable on terminal"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
@@ -12,31 +12,22 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-tools/archive/$VERSION.tar.bz2"
 
-SUGGESTED="slitaz-tools-boxes"
-DEPENDS="slitaz-boot-scripts dialog gettext-base slitaz-configs-base"
-BUILD_DEPENDS="gettext"
+BUILD_DEPENDS="gettext-dev"
 SIBLINGS="slitaz-tools-boxes tazdrop"
 
-# Saved config file by package manager
-CONFIG_FILES="
-/etc/TZ
-/etc/keymap.conf
-/etc/locale.conf
-/etc/firewall.conf"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR/usr/share
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	mkdir -p $install/usr/share
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/* $fs
 	chmod 0644 $fs/usr/share/locale/*/*/*.mo
 	touch $fs/etc/firewall.conf
 	chown -R root.root $fs
+	CONFIG_FILES="/etc/TZ /etc/keymap.conf /etc/locale.conf /etc/firewall.conf"
+	DEPENDS="slitaz-boot-scripts dialog gettext-base slitaz-configs-base"
+	SUGGESTED="slitaz-tools-boxes"
 }

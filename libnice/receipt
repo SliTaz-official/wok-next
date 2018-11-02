@@ -4,7 +4,7 @@ PACKAGE="libnice"
 VERSION="0.1.14"
 CATEGORY="system-tools"
 SHORT_DESC="The GLib ICE implementation"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1 MPL"
 WEB_SITE="https://nice.freedesktop.org/wiki/"
 
@@ -13,7 +13,7 @@ WGET_URL="https://nice.freedesktop.org/releases/$TARBALL"
 
 BUILD_DEPENDS="gnutls-dev glib-dev gstreamer0-dev gstreamer1-dev \
 gobject-introspection-dev"
-SPLIT="libnice-gst0 libnice-gst1 libnice libnice-dev"
+SPLIT="$PACKAGE-gst0 $PACKAGE-gst1 $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -24,12 +24,12 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libnice-gst0)
+		*-gst0)
 			copy libgstnice010.so
 			DEPENDS="glib gstreamer0 libnice"
 			CAT="multimedia|GStreamer-0.10 plugin"
 			;;
-		libnice-gst1)
+		*-gst1)
 			copy libgstnice.so
 			DEPENDS="glib gstreamer1 libnice"
 			CAT="multimedia|GStreamer-1.0 plugin"
@@ -38,7 +38,7 @@ genpkg_rules() {
 			copy @std @rm
 			DEPENDS="glib libgnutls"
 			;;
-		libnice-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="libnice libnice-gst0 libnice-gst1 \
 			glib-dev gnutls-dev"

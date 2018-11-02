@@ -3,171 +3,159 @@
 PACKAGE="mariadb"
 VERSION="10.0.11"
 CATEGORY="office"
-SHORT_DESC="SQL database system."
-MAINTAINER="erjo@slitaz.org"
+SHORT_DESC="SQL database system"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://mariadb.org/en/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://pangolin.slitaz.org/downloads/sources/$TARBALL"
 
 BUILD_DEPENDS="cmake ncurses-dev bison openssl-dev"
-SPLIT="mariadb libmariadbclient mariadb-client mariadb-dev mariadb-test"
+SPLIT="libmariadbclient $PACKAGE-client $PACKAGE-dev $PACKAGE-test"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	
-	cd $src
-	cmake  . -DCMAKE_INSTALL_PREFIX=/usr \
-	-DINSTALL-DOCREADMEDIR=/usr/share/doc \
-	-DINSTALL_MYSQLDATADIR=/var/lib/mysql \
-	-DINSTALL_SYSCONFDIR=/etc \
-	-DINSTALL_LIBDIR=lib/mysql \
-	-DINSTALL_INFODIR=share/doc/mysql \
-	-DINSTALL_MANDIR=share/man \
-	-DINSTALL_PLUGINDIR=lib/mysql/plugin \
-	-DINSTALL_SHAREDIR=share \
-	-DINSTALL_MYSQLSHAREDIR=share/mysql \
-	-DINSTALL_UNIX_ADDRDIR=/var/run/mysqld/mysqld.sock &&
+compile_rules() {
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DINSTALL-DOCREADMEDIR=/usr/share/doc \
+		-DINSTALL_MYSQLDATADIR=/var/lib/mysql \
+		-DINSTALL_SYSCONFDIR=/etc \
+		-DINSTALL_LIBDIR=lib/mysql \
+		-DINSTALL_INFODIR=share/doc/mysql \
+		-DINSTALL_MANDIR=share/man \
+		-DINSTALL_PLUGINDIR=lib/mysql/plugin \
+		-DINSTALL_SHAREDIR=share \
+		-DINSTALL_MYSQLSHAREDIR=share/mysql \
+		-DINSTALL_UNIX_ADDRDIR=/var/run/mysqld/mysqld.sock \
+		. &&
 	make $MAKEFLAGS &&
-	make install 
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	mariadb)
-		CONFIG_FILES="/etc/mysql"
-		TAZPANEL_DAEMON="man|edit::/etc/mysql/my.cnf|options|web::$WEB_SITE"
-		PROVIDE="mysql"
-		CONFIG_FILES="/etc/mysql/my.cnf"
-		DATABASE_FILES="/var/lib/mysql"
-		CROSS="bug: can not run test programm"
-		DEPENDS="busybox libmariadbclient mariadb-client zlib \
+		mariadb)
+			CONFIG_FILES="/etc/mysql"
+			TAZPANEL_DAEMON="man|edit::/etc/mysql/my.cnf|options|web::$WEB_SITE"
+			PROVIDE="mysql"
+			CONFIG_FILES="/etc/mysql/my.cnf"
+			DATABASE_FILES="/var/lib/mysql"
+			DEPENDS="busybox libmariadbclient mariadb-client zlib \
 			slitaz-base-files gcc-lib-base"
-		mkdir -p \
-			$fs/usr/share \
-			$fs/usr/lib/mysql/plugin \
-			$fs/etc/mysql \
-			$fs/etc/mysql.d \
-			$fs/var/lib/mysql 
+			mkdir -p \
+				$fs/usr/share \
+				$fs/usr/lib/mysql/plugin \
+				$fs/etc/mysql \
+				$fs/etc/mysql.d \
+				$fs/var/lib/mysql
 
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/scripts/* $fs/usr/bin
-		cp -a $install/usr/lib/mysql/plugin/*.so* $fs/usr/lib/mysql/plugin
-		cp -a $install/usr/share/mysql $fs/usr/share
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/scripts/* $fs/usr/bin
+			cp -a $install/usr/lib/mysql/plugin/*.so* $fs/usr/lib/mysql/plugin
+			cp -a $install/usr/share/mysql $fs/usr/share
 
-		# Configuration file
-		cp -a $stuff/etc/init.d $fs/etc
-		cp -a $src/support-files/my-medium.cnf $fs/etc/mysql/my.cnf
-		cp -a $src/support-files/my-small.cnf $fs/etc/mysql
-		grep -q "bind-address" $fs/etc/mysql/my.cnf || sed -i \
-			's/^\[mysqld\]/[mysqld]\nbind-address\t= 127.0.0.1/' \
-			$fs/etc/mysql/my.cnf
+			# Configuration file
+			cp -a $stuff/etc/init.d $fs/etc
+			cp -a $src/support-files/my-medium.cnf $fs/etc/mysql/my.cnf
+			cp -a $src/support-files/my-small.cnf $fs/etc/mysql
+			grep -q "bind-address" $fs/etc/mysql/my.cnf || sed -i \
+				's/^\[mysqld\]/[mysqld]\nbind-address\t= 127.0.0.1/' \
+				$fs/etc/mysql/my.cnf
 
-		# Permissions
-		chmod 600 $fs/etc/mysql/my.cnf
+			# Permissions
+			chmod 600 $fs/etc/mysql/my.cnf
 
-		cat $stuff/*.files-list | while read file; do
-			[ -f $fs$file ] && rm -f $fs$file
-		done
-		;;
-	libmariadbclient)
-		CAT="misc|SQL database system client libraries."
-		PROVIDE="libmysqlclient"
-		DEPENDS="zlib openssl"
-		mkdir -p $fs/usr/lib/mysql
-		cp -a $install/usr/lib/mysql/libmysqlclient*so* $fs/usr/lib/mysql
-		cd $fs/usr/lib
-		ln -s mysql/libmysqlclient.so .
-		ln -s mysql/libmysqlclient.so.18 .
-		ln -s mysql/libmysqlclient.so.18.0.0 .
-		ln -s mysql/libmysqlclient_r.so .
-		ln -s mysql/libmysqlclient_r.so.18 .
-		ln -s mysql/libmysqlclient_r.so.18.0.0 .
-		;;
-	mariadb-client)
-		CAT="office|SQL database system client files."
-		PROVIDE="mysql_or_postgresql mysql-client"
-		DEPENDS="libmariadbclient zlib ncurses gcc-lib-base ncurses"
-		while read file; do
-			dir=$(dirname $file)
-			[ -d $fs$dir ] || mkdir -p $fs$dir
-			cp -a $install$file $fs$file
-		done < $wanted_stuff/$PACKAGE.files-list
-		;;
-	mariadb-dev)
-		CAT="development|SQL database system devel files."
-		PROVIDE="mysql-dev"
-		DEPENDS="zlib"
-		mkdir -p $fs/usr/lib/mysql/plugin $fs/usr/share
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/share/aclocal $fs/usr/share
-		cp -a $install/usr/lib/mysql/*.*a $fs/usr/lib/mysql
-		#~ cp -a $install/usr/lib/mysql/plugin/*.*a $fs/usr/lib/mysql/plugin
-		while read file; do
-			dir=$(dirname $file)
-			[ -d $fs$dir ] || mkdir -p $fs$dir
-			cp -a $install$file $fs$file
-		done < $wanted_stuff/$PACKAGE.files-list
-		;;
-	mariadb-test)
-		CAT="misc|SQL database system tests and benchs."
-		DEPENDS="mariadb perl openssl"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/mysql-test $fs/usr
-		cp -a $install/usr/sql-bench $fs/usr
-		find $fs/usr/mysql-test $fs/usr/sql-bench -type d -exec chmod 2777 {} \;
-		while read file; do
-			dir=$(dirname $file)
-			[ -d $fs$dir ] || mkdir -p $fs$dir
-			cp -a $install$file $fs$file
-		done < $wanted_stuff/$PACKAGE.files-list
-		mv $fs/usr/mysql-test $fs/usr/share/mysql-test
-		mv $fs/usr/sql-bench $fs/usr/share/sql-bench
-		;;
+			cat $stuff/*.files-list | while read file; do
+				[ -f $fs$file ] && rm -f $fs$file
+			done
+			;;
+		libmariadbclient)
+			CAT="misc|client libraries"
+			PROVIDE="libmysqlclient"
+			DEPENDS="zlib openssl"
+			mkdir -p $fs/usr/lib/mysql
+			cp -a $install/usr/lib/mysql/libmysqlclient*so* $fs/usr/lib/mysql
+			cd $fs/usr/lib
+			ln -s mysql/libmysqlclient.so .
+			ln -s mysql/libmysqlclient.so.18 .
+			ln -s mysql/libmysqlclient.so.18.0.0 .
+			ln -s mysql/libmysqlclient_r.so .
+			ln -s mysql/libmysqlclient_r.so.18 .
+			ln -s mysql/libmysqlclient_r.so.18.0.0 .
+			;;
+		mariadb-client)
+			CAT="office|client files"
+			PROVIDE="mysql_or_postgresql mysql-client"
+			DEPENDS="libmariadbclient zlib ncurses gcc-lib-base ncurses"
+			while read file; do
+				dir=$(dirname $file)
+				[ -d $fs$dir ] || mkdir -p $fs$dir
+				cp -a $install$file $fs$file
+			done < $wanted_stuff/$PACKAGE.files-list
+			;;
+		mariadb-dev)
+			PROVIDE="mysql-dev"
+			DEPENDS="zlib"
+			mkdir -p $fs/usr/lib/mysql/plugin $fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/share/aclocal $fs/usr/share
+			cp -a $install/usr/lib/mysql/*.*a $fs/usr/lib/mysql
+			#~ cp -a $install/usr/lib/mysql/plugin/*.*a $fs/usr/lib/mysql/plugin
+			while read file; do
+				dir=$(dirname $file)
+				[ -d $fs$dir ] || mkdir -p $fs$dir
+				cp -a $install$file $fs$file
+			done < $wanted_stuff/$PACKAGE.files-list
+			;;
+		mariadb-test)
+			CAT="misc|tests and benchs"
+			DEPENDS="mariadb perl openssl"
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/mysql-test $fs/usr
+			cp -a $install/usr/sql-bench $fs/usr
+			find $fs/usr/mysql-test $fs/usr/sql-bench -type d -exec chmod 2777 {} \;
+			while read file; do
+				dir=$(dirname $file)
+				[ -d $fs$dir ] || mkdir -p $fs$dir
+				cp -a $install$file $fs$file
+			done < $wanted_stuff/$PACKAGE.files-list
+			mv $fs/usr/mysql-test $fs/usr/share/mysql-test
+			mv $fs/usr/sql-bench $fs/usr/share/sql-bench
+			;;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_mariadb()
-{
-	
+post_install_mariadb() {
 	local user
 	local group
-	
+
 	user=mysql
 	group=mysql
-	
+
 	if ! grep -q $user "$1/etc/passwd"; then
-		echo -n "Adding user/group $user..."
 		chroot "$1/" addgroup -S $group
 		chroot "$1/" adduser -s /bin/false -S -D -H -G $group $user
-		status
 	fi
 
-	cat <<EOF
-----
-To start $PACKAGE server you can run :
+	[ -s "$quiet" ] || cat <<EOF
 
-    /etc/init.d/$PACKAGE start
-
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
-----
+	.------------------------------------------------.
+	| To start mariadb server you can run:           |
+	|                                                |
+	|    /etc/init.d/mariadb start                   |
+	|                                                |
+	| or add mariadb to RUN_DAEMONS in /etc/rcS.conf |
+	'------------------------------------------------'
 EOF
 }
 
-pre_install_mariadb()
-{
+pre_install_mariadb() {
 	# Cleanup old files
 	rm -f "$1/usr/libexec/mysql"*
 	# Mv config
 	[ -f "$1/etc/my.cnf" ] && mv -f "$1/etc/my.cnf" "$1/etc/mysql/my.cnf"
 }
 
-post_remove_mariadb()
-{
-	echo "Removing user/group mysql"
+post_remove_mariadb() {
 	deluser mysql
 }

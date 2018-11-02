@@ -1,30 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="buildbot"
 VERSION="0.8.5"
 CATEGORY="development"
-SHORT_DESC="Tool to automate the compile/test cycle of code source."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Tool to automate the compile/test cycle of code source"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://buildbot.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://buildbot.googlecode.com/files/$TARBALL"
-TAGS="python buildtools"
 
-DEPENDS="python python-twisted"
 BUILD_DEPENDS="python python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install || return 1
 
 	cook_pick_manpages docs/buildbot.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
-	rm -r $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-twisted"
+	TAGS="python buildtools"
 }

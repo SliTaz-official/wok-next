@@ -3,8 +3,8 @@
 PACKAGE="rtmpdump"
 VERSION="2.3"
 CATEGORY="multimedia"
-SHORT_DESC="rtmpdump is a toolkit for RTMP streams"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Toolkit for RTMP streams"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://rtmpdump.mplayerhq.hu/"
 
@@ -12,15 +12,17 @@ TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://rtmpdump.mplayerhq.hu/download/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev zlib-dev"
-SPLIT="rtmpdump-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	mkdir -p $DESTDIR/usr/lib
-	make &&  make \
+	mkdir -p $install/usr/lib
+	make &&
+	make \
 		prefix="/usr" \
 		sbindir="/usr/bin" \
 		mandir="/usr/share/man" \
-		DESTDIR="$DESTDIR" install
+		DESTDIR="$install" \
+		install
 }
 
 genpkg_rules() {

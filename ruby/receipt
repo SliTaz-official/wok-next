@@ -4,7 +4,7 @@ PACKAGE="ruby"
 VERSION="2.5.1"
 CATEGORY="development"
 SHORT_DESC="Dynamic programming language focused on simplicity and productivity"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.ruby-lang.org/en/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/ruby.html"
@@ -12,29 +12,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/ruby.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://cache.ruby-lang.org/pub/ruby/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="zlib-dev tcl-dev openssl-dev db-dev readline-dev"
 BUILD_DEPENDS="gmp-dev db-dev libffi-dev openssl-dev tcl-dev tk-dev zlib-dev \
 gdbm-dev readline-dev"
-SPLIT="ruby libruby ruby-stdlib ruby-dev"
+SPLIT="libruby $PACKAGE-stdlib $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			# executable host ruby is required. use --with-baseruby option.
-			# --with-arch=arm
-			export ac_cv_func_getpgrp_void=yes
-			export ac_cv_func_setpgrp_void=yes
-			ARCH_ARGS="--with-baseruby=/usr/bin/ruby" ;;
-	esac
-
 	#	--disable-rubygems
 	./configure \
 		--enable-shared \
 		--disable-install-doc \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
-	make install &&
+	make install || return 1
+
 	rm $install/usr/lib/ruby/gems/*/cache/*.gem
 }
 
@@ -51,12 +41,12 @@ genpkg_rules() {
 			CAT="libdevel|shared libraries"
 			DEPENDS="gmp"
 			;;
-		ruby-stdlib)
+		*-stdlib)
 			copy /usr/lib/ruby/
 			CAT="libdevel|native libraries"
 			DEPENDS="gdbm libdb libffi libruby openssl readline zlib"
 			;;
-		ruby-dev)
+		*-dev)
 			copy @dev
 			;;
 	esac

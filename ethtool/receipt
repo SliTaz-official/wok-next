@@ -3,28 +3,25 @@
 PACKAGE="ethtool"
 VERSION="4.2"
 CATEGORY="network"
-SHORT_DESC="Display or change ethernet card settings."
+SHORT_DESC="Display or change ethernet card settings"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-BUILD_DEPENDS="wget"
+WEB_SITE="https://mirrors.edge.kernel.org/pub/software/network/ethtool/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="https://www.kernel.org/pub/software/network/ethtool"
 WGET_URL="$WEB_SITE/$TARBALL"
-TAGS="ethernet"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS && \
-	make && make install
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	TAGS="ethernet"
 }
-

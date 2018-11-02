@@ -4,19 +4,18 @@ PACKAGE="xtrkcad"
 VERSION="4.0.3a1"
 CATEGORY="games"
 SHORT_DESC="A CAD program for designing model railroad layouts"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.xtrkcad.org/"
+WEB_SITE="http://www.xtrkcad.org/Wikka/HomePage"
 
 TARBALL="$PACKAGE-source-$VERSION.tar.gz"
 #WGET_URL="$SF_MIRROR/$PACKAGE-fork/$TARBALL"
 WGET_URL="http://users.zoominternet.net/~rcx/$TARBALL"
 
-BUILD_DEPENDS="cmake gettext zlib-dev \
-gtk2-dev libxml2-dev libgtkhtml-dev libgtkhtml doxygen \
-xorg-libX11-dev xorg-xorgproto xorg-libXau-dev \
+BUILD_DEPENDS="cmake gettext-dev zlib-dev gtk2-dev libxml2-dev libgtkhtml-dev \
+libgtkhtml doxygen xorg-libX11-dev xorg-xorgproto xorg-libXau-dev \
 xorg-libXdmcp-dev"
-SPLIT="xtrkcad-doc xtrkcad"
+SPLIT="$PACKAGE-doc $PACKAGE"
 
 compile_rules() {
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
@@ -37,7 +36,7 @@ compile_rules() {
 		-D XTRKCAD_USE_GTK_CAIRO=ON \
 		. &&
 	make PREFIX=/usr &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	install -Dm644 $stuff/xtrkcad.png     $install/usr/share/pixmaps/xtrkcad.png
 	install -Dm644 $stuff/xtrkcad.desktop $install/usr/share/applications/xtrkcad.desktop

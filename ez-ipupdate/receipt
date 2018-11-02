@@ -1,31 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ez-ipupdate"
 VERSION="3.0.11b7"
 CATEGORY="network"
-SHORT_DESC="Update your host name for some dynamic DNS services."
+SHORT_DESC="Update your host name for some dynamic DNS services"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://web.archive.org/web/20120709060406/http://ez-ipupdate.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}dist/$TARBALL"
-TAGS="DNS"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	grep -q errno.h conf_file.h || echo "#include <errno.h>" >> conf_file.h
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--enable-default-service=dyndns \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+
+	./configure \
+		--enable-default-service=dyndns \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	TAGS="DNS"
 }
-

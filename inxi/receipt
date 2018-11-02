@@ -7,15 +7,12 @@ CATEGORY="utilities"
 SHORT_DESC="Full featured CLI system information tool"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://smxi.org/docs/inxi.htm"
+WEB_SITE="https://smxi.org/docs/inxi.htm"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/smxi/inxi/archive/$COMMIT.tar.gz"
 
-DEPENDS="bash gawk sed coreutils-disk pciutils procps"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share/man/man1
 	install -m0755 $src/inxi $fs/usr/bin
 	install -m0644 $src/inxi.1.gz $fs/usr/share/man/man1
@@ -40,4 +37,5 @@ genpkg_rules()
 	sed -i 's|strings:binutils|strings:busybox|' $inxi
 	sed -i 's|runlevel:sysvinit|runlevel:|' $inxi # no package
 	sed -i 's|print_lines_basic "0" "" "Debian/Ubuntu:.*$|print_lines_basic "0" "" "SliTaz:^$package_deb"|' $inxi
+	DEPENDS="bash gawk sed coreutils-disk pciutils procps"
 }

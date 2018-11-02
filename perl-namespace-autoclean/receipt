@@ -12,20 +12,18 @@ REPOLOGY="perl:namespace-autoclean"
 TARBALL="namespace-autoclean-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
 
-DEPENDS="perl-b-hooks-endofscope perl-namespace-clean perl-sub-identify"
-BUILD_DEPENDS="$DEPENDS perl-test-requires"
+BUILD_DEPENDS="perl-b-hooks-endofscope perl-namespace-clean perl-sub-identify \
+perl-test-requires"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-b-hooks-endofscope perl-namespace-clean perl-sub-identify"
 }

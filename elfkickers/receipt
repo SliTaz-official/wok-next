@@ -13,10 +13,11 @@ WGET_URL="http://www.muppetlabs.com/~breadbox/pub/software//$TARBALL"
 
 compile_rules() {
 	sed -i 's|.*asm/elf.h.*|#define ELF_DATA ELFDATA2LSB\n#define ELF_CLASS ELFCLASS32\n#define ELF_ARCH EM_386|' sstrip/sstrip.c
-	mkdir -p $DESTDIR/usr/bin
-	for i in elfls rebind elftoc sstrip ; do
+
+	for i in elfls rebind elftoc sstrip; do
 		cd $i
-		make && cp $i $DESTDIR/usr/bin
+		make &&
+		install -Dm755 $i $install/usr/bin/$i
 		cd ..
 	done
 }

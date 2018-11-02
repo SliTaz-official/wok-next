@@ -3,29 +3,31 @@
 PACKAGE="pmail"
 VERSION="0.9.16"
 CATEGORY="network"
-SHORT_DESC="Mail transfer client based on the protocols of POP3 and SMTP."
+SHORT_DESC="Mail transfer client based on the protocols of POP3 and SMTP"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.ibiblio.org/pub/Linux/system/mail/pop/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i  -e "s|BINDIR = @prefix@/bin|BINDIR = $DESTDIR/usr/bin|" \
-		-e "s|MANDIR = @prefix@/man/man1|MANDIR = $DESTDIR/usr/share/man/man1|" \
-		Makefile.in
-	mkdir -p $DESTDIR/usr/bin $DESTDIR/usr/share/man/man1
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
-	make -j 1 &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	sed \
+		-e "s|BINDIR = @prefix@/bin|BINDIR = $install/usr/bin|" \
+		-e "s|MANDIR = @prefix@/man/man1|MANDIR = $install/usr/share/man/man1|" \
+		-i Makefile.in
+	mkdir -p $install/usr/bin $install/usr/share/man/man1
+
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make -j1 &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 }

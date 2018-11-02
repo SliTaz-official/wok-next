@@ -3,8 +3,8 @@
 PACKAGE="jwm"
 VERSION="2.2.0"
 CATEGORY="x-window"
-SHORT_DESC="JWM is a light Window Manager for the X window system"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Lightweight Window Manager for the X window system"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://joewing.net/programs/jwm/"
 
@@ -12,21 +12,15 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.joewing.net/programs/jwm/releases/$TARBALL"
 
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev jpeg-dev libpng16-dev \
-xorg-libXext-dev gettext"
+xorg-libXext-dev gettext-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--disable-nls";;
-		*)    ARCH_ARGS="";;
-	esac
-
 	./configure \
 		--sysconfdir=/etc/xdg/jwm \
 		--disable-fribidi \
 		--disable-rpath \
 		--disable-rsvg \
 		--disable-confirm \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -45,11 +39,8 @@ genpkg_rules() {
 	copy @std
 	DEPENDS="xorg-libX11 xorg-libXft xorg-libXrender xorg-libXpm xorg-libXext \
 	xorg-libXmu xorg-libXinerama xorg-libXau xorg-libXdmcp xorg-libXt libjpeg \
-	libpng16 slitaz-configs-base xorg-xload xorg-xclock imlib2 hsetroot"
-	case "$ARCH" in
-		arm*) DEPENDS="$DEPENDS joe lynx ytree";;
-		*)    DEPENDS="$DEPENDS compton nano" ;;
-	esac
+	libpng16 slitaz-configs-base xorg-xload xorg-xclock imlib2 hsetroot \
+	compton nano"
 	TAGS="window-manager"
 }
 
@@ -61,7 +52,7 @@ post_install() {
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q $PACKAGE; then
-		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
+		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
 	fi
 	true
 }

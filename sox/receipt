@@ -11,13 +11,10 @@ WEB_SITE="http://sox.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS_arm="ffmpeg-dev libsndfile-dev libid3tag-dev libmad-dev \
-libvorbis-dev libpng16-dev lame-dev libsamplerate-dev alsa-lib-dev \
-libao-dev libogg-dev libmagic-dev"
 BUILD_DEPENDS="ffmpeg-dev libsndfile-dev libid3tag-dev libmad-dev \
 libvorbis-dev libpng16-dev lame-dev libsamplerate-dev alsa-lib-dev \
 libao-dev libogg-dev libmagic-dev flac-dev"
-SPLIT="sox-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -32,18 +29,9 @@ genpkg_rules() {
 	case $PACKAGE in
 		sox)
 			copy @std
-			case "$SLITAZ_ARCH" in
-				arm*)
-					DEPENDS="libltdl libsamplerate alsa-lib libid3tag libmad \
-					libvorbis libpng16 lame libmagic libgomp libao ffmpeg \
-					libsndfile"
-					;;
-				*)
-					DEPENDS="libltdl libsamplerate alsa-lib libid3tag libmad \
-					libvorbis libpng16 lame libmagic libgomp libao ffmpeg \
-					libsndfile flac"
-					;;
-			esac
+			DEPENDS="libltdl libsamplerate alsa-lib libid3tag libmad \
+			libvorbis libpng16 lame libmagic libgomp libao ffmpeg \
+			libsndfile flac"
 			;;
 		*-dev)
 			copy @dev

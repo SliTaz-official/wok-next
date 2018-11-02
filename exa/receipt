@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="exa"
 VERSION="0.7.0"
@@ -13,20 +13,17 @@ WGET_URL="https://github.com/ogham/exa/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="rust libgit2-dev cmake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# save caches here
 	export CARGO_HOME=/home/cargo
 
 	sed -i 's|/usr/local|/usr|' Makefile
 
-	make && make DESTDIR=$install install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="zlib"
 }

@@ -6,34 +6,35 @@ CATEGORY="graphics"
 SHORT_DESC="Pictures browser"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL3"
-WEB_SITE="http://www.nomacs.org"
+WEB_SITE="http://www.nomacs.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/nomacs/nomacs/archive/$VERSION.tar.gz"
 
-DEPENDS="qt5-base"
 BUILD_DEPENDS="qt5-dev cmake exiv2-dev libraw-dev zlib-dev expat-dev mesa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/ImageLounge ; sed -i 's/ ON/ OFF/g' CMakeLists.txt
-	mkdir build ; cd build
+compile_rules() {
+	cd $src/ImageLounge
+	sed -i 's/ ON/ OFF/g' CMakeLists.txt
+
+	mkdir build
+	cd    build
 	cmake \
 		-DENABLE_OPENCV=OFF \
 		-DENABLE_RAW=OFF \
 		-DENABLE_WEBP=OFF \
 		-DENABLE_TIFF=OFF \
 		-DDISABLE_QT_DEBUG=ON \
-		-DCMAKE_INSTALL_PREFIX=/usr ..
-	make
-	make DESTDIR=$DESTDIR install
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	rm -rf $src/build
 	cd $fs/usr/share/$PACKAGE/translations
 	find * -size -62k -delete
+	DEPENDS="qt5-base"
 }

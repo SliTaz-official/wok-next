@@ -6,7 +6,7 @@ CATEGORY="development"
 SHORT_DESC="Erlang programming language"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://$PACKAGE.org/"
+WEB_SITE="http://www.erlang.org/"
 
 SOURCE="otp_src"
 TARBALL="${SOURCE}_$VERSION.tar.gz"
@@ -19,19 +19,19 @@ compile_rules() {
 	sed -i 's|./Install|sh -x Install|' Makefile*
 
 	./configure $CONFIGURE_ARGS &&
-	make -j 1 &&
-	make -j 1 INSTALL_PREFIX=$DESTDIR install || return 1
+	make -j1 &&
+	make -j1 INSTALL_PREFIX=$install install || return 1
 
 	for i in \
-		$DESTDIR/usr/lib/erlang/*/bin/erl \
-		$DESTDIR/usr/lib/erlang/bin/erl \
-		$DESTDIR/usr/lib/erlang/*/bin/start \
-		$DESTDIR/usr/lib/erlang/bin/start
+		$install/usr/lib/erlang/*/bin/erl \
+		$install/usr/lib/erlang/bin/erl \
+		$install/usr/lib/erlang/*/bin/start \
+		$install/usr/lib/erlang/bin/start
 	do
 		sed -i 's|^ROOTDIR=.*$|ROOTDIR=/usr/lib/erlang|' $i
 	done
-	for file in $(ls $DESTDIR/usr/bin); do
-		ln -sf /usr/lib/erlang/bin/$file $DESTDIR/usr/bin/$file || return 1
+	for file in $(ls $install/usr/bin); do
+		ln -sf /usr/lib/erlang/bin/$file $install/usr/bin/$file || return 1
 	done
 }
 

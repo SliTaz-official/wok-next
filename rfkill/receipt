@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rfkill"
 VERSION="0.5"
 CATEGORY="system-tools"
 SHORT_DESC="Utility to query the state of the rfkill switches"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://wireless.wiki.kernel.org/en/users/Documentation/rfkill"
-WGET_URL="https://www.kernel.org/pub/software/network/rfkill/$TARBALL"
-TAGS="kernel"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/software/network/rfkill/$TARBALL"
+
+compile_rules() {
 	sed -i 's/BINDIR) rfkill/BINDIR)/' Makefile
 	sed -i 's/-m 755 -t/-m 755 rfkill/' Makefile
 	sed -i 's/man8\/ rfkill\.8\.gz/man8\//' Makefile
 	sed -i 's/-m 644 -t/-m 644 rfkill.8.gz/' Makefile
-	make && make DESTDIR=$DESTDIR install
+
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	TAGS="kernel"
 }

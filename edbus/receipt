@@ -4,7 +4,7 @@ PACKAGE="edbus"
 VERSION="1.7.10"
 CATEGORY="x-window"
 SHORT_DESC="EFL Dbus wrapping and glue layer library"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.enlightenment.org/"
 
@@ -12,7 +12,7 @@ TARBALL="e_dbus-$VERSION.tar.bz2"
 WGET_URL="http://download.enlightenment.org/releases/$TARBALL"
 
 BUILD_DEPENDS="ecore-dev dbus-dev"
-SPLIT="edbus-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export CFLAGS="$CFLAGS -fvisibility=hidden"
@@ -21,7 +21,8 @@ compile_rules() {
 	./configure \
 		--disable-doc \
 		$CONFIGURE_ARGS &&
-	make $MAKEFILE && make install
+	make $MAKEFILE &&
+	make install
 }
 
 genpkg_rules() {
@@ -31,7 +32,7 @@ genpkg_rules() {
 			DEPENDS="ecore dbus"
 			TAGS="e enlightenment efl"
 			;;
-		edbus-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="ecore-dev dbus-dev"
 			;;

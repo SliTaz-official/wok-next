@@ -6,34 +6,33 @@ CATEGORY="misc"
 SHORT_DESC="Desktop recording software"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://recordmydesktop.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://recordmydesktop.sourceforge.net"
-WGET_URL="http://nchc.dl.sourceforge.net/sourceforge/$PACKAGE/$TARBALL"
-TAGS="desktop"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="alsa-lib-dev xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
 xorg-libXext-dev xorg-libXdamage-dev xorg-libXfixes-dev libogg libogg-dev \
 libvorbis libvorbis-dev libtheora-dev zlib-dev xorg-libXfixes-dev \
 xorg-xorgproto"
-DEPENDS="libtheora alsa-lib xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes zlib"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's|shmstr.h|shmproto.h|g' src/*.h
 	sed -i 's|shmstr.h|shmproto.h|g' src/*.c
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="libtheora alsa-lib xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+	xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes zlib"
+	TAGS="desktop"
 }
-

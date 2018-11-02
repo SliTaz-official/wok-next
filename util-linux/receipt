@@ -4,7 +4,7 @@ PACKAGE="util-linux"
 VERSION="2.32.1"
 CATEGORY="meta"
 SHORT_DESC="Random collection of Linux utilities"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2.1 BSD PublicDomain"
 WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/util-linux.html"
@@ -13,22 +13,17 @@ TARBALL="$PACKAGE-${VERSION%.0}.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/util-linux/v${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="libcap-dev readline-dev python-dev glib gtk-doc \
-libxslt gettext ncurses-dev zlib-dev"
+libxslt gettext-dev ncurses-dev zlib-dev"
 COOKOPTS="!menus"
-SPLIT="util-linux-bash-completion util-linux-blkid util-linux-blkid-dev \
-util-linux-blockdev util-linux-cfdisk util-linux-column util-linux-cramfs \
-util-linux-eject util-linux-fdisk util-linux-fdisk-dev util-linux-flock \
-util-linux-getopt util-linux-manpages util-linux-minix util-linux-mkfs \
-util-linux-mount util-linux-mount-dev util-linux-partx util-linux-setterm \
-util-linux-sfdisk util-linux-smartcols util-linux-smartcols-dev \
-util-linux-uuid util-linux-uuid-dev util-linux-whereis util-linux-misc"
+SPLIT="$PACKAGE-bash-completion $PACKAGE-blkid $PACKAGE-blkid-dev \
+$PACKAGE-blockdev $PACKAGE-cfdisk $PACKAGE-column $PACKAGE-cramfs \
+$PACKAGE-eject $PACKAGE-fdisk $PACKAGE-fdisk-dev $PACKAGE-flock \
+$PACKAGE-getopt $PACKAGE-manpages $PACKAGE-minix $PACKAGE-mkfs \
+$PACKAGE-mount $PACKAGE-mount-dev $PACKAGE-partx $PACKAGE-setterm \
+$PACKAGE-sfdisk $PACKAGE-smartcols $PACKAGE-smartcols-dev \
+$PACKAGE-uuid $PACKAGE-uuid-dev $PACKAGE-whereis $PACKAGE-misc"
 
 compile_rules() {
-	# Fix undeclared 'LINE_MAX'
-	case "$ARCH" in
-		arm) sed -i s'|LINE_MAX|25|' text-utils/*.c ;;
-	esac
-
 	mkdir -p $install/var/lib/hwclock
 	./configure \
 		ADJTIME_PATH=/var/lib/hwclock/adjtime \
@@ -37,7 +32,7 @@ compile_rules() {
 		--without-systemdsystemunitdir &&
 	fix libtool &&
 	make &&
-	make install || exit 1
+	make install || return 1
 
 	install -Dm644 $stuff/cfdisk.desktop \
 		$install/usr/share/applications/cfdisk.desktop

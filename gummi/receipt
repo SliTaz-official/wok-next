@@ -3,27 +3,25 @@
 PACKAGE="gummi"
 VERSION="0.6.1"
 CATEGORY="office"
-SHORT_DESC="LaTeX editor designed with simplicity in mind."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="LaTeX editor designed with simplicity in mind"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/alexandervdm/gummi"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dev.midnightcoding.org/attachments/download/239/$TARBALL"
 
-DEPENDS="gtk2 gtksourceview gtkspell poppler"
 BUILD_DEPENDS="gtk2-dev gtksourceview-dev gtkspell-dev intltool poppler-dev glib"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make LDFLAGS="-Wl,--copy-dt-needed-entries -lgthread-2.0" && make install
+	make LDFLAGS="-Wl,--copy-dt-needed-entries -lgthread-2.0" &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/gummi $fs/usr/share
+	DEPENDS="gtk2 gtksourceview gtkspell poppler"
 }

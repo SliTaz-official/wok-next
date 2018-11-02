@@ -9,12 +9,9 @@ LICENSE="GPL"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
 
-DEPENDS="yad"
-BUILD_DEPENDS="gettext"
+BUILD_DEPENDS="gettext-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	install -Dm755 -o root $stuff/tramys2 $install/usr/bin/tramys2
 	install -Dm644 -o root $stuff/tramys2.desktop \
 		$install/usr/share/applications/tramys2.desktop
@@ -26,8 +23,7 @@ compile_rules()
 	make clean
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="yad"
 }

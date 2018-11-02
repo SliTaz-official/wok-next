@@ -6,38 +6,38 @@ CATEGORY="misc"
 SHORT_DESC="Libraries for Simplified-Traditional Chinese Conversion"
 MAINTAINER="lufeng369@slitaz.org"
 LICENSE="Apache"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://byvoid.github.io/OpenCC/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/opencc/$TARBALL" # FIXME
 
-BUILD_DEPENDS="cmake gettext"
-SPLIT="opencc-tools opencc opencc-dev"
+BUILD_DEPENDS="cmake gettext-dev"
+SPLIT="$PACKAGE-tools $PACKAGE $PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $src/build
-	cd $src/build
-	cmake $src -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DENABLE_GETTEXT:BOOL=ON || return 1
-	cd $src
-	make -C build || return 1
-	make install -C build DESTDIR=$DESTDIR
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_GETTEXT:BOOL=ON \
+		.. &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	opencc-tools)
-		CAT="utilities|command line tools"
-		DEPENDS="opencc"
-		copy usr/bin/ # only binaries
-		;;
-	opencc)
-		copy @std @rm # all the rest
-		;;
-	opencc-dev)
-		copy @dev
-		;;
+		opencc-tools)
+			copy usr/bin/ # only binaries
+			CAT="utilities|command line tools"
+			DEPENDS="opencc"
+			;;
+		opencc)
+			copy @std @rm # all the rest
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

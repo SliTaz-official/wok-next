@@ -3,43 +3,36 @@
 PACKAGE="gnustep-base"
 VERSION="1.25.0"
 CATEGORY="x-window"
-SHORT_DESC="GNUstep base package."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="GNUstep base package"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnustep.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.gnustep.org/pub/gnustep/core/$TARBALL"
 
-DEPENDS="libffi libxslt gnutls libbfd libobjc openssl libtasn1 icu"
 BUILD_DEPENDS="gnustep-make libffi-dev libxslt-dev gnutls-dev openssl-dev \
 libtasn1-dev tar icu-dev"
-SPLIT="gnustep-base-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--with-ffi-library=/usr/lib \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gnustep-base)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/GNUstep $fs/usr/lib
-		;;
-	gnustep-base-dev)
-		DEPENDS="gnustep-base"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/share/GNUstep $fs/usr/share
-		;;
+		gnustep-base)
+			copy @std
+			DEPENDS="libffi libxslt gnutls libbfd libobjc openssl libtasn1 icu"
+			;;
+		*-dev)
+			copy @std
+			DEPENDS="gnustep-base"
+			;;
 	esac
 }

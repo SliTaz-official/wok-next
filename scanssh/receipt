@@ -1,34 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="scanssh"
 VERSION="2.1"
 CATEGORY="network"
 SHORT_DESC="Search for SSH server"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://www.monkey.org/~provos/scanssh/"
-WGET_URL="https://www.monkey.org/~provos/$TARBALL"
-TAGS="ssh"
 
-DEPENDS="libpcap libdnet libevent"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://www.monkey.org/~provos/$TARBALL"
+
 BUILD_DEPENDS="libpcap-dev libdnet-dev libevent libevent-dev autoconf"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make 
-	install -d -m 755 $DESTDIR/usr/share/man/man1 &&
-	install -m 644 $src/*.1 $DESTDIR/usr/share/man/man1
+	make || return 1
+
+	install -Dm755 scanssh $install/usr/bin/scanssh
+	cook_pick_manpages $src/*.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/scanssh $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpcap libdnet libevent"
+	TAGS="ssh"
 }
-

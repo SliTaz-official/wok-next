@@ -4,7 +4,7 @@ PACKAGE="airoscript-ng"
 VERSION="1.2rc3"
 CATEGORY="network"
 SHORT_DESC="Airoscript ng"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 #WEB_SITE="https://code.google.com/archive/p/airoscript/"
 WEB_SITE="http://airoscript.aircrack-ng.org/"
@@ -19,18 +19,18 @@ compile_rules() {
 	sed -i '/install-desktop \\/ d' Makefile-Linux
 
 	make -j1 \
-		DESTDIR=$DESTDIR \
+		DESTDIR=$install \
 		prefix=usr \
-		picdir=$DESTDIR/usr/share/pixmaps/ \
-		appdir=$DESTDIR/usr/share/applications/ \
-		etcdir=$DESTDIR/etc/$PACKAGE \
+		picdir=$install/usr/share/pixmaps/ \
+		appdir=$install/usr/share/applications/ \
+		etcdir=$install/etc/$PACKAGE \
 		install || return 1
 
 	# Patch config - replace "usr/local" by "usr"
-	sed -i 's/usr\/local/usr/g' $DESTDIR/etc/$PACKAGE/airoscript-ng_advanced.conf
+	sed -i 's/usr\/local/usr/g' $install/etc/$PACKAGE/airoscript-ng_advanced.conf
 
 	# Patch executable to find config files
-	sed -i 's/etc\//etc\/airoscript-ng\//g' $DESTDIR/usr/sbin/$PACKAGE
+	sed -i 's/etc\//etc\/airoscript-ng\//g' $install/usr/sbin/$PACKAGE
 
 	cook_pick_manpages $src/src/airoscript-ng.1
 }

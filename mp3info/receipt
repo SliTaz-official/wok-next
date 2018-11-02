@@ -3,26 +3,24 @@
 PACKAGE="mp3info"
 VERSION="0.8.5a"
 CATEGORY="multimedia"
-SHORT_DESC="Little utility used to read and modify the ID3 tags of MP3 files."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Little utility used to read and modify the ID3 tags of MP3 files"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://ibiblio.org/mp3info/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="ftp://ftp.ibiblio.org/pub/linux/apps/sound/mp3-utils/mp3info/$TARBALL"
 
-DEPENDS="ncurses gtk2"
 BUILD_DEPENDS="ncurses-dev gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+compile_rules() {
+	make || return 1
+
+	install -Dm755 mp3info  $install/usr/bin/mp3info
+	install -Dm755 gmp3info $install/usr/bin/gmp3info
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/mp3info $fs/usr/bin
-	cp -a $src/gmp3info $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses gtk2"
 }

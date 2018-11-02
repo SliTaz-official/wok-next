@@ -1,30 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tunctl"
 VERSION="1.5"
 CATEGORY="network"
-SHORT_DESC="used to set up and maintain persistent TUN/TAP network interfaces"
+SHORT_DESC="Set up and maintain persistent TUN/TAP network interfaces"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL"
+WEB_SITE="http://tunctl.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://tunctl.sourceforge.net"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS=""
+compile_rules() {
+	cc -g -Wall -o tunctl tunctl.c &&
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-        mkdir -p $DESTDIR/usr/bin
-	cc -g -Wall -o tunctl tunctl.c
-        cp -a tunctl $DESTDIR/usr/bin/
+	install -Dm755 tunctl $install/usr/bin/tunctl
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }
-

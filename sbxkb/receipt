@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sbxkb"
 VERSION="0.7.6"
@@ -7,25 +7,25 @@ SHORT_DESC="Simple tray XKB indicator"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://sourceforge.net/projects/staybox/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/staybox/$TARBALL"
 
-DEPENDS="atk bzlib cairo expat fontconfig freetype gcc-lib-base \
-gdk-pixbuf glib glibc-base gtk2 libffi libpng16 xorg-libxcb pango \
-xorg-pixman xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXcursor \
-xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
-xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
 BUILD_DEPENDS="gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="atk bzlib cairo expat fontconfig freetype gcc-lib-base \
+	gdk-pixbuf glib glibc-base gtk2 libffi libpng16 xorg-libxcb pango \
+	xorg-pixman xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXcursor \
+	xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
+	xorg-libXinerama xorg-libXrandr xorg-libXrender zlib"
 }

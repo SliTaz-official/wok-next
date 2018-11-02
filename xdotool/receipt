@@ -4,25 +4,26 @@ PACKAGE="xdotool"
 VERSION="2.20110530.1"
 CATEGORY="misc"
 SHORT_DESC="Fake keyboard/mouse input, window management, and more"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://www.semicomplete.com/projects/xdotool/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://semicomplete.googlecode.com/files/$TARBALL" # FIXME
 
-DEPENDS="xorg-libX11 xorg-libXtst"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXtst-dev xorg-libXtst xorg-dev perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make &&
-	make PREFIX=/usr INSTALLMAN=/usr/share/man DESTDIR=$DESTDIR install
+	make \
+		PREFIX=/usr \
+		INSTALLMAN=/usr/share/man \
+		DESTDIR=$install \
+		install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $install/usr/lib $fs/usr
+	DEPENDS="xorg-libX11 xorg-libXtst"
 }

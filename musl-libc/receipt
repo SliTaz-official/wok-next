@@ -8,20 +8,16 @@ MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.musl-libc.org/"
 REPOLOGY="musl"
-HOST_ARCH="i486 x86_64 arm"
 
 TARBALL="musl-$VERSION.tar.gz"
 WGET_URL="https://www.musl-libc.org/releases/$TARBALL"
 
-SPLIT="musl-libc-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	case $ARCH in
 		i*86)   TARGET='i386';;
 		x86_64) TARGET='x86_64';;
-		arm*)   TARGET='ARM';;
 	esac
 	PREFIX='/usr/lib/musl'
 
@@ -31,7 +27,7 @@ compile_rules()
 		--target=$TARGET \
 		$CONFIGURE_ARGS &&
 	make &&
-	make $DESTDIR=$DESTDIR install || exit 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/etc
 	echo "$PREFIX/lib" > $install/etc/ld-musl-$TARGET.path
@@ -40,14 +36,10 @@ compile_rules()
 		ln -s /usr/include/$i $install$PREFIX/include/$i
 	done
 
-	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
-	mkdir -p $docdir
-	cp README $docdir
+	cook_pick_docs README
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		musl-libc)
 			copy etc/ *.so*

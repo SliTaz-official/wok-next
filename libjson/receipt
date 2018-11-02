@@ -11,16 +11,16 @@ WEB_SITE="https://sourceforge.net/projects/libjson/"
 TARBALL="${PACKAGE}_$VERSION.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-SPLIT="libjson-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	unset CXXFLAGS
 	mkdir Objects_static Objects_shared _internal/Source/Dependencies
-	mkdir -p $DESTDIR/usr/lib 
+	mkdir -p $install/usr/lib
 	sed -i 's|^in[a-z]*_path *= |&$(DESTDIR)|' makefile
 	make SHARED=1 all &&
-	make DESTDIR=$DESTDIR install
-	make DESTDIR=$DESTDIR SHARED=1 install
+	make DESTDIR=$install install
+	make DESTDIR=$install SHARED=1 install
 }
 
 genpkg_rules() {

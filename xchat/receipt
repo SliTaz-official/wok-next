@@ -4,7 +4,7 @@ PACKAGE="xchat"
 VERSION="2.8.8"
 CATEGORY="network"
 SHORT_DESC="IRC client using GTK+"
-MAINTAINER="lenios@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.xchat.org/"
 
@@ -12,8 +12,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.xchat.org/files/source/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gtk2-dev dbus-dev openssl10-dev shared-mime-info \
-gettext-tools perl-dev"
-SPLIT="xchat-plugin:plugin"
+gettext perl-dev"
+SPLIT="$PACKAGE-plugin:plugin"
 
 compile_rules() {
 	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
@@ -39,7 +39,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

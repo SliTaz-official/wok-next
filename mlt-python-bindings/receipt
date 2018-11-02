@@ -4,32 +4,28 @@ PACKAGE="mlt-python-bindings"
 VERSION="0.7.2"
 SOURCE="mlt"
 CATEGORY="multimedia"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
-SHORT_DESC="python bindings for MLT multimedia framework"
-WEB_SITE="https://www.mltframework.org"
+SHORT_DESC="Python bindings for MLT multimedia framework"
+WEB_SITE="https://www.mltframework.org/"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/mlt/$TARBALL"
 
 DEPENDS="python mlt"
 BUILD_DEPENDS="swig python-dev mlt"
 
-# Rules to configure and make the package.
-compile_rules() 
-{
+compile_rules() {
 	cd $src/src/swig/python
 	./build
+
 	PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
-	mkdir -p $DESTDIR/usr/lib/python${PYTHON_VERSION}
-	cp -a $src/src/swig/python/mlt.py $DESTDIR/usr/lib/python${PYTHON_VERSION}
-	cp -a $src/src/swig/python/_mlt.so $DESTDIR/usr/lib/python${PYTHON_VERSION}
-	cp -a $src/src/swig/python/mlt_wrap.o  $DESTDIR/usr/lib/python${PYTHON_VERSION}
- 
+	mkdir -p $install/usr/lib/python${PYTHON_VERSION}
+	cp -a $src/src/swig/python/mlt.py $install/usr/lib/python${PYTHON_VERSION}
+	cp -a $src/src/swig/python/_mlt.so $install/usr/lib/python${PYTHON_VERSION}
+	cp -a $src/src/swig/python/mlt_wrap.o  $install/usr/lib/python${PYTHON_VERSION}
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/lib $fs/usr
 }

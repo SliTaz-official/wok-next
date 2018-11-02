@@ -4,7 +4,7 @@ PACKAGE="gtkballs"
 VERSION="3.1.5"
 CATEGORY="games"
 SHORT_DESC="Clone of DOS Lines"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gtkballs.antex.ru/"
 
@@ -12,11 +12,12 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://gtkballs.antex.ru/dist/$TARBALL"
 
 BUILD_DEPENDS="gtk2-dev"
-SPLIT="gtkballs-themes gtkballs"
+SPLIT="$PACKAGE-themes $PACKAGE"
 
 compile_rules() {
 	sed -i 's|^localstatedir =.*|localstatedir = /var/games|' Makefile*
 	mkdir -p $install/var/games
+
 	./configure \
 		--prefix=/usr \
 		--bindir=/usr/games \
@@ -24,7 +25,7 @@ compile_rules() {
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	cp -a $stuff/cell.xpm $install/usr/share/gtkballs/themes/Default/
 	mv       $install/usr/share/gtkballs/themes/Default \

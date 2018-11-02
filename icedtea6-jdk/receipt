@@ -5,7 +5,7 @@ SOURCE="icedtea6"
 VERSION="1.9.9"
 CATEGORY="development"
 SHORT_DESC="A Free Software harness for OpenJDK"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.iced-tea.org/"
 REPOLOGY="icedtea6"
@@ -19,7 +19,7 @@ zip unzip findutils  bzip2 tar glib-dev fastjar rhino ecj apache-ant jpeg-dev \
 xalan-xerces-j gtk2-dev giflib-dev libpng16-dev xorg-dev xorg-libXtst-dev \
 xorg-libXp-dev xorg-dev-proto nss nss-dev jdk6-jaxws jdk6-jaxp jdk6-jaf \
 openjdk-6-src"
-SPLIT="$PACKAGE icedtea6-jre java-jdk java-jre"
+SPLIT="icedtea6-jre java-jdk java-jre"
 
 # Note to icedtea6 updaters,
 # You should check version into receipts:
@@ -36,11 +36,11 @@ openjdk-6-src-$openjdk_version-$openjdk_date.tar.gz"
 
 compile_rules() {
 	# Limit memory usage
-	ulimit -v $(awk '/MemTotal/ { print int(($2*80)/100) }' < /proc/meminfo)
+	ulimit -v $(awk '/MemTotal/ { print int(($2*80)/100) }' < /proc/meminfo)	#'
 
 	local JVM_PREFIX
 	JVM_PREFIX="/usr/lib/jvm/java-icedtea"
-	
+
 	# NOTE: This build does not seem to work with ECJ 3.5
 	local ECJ_VERSION
 	ECJ_VERSION="3.6"
@@ -48,7 +48,7 @@ compile_rules() {
 	cd $src
 	mkdir drops
 	sed -i -e 's/mkdir -p drops/true/' -e 's/ jar xf/ fastjar xf/'  Makefile*
-	
+
 	# Check than all sources files are available, or exit.
 	REPO=http://icedtea.classpath.org/download/drops
 	if [ -x /usr/bin/cook ]; then
@@ -77,7 +77,7 @@ compile_rules() {
 find -name GenerateCurrencyData.java | xargs sed -i 's|throw new RuntimeException("time is|System.err.println("time is|' 2> /dev/null
 find -name CurrencyData.properties | xargs sed -i 's/TR=TRL.*/TR=TRY/' 2> /dev/null
 # Busybox compatibility
-#find -name Sanity.gmk | xargs sed -i 's/--sync -kP/-k/' Makefile 
+#find -name Sanity.gmk | xargs sed -i 's/--sync -kP/-k/' Makefile
 find -name Platform.gmk | xargs sed -i "s@MB_OF_MEMORY *:=.*free.*@MB_OF_MEMORY := $mem@" Makefile
 EOT
 	sed -i  -e 's|touch .*|&\n\tsh slitaz.sh|' \
@@ -102,16 +102,16 @@ EOT
 		--with-rhino=/usr/share/java/js.jar \
 		--with-abs-install-dir=$JVM_PREFIX \
 		$CONFIGURE_ARGS || return 1
-	make -j 1 ARCH_PREFIX= 2>&1 | sed '/java_lang_ClassLoaderr.NativeLibrary/d'
+	make -j1 ARCH_PREFIX= 2>&1 | sed '/java_lang_ClassLoaderr.NativeLibrary/d'
 	} 2>&1 | sed 's/No such file/no such file/'
-	
+
 	echo "Copying needed files to install dir..."
-	rm -rf $DESTDIR
+	rm -rf $install
 
 	local JVM_BUILDDIR
 	JVM_BUILDDIR=$src/openjdk.build/j2sdk-image
 	local JVM_DESTDIR
-	JVM_DESTDIR=${DESTDIR}$JVM_PREFIX
+	JVM_DESTDIR=$install$JVM_PREFIX
 	echo "OpenJDK build     : source/openjdk.build/j2sdk-image"
 	echo "OpenJDK install   : install/$JVM_PREFIX"
 
@@ -124,26 +124,26 @@ EOT
 	mkdir -p $JVM_DESTDIR/jre
 	cp -a $JVM_BUILDDIR/jre/bin $JVM_DESTDIR/jre
 	cp -a $JVM_BUILDDIR/jre/lib $JVM_DESTDIR/jre
-	
+
 	# Delete duplicated executables from the JDK bin
 	echo "Deleting duplicated files..."
-	for jbin in $(ls -1 $JVM_DESTDIR/jre/bin) ; do
+	for jbin in $(ls -1 $JVM_DESTDIR/jre/bin); do
 		rm -f $JVM_DESTDIR/bin/$jbin
 	done
 
 	# Create symlinks for JDK binaries
 	echo "Creating symlinks for JDK binaries..."
-	mkdir -p $DESTDIR/usr/jdk-bin
-	for jbin in $(ls -1 $JVM_DESTDIR/bin) ; do
-		ln -s $JVM_PREFIX/bin/$jbin $DESTDIR/usr/jdk-bin/$jbin
+	mkdir -p $install/usr/jdk-bin
+	for jbin in $(ls -1 $JVM_DESTDIR/bin); do
+		ln -s $JVM_PREFIX/bin/$jbin $install/usr/jdk-bin/$jbin
 	done
-	
+
 	# Create symlinks for JRE binaries
 	echo "Creating symlinks for JRE binaries..."
-	mkdir -p $DESTDIR/usr/jre-bin
-	for jbin in $(ls -1 $JVM_DESTDIR/jre/bin) ; do
+	mkdir -p $install/usr/jre-bin
+	for jbin in $(ls -1 $JVM_DESTDIR/jre/bin); do
 		ln -s $JVM_PREFIX/jre/bin/$jbin $JVM_DESTDIR/bin/$jbin
-		ln -s $JVM_PREFIX/jre/bin/$jbin $DESTDIR/usr/jre-bin
+		ln -s $JVM_PREFIX/jre/bin/$jbin $install/usr/jre-bin
 	done
 	if [ ! -x /usr/bin/cook ]; then
 		report close-bloc

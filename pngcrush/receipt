@@ -1,28 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pngcrush"
 VERSION="1.8.1"
 CATEGORY="graphics"
 SHORT_DESC="PNG optimizer"
-MAINTAINER="mimas@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="zlib/libpng"
 WEB_SITE="https://sourceforge.net/projects/pmt/"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/pmt/$TARBALL"
 
-DEPENDS="glibc-base"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
-
-	mkdir -p $install/usr/bin
-	cp -a $src/pngcrush $install/usr/bin
+compile_rules() {
+	make &&
+	install -Dm755 pngcrush $install/usr/bin/pngcrush
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
 }

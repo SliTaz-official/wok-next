@@ -7,23 +7,19 @@ SHORT_DESC="Dino - Simple Qt based File Manager for GNU/Linux"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://sourceforge.net/projects/dfm/"
+
 TARBALL="Dino_src-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/dfm/$TARBALL"
 
-DEPENDS="bzlib libQtGui libQtNetwork"
 BUILD_DEPENDS="qmake Qt4-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	qmake Dino.pro &&
 	make &&
 	lrelease Dino.pro
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p \
 		$fs/usr/bin \
 		$fs/usr/share/Dino/bin/translations \
@@ -33,4 +29,5 @@ genpkg_rules()
 	install -m644 $src/dino.png $fs/usr/share/Dino
 	ln -sf /usr/share/Dino/bin/Dino $fs/usr/bin/dino
 	install -m644 $src/dino.desktop $fs/usr/share/applications
+	DEPENDS="bzlib libQtGui libQtNetwork"
 }

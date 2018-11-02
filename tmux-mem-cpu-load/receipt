@@ -3,41 +3,40 @@
 PACKAGE="tmux-mem-cpu-load"
 VERSION="2.2.1"
 CATEGORY="utilities"
-SHORT_DESC="CPU, RAM memory, and load monitor for use with tmux."
+SHORT_DESC="CPU, RAM memory, and load monitor for use with tmux"
 MAINTAINER="paul@slitaz.org"
 LICENSE="Apache"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/thewtex/tmux-mem-cpu-load"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/thewtex/tmux-mem-cpu-load"
 
-DEPENDS="tmux"
 BUILD_DEPENDS="cmake python bzip2 git"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	cmake . -DCMAKE_INSTALL_PREFIX=/usr
-	make && make install
+compile_rules() {
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr $fs/etc/skel
 	cp -a $install/usr/bin $fs/usr
-	cat >> $fs/etc/skel/.tmux.conf << EOT
+	cat >> $fs/etc/skel/.tmux.conf <<EOT
 # tmux-mem-cpu-load
 set -g status-interval 2
 set -g status-right "#[fg=black,bg=green]#(tmux-mem-cpu-load 2)#[default]"
 EOT
+	DEPENDS="tmux"
 }
 
-post_install()
-{
-	for i in $(ls "$1/home" 2> /dev/null); do
+post_install() {
+	for i in $(ls "$1/home" 2>/dev/null); do
 		grep -qs "tmux-mem-cpu-load" "$1/home/$i/.tmux.conf" && continue
-		echo -n "Checking for .tmux.conf for $i ..."
+
+		action "Checking for .tmux.conf for $i..."
 		cp -a "$1/etc/skel/.tmux.conf" "$1/home/$i/"
 		chroot "$1/" chown $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.tmux.conf"
 		status

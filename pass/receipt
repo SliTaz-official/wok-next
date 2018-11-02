@@ -1,28 +1,24 @@
 # SliTaz package receipt.
 
 PACKAGE="pass"
-SOURCE="password-store"
 VERSION="1.6.5"
 CATEGORY="security"
-SHORT_DESC="The standard unix password manager."
+SHORT_DESC="The standard UNIX password manager"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$SOURCE-$VERSION.tar.xz"
 WEB_SITE="https://www.passwordstore.org/"
+
+SOURCE="password-store"
+TARBALL="$SOURCE-$VERSION.tar.xz"
 WGET_URL="http://git.zx2c4.com/$SOURCE/snapshot/$TARBALL"
-SUGGESTED="git gnupg"
 
-DEPENDS="bash"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="bash"
+	SUGGESTED="git gnupg"
 }

@@ -1,24 +1,20 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="metasploit"
 VERSION="3.6.0"
 CATEGORY="network"
-SHORT_DESC="The Metasploit Framework is an advanced open-source platform for developing, testing, and using exploit code"
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="Advanced platform for developing, testing, and using exploit code"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-SOURCE="framework"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
 WEB_SITE="https://www.metasploit.com/"
+
+TARBALL="framework-$VERSION.tar.bz2"
 WGET_URL="http://updates.metasploit.com/data/releases/$TARBALL"
 
-DEPENDS="ruby libpcap"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/$PACKAGE $fs/etc/profile.d
 	cp -a $src/* $fs/usr/share/$PACKAGE
 	echo "export PATH=$PATH:/usr/share/$PACKAGE" > $fs/etc/profile.d/$PACKAGE.sh
 	chmod 755 $fs/etc/profile.d/$PACKAGE.sh
+	DEPENDS="ruby libpcap"
 }
-

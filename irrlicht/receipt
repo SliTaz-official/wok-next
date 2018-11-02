@@ -12,11 +12,11 @@ TARBALL="$PACKAGE-$VERSION.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="xorg-dev mesa-dev"
-SPLIT="irrlicht-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	cd $src/source/Irrlicht
-	sed -i "s|^INSTALL_DIR.*|INSTALL_DIR = $DESTDIR/usr/lib|" Makefile
+	sed -i "s|^INSTALL_DIR.*|INSTALL_DIR = $install/usr/lib|" Makefile
 	make sharedlib &&
 	make &&
 	make install
@@ -25,14 +25,11 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		irrlicht)
-			mkdir -p $fs/usr
-			cp -a $install/usr/lib $fs/usr
+			copy @std
 			DEPENDS="mesa gcc-lib-base xorg-libxcb xorg-libXfixes"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/include $fs/usr
-			DEPENDS="irrlicht"
+			copy @dev
 			;;
 	esac
 }

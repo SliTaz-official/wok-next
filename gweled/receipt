@@ -3,29 +3,27 @@
 PACKAGE="gweled"
 VERSION="0.9.1"
 CATEGORY="games"
-SHORT_DESC="Gweled game."
+SHORT_DESC="Gweled game"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://launchpad.net/gweled"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="https://launchpad.net/$PACKAGE"
 WGET_URL="$WEB_SITE/trunk/$VERSION/+download/$TARBALL"
 
-DEPENDS="gtk2 librsvg libmikmod"
-BUILD_DEPENDS="wget intltool gtk2-dev librsvg-dev libmikmod-dev"
+BUILD_DEPENDS="intltool gtk2-dev librsvg-dev libmikmod-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
+		--prefix=/usr \
 		--localstatedir=/var \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="gtk2 librsvg libmikmod"
 }

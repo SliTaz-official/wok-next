@@ -4,21 +4,18 @@ PACKAGE="ufr2"
 VERSION="2.20"
 CATEGORY="system-tools"
 SHORT_DESC="Canon URF2 driver with support for LBP, iR and MF series printers"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.canon.com.au/pps/colour/imagepress_c1_drivers.aspx"
 
 SOURCE="UFR_II_Printer_Driver_for_Linux_V220_uk_EN"
-TARBALL="${SOURCE}.tar.gz"
+TARBALL="$SOURCE.tar.gz"
 WGET_URL="http://gdlp01.c-wss.com/gds/8/0100002708/03/$TARBALL"
 
 BUILD_DEPENDS="autoconf automake cairo-dev gtk2-dev cndrvcups-common-dev cups-dev"
 
 compile_rules() {
-	#src="$WOK/$PACKAGE/$SOURCE/Sources"
-	cd $src
-
-	[ -d cndrvcups-lb-$VERSION ] || tar xzf Sources/cndrvcups-lb-${VERSION}-1.tar.gz
+	[ -d cndrvcups-lb-$VERSION ] || tar xzf Sources/cndrvcups-lb-$VERSION-1.tar.gz
 
 	cd $src/cndrvcups-lb-$VERSION/ppd &&
 	./autogen.sh \
@@ -28,7 +25,7 @@ compile_rules() {
 		--program-suffix="" \
 		--program-prefix="" &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 
 	cd $src/cndrvcups-lb-$VERSION/pstoufr2cpca
 	./autogen.sh \
@@ -38,7 +35,7 @@ compile_rules() {
 		--program-suffix="" \
 		--program-prefix="" &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -69,30 +66,38 @@ genpkg_rules() {
 }
 
 pre_install() {
-	echo ""
-	echo -e "\033[1m PROPRIETARY LICENSE:\033[0m $2"
-	echo "================================================================================"
-	echo "You are installing a package with proprietary license."
-	echo "You must accept the license."
-	echo "================================================================================"
-	echo ""
+	cat <<EOT
+
+	.--------------------------------------------------------.
+	|              *** PROPRIETARY LICENSE ***               |
+	|========================================================|
+	| You are installing a package with proprietary license. |
+	| You must accept the license.                           |
+	'--------------------------------------------------------'
+EOT
 }
 
 post_install() {
-	echo ""
-	echo -e "\033[1m CANON PRINTING LICENSE INFORMATION:\033[0m $2"
-	echo "================================================================================"
-	echo "For installing this package, you have to accept the $PACKAGE license."
-	echo "The license is stored in /usr/share/licenses/$PACKAGE "
-	echo -n "Would you like to read the license (y/N) : "; read anser
-	if [ "$anser" = "y" ]; then
+	cat <<EOT
+
+	.-------------------------------------------------------------------.
+	|            *** CANON PRINTING LICENSE INFORMATION ***             |
+	|===================================================================|
+	| For installing this package, you have to accept the ufr2 license. |
+	| The license is stored in /usr/share/licenses/ufr2                 |
+	'-------------------------------------------------------------------'
+EOT
+
+	echo -n "Would you like to read the license (y/N) : "; read answer
+	if [ "$answer" == "y" ]; then
 		cat "$1/usr/share/licenses/$PACKAGE/LICENSE" | more
 		echo ""
 	fi
+
 	echo "================================================================================"
-	echo -n "Do you accept the license (y/N) : "; read anser
-	if [ "$anser" = "N" ]; then
-		echo "You did not accept the license, Removing the pkg."
+	echo -n "Do you accept the license (y/N) : "; read answer
+	if [ "$answer" = "N" ]; then
+		echo "You did not accept the license, removing the package..."
 		chroot "$1/" tazpkg remove "$PACKAGE"
 	fi
 }

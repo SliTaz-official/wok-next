@@ -12,16 +12,18 @@ REPOLOGY="perl:fuse"
 TARBALL="Fuse-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DP/DPATES/$TARBALL"
 
-DEPENDS="fuse2 perl-filesys-statvfs perl-lchown perl-unix-mknod"
-BUILD_DEPENDS="$DEPENDS perl-dev fuse2-dev"
+BUILD_DEPENDS="fuse2 perl-filesys-statvfs perl-lchown perl-unix-mknod \
+perl-dev fuse2-dev"
 
 compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
 genpkg_rules() {
 	copy @std
+	DEPENDS="fuse2 perl-filesys-statvfs perl-lchown perl-unix-mknod"
 }

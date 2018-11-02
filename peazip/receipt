@@ -4,7 +4,7 @@ PACKAGE="peazip"
 VERSION="6.4.1"
 CATEGORY="utilities"
 SHORT_DESC="Open Source archive manager and data compression utility"
-MAINTAINER="hackdorte@yandex.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL3 GPL LGPL freeware"
 WEB_SITE="http://peazip.org/peazip-linux.html"
 
@@ -14,11 +14,10 @@ WGET_URL2="http://www.peazip.org/downloads/unace/peazip_unace_plugin-1.LINUX.ALL
 WGET_URL3="http://www.peazip.org/downloads/unrar5/peazip_unrar5_plugin-1.LINUX.ALL.tar.gz"
 WGET_URL4="http://www.peazip.org/downloads/additional/peazip_additional_formats_plugin-2.LINUX.ALL.tar.gz"
 
-SPLIT="peazip-plugin-unace peazip-plugin-unrar5 peazip-plugin-additional peazip"
+SPLIT="$PACKAGE-plugin-unace $PACKAGE-plugin-unrar5 $PACKAGE-plugin-additional \
+$PACKAGE"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# download/extract plugins
 	for i in $WGET_URL2 $WGET_URL3 $WGET_URL4; do
 		tarball="$SRC/$(basename $i)"
@@ -63,9 +62,7 @@ compile_rules()
 	find $install -type d -exec chmod 0755 '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		peazip-plugin-unace)
 			copy unace/

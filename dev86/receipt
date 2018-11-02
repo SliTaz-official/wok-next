@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lkundrak/dev86/tarball/v$VERSION"
 
 BUILD_DEPENDS="coreutils-file-output-full" # for `cat -v`
-SPLIT="elksemu dev86"
+SPLIT="elksemu $PACKAGE"
 case $ARCH in
 	# elksemu isn't supported on x86-64, see:
 	# /usr/include/sys/vm86.h:24:3: error: #error This header is unsupported on x86-64.
@@ -23,7 +23,7 @@ compile_rules() {
 	sed -i 's|/usr/man|/usr/share/man|' man/Makefile
 	sed -i 's|REFIX)/man|REFIX)/share/man|' Makefile */Makefile
 	make -j1 PREFIX=/usr &&
-	make -j1 DIST=$DESTDIR install || return 1
+	make -j1 DIST=$install install || return 1
 
 	install -Dm755 $stuff/com2exe $install/usr/bin/com2exe
 }

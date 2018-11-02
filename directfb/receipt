@@ -5,7 +5,7 @@ VERSION="1.8.0"
 COMMIT="e97c8d4" # no releases here; latest commit (2014-01-30) hash
 CATEGORY="system-tools"
 SHORT_DESC="Thin library that provides hardware graphics acceleration"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/DirectFB"
 
@@ -18,27 +18,16 @@ freetype-dev tslib-dev perl fluxcomp xorg-xorgproto xorg-libXext-dev libvdpau-de
 BUILD_DEPENDS="libtool automake gfortran libpng16-dev libjpeg-turbo-dev \
 freetype-dev fluxcomp mesa-dev xorg-libxshmfence-dev expat-dev \
 xorg-libXcomposite-dev"
-
-
-SPLIT="directfb-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm)
-			ARCH_ARGS="--with-gfxdrivers=none --disable-x11"
-			export LDFLAGS="$LDFLAGS -L/cross/arm/sysroot/usr/lib"
-			export CPPFLAGS="$CPPFLAGS -I/cross/arm/sysroot/usr/include"
-			;;
-	esac
-
 	./autogen.sh \
 		--disable-osx \
 		--with-dither-rgb16=none \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
-	make -j1 DESTDIR=$DESTDIR install
+	make -j1 DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -46,9 +35,6 @@ genpkg_rules() {
 		directfb)
 			copy @std
 			DEPENDS="freetype libjpeg-turbo libpng16 tslib"
-			case "$SLITAZ_ARCH" in
-				arm) DEPENDS="libpng12 libjpeg freetype zlib" ;;
-			esac
 			;;
 		*-dev)
 			copy @dev

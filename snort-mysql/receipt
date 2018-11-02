@@ -26,7 +26,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -64,13 +64,13 @@ post_install() {
 		chroot "$1/" /bin/adduser -s /bin/false -h /dev/null \
 			-g "Snort Daemon user" -H -D -S -G snort snort
 	fi
-	chroot "$1/" chown snort.snort /var/log/snort 
+	chroot "$1/" chown snort.snort /var/log/snort
 
 	# Create database
 	if [ -z "$1" ]; then
 		if ( ! mysqladmin -s ping >/dev/null ); then
 			echo 'Starting MySQL server'
-			( /etc/init.d/mysql start ; status  ) || exit
+			( /etc/init.d/mysql start; status  ) || exit
 			sleep 4 #let the mysql daemon start
 		fi
 		if ( ! mysql -u root -Be 'show databases' | grep -q $db_name ); then

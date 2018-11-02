@@ -12,20 +12,17 @@ REPOLOGY="perl:mime-lite"
 TARBALL="MIME-Lite-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
 
-DEPENDS="perl-email-date-format perl-mime-types perl-mailtools"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-email-date-format perl-mime-types perl-mailtools"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-email-date-format perl-mime-types perl-mailtools"
 }

@@ -3,7 +3,7 @@
 PACKAGE="fcitx"
 VERSION="4.1.2"
 CATEGORY="x-window"
-SHORT_DESC="Free Chinese Input Toy of X, a collection of Simplified Chinese input methods for Linux."
+SHORT_DESC="Free Chinese Input Toy of X, a collection of Simplified Chinese input methods for Linux"
 MAINTAINER="lufeng369@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-${VERSION}_all.tar.bz2"
@@ -11,85 +11,80 @@ WEB_SITE="https://fcitx-im.org/wiki/Fcitx"
 WGET_URL="https://download.fcitx-im.org/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="cmake intltool cairo-dev pango-dev gtk2-dev dbus-dev opencc-dev"
-SPLIT="fcitx-dev fcitx-skin-classic fcitx-skin-dark fcitx-skin-default \
-fcitx-tools libfcitx"
+SPLIT="$PACKAGE-dev $PACKAGE-skin-classic $PACKAGE-skin-dark \
+$PACKAGE-skin-default $PACKAGE-tools libfcitx"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $src/build
-	cd $src/build
-	cmake $src \
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DENABLE_QT_IM_MODULE=OFF \
 		-DENABLE_GTK2_IM_MODULE=OFF \
 		-DENABLE_GTK3_IM_MODULE=OFF \
-		-DENABLE_OPENCC=ON || return 1
-	cd $src
-	make -C build || return 1
-	make install/fast -C build DESTDIR=$DESTDIR
+		-DENABLE_OPENCC=ON \
+		.. &&
+	make &&
+	make DESTDIR=$install install/fast
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	fcitx)
-		DEPENDS="libfcitx fcitx-skin-default gtk2"
-		mkdir -p $fs/usr/bin/ $fs/usr/share/fcitx/ $fs/usr/share/applications/
-		cp -a $install/usr/bin/fcitx $fs/usr/bin/
-		cp -a $install/usr/bin/fcitx-configtool $fs/usr/bin/
-		cp -a $install/usr/bin/fcitx-remote $fs/usr/bin/
-		cp -a $install/usr/bin/fcitx4-config $fs/usr/bin/
-		cp -a $install/usr/share/fcitx/addon/ $fs/usr/share/fcitx/
-		cp -a $install/usr/share/fcitx/configdesc/ $fs/usr/share/fcitx/
-		cp -a $install/usr/share/fcitx/data/ $fs/usr/share/fcitx/
-		cp -a $install/usr/share/fcitx/pinyin/ $fs/usr/share/fcitx/
-		cp -a $install/usr/share/fcitx/table/ $fs/usr/share/fcitx/
-		cp -a $install/usr/share/applications/*.desktop $fs/usr/share/applications/
-		cp -a $install/usr/share/icons/ $fs/usr/share/
-		;;
-	fcitx-dev)
-		CAT="development|The fcitx-dev package includes the header files for the FCITX package."
-		DEPENDS="libfcitx xorg-libX11-dev"
-		mkdir -p $fs/usr/lib/pkgconfig/ $fs/usr/share/
-		cp -a $install/usr/lib/libfcitx*.so $fs/usr/lib/
-		cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig/
-		cp -a $install/usr/share/cmake/ $fs/usr/share/
-		cp -a $install/usr/include/ $fs/usr/
-		;;
-	fcitx-skin-classic)
-		CAT="x-window|The classic skin of fcitx."
-		mkdir -p $fs/usr/share/fcitx/skin/
-		cp -a $install/usr/share/fcitx/skin/classic/ $fs/usr/share/fcitx/skin/
-		;;
-	fcitx-skin-dark)
-		CAT="x-window|The dark skin of fcitx."
-		mkdir -p $fs/usr/share/fcitx/skin/
-		cp -a $install/usr/share/fcitx/skin/dark/ $fs/usr/share/fcitx/dark/
-		;;
-	fcitx-skin-default)
-		CAT="x-window|The default skin of fcitx."
-		mkdir -p $fs/usr/share/fcitx/skin/
-		cp -a $install/usr/share/fcitx/skin/default $fs/usr/share/fcitx/skin/
-		;;
-	fcitx-tools)
-		CAT="x-window|The fcitx-tools package includes some tools of fcitx."
-		DEPENDS="fcitx"
-		mkdir -p $fs/usr/bin/
-		cp -a $install/usr/bin/createPYMB $fs/usr/bin/
-		cp -a $install/usr/bin/readPYBase $fs/usr/bin/
-		cp -a $install/usr/bin/readPYMB $fs/usr/bin/
-		cp -a $install/usr/bin/mb2org $fs/usr/bin/
-		cp -a $install/usr/bin/mb2txt $fs/usr/bin/
-		cp -a $install/usr/bin/scel2org $fs/usr/bin/
-		cp -a $install/usr/bin/txt2mb $fs/usr/bin/
-		;;
-	libfcitx)
-		CAT="x-window|The libfcitx package provides shared libraries for FCITX."
-		mkdir -p $fs/usr/lib/fcitx/
-		cp -a $install/usr/lib/fcitx/*.so $fs/usr/lib/fcitx/
-		cp -a $install/usr/lib/libfcitx*.so.* $fs/usr/lib/
-		;;
+		fcitx)
+			DEPENDS="libfcitx fcitx-skin-default gtk2"
+			mkdir -p $fs/usr/bin/ $fs/usr/share/fcitx/ $fs/usr/share/applications/
+			cp -a $install/usr/bin/fcitx $fs/usr/bin/
+			cp -a $install/usr/bin/fcitx-configtool $fs/usr/bin/
+			cp -a $install/usr/bin/fcitx-remote $fs/usr/bin/
+			cp -a $install/usr/bin/fcitx4-config $fs/usr/bin/
+			cp -a $install/usr/share/fcitx/addon/ $fs/usr/share/fcitx/
+			cp -a $install/usr/share/fcitx/configdesc/ $fs/usr/share/fcitx/
+			cp -a $install/usr/share/fcitx/data/ $fs/usr/share/fcitx/
+			cp -a $install/usr/share/fcitx/pinyin/ $fs/usr/share/fcitx/
+			cp -a $install/usr/share/fcitx/table/ $fs/usr/share/fcitx/
+			cp -a $install/usr/share/applications/*.desktop $fs/usr/share/applications/
+			cp -a $install/usr/share/icons/ $fs/usr/share/
+			;;
+		*-dev)
+			DEPENDS="libfcitx xorg-libX11-dev"
+			mkdir -p $fs/usr/lib/pkgconfig/ $fs/usr/share/
+			cp -a $install/usr/lib/libfcitx*.so $fs/usr/lib/
+			cp -a $install/usr/lib/pkgconfig/*.pc $fs/usr/lib/pkgconfig/
+			cp -a $install/usr/share/cmake/ $fs/usr/share/
+			cp -a $install/usr/include/ $fs/usr/
+			;;
+		*-skin-classic)
+			CAT="x-window|classic skin"
+			mkdir -p $fs/usr/share/fcitx/skin/
+			cp -a $install/usr/share/fcitx/skin/classic/ $fs/usr/share/fcitx/skin/
+			;;
+		*-skin-dark)
+			CAT="x-window|dark skin"
+			mkdir -p $fs/usr/share/fcitx/skin/
+			cp -a $install/usr/share/fcitx/skin/dark/ $fs/usr/share/fcitx/dark/
+			;;
+		*-skin-default)
+			CAT="x-window|default skin"
+			mkdir -p $fs/usr/share/fcitx/skin/
+			cp -a $install/usr/share/fcitx/skin/default $fs/usr/share/fcitx/skin/
+			;;
+		*-tools)
+			CAT="x-window|some tools"
+			DEPENDS="fcitx"
+			mkdir -p $fs/usr/bin/
+			cp -a $install/usr/bin/createPYMB $fs/usr/bin/
+			cp -a $install/usr/bin/readPYBase $fs/usr/bin/
+			cp -a $install/usr/bin/readPYMB $fs/usr/bin/
+			cp -a $install/usr/bin/mb2org $fs/usr/bin/
+			cp -a $install/usr/bin/mb2txt $fs/usr/bin/
+			cp -a $install/usr/bin/scel2org $fs/usr/bin/
+			cp -a $install/usr/bin/txt2mb $fs/usr/bin/
+			;;
+		libfcitx)
+			CAT="x-window|shared libraries"
+			mkdir -p $fs/usr/lib/fcitx/
+			cp -a $install/usr/lib/fcitx/*.so $fs/usr/lib/fcitx/
+			cp -a $install/usr/lib/libfcitx*.so.* $fs/usr/lib/
+			;;
 	esac
 }

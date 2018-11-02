@@ -13,9 +13,7 @@ WGET_URL="https://github.com/keplerproject/$PACKAGE/archive/v${VERSION//./_}.tar
 
 BUILD_DEPENDS="lua-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# Determine Lua version (i.e "5.3")
 	luaver=$(grep 'V=' /usr/lib/pkgconfig/lua.pc | cut -d= -f2)
 	# Fix prefix and install dir
@@ -23,12 +21,12 @@ compile_rules()
 	# Use DESTDIR
 	sed -i "s|\$(LUA_LIBDIR)|\$(DESTDIR)&|" $src/Makefile
 
-	make && make test && make install
+	make &&
+	make test &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	SUGGESTED="lua"
 }

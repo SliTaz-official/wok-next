@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-datetime-timezone"
 VERSION="2.19"
@@ -12,21 +12,20 @@ REPOLOGY="perl:datetime-timezone"
 TARBALL="DateTime-TimeZone-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-class-singleton perl-module-runtime perl-namespace-autoclean \
-perl-params-validationcompiler perl-specio perl-try-tiny"
-BUILD_DEPENDS="$DEPENDS perl-test-requires"
+BUILD_DEPENDS="perl-class-singleton perl-module-runtime \
+perl-namespace-autoclean perl-params-validationcompiler perl-specio \
+perl-try-tiny perl-test-requires"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-class-singleton perl-module-runtime perl-namespace-autoclean \
+	perl-params-validationcompiler perl-specio perl-try-tiny"
 }

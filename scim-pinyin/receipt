@@ -4,19 +4,17 @@ PACKAGE="scim-pinyin"
 VERSION="0.5.92"
 CATEGORY="utilities"
 SHORT_DESC="Chinese PinYin input for SCIM"
-MAINTAINER="rocky@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/scim-im/scim-pinyin"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$TARBALL"
 
-BUILD_DEPENDS="automake gettext libtool scim-dev"
-SPLIT="scim-pinyin-dev"
+BUILD_DEPENDS="automake gettext-dev libtool scim-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap &&
 
 	./configure \
@@ -26,9 +24,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		scim-pinyin)
 			copy @std

@@ -4,7 +4,7 @@ PACKAGE="gmp"
 VERSION="6.1.2"
 CATEGORY="libdevel"
 SHORT_DESC="GNU Multiple Precision Arithmetic Library"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://gmplib.org/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gmp.html"
@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="binutils m4 ncurses-dev readline-dev texinfo"
-SPLIT="gmp-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# Create generic libraries
@@ -26,14 +26,16 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	# -j > 1 make install fails.
-	make && make html &&
-	make install && make install-html
+	make &&
+	make html &&
+	make install &&
+	make install-html
 }
 
 testsuite() {
 	checklog=$(mktemp)
 	make check 2>&1 | tee $checklog
-	pass=$(awk '/# PASS:/{total+=$3} ; END{print total}' $checklog)
+	pass=$(awk '/# PASS:/{total+=$3}; END{print total}' $checklog)
 	echo "$pass / 190 tests passed"
 	rm $checklog
 }

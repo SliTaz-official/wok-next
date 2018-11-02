@@ -1,42 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xlockmore"
 VERSION="5.40"
 CATEGORY="utilities"
-SHORT_DESC="X Window System Lock Screen."
-MAINTAINER="rocky@slitaz.org"
+SHORT_DESC="X Window System Lock Screen"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://sillycycle.com/xlockmore.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.tux.org/~bagleyd/xlock/$PACKAGE-$VERSION/$TARBALL" # FIXME
 
-DEPENDS="xorg-libX11 freetype freetype1"
 BUILD_DEPENDS="xorg-libXdmcp-dev xorg-libXpm-dev xorg-libX11-dev \
 xorg-libXt-dev xorg-libXext-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-    cd $src
-    ./configure --prefix=/usr \
-        --infodir=/usr/share/info \
-        --mandir=/usr/share/man \
-        $CONFIGURE_ARGS &&
-    make &&
-    mkdir -p $DESTDIR/usr/share/X11/app-defaults/ \
-        $DESTDIR/usr/bin
-    cp -f xlock/xlock $DESTDIR/usr/bin/
-    cp -f xlock/XLock.ad $DESTDIR/usr/share/X11/app-defaults/XLock
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make || return 1
+
+	mkdir -p $install/usr/share/X11/app-defaults/ \
+		$install/usr/bin
+	cp -f xlock/xlock $install/usr/bin/
+	cp -f xlock/XLock.ad $install/usr/share/X11/app-defaults/XLock
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs
-    cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libX11 freetype freetype1"
 }
 
-post_install() 
-{
-    chmod u+s "$1/usr/bin/xlock"
+post_install() {
+	chmod u+s "$1/usr/bin/xlock"
 }

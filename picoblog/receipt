@@ -1,30 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="picoblog"
 VERSION="1.0"
 CATEGORY="network"
-SHORT_DESC="Tiny blog engine."
+SHORT_DESC="Tiny blog engine"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION"
 WEB_SITE="http://dev.kd2.org/picoblog/"
+
+TARBALL="$PACKAGE-$VERSION"
 URL="http://svn.kd2.org/svn/misc/apps/picoblog/index.php"
-TAGS="blog"
 
-DEPENDS="php"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	[ -s "$SRC/$TARBALL" ] ||
 		wget -O "$SRC/$TARBALL" $URL
-	mkdir -p $DESTDIR/var/www/$PACKAGE 2> /dev/null
-	cp "$SRC/$TARBALL" $DESTDIR/var/www/$PACKAGE/index.php
-	chown -R 80.80 $DESTDIR/var/www/$PACKAGE
+	mkdir -p $install/var/www/$PACKAGE 2> /dev/null
+	cp "$SRC/$TARBALL" $install/var/www/$PACKAGE/index.php
+	chown -R 80.80 $install/var/www/$PACKAGE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.   
-genpkg_rules()                                      
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="php"
+	TAGS="blog"
 }

@@ -4,7 +4,7 @@ PACKAGE="scratch"
 VERSION="1.4.0.7"
 CATEGORY="network"
 SHORT_DESC="Create and share interactive stories, games, music and art"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://scratch.mit.edu/"
 
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WGET_URL="http://download.scratch.mit.edu/$TARBALL"
 
 BUILD_DEPENDS="pango-dev shared-mime-info-dev"
-SPLIT="scratch-help"
+SPLIT="$PACKAGE-help"
 
 compile_rules() {
 	# Fix cross compilation: gcc is hardcoded
@@ -20,25 +20,25 @@ compile_rules() {
 	sed -i 's/-vm-sound-pulse/-vm-sound-ALSA/' src/scratch &&
 	make build &&
 	# Install
-	mkdir -p ${DESTDIR}/usr/bin \
-		${DESTDIR}/usr/lib/scratch \
-		${DESTDIR}/usr/share/scratch \
-		${DESTDIR}/usr/share/icons/hicolor \
-		${DESTDIR}/usr/share/applications \
-		${DESTDIR}/usr/share/mime/packages \
-		${DESTDIR}/usr/share/icons/hicolor/48x48/apps \
-		${DESTDIR}/usr/share/icons/hicolor/48x48/mimetypes &&
-	install -m 755 src/scratch ${DESTDIR}/usr/bin/scratch &&
-	install -m 644 Scratch.image ${DESTDIR}/usr/lib/scratch/Scratch.image &&
-	install -m 644 Scratch.ini ${DESTDIR}/usr/lib/scratch/Scratch.ini &&
-	cp src/scratch.desktop ${DESTDIR}/usr/share/applications &&
-	cp src/scratch.xml ${DESTDIR}/usr/share/mime/packages &&
-	cp -a Plugins ${DESTDIR}/usr/lib/scratch &&
-	cp -a locale Media Projects ${DESTDIR}/usr/share/scratch &&
+	mkdir -p $install/usr/bin \
+		$install/usr/lib/scratch \
+		$install/usr/share/scratch \
+		$install/usr/share/icons/hicolor \
+		$install/usr/share/applications \
+		$install/usr/share/mime/packages \
+		$install/usr/share/icons/hicolor/48x48/apps \
+		$install/usr/share/icons/hicolor/48x48/mimetypes &&
+	install -m 755 src/scratch $install/usr/bin/scratch &&
+	install -m 644 Scratch.image $install/usr/lib/scratch/Scratch.image &&
+	install -m 644 Scratch.ini $install/usr/lib/scratch/Scratch.ini &&
+	cp src/scratch.desktop $install/usr/share/applications &&
+	cp src/scratch.xml $install/usr/share/mime/packages &&
+	cp -a Plugins $install/usr/lib/scratch &&
+	cp -a locale Media Projects $install/usr/share/scratch &&
 	cp src/icons/48x48/scratch.png \
-		${DESTDIR}/usr/share/icons/hicolor/48x48/apps &&
+		$install/usr/share/icons/hicolor/48x48/apps &&
 	cp src/icons/48x48/gnome-mime-*.png \
-		${DESTDIR}/usr/share/icons/hicolor/48x48/mimetypes
+		$install/usr/share/icons/hicolor/48x48/mimetypes
 }
 
 genpkg_rules() {
@@ -53,7 +53,7 @@ genpkg_rules() {
 			CAT="development|help"
 			DEPENDS="scratch"
 			mkdir -p $fs/usr/share/scratch
-			cp -rp ${src}/Help $fs/usr/share/scratch
+			cp -rp $src/Help $fs/usr/share/scratch
 			;;
 	esac
 }

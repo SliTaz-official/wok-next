@@ -1,36 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="emacs-pkg-text-translator"
 VERSION="0.6.6.1"
 CATEGORY="development"
-SHORT_DESC="Translates strings by using translation services on the web."
-MAINTAINER="domcox@slitaz.org"
+SHORT_DESC="Translates strings by using translation services on the web"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://d.hatena.ne.jp/khiker/20070503/emacs_text_translator"
-TAGS="emacs"
 
-DEPENDS="emacs"
+genpkg_rules() {
+	# Installing start file
+	mkdir -p $fs/usr/share/emacs/site-lisp/site-start.d &&
+	cp -a $stuff/90*.el $fs/usr/share/emacs/site-lisp/site-start.d
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	echo -n "Installing start file"
-	mkdir -p $fs/usr/share/emacs/site-lisp/site-start.d && \
-	cp -a stuff/90*.el $fs/usr/share/emacs/site-lisp/site-start.d
-	status
-
-	echo -n "Installing text-translator"
-	mkdir -p $fs/usr/share/emacs/site-lisp/text-translator && \
-	cp -a stuff/text*.el $fs/usr/share/emacs/site-lisp/text-translator
-	status
+	# Installing text-translator
+	mkdir -p $fs/usr/share/emacs/site-lisp/text-translator &&
+	cp -a $stuff/text*.el $fs/usr/share/emacs/site-lisp/text-translator
+	DEPENDS="emacs"
+	TAGS="emacs"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" tazpkg reconfigure emacs
 }
 
-post_remove()
-{
+post_remove() {
 	chroot "$1/" tazpkg reconfigure emacs
 }

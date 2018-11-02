@@ -27,13 +27,16 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
+	DEPENDS="python-websockify net-tools"
+	SUGGESTED="openssl"
+	TAGS="vnc remote-desktop html5"
 }
 
 post_install() {
 	which openssl >/dev/null &&
 	openssl req -new -x509 -keyout "$1/usr/share/novnc/self.pem" \
 		-out "$1/usr/share/novnc/self.pem" -days 3650 -nodes <<EOT
-$(. "$1/etc/locale.conf" ; echo ${LANG#*_})
+$(. "$1/etc/locale.conf"; echo ${LANG#*_})
 $(cat "$1/etc/TZ")
 
 $(cat "$1/etc/hostname")
@@ -41,7 +44,4 @@ $(cat "$1/etc/hostname")
 
 
 EOT
-	DEPENDS="python-websockify net-tools"
-	SUGGESTED="openssl"
-	TAGS="vnc remote-desktop html5"
 }

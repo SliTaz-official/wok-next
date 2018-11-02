@@ -1,35 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="otf-transcends-games"
 VERSION="0.1"
 CATEGORY="fonts"
-SHORT_DESC="Transcends Games is a font with retro-futuristic style."
-MAINTAINER="hackdorte@sapo.pt"
+SHORT_DESC="Font with retro-futuristic style"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
-SOURCE="transcends-games"
 WEB_SITE="http://people.slitaz.org/~leonardolaporte"
-STUFF_DIR="lab.slitaz/5.0/pkg/font/publicdomain"
+
+SOURCE="transcends-games"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}/$STUFF_DIR/$TARBALL"
-TAGS="font otf"
+WGET_URL="$WEB_SITE/lab.slitaz/5.0/pkg/font/publicdomain/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="wget"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-  mkdir -p $install/usr/share/fonts/pd/$SOURCE
-  cp -a $src/* $install/usr/share/fonts/pd/$SOURCE
+compile_rules() {
+	mkdir -p $install/usr/share/fonts/pd/$SOURCE
+	cp -a $src/* $install/usr/share/fonts/pd/$SOURCE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-  cp -a $install/* $fs
+genpkg_rules() {
+	cp -a $install/* $fs
+	TAGS="font otf"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" /usr/bin/fc-cache
 }

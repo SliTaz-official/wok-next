@@ -3,27 +3,26 @@
 PACKAGE="pan"
 VERSION="0.134"
 CATEGORY="network"
-SHORT_DESC="pan is a usenet newsreader"
+SHORT_DESC="Usenet newsreader"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://pan.rebelbase.com"
-WGET_URL="$WEB_SITE/download/releases/$VERSION/source/$TARBALL"
+WEB_SITE="http://pan.rebelbase.com/"
 
-DEPENDS="pcre gmime gtkspell gtk2 cairo gcc-lib-base glibc-base"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="${WEB_SITE}download/releases/$VERSION/source/$TARBALL"
+
 BUILD_DEPENDS="intltool gmime-dev glib-dev gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	sed -i 's|<glib/gtypes.h>|<glib.h>|' pan/general/file-util.h \
+compile_rules() {
+	sed -i 's|<glib/gtypes.h>|<glib.h>|' \
+		pan/general/file-util.h \
 		pan/data/article-cache.h \
 		pan/gui/render-bytes.h
-	sed -i -e 's|<glib/gutils.h>|<glib.h>|' \
+	sed \
+		-e 's|<glib/gutils.h>|<glib.h>|' \
 		-e 's|<glib/gtestutils.h>|<glib.h>|' \
 		-e 's|<glibconfig.h>|<glib.h>|' \
-		pan/general/macros.h
+		-i pan/general/macros.h
 	sed -i 's|<glib/gmain.h>|<glib.h>|' pan/general/worker-pool.cc
 	sed -i -e 's|<glib/gtypes.h>|<glib.h>|' \
 		-e 's|<glib/gthreadpool.h>|<glib.h>|' \
@@ -55,15 +54,14 @@ EOT
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/applications $fs/usr/share
 	cp -a $install/usr/share/pixmaps $fs/usr/share
+	DEPENDS="pcre gmime gtkspell gtk2 cairo gcc-lib-base glibc-base"
 }
-

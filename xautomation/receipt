@@ -3,26 +3,24 @@
 PACKAGE="xautomation"
 VERSION="1.09"
 CATEGORY="x-window"
-SHORT_DESC="Control X from the command line for scripts (fte, visgrep)."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Control X from the command line for scripts (fte, visgrep)"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://hoopajoo.net/projects/xautomation.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://hoopajoo.net/static/projects/$TARBALL"
 
-DEPENDS="xorg-libX11 libpng16"
 BUILD_DEPENDS="xorg-libX11-dev libpng16-dev xorg-libXtst-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="xorg-libX11 libpng16"
 }

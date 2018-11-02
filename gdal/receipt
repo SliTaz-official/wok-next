@@ -4,7 +4,7 @@ PACKAGE="gdal"
 VERSION="2.2.2"
 CATEGORY="meta"
 SHORT_DESC="Geospatial Data Abstraction Library"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.gdal.org/"
 
@@ -13,7 +13,7 @@ WGET_URL="http://download.osgeo.org/gdal/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="python-dev postgresql-dev geos-dev proj-dev curl-dev \
 swig tiff-dev jasper-dev jpeg-dev perl-dev"
-SPLIT="gdal gdal-dev gdal-bin gdal-datas libgdal"
+SPLIT="$PACKAGE-dev $PACKAGE-bin $PACKAGE-datas libgdal"
 
 COOKOPTS="skip-log-errors"
 
@@ -29,7 +29,7 @@ compile_rules() {
 		--with-ogr &&
 	fix libtool &&
 	make &&
-	make install BINDINGS="perl python"
+	make BINDINGS="perl python" install
 }
 
 genpkg_rules() {

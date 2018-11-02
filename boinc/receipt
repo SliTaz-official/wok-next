@@ -5,16 +5,16 @@ VERSION="6.10.58"
 SVN_TAG="6_10_58"
 CATEGORY="network"
 SHORT_DESC="Open-source software for volunteer computing and grid computing"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://boinc.berkeley.edu/"
+WEB_SITE="https://boinc.berkeley.edu/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="svn|http://boinc.berkeley.edu/svn/tags/boinc_core_release_${SVN_TAG}"
 
 BUILD_DEPENDS="subversion openssl-dev autoconf automake curl-dev libidn-dev \
 wxWidgets28-dev libnotify-dev sqlite3-dev file"
-SPLIT="boinc-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's/AC_PROG_CPP/&\nAC_PROG_OBJCXX/' configure.ac
@@ -54,7 +54,7 @@ genpkg_rules() {
 post_install_boinc() {
 	echo
 	# Check if boinc user already exists
-	if grep -q ^${BOINCUSER}: "$1/etc/passwd"; then
+	if grep -q "^$BOINCUSER:" "$1/etc/passwd"; then
 		chroot "$1/" adduser -g "BOINC User" -h /var/lib/boinc -s /bin/bash -S -H -D boinc
 	else
 		# In case boinc was previously installed:

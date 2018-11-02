@@ -6,39 +6,30 @@ CATEGORY="network"
 SHORT_DESC="xmpp-jabber server in lua"
 MAINTAINER="allan316@gmail.com"
 LICENSE="MIT"
+WEB_SITE="http://prosody.im/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://prosody.im"
 WGET_URL="$WEB_SITE/downloads/source/$TARBALL"
 
-DEPENDS="lua5.1 libidn openssl luaexpat luasocket luafilesystem libidn libcrypto"
-BUILD_DEPENDS="lua5.1-dev libidn-dev openssl-dev luaexpat luasocket luafilesystem libidn-dev libcrypto"
+BUILD_DEPENDS="lua5.1-dev libidn-dev openssl-dev luaexpat luasocket \
+luafilesystem libidn-dev libcrypto"
 
-# Handle cross compilation
-case "$ARCH" in
-	arm*) luapath="/cross/$ARCH/sysroot" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--ostype=linux \
 		--c-compiler=${HOST_SYSTEM}-gcc \
 		--linker=${HOST_SYSTEM}-gcc \
-		--with-lua=${luapath}/usr \
-		--with-lua-lib=${luapath}/usr/lib \
+		--with-lua=/usr \
+		--with-lua-lib=/usr/lib \
 		--runwith=lua5.1 \
-		--with-lua-include=${luapath}/usr/include/lua/5.1 &&
-	make && make DESTDIR=$DESTDIR install
+		--with-lua-include=/usr/include/lua/5.1 &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/etc $fs
-	cp -a $install/var $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="lua5.1 libidn openssl luaexpat luasocket luafilesystem libidn \
+	libcrypto"
 }

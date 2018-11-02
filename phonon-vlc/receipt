@@ -14,9 +14,9 @@ WGET_URL="http://download.kde.org/stable/phonon/$SOURCE/$VERSION/src/$TARBALL"
 DEPENDS="libQtCore libQtDBus libQtGui libQtXml phonon libvlc"
 BUILD_DEPENDS="phonon cmake qmake automoc4 Qt4-dev libvlc-dev phonon-dev"
 
-compile_rules()
-{
-		mkdir build; cd build
+compile_rules() {
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -26,11 +26,10 @@ compile_rules()
 		-DCMAKE_INSTALL_LIBDIR=lib \
 		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	rm -rf $fs/usr/share
 }

@@ -4,29 +4,20 @@ PACKAGE="geany"
 VERSION="1.31"
 CATEGORY="development"
 SHORT_DESC="Small and fast IDE using GTK+ toolkit"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.geany.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.geany.org/$TARBALL"
 
-BUILD_DEPENDS_arm="glib-dev expat-dev gtk2-dev atk-dev pango-dev cairo-dev \
-xorg-pixman-dev libpng16-dev freetype-dev fontconfig-dev xorg-libXrender-dev \
-xorg-libX11-dev xorg-xorgproto xorg-libXau-dev \
-xorg-libXdmcp-dev libxml2-dev"
 BUILD_DEPENDS="gtk2-dev intltool python-lxml python-docutils"
-SPLIT="geany-doc geany-dev"
+SPLIT="$PACKAGE-doc $PACKAGE-dev"
 
 compile_rules() {
 	sed -i '/_Keywords=/d' $src/geany.desktop.in
 
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--disable-vte";;
-	esac
-
-	./configure \
-		$ARCH_ARGS $CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install

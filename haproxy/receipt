@@ -6,7 +6,7 @@ CATEGORY="network"
 SHORT_DESC="Reliable, High Performance TCP/HTTP Load Balancer"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL LGPL"
-WEB_SITE="http://haproxy.1wt.eu"
+WEB_SITE="http://www.haproxy.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/${VERSION%.*}/src/$TARBALL"
@@ -15,7 +15,13 @@ BUILD_DEPENDS="pcre-dev"
 
 compile_rules() {
 	sed -i 's|/doc|/share&|' Makefile*
-	make TARGET=linux26 USE_PCRE=1 PREFIX=/usr DESTDIR=$DESTDIR install
+
+	make \
+		TARGET=linux26 \
+		USE_PCRE=1 \
+		PREFIX=/usr \
+		DESTDIR=$install \
+		install
 }
 
 genpkg_rules() {

@@ -4,22 +4,21 @@ PACKAGE="tazweb"
 VERSION="208"
 CATEGORY="network"
 SHORT_DESC="SliTaz simple, fast and small Web Browser"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
 
-TAGS="web-browser"
-
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
-BUILD_DEPENDS="glib-dev gtk2-dev libsoup-dev webkitgtk-dev libxslt-dev gettext"
+BUILD_DEPENDS="glib-dev gtk2-dev libsoup-dev webkitgtk-dev libxslt-dev \
+gettext-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make && make msgfmt && make DESTDIR=$install install
+compile_rules() {
+	make &&
+	make msgfmt &&
+	make DESTDIR=$install install
 }
 
 # Cross compilation check
@@ -27,10 +26,9 @@ testsuite() {
 	readelf -h $install/usr/bin/tazweb
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk2 libsoup pango \
 	webkitgtk   gsettings-desktop-schemas"
+	TAGS="web-browser"
 }

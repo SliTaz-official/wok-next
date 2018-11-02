@@ -1,28 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="turses"
 VERSION="0.2.7"
 CATEGORY="network"
-SHORT_DESC="A Twitter client for the console."
+SHORT_DESC="A Twitter client for the console"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://pypi.org/project/turses/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://files.pythonhosted.org/packages/source/t/$PACKAGE/$TARBALL"
 
-DEPENDS="python python-httplib2 python-urwid python-oauth2 \
-python-tweepy"
-BUILD_DEPENDS="python python-dev"
+BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py build &&
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-httplib2 python-urwid python-oauth2 \
+	python-tweepy"
 }

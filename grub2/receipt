@@ -15,7 +15,7 @@ WGET_URL="ftp://ftp.gnu.org/gnu/grub/$TARBALL"
 
 BUILD_DEPENDS="flex bison zlib-dev xz-dev freetype-dev ncurses-dev \
 libusb-compat-dev libusb-dev libdevmapper-dev"
-SPLIT="grub2 grub2-efi:efi grub2-efi-modules:efi"
+SPLIT="$PACKAGE-efi:efi $PACKAGE-efi-modules:efi"
 
 compile_rules() {
 	sed -i 's|sys/types.h>|&\n#include <sys/sysmacros.h>|' \
@@ -34,7 +34,7 @@ compile_rules() {
 			#chmod +x install-sh
 			./configure $CONFIGURE_ARGS &&
 			make $MAKEFLAGS &&
-			make DESTDIR=$DESTDIR install || return 1
+			make DESTDIR=$install install || return 1
 
 			# Example config file (grub.cfg)
 			install -Dm0644 $stuff/example-grub.cfg $install/boot/grub/example-grub.cfg

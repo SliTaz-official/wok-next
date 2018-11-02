@@ -1,31 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="zim"
 VERSION="0.65"
 CATEGORY="utilities"
-SHORT_DESC="A desktop wiki."
-MAINTAINER="gokhlayeh@slitaz.org"
+SHORT_DESC="A desktop wiki"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://zim-wiki.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://zim-wiki.org/downloads/$TARBALL"
-TAGS="wiki notebook"
 
-DEPENDS="python python-pygtk python-pygobject2 python-simplejson python-pyxdg \
-desktop-file-utils shared-mime-info xdg-utils"
-BUILD_DEPENDS="$DEPENDS python-pycairo-dev python-pygobject2-dev python-pygtk-dev python-dev"
+BUILD_DEPENDS="python-dev python-pygtk python-pygobject2 python-simplejson \
+python-pyxdg desktop-file-utils shared-mime-info xdg-utils python-pycairo-dev \
+python-pygobject2-dev python-pygtk-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./setup.py install --root=$DESTDIR install
+compile_rules() {
+	python -B setup.py install --root=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share/zim $fs/usr/share
+	DEPENDS="python python-pygtk python-pygobject2 python-simplejson \
+	python-pyxdg desktop-file-utils shared-mime-info xdg-utils"
+	TAGS="wiki notebook"
 }

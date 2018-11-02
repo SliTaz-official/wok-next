@@ -3,33 +3,31 @@
 PACKAGE="jnettop"
 VERSION="0.13.0"
 CATEGORY="network"
-SHORT_DESC="Network online traffic visualizer."
+SHORT_DESC="Network online traffic visualizer"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://web.archive.org/web/20161127214942/http://jnettop.kubs.info/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://jnettop.kubs.info/dist/$TARBALL" # FIXME
 
-DEPENDS="ncurses libpcap libdb"
 BUILD_DEPENDS="ncurses-dev libpcap-dev glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share $fs/root
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/jnettop $fs/usr/share
 	# config file
 	cp -a $src/.jnettop $fs/root/.jnettop
+	DEPENDS="ncurses libpcap libdb"
 }

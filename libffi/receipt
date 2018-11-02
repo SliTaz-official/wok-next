@@ -4,7 +4,7 @@ PACKAGE="libffi"
 VERSION="3.2.1"
 CATEGORY="development"
 SHORT_DESC="A portable foreign function interface library"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://sourceware.org/libffi/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libffi.html"
@@ -12,7 +12,7 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libffi.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://sourceware.org/ftp/libffi/$TARBALL"
 
-SPLIT="libffi-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
@@ -27,7 +27,8 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 #	sed -i 's|^\(toolexeclibdir = \).*|\1/usr/lib|' Makefile \
 #		$HOST_SYSTEM-gnu/Makefile &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

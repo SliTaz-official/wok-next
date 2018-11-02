@@ -1,34 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="turnserver"
 VERSION="0.7.3"
 CATEGORY="network"
-SHORT_DESC="open-source TURN server implementation."
+SHORT_DESC="Open-source TURN server implementation"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://turnserver.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="openssl"
 BUILD_DEPENDS="libconfuse openssl-dev perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# configure script should be really fixed... 
+compile_rules() {
+	# configure script should be really fixed...
 	ln -s $src/missing /root
 	sed -i 's/_SVID_SOURCE/_DEFAULT_SOURCE/' src/Makefile*
-	./configure --prefix=/usr --mandir=/usr/share/man \
-		$CONFIGURE_ARGS 2>&1 | grep -v //missing &&
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
 }
-

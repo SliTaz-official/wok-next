@@ -12,28 +12,26 @@ TARBALL="OpenCSG-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
 BUILD_DEPENDS="glew-dev mesa-dev freeglut-dev"
-SPLIT="opencsg-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	for i in /usr/lib /usr/bin /bin /usr/include; do
-		mkdir -p $DESTDIR$i
+		mkdir -p $install$i
 	done
 	find -name Makefile | xargs sed -i 's|usr/local|usr|'
-	make -j 1 &&
-	make INSTALL_ROOT=$DESTDIR install
+
+	make -j1 &&
+	make INSTALL_ROOT=$install install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		opencsg)
-			mkdir -p $fs/usr
-			cp -a $install/usr/lib $fs/usr
+			copy *.so
 			DEPENDS="glew mesa"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/include $fs/usr
+			copy @dev @std @rm # /usr/bin/opencsgexample moved here
 			;;
 	esac
 }

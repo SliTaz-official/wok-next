@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-arm-adm"
 VERSION="212"
 CATEGORY="base-system"
-SHORT_DESC="SliTaz ARM CGI administration interface."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz ARM CGI administration interface"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://arm.slitaz.org/"
 REPOLOGY="-"
@@ -12,18 +12,14 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-arm/archive/$VERSION.tar.bz2"
 
-DEPENDS="busybox slitaz-base-files"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p ${fs}/var/www
-	cp -a ${src}/cgi-adm ${fs}/var/www/adm
+genpkg_rules() {
+	mkdir -p $fs/var/www
+	cp -a $src/cgi-adm $fs/var/www/adm
+	DEPENDS="busybox slitaz-base-files"
 }
 
 # SliTaz RPi files are over written so reinstall pkg
-post_install()
-{
+post_install() {
 	if [ -d "$1/var/lib/tazpkg/installed/slitaz-arm-rpi" ]; then
 		chroot "$1/" spk-add slitaz-arm-rpi --forced
 	fi

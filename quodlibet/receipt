@@ -4,32 +4,29 @@ PACKAGE="quodlibet"
 VERSION="2.0"
 CATEGORY="multimedia"
 SHORT_DESC="An audio player written in pygtk"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="gst0-plugins-bad gst0-ffmpeg"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://quodlibet.readthedocs.io/en/latest/"
-WGET_URL="$WEB_SITE/files/$TARBALL" # FIXME
-TAGS="multimedia audio sound music player python"
 
-DEPENDS="python-dbus gst0-python gst0-plugins-base gst0-plugins-good \
-gst0-plugins-ugly mutagen python-pygtk gstreamer0"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/files/$TARBALL" # FIXME
+
 BUILD_DEPENDS="python-dbus-dev gst0-python-dev gst0-plugins-base-dev \
 gst0-plugins-good gstreamer0-dev gst0-plugins-ugly python-pygtk-dev intltool \
-gettext gtk2-dev python-dev file"
+gettext-dev gtk2-dev python-dev file"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./setup.py build
-	./setup.py install --prefix=$DESTDIR/usr
+compile_rules() {
+	python -B setup.py build &&
+	python -B setup.py install --prefix=$install/usr || return 1
+
+	mkdir -p $install/usr/share/pixmaps/
+	cp $stuff/*.png $install/usr/share/pixmaps/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib $fs/usr/share $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/python* $fs/usr/lib
-	cp -a stuff/*.png $fs/usr/share/pixmaps/
+genpkg_rules() {
+	copy @std
+	DEPENDS="python-dbus gst0-python gst0-plugins-base gst0-plugins-good \
+	gst0-plugins-ugly mutagen python-pygtk gstreamer0"
+	SUGGESTED="gst0-plugins-bad gst0-ffmpeg"
+	TAGS="multimedia audio sound music player python"
 }

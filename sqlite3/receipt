@@ -4,9 +4,9 @@ PACKAGE="sqlite3"
 VERSION="3.24.0"
 CATEGORY="database"
 SHORT_DESC="Small SQL database engine"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
-WEB_SITE="https://www.sqlite.org/"
+WEB_SITE="https://www.sqlite.org/index.html"
 
 TARBALL="sqlite-src-$(echo $VERSION | awk 'BEGIN{FS="."}{printf("%d%02d%02d00",$1,$2,$3)}').zip"
 WGET_URL="https://www.sqlite.org/2018/$TARBALL"
@@ -16,13 +16,9 @@ TARBALL_SHA1="fb558c49ee21a837713c4f1e7e413309aabdd9c7"
 EXTRA_SOURCE_FILES="mysql2sqlite.sh"
 
 BUILD_DEPENDS="tcl-dev readline-dev zlib-dev"
-SPLIT="lemon sqlite3-analyzer sqlite3 libsqlite3 libsqlite3-tcl sqlite3-dev"
+SPLIT="lemon $PACKAGE-analyzer $PACKAGE libsqlite3 libsqlite3-tcl $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--with-tcl=/cross/arm/sysroot/usr/lib" ;;
-	esac
-
 	[ -s "$SRC/mysql2sqlite.sh" ] || wget -P $SRC \
 		https://gist.github.com/esperlu/943776/raw/dd87f4088f6d5ec7563478f7a28a37ba02cf26e2/mysql2sqlite.sh
 
@@ -45,12 +41,11 @@ compile_rules() {
 		--enable-rtree \
 		--enable-json1 \
 		TCLLIBDIR=/usr/lib/sqlite$VERSION \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
 	make showdb showjournal showstat4 showwal sqldiff sqlite3_analyzer &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	# recompiling lemon
 	[ -f $src/lemon ] && rm $src/lemon

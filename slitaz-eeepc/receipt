@@ -3,39 +3,35 @@
 PACKAGE="slitaz-eeepc"
 VERSION="1.2"
 CATEGORY="system-tools"
-SHORT_DESC="SliTaz EeePC scripts and configuration files."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz EeePC scripts and configuration files"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
 
-DEPENDS="915resolution dmidecode linux-acpi linux-wireless"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p \
 		$fs/etc/init.d \
 		$fs/etc/skel/Desktop \
 		$fs/usr/share/doc/slitaz-flavors \
 		$fs/sbin
 	# Tool and boot script
-	cp stuff/eeepc.sh $fs/etc/init.d
-	cp stuff/tazeee $fs/sbin
+	cp $stuff/eeepc.sh $fs/etc/init.d
+	cp $stuff/tazeee $fs/sbin
 	# Images
-	cp -a stuff/images $fs/usr/share
-	cp -a stuff/pixmaps $fs/usr/share
+	cp -a $stuff/images $fs/usr/share
+	cp -a $stuff/pixmaps $fs/usr/share
 	# Doc
-	cp -a stuff/eeepc.html $fs/usr/share/doc/slitaz-flavors
+	cp -a $stuff/eeepc.html $fs/usr/share/doc/slitaz-flavors
 	# Desktop icon
-	cp -a stuff/applications/tazeee.desktop $fs/etc/skel/Desktop
+	cp -a $stuff/applications/tazeee.desktop $fs/etc/skel/Desktop
 	# Config
 	touch $fs/etc/eeepc.conf
 	chown -R root.root $fs
+	DEPENDS="915resolution dmidecode linux-acpi linux-wireless"
 }
 
-pre_install()
-{
+pre_install() {
 	. "$1/etc/rcS.conf"
 	sed -i s/'RUN_SCRIPTS="'/'RUN_SCRIPTS="eeepc.sh '/ "$1/etc/rcS.conf"
 	# Load module ac and battery
@@ -43,7 +39,6 @@ pre_install()
 		"$1/etc/rcS.conf"
 }
 
-pre_remove()
-{
+pre_remove() {
 	sed -i s/'RUN_SCRIPTS="eeepc.sh '/'RUN_SCRIPTS="'/ /etc/rcS.conf
 }

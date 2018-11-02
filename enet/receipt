@@ -3,26 +3,26 @@
 PACKAGE="enet"
 VERSION="1.2.1"
 CATEGORY="development"
-SHORT_DESC="relatively thin, simple and robust network communication layer on top of UDP"
+SHORT_DESC="Network communication layer on top of UDP"
 MAINTAINER="devl547@gmail.com"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://enet.bespin.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man --enable-crc32 $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		--enable-crc32 \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/lib
 	cp -a $install/usr/lib/*a $fs/usr/lib
 	cp -a $install/usr/include $fs/usr

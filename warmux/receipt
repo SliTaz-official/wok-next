@@ -4,7 +4,7 @@ PACKAGE="warmux"
 VERSION="11.04.1"
 CATEGORY="games"
 SHORT_DESC="Warmux game"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.wormux.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
@@ -12,15 +12,13 @@ WGET_URL="http://download.gna.org/warmux/$TARBALL"
 
 BUILD_DEPENDS="libsdl-dev libsdl-gfx-dev libsdl-image-dev libsdl-mixer-dev \
 libsdl-net-dev libsdl-ttf-dev curl-dev freetype-dev libxml2-dev libxml++-dev"
-SPLIT="warmux warmux-music"
+SPLIT="$PACKAGE-music"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/test -z "$(pkgdatadir)"/test -d "$(pkgdatadir)"/' data/Makefile.in
 	sed -i 's|if USE_X11|if SKIP_USE_X11|' src/tool/copynpaste.cpp
 	sed -i "s|test -d \"\\\$(pkgdatadir|test -d \"\\\$(DESTDIR)\\\$(pkgdatadir|" data/Makefile*
-	mkdir -p $DESTDIR/usr/share/warmux
+	mkdir -p $install/usr/share/warmux
 
 	./configure \
 		--bindir=/usr/games \
@@ -30,31 +28,29 @@ compile_rules()
 	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	warmux)
-		PROVIDE="wormux"
-		SUGGESTED="warmux-music"
-		DEPENDS="libsdl-gfx libsdl-image libsdl-mixer libsdl-net \
+		warmux)
+			PROVIDE="wormux"
+			SUGGESTED="warmux-music"
+			DEPENDS="libsdl-gfx libsdl-image libsdl-mixer libsdl-net \
 			libsdl-ttf curl freetype libxml2 libxml++ gcc-lib-base \
 			gettext-base"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/games $fs/usr
-		cp -a $install/usr/share/pixmaps $fs/usr/share
-		cp -a $install/usr/share/warmux $fs/usr/share
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/games $fs/usr
+			cp -a $install/usr/share/pixmaps $fs/usr/share
+			cp -a $install/usr/share/warmux $fs/usr/share
 
-		# Remove unecessary files
-		rm -rf $fs/usr/share/warmux/font
-		rm -rf $fs/usr/share/warmux/music
-		#rm -rf $fs/usr/share/warmux/sound
-		;;
-	warmux-music)
-		CAT="games|game music (~35Mb)"
-		DEPENDS="warmux"
-		mkdir -p $fs/usr/share/warmux
-		cp -a $install/usr/share/warmux/music $fs/usr/share/warmux
-		;;
+			# Remove unecessary files
+			rm -rf $fs/usr/share/warmux/font
+			rm -rf $fs/usr/share/warmux/music
+			#rm -rf $fs/usr/share/warmux/sound
+			;;
+		*-music)
+			CAT="games|game music (~35Mb)"
+			DEPENDS="warmux"
+			mkdir -p $fs/usr/share/warmux
+			cp -a $install/usr/share/warmux/music $fs/usr/share/warmux
+			;;
 	esac
 }

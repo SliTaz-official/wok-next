@@ -6,16 +6,12 @@ CATEGORY="customization"
 SHORT_DESC="Japanes Openbox and GTK2 Theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://holkfoor.deviantart.com/art/Japanes-Openbox-and-GTK2-Theme-382947891"
+WEB_SITE="https://www.deviantart.com/holkfoor/art/Japanes-Openbox-and-GTK2-Theme-382947891"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.dropbox.com/s/2ronvzzogtdlmbt/Japanes_GTK2_and_Openbox.tar.bz2"
-TAGS="holkfoor openbox"
 
-DEPENDS="gtk-clearlooks openbox"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $install/usr/share/themes
 	cp -a $src/Japanes $install/usr/share/themes
 
@@ -24,14 +20,13 @@ compile_rules()
 		s|^.*progressbarstyle|#&|' $install/usr/share/themes/Japanes/gtk-2.0/gtkrc
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="gtk-clearlooks openbox"
+	TAGS="holkfoor openbox"
 }
 
-post_install()
-{
+post_install() {
 	# Set GTK+ Theme
 	for i in $1/etc/xdg/lxsession/*/desktop.conf \
 		$1/home/*/.config/lxsession/*/desktop.conf; do

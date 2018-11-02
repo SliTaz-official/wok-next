@@ -3,8 +3,8 @@
 PACKAGE="dummynet"
 VERSION="20120812"
 CATEGORY="network"
-SHORT_DESC="Network testing/emulation tool."
-MAINTAINER="samuel_trassare@yahoo.com"
+SHORT_DESC="Network testing/emulation tool"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://info.iet.unipi.it/~luigi/dummynet/"
 TARBALL="$VERSION-ipfw3.tgz"
@@ -12,26 +12,21 @@ WGET_URL="http://info.iet.unipi.it/~luigi/doc/$TARBALL"
 
 BUILD_DEPENDS="linux-module-headers"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	installed=/var/lib/tazpkg/installed
-	kvers=$(. $installed/linux-module-headers/receipt ; echo $VERSION)
+	kvers=$(. $installed/linux-module-headers/receipt; echo $VERSION)
 	sed -i "s/WARN := -O1 -Wall -Werror/WARN := -O1 -Wall/" kipfw/Makefile
 	sed -i "s/uname -r/echo $kvers-slitaz/" Makefile.inc
 	make
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin \
 		$fs/lib/modules/$kvers-slitaz/kernel/net
 	cp -a $src/ipfw/ipfw $fs/usr/bin
 	cp -a $src/kipfw-mod/ipfw_mod.ko $fs/lib/modules/$kvers-slitaz/kernel/net
 }
 
-post_install()
-{
-	[ "$1" ] || depmod -a
+post_install() {
+	[ -n "$1" ] || depmod -a
 }

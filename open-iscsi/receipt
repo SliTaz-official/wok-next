@@ -3,35 +3,31 @@
 PACKAGE="open-iscsi"
 VERSION="2.0-871"
 CATEGORY="network"
-SHORT_DESC="Implementation of RFC3720 userland utilities."
+SHORT_DESC="Implementation of RFC3720 userland utilities"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.open-iscsi.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}bits/$TARBALL"
 
-DEPENDS="linux-scsi"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/ install_kernel / /' Makefile
 	sed -i 's|dirent.h>|&\n#include <sys/types.h>\n#include <sys/stat.h>|' \
 		usr/iscsi_sysfs.c
-	sed -i "s|/etc/iscsi/initiatorname.iscsi|$DESTDIR&|" Makefile
-	make user 2>&1 | grep -v 'slitaz/build/Makefile'
-	make DESTDIR=$DESTDIR install
+	sed -i "s|/etc/iscsi/initiatorname.iscsi|$install&|" Makefile
+
+	make user &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/etc $fs
 	cp -a $install/sbin $fs
+	DEPENDS="linux-scsi"
 }
 
-post_install()
-{
+post_install() {
 	if  [ ! -f "$1/etc/iscsi/initiatorname.iscsi" ]; then
 		echo "InitiatorName=$($1/sbin/iscsi-iname)" > "$1/etc/iscsi/initiatorname.iscsi"
 	fi

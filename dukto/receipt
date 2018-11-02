@@ -3,29 +3,25 @@
 PACKAGE="dukto"
 VERSION="108"
 CATEGORY="network"
-SHORT_DESC="A simple, fast and multi-platform file transfer tool for LAN users."
+SHORT_DESC="A simple, fast and multi-platform file transfer tool for LAN users"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://code.google.com/p/$PACKAGE/"
+WEB_SITE="https://code.google.com/archive/p/dukto"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="subversion|http://$PACKAGE.googlecode.com/svn/trunk/"
+WGET_URL="subversion|http://dukto.googlecode.com/svn/trunk/"
 
 BUILD_DEPENDS="subversion Qt4-dev qmake libQtDeclarative"
-DEPENDS="gcc-lib-base libQtDeclarative"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	qmake PREFIX="/usr/" &&
 	make $MAKEFLAGS &&
-	make INSTALL_ROOT=$DESTDIR install
+	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp -a $install/* $fs/
 	ln -s /opt/dukto/bin/dukto $fs/usr/bin
+	DEPENDS="gcc-lib-base libQtDeclarative"
 }

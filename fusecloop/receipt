@@ -17,7 +17,7 @@ ADVANCECOMP_URL="$SF_MIRROR/advancemame/$ADVANCECOMP_TARBALL"
 EXTRA_SOURCE_FILES="$ADVANCECOMP_TARBALL"
 
 BUILD_DEPENDS="fuse2-dev zlib-dev automake"
-SPLIT="fusecloop cloop-utils"
+SPLIT="cloop-utils"
 
 compile_rules() {
 	[ -s $SRC/$ADVANCECOMP_TARBALL ] ||
@@ -29,14 +29,15 @@ compile_rules() {
 	cp create_compressed_fs.c $ADVANCECOMP/redef.cc
 	sed -i 's/Z_BEST_COMPRESSION/Z_BEST_SPEED/' create_compressed_fs.c
 	sed -i 's/def FIND_BEST_COMPRESSION/ 1/' $ADVANCECOMP/redef.cc
+
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make &&
+	make || return 1
 
-	cd $ADVANCECOMP &&
+	cd $ADVANCECOMP
 	./autogen.sh
 	automake --add-missing
 	./configure \

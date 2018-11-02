@@ -3,20 +3,17 @@
 PACKAGE="tsclient"
 VERSION="0.150"
 CATEGORY="network"
-SHORT_DESC="GTK frontend to rdesktop and other remote desktop tools."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="GTK frontend to rdesktop and other remote desktop tools"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://sourceforge.net/projects/tsclient/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="remote-desktop"
 
-DEPENDS="gtk2 rdesktop xorg-libXdamage"
-BUILD_DEPENDS="gtk2-dev perl-xml-parser gettext-tools"
+BUILD_DEPENDS="gtk2-dev perl-xml-parser gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--libexecdir=/usr/lib/$PACKAGE \
@@ -24,12 +21,10 @@ compile_rules()
 		--disable-gnome \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/locale $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib/$PACKAGE $fs/usr/lib
@@ -37,4 +32,6 @@ genpkg_rules()
 	cp -a $install/usr/share/pixmaps $fs/usr/share
 	cp -a $install/usr/share/applications $fs/usr/share
 	strip -s $fs/usr/lib/$PACKAGE/*
+	DEPENDS="gtk2 rdesktop xorg-libXdamage"
+	TAGS="remote-desktop"
 }

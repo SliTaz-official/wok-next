@@ -1,30 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rsstail"
 VERSION="1.8"
 CATEGORY="network"
-SHORT_DESC="RSSTail is more or less an rss reader"
-MAINTAINER="tcg.thegamer@gmail.com"
+SHORT_DESC="RSS reader"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="http://www.vanheusden.com"
-TARBALL="$PACKAGE-$VERSION.tgz"
-WGET_URL="${WEB_SITE}/${PACKAGE}/${TARBALL}"
+WEB_SITE="https://www.vanheusden.com/"
 
-DEPENDS="libnxml libmrss curl"
+TARBALL="$PACKAGE-$VERSION.tgz"
+WGET_URL="$WEB_SITE/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="libnxml libnxml-dev libmrss libmrss-dev libcurl curl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p ${DESTDIR}/usr/bin && 
-	mkdir -p ${DESTDIR}/usr/share/man/man1 &&
-	make && 
-	make DESTDIR=${DESTDIR} install
+compile_rules() {
+	mkdir -p $install/usr/bin $install/usr/share/man/man1
+
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr/
+genpkg_rules() {
+	copy @std
+	DEPENDS="libnxml libmrss curl"
 }

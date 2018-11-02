@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="crunch"
 VERSION="3.6"
 CATEGORY="network"
-SHORT_DESC="Wordlist generator."
+SHORT_DESC="Wordlist generator"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://sourceforge.net/projects/crunch-wordlist/"
+
 TARBALL="$PACKAGE-$VERSION.tgz"
-WEB_SITE="http://wiki.backtrack-fr.net/index.php/Crunch"
-WGET_URL="http://tenet.dl.sourceforge.net/project/crunch-wordlist/crunch-wordlist/$TARBALL"
+WGET_URL="$SF_MIRROR/crunch-wordlist/$TARBALL"
 
 BUILD_DEPENDS="sudo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/crunch $fs/usr/share
+genpkg_rules() {
+	copy @std
 }

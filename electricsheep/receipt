@@ -4,19 +4,18 @@ PACKAGE="electricsheep"
 VERSION="2.7b12"
 CATEGORY="graphics"
 SHORT_DESC="Distributed screen-saver that renders morphing abstract animations"
-MAINTAINER="gokhlayeh@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://electricsheep.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://community.electricsheep.org/"
 WGET_URL="http://147.52.159.12/mirrors/ftp.kernel.org/pub/dist/vectorlinux/VL64-7.0/sourceAbs/$PACKAGE/$TARBALL"
 
-DEPENDS="curl expat flam3 ffmpeg mplayer libglade gtk2"
 BUILD_DEPENDS="curl-dev expat-dev ffmpeg-dev libglade-dev gtk2-dev flam3-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i	-e 's/CODEC_TYPE_VIDEO/AVMEDIA_TYPE_VIDEO/' \
+compile_rules() {
+	sed \
+		-e 's/CODEC_TYPE_VIDEO/AVMEDIA_TYPE_VIDEO/' \
 		-e 's/guess_format/av_guess_format/' \
 		-e 's/PKT_FLAG_KEY/AV_PKT_FLAG_KEY/' \
 		-e '/stream_copy/d' -e '/av_set_parameters/d' \
@@ -29,24 +28,26 @@ compile_rules()
 		-e 's/av_close_input_file(/avformat_close_input(\&/' \
 		-e 's/av_find_stream_info(ictx/avformat_find_stream_info(ictx,NULL/' \
 		-e '/av_destruct_packet/d' \
-			electricsheep.c
-	mkdir -p $DESTDIR/usr/share/gconf/defaults
-	sed -i	-e '/update-gconf-defaults/d' \
+		-i electricsheep.c
+	mkdir -p $install/usr/share/gconf/defaults
+	sed \
+		-e '/update-gconf-defaults/d' \
 		-e 's|/usr/share/gconf/defaults|$(DESTDIR)&|' \
 		-e '/GNOME_SCREENSAVER/d' \
-			Makefile*
+		-i Makefile*
+
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS && make DESTDIR=$DESTDIR install
+	make $MAKEFLAGS &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs/
 	rm -r $fs/usr/share/man
 	rm $fs/usr/share/electricsheep/electricsheep-wait.avi
+	DEPENDS="curl expat flam3 ffmpeg mplayer libglade gtk2"
 }

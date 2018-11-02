@@ -6,25 +6,23 @@ CATEGORY="utilities"
 SHORT_DESC="Cross-platform GUI for chmlib"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://xchm.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://xchm.sourceforge.net"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="wxWidgets28 chmlib xorg-libXdamage xorg-libXxf86vm"
 BUILD_DEPENDS="wxWidgets28-dev chmlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/locale
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
 	cp -a $install/usr/share/pixmaps $fs/usr/share
+	DEPENDS="wxWidgets28 chmlib xorg-libXdamage xorg-libXxf86vm"
 }

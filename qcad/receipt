@@ -3,33 +3,28 @@
 PACKAGE="qcad"
 VERSION="3.7.5"
 CATEGORY="network"
-SHORT_DESC="The Open Source CAD System For Everyone."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="The Open Source CAD System For Everyone"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="${PACKAGE}-${VERSION}-linux-x86_32.tar.gz"
-WEB_SITE="http://www.qcad.org"
-WGET_URL="http://www.qcad.org/archives/qcad/${TARBALL}"
-HOST_ARCH="i486 x86_64"
+WEB_SITE="http://www.qcad.org/"
 
-DEPENDS="libQtWebkit libQtGui libQtDesigner libQtXml libQtDeclarative \
-libQtCore libQtScript libQtNetwork libQtClucene libQtOpenGL libQtDBus \
-libQtScriptTools libQtHelp libQtSvg libQtSql libQtTest libQtMultimedia"
+TARBALL="$PACKAGE-$VERSION-linux-x86_32.tar.gz"
+WGET_URL="http://www.qcad.org/archives/qcad/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+
+compile_rules() {
 	mkdir -p \
-		${install}/usr/bin \
-		${install}/usr/lib/${PACKAGE} \
-		${install}/usr/share/pixmaps
-	cp -a ${src}/* ${install}/usr/lib/${PACKAGE}
+		$install/usr/bin \
+		$install/usr/lib/$PACKAGE \
+		$install/usr/share/pixmaps
+	cp -a $src/* $install/usr/lib/$PACKAGE
 	# /usr/bin/qcad + pixmap
-	install -m 0755 ${stuff}/qcad ${install}/usr/bin/qcad
+	install -m 0755 $stuff/qcad $install/usr/bin/qcad
 	ln -s ../../lib/qcad/qcad_icon.png \
-		${install}/usr/share/pixmaps/${PACKAGE}.png
+		$install/usr/share/pixmaps/$PACKAGE.png
 	# We use our packed deps
 	echo "Cleaning installed files..."
-	cd ${install}/usr/lib/${PACKAGE}
+	cd $install/usr/lib/$PACKAGE
 	rm qcad \
 		libQtWebKit.* libQtGui.* libQtDesigner* libQtXml* \
 		libQtDeclarative.* libQtCore.* libQtScript.* libQtNetwork.* \
@@ -38,20 +33,20 @@ compile_rules()
 	rm -rf examples/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p ${fs} && cp -a ${install}/* ${fs}
+genpkg_rules() {
+	mkdir -p $fs
+	cp -a $install/* $fs
 
 	# exclude from files.list (for tazpkg-find-depends)
 	# not removed: exactly this version required ($fs/usr/lib/qcad/libfreetype.readme)
-        cd $fs/usr/lib/qcad
+	cd $fs/usr/lib/qcad
 	mv -f libfreetype.so.6 lib-freetype-.-so-.-6
+	DEPENDS="libQtWebkit libQtGui libQtDesigner libQtXml libQtDeclarative \
+	libQtCore libQtScript libQtNetwork libQtClucene libQtOpenGL libQtDBus \
+	libQtScriptTools libQtHelp libQtSvg libQtSql libQtTest libQtMultimedia"
 }
 
-post_install()
-{
-        cd "$1/usr/lib/qcad"
+post_install() {
+	cd "$1/usr/lib/qcad"
 	mv -f lib-freetype-.-so-.-6 libfreetype.so.6
 }
-

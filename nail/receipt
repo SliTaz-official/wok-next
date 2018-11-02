@@ -4,7 +4,7 @@ PACKAGE="nail"
 VERSION="12.4"
 CATEGORY="network"
 SHORT_DESC="Text mode mail user agent"
-MAINTAINER="sygne@ombres.eu"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://heirloom.sourceforge.net/mailx.html"
 
@@ -22,7 +22,11 @@ compile_rules() {
 	sed -i -e "/gssapi/d" config.h
 	sed -i -e "s/-lgssapi_krb5//g" LIBS
 
-	make install UCBINSTALL=/usr/bin/install DESTDIR=$DESTDIR PREFIX=/usr || return 1
+	make \
+		UCBINSTALL=/usr/bin/install \
+		DESTDIR=$install \
+		PREFIX=/usr \
+		install || return 1
 
 	mv $install/usr/bin/mailx $install/usr/bin/nail
 }

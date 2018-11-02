@@ -17,43 +17,72 @@ WGET_URL="$WEB_SITE/snapshot/$TARBALL"
 # Package name matched to kernel module.
 # For example, firmware-b43 contains firmware for b43 kernel module.
 f='firmware'
-SPLIT="$f-acenic $f-af9013 $f-aic94xx $f-amdgpu $f-ar5523 $f-at76c50x-usb \
-$f-ath10k_pci $f-ath3k $f-ath6kl_sdio $f-ath6kl_usb $f-ath9k_htc $f-atmel \
-$f-b43 $f-b43legacy $f-bcm203x $f-bfusb $f-bna $f-bnx2 $f-bnx2x $f-brcmfmac \
-$f-brcmsmac $f-bt3c_cs $f-btintel $f-btmrvl_sdio $f-carl9170 $f-cassini \
-$f-cpia2 $f-cx18 $f-cx231xx $f-cx23885 $f-cx24117 $f-cx25840 $f-cxgb3 $f-cxgb4 \
-$f-daqboard2000 $f-drx39xyj $f-ds3000 $f-dvb-ttpci $f-dvb-ttusb-budget \
-$f-dvb-usb-af9015 $f-dvb-usb-af9035 $f-dvb-usb-az6007 $f-dvb-usb-dib0700 \
-$f-dvb-usb-dw2102 $f-dvb-usb-ec168 $f-dvb-usb-lmedm04 $f-e100 $f-emi26 \
-$f-emi62 $f-go7007 $f-go7007-loader $f-gspca_vicam $f-i1480-dfu-usb \
-$f-i2400m-usb $f-i915 $f-io_edgeport $f-io_ti $f-ipw2100 $f-ipw2200 $f-isci \
-$f-isight_$f $f-ivtv $f-iwl3945 $f-iwl4965 $f-iwlwifi $f-jr3_pci $f-kaweth \
-$f-keyspan $f-keyspan_pda $f-lgs8gxx $f-libertas_cs $f-libertas_sdio \
-$f-libertas_tf_usb $f-m88ds3103 $f-me4000 $f-me_daq $f-mga $f-mn88472 \
-$f-mn88473 $f-mt7601u $f-mwifiex_sdio $f-mwifiex_usb $f-mwl8k $f-myri10ge \
-$f-netxen_nic $f-ni_pcidio $f-nouveau $f-orinoco $f-orinoco_usb $f-p54pci \
-$f-p54usb $f-pcnet_cs $f-prism2_usb $f-pvrusb2 $f-qat_dh895xcc $f-qed \
-$f-qlcnic $f-r128 $f-r8169 $f-r8192e_pci $f-r8192u_usb $f-r8712u $f-radeon \
-$f-rsi_sdio $f-rsi_usb $f-rt2800pci $f-rt2800usb $f-rt61pci $f-rt73usb \
-$f-rtl8188ee $f-rtl8192ce $f-rtl8192cu $f-rtl8192de $f-rtl8192ee $f-rtl8192se \
-$f-rtl8723ae $f-rtl8723be $f-rtl8821ae $f-rtl8xxxu $f-s2255drv \
-$f-saa7134-go7007 $f-serial_cs $f-si2157 $f-si2165 $f-si2168 $f-slicoss \
-$f-smc91c92_cs $f-smsmdtv $f-snd-asihpi $f-snd-cs46xx $f-snd-darla20 \
-$f-snd-darla24 $f-snd-echo3g $f-snd-emu10k1 $f-snd-gina20 $f-snd-gina24 \
-$f-snd-hda-codec-ca0132 $f-snd-hdsp $f-snd-indigo $f-snd-indigodj \
-$f-snd-indigodjx $f-snd-indigoio $f-snd-indigoiox $f-snd-korg1212 \
-$f-snd-layla20 $f-snd-layla24 $f-snd-maestro3 $f-snd-mia $f-snd-mixart \
-$f-snd-mona $f-snd-pcxhr $f-snd-riptide $f-snd-usb-6fire $f-snd-vx-lib \
-$f-snd-ymfpci $f-speedfax $f-starfire $f-tda10071 $f-tehuti $f-tg3 \
-$f-ti_usb_3410_5052 $f-tuner-xc2028 $f-typhoon $f-ueagle-atm $f-usb8xxx \
-$f-usbdux $f-usbduxfast $f-usbduxsigma $f-wcn36xx $f-wd719x $f-whiteheat \
-$f-wil6210 $f-wl1251 $f-wl12xx $f-wl18xx $f-xc4000 $f-xc5000 $f-zd1201 \
-$f-zd1211rw \
-$f-atheros $f-rt2x00 $f-rtlnic $f-rtlwifi"
+SPLIT="\
+$PACKAGE-acenic          $PACKAGE-af9013           $PACKAGE-aic94xx \
+$PACKAGE-amdgpu          $PACKAGE-ar5523           $PACKAGE-at76c50x-usb \
+$PACKAGE-ath10k_pci      $PACKAGE-ath3k            $PACKAGE-ath6kl_sdio \
+$PACKAGE-ath6kl_usb      $PACKAGE-ath9k_htc        $PACKAGE-atmel \
+$PACKAGE-b43             $PACKAGE-b43legacy        $PACKAGE-bcm203x \
+$PACKAGE-bfusb           $PACKAGE-bna              $PACKAGE-bnx2 \
+$PACKAGE-bnx2x           $PACKAGE-brcmfmac         $PACKAGE-brcmsmac \
+$PACKAGE-bt3c_cs         $PACKAGE-btintel          $PACKAGE-btmrvl_sdio \
+$PACKAGE-carl9170        $PACKAGE-cassini          $PACKAGE-cpia2 \
+$PACKAGE-cx18            $PACKAGE-cx231xx          $PACKAGE-cx23885 \
+$PACKAGE-cx24117         $PACKAGE-cx25840          $PACKAGE-cxgb3 \
+$PACKAGE-cxgb4           $PACKAGE-daqboard2000     $PACKAGE-drx39xyj \
+$PACKAGE-ds3000          $PACKAGE-dvb-ttpci        $PACKAGE-dvb-ttusb-budget \
+$PACKAGE-dvb-usb-af9015  $PACKAGE-dvb-usb-af9035   $PACKAGE-dvb-usb-az6007 \
+$PACKAGE-dvb-usb-dib0700 $PACKAGE-dvb-usb-dw2102   $PACKAGE-dvb-usb-ec168 \
+$PACKAGE-dvb-usb-lmedm04 $PACKAGE-e100             $PACKAGE-emi26 \
+$PACKAGE-emi62           $PACKAGE-go7007           $PACKAGE-go7007-loader \
+$PACKAGE-gspca_vicam     $PACKAGE-i1480-dfu-usb    $PACKAGE-i2400m-usb \
+$PACKAGE-i915            $PACKAGE-io_edgeport      $PACKAGE-io_ti \
+$PACKAGE-ipw2100         $PACKAGE-ipw2200          $PACKAGE-isci \
+$PACKAGE-isight_firmware $PACKAGE-ivtv             $PACKAGE-iwl3945 \
+$PACKAGE-iwl4965         $PACKAGE-iwlwifi          $PACKAGE-jr3_pci \
+$PACKAGE-kaweth          $PACKAGE-keyspan          $PACKAGE-keyspan_pda \
+$PACKAGE-lgs8gxx         $PACKAGE-libertas_cs      $PACKAGE-libertas_sdio \
+$PACKAGE-libertas_tf_usb $PACKAGE-m88ds3103        $PACKAGE-me4000 \
+$PACKAGE-me_daq          $PACKAGE-mga              $PACKAGE-mn88472 \
+$PACKAGE-mn88473         $PACKAGE-mt7601u          $PACKAGE-mwifiex_sdio \
+$PACKAGE-mwifiex_usb     $PACKAGE-mwl8k            $PACKAGE-myri10ge \
+$PACKAGE-netxen_nic      $PACKAGE-ni_pcidio        $PACKAGE-nouveau \
+$PACKAGE-orinoco         $PACKAGE-orinoco_usb      $PACKAGE-p54pci \
+$PACKAGE-p54usb          $PACKAGE-pcnet_cs         $PACKAGE-prism2_usb \
+$PACKAGE-pvrusb2         $PACKAGE-qat_dh895xcc     $PACKAGE-qed \
+$PACKAGE-qlcnic          $PACKAGE-r128             $PACKAGE-r8169 \
+$PACKAGE-r8192e_pci      $PACKAGE-r8192u_usb       $PACKAGE-r8712u \
+$PACKAGE-radeon          $PACKAGE-rsi_sdio         $PACKAGE-rsi_usb \
+$PACKAGE-rt2800pci       $PACKAGE-rt2800usb        $PACKAGE-rt61pci \
+$PACKAGE-rt73usb         $PACKAGE-rtl8188ee        $PACKAGE-rtl8192ce \
+$PACKAGE-rtl8192cu       $PACKAGE-rtl8192de        $PACKAGE-rtl8192ee \
+$PACKAGE-rtl8192se       $PACKAGE-rtl8723ae        $PACKAGE-rtl8723be \
+$PACKAGE-rtl8821ae       $PACKAGE-rtl8xxxu         $PACKAGE-s2255drv \
+$PACKAGE-saa7134-go7007  $PACKAGE-serial_cs        $PACKAGE-si2157 \
+$PACKAGE-si2165          $PACKAGE-si2168           $PACKAGE-slicoss \
+$PACKAGE-smc91c92_cs     $PACKAGE-smsmdtv          $PACKAGE-snd-asihpi \
+$PACKAGE-snd-cs46xx      $PACKAGE-snd-darla20      $PACKAGE-snd-darla24 \
+$PACKAGE-snd-echo3g      $PACKAGE-snd-emu10k1      $PACKAGE-snd-gina20 \
+$PACKAGE-snd-gina24      $PACKAGE-snd-hda-codec-ca0132 $PACKAGE-snd-hdsp \
+$PACKAGE-snd-indigo      $PACKAGE-snd-indigodj     $PACKAGE-snd-indigodjx \
+$PACKAGE-snd-indigoio    $PACKAGE-snd-indigoiox    $PACKAGE-snd-korg1212 \
+$PACKAGE-snd-layla20     $PACKAGE-snd-layla24      $PACKAGE-snd-maestro3 \
+$PACKAGE-snd-mia         $PACKAGE-snd-mixart       $PACKAGE-snd-mona \
+$PACKAGE-snd-pcxhr       $PACKAGE-snd-riptide      $PACKAGE-snd-usb-6fire \
+$PACKAGE-snd-vx-lib      $PACKAGE-snd-ymfpci       $PACKAGE-speedfax \
+$PACKAGE-starfire        $PACKAGE-tda10071         $PACKAGE-tehuti \
+$PACKAGE-tg3             $PACKAGE-ti_usb_3410_5052 $PACKAGE-tuner-xc2028 \
+$PACKAGE-typhoon         $PACKAGE-ueagle-atm       $PACKAGE-usb8xxx \
+$PACKAGE-usbdux          $PACKAGE-usbduxfast       $PACKAGE-usbduxsigma \
+$PACKAGE-wcn36xx         $PACKAGE-wd719x           $PACKAGE-whiteheat \
+$PACKAGE-wil6210         $PACKAGE-wl1251           $PACKAGE-wl12xx \
+$PACKAGE-wl18xx          $PACKAGE-xc4000           $PACKAGE-xc5000 \
+$PACKAGE-zd1201          $PACKAGE-zd1211rw \
+\
+$PACKAGE-atheros         $PACKAGE-rt2x00           $PACKAGE-rtlnic \
+$PACKAGE-rtlwifi"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# mainline linux kernel firmware
 	make install
 	mkdir -p $install/usr/share/licenses
@@ -109,7 +138,9 @@ EOT
 			bfusb)
 				cp *.frm $fdir;;
 			alsa-firmware)
-				./configure $CONFIGURE_ARGS && make && make install;;
+				./configure $CONFIGURE_ARGS &&
+				make &&
+				make install;;
 		esac
 
 	done <<EOT
@@ -141,7 +172,6 @@ EOT
 	find $install -type d -exec chmod 755 '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	module=${PACKAGE#*-}
 	case $module in

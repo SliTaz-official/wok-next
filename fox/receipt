@@ -4,34 +4,29 @@ PACKAGE="fox"
 VERSION="1.6.49"
 CATEGORY="x-window"
 SHORT_DESC="Fox toolkit"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.fox-toolkit.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.fox-toolkit.org/pub/$TARBALL"
 
-BUILD_DEPENDS_arm="jpeg-dev libpng16-dev tiff-dev xorg-libXft-dev"
 BUILD_DEPENDS="libpng16-dev jpeg-dev tiff-dev xorg-libXft-dev mesa-dev \
 glu-dev freetype-dev fontconfig-dev expat-dev libxml2-dev xorg-dev \
 xorg-libxshmfence-dev"
-SPLIT="adie calculator fox-dev fox-doc pathfinder shutterbug"
+SPLIT="adie calculator $PACKAGE-dev $PACKAGE-doc pathfinder shutterbug"
 
 compile_rules() {
-	case "$ARCH" in
-		arm) ARCH_ARGS="--with-opengl=no";;
-	esac
-
 	./configure \
 		--with-xft \
-		$CONFIGURE_ARGS $ARCH_ARGS &&
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 testsuite() {
-	readelf -h $install/usr/bin/adie || exit 1
+	readelf -h $install/usr/bin/adie
 }
 
 genpkg_rules() {

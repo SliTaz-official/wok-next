@@ -3,25 +3,21 @@
 PACKAGE="screenfetch"
 VERSION="3.5.0"
 CATEGORY="utilities"
-SHORT_DESC="Bash screenshot information tool."
+SHORT_DESC="Bash screenshot information tool"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/KittyKatt/screenFetch"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/KittyKatt/screenFetch"
 
-DEPENDS="bash procps xorg-xdpyinfo"
 BUILD_DEPENDS="git bzip2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $install/usr/bin
-	cp screenfetch-dev $install/usr/bin/screenfetch
+compile_rules() {
+	install -Dm755 screenfetch-dev $install/usr/bin/screenfetch
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="bash procps xorg-xdpyinfo"
 }

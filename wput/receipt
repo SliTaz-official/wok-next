@@ -4,7 +4,7 @@ PACKAGE="wput"
 VERSION="0.6.2"
 CATEGORY="network"
 SHORT_DESC="A tiny wget-like ftp-client for uploading files"
-MAINTAINER="l.lemarinel@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://wput.sourceforge.net/"
 
@@ -12,14 +12,14 @@ TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 compile_rules() {
-	sed -i "s|^prefix *=.*|prefix = $DESTDIR/usr|" Makefile.in
+	sed -i "s|^prefix *=.*|prefix = $install/usr|" Makefile.in
 	./configure \
 		--prefix=/usr \
 		--disable-g-switch \
 		--without-ssl \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

@@ -3,27 +3,24 @@
 PACKAGE="shell-fm"
 VERSION="0.8"
 CATEGORY="multimedia"
-SHORT_DESC="console based player for the streams provided by Last.FM"
-MAINTAINER="jozee@slitaz.org"
+SHORT_DESC="Console based player for the streams provided by Last.FM"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://nex.scrapping.cc/shell-fm/"
-TARBALL="$PACKAGE-$VERSION.tgz" 
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="https://github.com/jkramer/shell-fm/tarball/v$VERSION"
 
-DEPENDS="libmad libao taglib zlib"
 BUILD_DEPENDS="libmad-dev libao-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|PREFIX)/man|PREFIX)/share/man|' Makefile
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="libmad libao taglib zlib"
 }

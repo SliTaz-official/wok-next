@@ -1,30 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xsnow"
 VERSION="1.42"
 CATEGORY="misc"
-SHORT_DESC="X-windows application that will let it snow on the desktop."
+SHORT_DESC="X-windows application that will let it snow on the desktop"
 MAINTAINER="Lucas Levrel <llev@slitaz.org>"
 LICENSE="Freeware"
 WEB_SITE="http://janswaal.home.xs4all.nl/Xsnow/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="xorg-libXpm xorg-libXext"
 BUILD_DEPENDS="xorg-imake xorg-gccmakedep xorg-libX11-dev xorg-libXpm-dev \
 xorg-libXext-dev xorg-libXt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	xmkmf && make depend && make && make install
-	mkdir -p $install/usr/share/applications
-	cp -a $stuff/xsnow.desktop $install/usr/share/applications
-	cp -a $stuff/xsnow.sh $install/usr/bin
+compile_rules() {
+	xmkmf &&
+	make depend &&
+	make &&
+	make install || return 1
+
+	install -Dm644 $stuff/xsnow.desktop $install/usr/share/applications/xsnow.desktop
+	install -Dm755 $stuff/xsnow.sh      $install/usr/bin/xsnow.sh
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libXpm xorg-libXext"
 }

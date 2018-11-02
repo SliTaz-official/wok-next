@@ -4,22 +4,21 @@ PACKAGE="qemu-light"
 VERSION="2.0.2"
 CATEGORY="misc"
 SHORT_DESC="Light Qemu i386-softmmu target (without xen, vde, bluez, blobs, tls)"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.qemu.org/"
+WEB_SITE="https://www.qemu.org/"
 REPOLOGY="qemu"
 
 TARBALL="qemu-$VERSION.tar.bz2"
 WGET_URL="http://wiki.qemu.org/download/$TARBALL"
 
-BUILD_DEPENDS="gettext perl alsa-lib-dev libsdl-dev util-linux-uuid-dev python \
-glib-dev zlib-dev autoconf automake libtool bison flex"
+BUILD_DEPENDS="gettext-dev perl alsa-lib-dev libsdl-dev util-linux-uuid-dev \
+python glib-dev zlib-dev autoconf automake libtool bison flex"
 
 compile_rules() {
 	mkdir -p $DESTIDR/usr/share/qemu/ia32
 
-	[ -s $SRC/$UEFIZIP ] || wget -P $SRC \
-		http://netassist.dl.sourceforge.net/project/edk2/OVMF/$UEFIZIP
+	[ -s $SRC/$UEFIZIP ] || wget -P $SRC $SF_MIRROR/edk2/$UEFIZIP
 	unzip $SRC/$UEFIZIP OVMF.fd -d $DESTIDR/usr/share/qemu/ia32
 
 	TARGET="i386-softmmu"
@@ -42,7 +41,7 @@ compile_rules() {
 		--target-list="$TARGET" \
 		--cc=$BUILD_SYSTEM-gcc &&
 	make &&
-	make -j 1 DESTDIR=$DESTDIR install
+	make -j1 DESTDIR=$install install
 }
 
 genpkg_rules() {

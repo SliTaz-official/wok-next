@@ -4,7 +4,7 @@ PACKAGE="perl-net-smtp-ssl"
 VERSION="1.04"
 CATEGORY="perl"
 SHORT_DESC="Net::SMTP::SSL - SSL support for Net::SMTP"
-MAINTAINER="rocky@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Net-SMTP-SSL"
 REPOLOGY="perl:net-smtp-ssl"
@@ -12,20 +12,17 @@ REPOLOGY="perl:net-smtp-ssl"
 TARBALL="Net-SMTP-SSL-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
 
-DEPENDS="perl-io-socket-ssl"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-io-socket-ssl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-io-socket-ssl"
 }

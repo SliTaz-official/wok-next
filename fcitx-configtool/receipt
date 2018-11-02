@@ -6,27 +6,25 @@ CATEGORY="x-window"
 SHORT_DESC="fcitx chinese input-medthod GUI configure tool"
 MAINTAINER="lufeng369@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://fcitx-im.org/wiki/Configtool"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://download.fcitx-im.org/$PACKAGE/$TARBALL"
 
-DEPENDS="fcitx gtk2"
 BUILD_DEPENDS="fcitx libunique-dev gtk2-dev cmake intltool xorg-libXrender-dev \
 cairo-dev pango-dev fcitx-dev file"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's|<glib/.*h>|<glib.h>|' gtk/sub_config_parser.[hc] gtk/config_widget.h
-	cmake -DCMAKE_INSTALL_PREFIX=/usr
-	make && make DESTDIR=$DESTDIR install
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs/
+genpkg_rules() {
+	copy @std *.mo
+	DEPENDS="fcitx gtk2"
 }
-

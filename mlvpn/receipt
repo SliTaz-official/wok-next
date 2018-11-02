@@ -12,19 +12,16 @@ WGET_URL="https://github.com/zehome/MLVPN/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="autoconf automake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 }

@@ -13,25 +13,20 @@ WGET_URL="$WEB_SITE/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
+
 	./configure \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install || return 1
 
-	cd $src
-	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
-	mkdir -p $docdir
-	cp -a README.md docs/README* $docdir
-	cook_pick_manpages docs/reaver.1.gz
+	cook_pick_docs $src/README.md $src/docs/README*
+	cook_pick_manpages $src/docs/reaver.1.gz
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std var/
 	DEPENDS="libpcap   aircrack-ng pixiewps"
 }

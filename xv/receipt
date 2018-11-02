@@ -17,10 +17,10 @@ EXTRA_SOURCE_FILES="$PATCH1 $PATCH2"
 BUILD_DEPENDS="xorg-dev"
 
 compile_rules() {
-	for i in $PATCH1 $PATCH2 ; do
+	for i in $PATCH1 $PATCH2; do
 		[ -s $SRC/$(basename $i) ] || wget -P $SRC $i
 	done
-	cd .. ; tar xzf $SRC/$(basename $PATCH1) ; cd $src
+	cd ..; tar xzf $SRC/$(basename $PATCH1); cd $src
 	#patch -p0 < $SRC/$(basename $PATCH2)
 	sed -i 's/.*stdio.*/&\n#include <stdlib.h>/' xcmap.c bggen.c
 	sed -i 's/ gets *(\(.*\))/ fgets(\1,sizeof(\1)-1,stdin)/' vdcomp.c

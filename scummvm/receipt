@@ -5,7 +5,7 @@ VERSION="1.6.0"
 CATEGORY="games"
 SHORT_DESC="A 'virtual machine' for several classic graphical point-and-click \
 adventure games"
-MAINTAINER="admin@trixarian.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.scummvm.org/"
 
@@ -14,7 +14,6 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="alsa-lib-dev libmad-dev libmpeg2-dev libogg-dev libsdl-dev \
 libvorbis-dev flac-dev zlib-dev"
-CROSS="bug: Doesn't support --build."
 
 compile_rules() {
 	./configure \
@@ -25,10 +24,11 @@ compile_rules() {
 		--with-flac-prefix=/usr \
 		--disable-fluidsynth \
 		--host=$HOST_SYSTEM &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
-	mkdir -p $DESTDIR/usr/share/applications
-	cp -a dists/scummvm.desktop $DESTDIR/usr/share/applications
+	mkdir -p $install/usr/share/applications
+	cp -a dists/scummvm.desktop $install/usr/share/applications
 }
 
 genpkg_rules() {

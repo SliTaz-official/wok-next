@@ -1,35 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="retawq"
 VERSION="0.2.6c"
 CATEGORY="network"
 SHORT_DESC="Multi-threaded web browser for text terminals"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://retawq.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# We have no locale support on ARM actually
-	case "$ARCH" in
-		arm)  opts="" ;;
-		i?86) opts="--enable-i18n" ;;
-	esac
-
+compile_rules() {
 	./configure \
 		--enable-local-cgi \
 		--path-prefix=/usr \
 		--path-doc=/usr/share/doc/retawq \
 		--path-man=/usr/share/man \
-		$opts &&
-	make && make install
+		--enable-i18n &&
+	make &&
+	make install || return 1
 
 	mkdir -p $install/usr/share/applications $install/etc
 	cp $stuff/retawq.desktop $install/usr/share/applications
@@ -37,13 +29,12 @@ compile_rules()
 }
 
 # The base web browser for ARM, so check
-testsuite()
-{
+testsuite() {
 	readelf -h $src/retawq
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy bin/ skel/
+	DEPENDS="ncurses"
+	TAGS="web-browser"
 }

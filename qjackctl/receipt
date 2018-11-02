@@ -6,32 +6,26 @@ CATEGORY="multimedia"
 SHORT_DESC="Application to Control Jack"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://qjackctl.sourceforge.net"
+WEB_SITE="http://qjackctl.sourceforge.net/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://nchc.dl.sourceforge.net/sourceforge/qjackctl/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="alsa-lib bzlib expat fontconfig freetype gcc-lib-base glib \
-glibc-base jack libffi libpng16 libQtCore libQtDBus \
-libQtGui libQtXml xorg-libxcb util-linux-uuid xorg-libICE xorg-libSM \
-xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
-BUILD_DEPENDS="qmake Qt4-dev jack \
-jack-dev xorg-xorgproto xorg-libX11-dev"
-TAGS="audio sound"
+BUILD_DEPENDS="qmake Qt4-dev jack-dev xorg-xorgproto xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	#sed -i 's|^LIBS.*|& -Wl,--copy-dt-needed-entries -lX11|' qjackctl.pro.in
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
 	#rm -rf $fs/usr/share/man
+	DEPENDS="alsa-lib bzlib expat fontconfig freetype gcc-lib-base glib \
+	glibc-base jack libffi libpng16 libQtCore libQtDBus \
+	libQtGui libQtXml xorg-libxcb util-linux-uuid xorg-libICE xorg-libSM \
+	xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXrender zlib"
+	TAGS="audio sound"
 }
-

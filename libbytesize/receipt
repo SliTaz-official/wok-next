@@ -12,8 +12,8 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libbytesize.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/storaged-project/libbytesize/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="gettext gmp-dev mpfr-dev pcre-dev"
-SPLIT="libbytesize-python libbytesize libbytesize-dev"
+BUILD_DEPENDS="gettext-dev gmp-dev mpfr-dev pcre-dev"
+SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -24,7 +24,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libbytesize-python)
+		*-python)
 			copy *.py
 			DEPENDS="libbytesize python"
 			CAT="libs|python bindings"

@@ -3,7 +3,7 @@
 PACKAGE="eaccelerator"
 VERSION="0.9.6.1"
 CATEGORY="system-tools"
-SHORT_DESC="PHP accelerator, optimizer, and dynamic content cache."
+SHORT_DESC="PHP accelerator, optimizer, and dynamic content cache"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://eaccelerator.net/"
@@ -11,15 +11,10 @@ REPOLOGY="php:eaccelerator"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://bart.eaccelerator.net/source/$VERSION/$TARBALL"
-TAGS="php"
 
-DEPENDS="php m4"
 BUILD_DEPENDS="php-dev sed coreutils-conditions"	# gawk re2c
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	export PHP_PREFIX="/usr"
 	$PHP_PREFIX/bin/phpize
 	./configure --enable-eaccelerator=shared \
@@ -27,20 +22,18 @@ compile_rules()
 		--prefix=/usr --infodir=/usr/share/info \
 		--mandir=/usr/share/man $CONFIGURE_ARGS &&
 	make &&
-	make INSTALL_ROOT=$DESTDIR install
+	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/tmp/eaccelerator $fs/usr/share/php
 	cp $(find $install | grep eaccelerator.so) $fs/usr/share/php/
 	chmod 0777 $fs/tmp/eaccelerator
+	DEPENDS="php m4"
+	TAGS="php"
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install() {
 	grep -q ^extension=msql.so "$1/etc/php.ini" || \
 	    sed -e 's|;.*extension=msql.so|;   extension=msql.so\nextension=eaccelerator.so\neaccelerator.shm_size="48"\neaccelerator.cache_dir="/tmp/eaccelerator"\neaccelerator.enable="1"\neaccelerator.optimizer="1"\neaccelerator.check_mtime="1"\neaccelerator.debug="0"\neaccelerator.filter=""\neaccelerator.shm_max="0"\neaccelerator.shm_ttl="0"\neaccelerator.shm_prune_period="0"\neaccelerator.shm_only="0"\neaccelerator.compress="1"\neaccelerator.compress_level="9"|' -i "$1/etc/php.ini"
 
@@ -55,9 +48,7 @@ lighttpd lighttpd.pid
 EOT
 }
 
-# Pre and post remove commands for Tazpkg.
-pre_remove()
-{
+pre_remove() {
 	sed -i '/.*eaccelerator.*/d' /etc/php.ini
 
 	# Start Web server.

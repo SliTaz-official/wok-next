@@ -12,19 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/yad-dialog/$TARBALL"
 
 BUILD_DEPENDS="patch gtk2-dev gtk3-dev webkitgtk-dev intltool"
-SPLIT="yad-html:html yad-gtk3:gtk3"
+SPLIT="$PACKAGE-html:html $PACKAGE-gtk3:gtk3"
 
 compile_rules() {
 	case $SET in
-		'')   Gtk=gtk2; Html=disable;;
-		html) Gtk=gtk2; Html=enable ;;
-		gtk3) Gtk=gtk3; Html=disable;;
+		'')   SET_ARGS='--with-gtk=gtk2 --disable-html';;
+		html) SET_ARGS='--with-gtk=gtk2 --enable-html';;
+		gtk3) SET_ARGS='--with-gtk=gtk3 --disable-html';;
 	esac
 
 	./configure \
 		--enable-icon-browser \
-		--with-gtk=$Gtk \
-		--$Html-html \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install

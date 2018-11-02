@@ -3,26 +3,23 @@
 PACKAGE="slitaz-tools-boxes"
 VERSION="1028"
 CATEGORY="system-tools"
-SHORT_DESC="All SliTaz GTK/Yad boxes to command line tools."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="All SliTaz GTK/Yad boxes to command line tools"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
-#CONFIG_FILES="/etc/wireless"
 
 TARBALL="slitaz-tools-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-tools/archive/$VERSION.tar.bz2"
 
-DEPENDS="slitaz-tools gettext-base yad"
-BUILD_DEPENDS="tzdata gettext"
-SIBLINGS="slitaz-tools tazdrop"
+BUILD_DEPENDS="tzdata gettext-dev"
 
+SIBLINGS="slitaz-tools tazdrop"
 COOKOPTS="!menus"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make && make DESTDIR=$DESTDIR install-boxes
+compile_rules() {
+	make &&
+	make DESTDIR=$install install-boxes
 
 	# make zone-mini.tab for timezone selector
 	TAB=$WOK/tzdata/install/usr/share/zoneinfo/zone.tab
@@ -31,7 +28,7 @@ compile_rules()
 	ZONES="$(cat $TAB | sed '/#/ d' | cut -d'	' -f1,3 | sort -u)"
 	for COUNTRY in $(echo "$ZONES" | cut -d'	' -f1 | sort -u); do
 		echo -ne "$COUNTRY\t" >> $OUT
-		for LOC in $(echo "$ZONES" | sed -n "/$COUNTRY/ s|.*\t\(.*\)|\1|p"); do
+		for LOC in $(echo "$ZONES" | sed -n "/$COUNTRY/ s|.*\t\(.*\)|\1|p"); do	#"
 			echo -n "${LOC##*/} " >> $OUT
 		done
 		echo >> $OUT
@@ -45,17 +42,11 @@ compile_rules()
 		$install/usr/share/zoneinfo/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/* $fs
-	# No CD-ROM on embedded devices
-	case "$ARCH" in
-		arm*) 
-			rm -f $fs/usr/bin/burn-box 
-			rm -f $fs/usr/share/applications/burn-*.desktop ;;
-	esac
 	chmod 0644 $fs/usr/share/locale/*/*/*.mo
 	chown -R root.root $fs
+	DEPENDS="slitaz-tools gettext-base yad"
+	#CONFIG_FILES="/etc/wireless"
 }

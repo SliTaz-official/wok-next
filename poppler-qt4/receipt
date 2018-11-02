@@ -4,7 +4,7 @@ PACKAGE="poppler-qt4"
 VERSION="0.51.0"
 CATEGORY="office"
 SHORT_DESC="Poppler compiled with Qt4 library"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://poppler.freedesktop.org/"
 REPOLOGY="poppler"
@@ -15,13 +15,11 @@ WGET_URL="http://poppler.freedesktop.org/$TARBALL"
 BUILD_DEPENDS="xorg-libXdamage expat-dev jpeg-dev tiff-dev \
 freetype-dev fontconfig-dev glib-dev lcms-dev zlib-dev cairo-dev \
 automake bzip2-dev libpng16-dev libtool Qt4-dev libxml2-dev"
-SPLIT="poppler-qt4-apps poppler-qt4-dev"
+SPLIT="$PACKAGE-apps $PACKAGE-dev"
 
 # FIXME: after Qt will be available, to merge this receipt with the poppler receipt.
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	autoreconf -fi
 	./configure \
 		--enable-zlib \
@@ -29,12 +27,11 @@ compile_rules()
 		--enable-poppler-qt4 \
 		--disable-libopenjpeg \
 		$CONFIGURE_ARGS &&
-	make &&	make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		poppler-qt4)
 			copy /usr/lib/*qt4.so*

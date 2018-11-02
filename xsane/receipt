@@ -4,14 +4,15 @@ PACKAGE="xsane"
 VERSION="0.998"
 CATEGORY="office"
 SHORT_DESC="XSane - graphical scanning frontend"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.xsane.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.xsane.org/download/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev sane-backends-dev lcms-dev eudev"
+BUILD_DEPENDS="gtk2-dev sane-backends-dev lcms-dev eudev tiff-dev \
+libjpeg-turbo-dev"
 
 compile_rules() {
 	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/xsane-save.c
@@ -22,7 +23,7 @@ compile_rules() {
 		--disable-gimp \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

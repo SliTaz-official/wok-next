@@ -14,7 +14,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.unixodbc.org/pub/unixODBC/$TARBALL"
 
 BUILD_DEPENDS="readline-dev"
-SPLIT="libunixODBC unixODBC unixODBC-dev"
+SPLIT="libunixODBC $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -23,7 +23,7 @@ compile_rules() {
 	fix libtool &&
 	make $MAKEFLAGS &&
 	mkdir -p $install/etc/unixODBC/ &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	find doc -name "Makefile*" -delete
 	find doc -type f -exec chmod 644 '{}' \;

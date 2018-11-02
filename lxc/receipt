@@ -6,13 +6,13 @@ CATEGORY="system-tools"
 SHORT_DESC="Userspace control package for Linux Containers"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://linuxcontainers.org/"
+WEB_SITE="https://linuxcontainers.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
 BUILD_DEPENDS="libcap-dev util-linux-getopt"
-SPLIT="lxc-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -20,7 +20,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	sed \
 		-e 's/^is_set(/zgrep() { zcat | grep "$@"; }\n\n&/' \

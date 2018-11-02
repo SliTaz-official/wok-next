@@ -4,7 +4,7 @@ PACKAGE="zlib"
 VERSION="1.2.11"
 CATEGORY="base-system"
 SHORT_DESC="Compression library"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="zlib/libpng"
 WEB_SITE="http://www.zlib.net/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/zlib.html"
@@ -12,12 +12,13 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/zlib.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
 
-SPLIT="zlib-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
 		--prefix=/usr &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libz.so.* $install/lib

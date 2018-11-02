@@ -4,7 +4,7 @@ PACKAGE="links"
 VERSION="2.14"
 CATEGORY="network"
 SHORT_DESC="Light and fast web browser"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://links.twibright.com/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/links.html"
@@ -14,17 +14,7 @@ WGET_URL="http://links.twibright.com/download/$TARBALL"
 
 BUILD_DEPENDS="gpm-dev openssl-dev zlib-dev bzip2-dev xz-dev xorg-libX11-dev \
 xorg-libXt-dev libpng16-dev libjpeg-turbo-dev tiff-dev directfb-dev"
-SPLIT="links-dfb:dfb links-cli:cli"
-
-case "$ARCH" in
-	arm*)
-		VERSION="2.7"
-		TARBALL="$PACKAGE-$VERSION.tar.gz"
-		WGET_URL="http://links.twibright.com/download/$TARBALL";;
-esac
-case "$SLITAZ_ARCH" in
-	arm*) VERSION="2.7";;
-esac
+SPLIT="$PACKAGE-dfb:dfb $PACKAGE-cli:cli"
 
 compile_rules() {
 	case $SET in
@@ -37,7 +27,7 @@ compile_rules() {
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	install -Dm644 $src/graphics/links.xpm $install/usr/share/pixmaps/links.xpm
 	install -Dm644 $stuff/links.html       $install/usr/share/webhome/links.html

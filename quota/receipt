@@ -11,16 +11,16 @@ WEB_SITE="https://sourceforge.net/projects/linuxquota/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/linuxquota/$TARBALL"
 
-BUILD_DEPENDS="gettext libcomerr-dev e2fsprogs-dev dbus-dev libnl-dev \
+BUILD_DEPENDS="gettext-dev libcomerr-dev e2fsprogs-dev dbus-dev libnl-dev \
 rpcsvc-proto libtirpc-dev"
-SPLIT="quota-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export CPPFLAGS="$CPPFLAGS -I/usr/include/tirpc/"
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make ROOTDIR=$DESTDIR install
+	make ROOTDIR=$install install
 }
 
 genpkg_rules() {

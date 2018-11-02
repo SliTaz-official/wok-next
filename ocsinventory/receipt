@@ -3,87 +3,85 @@
 PACKAGE="ocsinventory"
 VERSION="2.3.1"
 CATEGORY="meta"
-SHORT_DESC="Automated inventory and deployement system."
+SHORT_DESC="Automated inventory and deployement system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.ocsinventory-ng.org/en/"
+
 SOURCE="OCSNG_UNIX_SERVER"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.ocsinventory-ng.org/"
 WGET_URL="https://github.com/OCSInventory-NG/OCSInventory-Server/archive/$VERSION.tar.gz"
-TAGS="system administration"
 
 BUILD_DEPENDS="perl perl-dbd-mysql perl-apache-dbi perl-net-ip perl-xml-simple \
 wget"
-SPLIT="ocsinventory ocsinventory-server" # ocsreports
+SPLIT="$PACKAGE-server" # ocsreports
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/Apache
 	perl Makefile.PL &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	ocsinventory)
-		DEPENDS="ocsinventory-server ocsinventory-agent ocsreports"
-		mkdir $fs/usr
-		;;
-	ocsinventory-server)
-		CAT="network|Iventory and package deployment system"
-		DEPENDS="apache php-apache mysql perl perl-xml-simple \
+		ocsinventory)
+			DEPENDS="ocsinventory-server ocsinventory-agent ocsreports"
+			mkdir $fs/usr
+			TAGS="system administration"
+			;;
+		*-server)
+			CAT="network|Iventory and package deployment system"
+			DEPENDS="apache php-apache mysql perl perl-xml-simple \
 			perl-compress-raw-zlib perl-dbi perl-dbd-mysql \
 			perl-apache-dbi perl-net-ip perl-soap-lite \
 			perl-xml-parser perl-xml-sax-writer apache-mod-perl"
-		mkdir -p $fs/usr
-		cp -a $install/usr/lib $fs/usr
-	
-		install -o www -g www -m 0775  -d $fs/var/log/ocsinventory-server
-		install -o root -g www -m 0775 -d $fs/var/lib/ocsinventory-server/ipd
-		install -o root -g www -m 0775 -d $fs/var/lib/ocsinventory-server/download
-	
-		mkdir -p $fs/etc/logrotate.d
-		cp -f $src/etc/logrotate.d/ocsinventory-server \
-			$fs/etc/logrotate.d/ocsinventory-server
-		sed -i "s#PATH_TO_LOG_DIRECTORY#/var/log/ocsinventory-server#g" \
-			$fs/etc/logrotate.d/ocsinventory-server 
-	
-		mkdir -p $fs/etc/apache/conf.d
-		cp $src/etc/ocsinventory/ocsinventory-server.conf \
-			$fs/etc/apache/conf.d/ocsinventory-server.conf
-		sed -i  -e "s#DATABASE_SERVER#localhost#g" \
-			-e "s#DATABASE_PORT#3306#g" \
-			-e "s#VERSION_MP#2#g" \
-			-e "s#PATH_TO_LOG_DIRECTORY#/var/log/ocsinventory-server#g" \
-			$fs/etc/apache/conf.d/ocsinventory-server.conf
+			mkdir -p $fs/usr
+			cp -a $install/usr/lib $fs/usr
 
-		if ! grep -q mod_perl.so $fs/etc/apache/conf.d/ocsinventory-server.conf;
-		then
-			cat > $fs/etc/apache/conf.d/ocsinventory-server.tmp <<EOT
+			install -o www -g www -m 0775  -d $fs/var/log/ocsinventory-server
+			install -o root -g www -m 0775 -d $fs/var/lib/ocsinventory-server/ipd
+			install -o root -g www -m 0775 -d $fs/var/lib/ocsinventory-server/download
+
+			mkdir -p $fs/etc/logrotate.d
+			cp -f $src/etc/logrotate.d/ocsinventory-server \
+				$fs/etc/logrotate.d/ocsinventory-server
+			sed -i "s#PATH_TO_LOG_DIRECTORY#/var/log/ocsinventory-server#g" \
+				$fs/etc/logrotate.d/ocsinventory-server 
+
+			mkdir -p $fs/etc/apache/conf.d
+			cp $src/etc/ocsinventory/ocsinventory-server.conf \
+				$fs/etc/apache/conf.d/ocsinventory-server.conf
+			sed 
+				-e "s#DATABASE_SERVER#localhost#g" \
+				-e "s#DATABASE_PORT#3306#g" \
+				-e "s#VERSION_MP#2#g" \
+				-e "s#PATH_TO_LOG_DIRECTORY#/var/log/ocsinventory-server#g" \
+				-i $fs/etc/apache/conf.d/ocsinventory-server.conf
+
+			if ! grep -q mod_perl.so $fs/etc/apache/conf.d/ocsinventory-server.conf; then
+				cat > $fs/etc/apache/conf.d/ocsinventory-server.tmp <<EOT
 <IfModule !mod_perl.c>
    loadmodule perl_module share/apache/modules/mod_perl.so
 </IfModule>
 
 $(cat $fs/etc/apache/conf.d/ocsinventory-server.conf)
 EOT
-			mv $fs/etc/apache/conf.d/ocsinventory-server.tmp \
-				$fs/etc/apache/conf.d/ocsinventory-server
-			[ -f $fs/etc/apache/conf.d/ocsinventory-server.conf ] && \
-				rm -f $fs/etc/apache/conf.d/ocsinventory-server.conf
-		fi
-		;;
-	ocsreports)
-		CAT="network|Inventory and package deployement system"
-		TAGS="system administration"
-		DEPENDS="php-apache php-mysql mysql"
-		mkdir -p $fs/usr/share \
-			$fs/etc/ocsreports
-		
-		cp -a $src/${PACKAGE} $fs/usr/share/
-		cat > $fs/etc/ocsreports/dbconfig.inc.php <<EOT
+				mv $fs/etc/apache/conf.d/ocsinventory-server.tmp \
+					$fs/etc/apache/conf.d/ocsinventory-server
+				[ -f $fs/etc/apache/conf.d/ocsinventory-server.conf ] &&
+					rm -f $fs/etc/apache/conf.d/ocsinventory-server.conf
+			fi
+			;;
+		ocsreports)
+			CAT="network|Inventory and package deployement system"
+			TAGS="system administration"
+			DEPENDS="php-apache php-mysql mysql"
+			mkdir -p $fs/usr/share \
+				$fs/etc/ocsreports
+
+			cp -a $src/$PACKAGE $fs/usr/share/
+			cat > $fs/etc/ocsreports/dbconfig.inc.php <<EOT
 <?php 
 define("DB_NAME", "ocsweb");
 define("SERVER_READ","localhost");
@@ -93,20 +91,21 @@ define("PSWD_BASE","ocs");
 ?>
 EOT
 
-		install -o root -g www -m 0755 $src/binutils/*.pl \
-			$fs/usr/share/ocsreports/
-		
-		rm -f $fs/usr/share/${PACKAGE}/dbconfig.inc.php
-		cd $fs/usr/share/${PACKAGE} ; ln -s /etc/ocsreports/dbconfig.inc.php ; cd -
+			install -o root -g www -m 0755 $src/binutils/*.pl \
+				$fs/usr/share/ocsreports/
 
-		# Remove doc file.
-		rm -f  $fs/usr/share/ocsreports/files/*.pdf
-		;;
+			rm -f $fs/usr/share/$PACKAGE/dbconfig.inc.php
+			cd $fs/usr/share/$PACKAGE
+			ln -s /etc/ocsreports/dbconfig.inc.php
+			cd -
+
+			# Remove doc file.
+			rm -f  $fs/usr/share/ocsreports/files/*.pdf
+			;;
 	esac
 }
 
-post_install_ocsinventory_server()
-{
+post_install_ocsinventory_server() {
 	if [ -z "$1" ]; then
 		echo "Now you can connect to http://$(hostname)/ocsreports"
 		# Restart Apache if is running
@@ -114,8 +113,7 @@ post_install_ocsinventory_server()
 	fi
 }
 
-post_install_ocsreports()
-{
+post_install_ocsreports() {
 	# Configure apache server
 	if [ -f "$1/etc/apache/httpd.conf" ]; then
 		if [ ! -f "$1/etc/apache/conf.d/$PACKAGE" ]; then
@@ -133,7 +131,7 @@ post_install_ocsreports()
 EOT
 			if [ -z "$1" ]; then
 				# Start Web server.
-				test -f /var/run/apache/httpd.pid && \
+				test -f /var/run/apache/httpd.pid &&
 					( kill -0 $(cat /var/run/apache/httpd.pid) && /etc/init.d/apache restart )
 			fi
 		fi
@@ -143,46 +141,50 @@ EOT
 	if [ -z "$1" ]; then
 		if ( ! mysqladmin -s ping > /dev/null ); then
 			echo "Starting MySQL server"
-			( /etc/init.d/mysql start ; status  ) || exit 
+			( /etc/init.d/mysql start; status ) || exit
 			sleep 4 #let the mysql daemon start
 		fi
+
 		if ( ! mysql -Be 'show databases' | grep -q ocsweb ); then
-			echo -n "Create $PACKAGE database and schema"
-			mysql -Be "create database ocsweb CHARACTER SET utf8 COLLATE utf8_bin" ; status
+			action "Create $PACKAGE database and schema"
+			mysql -Be "create database ocsweb CHARACTER SET utf8 COLLATE utf8_bin"
+			status
+
 			mysql -s -u root ocsweb < /usr/share/$PACKAGE/files/ocsbase_new.sql > /dev/null 2>&1
+
 			# We suppose that ocs user does not exist.
 			# It may be false.
-			echo  -n "Create user ocs with password ocs"
-			mysql -Be "grant all privileges on ocsweb.* to 'ocs'@'localhost' 
-				identified by 'ocs'" ; status
+			action "Create user ocs with password ocs"
+			mysql -Be "grant all privileges on ocsweb.* to 'ocs'@'localhost'
+				identified by 'ocs'"
+			status
 		fi
-			
 	fi
 	true
 }
 
-post_remove_ocsreports()
-{
+post_remove_ocsreports() {
+	[ -z "$1" ] || return
 
-	if [ -z "$1" ]; then
-		echo -n "Would you like to remove data and database files.(y/n) "
-		read answer
+	echo -n "Would you like to remove data and database files.(y/n) "
+	read answer
 
-		case $answer in 
+	case $answer in
 		y|Y)
-			echo -n "Removing data directories..."
+			acrion "Removing data directories..."
 			rm -rf /usr/share/ocsreports
+			status
+
 			if ( mysql -Be 'show databases' | grep -q ocsweb ); then
-				echo -n "Deleting ocsreports database;"
-				mysql -u root -Be "drop database ocsweb;" ; status
-				echo  -n "Delete user ocs"
-				mysql -u root -Be "delete from mysql.db where user=ocs;" ; status
+				action "Deleting ocsreports database"
+				mysql -u root -Be "drop database ocsweb;"
+				status
+
+				action "Delete user ocs"
+				mysql -u root -Be "delete from mysql.db where user=ocs;"
+				status
 			fi
-			unset $answer
 			;;
-		*)
-			;;
-		esac
-	fi
-	
+	esac
+	unset $answer
 }

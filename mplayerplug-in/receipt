@@ -4,14 +4,14 @@ PACKAGE="mplayerplug-in"
 VERSION="3.55"
 CATEGORY="multimedia"
 SHORT_DESC="A browser plugin that uses mplayer to play videos from websites"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://mplayerplug-in.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="mplayer gtk2-dev xorg-libXpm-dev firefox-dev libIDL gettext \
+BUILD_DEPENDS="mplayer gtk2-dev xorg-libXpm-dev firefox-dev libIDL gettext-dev \
 nspr-dev"
 
 compile_rules() {
@@ -37,7 +37,7 @@ compile_rules() {
 		MOZILLA_HOME="/usr/lib/firefox-$FIREFOX_VER" \
 		GECKO_IDLDIR="/usr/share/idl/firefox-$FIREFOX_VER" &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -53,7 +53,7 @@ genpkg_rules() {
 post_install() {
 	FIREFOX_VER=$(. "$1/var/lib/tazpkg/installed/firefox/receipt"; echo $VERSION)
 	cd "$1/"
-	for i in usr/lib/mozilla/plugins/$PACKAGE*.so ; do
+	for i in usr/lib/mozilla/plugins/$PACKAGE*.so; do
 		ln -s "/$i" "$1/usr/lib/firefox-$FIREFOX_VER/plugins"
 	done
 }

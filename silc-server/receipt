@@ -6,24 +6,24 @@ CATEGORY="network"
 SHORT_DESC="Secure Internet Live Conferencing server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.silcnet.org"
+WEB_SITE="http://www.silcnet.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/download/server/sources/$TARBALL"
 
 compile_rules() {
 	mkdir -p \
-		$DESTDIR/etc \
-		$DESTDIR/usr/share/man/man5 \
-		$DESTDIR/usr/share/man/man8
-	touch $DESTDIR/etc/silcd.pub
+		$install/etc \
+		$install/usr/share/man/man5 \
+		$install/usr/share/man/man8
+	touch $install/etc/silcd.pub
 
 	./configure \
 		--with-logsdir=/var/log/silc \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

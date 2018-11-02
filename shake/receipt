@@ -3,30 +3,27 @@
 PACKAGE="shake"
 VERSION="0.999"
 CATEGORY="misc"
-SHORT_DESC="A defragmentation tool."
+SHORT_DESC="A defragmentation tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://vleu.net/shake/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.savannah.nongnu.org/releases/$PACKAGE/$TARBALL"
-SUGGESTED="defrag"
 
 BUILD_DEPENDS="cmake attr attr-dev help2man"
-DEPENDS="attr"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|.*fcntl.*|#include <sys/types.h>\n&|' judge.h
 	cd $src/build
 	cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.   
-genpkg_rules()                                      
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp -a $install/usr/bin/*  $fs/usr/bin
+	DEPENDS="attr"
+	SUGGESTED="defrag"
 }

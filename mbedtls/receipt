@@ -11,12 +11,13 @@ WEB_SITE="https://tls.mbed.org/"
 TARBALL="$PACKAGE-$VERSION-gpl.tgz"
 WGET_URL="https://tls.mbed.org/download/$TARBALL"
 
-SPLIT="mbedtls-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	sed -i -e 's|//\(#define MBEDTLS_THREADING_C\)|\1|' \
-	       -e 's|//\(#define MBEDTLS_THREADING_PTHREAD\)|\1|' \
-	       include/mbedtls/config.h
+	sed \
+		-e 's|//\(#define MBEDTLS_THREADING_C\)|\1|' \
+		-e 's|//\(#define MBEDTLS_THREADING_PTHREAD\)|\1|' \
+		-i include/mbedtls/config.h
 	sed -i 's|<time.h>|"platform.h"|' include/mbedtls/ssl.h
 
 	LDFLAGS="$LDFLAGS -I../include " \

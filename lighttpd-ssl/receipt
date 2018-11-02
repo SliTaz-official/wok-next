@@ -4,7 +4,7 @@ PACKAGE="lighttpd-ssl"
 VERSION="1.4.35"
 CATEGORY="network"
 SHORT_DESC="Fast and light HTTP Web server with SSL support"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.lighttpd.net/"
 REPOLOGY="lighttpd"
@@ -37,7 +37,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 # On SliTaz Lighttpd runs as user/group : www/www or 80/80.
@@ -49,8 +49,8 @@ genpkg_rules() {
 	# Modules.
 	mkdir -p $fs/usr/lib/lighttpd
 	for module in $BASE_MODULES; do
-		action 'Copying : mod_${module}.so'
-		cp $install/usr/lib/lighttpd/mod_${module}.so $fs/usr/lib/lighttpd
+		action 'Copying : mod_$module.so'
+		cp $install/usr/lib/lighttpd/mod_$module.so $fs/usr/lib/lighttpd
 		status
 	done
 
@@ -88,7 +88,8 @@ testsuite() {
 
 # We stop the server by default in case of upgarde.
 pre_install() {
-	[ -z "$1" ] && for i in httpd lighttpd ngnix apache cherokee $PACKAGE ; do
+	[ -z "$1" ] &&
+	for i in httpd lighttpd ngnix apache cherokee lighttpd-ssl; do
 		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
 	done
 	# Backup config file.
@@ -97,14 +98,13 @@ pre_install() {
 	fi
 }
 
-post_install()
-{
+post_install() {
 	if [ ! -f "$1/etc/ssl/lighttpd/lighttpd.pem" ]; then
 		openssl req -new -x509 \
 			-keyout "$1/etc/ssl/lighttpd/lighttpd.pem" \
 			-out "$1/etc/ssl/lighttpd/lighttpd.pem" \
 			-days 3650 -nodes <<EOT
-$(. "$1/etc/locale.conf" ; echo ${LANG#*_})
+$(. "$1/etc/locale.conf"; echo ${LANG#*_})
 $(cat "$1/etc/TZ")
 
 $(cat "$1/etc/hostname")

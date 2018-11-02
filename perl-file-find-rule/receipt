@@ -4,7 +4,7 @@ PACKAGE="perl-file-find-rule"
 VERSION="0.34"
 CATEGORY="perl"
 SHORT_DESC="File::Find::Rule - Alternative interface to File::Find"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/File-Find-Rule"
 REPOLOGY="perl:file-find-rule"
@@ -12,20 +12,17 @@ REPOLOGY="perl:file-find-rule"
 TARBALL="File-Find-Rule-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/R/RC/RCLAMP/$TARBALL"
 
-DEPENDS="perl-number-compare perl-text-glob"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-number-compare perl-text-glob"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-number-compare perl-text-glob"
 }

@@ -1,11 +1,11 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-socket6"
 VERSION="0.28"
 CATEGORY="perl"
 SHORT_DESC="Socket6 - IPv6 related part of the C socket.h defines and \
 structure manipulators"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Socket6"
 REPOLOGY="perl:socket6"
@@ -13,20 +13,17 @@ REPOLOGY="perl:socket6"
 TARBALL="Socket6-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/U/UM/UMEMOTO/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

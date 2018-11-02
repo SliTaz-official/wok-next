@@ -4,9 +4,9 @@ PACKAGE="evince"
 VERSION="2.32.0"
 CATEGORY="office"
 SHORT_DESC="Document viewer for Gnome"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://projects.gnome.org/evince/"
+WEB_SITE="https://wiki.gnome.org/Apps/Evince"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
@@ -14,7 +14,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
 BUILD_DEPENDS="gnome-doc-utils docbook-xml libxml2-dev \
 gnome-icon-theme gtk2-dev intltool lcms-dev util-linux-uuid-dev \
 poppler-dev tiff-dev dbus-glib-dev xorg-dev lcms2-dev"
-SPLIT="evince-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -lICE"
@@ -34,7 +34,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
-	make -j1 DESTDIR=$DESTDIR install || return 1
+	make -j1 DESTDIR=$install install || return 1
 
 	install -Dm644 $stuff/evince.desktop $install/usr/share/applications/evince.desktop
 }

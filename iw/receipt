@@ -3,26 +3,24 @@
 PACKAGE="iw"
 VERSION="3.14"
 CATEGORY="network"
-SHORT_DESC="Wireless configuration tool."
+SHORT_DESC="Wireless configuration tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://wireless.kernel.org/en/users/Documentation/iw"
-WGET_URL="https://www.kernel.org/pub/software/network/iw/$TARBALL"
-TAGS="wireless"
+WEB_SITE="https://wireless.wiki.kernel.org/en/users/Documentation/iw"
 
-DEPENDS="libnl"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.kernel.org/pub/software/network/iw/$TARBALL"
+
 BUILD_DEPENDS="libnl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{	
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/sbin $fs/usr
+	DEPENDS="libnl"
+	TAGS="wireless"
 }

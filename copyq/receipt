@@ -2,21 +2,19 @@
 
 PACKAGE="copyq"
 VERSION="3.1.1+git"
-VERSION_GIT="4d97bdb"
 CATEGORY="utilities"
 SHORT_DESC="Clipboard Manager with Advanced Features"
 WEB_SITE="http://hluk.github.io/CopyQ/"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 MAINTAINER="psychomaniak@xakep.ru"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+VERSION_GIT="4d97bdb"
 WGET_URL="https://github.com/hluk/CopyQ/archive/$VERSION_GIT.tar.gz"
 
-DEPENDS="qt5-base"
 BUILD_DEPENDS="qt5-dev cmake expat-dev xorg-dev zlib-dev expat-dev mesa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cat > p.diff <<EOT
 --- o.cpp
 +++ configurationmanager.cpp
@@ -29,12 +27,18 @@ compile_rules()
 EOT
 	patch $src/src/gui/configurationmanager.cpp p.diff
 	mkdir $src/b
-	cd $src/b && cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-	make &&	make install
+	cd $src/b
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install
+
 	rm -rf $src/b
 }
 
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="qt5-base"
 }

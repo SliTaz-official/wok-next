@@ -3,8 +3,8 @@
 PACKAGE="razorqt"
 VERSION="0.5.2"
 CATEGORY="x-window"
-SHORT_DESC="Light and fast QT based Desktop Environment."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Light and fast QT based Desktop Environment"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://razor-qt.org/"
@@ -13,148 +13,150 @@ WGET_URL="http://razor-qt.org/downloads/$TARBALL"
 BUILD_DEPENDS="cmake Qt4-dev qmake xorg-dev libmagic-dev upower-dev \
 grep libstatgrab-dev alsa-lib-dev polkit-dev polkit-qt-dev glib-dev \
 lightdm-qt-dev imagemagick"
-SPLIT="razorqt-appswitcher razorqt-autosuspend razorqt-dev razorqt-locale-cs \
-razorqt-locale-da razorqt-locale-de razorqt-locale-el razorqt-locale-es \
-razorqt-locale-fr razorqt-locale-hu razorqt-locale-id razorqt-locale-it \
-razorqt-locale-misc razorqt-locale-pl razorqt-locale-pt razorqt-locale-ru \
-razorqt-locale-sl razorqt-locale-sv razorqt-locale-uk razorqt-locale-zh \
-razorqt-policykit-agent razorqt-power razorqt-runner razorqt-themes"
+SPLIT="\
+$PACKAGE-appswitcher $PACKAGE-autosuspend $PACKAGE-dev \
+$PACKAGE-locale-cs   $PACKAGE-locale-da   $PACKAGE-locale-de \
+$PACKAGE-locale-el   $PACKAGE-locale-es   $PACKAGE-locale-fr \
+$PACKAGE-locale-hu   $PACKAGE-locale-id   $PACKAGE-locale-it \
+$PACKAGE-locale-misc $PACKAGE-locale-pl   $PACKAGE-locale-pt \
+$PACKAGE-locale-ru   $PACKAGE-locale-sl   $PACKAGE-locale-sv \
+$PACKAGE-locale-uk   $PACKAGE-locale-zh   $PACKAGE-policykit-agent \
+$PACKAGE-power       $PACKAGE-runner      $PACKAGE-themes"
 
 COOKOPTS="!menus"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .
-	make && make install
+compile_rules() {
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
+	make &&
+	make install
 
 	# save space (png -> jpg)
 	cd $install/usr/share/razor/themes/light
 	convert ./simple_blue_widescreen.png ./simple_blue_widescreen.jpg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	razorqt)
-		DEPENDS="libQtDBus libQtGui libmagic libstatgrab \
+		razorqt)
+			DEPENDS="libQtDBus libQtGui libmagic libstatgrab \
 			xorg-libXcomposite xorg-libXcursor xorg-libXdamage \
 			lightdm-qt"
-		SUGGESTED="razorqt-themes razorqt-appswitcher razorqt-power \
+			SUGGESTED="razorqt-themes razorqt-appswitcher razorqt-power \
 			razorqt-runner razorqt-autosuspend"
 
-		# copy all, then remove unneeded
-		cp -a $install/* $fs
+			# copy all, then remove unneeded
+			cp -a $install/* $fs
 
-		# Dev-files --> razorqt-dev
-		rm -rf $fs/usr/include
-		rm -rf $fs/usr/lib/pkgconfig
+			# Dev-files --> razorqt-dev
+			rm -rf $fs/usr/include
+			rm -rf $fs/usr/lib/pkgconfig
 
-		# Language-files --> razorqt-locale-*
-		find $fs -name '*.qm' -delete
+			# Language-files --> razorqt-locale-*
+			find $fs -name '*.qm' -delete
 
-		# Appswitcher --> razorqt-appswitcher
-		rm -f $fs/usr/bin/razor-appswitcher
-		rm -f $fs/etc/xdg/autostart/razor-appswitcher.desktop
+			# Appswitcher --> razorqt-appswitcher
+			rm -f $fs/usr/bin/razor-appswitcher
+			rm -f $fs/etc/xdg/autostart/razor-appswitcher.desktop
 
-		# Autosuspend --> razorqt-autosuspend
-		rm -f $fs/usr/bin/razor-autosuspend
-		rm -f $fs/usr/bin/razor-config-autosuspend
-		rm -f $fs/etc/xdg/autostart/razor-autosuspend.desktop
-		rm -f $fs/usr/share/applications/razor-config-autosuspend.desktop
+			# Autosuspend --> razorqt-autosuspend
+			rm -f $fs/usr/bin/razor-autosuspend
+			rm -f $fs/usr/bin/razor-config-autosuspend
+			rm -f $fs/etc/xdg/autostart/razor-autosuspend.desktop
+			rm -f $fs/usr/share/applications/razor-config-autosuspend.desktop
 
-		# Policykit-agent --> razorqt-policykit-agent
-		rm -f $fs/usr/bin/razor-policykit-agent
-		rm -f $fs/etc/xdg/autostart/razor-policykit-agent.desktop
+			# Policykit-agent --> razorqt-policykit-agent
+			rm -f $fs/usr/bin/razor-policykit-agent
+			rm -f $fs/etc/xdg/autostart/razor-policykit-agent.desktop
 
-		# Power --> razorqt-power
-		rm -f $fs/usr/bin/razor-power
-		rm -f $fs/usr/share/applications/razor-power.desktop
+			# Power --> razorqt-power
+			rm -f $fs/usr/bin/razor-power
+			rm -f $fs/usr/share/applications/razor-power.desktop
 
-		# Runner --> razorqt-runner
-		rm -f $fs/usr/bin/razor-runner
-		rm -f $fs/etc/xdg/autostart/razor-runner.desktop
+			# Runner --> razorqt-runner
+			rm -f $fs/usr/bin/razor-runner
+			rm -f $fs/etc/xdg/autostart/razor-runner.desktop
 
-		# Themes (all but light) --> razorqt-themes
-		find $fs/usr/share/razor/themes -maxdepth 1 -mindepth 1 -type d \
-			\( ! -name light \) -exec rm -rf \{\} \;
-		rm -f $fs/usr/share/razor/themes/light/simple_blue_widescreen.png
-		rm -f $fs/usr/share/razor/themes/light/96640-simple_blue_widescreen.svg
-		sed 's|png|jpg|' -i $fs/usr/share/razor/themes/light/wallpaper.cfg
+			# Themes (all but light) --> razorqt-themes
+			find $fs/usr/share/razor/themes -maxdepth 1 -mindepth 1 -type d \
+				\( ! -name light \) -exec rm -rf \{\} \;
+			rm -f $fs/usr/share/razor/themes/light/simple_blue_widescreen.png
+			rm -f $fs/usr/share/razor/themes/light/96640-simple_blue_widescreen.svg
+			sed 's|png|jpg|' -i $fs/usr/share/razor/themes/light/wallpaper.cfg
 
-		# Remove confupdate (Port desktop.conf syntax from 0.4.x to 0.5.0 format)
-		rm -f $fs/usr/bin/razor-confupdate
-		rm -rf $fs/usr/lib/razor-confupdate_bin
-		rm -rf $fs/usr/share/razor/razor-confupdate
+			# Remove confupdate (Port desktop.conf syntax from 0.4.x to 0.5.0 format)
+			rm -f $fs/usr/bin/razor-confupdate
+			rm -rf $fs/usr/lib/razor-confupdate_bin
+			rm -rf $fs/usr/share/razor/razor-confupdate
 
-		# Remove heavy graphics
-		rm -f $fs/usr/share/razor/graphics/rqt*
+			# Remove heavy graphics
+			rm -f $fs/usr/share/razor/graphics/rqt*
 
-		# Remove file - not use KDM
-		rm -rf $fs/usr/share/apps
+			# Remove file - not use KDM
+			rm -rf $fs/usr/share/apps
 
-		# Remove empty folders
-		for dir in $(find $fs/usr/share -type d); do
-			rmdir --ignore-fail-on-non-empty $dir
-		done
-
-		# Custom SliTaz integration
-		cp -a $stuff/*.conf $fs/etc/razor
-		;;
-	razorqt-appswitcher)
-		CAT="x-window|Razor-qt Apps switcher plugin."
-		DEPENDS="razorqt"
-		mkdir -p $fs/usr/bin $fs/etc/xdg/autostart
-		cp -a $install/usr/bin/razor-appswitcher $fs/usr/bin
-		cp -a $install/etc/xdg/autostart/razor-appswitcher.desktop \
-			$fs/etc/xdg/autostart
-		;;
-	razorqt-autosuspend)
-		CAT="x-window|Razor-qt suspend manage application tool."
-		DEPENDS="razorqt"
-		mkdir -p \
-			$fs/usr/bin \
-			$fs/etc/xdg/autostart \
-			$fs/usr/share/applications
-		cp -a $install/usr/bin/razor-autosuspend $fs/usr/bin
-		cp -a $install/usr/bin/razor-config-autosuspend $fs/usr/bin
-		cp -a $install/etc/xdg/autostart/razor-autosuspend.desktop \
-			$fs/etc/xdg/autostart
-		cp $install/usr/share/applications/razor-config-autosuspend.desktop \
-			$fs/usr/share/applications
-		;;
-	razorqt-dev)
-		CAT="development|Development files for the QT based Razor desktop"
-		DEPENDS="Qt4-dev"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
-	razorqt-locale-misc)
-		CAT="localization|Miscelaneous locales for Razor-qt not included in razorqt-locale-*"
-		LOCALES="cs da de el es fr hu id it pl pt ru sl sv uk zh"
-
-		# copy all translations
-		cd $install
-		qms=$(find . -name "*.qm" | sed 's|^.||')
-		for qm in $qms; do
-			mkdir -p $(dirname $fs$qm)
-			cp -a $install$qm $fs$qm
-		done
-		# remove translations that exists in razorqt-locale-*
-		for locale in $LOCALES; do
-			cook razorqt-locale-$locale
-			for qm in $(cat $WOK/razorqt-locale-$locale/taz/*/files.list); do
-				rm -f $fs$qm
+			# Remove empty folders
+			for dir in $(find $fs/usr/share -type d); do
+				rmdir --ignore-fail-on-non-empty $dir
 			done
-		done
-		;;
-	razorqt-locale-*)
-		LOCALE="${PACKAGE#razorqt-locale-}"
-		while read code name; do
-			[ $code == $LOCALE ] && break
-		done <<EOT
+
+			# Custom SliTaz integration
+			cp -a $stuff/*.conf $fs/etc/razor
+			;;
+		*-appswitcher)
+			CAT="x-window|apps switcher plugin"
+			DEPENDS="razorqt"
+			mkdir -p $fs/usr/bin $fs/etc/xdg/autostart
+			cp -a $install/usr/bin/razor-appswitcher $fs/usr/bin
+			cp -a $install/etc/xdg/autostart/razor-appswitcher.desktop \
+				$fs/etc/xdg/autostart
+			;;
+		*-autosuspend)
+			CAT="x-window|suspend manage application tool"
+			DEPENDS="razorqt"
+			mkdir -p \
+				$fs/usr/bin \
+				$fs/etc/xdg/autostart \
+				$fs/usr/share/applications
+			cp -a $install/usr/bin/razor-autosuspend $fs/usr/bin
+			cp -a $install/usr/bin/razor-config-autosuspend $fs/usr/bin
+			cp -a $install/etc/xdg/autostart/razor-autosuspend.desktop \
+				$fs/etc/xdg/autostart
+			cp $install/usr/share/applications/razor-config-autosuspend.desktop \
+				$fs/usr/share/applications
+			;;
+		*-dev)
+			CAT="development|Development files for the QT based Razor desktop"
+			DEPENDS="Qt4-dev"
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+		*-locale-misc)
+			CAT="localization|Miscelaneous locales for Razor-qt not included in razorqt-locale-*"
+			LOCALES="cs da de el es fr hu id it pl pt ru sl sv uk zh"
+
+			# copy all translations
+			cd $install
+			qms=$(find . -name "*.qm" | sed 's|^.||')
+			for qm in $qms; do
+				mkdir -p $(dirname $fs$qm)
+				cp -a $install$qm $fs$qm
+			done
+			# remove translations that exists in razorqt-locale-*
+			for locale in $LOCALES; do
+				cook razorqt-locale-$locale
+				for qm in $(cat $WOK/razorqt-locale-$locale/taz/*/files.list); do
+					rm -f $fs$qm
+				done
+			done
+			;;
+		*-locale-*)
+			LOCALE="${PACKAGE#razorqt-locale-}"
+			while read code name; do
+				[ $code == $LOCALE ] && break
+			done <<EOT
 cs	Czech
 da	Danish
 de	German
@@ -172,75 +174,73 @@ sv	Swedish
 uk	Ukrainian
 zh	Chinese
 EOT
-		CAT="localization|$name locale for Razor-qt"
-		cd $install
-		qms=$(find . \( -name "*_$LOCALE.qm" \) -o \( -name "*_${LOCALE}_*.qm" \) | sed 's|^.||')
-		for qm in $qms; do
-			mkdir -p $(dirname $fs$qm)
-			cp -a $install$qm $fs$qm
-		done
-		;;
-	razorqt-policykit-agent)
-		CAT="x-window|Razor-qt lightweight PolicyKit agent/user interface."
-		DEPENDS="razorqt polkit polkit-qt"
-		mkdir -p $fs/usr/bin $fs/etc/xdg/autostart
-		cp -a $install/usr/bin/razor-policykit-agent $fs/usr/bin
-		cp -a $install/etc/xdg/autostart/razor-policykit-agent.desktop \
-			$fs/etc/xdg/autostart
-		;;
-	razorqt-power)
-		CAT="x-window|Razor-qt power management component."
-		DEPENDS="razorqt upower"
-		mkdir -p $fs/usr/bin $fs/usr/share/applications
-		cp -a $install/usr/bin/razor-power $fs/usr/bin
-		cp $install/usr/share/applications/razor-power.desktop \
-			$fs/usr/share/applications
-		;;
-	razorqt-runner)
-		CAT="x-window|Razor-qt quick launch and runner application."
-		DEPENDS="razorqt"
-		mkdir -p $fs/usr/bin $fs/etc/xdg/autostart
-		cp -a $install/usr/bin/razor-runner $fs/usr/bin
-		cp -a $install/etc/xdg/autostart/razor-runner.desktop \
-			$fs/etc/xdg/autostart
-		;;
-	razorqt-themes)
-		CAT="x-window|Extra themes for Razor-qt desktop"
-		DEPENDS="razorqt"
-		mkdir -p $fs/usr/share/razor
-		cp -a $install/usr/share/razor/themes $fs/usr/share/razor
-		rm -rf $fs/usr/share/razor/themes/light
+			CAT="localization|$name locale"
+			cd $install
+			qms=$(find . \( -name "*_$LOCALE.qm" \) -o \( -name "*_${LOCALE}_*.qm" \) | sed 's|^.||')
+			for qm in $qms; do
+				mkdir -p $(dirname $fs$qm)
+				cp -a $install$qm $fs$qm
+			done
+			;;
+		*-policykit-agent)
+			CAT="x-window|lightweight PolicyKit agent/user interface"
+			DEPENDS="razorqt polkit polkit-qt"
+			mkdir -p $fs/usr/bin $fs/etc/xdg/autostart
+			cp -a $install/usr/bin/razor-policykit-agent $fs/usr/bin
+			cp -a $install/etc/xdg/autostart/razor-policykit-agent.desktop \
+				$fs/etc/xdg/autostart
+			;;
+		*-power)
+		CAT="x-window|power management component"
+			DEPENDS="razorqt upower"
+			mkdir -p $fs/usr/bin $fs/usr/share/applications
+			cp -a $install/usr/bin/razor-power $fs/usr/bin
+			cp $install/usr/share/applications/razor-power.desktop \
+				$fs/usr/share/applications
+			;;
+		*-runner)
+			CAT="x-window|quick launch and runner application"
+			DEPENDS="razorqt"
+			mkdir -p $fs/usr/bin $fs/etc/xdg/autostart
+			cp -a $install/usr/bin/razor-runner $fs/usr/bin
+			cp -a $install/etc/xdg/autostart/razor-runner.desktop \
+				$fs/etc/xdg/autostart
+			;;
+		*-themes)
+			CAT="x-window|extra themes"
+			DEPENDS="razorqt"
+			mkdir -p $fs/usr/share/razor
+			cp -a $install/usr/share/razor/themes $fs/usr/share/razor
+			rm -rf $fs/usr/share/razor/themes/light
 
-		# remove heavy graphics
-		rm -f $fs/usr/share/razor/themes/*/wow5.png
-		rm -f $fs/usr/share/razor/themes/*/wow5_12*.jpg
-		rm -f $fs/usr/share/razor/themes/*/wow5_16*.jpg
-		rm -f $fs/usr/share/razor/themes/*/wow5_19*.jpg
-		rm -f $fs/usr/share/razor/themes/*/wow5_20*.jpg
-		for theme in a-mego ambiance; do
-			cat > $fs/usr/share/razor/themes/$theme/wallpaper.cfg << EOT
+			# remove heavy graphics
+			rm -f $fs/usr/share/razor/themes/*/wow5.png
+			rm -f $fs/usr/share/razor/themes/*/wow5_12*.jpg
+			rm -f $fs/usr/share/razor/themes/*/wow5_16*.jpg
+			rm -f $fs/usr/share/razor/themes/*/wow5_19*.jpg
+			rm -f $fs/usr/share/razor/themes/*/wow5_20*.jpg
+			for theme in a-mego ambiance; do
+				cat > $fs/usr/share/razor/themes/$theme/wallpaper.cfg << EOT
 wallpapers/size=1
 wallpapers/1/file=wow5_1024x768.jpg
 EOT
-		done
-		;;
+			done
+			;;
 	esac
 }
 
-post_install_razorqt()
-{
+post_install_razorqt() {
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q $PACKAGE; then
 		echo -n "Adding $PACKAGE to /etc/slim.conf..."
-		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
+		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
 		status
 	fi
 	true
 }
 
-post_remove_razorqt()
-{
+post_remove_razorqt() {
 	# Remove WM from SLIM available sessions.
 	if grep -q $PACKAGE "$1/etc/slim.conf"; then
 		sed -i s/,$PACKAGE// "$1/etc/slim.conf"

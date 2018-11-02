@@ -14,15 +14,20 @@ WGET_URL="$WEB_SITE/downloads/binaries/cross-compiler/$TARBALL"
 
 COOKOPTS="!strip"
 
-SPLIT="uclibc-armv4eb uclibc-armv4l uclibc-armv4tl uclibc-armv5l uclibc-armv6l \
-uclibc-cross-compiler-armv4eb uclibc-cross-compiler-armv4l \
-uclibc-cross-compiler-armv4tl uclibc-cross-compiler-armv5l \
-uclibc-cross-compiler-armv6l uclibc-cross-compiler-i486 \
-uclibc-cross-compiler-mips uclibc-cross-compiler-mips64 \
-uclibc-cross-compiler-mipsel uclibc-cross-compiler-powerpc \
-uclibc-cross-compiler-sh4 uclibc-cross-compiler-sparc \
-uclibc-cross-compiler-x86_64 uclibc-i486 uclibc-mips uclibc-mips64 \
-uclibc-mipsel uclibc-powerpc uclibc-sh4 uclibc-sparc uclibc-x86_64"
+SPLIT="\
+uclibc-armv4eb uclibc-cross-compiler-armv4eb \
+uclibc-armv4l  uclibc-cross-compiler-armv4l \
+uclibc-armv4tl uclibc-cross-compiler-armv4tl \
+uclibc-armv5l  uclibc-cross-compiler-armv5l \
+uclibc-armv6l  uclibc-cross-compiler-armv6l \
+uclibc-i486    uclibc-cross-compiler-i486 \
+uclibc-mips    uclibc-cross-compiler-mips \
+uclibc-mips64  uclibc-cross-compiler-mips64 \
+uclibc-mipsel  uclibc-cross-compiler-mipsel \
+uclibc-powerpc uclibc-cross-compiler-powerpc \
+uclibc-sh4     uclibc-cross-compiler-sh4 \
+uclibc-sparc   uclibc-cross-compiler-sparc \
+uclibc-x86_64  uclibc-cross-compiler-x86_64"
 
 compile_rules() {
 	for i in $(echo " $SPLIT" | sed -e 's/uclibc-cross-compiler-//g' \
@@ -44,7 +49,7 @@ genpkg_rules() {
 				$fs/usr/share/$PACKAGE \
 				$fs/usr/bin
 			cp -a $install/cross-compiler-${PACKAGE##*-}/. $fs/usr/share/$PACKAGE/
-			for i in $(cd $install/cross-compiler-${PACKAGE##*-} ; ls bin/${PACKAGE##*-}-*); do
+			for i in $(cd $install/cross-compiler-${PACKAGE##*-}; ls bin/${PACKAGE##*-}-*); do
 				file=$(basename $i)
 				ln -s ../share/$PACKAGE/bin/$file $fs/usr/bin/uclibc-$file
 			done

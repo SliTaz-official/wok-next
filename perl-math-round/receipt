@@ -4,7 +4,7 @@ PACKAGE="perl-math-round"
 VERSION="0.07"
 CATEGORY="perl"
 SHORT_DESC="Math::Round - Perl extension for rounding numbers"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Math-Round"
 REPOLOGY="perl:math-round"
@@ -12,21 +12,18 @@ REPOLOGY="perl:math-round"
 TARBALL="Math-Round-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/G/GR/GROMMEL/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install &&
 	find $install -type f -exec dos2unix '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

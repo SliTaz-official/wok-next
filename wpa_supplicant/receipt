@@ -4,7 +4,7 @@ PACKAGE="wpa_supplicant"
 VERSION="2.6"
 CATEGORY="utilities"
 SHORT_DESC="WPA Supplicant with support for WPA and WPA2"
-MAINTAINER="0dddba11@googlemail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://w1.fi/wpa_supplicant/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/wpa_supplicant.html"
@@ -13,7 +13,6 @@ REPOLOGY="wpa-supplicant"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://w1.fi/releases/$TARBALL"
 
-BUILD_DEPENDS_arm="openssl-dev libnl-dev"
 BUILD_DEPENDS="libnl-dev dbus-dev openssl-dev readline-dev"
 
 compile_rules() {
@@ -31,26 +30,12 @@ CONFIG_READLINE=y
 CONFIG_WPS=y
 CONFIG_AP=y
 CONFIG_BGSCAN_SIMPLE=y
-EOT
-	# Don't use DBUS on ARM arch
-	case "$ARCH" in
-		arm)
-			cat >> .config <<EOT
-CFLAGS += -I${sysroot}/usr/include/libnl3
-CFLAGS += -I${sysroot}/usr/include/openssl
-LIBS += -L${sysroot}/usr/lib
-EOT
-			;;
-		i?86|x86_64)
-			cat >> .config <<EOT
 CFLAGS += -I/usr/include/libnl3
 CONFIG_CTRL_IFACE_DBUS=y
 CONFIG_CTRL_IFACE_DBUS_NEW=y
 CONFIG_CTRL_IFACE_DBUS_INTRO=y
 EOT
-			;;
-	esac
-	make BINDIR=/sbin LIBDIR=/lib || exit 1
+	make BINDIR=/sbin LIBDIR=/lib || return 1
 
 	# commands
 	bindir="$install/sbin"
@@ -83,9 +68,6 @@ genpkg_rules() {
 	DEPENDS="dbus openssl libnl ncurses readline"
 	CONFIG_FILES="/etc/wpa/wpa_supplicant.conf"
 	TAGS="wireless wifi network"
-	case "$SLITAZ_ARCH" in
-		arm*) DEPENDS="openssl libnl";;
-	esac
 }
 
 post_install() {

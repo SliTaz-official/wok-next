@@ -11,11 +11,12 @@ WEB_SITE="http://lz4.github.io/lz4/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lz4/lz4/tarball/v$VERSION"
 
-SPLIT="lz4-dev lz4-lib"
+SPLIT="$PACKAGE-lib $PACKAGE-dev"
 
 compile_rules() {
 	export AR="$HOST_SYSTEM-ar"
-	make && make PREFIX=/usr DESTDIR=$DESTDIR install
+	make &&
+	make PREFIX=/usr DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -25,12 +26,12 @@ genpkg_rules() {
 			DEPENDS=" "
 			TAGS="compression"
 			;;
-		lz4-lib)
+		*-lib)
 			copy *.so*
-			CAT="base-system|lz4c compressor shared library"
+			CAT="base-system|shared library"
 			DEPENDS=" "
 			;;
-		lz4-dev)
+		*-dev)
 			copy @dev
 			;;
 	esac

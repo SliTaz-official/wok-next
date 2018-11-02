@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-params-validate"
 VERSION="1.29"
@@ -12,21 +12,17 @@ REPOLOGY="perl:params-validate"
 TARBALL="Params-Validate-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-module-implementation"
-BUILD_DEPENDS="$DEPENDS perl-dev perl-module-build perl-test-fatal \
-perl-test-requires"
+BUILD_DEPENDS="perl-module-implementation perl-dev perl-module-build \
+perl-test-fatal perl-test-requires"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Build.PL &&
 	./Build --destdir $install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-module-implementation"
 }

@@ -4,31 +4,29 @@ PACKAGE="tea"
 VERSION="44.1.0"
 VERSION_GIT="6b7a750"
 CATEGORY="development"
-SHORT_DESC="Tead text editor using QT."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Tead text editor using Qt"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://semiletov.org/tea/"
 WEB_SITE_OLD="http://tea-editor.sourceforge.net/"
-WGET_URL="https://github.com/psemiletov/tea-qt/archive/$VERSION_GIT.tar.gz"
-TAGS="text-editor"
 
-DEPENDS="xorg-libX11 qt5-base qt5-declarative"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/psemiletov/tea-qt/archive/$VERSION_GIT.tar.gz"
+
 BUILD_DEPENDS="qt5-dev xorg-dev mesa-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|/usr/local|/usr|g' src.pro
-	qmake PREFIX=/usr && make
-	make INSTALL_ROOT="$DESTDIR" install
+	qmake PREFIX=/usr &&
+	make &&
+	make INSTALL_ROOT="$install" install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share/pixmaps
 	cp -a $src/bin/tea $fs/usr/bin
 	cp -a $src/icons/tea_icon_v2.png \
 		$fs/usr/share/pixmaps/tea.png
+	DEPENDS="xorg-libX11 qt5-base qt5-declarative"
+	TAGS="text-editor"
 }

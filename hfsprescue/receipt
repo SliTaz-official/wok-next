@@ -1,31 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="hfsprescue"
 VERSION="1.1"
 CATEGORY="base-system"
-SHORT_DESC="HFS+ recovery tool."
+SHORT_DESC="HFS+ recovery tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.plop.at/en/hfsprescue/index.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.plop.at/en/hfsprescue.html"
 WGET_URL="http://download.plop.at/$PACKAGE/$TARBALL"
 
-DEPENDS="gcc-lib-base"
 BUILD_DEPENDS="zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man \
-	$CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gcc-lib-base"
 }

@@ -14,14 +14,14 @@ WGET_URL="$WEB_SITE$TARBALL"
 BUILD_DEPENDS="flex"
 
 compile_rules() {
-	mkdir -p $DESTDIR/etc
+	mkdir -p $install/etc
 	sed \
-		-e "s|^bindir.*|bindir = $DESTDIR/usr/bin|" \
-		-e "s|^sysconfdir.*|sysconfdir = $DESTDIR/etc|" \
+		-e "s|^bindir.*|bindir = $install/usr/bin|" \
+		-e "s|^sysconfdir.*|sysconfdir = $install/etc|" \
 		-i src/Makefile*
 
 	./configure $CONFIGURE_ARGS &&
-	make DESTDIR=$DESTDIR install-prog
+	make DESTDIR=$install install-prog
 }
 
 genpkg_rules() {

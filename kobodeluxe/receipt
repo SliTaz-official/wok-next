@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 # TODO : Regularly check if the install script automatically
 # installs the pixmap and the .desktop file. Then remove the
 # part in genpkg_rules() where it's done manually.
 
 PACKAGE="kobodeluxe"
-SOURCE="KoboDeluxe"
 VERSION="0.5.1"
 CATEGORY="games"
-SHORT_DESC="Kobo Deluxe is a third person scrolling 2D shooter game."
-MAINTAINER="chadi.elahmad@gmail.com"
+SHORT_DESC="Third person scrolling 2D shooter game"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.olofson.net/kobodl/"
+
+SOURCE="KoboDeluxe"
 TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.olofson.net/kobodl"
 WGET_URL="http://www.olofson.net/kobodl/download/$TARBALL"
-TAGS="shooting"
 
-DEPENDS="libsdl libsdl-image gcc-lib-base"
-BUILD_DEPENDS="libsdl-dev libsdl-image-dev "
+BUILD_DEPENDS="libsdl-dev libsdl-image-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/pipe2/pipe_2/' enemy.cpp enemies.h
 	sed -i 's/strchr.txt/strchr((char *) txt/' graphics/window.cpp
+
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
@@ -32,12 +29,10 @@ compile_rules()
 		--sharedstatedir=/var/games \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	# manually moving the pixmap and the .desktop
 	mkdir -p $install/usr/share/pixmaps
 	mkdir -p $install/usr/share/applications
@@ -51,9 +46,10 @@ genpkg_rules()
 
 	mkdir -p $fs/var/games/kobo-deluxe/scores
 	chmod 667 $fs/var/games/kobo-deluxe/scores
+	DEPENDS="libsdl libsdl-image gcc-lib-base"
+	TAGS="shooting"
 }
 
-pre_remove()
-{
+pre_remove() {
 	rm -rf /var/games/kobo-deluxe/*
 }

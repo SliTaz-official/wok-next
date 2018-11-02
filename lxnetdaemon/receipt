@@ -4,9 +4,9 @@ PACKAGE="lxnetdaemon"
 VERSION="0.1.1"
 CATEGORY="network"
 SHORT_DESC="Network manager for LXpanel"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://lxde.sourceforge.net/"
+WEB_SITE="https://lxde.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/lxde/$TARBALL"
@@ -14,13 +14,13 @@ WGET_URL="$SF_MIRROR/lxde/$TARBALL"
 BUILD_DEPENDS="glib-dev"
 
 compile_rules() {
-	sed -i "s|for script in .(datadir)|for script in $DESTDIR/\$(datadir)|" \
+	sed -i "s|for script in .(datadir)|for script in $install/\$(datadir)|" \
 		Makefile.in
 
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	chmod +x $install/usr/share/lxnetdaemon/*.sh
 	# Config

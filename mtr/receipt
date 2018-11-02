@@ -3,7 +3,7 @@
 PACKAGE="mtr"
 VERSION="0.87"
 CATEGORY="network"
-SHORT_DESC="My traceroute."
+SHORT_DESC="My traceroute"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -13,21 +13,18 @@ WGET_URL="ftp://ftp.bitwizard.nl/mtr/$TARBALL"
 DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev autoconf automake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap.sh
 	./configure \
 		--prefix=/usr \
 		--without-gtk \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 }

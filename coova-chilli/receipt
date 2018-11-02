@@ -6,13 +6,13 @@ CATEGORY="network"
 SHORT_DESC="Captive portal or wireless LAN access point controller"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.coova.org/CoovaChilli"
+WEB_SITE="https://coova.github.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ap.coova.org/chilli/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev curl-dev perl"
-SPLIT="coova-chilli-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's|return -1; safe_close|return -1;\n safe_close|' src/redir.c
@@ -46,7 +46,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

@@ -12,7 +12,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/apenwarr/netselect/archive/$TARBALL"
 
 compile_rules() {
-	make && make install &&
+	make &&
+	make install || return 1
+
 	# weird but `install -m 4755 ...` in Makefile didn't work
 	chmod u+s $install/usr/bin/netselect
 }

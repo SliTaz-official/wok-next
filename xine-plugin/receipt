@@ -4,7 +4,7 @@ PACKAGE="xine-plugin"
 VERSION="1.0.2"
 CATEGORY="multimedia"
 SHORT_DESC="Xine media player Firefox plugin"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.xinehq.de/"
 
@@ -14,12 +14,12 @@ WGET_URL="$SF_MIRROR/xine/$TARBALL"
 BUILD_DEPENDS="shared-mime-info xine-lib xine-lib-dev xorg-dev gfortran"
 
 compile_rules() {
-	mkdir -p $DESTDIR/root/.mozilla/plugins
+	mkdir -p $install/root/.mozilla/plugins
 
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/usr/share/xine
 	# There's something different, don't know why

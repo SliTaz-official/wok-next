@@ -1,39 +1,39 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="clementine"
 VERSION="0a59257"
 CATEGORY="multimedia"
-SHORT_DESC="Clementine is a multiplatform music player"
-MAINTAINER="shevtsov.anton@gmail.com"
+SHORT_DESC="Multiplatform music player"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.clementine-player.org/"
+WEB_SITE="https://www.clementine-player.org/"
 REPOLOGY="clementine-player"
 
 WEB_SITE_2="https://github.com/clementine-player/Clementine/tree/qt5"
 TARBALL="Clementine-$VERSION.tar.gz"
 WGET_URL="https://github.com/clementine-player/Clementine/archive/$VERSION.tar.gz"
 
-DEPENDS="ffmpeg fftw glew gst0-plugins-base libmtp protobuf taglib qt5-base libcdio qjson "
-# libgpod qca 
+# libgpod qca
 BUILD_DEPENDS="cmake qt5-dev mesa-dev xorg-dev glu-dev \
 glw-dev openssl-dev lame-dev taglib-dev dbus-dev libcurl \
 libplist-dev libusb-dev libmtp-dev libcdio-dev libcdio-utils \
 gstreamer1-dev gst1-plugins-base-dev gst1-plugins-good-dev \
-boost-dev gettext  automake autoconf glib-dev dbus-glib-dev fftw-dev \
-glew-dev json-glib json-glib-dev qjson-dev sqlite3-dev protobuf-dev  "
+boost-dev gettext-dev  automake autoconf glib-dev dbus-glib-dev fftw-dev \
+glew-dev json-glib-dev qjson-dev sqlite3-dev protobuf-dev"
 
-compile_rules()
-{
+compile_rules() {
 	mkdir build
-	cd $src/build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-Wno-dev ../ &&
+		-Wno-dev \
+		.. &&
 	make &&
 	make install
 }
 
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="ffmpeg fftw glew gst0-plugins-base libmtp protobuf taglib qt5-base \
+	libcdio qjson"
 }

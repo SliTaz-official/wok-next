@@ -4,26 +4,21 @@ PACKAGE="mutagen"
 VERSION="1.28"
 CATEGORY="multimedia"
 SHORT_DESC="Read and write audio tags for many formats"
-MAINTAINER="rj.rohit@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/quodlibet/mutagen"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/downloads/$TARBALL" # FIXME
 TAGS="tagging asf flac m4a mp3 musepack ogg aiff id3"
 
-DEPENDS="python"
 BUILD_DEPENDS="wget cacerts python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py build &&
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="python"
 }
-

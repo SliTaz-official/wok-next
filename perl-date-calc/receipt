@@ -4,7 +4,7 @@ PACKAGE="perl-date-calc"
 VERSION="6.4"
 CATEGORY="perl"
 SHORT_DESC="Date::Calc - Gregorian calendar date calculations"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Date-Calc"
 REPOLOGY="perl:date-calc"
@@ -12,20 +12,17 @@ REPOLOGY="perl:date-calc"
 TARBALL="Date-Calc-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/S/ST/STBEY/$TARBALL"
 
-DEPENDS="perl-bit-vector perl-carp-clan"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-bit-vector perl-carp-clan"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install UNINST=1 install &&
+	make &&
+	make DESTDIR=$install UNINST=1 install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-bit-vector perl-carp-clan"
 }

@@ -5,9 +5,9 @@ VERSION="3.12.11"
 CATEGORY="system-tools"
 SHORT_DESC="Drivers for HP DeskJet, OfficeJet, Photosmart, Business Inkjet and \
 some LaserJet"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://hplipopensource.com"
+WEB_SITE="https://developers.hp.com/hp-linux-imaging-and-printing"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -17,15 +17,13 @@ sane-backends libexif-dev libgphoto2-dev Qt4-dev libgphoto2 libusb-dev \
 jpeg-dev cups-dev dbus-dev tiff-dev python python-dev python-dbus net-snmp-dev \
 libtool"
 
-BUGS="Unable to delete hplip.desktop from $fs.  Using hack in post_install."
-
 compile_rules() {
 	./configure  \
 		--disable-doc-build \
 		--enable-qt4 \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

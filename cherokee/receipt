@@ -4,7 +4,7 @@ PACKAGE="cherokee"
 VERSION="1.2.103.d021376"
 CATEGORY="network"
 SHORT_DESC="Cherokee Web Server"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://cherokee-project.com/"
 
@@ -12,8 +12,8 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/cherokee/webserver/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl10-dev openldap-dev python-dev \
-pam-dev libmysqlclient ffmpeg-dev gettext autoconf automake libtool"
-SPLIT="cherokee cherokee-dev cherokee-doc"
+pam-dev libmysqlclient ffmpeg-dev gettext-dev autoconf automake libtool"
+SPLIT="$PACKAGE-dev $PACKAGE-doc"
 
 compile_rules() {
 	# Use subdirectory for logs
@@ -40,7 +40,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	install -Dm644 pam.d_cherokee $install/etc/pam.d/cherokee
 	chown -R www:www $install/var/lib/cherokee/graphs

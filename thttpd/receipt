@@ -1,37 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="thttpd"
 VERSION="2.25b"
 CATEGORY="network"
 SHORT_DESC="Throttleable lightweight httpd server"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.acme.com/software/thttpd/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.acme.com/software/thttpd/$TARBALL"
 
-DEPENDS=""
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make || return 1
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
-	make
+	install -Dm755 thttpd              $install/usr/sbin/thttpd
+	install -Dm755 extras/htpasswd     $install/usr/sbin/htpasswd
+	install -Dm755 extras/syslogtocern $install/usr/sbin/syslogcern
+
+	install -Dm644 $stuff/etc/init.d/thttpd      $install/etc/init.d/thttpd
+	install -Dm644 $stuff/etc/thttpd/thttpd.conf $install/etc/thttpd/thttpd.conf
+
+	mkdir -p $install/var/log/thttpd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/sbin \
-		$fs/var/log/thttpd \
-		
-	cp -a $src/thttpd $fs/usr/sbin
-	cp -a $src/extras/htpasswd $fs/usr/sbin
-	cp -a $src/extras/syslogtocern $fs/usr/sbin
-	cp -a stuff/etc $fs/
+genpkg_rules() {
+	copy @std
 }
-

@@ -12,10 +12,10 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.isc.org/isc/bind9/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="libtool libcap-dev openssl-dev perl krb5-dev readline-dev"
-SPLIT="bind-client libbind bind-dev"
+SPLIT="$PACKAGE-client libbind $PACKAGE-dev"
 
 compile_rules() {
-	mkdir -p $DESTDIR/etc/bind
+	mkdir -p $install/etc/bind
 
 	./configure \
 		--sysconfdir=/etc/bind \
@@ -27,10 +27,10 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
-	LD_LIBRARY_PATH=$DESTDIR/usr/lib \
-	$DESTDIR/usr/bin/dig ns . @a.root-servers.net. > $DESTDIR/etc/bind/db.root
+	LD_LIBRARY_PATH=$install/usr/lib \
+	$install/usr/bin/dig ns . @a.root-servers.net. > $install/etc/bind/db.root
 
 	cp -a $stuff/etc $install
 	chown -R root:root $install/etc

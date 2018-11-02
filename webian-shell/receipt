@@ -4,15 +4,13 @@ PACKAGE="webian-shell"
 VERSION="0.1"
 CATEGORY="network"
 SHORT_DESC="A full screen web browser"
-MAINTAINER="hackdorte@sapo.pt"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MPL2"
 WEB_SITE="http://webian.org/shell/"
 
 GITHUB="https://cloud.github.com/downloads"
 TARBALL="${PACKAGE/-/_}_$VERSION-linux_32.tar.gz"
 WGET_URL="$GITHUB/webianproject/shell/$TARBALL"
-
-DEPENDS="gtk2 nss"
 
 compile_rules() {
 	mkdir -p $install/usr/share/applications
@@ -24,18 +22,10 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	cat > $install/usr/share/applications/webian-shell.desktop <<EOT
-[Desktop Entry]
-Type=Application
-Name=Webian Shell
-Comment=A full screen web browser.
-Exec=webian-shell
-Icon=webian-shell
-Categories=Network;WebBrowser;
-MimeType=text/html;text/xml;application/xhtml+xml;application/vnd.mozilla.xul+xml;text/mml;x-scheme-handler/http;x-scheme-handler/https;
-EOT
-
+	install -Dm644 $stuff/webian-shell.desktop \
+		$install/usr/share/applications/webian-shell.desktop
 	cp -a $install/* $fs
+	DEPENDS="gtk2 nss"
 }
 
 post_install() {

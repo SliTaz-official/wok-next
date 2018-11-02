@@ -3,8 +3,8 @@
 PACKAGE="fpm2"
 VERSION="0.76.1"
 CATEGORY="utilities"
-SHORT_DESC="Password manager."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Password manager"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://als.regnet.cz/fpm2/"
@@ -15,20 +15,15 @@ xorg-libXcursor xorg-libXdmcp xorg-libXext xorg-libXfixes xorg-libXinerama \
 xorg-libXrandr xorg-libXrender xorg-libXdamage"
 BUILD_DEPENDS="gtk2-dev libxml2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/pixmaps
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/pixmaps/fpm2/logo.png \

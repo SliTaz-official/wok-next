@@ -4,32 +4,28 @@ PACKAGE="scim-tables"
 VERSION="0.5.14.1"
 CATEGORY="meta"
 SHORT_DESC="SCIM Tables"
-MAINTAINER="rocky@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/scim-im/scim-tables"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$TARBALL"
 
-BUILD_DEPENDS="automake libtool intltool gettext scim-dev"
+BUILD_DEPENDS="automake libtool intltool gettext-dev scim-dev"
 SPLIT="scim-tables-base scim-tables-ja scim-tables-ko scim-tables-zh \
 scim-tables-dev scim-tables-additional"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap &&
 
 	./configure \
 		--disable-static \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		scim-tables)
 			DEPENDS="scim $SPLIT"

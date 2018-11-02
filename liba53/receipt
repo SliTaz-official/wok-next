@@ -6,23 +6,20 @@ CATEGORY="misc"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 SHORT_DESC="The A5/3 library"
-WEB_SITE="http://www.rangenetworks.com/"
+WEB_SITE="https://rangenetworks.com/"
+
 OBVERSION="4.0.0"
 TARBALL="openbts-$OBVERSION.zip"
 WGET_URL="https://github.com/RangeNetworks/dev/releases/download/v$OBVERSION/v$OBVERSION-source.zip"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	tar xzf liba53_$VERSION.tar.gz
 	cd liba53*
-	mkdir -p $DESTDIR/usr/lib $DESTDIR/usr/include
+	mkdir -p $install/usr/lib $install/usr/include
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+
+genpkg_rules() {
 	cp -a $install/usr $fs/
 }

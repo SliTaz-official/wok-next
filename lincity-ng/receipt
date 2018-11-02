@@ -3,37 +3,33 @@
 PACKAGE="lincity-ng"
 VERSION="2.0"
 CATEGORY="games"
-SHORT_DESC="A City Simulation Game. It is a polished and improved version of the classic LinCity game."
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="A City Simulation Game"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://sourceforge.net/projects/lincity-ng.berlios/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.berlios.de/$PACKAGE/$TARBALL" # FIXME
 
-DEPENDS="mesa libxml2 physfs libsdl-gfx libsdl-image libsdl-mixer libsdl-ttf \
-xorg-libxcb"
 BUILD_DEPENDS="mesa-dev libxml2-dev libsdl-gfx-dev libsdl-image-dev \
 libsdl-mixer-dev libsdl-ttf libsdl-ttf-dev ftjam physfs-dev glu-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	jam && jam -sprefix=/usr install
+	jam &&
+	jam -sprefix=/usr install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/applications $fs/usr/share
 	cp -a $install/usr/share/lincity-ng $fs/usr/share
 	cp -a $install/usr/share/pixmaps $fs/usr/share
+	DEPENDS="mesa libxml2 physfs libsdl-gfx libsdl-image libsdl-mixer \
+	libsdl-ttf xorg-libxcb"
 }
-

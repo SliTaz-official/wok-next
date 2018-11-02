@@ -3,8 +3,8 @@
 PACKAGE="flex"
 VERSION="2.6.4"
 CATEGORY="development"
-SHORT_DESC="Flex is a fast lexical analyser generator"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Fast lexical analyser generator"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://github.com/westes/flex"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/flex.html"
@@ -13,17 +13,11 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/releases/download/v$VERSION/$TARBALL"
 TARBALL_MD5="2882e3179748cc9f9c23ec593d6adc8d"
 
-BUILD_DEPENDS="bison gettext help2man indent"
+BUILD_DEPENDS="bison gettext-dev help2man indent"
 
-SPLIT="libflex flex"
+SPLIT="libflex $PACKAGE"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			export ac_cv_func_malloc_0_nonnull=yes
-			export ac_cv_func_realloc_0_nonnull=yes
-	esac
-
 	# Fix a problem introduced with glibc-2.26
 	sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
 

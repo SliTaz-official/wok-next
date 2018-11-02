@@ -3,27 +3,23 @@
 PACKAGE="comix"
 VERSION="4.0.4"
 CATEGORY="graphics"
-SHORT_DESC="Comix is an image viewer, specifically designed to handle comic books."
-MAINTAINER="mallory@sweetpeople.org"
+SHORT_DESC="Comic book image viewer"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://comix.sourceforge.net"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="viewer comic"
+WEB_SITE="http://comix.sourceforge.net/"
 
-DEPENDS="python python-pygtk python-pil rar"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="python python-pygtk-dev python-pil unrar"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR/usr
-	python install.py --no-mime --dir $DESTDIR/usr install
+compile_rules() {
+	mkdir -p $install/usr
+	python -B install.py --no-mime --dir $install/usr install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/* $fs/usr/
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-pygtk python-pil rar"
+	TAGS="viewer comic"
 }

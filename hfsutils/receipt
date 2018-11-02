@@ -11,21 +11,17 @@ WEB_SITE="https://www.mars.org/home/rob/proj/hfs/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.mars.org/pub/hfs/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $install/usr/bin $install/usr/share/man/man1
 	sed -i 's|DEST =.|&$(DESTDIR)|' Makefile.in
 
-	./configure $CONFIGURE_ARGS && make && make install &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
-	docdir=$install/usr/share/doc/hfsutils-$VERSION &&
-	mkdir -p $docdir &&
-	cp doc/*.txt $docdir
+	cook_pick_docs doc/*.txt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

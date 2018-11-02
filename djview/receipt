@@ -12,24 +12,20 @@ REPOLOGY="djview4"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/djvu/$TARBALL"
 
-DEPENDS="qt5-base djvulibre"
 BUILD_DEPENDS="qt5-dev djvulibre-dev gzip xorg-dev zlib-dev expat-dev mesa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure
 	sed -i 's/-O2/-Os/g' $src/src/Makefile
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	ln -s djview $fs/usr/bin/djview4
 	cd $fs/usr/share/icons/hicolor/32x32/
 	mv mime* apps
 	rm -rf ../64x64 ../scalable $fs/usr/lib/*/*/*.la
+	DEPENDS="qt5-base djvulibre"
 }

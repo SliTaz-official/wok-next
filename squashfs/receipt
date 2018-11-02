@@ -1,33 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="squashfs"
 VERSION="4.3"
 CATEGORY="base-system"
-SHORT_DESC="Linux squashfs userland tools."
+SHORT_DESC="Linux squashfs userland tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://$PACKAGE.sourceforge.net/"
+WEB_SITE="http://squashfs.sourceforge.net/"
+
 TARBALL="squashfs$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="zlib liblzma linux-squashfs lzo lz4-lib"
 BUILD_DEPENDS="zlib-dev attr-dev xz-dev lzo-dev lz4-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/squashfs-tools
-	for i in XZ LZMA_XZ LZO LZ4 ; do
+	for i in XZ LZMA_XZ LZO LZ4; do
 		sed -i "s|^#\\(${i}_SUPPORT = 1\\)|\\1|g" Makefile
 	done
-	mkdir -p $DESTDIR/usr/sbin $DESTDIR/sbin
+
 	make || return 1
-	cp -a mksquashfs  $DESTDIR/usr/sbin
-	cp -a unsquashfs $DESTDIR/sbin
+
+	install -Dm755 mksquashfs $install/usr/sbin/mksquashfs
+	install -Dm755 unsquashfs $install/sbin/unsquashfs
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $install/sbin $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="zlib liblzma linux-squashfs lzo lz4-lib"
 }

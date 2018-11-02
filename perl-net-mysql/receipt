@@ -12,20 +12,17 @@ REPOLOGY="perl:net-mysql"
 TARBALL="Net-MySQL-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/T/TS/TSUCCHI/$TARBALL"
 
-DEPENDS="perl-digest-sha1 libmysqlclient"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-digest-sha1 libmysqlclient"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-digest-sha1 libmysqlclient"
 }

@@ -4,7 +4,7 @@ PACKAGE="irssi"
 VERSION="1.1.1"
 CATEGORY="network"
 SHORT_DESC="Lightweight console IRC client"
-MAINTAINER="mallory@sweetpeople.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://irssi.org/"
 
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/irssi/irssi/releases/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="glib-dev openssl-dev ncurses-dev perl-dev"
-SPLIT="irssi-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -21,7 +21,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	find $install -type f -exec chmod u+w '{}' \; # for Perl files
 }

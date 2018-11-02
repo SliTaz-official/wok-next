@@ -6,7 +6,7 @@ CATEGORY="games"
 SHORT_DESC="Othello game in javascript"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://www.posi.net/software/othello/"
+WEB_SITE="https://web.archive.org/web/20101231221346/http://www.posi.net:80/software/othello/"
 
 TARBALL="$PACKAGE-$VERSION.tar.lzma"
 
@@ -25,29 +25,18 @@ compile_rules() {
 	fi
 	#for i in index.html othello.js \
 	#	images/blank.gif images/white.gif images/black.gif \
-	#	images/white-trans.gif images/black-trans.gif ; do
+	#	images/white-trans.gif images/black-trans.gif; do
 	#	[ -s $i ] || wget -P $(dirname $i) $WEB_SITE/$i
 	#done
 	sed -i 's|TITLE>.*</TITLE|TITLE>Othello</TITLE|' index.html
 
-	mkdir -p \
-		$install/var/www/othello \
-		$install/usr/share/applications
+	mkdir -p $install/var/www/othello
 	cp -a $src/* $install/var/www/othello
 	chown -R 80.80 $install/var/www/othello
-	cat > $install/usr/share/applications/othello.desktop <<EOT
-[Desktop Entry]
-Type=Application
-Name=Othello
-Exec=browser file:///var/www/othello/index.html
-Icon=/var/www/othello/images/black.gif
-Terminal=false
-Categories=Game;
-Comment=Othello game
-EOT
+
+	install -Dm644 $stuff/othello.desktop $install/usr/share/applications/othello.desktop
 }
 
 genpkg_rules() {
 	copy @std
 }
-

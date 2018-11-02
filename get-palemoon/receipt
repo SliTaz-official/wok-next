@@ -3,14 +3,14 @@
 PACKAGE="get-palemoon"
 VERSION="27.6.1"
 CATEGORY="non-free"
-SHORT_DESC="Browser based on Firefox that's optimised for performance. Official sse2 version."
+SHORT_DESC="Browser based on Firefox that's optimised for performance. Official sse2 version"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
 WEB_SITE="http://www.palemoon.org/"
 REPOLOGY="-"
 
 compile_rules() {
-	install -Dm0755 $stuff/get-palemoon $install/usr/bin/get-palemoon
+	install -Dm0755 $stuff/$PACKAGE $install/usr/bin/$PACKAGE
 }
 
 genpkg_rules() {
@@ -19,7 +19,11 @@ genpkg_rules() {
 }
 
 post_install() {
-	echo 'To get browser run get-palemoon command as root'
-	echo 'For media playback try to install ffmpeg package'
-}
+	[ -n "$quiet" ] || cat <<EOT
 
+	.-------------------------------------------------.
+	| To get browser run get-palemoon command as root |
+	| For media playback install ffmpeg package       |
+	'-------------------------------------------------'
+EOT
+}

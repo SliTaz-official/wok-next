@@ -1,51 +1,45 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="remind"
 VERSION="03.01.15"
 CATEGORY="utilities"
-SHORT_DESC="Sophisticated calendar and alarm program."
+SHORT_DESC="Sophisticated calendar and alarm program"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.roaringpenguin.com/products/remind"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.roaringpenguin.com/products/remind"
 WGET_URL="http://www.roaringpenguin.com/files/download/$TARBALL"
-TAGS="office calendar"
 
-DEPENDS="tk tcl tcllib xorg-libXScrnSaver"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr $fs/etc/skel
 	touch $fs/etc/skel/.reminders
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="tk tcl tcllib xorg-libXScrnSaver"
+	TAGS="office calendar"
 }
 
-post_install()
-{
+post_install() {
 	# Check for ~/.reminders file - needed for wyrd
-	for i in $(ls "$1/home" 2> /dev/null); do
+	for i in $(ls "$1/home" 2>/dev/null); do
 		[ -f "$1/home/$i/.reminders" ] && continue
-		echo -n "Creating config file for $i ..."
-		touch "$1/home/$i/.reminders" 
+		action "Creating config file for $i..."
+		touch "$1/home/$i/.reminders"
 		chroot "$1/" chown $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.reminders"
 		status
 	done
 }
 
-post_remove()
-{
+post_remove() {
 	rm -f "$1"/home/*/.reminders
 }

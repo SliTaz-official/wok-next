@@ -4,7 +4,7 @@ PACKAGE="distcc"
 VERSION="3.3"
 CATEGORY="development"
 SHORT_DESC="Distributed compilation for C/C++"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/distcc/distcc"
 
@@ -13,7 +13,7 @@ WGET_URL="https://github.com/distcc/distcc/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="popt-dev lzo-dev python-dev gtk2-dev libgnome-dev \
 libgnomeui-dev libbonoboui-dev libgnomecanvas-dev libgnome-keyring-dev"
-SPLIT="distcc distccmon-gui"
+SPLIT="distccmon-gui"
 
 compile_rules() {
 	export CFLAGS="-Wno-error=unused-but-set-variable -Wno-unused-local-typedefs"
@@ -22,7 +22,7 @@ compile_rules() {
 		--with-gtk \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -51,7 +51,7 @@ genpkg_rules() {
 				$fs/usr/bin/distccmon-gui
 			cp -a $install/usr/share/distcc/distccmon-gnome-icon.png \
 				$fs/usr/share/pixmaps/distccmon-gui.png
-			cp stuff/*.desktop $fs/usr/share/applications
+			cp $stuff/*.desktop $fs/usr/share/applications
 			;;
 	esac
 }
@@ -65,7 +65,7 @@ post_install_distcc() {
 	# Fix perms for files and directories
 	chroot "$1/" chown -R distcc.distcc /var/log/distccd
 
-	cat <<EOF
+	[ -n "$quiet" ] || cat <<EOF
 
 	.---------------------------------------------------------.
 	| Now you can:                                            |

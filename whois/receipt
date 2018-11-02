@@ -4,27 +4,22 @@ PACKAGE="whois"
 VERSION="5.0.11"
 CATEGORY="network"
 SHORT_DESC="The whois client by Marco d'Itri"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_${VERSION}.tar.gz"
 WEB_SITE="http://www.linux.it/~md/software/"
+
+TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="http://ftp.debian.org/debian/pool/main/w/$PACKAGE/$TARBALL"
 
-DEPENDS="libidn"
 BUILD_DEPENDS="libidn-dev perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	make prefix=/usr HAVE_LIBIDN=1
-	make prefix=/usr BASEDIR=$DESTDIR install-whois
+	make prefix=/usr BASEDIR=$install install-whois
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="libidn"
 }
-

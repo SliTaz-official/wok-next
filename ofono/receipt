@@ -4,22 +4,22 @@ PACKAGE="ofono"
 VERSION="1.14"
 CATEGORY="network"
 SHORT_DESC="Stack for mobile telephony (GSM/UMTS) applications"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://ofono.org"
+WEB_SITE="http://ofono.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://linux-kernel.uio.no/pub/linux/network/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="dbus-dev eudev-dev glib-dev bluez-dev \
 mobile-broadband-provider-info-dev"
-SPLIT="ofono-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	cp -a $stuff/etc/* $install/etc/
 }

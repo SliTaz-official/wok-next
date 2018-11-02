@@ -19,10 +19,10 @@ compile_rules() {
 	LIBS="-lbz2"
 	./configure \
 		--without-klibc \
-		$CONFIGURE_ARGS || exit 1
+		$CONFIGURE_ARGS || return 1
 	sed -i 's|-all-static||' $src/src/Makefile
 	make -j1 &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

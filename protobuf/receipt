@@ -4,7 +4,7 @@ PACKAGE="protobuf"
 VERSION="3.5.1"
 CATEGORY="network"
 SHORT_DESC="Protocol Buffers - Google's data interchange format"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://developers.google.com/protocol-buffers/"
 
@@ -12,17 +12,17 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/google/protobuf/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="curl automake libtool zlib-dev python-dev"
-SPLIT="protobuf-python protobuf-dev"
+SPLIT="$PACKAGE-python $PACKAGE-dev"
 
 compile_rules() {
 	./autogen.sh &&
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install || exit 1
+	make install || return 1
 
 	cd $src/python
-	python setup.py install --prefix=/usr --root $DESTDIR
+	python -B setup.py install --prefix=/usr --root=$install
 }
 
 genpkg_rules() {

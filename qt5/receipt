@@ -22,27 +22,30 @@ xorg-libX11-dev libxkbcommon-dev xorg-libXrender-dev cups-dev \
 xorg-libXcomposite-dev alsa-lib-dev gst1-plugins-base-dev gtk3-dev"
 # Name split packages according to sources structure, for example:
 # $src/qtgamepad/ -> qt5-gamepad
-SPLIT="qt5-3d        qt5-base             qt5-base-gtk3        \
-qt5-canvas3d         qt5-charts           qt5-connectivity     \
-qt5-datavis3d        qt5-declarative      qt5-gamepad          \
-qt5-graphicaleffects qt5-imageformats     qt5-location         \
-qt5-multimedia       qt5-networkauth      qt5-purchasing       \
-qt5-quickcontrols    qt5-quickcontrols2   qt5-remoteobjects    \
-qt5-script           qt5-scxml            qt5-sensors          \
-qt5-serialbus        qt5-serialport       qt5-speech           \
-qt5-svg              qt5-tools            qt5-virtualkeyboard  \
-qt5-wayland          qt5-webchannel       qt5-websockets       \
-qt5-x11extras        qt5-xmlpatterns      qt5-base-egl         \
+SPLIT="\
+$PACKAGE-3d               $PACKAGE-base             $PACKAGE-base-gtk3        \
+$PACKAGE-canvas3d         $PACKAGE-charts           $PACKAGE-connectivity     \
+$PACKAGE-datavis3d        $PACKAGE-declarative      $PACKAGE-gamepad          \
+$PACKAGE-graphicaleffects $PACKAGE-imageformats     $PACKAGE-location         \
+$PACKAGE-multimedia       $PACKAGE-networkauth      $PACKAGE-purchasing       \
+$PACKAGE-quickcontrols    $PACKAGE-quickcontrols2   $PACKAGE-remoteobjects    \
+$PACKAGE-script           $PACKAGE-scxml            $PACKAGE-sensors          \
+$PACKAGE-serialbus        $PACKAGE-serialport       $PACKAGE-speech           \
+$PACKAGE-svg              $PACKAGE-tools            $PACKAGE-virtualkeyboard  \
+$PACKAGE-wayland          $PACKAGE-webchannel       $PACKAGE-websockets       \
+$PACKAGE-x11extras        $PACKAGE-xmlpatterns      $PACKAGE-base-egl         \
 \
-qt5-locale-ar    qt5-locale-ca    qt5-locale-cs    qt5-locale-da \
-qt5-locale-de    qt5-locale-en    qt5-locale-es    qt5-locale-fa \
-qt5-locale-fi    qt5-locale-fr    qt5-locale-gl    qt5-locale-he \
-qt5-locale-hu    qt5-locale-it    qt5-locale-ja    qt5-locale-ko \
-qt5-locale-lt    qt5-locale-lv    qt5-locale-pl    qt5-locale-pt \
-qt5-locale-ru    qt5-locale-sk    qt5-locale-sl    qt5-locale-sv \
-qt5-locale-uk    qt5-locale-zh_CN qt5-locale-zh_TW \
+$PACKAGE-locale-ar    $PACKAGE-locale-ca    $PACKAGE-locale-cs    \
+$PACKAGE-locale-da    $PACKAGE-locale-de    $PACKAGE-locale-en    \
+$PACKAGE-locale-es    $PACKAGE-locale-fa    $PACKAGE-locale-fi    \
+$PACKAGE-locale-fr    $PACKAGE-locale-gl    $PACKAGE-locale-he    \
+$PACKAGE-locale-hu    $PACKAGE-locale-it    $PACKAGE-locale-ja    \
+$PACKAGE-locale-ko    $PACKAGE-locale-lt    $PACKAGE-locale-lv    \
+$PACKAGE-locale-pl    $PACKAGE-locale-pt    $PACKAGE-locale-ru    \
+$PACKAGE-locale-sk    $PACKAGE-locale-sl    $PACKAGE-locale-sv    \
+$PACKAGE-locale-uk    $PACKAGE-locale-zh_CN $PACKAGE-locale-zh_TW \
 \
-qt5-doc qt5-dev"
+$PACKAGE-doc $PACKAGE-dev"
 
 compile_rules() {
 	export QT5PREFIX=/usr # or /opt/qt5
@@ -94,7 +97,7 @@ compile_rules() {
 		-no-sse2 \
 		-skip qtwebengine &&
 	make &&
-	make INSTALL_ROOT=$install install || exit 1
+	make INSTALL_ROOT=$install install || return 1
 
 #	find $install$QT5PREFIX/lib/pkgconfig -name '*.pc' \
 #		-exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \; &&
@@ -191,7 +194,7 @@ genpkg_rules() {
 		qt5-base-egl)
 			copy libQt5Egl*so*
 			CAT="development|EGL libs"
-			DEPENDS="qt5-base mesa mesa-libegl mesa-libgbm" ;;
+			DEPENDS="qt5-base mesa mesa-libegl mesa-libgbm";;
 		*)
 			# examine folders in $src to understand what we need to copy from $install
 			examine="$src/qt${PACKAGE#qt5-}"

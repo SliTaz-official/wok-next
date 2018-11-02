@@ -16,16 +16,15 @@ WGET_URL="https://github.com/sfzhi/fbterm/archive/$VERSION.tar.gz"
 # -> http://www.codon.org.uk/~mjg59/libx86/
 BUILD_DEPENDS="freetype-dev fontconfig-dev gpm-dev ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/-1/(u16) &/' src/lib/vterm_states.cpp
-	./configure $CONFIGURE_ARGS && make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="fontconfig freetype"
 }

@@ -12,21 +12,19 @@ REPOLOGY="perl:spreadsheet-parseexcel"
 TARBALL="Spreadsheet-ParseExcel-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DO/DOUGW/$TARBALL"
 
-DEPENDS="perl-crypt-rc4 perl-digest-perl-md5 perl-io-stringy \
+BUILD_DEPENDS="perl-crypt-rc4 perl-digest-perl-md5 perl-io-stringy \
 perl-ole-storage_lite"
-BUILD_DEPENDS="$DEPENDS"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-crypt-rc4 perl-digest-perl-md5 perl-io-stringy \
+	perl-ole-storage_lite"
 }

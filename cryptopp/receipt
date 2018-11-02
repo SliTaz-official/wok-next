@@ -3,24 +3,21 @@
 PACKAGE="cryptopp"
 VERSION="5.6.5"
 CATEGORY="security"
-SHORT_DESC="C++ class library of cryptographic schemes."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="C++ class library of cryptographic schemes"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT PublicDomain"
-TARBALL="${PACKAGE}${VERSION//./}.zip"
 WEB_SITE="https://www.cryptopp.com/"
+
+TARBALL="$PACKAGE${VERSION//./}.zip"
 WGET_URL="$WEB_SITE$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make 
-	make libcryptopp.so
+compile_rules() {
+	make &&
+	make libcryptopp.so &&
 	make PREFIX=/usr install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/doc/$PACKAGE
 	cp -a $install/usr/* $fs/usr
 	cp $src/License.txt $fs/usr/share/doc/$PACKAGE

@@ -3,8 +3,8 @@
 PACKAGE="libproxy"
 VERSION="0.4.15"
 CATEGORY="multimedia"
-SHORT_DESC="library to provide automatic proxy configuration management"
-MAINTAINER="jozee@slitaz.org"
+SHORT_DESC="Automatic proxy configuration management"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://libproxy.github.io/libproxy/"
 
@@ -12,15 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/libproxy/libproxy/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="cmake webkitgtk-dev python-dev perl gtk2-dev"
-SPLIT="libproxy-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./autogen.sh
-	sed -i -e 's/WITH_MOZJS:BOOL=ON/WITH_MOZJS:BOOL=OFF/' \
-	       -e 's|/usr/local|/usr|' CMakeCache.txt
+	sed \
+		-e 's/WITH_MOZJS:BOOL=ON/WITH_MOZJS:BOOL=OFF/' \
+		-e 's|/usr/local|/usr|' \
+		-i CMakeCache.txt
+
 	./autogen.sh &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

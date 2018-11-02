@@ -3,8 +3,8 @@
 PACKAGE="slitaz-arm-rpi"
 VERSION="214"
 CATEGORY="base-system"
-SHORT_DESC="SliTaz Raspberry Pi: tools, CGI adm, configs and artwork."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz Raspberry Pi: tools, CGI adm, configs and artwork"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://arm.slitaz.org/rpi/"
 REPOLOGY="-"
@@ -21,35 +21,34 @@ CONFIG_FILES="\
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-arm/archive/$VERSION.tar.bz2"
 
-DEPENDS="slitaz-configs dialog"
 SIBLINGS="slitaz-arm-configs"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p ${fs}/usr/sbin
+genpkg_rules() {
+	mkdir -p $fs/usr/sbin
 	case "$ARCH" in
 		i?86)
-			mkdir -p ${fs}/usr/bin \
-				${fs}/usr/share/applications \
-				${fs}/usr/share/pixmaps
-			cp -a ${src}/rpi/slitaz-rpi ${fs}/usr/bin 
-			cp -a ${src}/rpi/tazbian ${fs}/usr/bin 
-			cp -a ${src}/rpi/tazarch ${fs}/usr/bin 
-			cp -a ${src}/rpi/data/slitaz-rpi.desktop \
-				${fs}/usr/share/applications
-			cp -a ${src}/rpi/data/raspberrypi.png \
-				${fs}/usr/share/pixmaps ;;
+			mkdir -p $fs/usr/bin \
+				$fs/usr/share/applications \
+				$fs/usr/share/pixmaps
+			cp -a $src/rpi/slitaz-rpi $fs/usr/bin
+			cp -a $src/rpi/tazbian $fs/usr/bin
+			cp -a $src/rpi/tazarch $fs/usr/bin
+			cp -a $src/rpi/data/slitaz-rpi.desktop \
+				$fs/usr/share/applications
+			cp -a $src/rpi/data/raspberrypi.png \
+				$fs/usr/share/pixmaps
+			DEPENDS="slitaz-configs dialog"
+			;;
 		arm*)
-			mkdir -p ${fs}/var/www/adm
-			cp -a ${src}/rpi/rootfs/* ${fs}
+			mkdir -p $fs/var/www/adm
+			cp -a $src/rpi/rootfs/* $fs
 			# Tools
 			for tool in tazberry piboot pileds raspicomm piface pitft-setup \
-				pibrella piborg/piborg
-			do
-				cp -a ${src}/rpi/${tool} ${fs}/usr/sbin
+				pibrella piborg/piborg; do
+				cp -a $src/rpi/$tool $fs/usr/sbin
 			done
-			cp -a ${src}/rpi/cgi-adm/* ${fs}/var/www/adm
-			chown -R root.root ${fs} ;;
+			cp -a $src/rpi/cgi-adm/* $fs/var/www/adm
+			chown -R root.root $fs
+			;;
 	esac
 }

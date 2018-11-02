@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="buffer"
 VERSION="1.19"
 CATEGORY="system-tools"
-SHORT_DESC="GPL disaster recovery solution."
-MAINTAINER="erjo@slitaz.org"
+SHORT_DESC="GPL disaster recovery solution"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.mondorescue.org/"
+
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="ftp://ftp.mondorescue.org/src/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
+compile_rules() {
+	make || return 1
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
+	install -Dm755 buffer $install/usr/bin/buffer
 
 	cp buffer.man buffer.1
 	cook_pick_manpages buffer.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	
-	cp -a $src/buffer  $fs/usr/bin
+genpkg_rules() {
+	copy @std
 }

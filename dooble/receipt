@@ -3,24 +3,23 @@
 PACKAGE="dooble"
 VERSION="1.56d"
 CATEGORY="network"
-SHORT_DESC="Private mode only (almost) worst Qt webkit browser. With builtin fm & xterm."
+SHORT_DESC="Private mode only (almost) worst Qt webkit browser. With builtin fm & xterm"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="BSD"
-WEB_SITE="http://dooble.sourceforge.net"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/files/Dooble-${VERSION}-src.tar.gz"
+WEB_SITE="https://dooble.sourceforge.io/"
 
-DEPENDS="qt5 libgcrypt sqlite3 cacerts "
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/Dooble-$VERSION-src.tar.gz"
+
 BUILD_DEPENDS="wget cacerts qt5-dev libgcrypt-dev sqlite3-dev qtwebkit"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	srcdir="$src/Version 1.x" ; cd $srcdir
+compile_rules() {
+	srcdir="$src/Version 1.x"; cd $srcdir
 #	find . -regex '.*\(win32\|osx64\|icns\).*' -exec ls -l {} \; -delete
 	sed -i 's|local/dooble/do|bin/do|g' dooble.desktop
-	qmake PREFIX="/usr/" ${PACKAGE}.qt5.pro
-	make && make INSTALL_ROOT=$install install
+	qmake PREFIX="/usr/" $PACKAGE.qt5.pro
+	make &&
+	make INSTALL_ROOT=$install install || return 1
 #	rm -rf $install/usr/local/$PACKAGE/D${PACKAGE:1}
 	mkdir -p $install/usr/share $install/usr/bin $install/usr/lib
 	install $src/libSpotOn/libspoton.so $install/usr/lib
@@ -31,21 +30,21 @@ compile_rules()
 #	cd $install/usr/share/$PACKAGE && rm -rf Tab Images
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share/$PACKAGE
 	cp -a $src/D${PACKAGE:1} $fs/usr/bin
 	cp -a $src/libSpotOn/libspoton.so $fs/usr/lib
 #	cp -a $install/* $fs
-#	cd $fs/usr/share/$PACKAGE ; ln -s ../../bin/D${PACKAGE:1} D${PACKAGE:1}
-#	cd $fs/usr/share/$PACKAGE/Icons ; rm -rf 64x64 nuovext nuvola black-and-white && ln -s faience nuovext
-#	cd $fs/usr/share/$PACKAGE/Translations ; find . -size -44k -delete
+#	cd $fs/usr/share/$PACKAGE; ln -s ../../bin/D${PACKAGE:1} D${PACKAGE:1}
+#	cd $fs/usr/share/$PACKAGE/Icons; rm -rf 64x64 nuovext nuvola black-and-white && ln -s faience nuovext
+#	cd $fs/usr/share/$PACKAGE/Translations; find . -size -44k -delete
 #	mv $fs/usr/share/$PACKAGE/$PACKAGE.sh $fs/usr/bin/ && cd $fs/usr/bin
 #	sed -i 's|local/dooble/Dooble|bin/Dooble|g' $PACKAGE.sh
 #	sed -i 's|cd /usr/local/dooble|cd /usr/share/dooble|g' $PACKAGE.sh
 #	sed -i 's/fusion/ /g' $PACKAGE.sh
-	cd $fs/usr/share/$PACKAGE ; cat>'Dooble.ini' << EOT
+
+	cd $fs/usr/share/$PACKAGE
+	cat>'Dooble.ini' <<EOT
 [General]
 iconSet=/usr/share/dooble/Icons/faience/configuration.cfg
 desktopBackground=/usr/share/images/slitaz-background.jpg
@@ -60,10 +59,10 @@ showAuthentication=false
 searchName=DuckDuckGo
 EOT
 	chown -R root:root $fs
+	DEPENDS="qt5 libgcrypt sqlite3 cacerts"
 }
 
-post_install()
-{
+post_install() {
 	for i in $(ls "$1/home" 2> /dev/null); do
 		[ -f "$1/home/$i/.dooble/Dooble/Dooble.ini" ] && continue
 		mkdir -p "$1/home/$i/.dooble/Dooble"
@@ -73,9 +72,6 @@ post_install()
 	done
 }
 
-post_remove()
-{
-	echo -n "Removing configuration files..."
+post_remove() {
 	rm -rf /home/*/.dooble
-	status
 }

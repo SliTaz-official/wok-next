@@ -3,34 +3,31 @@
 PACKAGE="phppgadmin"
 VERSION="5.1"
 CATEGORY="misc"
-SHORT_DESC="Administration of postgresql over the Web."
+SHORT_DESC="Administration of postgresql over the Web"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://phppgadmin.sourceforge.net/doku.php"
+
 SOURCE="phpPgAdmin"
 TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://$PACKAGE.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-CONFIG_FILES="/etc/phppgadmin/config.inc.php"
 
-DEPENDS="php-pgsql"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/phppgadmin $fs/etc $fs/usr/share/applications
 	cp -a $src/. $fs/usr/share/phppgadmin
 	mv $fs/usr/share/phppgadmin/conf $fs/etc/phppgadmin
 	ln -s /etc/phppgadmin $fs/usr/share/phppgadmin/conf
 	mv -f $fs/etc/phppgadmin/config.inc.php-dist $fs/etc/phppgadmin/config.inc.php
 	sed -i -e "s/conf\['extra_login_security'\] = true/conf['extra_login_security'] = false/" $fs/etc/phppgadmin/config.inc.php
-	cp stuff/phppgadmin.desktop $fs/usr/share/applications
+	cp $stuff/phppgadmin.desktop $fs/usr/share/applications
 	chown -R www.www $fs/usr/share/phppgadmin $fs/etc/phppgadmin
 	chmod 700 $fs/etc/phppgadmin
 	chmod 600 $fs/etc/phppgadmin/*
+	DEPENDS="php-pgsql"
+	CONFIG_FILES="/etc/phppgadmin/config.inc.php"
 }
 
-post_install()
-{
+post_install() {
 	# Configure lighttpd server
 	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
 		if ! grep -q /usr/share/phppgadmin/ "$1/etc/lighttpd/lighttpd.conf"; then
@@ -64,10 +61,12 @@ EOT
 			fi
 		fi
 	fi
-	cat << EOT
-------
-User 'postgres' can login on localhost without passwd after:
-# /etc/init.d/postgresql start
-------
+
+	[ -n "$quiet" ] || cat << EOT
+
+	.--------------------------------------------------------------.
+	| User 'postgres' can login on localhost without passwd after: |
+	|    # /etc/init.d/postgresql start                            |
+	'--------------------------------------------------------------'
 EOT
 }

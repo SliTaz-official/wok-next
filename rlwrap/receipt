@@ -3,7 +3,7 @@
 PACKAGE="rlwrap"
 VERSION="0.37"
 CATEGORY="misc"
-SHORT_DESC="Input history wrapper using GNU readline."
+SHORT_DESC="Input history wrapper using GNU readline"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -12,18 +12,16 @@ WGET_URL="${WEB_SITE}$TARBALL" # FIXME
 
 BUILD_DEPENDS="readline-dev ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
+compile_rules() {
+	./configure \
+		--prefix=/usr \
 		--localstatedir=/var \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/share/rlwrap $fs/usr/share
 	cp -a $install/usr/bin $fs/usr

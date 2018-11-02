@@ -3,55 +3,48 @@
 PACKAGE="poptop"
 VERSION="1.3.4"
 CATEGORY="network"
-SHORT_DESC="Microsoft Point-to-Point Tunneling Protocol server."
+SHORT_DESC="Microsoft Point-to-Point Tunneling Protocol server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://poptop.sourceforge.net/"
+
 SOURCE="pptpd"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://poptop.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="vpn tunnel"
 
-SPLIT="poptop bcrelay poptop-man"
+SPLIT="bcrelay"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	PPPVER=$(. $WOK/ppp/receipt ; echo $VERSION)
+compile_rules() {
+	PPPVER=$(. $WOK/ppp/receipt; echo $VERSION)
 	sed -i "s/#define VERSION.*/#define VERSION \"${PPPVER:-2.4.3}\"/" \
 		plugins/patchlevel.h
-	sed -i "s|^LIBDIR.*|LIBDIR=$DESTDIR/usr/lib/pptpd|" plugins/Makefile
-	./configure --prefix=/usr \
+	sed -i "s|^LIBDIR.*|LIBDIR=$install/usr/lib/pptpd|" plugins/Makefile
+
+	./configure \
+		--prefix=/usr \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install || return 1
+
+	install -Dm644 samples/pptpd.conf    $install/etc/pptpd.conf
+	install -Dm644 samples/options.pptpd $install/etc/ppp/options.pptpd
+
+	mkdir -p $install/etc/init.d/
+	ln -s daemon $install/etc/init.d/pptpd
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	poptop)
-		CONFIG_FILES="/etc/pptpd.conf /etc/ppp/options.pptpd"
-		DEPENDS="ppp bcrelay"
-		mkdir -p $fs/usr $fs/etc/ppp $fs/etc/init.d
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		rm -f $fs/usr/sbin/bcrelay
-		cp $src/samples/pptpd.conf $fs/etc
-		cp $src/samples/options.pptpd $fs/etc/ppp
-		ln -s daemon $fs/etc/init.d/pptpd
-		;;
-	bcrelay)
-		CAT="network|Broadcast relay daemon."
-		mkdir -p $fs/usr/sbin
-		cp -a $install/usr/sbin/bcrelay $fs/usr/sbin
-		;;
-	poptop-man)
-		CAT="network|PPTP server man pages."
-		mkdir -p $fs/usr/
-		cp -a $install/usr/share $fs/usr/
-		;;
+		bcrelay)
+			copy bcrelay
+			CAT="network|broadcast relay daemon"
+			;;
+		poptop)
+			copy @std @rm
+			CONFIG_FILES="/etc/pptpd.conf /etc/ppp/options.pptpd"
+			DEPENDS="ppp bcrelay"
+			TAGS="vpn tunnel"
+			;;
 	esac
 }

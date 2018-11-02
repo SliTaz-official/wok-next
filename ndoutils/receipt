@@ -22,19 +22,19 @@ compile_rules() {
 		--libexecdir=/usr/lib/$PACKAGE \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install &&
-	make DESTDIR=$DESTDIR install-config
+	make DESTDIR=$install install &&
+	make DESTDIR=$install install-config
 }
 
 genpkg_rules() {
 	mkdir -p $fs/usr/share/nagios/ndoutils \
 		$fs/etc/nagios \
 		$fs/etc/mysql.d
-	
+
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/etc $fs
-	
+
 	# config ndo2db.cfg
 	sed -i  -e 's/ndo2db_user=nagios/ndo2db_user=nagios/' \
 		-e 's/ndo2db_group=nagios/ndo2db_group=nagios/' \
@@ -47,9 +47,9 @@ genpkg_rules() {
 		-e 's|buffer_file=/usr/local/nagios/var/|buffer_file=/var/tmp/|' \
 		$fs/etc/nagios/ndomod.cfg
 
-	cp -a  $src/db/mysql.sql  $fs/usr/share/nagios/ndoutils/nagios.sql
-	cp -a stuff/etc $fs
-	
+	cp -a $src/db/mysql.sql $fs/usr/share/nagios/ndoutils/nagios.sql
+	cp -a $stuff/etc $fs
+
 	chmod 755 $fs/usr/bin/*
 	chmod 755 $fs/etc/mysql.d/*
 	DEPENDS="nagios mysql"

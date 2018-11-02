@@ -3,32 +3,26 @@
 PACKAGE="scrub"
 VERSION="2.4"
 CATEGORY="security"
-SHORT_DESC="Iteratively writes patterns on files or disk devices to make retreiving the data more difficult."
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="Iteratively writes patterns on files or disk devices to make retreiving the data more difficult"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/chaos/scrub"
 WGET_URL="http://diskscrub.googlecode.com/files/$TARBALL" # FIXME
 
-DEPENDS=""
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 }
-

@@ -4,7 +4,7 @@ PACKAGE="readline"
 VERSION="7.0"
 CATEGORY="system-tools"
 SHORT_DESC="GNU readline"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/readline"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/readline.html"
@@ -13,13 +13,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev flex"
-SPLIT="readline-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) export bash_cv_wcwidth_broken=true ;;
-	esac
-
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
 

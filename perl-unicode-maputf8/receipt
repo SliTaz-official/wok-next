@@ -13,20 +13,17 @@ REPOLOGY="perl:unicode-maputf8"
 TARBALL="Unicode-MapUTF8-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/S/SN/SNOWHARE/$TARBALL"
 
-DEPENDS="perl-jcode perl-unicode-map perl-unicode-map8 perl-unicode-string"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-jcode perl-unicode-map perl-unicode-map8 perl-unicode-string"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-jcode perl-unicode-map perl-unicode-map8 perl-unicode-string"
 }

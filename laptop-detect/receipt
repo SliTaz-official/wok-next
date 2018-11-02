@@ -11,18 +11,14 @@ WEB_SITE="https://gitlab.com/debiants/laptop-detect"
 TARBALL="${PACKAGE}_$VERSION.tar.xz"
 WGET_URL="http://ftp.debian.org/debian/pool/main/l/laptop-detect/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $install/usr/sbin
 	sed -e "s|@VERSION@|$VERSION|g" < laptop-detect.in > $install/usr/sbin/laptop-detect
 	chmod 755 $install/usr/sbin/laptop-detect
 	cook_pick_manpages *.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="dmidecode"
 }

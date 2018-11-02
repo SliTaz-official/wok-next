@@ -4,7 +4,7 @@ PACKAGE="mingw32-binutils"
 VERSION="2.28-1"
 CATEGORY="development"
 SHORT_DESC="MinGW32 binutils"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.mingw.org/"
 
@@ -14,13 +14,11 @@ WGET_URL="$SF_MIRROR/mingw/$TARBALL"
 BUILD_DEPENDS="slitaz-toolchain bison flex texinfo"
 
 # Configuration only needs included if we're in the build/wok environment
-if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ]; then
 	. $WOK/mingw32-toolchain/stuff/mingw32.conf
 fi
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|2 << 31|0|' gas/config/tc-i386.c
 	./configure \
 		--prefix=/usr \
@@ -35,19 +33,17 @@ compile_rules()
 -Wno-error=unused-but-set-variable -Wno-error=unused-value \
 -Wno-error=unused-but-set-parameter -Wno-error=logical-not-parentheses \
 -Wno-error=maybe-uninitialized -Wno-error=shift-negative-value" LDFLAGS="-s" &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/lib $fs$MINGW32_ROOT
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install$MINGW32_ROOT/* $fs$MINGW32_ROOT
 	# do not need to copy lib/libiberty.a
 
 	strip -s $fs$MINGW32_ROOT/bin/*
-	
+
 	#Create a symlink for --with-sysroot
 	ln -s . $fs$MINGW32_ROOT/usr
 

@@ -4,7 +4,7 @@ PACKAGE="libdbusmenu-qt"
 VERSION="0.9.3+16.04.20160218"
 CATEGORY="system-tools"
 SHORT_DESC="Library to import and export QMenu instances using the DBusMenu"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://launchpad.net/libdbusmenu-qt"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/kde/libdbusmenu-qt.html"
@@ -13,12 +13,13 @@ TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
 WGET_URL="http://launchpad.net/ubuntu/+archive/primary/+files/$TARBALL"
 
 BUILD_DEPENDS="cmake qt5-dev mesa-dev"
-SPLIT="libdbusmenu-qt-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's|com\.trolltech|org.qtproject|' src/com.canonical.dbusmenu.xml
 
-	mkdir build; cd build
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=/usr \

@@ -11,19 +11,15 @@ WEB_SITE="http://beltoforion.de/article.php?a=muparser"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/beltoforion/muparser/archive/v$VERSION.tar.gz"
 
-SPLIT="muparser-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make -j1 &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		muparser) copy @std;;
 		*-dev)    copy @dev;;

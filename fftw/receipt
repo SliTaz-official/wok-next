@@ -4,7 +4,7 @@ PACKAGE="fftw"
 VERSION="3.3.6-pl2"
 CATEGORY="multimedia"
 SHORT_DESC="A library for computing the discrete Fourier transform (DFT)"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.fftw.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/fftw.html"
@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.fftw.org/$TARBALL"
 
 BUILD_DEPENDS="gfortran"
-SPLIT="fftw-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# --enable-threads: ardour need it: cannot find -lfftw3f_threads
@@ -26,7 +26,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 
 	# build long double precission (fftw3l)
 	make clean
@@ -38,7 +38,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 
 	# build single precision (fftw3f)
 	make clean
@@ -50,7 +50,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

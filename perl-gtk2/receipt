@@ -12,22 +12,19 @@ REPOLOGY="perl:gtk2"
 TARBALL="Gtk2-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
 
-DEPENDS="perl-glib perl-pango atk cairo fontconfig freetype gdk-pixbuf glib \
-gtk2 pango"
 BUILD_DEPENDS="perl-dev perl-glib perl-pango perl-extutils-depends \
 perl-extutils-pkgconfig gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
+	DEPENDS="perl-glib perl-pango atk cairo fontconfig freetype gdk-pixbuf glib \
+	gtk2 pango"
 }

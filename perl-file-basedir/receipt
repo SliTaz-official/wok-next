@@ -13,20 +13,17 @@ REPOLOGY="perl:file-basedir"
 TARBALL="File-BaseDir-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/K/KI/KIMRYAN/$TARBALL"
 
-DEPENDS="perl-ipc-system-simple"
-BUILD_DEPENDS="$DEPENDS perl-module-build perl-file-which"
+BUILD_DEPENDS="perl-ipc-system-simple perl-module-build perl-file-which"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-ipc-system-simple"
 }

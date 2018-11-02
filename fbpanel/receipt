@@ -1,33 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fbpanel"
 VERSION="6.1"
 CATEGORY="x-window"
-SHORT_DESC="Fbpanel is a lightweight GTK2-based panel for UNIX desktop."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Lightweight GTK2-based panel for UNIX desktop"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tbz2"
 WEB_SITE="http://fbpanel.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tbz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk2"
 BUILD_DEPENDS="gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
-	./configure && make && make install
+
+	./configure &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share $fs/usr
 	# Custom config file
 	cp -a $stuff/default $fs/usr/share/fbpanel
+	DEPENDS="gtk2"
 }

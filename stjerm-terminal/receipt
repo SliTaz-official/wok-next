@@ -3,35 +3,31 @@
 PACKAGE="stjerm-terminal"
 VERSION="0.18"
 CATEGORY="x-window"
-SHORT_DESC="Stjerm is a quake-like terminal emulator. It's window is shown with a key shortcut."
-MAINTAINER="mallory@sweetpeople.org"
+SHORT_DESC="Quake-like terminal emulator. It's window is shown with a key shortcut"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/stjerm/stjerm"
 REPOLOGY="stjerm"
 
-SOURCE="stjerm"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+TARBALL="stjerm-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
-TAGS="terminal"
 
-DEPENDS="vte-gtk2"
-BUILD_DEPENDS="vte-gtk2-dev glib-dev gtk2-dev automake"
+BUILD_DEPENDS="vte-gtk2-dev glib-dev gtk2-dev automake xorg-libXinerama-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./autogen.sh
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="vte-gtk2"
+	TAGS="terminal"
 }

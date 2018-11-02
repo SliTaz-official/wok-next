@@ -3,43 +3,41 @@
 PACKAGE="gnustep-gui"
 VERSION="0.25.1"
 CATEGORY="x-window"
-SHORT_DESC="GNUstep GUI class library."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="GNUstep GUI class library"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.gnustep.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.gnustep.org/pub/gnustep/core/$TARBALL"
 
-DEPENDS="gnustep-base audiofile aspell giflib portaudio cups libcomerr3 \
-libtasn1 jpeg tiff libpng16"
 BUILD_DEPENDS="gnustep-make gnustep-base-dev audiofile-dev aspell-dev giflib-dev \
 portaudio-dev cups-dev libtasn1-dev tar jpeg-dev tiff-dev libpng16-dev"
-SPLIT="gnustep-gui-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	gnustep-gui)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		cp -a $install/usr/lib/GNUstep $fs/usr/lib
-		;;
-	gnustep-gui-dev)
-		DEPENDS="gnustep-gui"
-		mkdir -p $fs/usr/share
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/share/GNUstep $fs/usr/share
-		;;
+		gnustep-gui)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			cp -a $install/usr/lib/GNUstep $fs/usr/lib
+			DEPENDS="gnustep-base audiofile aspell giflib portaudio cups \
+			libcomerr3 libtasn1 jpeg tiff libpng16"
+			;;
+		*-dev)
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/include $fs/usr
+			cp -a $install/usr/share/GNUstep $fs/usr/share
+			DEPENDS="gnustep-gui"
+			;;
 	esac
 }

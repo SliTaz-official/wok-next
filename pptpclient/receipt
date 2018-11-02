@@ -3,51 +3,42 @@
 PACKAGE="pptpclient"
 VERSION="1.8.0"
 CATEGORY="network"
-SHORT_DESC="Microsoft Point-to-Point Tunneling Protocol client."
+SHORT_DESC="Microsoft Point-to-Point Tunneling Protocol client"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://pptpclient.sourceforge.net/"
+
 SOURCE="pptp"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://pptpclient.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="vpn tunnel"
 
 BUILD_DEPENDS="ppp perl"
-SPLIT="pptpclient pptpclient-extra pptpclient-man"
+SPLIT="$PACKAGE-extra"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install || retyrn 1
+
+	sed \
+		-e 's|die ".* MPPE .* in kernel|echo "$0: no MPPE kernel module|' \
+		-e 's|wc --lines|wc -l|' \
+		-e '/# system checking/{n;s/^/#/;n;s/^/#/;}' \
+		-i $install/usr/sbin/pptpsetup
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	pptpclient)
-		CONFIG_FILES="/etc/ppp/options.pptp"
-		DEPENDS="ppp"
-		SUGGESTED="pptpclient-extra"
-		mkdir -p $fs/usr/sbin
-		cp -a $install/usr/sbin/pptp $fs/usr/sbin
-		cp -a $install/etc $fs/
-		;;
-	pptpclient-extra)
-		CAT="network|PPTP client configuration helper."
-		DEPENDS="pptpclient perl"
-		mkdir -p $fs/usr/sbin
-		cp -a $install/usr/sbin/pptpsetup $fs/usr/sbin
-		sed -i 's/die ".* MPPE .* in kernel/echo "$0: no MPPE kernel module/' \
-			$fs/usr/sbin/pptpsetup
-		sed -i 's/wc --lines/wc -l/' $fs/usr/sbin/pptpsetup
-		sed -i '/# system checking/{n;s/^/#/;n;s/^/#/;}' $fs/usr/sbin/pptpsetup
-		;;
-	pptpclient-man)
-		CAT="network|PPTP client man pages."
-		mkdir -p $fs/usr/
-		cp -a $install/usr/share $fs/usr/
-		;;
+		pptpclient)
+			copy pptp etc/
+			CONFIG_FILES="/etc/ppp/options.pptp"
+			DEPENDS="ppp"
+			SUGGESTED="pptpclient-extra"
+			TAGS="vpn tunnel"
+			;;
+		*-extra)
+			copy @std @rm
+			CAT="network|configuration helper"
+			DEPENDS="pptpclient perl"
+			;;
 	esac
 }

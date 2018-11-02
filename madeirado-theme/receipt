@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="madeirado-theme"
 VERSION="20130702"
@@ -6,18 +6,15 @@ CATEGORY="customization"
 SHORT_DESC="Madeirado theme for GTK2, Openbox, SLiM, and wallparer"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://holkfoor.deviantart.com/art/Madeirado-Pack-Theme-382214228"
+WEB_SITE="https://www.deviantart.com/holkfoor/art/Madeirado-Pack-Theme-382214228"
+HOST_ARCH="any"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://dl.dropboxusercontent.com/s/ax6iqx6aa344fsu/Madeirado_GTK2_Openbox_Slim_Wallpaper.tar.bz2"
-TAGS="holkfoor openbox slim wallpaper"
-#HOST_ARCH="any" # imagemagick missing in arm
 
-DEPENDS="gtk-clearlooks openbox slim"
 BUILD_DEPENDS="imagemagick"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	M=Madeirado
 	s=$install/usr/share/slim/themes
 	t=$install/usr/share/themes
@@ -42,14 +39,13 @@ compile_rules()
 	ln -s ../slim/themes/$M/background.jpg $i/$M.jpg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="gtk-clearlooks openbox slim"
+	TAGS="holkfoor openbox slim wallpaper"
 }
 
-post_install()
-{
+post_install() {
 	# Set GTK+ Theme
 	for i in $1/etc/xdg/lxsession/*/desktop.conf \
 		$1/home/*/.config/lxsession/*/desktop.conf; do

@@ -4,7 +4,7 @@ PACKAGE="attr"
 VERSION="2.4.48"
 CATEGORY="system-tools"
 SHORT_DESC="Commands for manipulating filesystem extended attributes"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://savannah.nongnu.org/projects/attr"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/attr.html"
@@ -12,9 +12,8 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/attr.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/attr/$TARBALL"
 
-BUILD_DEPENDS_arm=" "
-BUILD_DEPENDS="autoconf automake m4 libtool gettext coreutils-operations"
-SPLIT="attr-dev"
+BUILD_DEPENDS="autoconf automake m4 libtool gettext-dev coreutils-operations"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	rm /bin/rpm >/dev/null
@@ -25,7 +24,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/lib
 	mv $install/usr/lib/libattr.so.* $install/lib

@@ -1,29 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ranger"
 VERSION="1.7.2"
 CATEGORY="utilities"
-SHORT_DESC="File manager."
+SHORT_DESC="File manager"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://nongnu.org/ranger/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://nongnu.org/ranger/$PACKAGE-stable.tar.gz"
-TAGS="file-manager"
 
-DEPENDS="python"
-BUILD_DEPENDS="python python-dev"
+BUILD_DEPENDS="python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install || return 1
+
+	find $install -type f -exec chmod g-w '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
-	# remove stuff
-	rm -rf $fs/usr/share/man
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
+	TAGS="file-manager"
 }

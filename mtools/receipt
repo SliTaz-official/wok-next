@@ -4,7 +4,7 @@ PACKAGE="mtools"
 VERSION="4.0.18"
 CATEGORY="system-tools"
 SHORT_DESC="Access MS-DOS disk from *nix"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/mtools/intro.html"
 
@@ -12,17 +12,15 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://ftp.gnu.org/pub/gnu/mtools/$TARBALL"
 
 BUILD_DEPENDS="texinfo xorg-libX11-dev xorg-libICE-dev"
-SPLIT="mtools-floppyd mtools"
+SPLIT="$PACKAGE-floppyd $PACKAGE"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		*-floppyd)
 			copy floppyd floppyd_installtest

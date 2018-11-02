@@ -13,20 +13,17 @@ REPOLOGY="perl:exception-class"
 TARBALL="Exception-Class-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-class-data-inheritable perl-devel-stacktrace"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-class-data-inheritable perl-devel-stacktrace"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-class-data-inheritable perl-devel-stacktrace"
 }

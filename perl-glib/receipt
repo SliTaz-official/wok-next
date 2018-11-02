@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-glib"
 VERSION="1.327"
@@ -12,20 +12,17 @@ REPOLOGY="perl:glib"
 TARBALL="Glib-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
 
-DEPENDS="perl glib"
 BUILD_DEPENDS="perl-dev perl-extutils-depends perl-extutils-pkgconfig glib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
+	DEPENDS="perl glib"
 }

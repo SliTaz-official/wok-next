@@ -14,7 +14,7 @@ TARBALL="libpng-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/libpng/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev"
-SPLIT="libpng16-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# don't use --disable-static: optipng-static require such lib
@@ -30,8 +30,8 @@ compile_rules() {
 
 	# Misc png tools
 	cd contrib/pngminus
-	make PNGLIB="-L$DESTDIR/usr/lib -lpng" -f makefile.std png2pnm pnm2png
-	cp -a png2pnm pnm2png $DESTDIR/usr/bin
+	make PNGLIB="-L$install/usr/lib -lpng" -f makefile.std png2pnm pnm2png
+	cp -a png2pnm pnm2png $install/usr/bin
 }
 
 genpkg_rules() {
@@ -40,7 +40,7 @@ genpkg_rules() {
 			copy @std
 			DEPENDS="zlib"
 			;;
-		libpng16-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="libpng16 zlib-dev"
 			;;

@@ -1,40 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="gcc+gcj"
-SOURCE="gcc"
 VERSION="4.6.3"
 CATEGORY="development"
-SHORT_DESC="The GNU Compiler Collection, including the gcj Compiler for Java."
-MAINTAINER="rcx@zoominternet.net"
+SHORT_DESC="The GNU Compiler Collection, including the gcj Compiler for Java"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://gcc.gnu.org/java/"
+WEB_SITE="https://gcc.gnu.org/"
 REPOLOGY="gcc"
 
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="$GNU_MIRROR/$SOURCE/$SOURCE-$VERSION/$TARBALL"
+TARBALL="gcc-$VERSION.tar.bz2"
+WGET_URL="$GNU_MIRROR/gcc/gcc-$VERSION/$TARBALL"
 
 ECJ_JAR="ecj-latest.jar"
 ECJ_URL="ftp://sourceware.org/pub/java/$ECJ_JAR"
 EXTRA_SOURCE_FILES="$ECJ_JAR"
-PROVIDE="$SOURCE jre jdk"
+PROVIDE="gcc jre jdk"
 TAGS="compiler C C++ objective-C java"
 
-DEPENDS="glibc-base glib gcc-lib-base util-linux-uuid zlib libgomp gmp mpfr python \
-gtk2 atk cairo expat fontconfig freetype pango xorg-pixman libpng16 xorg-libxcb xorg-xcb-util \
-xorg-libICE xorg-libSM xorg-libX11 xorg-libXau xorg-libXcomposite \
-xorg-libXcursor xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes \
-xorg-libXinerama xorg-libXrandr xorg-libXrender xorg-libXtst alsa-lib elfutils"
 BUILD_DEPENDS="glibc-dev gawk flex python perl gmp gmp-dev mpfr mpfr-dev mpc-library \
 expat-dev zlib-dev fastjar gtk2-dev libart_lgpl-dev xorg-dev xorg-xorgproto \
 xorg-libXtst \
 elfutils elfutils-dev util-linux-uuid-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/@mkdir_p@/mkdir -p/' libjava/classpath/lib/copy-vmresources.sh.in
 	# Set HOST_SYSTEM if not defined in tazwok.conf as it should be
-	if [ -z "$HOST_SYSTEM" ] ; then
+	if [ -z "$HOST_SYSTEM" ]; then
 		HOST_SYSTEM="$ARCH-slitaz-linux"
 	fi
 	GCC_TARGET=$HOST_SYSTEM
@@ -42,11 +34,11 @@ compile_rules()
 	# Get ecj.jar needed to build gcj. We have to dl it each time from the
 	# sources repository to ensure that we receive the latest JAR.
 	# (See http://gcc.gnu.org/install/configure.html --with-ecj-jar)
-	if [ ! -f "$ECJ_JAR" ] ; then
+	if [ ! -f "$ECJ_JAR" ]; then
 		echo "Downloading ECJ jar to: $(pwd)"
 		wget -c $ECJ_URL
 		# Exit if download failed to avoid errors.
-		if [ ! -f "$ECJ_JAR" ] ; then
+		if [ ! -f "$ECJ_JAR" ]; then
 			echo -e "\nECJ jar download failed, exiting. Please check ECJ_URL variable.\n"
 			return 1
 		fi
@@ -58,30 +50,40 @@ compile_rules()
 		$src/libiberty/Makefile.in || return 1
 	mkdir -p ../build && cd ../build
 
-	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
-	../${src##*/}/configure --prefix=/usr --libexecdir=/usr/lib \
-		--infodir=/usr/share/info --mandir=/usr/share/man --enable-nls \
-		--enable-languages=c,c++,objc,java --enable-shared \
+	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')	#'
+
+	../${src##*/}/configure \
+		--prefix=/usr \
+		--libexecdir=/usr/lib \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		--enable-nls \
+		--enable-languages=c,c++,objc,java \
+		--enable-shared \
 		--with-system-zlib \
-		--enable-clocale=gnu --enable-objc-gc --enable-__cxa_atexit \
-		--enable-threads=posix --with-tune=$ARCH \
-		--enable-java-home --with-arch-directory=i386 \
+		--enable-clocale=gnu \
+		--enable-objc-gc \
+		--enable-__cxa_atexit \
+		--enable-threads=posix \
+		--with-tune=$ARCH \
+		--enable-java-home \
+		--with-arch-directory=i386 \
 		--with-jvm-root-dir=/usr/lib/jvm/java-gcj \
 		--with-jvm-jar-dir=/usr/lib/jvm-exports/java-gcj \
 		--with-python-dir=/usr/lib/$PYTHON_LIB/site-packages \
-		--with-x --enable-java-awt=gtk \
+		--with-x \
+		--enable-java-awt=gtk \
 		--enable-gtk-cairo \
 		--enable-lto \
-		$CONFIGURE_ARGS $GCC_TARGET  &&
+		$GCC_TARGET \
+		$CONFIGURE_ARGS &&
 	make bootstrap &&
 	# Make install in the source tree to help creating derived pkgs
 	# and keep $_pkg variable set for genpkg.
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p  $fs/usr/share
 	cp -a $install/usr/share/java $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
@@ -95,15 +97,19 @@ genpkg_rules()
 	rm $fs/usr/lib/*.la
 	# Include files.
 	cp -a $install/usr/include $fs/usr
+	DEPENDS="glibc-base glib gcc-lib-base util-linux-uuid zlib libgomp gmp mpfr \
+	python gtk2 atk cairo expat fontconfig freetype pango xorg-pixman libpng16 \
+	xorg-libxcb xorg-xcb-util xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
+	xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXdmcp \
+	xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender \
+	xorg-libXtst alsa-lib elfutils"
 }
 
-# Post install commands for Tazpkg.
-post_install()
-{
-	if [ ! -f "$1/lib/cpp" ] ; then
+post_install() {
+	if [ ! -f "$1/lib/cpp" ]; then
 		ln -s ../usr/bin/cpp "$1/lib"
 	fi
-	if [ ! -f "$1/usr/bin/cc" ] ; then
+	if [ ! -f "$1/usr/bin/cc" ]; then
 		ln -s gcc "$1/usr/bin/cc"
 	fi
 }

@@ -1,42 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="squeak-vm"
 VERSION="4.10.2.2614"
-SOURCE="Squeak"
 CATEGORY="network"
-SHORT_DESC="Create and share interactive stories, games, music and art."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Create and share interactive stories, games, music and art"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$SOURCE-$VERSION-src.tar.gz"
 WEB_SITE="https://scratch.mit.edu/"
+
+TARBALL="Squeak-$VERSION-src.tar.gz"
 WGET_URL="http://squeakvm.org/unix/release/$TARBALL"
 
-SUGGESTED="scratch"
-DEPENDS="alsa-lib dbus xorg-libXrender"
-BUILD_DEPENDS="alsa-lib-dev dbus-dev xorg-libXrender-dev"
+BUILD_DEPENDS="alsa-lib-dev dbus-dev xorg-libXrender-dev cmake"
 
-# Use build host cmake when cross compiling
-case "$ARCH" in
-	i?86) BUILD_DEPENDS="$BUILD_DEPENDS cmake" ;;
-	arm) ARCH_ARGS="--without-SqueakFFIPrims" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	./unix/cmake/configure ${ARCH_ARGS} \
+compile_rules() {
+	./unix/cmake/configure \
 		--prefix=/usr \
 		--without-quartz \
 		--without-gl \
 		--with-x \
 		--enable-mpg-mmx &&
-	make && make DESTDIR=${DESTDIR} install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="alsa-lib dbus xorg-libXrender"
+	SUGGESTED="scratch"
 }

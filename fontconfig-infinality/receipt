@@ -7,15 +7,11 @@ SHORT_DESC="Infinality addition for fontconfig"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://github.com/bohoomil/fontconfig-ultimate"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.infinality.net/fedora/linux/zips/$TARBALL" # FIXME
-CONFIG_FILES="/etc/fonts/infinality/infinality.conf"
 
-DEPENDS="fontconfig"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p \
 		$fs/etc/fonts \
 		$fs/usr/bin
@@ -25,4 +21,6 @@ genpkg_rules()
 	sed -i 's|bin/bash|bin/sh|; s|^function \([a-z]*\) |\1()\n|g; \
 		s|select style|for style|; s|rm -r|rm -rf|; s|mkdir|mkdir -p|' \
 		$fs/usr/bin/infctl.sh
+	DEPENDS="fontconfig"
+	CONFIG_FILES="/etc/fonts/infinality/infinality.conf"
 }

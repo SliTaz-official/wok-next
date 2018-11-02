@@ -6,7 +6,7 @@ CATEGORY="network"
 SHORT_DESC="Utilites for networking and traffic control"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://www.linuxfoundation.org/collaborate/workgroups/networking/iproute2"
+WEB_SITE="https://wiki.linuxfoundation.org/networking/iproute2"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/iproute2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
@@ -15,10 +15,15 @@ WGET_URL="https://www.kernel.org/pub/linux/utils/net/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="bison flex iptables-dev db-dev libmnl-dev elfutils-dev"
 
 compile_rules() {
-	./configure /usr/include $CONFIGURE_ARGS &&
+	./configure \
+		/usr/include \
+		$CONFIGURE_ARGS &&
 	sed -i 's|tc-skbmod\.8||' $src/man/man8/Makefile &&
 	make &&
-	make DOCDIR=/usr/share/doc/$PACKAGE-$VERSION DESTDIR=$DESTDIR install
+	make \
+		DOCDIR=/usr/share/doc/$PACKAGE-$VERSION \
+		DESTDIR=$install \
+		install
 }
 
 genpkg_rules() {

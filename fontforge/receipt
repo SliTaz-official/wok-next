@@ -15,8 +15,8 @@ BUILD_DEPENDS="libtool perl-dev tar autoconf automake bash coreutils-line \
 xorg-libX11-dev xorg-libICE-dev zlib-dev freetype-dev libjpeg-turbo-dev \
 libpng16-dev tiff-dev readline-dev cairo-dev pango-dev xorg-libXft-dev \
 gtk2-dev python-dev libuninameslist-dev libspiro-dev util-linux-uuid-dev \
-xorg-libSM-dev gettext"
-SPLIT="fontforge-fonts fontforge-dev"
+xorg-libSM-dev gettext-dev"
+SPLIT="$PACKAGE-fonts $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	rm -r $src/.git
@@ -33,15 +33,14 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		fontforge)
-			copy @std *.mo
-			rm $fs/usr/share/fontforge/pixmaps/*.ttf
-			DEPENDS="gtk2 libuninameslist python libspiro libltdl xorg-libSM"
-			TAGS="editor font"
-			;;
 		*-fonts)
 			copy *.ttf
 			CAT="fonts|fonts"
+			;;
+		fontforge)
+			copy @std @rm *.mo
+			DEPENDS="gtk2 libuninameslist python libspiro libltdl xorg-libSM"
+			TAGS="editor font"
 			;;
 		*-dev)
 			copy @dev

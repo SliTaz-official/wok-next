@@ -3,27 +3,24 @@
 PACKAGE="glances"
 VERSION="1.5.1"
 CATEGORY="utilities"
-SHORT_DESC="A CLI curses based monitoring tool for GNU/Linux and BSD OS."
+SHORT_DESC="A CLI curses based monitoring tool for GNU/Linux and BSD OS"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://nicolargo.github.com/glances/"
-WGET_URL="git|git://github.com/nicolargo/glances.git"
-SUGGESTED="python-jinja2"
+WEB_SITE="https://nicolargo.github.io/glances/"
 
-DEPENDS="python python-psutil"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="git|git://github.com/nicolargo/glances.git"
+
 BUILD_DEPENDS="git bzip2 python-dev python-psutil"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
 	# remove stuff
 	rm -rf $fs/usr/share/man
+	DEPENDS="python python-psutil"
+	SUGGESTED="python-jinja2"
 }

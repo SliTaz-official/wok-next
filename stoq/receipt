@@ -3,26 +3,21 @@
 PACKAGE="stoq"
 VERSION="0.9.12"
 CATEGORY="office"
-SHORT_DESC="Stoq is a suite of Retail Management System applications."
+SHORT_DESC="Suite of Retail Management System applications"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.stoq.com.br/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.stoq.com.br"
 WGET_URL="http://download.stoq.com.br/sources/$VERSION/$TARBALL"
 
-DEPENDS="python python-pygtk postgresql python-psycopg2 python-zope.interface python-pil \
-python-reportlab stoqlib stoqdrivers python-kiwi python-gazpacho"
-BUILD_DEPENDS="python-dev python-pygtk-dev python-kiwi stoqlib gettext-tools"
+BUILD_DEPENDS="python-dev python-pygtk-dev python-kiwi stoqlib gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	LOCALEDIR="$install/usr/share/locale"
 	for file in `find $install | grep 'pyc$'`; do
 		rm $file
@@ -33,4 +28,7 @@ genpkg_rules()
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share $fs/usr
 	cp -a $LOCALEDIR/pt_BR/LC_MESSAGES $fs/usr/share/locale/pt
+	DEPENDS="python python-pygtk postgresql python-psycopg2 \
+	python-zope.interface python-pil python-reportlab stoqlib stoqdrivers \
+	python-kiwi python-gazpacho"
 }

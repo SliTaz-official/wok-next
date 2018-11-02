@@ -12,9 +12,7 @@ REPOLOGY="-"
 TARBALL="syslinux-slitaz-4.06.cpio"
 WGET_URL="http://mirror1.slitaz.org/packages/5.0/syslinux-4.06.tazpkg"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-compile_rules()
-{
+compile_rules() {
 	cpio -dmF $src/$TARBALL -i
 	lzma d $src/fs.cpio.lzma -so | cpio -idm
 	mkdir $install
@@ -23,9 +21,7 @@ compile_rules()
 		$install/boot/isolinux/isolinux.cfg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	CONFIG_FILES="/boot/isolinux/i18n.cfg /boot/isolinux/isolinux.cfg \
 	/boot/isolinux/kbd"
@@ -34,7 +30,6 @@ genpkg_rules()
 	PROVIDE="syslinux"
 }
 
-# Pre and post install commands for Tazpkg.
 post_install() {
 	sed -i "/MENU TITLE SliTaz GNU\/Linux/ s| [0-9X]*$| $(date +%Y%m%d)|" \
 		"$1/boot/isolinux/isolinux.cfg"

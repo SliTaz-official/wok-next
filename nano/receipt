@@ -4,17 +4,16 @@ PACKAGE="nano"
 VERSION="2.9.8"
 CATEGORY="utilities"
 SHORT_DESC="Nano Text Editor"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://nano-editor.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}dist/v${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS_arm="ncurses-dev zlib-dev"
-BUILD_DEPENDS="gettext ncurses-dev zlib-dev groff libmagic-dev"
+BUILD_DEPENDS="gettext-dev ncurses-dev zlib-dev groff libmagic-dev"
 
-SPLIT="nano-noarch"
+SPLIT="$PACKAGE-noarch"
 COOKOPTS="!menus"
 
 compile_rules() {
@@ -23,7 +22,7 @@ compile_rules() {
 		--enable-utf8 \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install || exit 1
+	make install || return 1
 
 	# Config file
 	install -Dm644 $src/doc/sample.nanorc $install/etc/nanorc

@@ -4,15 +4,15 @@ PACKAGE="libglademm"
 VERSION="2.6.7"
 CATEGORY="system-tools"
 SHORT_DESC="A C++ wrapper for libglade"
-MAINTAINER="gokhlayeh@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://www.gtkmm.org/en/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gtkmm-dev libglade-dev cairomm-dev libxml2-dev glibmm-dev"
-SPLIT="libglademm-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's|gtkmm/main|gtkmm|' examples/variablesmap/main.cc
@@ -20,7 +20,7 @@ compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

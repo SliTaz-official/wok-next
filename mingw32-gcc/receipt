@@ -4,7 +4,7 @@ PACKAGE="mingw32-gcc"
 VERSION="3.4.5-20060117-2"
 CATEGORY="development"
 SHORT_DESC="MinGW32 gcc, for C, C++, and Ada"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.mingw.org/"
 
@@ -24,12 +24,12 @@ compile_rules() {
 	echo "CFLAGS=CXXFLAGS='$CFLAGS'"
 
 	# Configuration only needs included if we're in the build/wok environment
-	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ]; then
 		.   $WOK/mingw32-toolchain/stuff/mingw32.conf
 	fi
 
-	mkdir -p $DESTDIR/usr/share/man/man1 $DESTDIR/usr/share/man/man7 
-	if [ "$MINGW32_ID" != "$MINGW32_TARGET" ] ; then
+	mkdir -p $install/usr/share/man/man1 $install/usr/share/man/man7 
+	if [ "$MINGW32_ID" != "$MINGW32_TARGET" ]; then
 		echo "ERROR: Conf 'TARGET' string differs from Receipt 'ID' string"
 		return 1
 	fi
@@ -61,17 +61,15 @@ compile_rules() {
 		--disable-win32-registry \
 		--enable-sjlj-exceptions \
 		$CONFIGURE_ARGS &&
-	make -j4 \
+	make \
 		CFLAGS="-O2 -fomit-frame-pointer" \
 		LDFLAGS="-s" &&
-	make \
-		DESTDIR=$DESTDIR \
-		install 2>&1 | grep -v fixinc/fixincl
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
 	# Configuration only needs included if we're in the build/wok environment
-	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ]; then
 		.   $WOK/mingw32-toolchain/stuff/mingw32.conf
 	fi
 
@@ -94,8 +92,4 @@ post_install() {
 	# Archives get stripped during packaging; need to run ranlib
 	chroot "$1/" find "/usr/lib/gcc/$MINGW32_ID/" -name *.a -exec $MINGW32_ID-ranlib {} \;
 	chroot "$1/" find "/usr/$MINGW32_ID/lib/"     -name *.a -exec $MINGW32_ID-ranlib {} \;
-}
-
-clean_wok() {
-	rm -rf gcc-core-$VERSION-build
 }

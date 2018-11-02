@@ -1,26 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="httptunnel"
 VERSION="3.3"
 CATEGORY="network"
 SHORT_DESC="httptunnel creates a bidirectianal virtual data connection tunnelled in HTTP requests"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/larsbrinkhoff/httptunnel"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL" # FIXME
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure && make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }
-

@@ -4,7 +4,7 @@ PACKAGE="libplayer"
 VERSION="2.0.1"
 CATEGORY="multimedia"
 SHORT_DESC="A multimedia A/V abstraction layer API"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://libplayer.geexbox.org/"
 
@@ -13,20 +13,16 @@ WGET_URL="http://libplayer.geexbox.org/releases/$TARBALL"
 
 BUILD_DEPENDS="shared-mime-info xine-lib-dev xorg-libxcb-dev"
 # xorg-libX11-dev libvdpau-dev with --enable-xlib-hack
-SPLIT="libplayer-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS="--cross-compile" ;;
-	esac
-
 	sed -i 's/cat -n/awk '"'"'{ printf "%6d  %s\\n",++n,$0 }'"'"' </' configure
 	./configure \
 		--prefix=/usr\
 		--enable-mplayer \
 		--disable-gstreamer \
 		--disable-vlc \
-		$ARCH_ARGS &&
+		&&
 	make &&
 	make install
 }

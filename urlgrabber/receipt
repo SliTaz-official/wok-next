@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="urlgrabber"
 VERSION="3.9.1"
 CATEGORY="development"
-SHORT_DESC="A high-level cross-protocol url-grabber and Python library."
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="A high-level cross-protocol url-grabber and Python library"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://urlgrabber.baseurl.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
 
-DEPENDS="python pycurl"
 BUILD_DEPENDS="python-dev pycurl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --prefix=/usr --root=$DESTDIR --optimize=1
+compile_rules() {
+	python -B setup.py install --prefix=/usr --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python pycurl"
 }

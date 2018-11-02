@@ -3,25 +3,21 @@
 PACKAGE="avidemux"
 VERSION="2.7.0"
 CATEGORY="multimedia"
-SHORT_DESC="free video editor"
+SHORT_DESC="Free video editor"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://fixounet.free.fr/$PACKAGE"
+WEB_SITE="http://fixounet.free.fr/avidemux/"
+
 TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="video movie editor avi mpeg mp4"
 
-DEPENDS="alsa-lib libxml2 xorg-libXv cairo libxslt libvpx libvorbis qt5-base \
-opencore-amr lame faac faad2 libsamplerate xvidcore x264"
 BUILD_DEPENDS="tar coreutils-file-special coreutils-file-format cmake yasm \
-gettext xorg-libXv-dev libxml2-dev libvorbis-dev lame-dev xvidcore-dev \
+gettext-dev xorg-libXv-dev libxml2-dev libvorbis-dev lame-dev xvidcore-dev \
 opencore-amr-dev x264-dev faac-dev faad2-dev libsamplerate-dev alsa-lib-dev \
 libxslt-dev libvpx-dev bash qt5-dev xorg-dev zlib-dev mesa-dev sqlite3-dev \
-glu-dev fribidi-dev "
+glu-dev fribidi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|../avidemux/qt4|../avidemux/qt4 -DLRELEASE_EXECUTABLE=/usr/bin/lrelease-qt5|' bootStrap.bash
 	sed -ri 's|(Name=).*|\1avidemux (Qt)|' avidemux2.desktop
 	sed -ri 's|(Exec=).*|\1avidemux3_qt5|' avidemux2.desktop
@@ -29,20 +25,21 @@ compile_rules()
 	sed 's|$EXTRA_CMAKE_DEFS|& -DVAPOURSYNTH=false -DFAAD=false -DFRIBIDI=false |' -i bootStrap.bash
 	bash bootStrap.bash --with-core --with-cli --with-plugins 2>/dev/null
 	for i in Cli Core PluginsCLI PluginsCommon Qt5 PluginsQt5; do
-		( make -C build${i} DESTDIR="$DESTDIR" install 2>/dev/null) | \
+		( make -C build$i DESTDIR="$install" install 2>/dev/null) | \
 			egrep -v 'No package|ld returned 1 exit status'
 	done
-	mkdir -p $DESTDIR/usr/share/pixmaps $DESTDIR/usr/share/applications
-	cp $src/avidemux_icon.png $DESTDIR/usr/share/pixmaps/avidemux.png
-	cp $src/avidemux2.desktop $DESTDIR/usr/share/applications
+	mkdir -p $install/usr/share/pixmaps $install/usr/share/applications
+	cp $src/avidemux_icon.png $install/usr/share/pixmaps/avidemux.png
+	cp $src/avidemux2.desktop $install/usr/share/applications
 
 	cook_pick_manpages $src/man/avidemux.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/lib $fs/usr/share/pixmaps $fs/usr/share/applications
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
+	DEPENDS="alsa-lib libxml2 xorg-libXv cairo libxslt libvpx libvorbis \
+	qt5-base opencore-amr lame faac faad2 libsamplerate xvidcore x264"
+	TAGS="video movie editor avi mpeg mp4"
 }

@@ -13,7 +13,7 @@ WGET_URL="http://horms.net/projects/perdition/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="vanessa_logger-dev vanessa_adt-dev vanessa_socket-dev \
 openldap-dev popt-dev cyrus-sasl-dev openssl-dev libidn-dev pam-dev"
-SPLIT="perdition perdition-dev perdition-pam:pam"
+SPLIT="$PACKAGE-dev $PACKAGE-pam:pam"
 
 BUGS="Very slow: more than 10 seconds for login with squirrelmail, why?"
 
@@ -36,7 +36,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	cp -a $stuff/etc $install
 

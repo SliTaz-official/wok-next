@@ -4,7 +4,7 @@ PACKAGE="gnutls"
 VERSION="3.5.19"
 CATEGORY="security"
 SHORT_DESC="GNU Transport Layer Security Library"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://gnutls.org/"
 
@@ -12,27 +12,18 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gnutls/v${VERSION%.*}/$TARBALL"
 TARBALL_SHA1="51b29b7e37467a765378f3c8e546a5c1bb2a5054"
 
-BUILD_DEPENDS_arm="libtasn1-dev ncurses-dev readline-dev nettle-dev \
-libgpg-error-dev libgcrypt-dev openssl-dev gmp-dev lzip"
-BUILD_DEPENDS="nettle-dev libtasn1-dev libunistring-dev gettext openssl-dev \
+BUILD_DEPENDS="nettle-dev libtasn1-dev libunistring-dev gettext-dev openssl-dev \
 libidn2-dev unbound-dev p11-kit-dev zlib-dev"
-SPLIT="libgnutls gnutls-dev"
+SPLIT="libgnutls $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			ARCH_ARGS="--with-libgcrypt-prefix=/cross/$ARCH/sysroot/usr \
-			--without-p11-kit --disable-rpath --with-libgcrypt --disable-guile \
-			--with-zlib" ;;
-	esac
-
 	./configure \
 		--enable-openssl-compatibility \
 		--with-default-trust-store-file="/etc/ssl/ca-bundle.crt" \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make && make install &&
+	make &&
+	make install &&
 	make -C doc/reference install-data-local
 }
 
@@ -40,12 +31,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		gnutls)
 			copy bin/
-			DEPENDS_arm="nettle libgpg-error ncurses readline zlib \
-			gcc-lib-base libgnutls openssl libtasn1"
 			DEPENDS="libgnutls libtasn1"
-			case $ARCH in
-				arm*) DEPENDS=$DEPENDS_arm;;
-			esac
 			;;
 		libgnutls)
 			copy *.so*

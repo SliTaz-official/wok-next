@@ -4,18 +4,16 @@ PACKAGE="libdes"
 VERSION="4.04b"
 CATEGORY="security"
 SHORT_DESC="Library for DES encryption"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://web.archive.org/web/20150803212935/http://linux.maruhn.com/sec/libdes.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.kfki.hu/pub/packages/security/ssh/ossh/$TARBALL"
 
-SPLIT="libdes-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i "s|/usr/local/|$install/usr/|; s|/usr/man|/usr/share/man|" Makefile
 	for i in lib bin include share/man/man1 share/man/man3; do
 		mkdir -p $install/usr/$i
@@ -24,9 +22,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libdes) copy @std;;
 		*-dev)  copy @dev;;

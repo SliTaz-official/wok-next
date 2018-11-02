@@ -4,7 +4,7 @@ PACKAGE="espeak"
 VERSION="1.45.05"
 CATEGORY="misc"
 SHORT_DESC="Speech synthesizer"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://espeak.sourceforge.net/"
 
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION-source.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="portaudio-dev jack-dev"
-SPLIT="espeak-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	[ -d $src-source ] && mv $src-source $PACKAGE-$VERSION 2>/dev/null
@@ -21,7 +21,8 @@ compile_rules() {
 	# Using portaudio v19
 	cp portaudio19.h portaudio.h
 
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-expect"
 VERSION="1.35"
@@ -9,25 +9,22 @@ MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="unknown"
 WEB_SITE="https://metacpan.org/release/Expect"
 REPOLOGY="perl:expect"
-SUGGESTED="perl-io-stty"
 
 TARBALL="Expect-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/J/JA/JACOBY/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl-io-tty"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
+	SUGGESTED="perl-io-stty"
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="orpheus"
 VERSION="1.6"
@@ -6,30 +6,26 @@ CATEGORY="multimedia"
 SHORT_DESC="Ncurses based audio player"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-SUGGESTED="mpg123"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://thekonst.net/en/orpheus"
-WGET_URL="http://thekonst.net/download/$TARBALL"
-TAGS="audio sound music player"
 
-DEPENDS="ncurses libvorbis libogg libxml2 zlib"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://thekonst.net/download/$TARBALL"
+
 BUILD_DEPENDS="autoconf automake libvorbis-dev libogg-dev ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|fcntl.h>|&\n#include <unistd.h>|' src/streamtrack.cc
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -logg"
 	unset CFLAGS CXXFLAGS
-	./configure 2>&1 | grep -v /config.rpath &&
+
+	./configure &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses libvorbis libogg libxml2 zlib"
+	SUGGESTED="mpg123"
+	TAGS="audio sound music player"
 }
-

@@ -4,7 +4,7 @@ PACKAGE="perl-tk"
 VERSION="804.034"
 CATEGORY="perl"
 SHORT_DESC="Tk - a graphical user interface toolkit for Perl"
-MAINTAINER="sygne@ombres.eu"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Tk"
 REPOLOGY="perl:tk"
@@ -14,11 +14,9 @@ WGET_URL="https://cpan.metacpan.org/authors/id/S/SR/SREZIC/$TARBALL"
 
 BUILD_DEPENDS="perl-dev xorg-libX11-dev freetype-dev xorg-libXft-dev \
 fontconfig-dev libpng16-dev zlib-dev libjpeg-turbo-dev tk-dev"
-SPLIT="perl-tk-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# The Xlib header is wrong...
 	sed -i 's/XKeycodeToKeysym\(.*\)unsigned int/XKeycodeToKeysym\1KeyCode/' \
 		pTk/Xlib.h
@@ -29,9 +27,7 @@ compile_rules()
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		perl-tk)
 			copy @std

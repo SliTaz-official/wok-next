@@ -17,10 +17,12 @@ BUILD_DEPENDS="readline-dev ncurses-dev"
 compile_rules() {
 	# fix headers
 	for src in colors-bright colors-dark links main pager parse-syntax render screen; do
-		sed -i '/#include <ncursesw/ s|ncursesw/||g' ${src}.c
+		sed -i '/#include <ncursesw/ s|ncursesw/||g' $src.c
 	done
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

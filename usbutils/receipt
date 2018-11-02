@@ -4,7 +4,7 @@ PACKAGE="usbutils"
 VERSION="009"
 CATEGORY="system-tools"
 SHORT_DESC="Displaying information about USB"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://linux-usb.sourceforge.net/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/usbutils.html"
@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/usb/usbutils/$TARBALL"
 
 BUILD_DEPENDS="libusb-dev zlib-dev"
-SPLIT="usbutils-dev"
+SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -25,9 +25,13 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
+		*-python)
+			copy *.py
+			DEPENDS="python   usbids"
+			CAT="lsusb for Python"
+			;;
 		usbutils)
-			copy @std
-			find $fs -name '*.py' -delete
+			copy @std @rm
 			DEPENDS="eudev libusb   usbids"
 			TAGS="usb"
 			;;

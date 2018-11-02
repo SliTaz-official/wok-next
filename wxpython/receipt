@@ -4,15 +4,15 @@ PACKAGE="wxpython"
 VERSION="2.8.12.1"
 CATEGORY="x-window"
 SHORT_DESC="GUI toolkit for the Python programming language"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL"
-WEB_SITE="http://www.wxpython.org/"
+WEB_SITE="https://www.wxpython.org/"
 
 TARBALL="wxPython-src-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/wxpython/$TARBALL"
 
 BUILD_DEPENDS="python-dev wxWidgets28-dev mesa-dev glu-dev"
-SPLIT="wxpython-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export CXXFLAGS="-Wno-narrowing"
@@ -31,21 +31,18 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS
 	cd $src/wxPython
-	python setup.py WXPORT=gtk2 UNICODE=1 build
-	python setup.py WXPORT=gtk2 UNICODE=1 install --root=$DESTDIR
+	python -B setup.py WXPORT=gtk2 UNICODE=1 build &&
+	python -B setup.py WXPORT=gtk2 UNICODE=1 install --root=$install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		wxpython)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/python* $fs/usr/lib
+			copy @std
 			DEPENDS="python wxWidgets28"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="flex openssl-dev cyrus-sasl-dev zlib-dev alsa-lib-dev expat-dev"
-SPLIT="ptlib-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i "s/sbin\.Right(1) == '\\\\0')/strlen(sbin\.Right(1)) == 0)/" \
@@ -24,7 +24,7 @@ compile_rules() {
 		--disable-odbc \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	chmod 755 $install/usr/lib/libpt.so.$VERSION
 }

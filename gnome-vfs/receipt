@@ -4,7 +4,7 @@ PACKAGE="gnome-vfs"
 VERSION="2.24.4"
 CATEGORY="x-window"
 SHORT_DESC="The GNOME Virtual File System libraries"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/gnome-vfs/"
 
@@ -14,7 +14,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="gtk2-dev dbus-glib-dev gconf-dev bzip2-dev shared-mime-info \
 gnome-mime-data-dev libxml2-dev zlib-dev intltool gnutls-dev libgcrypt-dev \
 libtool gtk-doc automake"
-SPLIT="gnome-vfs gnome-vfs-dev gnome-vfs-i18n"
+SPLIT="$PACKAGE-dev $PACKAGE-i18n"
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -38,7 +38,7 @@ compile_rules() {
 	make &&
 	make \
 		GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 \
-		DESTDIR=$DESTDIR \
+		DESTDIR=$install \
 		install || return 1
 
 #	mkdir -p $install/usr/share/gconf/schemas/
@@ -57,7 +57,8 @@ compile_rules() {
 #		--libexecdir=/usr/lib/gnome-vfs-2.0 \
 #		--disable-schemas-install \
 #		$CONFIGURE_ARGS &&
-#	make && make DESTDIR=$DESTDIR install
+#	make &&
+#	make DESTDIR=$install install
 }
 
 genpkg_rules() {

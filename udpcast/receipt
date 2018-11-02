@@ -3,29 +3,29 @@
 PACKAGE="udpcast"
 VERSION="20120424"
 CATEGORY="network"
-SHORT_DESC="Multicast file transfer."
+SHORT_DESC="Multicast file transfer"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://udpcast.linux.lu/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}download/$TARBALL"
 
 BUILD_DEPENDS="m4 perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's|#include "console.h"|#include <sys/select.h>\n&|' console.c	
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS &&
+compile_rules() {
+	sed -i 's|#include "console.h"|#include <sys/select.h>\n&|' console.c
+
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 }
-

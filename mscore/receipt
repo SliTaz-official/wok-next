@@ -3,34 +3,33 @@
 PACKAGE="mscore"
 VERSION="1.2"
 CATEGORY="multimedia"
-SHORT_DESC="a WYSIWYG music notation program"
+SHORT_DESC="WYSIWYG music notation program"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://musescore.org/"
+
 SOURCE="MuseScore"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://musescore.org"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libQtCore libQtGui libQtDesigner libQtScriptTools libQtNetwork libQtSvg \
-libQtXml portaudio libsndfile alsa-lib openssl"
-BUILD_DEPENDS="cmake doxygen qmake Qt4-dev portaudio-dev alsa-lib-dev libsndfile-dev"
+BUILD_DEPENDS="cmake doxygen qmake Qt4-dev portaudio-dev alsa-lib-dev \
+libsndfile-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lpthread"
 	export QT_PLUGINS_DIR=/usr/lib/qt/plugins
 	sed -i "s/usr\/local/usr/" Makefile
+
 	[ -d build ] && make clean
-	make -j1 PREFIX=/usr release && make -j1 install
+	make -j1 PREFIX=/usr release &&
+	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share $fs/usr
+	DEPENDS="libQtCore libQtGui libQtDesigner libQtScriptTools libQtNetwork \
+	libQtSvg libQtXml portaudio libsndfile alsa-lib openssl"
 }

@@ -12,28 +12,21 @@ WEB_SITE="https://bellard.org/tcc/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://repo.or.cz/tinycc.git/snapshot/$GITHASH.tar.gz"
 
-BUILD_DEPENDS_arm=" " # Perl is installed in a cross env.
 BUILD_DEPENDS="perl texinfo diffutils"
-SPLIT="tcc-arm tcc-c67 tcc-i386 tcc-x86_64 tcc-win tcc-osx"
+SPLIT="$PACKAGE-arm $PACKAGE-c67 $PACKAGE-i386 $PACKAGE-x86_64 $PACKAGE-win \
+$PACKAGE-osx"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	case "$ARCH" in
-		arm) ARCH_ARGS="--cross-prefix=arm-slitaz-linux-gnueabi- --cpu=armv4l";;
-		*)   ARCH_ARGS="--enable-cross";;
-	esac
-
+compile_rules() {
 	./configure \
 		--prefix=/usr \
-		$ARCH_ARGS &&
-	make && make test &&
-	make DESTDIR=$DESTDIR install
+		--enable-cross \
+		&&
+	make &&
+	make test &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		tcc)
 			copy tcc libtcc.a libtcc1.a libtcc.h /usr/lib/tcc/include/

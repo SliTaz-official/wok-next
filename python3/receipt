@@ -14,7 +14,7 @@ WGET_URL="https://www.python.org/ftp/python/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="readline-dev gdbm-dev openssl-dev sqlite3-dev zlib-dev tk-dev \
 ncurses-dev xz-dev bzip2-dev expat-dev"
-SPLIT="python3-dev"
+SPLIT="$PACKAGE-dev"
 COOKOPTS="!zip"
 
 compile_rules() {
@@ -27,7 +27,7 @@ compile_rules() {
 		--without-ensurepip \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	chmod 755 $install/usr/lib/libpython${VERSION%.*}m.so
 	chmod 755 $install/usr/lib/libpython${VERSION%%.*}.so

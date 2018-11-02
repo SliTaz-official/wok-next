@@ -3,22 +3,18 @@
 PACKAGE="mrxvt-unicode"
 VERSION="a551727"
 CATEGORY="utilities"
-SHORT_DESC="Terminal emulator with muli-tabs support."
+SHORT_DESC="Terminal emulator with muli-tabs support"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/tomas/mrxvt-unicode"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/${TARBALL/*-/}"
-TAGS="terminal"
 
-DEPENDS="libpng16 jpeg freetype expat fontconfig xorg-libICE xorg-libSM zlib \
-xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXft xorg-libXpm xorg-libXrender"
 BUILD_DEPENDS="xorg-dev libpng16-dev jpeg-dev freetype-dev xorg-libXft-dev \
-	libtool"
+libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./bootstrap.sh
 	./configure \
 		--prefix=/usr \
@@ -28,11 +24,13 @@ compile_rules()
 		--enable-menubar \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="libpng16 jpeg freetype expat fontconfig xorg-libICE xorg-libSM \
+	zlib xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXft xorg-libXpm \
+	xorg-libXrender"
+	TAGS="terminal"
 }

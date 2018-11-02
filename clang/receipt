@@ -12,7 +12,7 @@ TARBALL="cfe-$VERSION.src.tar.xz"
 WGET_URL="https://releases.llvm.org/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="cmake llvm-dev z3-dev"
-SPLIT="clang-libs clang-analyzer clang clang-dev"
+SPLIT="$PACKAGE-libs $PACKAGE-analyzer $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	mkdir build
@@ -29,7 +29,7 @@ compile_rules() {
 		.. &&
 	make clang-tblgen &&
 	make &&
-	make DESTDIR="$install" install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -50,7 +50,6 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS=""
 			;;
 	esac
 }

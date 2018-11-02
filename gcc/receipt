@@ -5,7 +5,7 @@ PACKAGE="gcc"
 VERSION="7.3.0"
 CATEGORY="development"
 SHORT_DESC="The GNU Compiler Collection"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gcc.gnu.org/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gcc.html"
@@ -14,8 +14,8 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
-SPLIT="gcc-lib-base gcc-lib-math libgfortran gfortran libgomp libobjc \
-libatomic gcc"
+SPLIT="$PACKAGE-lib-base $PACKAGE-lib-math libgfortran gfortran libgomp libobjc \
+libatomic $PACKAGE"
 
 if [ "$2" == "--first-pass" -o "$3" == "--first-pass" ]; then
 	STAGE='first'
@@ -36,11 +36,6 @@ compile_rules() {
 			pkgversion="SliTaz64"
 			languages="c,c++,objc,fortran"
 			sed -i.orig '/m64=/ s|lib64|lib|' gcc/config/i386/t-linux64
-			;;
-		arm*)
-			ARCH_ARGS=""
-			pkgversion="SliTaz ARM"
-			languages="c,c++"
 			;;
 	esac
 
@@ -86,7 +81,8 @@ compile_rules() {
 				$CONFIGURE_ARGS $ARCH_ARGS
 				;;
 	esac &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $install/lib
 	ln -sv ../usr/bin/cpp $install/lib
@@ -96,17 +92,6 @@ compile_rules() {
 	install -v -dm755 $install/usr/lib/bfd-plugins
 	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/$VERSION/liblto_plugin.so \
 		$install/usr/lib/bfd-plugins/
-
-
-	# ARM packages use another libs...
-	case "$ARCH" in
-		arm)
-			libdir="$CROSS_TREE/tools/arm-slitaz-linux-gnueabi/lib"
-			cp -af $libdir/libgcc_s.so*    $install/usr/lib # for gcc-lib-base
-			cp -af $libdir/libstdc++.so*   $install/usr/lib
-			cp -af $libdir/libquadmath.so* $install/usr/lib # for gcc-lib-math
-			;;
-	esac
 
 
 	# Place the debugging symbols for selected libraries in separate files.

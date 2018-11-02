@@ -1,25 +1,23 @@
 # SliTaz package receipt.
 
-PACKAGE="gritz"
+PACKAGE="gritz" # FIXME: author renamed gritz to spread0r
 VERSION="1.0"
 CATEGORY="misc"
-SHORT_DESC="A txt reader, which makes you reading twice as fast as usual."
+SHORT_DESC="Text reader, which makes you reading twice as fast as usual"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://github.com/xypiie/spread0r"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="https://github.com/xypiie/gritz"
 WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 
-DEPENDS="perl-gtk2"
 BUILD_DEPENDS="perl"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	libperl=$(tazpkg list-files perl | \
 	  sed '/^\/usr\/lib\/perl/!d;s|\(/usr/lib/perl[^/]*/[^/]*\).*|\1|;q')
 	mkdir -p $fs/usr/bin $fs$libperl
 	cp -a $src/lib/*.pm $fs$libperl
 	cp -a $src/gritz.pl $fs/usr/bin/gritz
+	DEPENDS="perl-gtk2"
 }
-

@@ -6,8 +6,8 @@
 PACKAGE="pingus"
 VERSION="0.7.3"
 CATEGORY="games"
-SHORT_DESC="Pingus is a free Lemmings-like game"
-MAINTAINER="chadi.elahmad@gmail.com"
+SHORT_DESC="Free Lemmings-like game"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://pingus.seul.org/"
 
@@ -21,24 +21,16 @@ compile_rules() {
 	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/screenshot.cpp
 	scons || return 1
 
-	mkdir -p $install/usr/bin $install/usr/share/pingus
-	cp -a $src/pingus $install/usr/bin
-	cp -a $src/data   $install/usr/share/pingus
+	install -Dm755 pingus $install/usr/bin/pingus
+	mkdir -p $install/usr/share/pingus/
+	cp -r data/ $install/usr/share/pingus/
 
 	# the tarball doesn't contain any .desktop file, nor a pixmap
 	# let's create them
-	mkdir -p $install/usr/share/pixmaps
-	mkdir -p $install/usr/share/applications
-	cp $src/data/images/core/editor/actions.png \
+	install -Dm644 $src/data/images/core/editor/actions.png \
 		$install/usr/share/pixmaps/pingus.png
-	cat > $install/usr/share/applications/pingus.desktop <<EOF
-[Desktop Entry]
-Name=Pingus
-Exec=pingus -w
-Type=Application
-Categories=Application;Game;
-Icon=pingus
-EOF
+	install -Dm644 $stuff/pingus.desktop \
+		$install/usr/share/applications/pingus.desktop
 }
 
 genpkg_rules() {

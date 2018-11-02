@@ -4,12 +4,11 @@ PACKAGE="fpc-bootstrap"
 VERSION="2.6.2" # last 2.x.x version is 2.6.4, and it lacks arm and x86_64 archs
 CATEGORY="development"
 SHORT_DESC="Bootstrap to compile fpc"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="https://freepascal.org/"
 
 case "$ARCH" in
-	arm*)   BOOTSTRAP="arm-linux-ppcarm";;
 	x86_64) BOOTSTRAP="x86_64-linux-ppcx64";;
 	i?86)   BOOTSTRAP="i386-linux-ppc386";;
 esac
@@ -18,7 +17,7 @@ WGET_URL="ftp://ftp.freepascal.org/pub/fpc/dist/$VERSION/bootstrap/$BOOTSTRAP.bz
 
 compile_rules() {
 	[ -f $src/$TARBALL ] && bunzip2 -d $src/$TARBALL
-	install -Dm 755 $src/${TARBALL%.bz2} $install/usr/bin/${BOOTSTRAP#*linux-}
+	install -Dm755 $src/${TARBALL%.bz2} $install/usr/bin/${BOOTSTRAP#*linux-}
 }
 
 genpkg_rules() {

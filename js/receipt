@@ -18,7 +18,7 @@ WGET_URL="http://ftp.osuosl.org/pub/blfs/8.1/m/$TARBALL"
 
 BUILD_DEPENDS="autoconf213 xorg-libXt-dev python-dev xorg-libX11-dev nspr-dev \
 zlib-dev icu-dev coreutils-file-special"
-SPLIT="js-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export CFLAGS=${CFLAGS//-Os/-O2}
@@ -40,7 +40,8 @@ compile_rules() {
 		--enable-threadsafe \
 		--enable-readline \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	cd $install/usr/include/mozjs-38
 	for link in $(find . -type l); do

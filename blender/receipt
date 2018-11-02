@@ -4,15 +4,15 @@ PACKAGE="blender"
 VERSION="2.75a"
 CATEGORY="graphics"
 SHORT_DESC="3D content creation suite"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="http://www.blender.org/"
+WEB_SITE="https://www.blender.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.blender.org/source/$TARBALL"
 
 BUILD_DEPENDS="cmake xorg-libXmu ilmbase-dev yasm coreutils-file-format \
-gettext mesa-dev freeglut-dev librsvg-dev openexr-dev tiff-dev openal-dev \
+gettext-dev mesa-dev freeglut-dev librsvg-dev openexr-dev tiff-dev openal-dev \
 glu libsdl-dev python3-dev libsamplerate-dev ffmpeg-dev lcms-dev openjpeg-dev \
 boost-dev boost-math boost-math-tr1 boost-filesystem \
 glu-dev glew-dev xorg-libXi-dev"
@@ -37,8 +37,8 @@ compile_rules() {
 		-DPYTHON_INCLUDE_DIRS:STRING=/usr/include/python${p3v}m &&
 	# build
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install &&
-	python3 -m compileall "$DESTDIR/usr/share/blender" || return 1
+	make DESTDIR=$install install &&
+	python3 -m compileall "$install/usr/share/blender" || return 1
 
 	mv -f $install/usr/bin/blender $install/usr/bin/blender-bin
 	cp -a $stuff/blender $install/usr/bin/

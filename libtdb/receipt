@@ -4,7 +4,7 @@ PACKAGE="libtdb"
 VERSION="1.3.15"
 CATEGORY="misc"
 SHORT_DESC="A trivial database"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL3"
 WEB_SITE="https://tdb.samba.org/"
 REPOLOGY="tdb"
@@ -13,7 +13,7 @@ TARBALL="tdb-$VERSION.tar.gz"
 WGET_URL="https://www.samba.org/ftp/tdb/$TARBALL"
 
 BUILD_DEPENDS="python-dev libxslt-dev docbook-xsl"
-SPLIT="libtdb-python libtdb libtdb-dev"
+SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	# site script isn't used
@@ -22,7 +22,8 @@ compile_rules() {
 		--localstatedir=/var \
 		--sysconfdir=/etc/samba \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	cook_pick_docs docs/README web/index.html
 }

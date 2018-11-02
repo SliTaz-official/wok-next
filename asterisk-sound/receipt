@@ -12,16 +12,13 @@ REPOLOGY="asterisk-core-sounds"
 TARBALL="asterisk-core-sounds-en-gsm-$VERSION.tar.gz"
 WGET_URL="http://downloads.asterisk.org/pub/telephony/sounds/releases/$TARBALL"
 
-DEPENDS="asterisk"
-
 compile_rules() {
-	[ ! -d $DESTDIR/var ] &&
-	cd $src &&
-	mkdir -p $DESTDIR/var/lib/asterisk/sounds &&
-	mv * $DESTDIR/var/lib/asterisk/sounds
+	mkdir -p $install/var/lib/asterisk/sounds &&
+	mv * $install/var/lib/asterisk/sounds
 }
 
 genpkg_rules() {
 	cp -a $install/* $fs
 	chown -R root:root $fs
+	DEPENDS="asterisk"
 }

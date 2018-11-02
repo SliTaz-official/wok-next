@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="azpainter1"
 VERSION="1.0.7"
@@ -11,21 +11,18 @@ WEB_SITE="https://osdn.net/projects/azpainter/"
 TARBALL="azpainter-$VERSION.tar.bz2"
 WGET_URL="http://rwthaachen.dl.osdn.jp/azpainter/64397/$TARBALL"
 
-DEPENDS="fontconfig freetype libjpeg-turbo xorg-libX11 xorg-libXext \
-xorg-libXft xorg-libXi zlib"
 BUILD_DEPENDS="libjpeg-turbo-dev freetype-dev xorg-libX11-dev xorg-libXext-dev \
 xorg-libXi-dev xorg-libXft-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i "s|/usr/local|$DESTDIR/usr|; s|gtk|echo &|;s|\$(MACRO) ||" Makefile
+compile_rules() {
+	sed -i "s|/usr/local|$install/usr|; s|gtk|echo &|;s|\$(MACRO) ||" Makefile
+
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="fontconfig freetype libjpeg-turbo xorg-libX11 xorg-libXext \
+	xorg-libXft xorg-libXi zlib"
 }

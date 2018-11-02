@@ -15,9 +15,8 @@ WGET_URL="https://www.openssl.org/source/$TARBALL"
 # Integrity check: https://www.openssl.org/source/
 TARBALL_SHA256="ec3f5c9714ba0fd45cb4e087301eb1336c317e0d20b575a125050470e8089e4d"
 
-BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="perl zlib-dev"
-SPLIT="openssl10 openssl10-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# MAKEFLAGS make OpenSSL build fail.
@@ -26,8 +25,6 @@ compile_rules() {
 	# Add -Wa,--noexecstack here so that libcrypto's assembler modules will be
 	# marked as not requiring an executable stack (compatibility improvement).
 	case "$ARCH" in
-		arm*)   ARCH_ARGS='linux-armv4'
-		        MAKE_ARGS="CC=$HOST_SYSTEM-gcc AR=\"$HOST_SYSTEM-ar r\" RANLIB=$HOST_SYSTEM-ranlib";;
 		i?86)   ARCH_ARGS='zlib-dynamic linux-elf';;
 		x86_64) ARCH_ARGS='zlib-dynamic enable-ec_nistp_64_gcc_128 linux-x86_64';;
 	esac

@@ -13,8 +13,8 @@ WGET_URL="https://oss.oetiker.ch/rrdtool/pub/$TARBALL"
 
 BUILD_DEPENDS="perl-dev zlib-dev freetype-dev libpng16-dev libxml2-dev \
 fontconfig-dev xorg-pixman-dev cairo-dev glib-dev pango-dev python-dev perl groff \
-tcl-dev lua5.1-dev ruby gettext"
-SPLIT="rrdtool-perl rrdtool-python rrdtool-dev rrdtool"
+tcl-dev lua5.1-dev ruby gettext-dev"
+SPLIT="$PACKAGE-perl $PACKAGE-python $PACKAGE-dev $PACKAGE"
 
 compile_rules() {
 	sed -i 's/PL_sv_undef sv_undef/PL_sv_undef PL_sv_undef/' bindings/perl-shared/RRDs.xs
@@ -23,7 +23,7 @@ compile_rules() {
 	TOREMOVE="/usr/include/lua5.1 /usr/lib/lua5.1"
 	ln -s lua/5.1 /usr/include/lua5.1
 	ln -s lua/5.1 /usr/lib/lua5.1
-	for i in /usr/bin/lua /usr/bin/luac ; do
+	for i in /usr/bin/lua /usr/bin/luac; do
 		[ -e $i ] && continue
 		ln -s $(basename $i)5.1 $i
 		TOREMOVE="$TOREMOVE $i"
@@ -34,7 +34,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	for i in $TOREMOVE; do
 		rm -f $i

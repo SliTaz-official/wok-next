@@ -4,33 +4,27 @@ PACKAGE="qarte"
 VERSION="1.9.0"
 CATEGORY="multimedia"
 SHORT_DESC="ARTE public programms manager"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://launchpad.net/qarte"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://oqapy.eu/releases/$TARBALL"
 
-DEPENDS="python pyqt notify-python rtmpdump"
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	prefix=${install}/usr
-	install -D -m 0755 qarte $prefix/bin/qarte
-	install -D -m 0644 q_arte.desktop $prefix/share/applications/qarte.desktop
-	install -D -m 0644 qarte.png $prefix/share/pixmaps/qarte.png
+compile_rules() {
+	prefix=$install/usr
+	install -Dm755 qarte          $prefix/bin/qarte
+	install -Dm644 q_arte.desktop $prefix/share/applications/qarte.desktop
+	install -Dm644 qarte.png      $prefix/share/pixmaps/qarte.png
 	mkdir $prefix/share/qarte
-	install -m 0644 *.py $prefix/share/qarte
-	for dir in commonwidgets crontab locale medias VWidgets
-	do
+	install -m644 *.py $prefix/share/qarte
+	for dir in commonwidgets crontab locale medias VWidgets; do
 		cp -r $dir $prefix/share/qarte
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/* $fs
+	DEPENDS="python pyqt notify-python rtmpdump"
 }

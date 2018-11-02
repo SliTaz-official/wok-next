@@ -3,29 +3,27 @@
 PACKAGE="pidgin-otr"
 VERSION="4.0.0"
 CATEGORY="network"
-SHORT_DESC="Allows you to have private conversations over Pidgin messenger."
+SHORT_DESC="Allows you to have private conversations over Pidgin messenger"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://otr.cypherpunks.ca/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.cypherpunks.ca/otr/"
 WGET_URL="$WEB_SITE$TARBALL"
 
-DEPENDS="pidgin libotr"
 BUILD_DEPENDS="libgpg-error-dev libgcrypt-dev libotr-dev glib-dev gtk2-dev \
 pidgin-dev libpurple-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
 	rm -f $fs/usr/lib/pidgin/pidgin-otr.la
+	DEPENDS="pidgin libotr"
 }

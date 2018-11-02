@@ -4,18 +4,16 @@ PACKAGE="sakura-gtk2"
 VERSION="2.4.2" # last sakura with gtk2 is 2.4.2
 CATEGORY="utilities"
 SHORT_DESC="Simple GTK+2 and VTE-based terminal emulator"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.pleyades.net/david/projects/sakura"
 
 TARBALL="sakura-$VERSION.tar.bz2"
 WGET_URL="https://launchpad.net/sakura/trunk/$VERSION/+download/$TARBALL"
 
-BUILD_DEPENDS="cmake glib-dev gtk2-dev vte-gtk2-dev gettext"
+BUILD_DEPENDS="cmake glib-dev gtk2-dev vte-gtk2-dev gettext-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=RELEASE \
@@ -25,15 +23,13 @@ compile_rules()
 	sed -i 's/-u//' CMakeLists.txt &&
 	sed -i 's/-u//' CMakeFiles/man.dir/build.make &&
 	make &&
-	make DESTDIR=$DESTDIR install || exit 1
+	make DESTDIR=$install install || return 1
 
 	cp -f $stuff/sakura.desktop $install/usr/share/applications
 	rm -rf $install/usr/share/pixmaps
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	TAGS="terminal"
 	DEPENDS="atk cairo fontconfig freetype gdk-pixbuf glib gtk2 pango vte-gtk2 \

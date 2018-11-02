@@ -6,28 +6,22 @@ CATEGORY="network"
 SHORT_DESC="p2p client"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://gtk-gnutella.sourceforge.net/en/?page=news"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://gtk-gnutella.sourceforge.net"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gnutls libgcrypt libgpg-error expat gtk2 libxml2 \
-xorg-libX11 xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdmcp \
-xorg-libXext xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender \
-xorg-libXdamage libtasn1"
 BUILD_DEPENDS="zlib-dev gtk2-dev libxml2-dev glib-dev xorg-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./build.sh --prefix=/usr \
-	--disable-dbus \
-	--disable-nls &&
-	make $MAKEFLAGS install INSTALL_PREFIX=$DESTDIR
+compile_rules() {
+	./build.sh \
+		--prefix=/usr \
+		--disable-dbus \
+		--disable-nls &&
+	make $MAKEFLAGS install INSTALL_PREFIX=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	mkdir -p $fs/usr/share/applications
 	mkdir -p $fs/usr/share/pixmaps
@@ -36,4 +30,8 @@ genpkg_rules()
 	cp -a $install/usr/share/applications/* $fs/usr/share/applications/
 	cp -a $install/usr/share/pixmaps/* $fs/usr/share/pixmaps
 	cp -a $install/usr/share/gtk-gnutella/pixmaps/* $fs/usr/share/gtk-gnutella/pixmaps/
+	DEPENDS="gnutls libgcrypt libgpg-error expat gtk2 libxml2 xorg-libX11 \
+	xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdmcp xorg-libXext \
+	xorg-libXfixes xorg-libXinerama xorg-libXrandr xorg-libXrender \
+	xorg-libXdamage libtasn1"
 }

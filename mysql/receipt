@@ -7,21 +7,21 @@ SHORT_DESC="SQL database system"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.mysql.com/"
-#CROSS="bug: can not run test programm"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://mirror.switch.ch/mirror/mysql/Downloads/MySQL-${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="cmake zlib-dev ncurses-dev readline-dev libunistring-dev \
 libaio-dev"
-SPLIT="libmysqlclient mysql-client mysql-test mysql-dev mysql"
+SPLIT="libmysqlclient $PACKAGE-client $PACKAGE-test $PACKAGE-dev $PACKAGE"
 
 compile_rules() {
-	mkdir build; cd build
+	mkdir build
+	cd    build
 
 	# CFLAGS/CXXFLAGS as suggested upstream
-	CFLAGS="-fPIC ${CFLAGS} -fno-strict-aliasing -DBIG_JOINS=1 -fomit-frame-pointer" \
-	CXXFLAGS="-fPIC ${CXXFLAGS} -std=gnu++98 -fno-strict-aliasing -DBIG_JOINS=1 -felide-constructors -fno-rtti" \
+	CFLAGS="-fPIC $CFLAGS -fno-strict-aliasing -DBIG_JOINS=1 -fomit-frame-pointer" \
+	CXXFLAGS="-fPIC $CXXFLAGS -std=gnu++98 -fno-strict-aliasing -DBIG_JOINS=1 -felide-constructors -fno-rtti" \
 	cmake .. \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
@@ -45,7 +45,7 @@ compile_rules() {
 		-DWITH_ZLIB=system \
 		-DWITH_SSL=bundled \
 		-DWITH_LIBWRAP=OFF \
-		-DWITH_MYSQLD_LDFLAGS="${LDFLAGS}" \
+		-DWITH_MYSQLD_LDFLAGS="$LDFLAGS" \
 		-DWITH_EXTRA_CHARSETS=complex \
 		-DWITH_EMBEDDED_SERVER=ON \
 		-DWITH_INNOBASE_STORAGE_ENGINE=1 \
@@ -54,7 +54,8 @@ compile_rules() {
 		-DWITHOUT_ARCHIVE_STORAGE_ENGINE=1 \
 		-DWITHOUT_BLACKHOLE_STORAGE_ENGINE=1 \
 		-DWITHOUT_FEDERATED_STORAGE_ENGINE=1 &&
-	make && make DESTDIR=$DESTDIR install || return 1
+	make &&
+	make DESTDIR=$install install || return 1
 
 	# fix paths
 	mv $install/usr/mysql-test $install/usr/share/mysql-test
@@ -74,7 +75,7 @@ genpkg_rules() {
 			CAT="database|client libraries"
 			DEPENDS="zlib"
 			;;
-		mysql-client)
+		*-client)
 			# client binaries (plus /usr/bin/mysql), see $src/build/client
 			copy /bin/mysql mysql_plugin mysql_upgrade mysqladmin mysqlbinlog \
 			mysqlcheck mysqldump mysqlimport mysqlshow mysqlslap mysqltest
@@ -82,7 +83,7 @@ genpkg_rules() {
 			PROVIDE="mysql_or_postgresql"
 			DEPENDS="libmysqlclient ncurses zlib"
 			;;
-		mysql-test)
+		*-test)
 			copy mysql-test/ sql-bench/ db.opt
 			CAT="development|tests and benchmarks"
 			DEPENDS="mysql perl"

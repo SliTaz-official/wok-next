@@ -3,30 +3,28 @@
 PACKAGE="hostapd"
 VERSION="2.2"
 CATEGORY="network"
-SHORT_DESC="Daemon for wireless software access points."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Daemon for wireless software access points"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://w1.fi/hostapd/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://hostap.epitest.fi/hostapd/"
 WGET_URL="http://hostap.epitest.fi/releases/$TARBALL"
 
-DEPENDS="openssl libnl"
 BUILD_DEPENDS="openssl-dev libnl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src/hostapd &&
-	cp -a $stuff/config .config &&
-	sed -i "s|/usr/local/bin|/usr/bin|" Makefile &&
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	cd $src/hostapd
+	cp -a $stuff/config .config
+	sed -i "s|/usr/local/bin|/usr/bin|" Makefile
+
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr $fs/etc/init.d $fs/etc/hostapd
-	
+
 	cp -a $stuff/hostapd $fs/etc/init.d &&
 	cp -a $src/hostapd/hostapd.accept $src/hostapd/hostapd.conf \
 		$src/hostapd/hostapd.deny $src/hostapd/hostapd.eap_user \
@@ -35,4 +33,5 @@ genpkg_rules()
 		$src/hostapd/wired.conf $src/hostapd/hlr_auc_gw.milenage_db \
 		$fs/etc/hostapd &&
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="openssl libnl"
 }

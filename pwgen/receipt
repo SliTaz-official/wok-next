@@ -1,31 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pwgen"
 VERSION="2.06"
 CATEGORY="misc"
-SHORT_DESC="Pwgen is a small password generator which creates passwords which can be easily memorized by a human"
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="Create easily memorized passwords"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://sourceforge.net/projects/pwgen/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }
-

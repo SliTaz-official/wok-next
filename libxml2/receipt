@@ -4,7 +4,7 @@ PACKAGE="libxml2"
 VERSION="2.9.8"
 CATEGORY="system-tools"
 SHORT_DESC="XML C parser and toolkit"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://xmlsoft.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxml2.html"
@@ -12,20 +12,12 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxml2.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://xmlsoft.org/libxml2/$TARBALL"
 
-BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="zlib-dev xz-dev python-dev ncurses-dev readline-dev"
-SPLIT="libxml2-tools libxml2-python libxml2-dev libxml2-min:min"
+SPLIT="$PACKAGE-tools $PACKAGE-python $PACKAGE-dev $PACKAGE-min:min"
 
 # Note: libxml2 can be build using option --with-minimum
 # and binaries are splited into libxml2-tools
 compile_rules() {
-	# When cross compiling Python is installed in chroot and is used
-	# by cross tools, cook don't need to install it in /usr/cross/arm
-	# Building with LZMA support is buggy and build fails
-	case "$ARCH" in
-		arm) ARCH_ARGS="--without-lzma" ;;
-	esac
-
 	case $SET in
 		min) SET_ARGS='--with-minimum';;
 	esac
@@ -36,10 +28,10 @@ compile_rules() {
 		--with-html-dir=/usr/share/doc \
 		--with-threads \
 		--with-history \
-		$CONFIGURE_ARGS $ARCH_ARGS $SET_ARGS &&
+		$CONFIGURE_ARGS $SET_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	find $install -name '*.sh' -exec chmod +x \{\} \;
 }
@@ -49,9 +41,6 @@ genpkg_rules() {
 		libxml2)
 			copy libxml2.so*
 			DEPENDS="liblzma zlib"
-			case "$ARCH" in
-				arm) DEPENDS="zlib" ;;
-			esac
 			;;
 		libxml2-tools)
 			copy xmllint xmlcatalog

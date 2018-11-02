@@ -4,7 +4,7 @@ PACKAGE="cdparanoia-III"
 VERSION="10.2"
 CATEGORY="multimedia"
 SHORT_DESC="An audio extraction tool for sampling CDs"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="https://www.xiph.org/paranoia/"
 REPOLOGY="cdparanoia"
@@ -12,20 +12,18 @@ REPOLOGY="cdparanoia"
 TARBALL="$PACKAGE-$VERSION.src.tgz"
 WGET_URL="http://downloads.xiph.org/releases/cdparanoia/$TARBALL"
 
-SPLIT="cdparanoia-III-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Use $DESTDIR
+compile_rules() {
+	# Use DESTDIR
 	sed -i 's|\$([A-Z]*DIR)|$(DESTDIR)&|' Makefile.in
 
-	./configure $CONFIGURE_ARGS && make -j1 && make install
+	./configure $CONFIGURE_ARGS &&
+	make -j1 &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		cdparanoia-III) copy @std;;
 		*-dev) copy @dev;;

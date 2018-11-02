@@ -3,24 +3,22 @@
 PACKAGE="qemulator"
 VERSION="0.5"
 CATEGORY="misc"
-SHORT_DESC="The full featured qemu emulation suite."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="The full featured Qemu emulation suite"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://manpages.ubuntu.com/manpages/precise/man1/qemulator.1.html"
+
 SOURCE="Qemulator"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://qemulator.createweb.de/"
-WGET_URL="http://qemulator.createweb.de/phocadownload/$TARBALL"
-TAGS="emulator virtualization"
+WGET_URL="http://qemulator.createweb.de/phocadownload/$TARBALL" # FIXME
 
-DEPENDS="python python-pygtk qemu"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $src/usr/local/* $fs/usr
 	rm -rf $fs/usr/share/icons $fs/usr/share/pixmaps/*.svg
 	cp $src/usr/local/share/icons/hicolor/32x32/apps/* \
 		$fs/usr/share/pixmaps
-	cp stuff/slitaz.png $fs/usr/share/$PACKAGE/icons
+	cp $stuff/slitaz.png $fs/usr/share/$PACKAGE/icons
+	DEPENDS="python python-pygtk qemu"
+	TAGS="emulator virtualization"
 }

@@ -3,19 +3,17 @@
 PACKAGE="slib"
 VERSION="3b3"
 CATEGORY="office"
-SHORT_DESC="portable library for the programming language Scheme"
-MAINTAINER="domcox@slitaz.org"
+SHORT_DESC="Portable library for the programming language Scheme"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
 WEB_SITE="http://people.csail.mit.edu/jaffer/SLIB"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://groups.csail.mit.edu/mac/ftpdir/scm/$TARBALL"
 
-DEPENDS="guile"
 BUILD_DEPENDS="guile texinfo"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure  \
 		--prefix=/usr &&
 	sed -i 's/SCHEME = scm/SCHEME = guile/' Makefile
@@ -29,23 +27,21 @@ compile_rules()
 	ln -s $install/usr/share/slib $install/usr/share/guile/site
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="guile"
 }
 
-post_install()
-{
+post_install() {
 	# add path to initialization file
 	sed -i s'#(load-from.*#(load-from-path "/usr/share/slib/guile.init")#' \
 		"$1/usr/share/guile/1.8/ice-9/slib.scm"
-	printf "Creating catalog"
+
+	action "Creating catalog"
 	chroot "$1/" guile -c "((use-modules (ice-9 slib))(require 'new-catalog)(quit))"
 	status
 }
 
-post_remove()
-{
+post_remove() {
 	rm -f "$1/usr/share/guile/1.8/slibcat"
 }

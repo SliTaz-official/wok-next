@@ -4,16 +4,16 @@ PACKAGE="partimage"
 VERSION="0.6.9"
 CATEGORY="system-tools"
 SHORT_DESC="Saves partitions in an image file"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.partimage.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gettext newt newt-dev slang-dev bzip2-dev openssl-dev zlib-dev \
+BUILD_DEPENDS="gettext-dev newt-dev slang-dev bzip2-dev openssl-dev zlib-dev \
 pam-dev"
-SPLIT="partimage partimage-pam:pam"
+SPLIT="$PACKAGE-pam:pam"
 
 compile_rules() {
 	sed -i 's/CRYPTO_lock/X509_new/g' configure
@@ -24,18 +24,19 @@ compile_rules() {
 				--disable-pam \
 				$CONFIGURE_ARGS &&
 			make &&
-			make install
-				;;
+			make install || return 1
+			;;
 		pam)
 			./configure \
 				--enable-pam \
 				$CONFIGURE_ARGS &&
 			make &&
 			make pamfile &&
-			make install &&
+			make install || return 1
+
 			install -Dm644 partimaged.pam $install/etc/pam.d/partimaged
-				;;
-	esac || return 1
+			;;
+	esac
 
 	install -Dm600 $stuff/etc/partimaged/partimaged.cert $install/etc/partimaged/partimaged.cert
 	install -Dm600 $stuff/etc/partimaged/partimaged.key  $install/etc/partimaged/partimaged.key
@@ -74,7 +75,7 @@ post_install() {
 	[ -n "$quiet" ] || cat <<EOT
 
 	.---------------------------------------------------.
-	| To starts partimage server you can run:           |
+	| To start partimage server you can run:            |
 	|   /etc/init.d/partimaged start                    |
 	|                                                   |
 	| Or add partimaged to RUN_DAEMONS in /etc/rcS.conf |

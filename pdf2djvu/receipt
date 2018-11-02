@@ -1,27 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pdf2djvu"
 VERSION="0.9.4"
-SHORT_DESC="creates DjVu files from PDF files"
+SHORT_DESC="Creates DjVu files from PDF files"
 CATEGORY="graphics"
-LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 MAINTAINER="psychomaniak@xakep.ru"
+LICENSE="GPL2"
 WEB_SITE="https://bitbucket.org/jwilk/pdf2djvu"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/downloads/$TARBALL"
 
-TAGS="pdf djvu"
-DEPENDS="djvulibre poppler"
 BUILD_DEPENDS="djvulibre-dev poppler-dev" #exiv2
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure && make && make install
+compile_rules() {
+	./configure &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="djvulibre poppler"
+	TAGS="pdf djvu"
 }

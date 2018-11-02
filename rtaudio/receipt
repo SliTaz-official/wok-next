@@ -4,15 +4,15 @@ PACKAGE="rtaudio"
 VERSION="4.0.11"
 CATEGORY="multimedia"
 SHORT_DESC="Common API for realtime audio input/output (C++ classes)"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.music.mcgill.ca/~gary/rtaudio/"
 
-TARBALL="${PACKAGE}-${VERSION}.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.music.mcgill.ca/~gary/rtaudio/release/$TARBALL"
 
 BUILD_DEPENDS="alsa-lib-dev jack-dev"
-SPLIT="rtaudio-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -20,12 +20,12 @@ compile_rules() {
 		--with-alsa \
 		--with-jack \
 		$CONFIGURE_ARGS &&
-	make -j 1
+	make -j1
 	# Python bindings --> rtaudio-python ??
 	#cd $src/contrib/python/pyrtaudio
 	#CFLAGS="$CFLAGS -I../../../include" \
-	#python setup.py build
-	#python setup.py install --root="$DESTDIR"
+	#python -B setup.py build
+	#python -B setup.py install --root="$install"
 	echo "Continuing, any error will remine in pkg build..."
 
 	mkdir -p $install/usr/lib

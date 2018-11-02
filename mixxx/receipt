@@ -4,30 +4,27 @@ PACKAGE="mixxx"
 VERSION="1.10.1"
 CATEGORY="multimedia"
 SHORT_DESC="Digital DJ mixing software"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WEB_SITE="http://www.mixxx.org/"
+
+TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="http://downloads.mixxx.org/$PACKAGE-$VERSION/$TARBALL"
 
-DEPENDS="libsndfile libogg libid3tag libmad libvorbis taglib libshout \
-portaudio portmidi libQtOpenGL libQtWebkit libQt3Support libQtScript \
-libQtSvg libQtDBus libQtPlugins qt4-phonon"
-BUILD_DEPENDS="libsndfile-dev libogg-dev libid3tag-dev libmad-dev \
-libvorbis-dev taglib-dev libshout-dev portaudio-dev qt4-phonon \
-Qt4-dev alsa-lib-dev jack-dev mesa-dev scons \
-flac-dev portmidi-dev"
+BUILD_DEPENDS="libsndfile-dev libogg-dev libid3tag-dev libmad-dev libvorbis-dev \
+taglib-dev libshout-dev portaudio-dev qt4-phonon Qt4-dev alsa-lib-dev jack-dev \
+mesa-dev scons flac-dev portmidi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	scons qtdir=/usr/lib/qt prefix=/usr install_root=$DESTDIR/usr | sed s/ERROR/error/
-	scons qtdir=/usr/lib/qt prefix=/usr install_root=$DESTDIR/usr install | sed s/ERROR/error/
+compile_rules() {
+	scons qtdir=/usr/lib/qt prefix=/usr install_root=$install/usr \
+	| sed s/ERROR/error/
+	scons qtdir=/usr/lib/qt prefix=/usr install_root=$install/usr install \
+	| sed s/ERROR/error/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
+	DEPENDS="libsndfile libogg libid3tag libmad libvorbis taglib libshout \
+	portaudio portmidi libQtOpenGL libQtWebkit libQt3Support libQtScript \
+	libQtSvg libQtDBus libQtPlugins qt4-phonon"
 }

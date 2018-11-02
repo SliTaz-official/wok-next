@@ -3,32 +3,30 @@
 PACKAGE="zssh"
 VERSION="1.5c"
 CATEGORY="network"
-SHORT_DESC="Transfer files to a remote machine while using ssh"
+SHORT_DESC="Transfer files to a remote machine while using SSH"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tgz"
 WEB_SITE="http://zssh.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="ssh"
 
-DEPENDS="readline lrzsz"
+TARBALL="$PACKAGE-$VERSION.tgz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="readline-dev ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make
-	install -d -m 755 $DESTDIR/usr/share/man/man1 &&
-	install -d -m 755 $DESTDIR/usr/share/doc &&
-	install -m 644 $src/*.1 $DESTDIR/usr/share/man/man1 &&
-	install -m 644 $src/[A-Z][A-Z]* $DESTDIR/usr/share/doc
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make || return 1
+
+	cook_pick_manpages *.1
+	cook_pick_docs     [A-Z][A-Z]*
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp -a $src/zssh $fs/usr/bin
 	ln $fs/usr/bin/zssh $fs/usr/bin/ztelnet
+	DEPENDS="readline lrzsz"
+	TAGS="ssh"
 }

@@ -3,25 +3,20 @@
 PACKAGE="mpl123"
 VERSION="1.1.0"
 CATEGORY="multimedia"
-SHORT_DESC="Light weight Ncurses frontend to mpg123"
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Lightweight Ncurses frontend to mpg123"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/pankso/mpl123"
-WGET_URL="https://github.com/pankso/mpl123/archive/v${VERSION}.tar.gz"
 
-DEPENDS="dialog mpg123"
-BUILD_DEPENDS="wget"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/pankso/mpl123/archive/v$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make DESTDIR=${DESTDIR} install
+compile_rules() {
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
-	cp -a ${install}/* ${fs}
+	cp -a $install/* $fs
+	DEPENDS="dialog mpg123"
 }

@@ -1,34 +1,35 @@
 # SliTaz package receipt.
 
 PACKAGE="speedcrunch"
-GITHASH="7a34226332a526f0d77f02b17b87f165362a206d"
-VERSION=${GITHASH:0:7}
+GITHASH="7a34226"
+VERSION="$GITHASH" # FIXME
 CATEGORY="utilities"
-SHORT_DESC="SpeedCrunch is a fast, high precision and powerful desktop calculator"
+SHORT_DESC="Fast, high precision and powerful desktop calculator"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://speedcrunch.org/"
+
 TARBALL="$PACKAGE-$VERSION.zip"
 WGET_URL="https://github.com/speedcrunch/SpeedCrunch/archive/$GITHASH.zip"
-DEPENDS="glibc-base libQtGui libQtXml"
+
 BUILD_DEPENDS="cmake Qt4-dev qmake xorg-xorgproto xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir ./build
-	cd ./build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr ../src &&
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		../src &&
 	make &&
 	lrelease ../src/speedcrunch.pro &&
-	make install
+	make install || return 1
+
 	# proper sub-category
 	sed -i 's|^Categories.*$|&;Calculator;|' \
 		$install/usr/share/applications/speedcrunch.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="glibc-base libQtGui libQtXml"
 }

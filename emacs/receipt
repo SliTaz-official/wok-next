@@ -4,7 +4,7 @@ PACKAGE="emacs"
 VERSION="25.3"
 CATEGORY="editors"
 SHORT_DESC="The GNU Emacs editor"
-MAINTAINER="domcox@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.gnu.org/software/emacs/"
 
@@ -15,9 +15,8 @@ BUILD_DEPENDS="atk-dev cairo-dev expat-dev dbus-dev freetype-dev \
 fontconfig-dev glib-dev gnutls-dev gtk2-dev jpeg-dev \
 libpng16-dev librsvg-dev ncurses-dev pango-dev tiff-dev xorg-dev \
 xorg-dev-proto" # giflib-dev: version 4 needed, add --with-gif=no)
-SPLIT="emacs-help emacs-lisp-sources emacs"
+SPLIT="$PACKAGE-help $PACKAGE-lisp-sources $PACKAGE"
 
-# Rules to configure and make the package.
 compile_rules() {
 	./configure \
 		--infodir=/usr/share/info \
@@ -34,7 +33,7 @@ compile_rules() {
 		--sharedstatedir=/var/lib \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	# Install specific site file
 	mkdir -p                   $install/usr/share/emacs/site-lisp/site-start.d
@@ -48,7 +47,6 @@ compile_rules() {
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	case $PACKAGE in
 		emacs-help)

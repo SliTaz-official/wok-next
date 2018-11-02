@@ -13,13 +13,11 @@ TARBALL="ctpp2-$VERSION.tar.gz"
 WGET_URL="http://ctpp.havoc.ru/download/$TARBALL"
 
 BUILD_DEPENDS="cmake"
-SPLIT="libctpp2-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir build
-	cd build
+	cd    build
 
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
@@ -28,9 +26,7 @@ compile_rules()
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		libctpp2) copy @std;;
 		*-dev)    copy @dev;;

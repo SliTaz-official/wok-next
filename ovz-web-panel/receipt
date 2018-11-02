@@ -4,24 +4,19 @@ PACKAGE="ovz-web-panel"
 VERSION="1.7"
 CATEGORY="network"
 SHORT_DESC="GUI web-based frontend for OpenVZ"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}-${VERSION}.tgz"
 WEB_SITE="https://code.google.com/archive/p/ovz-web-panel/"
+
+TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://ovz-web-panel.googlecode.com/files/$TARBALL" # FIXME
 
-DEPENDS="ruby ruby-sqlite3"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir $DESTDIR
-	mv * $DESTDIR 2> /dev/null || true
+compile_rules() {
+	mkdir $install
+	mv * $install 2>/dev/null || true
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share \
 		$fs/etc
 
@@ -41,14 +36,10 @@ genpkg_rules()
 
 	# Cleaning.
 	rm -f $fs/usr/share/$PACKAGE/done.*.u
+
+	DEPENDS="ruby ruby-sqlite3"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" ln -s /usr/share/$PACKAGE/script/owp /etc/init.d/owp
-}
-
-clean_wok()
-{
-	[ -d $PACKAGE ] && rm -rf $PACKAGE
 }

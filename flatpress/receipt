@@ -1,27 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="flatpress"
 VERSION="0.1010.2"
 CATEGORY="network"
-SHORT_DESC="Blog engine without SQL."
+SHORT_DESC="Blog engine without SQL"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION-sotto-voce.tar.bz2"
 WEB_SITE="http://flatpress.org/home/"
+
+TARBALL="$PACKAGE-$VERSION-sotto-voce.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="php"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR/var/www/$PACKAGE
-	cp -a $src/* $DESTDIR/var/www/$PACKAGE
-	chown -R 80.80 $DESTDIR/var/www/$PACKAGE
+compile_rules() {
+	mkdir -p $install/var/www/$PACKAGE
+	cp -a $src/* $install/var/www/$PACKAGE
+	chown -R 80.80 $install/var/www/$PACKAGE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.   
-genpkg_rules()                                      
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="php"
 }

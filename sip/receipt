@@ -12,20 +12,22 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/pyqt/$TARBALL"
 
 BUILD_DEPENDS="python-dev"
-SPLIT="sip-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	python configure.py &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		sip)   copy @std; DEPENDS="python";;
-		*-dev) copy @dev;;
+		sip)
+			copy @std
+			DEPENDS="python"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }

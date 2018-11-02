@@ -34,25 +34,25 @@ EOT
 		--with-sg-dbhome=/var/lib/squidGuard/db \
 		$CONFIGURE_ARGS &&
 	make &&
-	sed -e "s|^prefix =.*|prefix = $DESTDIR/usr|" \
-	    -e "s|^logdir =.*|logdir = $DESTDIR/var/lib/squidGuard/log|" \
-	    -e "s|^configfile =.*|configfile = $DESTDIR/etc/squidGuard/squidGuard.conf|" \
-	    -e "s|^dbhomedir =.*|dbhomedir = $DESTDIR/var/lib/squidGuard/db|" \
+	sed -e "s|^prefix =.*|prefix = $install/usr|" \
+	    -e "s|^logdir =.*|logdir = $install/var/lib/squidGuard/log|" \
+	    -e "s|^configfile =.*|configfile = $install/etc/squidGuard/squidGuard.conf|" \
+	    -e "s|^dbhomedir =.*|dbhomedir = $install/var/lib/squidGuard/db|" \
 	    -e "s|^SQUIDUSER =.*|SQUIDUSER = nobody|" \
 	    < Makefile > Makefile.slitaz-install
-	mkdir -p $DESTDIR/etc/squidGuard
+	mkdir -p $install/etc/squidGuard
 	make -f Makefile.slitaz-install install
 }
 
 genpkg_rules() {
 	mkdir -p $fs/etc/squid/conf.d
-	
+
 	cp -a $install/* $fs/
 	cp -pa $stuff/squidguard.conf $fs/etc/squid/conf.d
-	
+
 	# Cleanup.
 	rmdir $fs/usr/squidGuard
-	
+
 	DEPENDS="squid libdb"
 }
 

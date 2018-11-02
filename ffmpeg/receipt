@@ -12,17 +12,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/ffmpeg.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
-BUILD_DEPENDS_arm="zlib-dev bzip2-dev yasm"
 BUILD_DEPENDS="coreutils-file-format libass-dev fdk-aac-dev lame-dev opus-dev \
 libtheora-dev libvorbis-dev libvpx-dev x264-dev x265-dev xorg-libX11-dev \
 libsdl2-dev yasm"
-SPLIT="ffplay ffserver ffmpeg-dev ffmpeg"
+SPLIT="ffplay ffserver $PACKAGE-dev $PACKAGE"
 
 compile_rules() {
 	case "$ARCH" in
-		i?86) ARCH_ARGS="--arch=$ARCH --cpu=$ARCH" ;;
-		arm*) ARCH_ARGS="--enable-cross-compile --arch=armel --target-os=linux \
-			--cross-prefix=$HOST_SYSTEM-" ;;
+		i?86) ARCH_ARGS="--arch=$ARCH --cpu=$ARCH";;
 	esac
 
 	sed -i 's|-lflite"|-lflite -lasound"|' configure
@@ -85,9 +82,6 @@ genpkg_rules() {
 			TAGS="audio video convert stream"
 			DEPENDS="bzlib fdk-aac freetype lame libass liblzma libtheora-enc \
 			libvorbis libvpx opus x264 x265 xorg-libxcb zlib"
-			case "$SLITAZ_ARCH" in
-				arm*) DEPENDS="alsa-lib bzip2 zlib" ;;
-			esac
 			;;
 	esac
 }

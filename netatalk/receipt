@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="db-dev openssl10-dev file pam-dev libgcrypt-dev"
-SPLIT="netatalk netatalk-pam:pam netatalk-dev"
+SPLIT="$PACKAGE-pam:pam $PACKAGE-dev"
 
 compile_rules() {
 	case $SET in
@@ -28,7 +28,7 @@ compile_rules() {
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	cp -a $stuff/etc $install
 }

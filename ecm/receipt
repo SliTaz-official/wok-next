@@ -5,24 +5,24 @@ VERSION="1.03"
 CATEGORY="misc"
 SHORT_DESC="Converts CD image files into a lossless format optimized for \
 compression tools"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://web.archive.org/web/20140328062622/http://www.neillcorlett.com/ecm/"
 
 TARBALL="cmdpack-$VERSION-src.tar.gz"
 WGET_URL="https://web.archive.org/web/20130616041227if_/http://www.neillcorlett.com/downloads/$TARBALL"
 
-SPLIT="ecm ecm-extras"
+SPLIT="$PACKAGE-extras"
 
 compile_rules() {
 	sed -i 's|-Werror||' src/mkgcc
 	cd $src/src
 	sed -i 's/uint8_t saved_address.4./& = {0,0,0,0}/' cdpatch.c
-	mkdir -p $DESTDIR/usr/bin
+	mkdir -p $install/usr/bin
 	for i in *.c; do
 		echo "Compile $i..."
 		./mkgcc ${i%.c} || return 1
-		cp -a ${i%.c} $DESTDIR/usr/bin
+		cp -a ${i%.c} $install/usr/bin
 	done
 
 	ln -sf ecm $install/usr/bin/unecm

@@ -6,18 +6,16 @@ CATEGORY="games"
 SHORT_DESC="Emulates M68K Taito and Jaleco arcade machines"
 MAINTAINER="devl547@gmail.com"
 LICENSE="other"
+WEB_SITE="http://rainemu.swishparty.co.uk/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://rainemu.swishparty.co.uk"
 WGET_URL="$WEB_SITE/cgi-bin/gitweb.cgi?p=raine;a=snapshot;h=02988ce197bc5b9f1a9eae66251e883d649cc03b;sf=tgz"
 EXTRA_SOURCE_FILES="raines-0.51.9.tar.bz2"
 
-DEPENDS="libsdl zlib libpng16 libsdl-image liblzma libsdl-ttf muparser mesa"
 BUILD_DEPENDS="libsdl-dev zlib-dev libpng16-dev nasm libsdl-image-dev xz-dev \
 libsdl-ttf-dev muparser-dev mesa-dev glu-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	touch -d 197001010000 make.dep cpuinfo
 	[ -s "$SRC/raines-0.51.9.tar.bz2" ] ||
 		wget -P $SRC \
@@ -26,13 +24,14 @@ compile_rules()
 	mv raine-0.51.9/fonts .
 	mv raine-0.51.9/scripts .
 	mv raine-0.51.9/bitmaps .
-	make $MAKEFLAGS && make DESTDIR=$DESTDIR PREFIX=$install/usr/ install
+
+	make $MAKEFLAGS &&
+	make DESTDIR=$install PREFIX=$install/usr/ install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/
 	cp -a $install/usr/games $fs/usr/
 	cp -a $install/usr/share $fs/usr/
+	DEPENDS="libsdl zlib libpng16 libsdl-image liblzma libsdl-ttf muparser mesa"
 }

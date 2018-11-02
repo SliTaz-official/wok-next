@@ -12,14 +12,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/libvncserver/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev jpeg-dev xorg-libX11-dev zlib-dev xorg-libXext-dev"
-SPLIT="x11vnc-extra"
+SPLIT="$PACKAGE-extra"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make -j1 DESTDIR=$DESTDIR install || return 1
+	make -j1 DESTDIR=$install install || return 1
 
-	# rm -rf $DESTDIR/usr/share/applications
+	# rm -rf $install/usr/share/applications
 	install -Dm755 $stuff/x11vnc $install/etc/init.d/x11vnc
 }
 

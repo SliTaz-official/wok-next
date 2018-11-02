@@ -4,31 +4,28 @@ PACKAGE="pgadmin"
 VERSION="1.18.1"
 CATEGORY="utilities"
 SHORT_DESC="PostgreSQL administration an management tools"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
+WEB_SITE="http://www.pgadmin.org/"
+
 SOURCE="pgadmin3"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.pgadmin.org"
 WGET_URL="ftp://ftp.ch.postgresql.org/mirror/postgresql/pgadmin3/release/v$VERSION/src/$TARBALL"
 
-DEPENDS="postgresql wxWidgets28 gtk2 libxslt libcomerr3 libkrb5 xorg-libXxf86vm"
 BUILD_DEPENDS="openssl postgresql postgresql-dev libxslt-dev libxml2-dev \
 wxWidgets28-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/pgadmin3/i18n
 
 	cp -a $install/usr/bin $fs/usr
@@ -37,6 +34,8 @@ genpkg_rules()
 	cp -a $install/usr/share/pgadmin3/i18n/fr_FR $fs/usr/share/pgadmin3/i18n
 	cp -a $install/usr/share/pgadmin3/i18n/*.lng $fs/usr/share/pgadmin3/i18n
 
-	cp -a stuff/applications $fs/usr/share
-	cp -a stuff/icons $fs/usr/share
+	cp -a $stuff/applications $fs/usr/share
+	cp -a $stuff/icons $fs/usr/share
+	DEPENDS="postgresql wxWidgets28 gtk2 libxslt libcomerr3 libkrb5 \
+	xorg-libXxf86vm"
 }

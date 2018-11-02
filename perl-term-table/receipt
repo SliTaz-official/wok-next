@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-term-table"
 VERSION="0.012"
@@ -12,20 +12,17 @@ REPOLOGY="perl:term-table"
 TARBALL="Term-Table-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/E/EX/EXODIST/$TARBALL"
 
-DEPENDS="perl-importer"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-importer"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-importer"
 }

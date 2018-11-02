@@ -4,7 +4,7 @@ PACKAGE="nagios"
 VERSION="3.5.1"
 CATEGORY="network"
 SHORT_DESC="Host and network monitoring"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.nagios.org/"
 
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libgd-dev libpng16-dev libjpeg-turbo-dev libtool"
-SPLIT="nagios-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -29,8 +29,8 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	sed -i 's!HTMLDIR=.*!HTMLDIR=/usr/share/nagios!' html/Makefile &&
 
-	#~ make all && make DESTDIR=$DESTDIR fullinstall \
-	#~ && make DESTDIR=$DESTDIR install-config
+	#~ make all && make DESTDIR=$install fullinstall \
+	#~ && make DESTDIR=$install install-config
 	make all &&
 	make install &&
 	make install-config &&

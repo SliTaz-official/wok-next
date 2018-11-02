@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="blogotext"
 VERSION="2.0.0.0"
 CATEGORY="network"
-SHORT_DESC="Simple blog engine."
+SHORT_DESC="Simple blog engine"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://lehollandaisvolant.net/blogotext"
+WEB_SITE="https://github.com/BlogoText/blogotext"
+
 TARBALL="$PACKAGE-$VERSION.zip"
-URL="$WEB_SITE/archives/$TARBALL"
+URL="$WEB_SITE/archives/$TARBALL" # FIXME
 
-DEPENDS="php-gd"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	[ -s "$SRC/$TARBALL" ] || wget -O "$SRC/$TARBALL" $URL
-	mkdir -p $DESTDIR/var/www 2>/dev/null
-	cd $DESTDIR/var/www
+
+	mkdir -p $install/var/www 2>/dev/null
+	cd $install/var/www
 	unzip "$SRC/$TARBALL"
-	chown -R 80.80 $DESTDIR/var/www/blogotext
+	chown -R 80.80 $install/var/www/blogotext
+	find $install -type f -exec chmod a-x '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
-	find $fs -type f -exec chmod a-x \{\} \;
+	DEPENDS="php-gd"
 }

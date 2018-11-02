@@ -4,9 +4,9 @@ PACKAGE="connman"
 VERSION="1.21"
 CATEGORY="network"
 SHORT_DESC="Daemon for managing internet connections"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://connman.net/"
+WEB_SITE="https://01.org/connman"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://linux-kernel.uio.no/pub/linux/network/$PACKAGE/$TARBALL"
@@ -14,7 +14,7 @@ WGET_URL="http://linux-kernel.uio.no/pub/linux/network/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="glib-dev dbus-dev iptables-dev iptables gnutls-dev libnl-dev
 openconnect udev-dev wpa_supplicant readline-dev ncurses-dev openvpn
 bluez-dev ppp-dev"
-SPLIT="connman connman-dev connman-tools"
+SPLIT="$PACKAGE-dev $PACKAGE-tools"
 
 compile_rules() {
 	# add dependency on libncurses.so,
@@ -31,7 +31,7 @@ compile_rules() {
 		--enable-test \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/usr/sbin/
 	install -m755 $src/client/connmanctl $install/usr/sbin/

@@ -4,25 +4,27 @@ PACKAGE="ladspa"
 VERSION="1.13"
 CATEGORY="multimedia"
 SHORT_DESC="LADSPA: Linux Audio Developer's Simple Plugin API"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.ladspa.org/"
 
 TARBALL="ladspa_sdk_$VERSION.tgz"
 WGET_URL="https://github.com/OpenMandrivaAssociation/ladspa/raw/master/$TARBALL"
 
-SPLIT="ladspa-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	cd src
-	sed -i \
+	cd $src/src
+	sed \
 		-e 's/mkdirhier/mkdir -p/' \
-		-e "s#-O3#${CFLAGS} ${LDFLAGS/,--as-needed/}#" \
-		makefile
+		-e "s#-O3#$CFLAGS ${LDFLAGS/,--as-needed/}#" \
+		-i makefile
+
 	make targets &&
-	make INSTALL_PLUGINS_DIR=$DESTDIR/usr/lib/ladspa/ \
-		INSTALL_INCLUDE_DIR=$DESTDIR/usr/include/ \
-		INSTALL_BINARY_DIR=$DESTDIR/usr/bin/ \
+	make \
+		INSTALL_PLUGINS_DIR=$install/usr/lib/ladspa/ \
+		INSTALL_INCLUDE_DIR=$install/usr/include/ \
+		INSTALL_BINARY_DIR=$install/usr/bin/ \
 		install
 }
 

@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wavemon"
 VERSION="0.7.5"
 CATEGORY="network"
-SHORT_DESC="Wavemon is an ncurses-based monitoring application for wireless network devices."
+SHORT_DESC="Ncurses-based monitoring application for wireless network devices"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/uoaerg/wavemon"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://eden-feed.erg.abdn.ac.uk/wavemon/stable-releases/$TARBALL"
 
-DEPENDS="ncurses libcap"
 BUILD_DEPENDS="ncurses-dev libcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses libcap"
 }

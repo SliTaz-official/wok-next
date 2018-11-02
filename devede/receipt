@@ -4,36 +4,32 @@ PACKAGE="devede"
 VERSION="3.23.0"
 CATEGORY="multimedia"
 SHORT_DESC="A program to create VideoDVDs and CDs"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.rastersoft.com/programas/devede.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.rastersoft.com/descargas/$TARBALL"
 
-DEPENDS="cdrkit dvdauthor mplayer mencoder python-pygtk ttf-dejavu vcdimager python-dbus"
 BUILD_DEPENDS="python-pygtk-dev vcdimager-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	
-	./install.sh --DESTDIR=$DESTDIR \
+compile_rules() {
+	./install.sh \
+		--DESTDIR=$install \
 		--prefix=/usr \
 		--unistall=no \
 		--targeted=yes
 
-	mkdir -p $DESTDIR/usr/share/applications
-	cp -a $PACKAGE.desktop $DESTDIR/usr/share/applications/$PACKAGE.desktop
+	mkdir -p $install/usr/share/applications
+	cp -a $PACKAGE.desktop $install/usr/share/applications/$PACKAGE.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share/applications $fs/usr/share
 	cp -a $install/usr/share/devede $fs/usr/share
+	DEPENDS="cdrkit dvdauthor mplayer mencoder python-pygtk ttf-dejavu \
+	vcdimager python-dbus"
 }
-

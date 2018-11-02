@@ -3,7 +3,7 @@
 PACKAGE="znotes"
 VERSION="0.4.5"
 CATEGORY="office"
-SHORT_DESC="zNotes is lightweigh crossplatform application for notes management"
+SHORT_DESC="Lightweigh crossplatform application for notes management"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://qt-apps.org/content/show.php/zNotes?content=113117"
@@ -12,12 +12,9 @@ WEB_SITE="http://qt-apps.org/content/show.php/zNotes?content=113117"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/proton/zNotes/archive/$VERSION.tar.gz"
 
-DEPENDS="libQtGui libQtXml"
-BUILD_DEPENDS="Qt4-dev qmake wget"
+BUILD_DEPENDS="Qt4-dev qmake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/qtlocalpeer.h.*/&\n#include <unistd.h>/' \
 		single_inst/qtlocalpeer.cpp
 	lrelease znotes.pro
@@ -26,8 +23,7 @@ compile_rules()
 	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="libQtGui libQtXml"
 }

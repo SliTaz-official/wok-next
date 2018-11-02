@@ -1,26 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openerp-client-etl"
 VERSION="1.1.1"
 CATEGORY="development"
-SHORT_DESC="Allows to extract, transform and load data from any data source."
+SHORT_DESC="Allows to extract, transform and load data from any data source"
 MAINTAINER="pascal.bellard@slitaz.org"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://pypi.org/project/openerp-client-etl"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://files.pythonhosted.org/packages/source/o/$PACKAGE/$TARBALL"
 
-DEPENDS="python wget"
 BUILD_DEPENDS="python-dev python"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py build &&
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
+	DEPENDS="python wget"
 }

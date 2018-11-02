@@ -4,7 +4,7 @@ PACKAGE="pkg-config"
 VERSION="0.29.2"
 CATEGORY="development"
 SHORT_DESC="Free desktop packages manager"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/pkg-config/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/pkg-config.html"
@@ -12,24 +12,13 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/pkg-config.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://pkg-config.freedesktop.org/releases/$TARBALL"
 
-BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="gcc libtool perl"
 
 compile_rules() {
-	case "$ARCH" in
-		arm)
-			./configure \
-				--program-prefix=$TOOLPREFIX \
-				--build=i486-slitaz-linux \
-				--host=arm-slitaz-linux-gnueabi \
-				--cache-file=arm-linux.cache ;;
-		*)
-			./configure \
-				--with-internal-glib \
-				--disable-host-tool \
-				$CONFIGURE_ARGS
-				;;
-	esac &&
+	./configure \
+		--with-internal-glib \
+		--disable-host-tool \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1

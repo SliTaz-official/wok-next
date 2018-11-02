@@ -4,7 +4,7 @@ PACKAGE="tcpick"
 VERSION="0.2.1"
 CATEGORY="network"
 SHORT_DESC="TCP stream sniffer and connection tracker"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://tcpick.sourceforge.net/"
@@ -13,17 +13,16 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 DEPENDS="libpcap"
 BUILD_DEPENDS="libpcap-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/__inline__//' src/*.c
-	./configure --mandir=/usr/share/man && make && make install
+	./configure \
+		--mandir=/usr/share/man \
+		&&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 }
-

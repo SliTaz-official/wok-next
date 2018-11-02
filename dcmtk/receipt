@@ -12,14 +12,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://dicom.offis.de/pub/dicom/offis/software/$PACKAGE/$PACKAGE${VERSION//./}/$TARBALL"
 
 BUILD_DEPENDS="libxml2-dev tiff-dev libpng16-dev zlib-dev" # libwrap-dev
-#SPLIT="dcmtk dcmtk-dev"
+#SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
 		--sysconfdir=/etc/dcmtk \
 		$CONFIGURE_ARGS &&
 	make -j1 &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

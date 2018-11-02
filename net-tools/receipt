@@ -13,7 +13,7 @@ WGET_URL="$WEB_SITE/$TARBALL"
 
 compile_rules() {
 	sed -i '/netinet\/ip/d' iptunnel.c
-	mkdir $DESTDIR
+	mkdir $install
 	enabled="HAVE_AFUNIX HAVE_AFINET HAVE_HWETHER HAVE_HWPPP \
 		 HAVE_HWTUNNEL HAVE_FW_MASQUERADE HAVE_IP_TOOLS HAVE_MII"
 
@@ -21,16 +21,18 @@ compile_rules() {
 	| while read name; do
 		val=0
 		case " $enabled " in
-			*\ $name\ *) val=1 ;;
+			*\ $name\ *) val=1;;
 		esac
 		echo "#define $name $val"
 		echo "$name=$val" >&2
-	done > config.h 2> config.make
+	done \
+		>  config.h \
+		2> config.make
 
 	sed -i 's/default:/&;/' hostname.c lib/inet_sr.c
 	sed -i '/"usage/,/10baseT/s/.*/&\\n\\/' mii-tool.c
-	make -j 1 &&
-	make BASEDIR=$DESTDIR install
+	make -j1 &&
+	make BASEDIR=$install install
 }
 
 genpkg_rules() {

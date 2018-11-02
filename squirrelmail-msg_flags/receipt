@@ -3,40 +3,34 @@
 PACKAGE="squirrelmail-msg_flags"
 VERSION="1.4.15a-1.4.3"
 CATEGORY="network"
-SHORT_DESC="Few icons and flags for Web mail."
+SHORT_DESC="Few icons and flags for Web mail"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.squirrelmail.org/"
+
 SOURCE="msg_flags"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.squirrelmail.org/"
 WGET_URL="${WEB_SITE}plugins/$TARBALL"
 
-DEPENDS="squirrelmail"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR
-	cp -a $src $DESTDIR/$SOURCE
+compile_rules() {
+	mkdir -p $install
+	cp -a $src $install/$SOURCE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/squirrelmail/plugins
 	cp -a $install/$SOURCE $fs/usr/share/squirrelmail/plugins
+	DEPENDS="squirrelmail"
 }
 
-post_install()
-{
+post_install() {
 	( cd "$1/usr/share/squirrelmail/plugins/$SOURCE"
 	  patch -p0 < patches/$SOURCE-squirrelmail-$(. "$1/$INSTALLED/squirrelmail/receipt"; echo $VERSION).diff )
 	echo "$PACKAGE" >> "$1/$INSTALLED/squirrelmail/modifiers"
 	echo "\$plugins[] = '$SOURCE';" >> "$1/etc/squirrelmail/config_local.php"
 }
 
-pre_remove()
-{
+pre_remove() {
 	( cd /usr/share/squirrelmail/plugins/$SOURCE
 	  patch -R -p0 < patches/$SOURCE-squirrelmail-$(. $INSTALLED/squirrelmail/receipt; echo $VERSION).diff )
 	sed -i "/^$PACKAGE\$/d" $INSTALLED/squirrelmail/modifiers

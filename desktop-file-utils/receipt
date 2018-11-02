@@ -4,7 +4,7 @@ PACKAGE="desktop-file-utils"
 VERSION="0.23"
 CATEGORY="system-tools"
 SHORT_DESC="Utilities for .desktop files"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/desktop-file-utils/"
 
@@ -12,17 +12,20 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.freedesktop.org/software/desktop-file-utils/releases/$TARBALL"
 
 BUILD_DEPENDS="glib-dev glib-static"
-SPLIT="desktop-file-validate-static desktop-file-utils-extra"
+SPLIT="desktop-file-validate-static $PACKAGE-extra"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install &&
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	make clean &&
 	./configure \
 		LDFLAGS='-static -pthread' \
 		--bindir=/usr/sbin \
 		$CONFIGURE_ARGS &&
-	make && make bin_PROGRAMS=desktop-file-validate LN_S=echo install
+	make &&
+	make bin_PROGRAMS=desktop-file-validate LN_S=echo install
 }
 
 genpkg_rules() {

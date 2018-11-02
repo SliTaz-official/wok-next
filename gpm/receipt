@@ -11,9 +11,8 @@ WEB_SITE="https://www.nico.schottelius.org/software/gpm/"
 TARBALL="$PACKAGE-$VERSION.tar.lzma"
 WGET_URL="${WEB_SITE}archives/$TARBALL"
 
-BUILD_DEPENDS_arm=" "
 BUILD_DEPENDS="gawk bison ncurses-dev automake autoconf libtool texinfo"
-SPLIT="gpm-extra gpm gpm-dev"
+SPLIT="$PACKAGE-extra $PACKAGE $PACKAGE-dev"
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -21,8 +20,10 @@ compile_rules() {
 
 	./autogen.sh
 	ln -s headers/gpm.h src		# ???
+
 	./configure $CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	chmod a+x $install/usr/lib/*
 	install -Dm755 $stuff/etc/init.d/gpm $install/etc/init.d/gpm

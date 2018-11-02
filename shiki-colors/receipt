@@ -7,15 +7,11 @@ SHORT_DESC="Multi-colored suite of Clearlooks themes"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/gnome-colors/gnome-colors"
+
 TARBALL="gnome-colors-$VERSION.tar.gz"
 WGET_URL="https://github.com/gnome-colors/gnome-colors/archive/$VERSION.tar.gz"
 
-DEPENDS="gtk-clearlooks"
-BUILD_DEPENDS=""
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	for i in Brave Dust Human Illustrious Noble Wine Wise; do
 		j="$install/usr/share/themes/Shiki-$i"
 		mkdir -p $j
@@ -25,8 +21,7 @@ compile_rules()
 	find $install -type f -exec chmod 644 \{\} \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="gtk-clearlooks"
 }

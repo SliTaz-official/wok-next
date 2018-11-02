@@ -4,7 +4,7 @@ PACKAGE="perl-template-toolkit"
 VERSION="2.27"
 CATEGORY="perl"
 SHORT_DESC="Template::Toolkit - Template Processing System"
-MAINTAINER="nneul@neulinger.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="Perl"
 WEB_SITE="https://metacpan.org/release/Template-Toolkit"
 REPOLOGY="perl:template-toolkit"
@@ -12,20 +12,17 @@ REPOLOGY="perl:template-toolkit"
 TARBALL="Template-Toolkit-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/A/AB/ABW/$TARBALL"
 
-DEPENDS="perl perl-appconfig"
 BUILD_DEPENDS="perl-dev perl-appconfig"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL TT_XS_ENABLE=y TT_XS_DEFAULT=y TT_ACCEPT=y TT_QUIET=n &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl perl-appconfig"
 }

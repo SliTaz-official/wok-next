@@ -12,16 +12,17 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/$TARBALL"
 
 BUILD_DEPENDS="gfortran"
-SPLIT="ucl-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
 		--enable-shared \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
-	cook_pick_docs AUTHORS NEWS README THANKS TODO $docdir
+	cook_pick_docs AUTHORS NEWS README THANKS TODO
 }
 
 genpkg_rules() {

@@ -13,13 +13,13 @@ WGET_URL="https://www.clamav.net/downloads/production/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev gmp gmp-dev bzip2-dev ncurses-dev bash \
 libxml2-dev openssl-dev"
-SPLIT="clamav-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	grep -rl 'alignof(' * | xargs sed -i 's|alignof(|alignof_(|'
 	grep -rl 'alignof<' * | xargs sed -i 's|alignof<|alignof_<|'
 	grep -rl '__alignof_' * | xargs sed -i 's|__alignof_|__alignof|'
-	sed -i 's|make_pair<.*>|make_pair|' libclamav/c++/llvm/lib/ExecutionEngine/JIT/JITDebugRegisterer.cpp 
+	sed -i 's|make_pair<.*>|make_pair|' libclamav/c++/llvm/lib/ExecutionEngine/JIT/JITDebugRegisterer.cpp
 	sed -i 's|~0|~0U|g' libclamav/c++/llvm/lib/Target/X86/X86CodeEmitter.cpp \
 			libclamav/c++/llvm/lib/Target/X86/X86MCCodeEmitter.cpp
 
@@ -33,7 +33,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -78,7 +78,7 @@ post_install_clamav() {
 	status
 
 	# adduser clamav if needed
-	if ! grep -q "${user}:" "$1/etc/passwd"; then
+	if ! grep -q "$user:" "$1/etc/passwd"; then
 		action 'Adding user/group $user...'
 		chroot "$1/" addgroup -S $group
 		chroot "$1/" adduser -s /bin/false -S -D -H -G $group $user
@@ -86,7 +86,7 @@ post_install_clamav() {
 	fi
 
 	# Enable daily.cvd updates (sometimes needed for new version)
-	#chown -R ${user}:${group} "$1/var/lib/clamav"
+	#chown -R $user:$group "$1/var/lib/clamav"
 
 	# Fix perms
 	chroot "$1/" chown -R $user.$group /var/log/clamav \

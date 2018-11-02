@@ -3,27 +3,28 @@
 PACKAGE="emelfm2"
 VERSION="0.9.1"
 CATEGORY="system-tools"
-SHORT_DESC="GTK powerfull file manager."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="GTK powerfull file manager"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://web.archive.org/web/20171213042310/http://emelfm2.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://emelfm2.net/rel/$TARBALL" # FIXME
 
-BUILD_DEPENDS="gtk2-dev xorg-xorgproto libmagic-dev \
-coreutils-operations gettext-tools"
+BUILD_DEPENDS="gtk2-dev xorg-xorgproto libmagic-dev coreutils-operations gettext"
 
 compile_rules() {
-	sed -i 's|xpdf|epdfview|g' src/e2_filetype.c
-	sed -i 's|gview|viewnior|g' src/e2_filetype.c
-	sed -i 's|totem|xine|g' src/e2_filetype.c
-	sed -i 's|Totem|Xine|g' src/e2_filetype.c
+	sed \
+		-e 's|xpdf|epdfview|g' \
+		-e 's|gview|viewnior|g' \
+		-e 's|totem|xine|g' \
+		-e 's|Totem|Xine|g' \
+		-i src/e2_filetype.c
 
 	make PREFIX=/usr &&
-	make i18n PREFIX=/usr &&
-	make install PREFIX=$DESTDIR/usr &&
-	make install_i18n PREFIX=$DESTDIR/usr
+	make PREFIX=/usr i18n &&
+	make PREFIX=$install/usr install &&
+	make PREFIX=$install/usr install_i18n
 }
 
 genpkg_rules() {

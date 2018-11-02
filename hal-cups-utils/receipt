@@ -3,29 +3,27 @@
 PACKAGE="hal-cups-utils"
 VERSION="0.6.19"
 CATEGORY="system-tools"
-MAINTAINER="jozee@slitaz.org"
-LICENSE="GPL2"
+MAINTAINER="devel@slitaz.org"
 SHORT_DESC="Cups backend/utils to browse and configure using HAL UDIs"
+LICENSE="GPL2"
 WEB_SITE="https://packages.ubuntu.com/jaunty/hal-cups-utils"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://fedorahosted.org/releases/h/a/$PACKAGE/$TARBALL"
 
-DEPENDS="hal dbus dbus-glib cups"
 BUILD_DEPENDS="hal-dev dbus-dev dbus-glib-dev cups-dev"
 
-# Rules to configure and make the package.
-
 compile_rules() {
-	cd $src
 	./configure \
-	--libexecdir=/usr/lib/hal/scripts/ &&
-	make && make install
+		--libexecdir=/usr/lib/hal/scripts/ \
+		&&
+	make &&
+	make install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share $fs/usr
+	DEPENDS="hal dbus dbus-glib cups"
 }

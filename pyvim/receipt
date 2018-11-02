@@ -3,7 +3,7 @@
 PACKAGE="pyvim"
 VERSION="0.0.13"
 CATEGORY="development"
-SHORT_DESC="Pure Python Vi Implementation."
+SHORT_DESC="Pure Python Vi Implementation"
 MAINTAINER="paul@slitaz.org"
 WEB_SITE="https://github.com/jonathanslenders/pyvim"
 
@@ -11,18 +11,14 @@ SOURCE="pyvim"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="https://files.pythonhosted.org/packages/source/p/$SOURCE/$TARBALL"
 
-DEPENDS="python python-prompt-toolkit ptpython python-docopt python-pyflakes"
-BUILD_DEPENDS="python-prompt-toolkit ptpython python-docopt python-pyflakes python-dev"
+BUILD_DEPENDS="python-prompt-toolkit ptpython python-docopt python-pyflakes \
+python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
+	DEPENDS="python python-prompt-toolkit ptpython python-docopt python-pyflakes"
 }
-

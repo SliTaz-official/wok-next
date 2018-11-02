@@ -12,21 +12,19 @@ REPOLOGY="perl:xml-sax-expat"
 TARBALL="XML-SAX-Expat-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/B/BJ/BJOERN/$TARBALL"
 
-DEPENDS="perl-xml-namespacesupport perl-xml-parser perl-xml-sax \
+BUILD_DEPENDS="perl-xml-namespacesupport perl-xml-parser perl-xml-sax \
 perl-xml-sax-base"
-BUILD_DEPENDS="$DEPENDS"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make -j1 install && make -j1 DESTDIR=$install install &&
+	make -j1 install &&
+	make -j1 DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-xml-namespacesupport perl-xml-parser perl-xml-sax \
+	perl-xml-sax-base"
 }

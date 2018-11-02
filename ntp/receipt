@@ -15,7 +15,8 @@ compile_rules() {
 	sed -i 's/MOD_NANO/0/' ntpd/ntp_loopfilter.c
 
 	./configure $CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install || return 1
+	make &&
+	make DESTDIR=$install install || return 1
 
 	install -Dm755 $stuff/ntp      $install/etc/init.d/ntp
 	install -Dm644 $stuff/ntp.conf $install/etc/ntp.conf

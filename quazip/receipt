@@ -3,32 +3,29 @@
 PACKAGE="quazip"
 VERSION="0.6.1"
 CATEGORY="system-tools"
-SHORT_DESC="Qt/C++ wrapper for ZIP/UNZIP package."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Qt/C++ wrapper for ZIP/UNZIP package"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.zip"
 WEB_SITE="http://quazip.sourceforge.net/"
-WGET_URL="$SF_MIRROR/project/$PACKAGE/$PACKAGE/$VERSION/$TARBALL"
+
+TARBALL="$PACKAGE-$VERSION.zip"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev Qt4-dev qmake"
-SPLIT="quazip-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/quazip
-	qmake PREFIX=$DESTDIR/usr &&
+	qmake PREFIX=$install/usr &&
 	make &&
 	make staticlib &&
 	make install &&
-	install -m 0644 libquazip.a $DESTDIR/usr/lib &&
+	install -m 0644 libquazip.a $install/usr/lib &&
 	install -D -m 0644 ../FindQuaZip.cmake \
-		$DESTDIR/usr/share/apps/cmake/modules/FindQuaZip.cmake
+		$install/usr/share/apps/cmake/modules/FindQuaZip.cmake
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		quazip)
 			copy @std

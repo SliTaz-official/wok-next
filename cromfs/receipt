@@ -20,15 +20,15 @@ compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make -j 1 2>&1 | grep -v cromfs-driver-static
+	make -j1 || return 1
 
-	mkdir -p $DESTDIR/bin   $DESTDIR/usr/bin
-	cp $src/cromfs-driver   $DESTDIR/bin
+	mkdir -p $install/bin   $install/usr/bin
+	cp $src/cromfs-driver   $install/bin
 	# Maybe have a plited packages (cromfs-static)
-	#cp $src/cromfs-driver-static $DESTDIR/bin/cromfs-driver
-	cp $src/util/cvcromfs   $DESTDIR/usr/bin
-	cp $src/util/mkcromfs   $DESTDIR/usr/bin
-	cp $src/util/unmkcromfs $DESTDIR/bin
+	#cp $src/cromfs-driver-static $install/bin/cromfs-driver
+	cp $src/util/cvcromfs   $install/usr/bin
+	cp $src/util/mkcromfs   $install/usr/bin
+	cp $src/util/unmkcromfs $install/bin
 }
 
 genpkg_rules() {

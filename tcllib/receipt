@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="tcllib"
 VERSION="1.12"
 CATEGORY="development"
-SHORT_DESC="Tcl-only library of standard routines for Tcl."
+SHORT_DESC="Tcl-only library of standard routines for Tcl"
 MAINTAINER="paul@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://sourceforge.net/projects/tcllib/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="tcl"
 BUILD_DEPENDS="tcl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib/* $fs/usr/lib
+	DEPENDS="tcl"
 }

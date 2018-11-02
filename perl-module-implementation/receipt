@@ -1,11 +1,11 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-module-implementation"
 VERSION="0.09"
 CATEGORY="perl"
 SHORT_DESC="Module::Implementation - Loads one of several alternate underlying \
 implementations for a module"
-MAINTAINER="nneul@neulinger.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Module-Implementation"
 REPOLOGY="perl:module-implementation"
@@ -13,20 +13,18 @@ REPOLOGY="perl:module-implementation"
 TARBALL="Module-Implementation-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-module-runtime perl-try-tiny"
-BUILD_DEPENDS="$DEPENDS perl-test-fatal perl-test-requires"
+BUILD_DEPENDS="perl-module-runtime perl-try-tiny perl-test-fatal \
+perl-test-requires"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-module-runtime perl-try-tiny"
 }

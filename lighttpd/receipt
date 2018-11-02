@@ -4,7 +4,7 @@ PACKAGE="lighttpd"
 VERSION="1.4.35"
 CATEGORY="network"
 SHORT_DESC="Fast and light HTTP Web server"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.lighttpd.net/"
 
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://download.lighttpd.net/lighttpd/releases-${VERSION%.*}.x/$TARBALL"
 
 BUILD_DEPENDS="pcre-dev bzip2-dev zlib-dev"
-SPLIT="lighttpd lighttpd-modules"
+SPLIT="$PACKAGE-modules"
 
 compile_rules() {
 	sed -i '/addrs_left/d' src/mod_extforward.c
@@ -24,7 +24,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 # On SliTaz Lighttpd runs as user/group : www/www or 80/80.
@@ -54,8 +54,9 @@ userdir"
 			# Modules.
 			mkdir -p $fs/usr/lib/lighttpd
 			for module in $BASE_MODULES; do
-				cp $install/usr/lib/lighttpd/mod_${module}.so $fs/usr/lib/lighttpd
-				echo -n "Copying : mod_${module}.so" && status
+				action "Copying: mod_$module.so"
+				cp $install/usr/lib/lighttpd/mod_$module.so $fs/usr/lib/lighttpd
+				status
 			done
 
 			# Config file.
@@ -84,7 +85,7 @@ userdir"
 			mkdir -p $fs/usr/
 			cp -a $install/usr/lib $fs/usr
 			for module in $BASE_MODULES; do
-				rm -f $fs/usr/lib/lighttpd/mod_${module}.so
+				rm -f $fs/usr/lib/lighttpd/mod_$module.so
 			done
 			rm -f $fs/usr/lib/lighttpd/*.la
 			;;
@@ -98,7 +99,8 @@ testsuite() {
 
 # We stop the server by default in case of upgarde.
 pre_install_lighttpd() {
-	[ -z "$1" ] && for i in httpd ngnix apache cherokee $PACKAGE ; do
+	[ -z "$1" ] &&
+	for i in httpd ngnix apache cherokee lighttpd; do
 		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
 	done
 	# Backup config file.
@@ -116,6 +118,7 @@ post_install_lighttpd() {
 
 	# Just in case.
 	chown www.www "$1/var/log/$PACKAGE"
-	[ "$1" ] || netstat -ltn 2> /dev/null | grep -q :80 ||
-	/etc/init.d/$PACKAGE start
+	[ -n "$1" ] ||
+		netstat -ltn 2>/dev/null | grep -q :80 ||
+		/etc/init.d/$PACKAGE start
 }

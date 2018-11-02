@@ -1,32 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="iftopcolor"
 VERSION="20140730"
 CATEGORY="network"
-SHORT_DESC="Added color bars to iftop."
+SHORT_DESC="Added color bars to iftop"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://github.com/srix/iftopcolor"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://github.com/srix/iftopcolor"
 
-DEPENDS="libpcap ncurses"
 BUILD_DEPENDS="libpcap-dev ncurses-dev git bzip2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure --prefix=/usr
-	$CONFIGURE_ARGS
-	make
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpcap ncurses"
 }
-

@@ -1,43 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="python-smbus"
 VERSION="3.1.1"
 CATEGORY="system-tools"
 SHORT_DESC="SMBus access through the I2C /dev interface (from i2c-tools)"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/about/"
 REPOLOGY="i2c-tools"
 
-SOURCE="i2c-tools"
-TARBALL="$SOURCE-$VERSION.tar.bz2"
-WGET_URL="http://dl.lm-sensors.org/$SOURCE/releases/$TARBALL"
-TAGS="python"
+TARBALL="i2c-tools-$VERSION.tar.bz2"
+WGET_URL="http://dl.lm-sensors.org/i2c-tools/releases/$TARBALL"
 
-DEPENDS="python"
 BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	# Cross compilation hack
-	case "$ARCH" in
-		arm*)
-			mv /usr/bin/i486-slitaz-linux-gcc /tmp &&
-			ln -s /cross/${ARCH}/tools/bin/arm-slitaz-linux-gnueabi-gcc \
-				/usr/bin/i486-slitaz-linux-gcc ;;
-	esac &&
-	make EXTRA=py-smbus && cd py-smbus &&
-	python setup.py install --root=$DESTDIR
-	case "$ARCH" in
-		arm*) 
-			rm /usr/bin/i486-slitaz-linux-gcc &&
-			mv /tmp/i486-slitaz-linux-gcc /usr/bin ;;
-	esac
+compile_rules() {
+	make EXTRA=py-smbus || return 1
+
+	cd py-smbus
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
+	TAGS="python"
 }

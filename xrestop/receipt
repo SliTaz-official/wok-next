@@ -1,30 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xrestop"
 VERSION="0.4"
 CATEGORY="utilities"
-SHORT_DESC="X11 server resource usage monitor."
+SHORT_DESC="X11 server resource usage monitor"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/xrestop/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.freedesktop.org/wiki/Software/xrestop/"
 WGET_URL="http://downloads.yoctoproject.org/releases/xrestop/$TARBALL"
 
-DEPENDS="ncurses xorg-libXres"
 BUILD_DEPENDS="ncurses-dev xorg-libXres-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
-	./configure --prefix=/usr
-	make
+
+	./configure --prefix=/usr &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr	
+	cp -a $install/usr/bin $fs/usr
+	DEPENDS="ncurses xorg-libXres"
 }

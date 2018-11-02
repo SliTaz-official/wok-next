@@ -4,7 +4,7 @@ PACKAGE="xorg-libxcb"
 VERSION="1.13"
 CATEGORY="x-window"
 SHORT_DESC="A C binding to the X11 protocol"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://xcb.freedesktop.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libxcb.html"
@@ -13,22 +13,9 @@ REPOLOGY="libxcb"
 TARBALL="libxcb-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
 
-BUILD_DEPENDS="libxslt-dev xorg-xcb-proto xorg-libXau-dev xorg-libXdmcp-dev \
-autoconf automake libtool"
-SPLIT="xorg-libxcb-dev"
-
-# Handle SliTaz arch
-case "$SLITAZ_ARCH" in
-	arm*) VERSION="1.9.1";;
-esac
-case "$ARCH" in
-	arm*) # We need host xorg-xcb-proto libxslt-dev file installed
-		VERSION="1.9.1"
-		TARBALL="libxcb-$VERSION.tar.bz2"
-		WGET_URL="https://xcb.freedesktop.org/dist/$TARBALL"
-		BUILD_DEPENDS="libxslt-dev xorg-xcb-proto xorg-libXau-dev xorg-libXdmcp-dev"
-		;;
-esac
+BUILD_DEPENDS="xorg-util-macros libxslt-dev xorg-xcb-proto xorg-libXau-dev \
+xorg-libXdmcp-dev autoconf automake libtool"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# Package "libpthread-stubs" no more needed:
@@ -43,7 +30,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

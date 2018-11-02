@@ -3,30 +3,28 @@
 PACKAGE="cclfox"
 VERSION="0.7.0"
 CATEGORY="development"
-SHORT_DESC="server gui for libccls"
+SHORT_DESC="Server GUI for libccls"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://ccl.sourceforge.net"
-WGET_URL="http://nchc.dl.sourceforge.net/project/ccl/cclfox/$VERSION/$TARBALL"
+WEB_SITE="http://ccl.sourceforge.net/"
 
-DEPENDS="libccls fox14 glib"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/ccl/$TARBALL"
+
 BUILD_DEPENDS="libccls-dev fox14-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="libccls fox14 glib"
 }

@@ -4,11 +4,12 @@ PACKAGE="dahdi-linux"
 VERSION="2.11.1"
 EXTRAVERSION="_$kvers"
 CATEGORY="network"
-SHORT_DESC="Digium Asterisk Hardware Device Interface: kernel modules."
+SHORT_DESC="Digium Asterisk Hardware Device Interface: kernel modules"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.asterisk.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.asterisk.org/pub/telephony/$PACKAGE/releases/$TARBALL"
 EXTRA_SOURCE_FILES="dahdi-fw-hx8-2.06.tar.gz dahdi-fw-oct6114-032-1.05.01.tar.gz \
 dahdi-fw-oct6114-064-1.05.01.tar.gz	dahdi-fw-oct6114-128-1.05.01.tar.gz \
@@ -21,49 +22,41 @@ dahdi-fw-a4b-d001e.tar.gz		dahdi-fw-a4a-a0017.tar.gz \
 dahdi-fwload-vpmadt032-1.25.0.tar.gz"
 
 BUILD_DEPENDS="linux-module-headers xz perl"
-SPLIT="dahdi-linux dahdi-linux-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-compile_rules()
-{
+compile_rules() {
 	FIRMWARE_URL=http://downloads.digium.com/pub/telephony/firmware/releases
-	for i in $EXTRA_SOURCE_FILES ; do
+	for i in $EXTRA_SOURCE_FILES; do
 		[ -s $SRC/$i ] ||
 		  wget -P $SRC $FIRMWARE_URL/$i
 		cp $SRC/$i drivers/dahdi/firmware/
 		tar xzf $SRC/$i -C drivers/dahdi/firmware/
 	done
+
 	make KVERS="/usr/src/linux" install 2>&1 | grep -v 'slitaz/modules' &&
-	find $DESTDIR/lib/modules -name '*.ko' -exec xz {} \; 
-	for i in $EXTRA_SOURCE_FILES ; do
+	find $install/lib/modules -name '*.ko' -exec xz {} \;
+	for i in $EXTRA_SOURCE_FILES; do
 		[ -s $SRC/$i ] ||
 		cp drivers/dahdi/firmware/$i $SRC/
 	done
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	dahdi-linux)
-		DEPENDS="linux eudev"
-		cp -a $install/* $fs
-		rm -rf $fs/usr/include
-		;;
-	dahdi-linux-dev)
-		mkdir -p $fs/usr
-		cp -a $install/usr/include $fs/usr
-		;;
+		dahdi-linux)
+			copy @std
+			DEPENDS="linux eudev"
+			;;
+		*-dev)
+			copy @dev
+			;;
 	esac
 }
 
-# Post install/remove commands for Tazpkg.
-post_install_dahdi_linux()
-{
+post_install_dahdi_linux() {
 	chroot "$root/" depmod -a ${EXTRAVERSION#_}-slitaz
 }
 
-post_remove_dahdi_linux()
-{
+post_remove_dahdi_linux() {
 	chroot "$root/" depmod -a ${EXTRAVERSION#_}-slitaz
 }

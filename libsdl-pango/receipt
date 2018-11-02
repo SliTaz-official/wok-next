@@ -4,7 +4,7 @@ PACKAGE="libsdl-pango"
 VERSION="0.1.2"
 CATEGORY="x-window"
 SHORT_DESC="Pango SDL binding"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://sdlpango.sourceforge.net/"
 REPOLOGY="sdl-pango"
@@ -13,18 +13,13 @@ TARBALL="SDL_Pango-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/sdlpango/$TARBALL"
 
 BUILD_DEPENDS="patch gfortran pango-dev libsdl-dev"
-SPLIT="libsdl-pango-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	# Handle cross compilation
-	case "$ARCH" in
-		arm*) ARCH_MAKE="LIBS=/cross/$ARCH/sysroot/usr/lib" ;;
-	esac
-
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make $ARCH_MAKE &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

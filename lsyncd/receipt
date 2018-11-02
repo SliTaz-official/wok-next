@@ -3,26 +3,26 @@
 PACKAGE="lsyncd"
 VERSION="2.1.5"
 CATEGORY="network"
-SHORT_DESC="Live Syncing (Mirror) Daemon."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Live Syncing (Mirror) Daemon"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://axkibe.github.io/lsyncd/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://lsyncd.googlecode.com/files/$TARBALL" # FIXME
 
-DEPENDS="lua5.1"
 BUILD_DEPENDS="lua5.1-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS LDFLAGS="$LDFLAGS -ldl" &&
-	make && make install
+compile_rules() {
+	./configure \
+		LDFLAGS="$LDFLAGS -ldl" \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="lua5.1"
 }

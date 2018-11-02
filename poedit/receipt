@@ -4,25 +4,25 @@ PACKAGE="poedit"
 VERSION="1.8.6"
 CATEGORY="localization"
 SHORT_DESC="A cross-platform gettext catalogs editing tool"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://poedit.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/vslavik/$PACKAGE/archive/v$VERSION-oss.tar.gz"
 
-BUILD_DEPENDS="automake gettext asciidoc libxslt xmlto util-linux-getopt \
+BUILD_DEPENDS="automake gettext-dev asciidoc libxslt xmlto util-linux-getopt \
 docbook-xsl gcc49 wxWidgets-dev icu-dev gtkspell-dev \
 lucene++-dev db-dev libdb libdb-cxx expat-dev"
-SPLIT="poedit-i18n poedit"
+SPLIT="$PACKAGE-i18n $PACKAGE"
 
 compile_rules() {
-	export CXX=/usr/bin/i486-slitaz-linux-g++-49
+	export CXX=/usr/bin/i486-slitaz-linux-g++-49 # FIXME: what about x86_64?
 	#export CXXFLAGS="$CFLAGS -std=gnu++11"
 	./bootstrap &&
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -34,7 +34,7 @@ genpkg_rules() {
 			;;
 		poedit)
 			copy @std @rm
-			DEPENDS="wxWidgets lucene++ gtkspell gcc49-lib-base gettext-tools"
+			DEPENDS="wxWidgets lucene++ gtkspell gcc49-lib-base gettext"
 			SUGGESTED="aspell"
 			;;
 	esac

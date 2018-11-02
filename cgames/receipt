@@ -1,42 +1,38 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="cgames"
 VERSION="2.2"
 CATEGORY="games"
-SHORT_DESC="Games for the Linux Console."
+SHORT_DESC="Games for the Linux Console"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.muppetlabs.com/~breadbox/software/cgames.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.muppetlabs.com/~breadbox/pub/software/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i	-e 's|install -.*\$|&(destdir)/$|' \
-		-e "s|^prefix|destdir = $DESTDIR\\n&|" \
+		-e "s|^prefix|destdir = $install\\n&|" \
 		-e 's/g games/g root/' */Makefile.in
 	sed -i 's/.* getline(.*/#define getline mygetline\n&/' */fileread.h
-	./configure --prefix=/usr \
-	--mandir=/usr/share/man \
-	--datadir=/usr/share \
-	--disable-mouse \
-	--with-ncurses \
-	$CONFIGURE_ARGS &&
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--datadir=/usr/share \
+		--disable-mouse \
+		--with-ncurses \
+		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
+
+	find $install -type f -name '*.txt' -exec chmod a-x '{}' \;
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/games $fs/usr
-	cp -a $install/usr/share/cblocks $fs/usr/share
-	cp -a $install/usr/share/csokoban $fs/usr/share
-
-	find $fs -type f -name '*.txt' -exec chmod a-x \{\} \;
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
 }

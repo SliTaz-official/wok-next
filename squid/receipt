@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}Versions/v3/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="perl openssl-dev openldap-dev cyrus-sasl-dev libcap-dev"
-SPLIT="squid squid-auth-helpers squid-langpack"
+SPLIT="$PACKAGE-auth-helpers $PACKAGE-langpack"
 
 compile_rules() {
 	touch scripts/boilerplate.h
@@ -86,8 +86,8 @@ genpkg_rules() {
 				-e 's|^# error_directory|error_directory /usr/share/squid/errors/French|' \
 				-i $fs/etc/squid/squid.conf
 
-			cat <<EOF>>$fs/etc/squid/squid.conf
-	
+			cat >>$fs/etc/squid/squid.conf <<EOF
+
 cache_effective_user squid
 cache_effective_group squid
 

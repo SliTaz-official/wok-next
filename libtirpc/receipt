@@ -12,7 +12,7 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libtirpc.html"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-SPLIT="libtirpc-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -20,7 +20,8 @@ compile_rules() {
 		--disable-static \
 		--disable-gssapi \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libtirpc.so.* $install/lib

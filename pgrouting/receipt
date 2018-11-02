@@ -3,30 +3,29 @@
 PACKAGE="pgrouting"
 VERSION="2.0.0"
 CATEGORY="misc"
-SHORT_DESC="provide geospatial routing for PostGIS / PostgreSQL."
+SHORT_DESC="Geospatial routing for PostGIS / PostgreSQL"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://pgrouting.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://codeload.github.com/pgRouting/pgrouting/tar.gz/v$VERSION"
 
-DEPENDS="gcc-lib-base cgal gmp boost-thread boost-system"
-BUILD_DEPENDS="wget cmake postgresql-dev boost-dev cgal-dev gmp-dev \
-mpfr-dev boost-graph boost-thread"
+BUILD_DEPENDS="cmake postgresql-dev boost-dev cgal-dev gmp-dev mpfr-dev \
+boost-graph boost-thread"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir build
-	cd build
-	cmake -DWITH_DD=ON ..
-	make
+	cd    build
+	cmake \
+		-DWITH_DD=ON \
+		.. &&
+	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/* $fs/usr
+	DEPENDS="gcc-lib-base cgal gmp boost-thread boost-system"
 }

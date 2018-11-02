@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="stoqlib"
 VERSION="0.9.12"
@@ -6,33 +6,23 @@ CATEGORY="development"
 SHORT_DESC="A powerful retail system library"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="http://www.stoq.com.br"
+WEB_SITE="https://www.stoq.com.br/"
 REPOLOGY="stoq"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.stoq.com.br/sources/$VERSION/$TARBALL"
 
-DEPENDS="python python-pygtk postgresql python-psycopg2 python-zope.interface python-pil \
-python-reportlab python-kiwi python-gazpacho stoqdrivers python-dateutil"
-BUILD_DEPENDS="python python-dev python-zope.interface python-kiwi python-gazpacho \
-python-psycopg2 stoqdrivers python-pil python-reportlab python-dateutil gettext-tools"
+BUILD_DEPENDS="python-dev python-zope.interface python-kiwi python-gazpacho \
+python-psycopg2 stoqdrivers python-pil python-reportlab python-dateutil \
+gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	chmod +x setup.py
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	LOCALEDIR="$install/usr/share/locale"
-	for file in `find $install | grep 'pyc$'`; do
-		rm $file
-	done
-	mkdir -p $fs/usr/share/locale/pt
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $LOCALEDIR/pt_BR/LC_MESSAGES $fs/usr/share/locale/pt
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-pygtk postgresql python-psycopg2 \
+	python-zope.interface python-pil python-reportlab python-kiwi \
+	python-gazpacho stoqdrivers python-dateutil"
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-perl-tidy"
 VERSION="20180220"
@@ -8,25 +8,22 @@ MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Perl-Tidy"
 REPOLOGY="perl:perl-tidy"
-PROVIDE="perltidy" # substitute old name
 
 TARBALL="Perl-Tidy-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/S/SH/SHANCOCK/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
+	PROVIDE="perltidy" # substitute old name
 }

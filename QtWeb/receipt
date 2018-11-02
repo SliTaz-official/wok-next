@@ -2,88 +2,68 @@
 
 PACKAGE="QtWeb"
 COMMIT="5ba3e1c0cf22fba7bdfc97f14727843c11c9d556"
-VERSION=${COMMIT:0:4}
+VERSION=${COMMIT:0:4}	# FIXME
 CATEGORY="network"
 SHORT_DESC="Customizable Qt4 WebKit browser with opera-like gestures"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
 WEB_SITE="http://qtweb.googlecode.com/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 #WGET_URL="https://github.com/magist3r/$PACKAGE/archive/fffaddce36.tar.gz"
 WGET_URL="https://github.com/RomanChebotarev/$PACKAGE/archive/$COMMIT.tar.gz"
-TAGS="web-browser"
 
-DEPENDS="qt5 cacerts"
 BUILD_DEPENDS="qmake qt5-dev qtwebkit mesa-dev xorg-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/src
 	sed -i 's/static/shared/' QtWeb.pro
 	sed -i 's/QTPLUGIN += qcncodecs qjpcodecs qkrcodecs qtwcodecs qico//' QtWeb.pro
 	sed -i 's|http://www.qtweb.net/")|file:/usr/share/webhome/index.html")|g' \
 	settings.cpp browsermainwindow.cpp tabwidget.cpp
-	
-	# sed -i 's/* 0.9;/* ;/' browsermainwindow.cpp
+
+	# sed -i 's|* 0.9;|* ;|' browsermainwindow.cpp
 	sed 's|<QPrint|<QtPrintSupport/QPrint|' -i browsermainwindow.cpp savepdf.cpp
 
 	export CXXFLAGS="$CXXFLAGS -std=gnu++98"
 
-	# Save profile to ~./config ; ~/.local/share/data instead of /tmp:
+	# Save profile to ~./config; ~/.local/share/data instead of /tmp:
 	sed -i 's/unins000.exe/QtWeb/' browserapplication.cpp
-	
+
 	RTOOLBAR="./data/defaultbookmarks.xbel"
 	sed -i '33d' $RTOOLBAR
 	sed -i 33i\ '<bookmark href="http://tazpanel:82/">' $RTOOLBAR
 	sed -i 's/NTFS Disk Tools/WebkitVideo/' $RTOOLBAR
 	sed -i "15,29d" $RTOOLBAR
-	
-	qmake && sed -i 's|-O2|'"$CFLAGS"'|g' Makefile && make $MAKEFLAGS
+
+	qmake &&
+	sed -i 's|-O2|'"$CFLAGS"'|g' Makefile &&
+	make $MAKEFLAGS || return 1
+
 	mkdir -p $install
 	install $src/src/$PACKAGE $install/$PACKAGE
 	rm -rf  $src/src/$PACKAGE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin $fs/usr/share/applications
+genpkg_rules() {
+	mkdir -p $fs/usr/bin
 	cp -f $install/* $fs/usr/bin
-	cd $fs/usr/share/applications
-	cat>'QtWeb.desktop' << EOT
-[Desktop Entry]
-Type=Application
-Name=QtWeb
-Exec=/usr/bin/QtWeb
-Icon=browser
-Categories=Network;WebBrowser;
-EOT
-
+	install -Dm644 $stuff/qtweb.desktop $fs/usr/share/applications/QtWeb.desktop
+	install -Dm644 $stuff/QtWeb\ Internet\ Browser.conf \
+		$fs/etc/skel/.config/QtWeb.NET/QtWeb\ Internet\ Browser.conf
+	DEPENDS="qt5 cacerts"
+	TAGS="web-browser"
 }
 
-post_install()
-{
-	cd "$1/tmp" ; cat>'QtWeb Internet Browser.conf' << EOT
-[MainWindow]
-downloadAudioVideo=true
-style=Cleanlooks
-home=file:/usr/share/webhome/index.html
-ToolbarSize=80%
-ShowTabbarWhenOneTab=true
-[AddressBar]
-showGoHome=true
-showAppStyle=false
-showPrivacyMode=false
-showPreferences=true
-showCompatibility=false
-showDisableJavascript=true
-EOT
+post_install() {
+	for i in $(ls "$1/home" 2>/dev/null); do
+		[ -f "$1/home/$i/.config/QtWeb.NET/QtWeb Internet Browser.conf" ] &&
+			continue
 
-	for i in $(ls "$1/home" 2> /dev/null); do
-		[ -f "$1/home/$i/.config/QtWeb.NET/QtWeb Internet Browser.conf" ] && continue
 		mkdir -p "$1/home/$i/.config/QtWeb.NET"
-		cp "$1/tmp/QtWeb Internet Browser.conf" "$1/home/$i/.config/QtWeb.NET"
-		chroot "$1/" chown -R $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.config/QtWeb.NET"
+		cp "$1/etc/skel/.config/QtWeb.NET/QtWeb Internet Browser.conf" \
+			"$1/home/$i/.config/QtWeb.NET"
+		chroot "$1/" chown -R $(stat -c "%u.%g" "$1/home/$i") \
+			"/home/$i/.config/QtWeb.NET"
 	done
 }

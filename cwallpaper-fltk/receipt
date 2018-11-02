@@ -3,32 +3,29 @@
 PACKAGE="cwallpaper-fltk"
 VERSION="0.4.2"
 CATEGORY="system-tools"
-SHORT_DESC="PC XT-compatible emulator/virtual machine."
+SHORT_DESC="PC XT-compatible emulator/virtual machine"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="http://cwallpaper.sourceforge.net"
+WEB_SITE="http://cwallpaper.sourceforge.net/"
 REPOLOGY="cwallpaper"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/cwallpaper/$PACKAGE/cwallpaper-fltk-$VERSION/$TARBALL"
+WGET_URL="$SF_MIRROR/cwallpaper/$TARBALL"
 
-SUGGESTED="hsetroot feh"
-DEPENDS="fltk"
 BUILD_DEPENDS="fltk-dev xorg-libX11-dev xorg-libXinerama-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i s"#g++#${HOST_SYSTEM}-g++#" Makefile || return 1
-	make && mkdir -p ${DESTDIR}/usr/bin/ &&
-	make DESTDIR=${DESTDIR} install
+compile_rules() {
+	sed -i "s#g++#${HOST_SYSTEM}-g++#" Makefile || return 1
+	make &&
+	mkdir -p $install/usr/bin/ &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/cwallpaper
 	cp -a $install/usr/bin $fs/usr
 	cp $install/usr/share/cwallpaper/example_config \
 		$fs/usr/share/cwallpaper
+	DEPENDS="fltk"
+	SUGGESTED="hsetroot feh"
 }

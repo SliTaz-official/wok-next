@@ -1,33 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="st"
 VERSION="0.7"
 CATEGORY="x-window"
 SHORT_DESC="Simple terminal implementation for X"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://st.suckless.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dl.suckless.org/st/$TARBALL"
 
-DEPENDS="fontconfig freetype xorg-libX11 xorg-libXft"
 BUILD_DEPENDS="fontconfig-dev freetype-dev xorg-xorgproto xorg-libX11-dev \
 xorg-libXft-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# fix PREFIX
 	sed -i "s|/usr/local|/usr|" config.mk
 	# install terminfo files into DESTDIR
 	sed -i "s|st.info|& -o$install/usr/share/terminfo|" Makefile
 
-	make CC=$HOST_SYSTEM-gcc && make install
+	make CC=$HOST_SYSTEM-gcc &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="fontconfig freetype xorg-libX11 xorg-libXft"
 }

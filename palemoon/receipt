@@ -3,16 +3,14 @@
 PACKAGE="palemoon"
 VERSION="27.9.3"
 CATEGORY="network"
-LICENSE="MPL2"
 SHORT_DESC="Browser based on Firefox that's optimised for performance"
-WEB_SITE="http://palemoon.org"
 MAINTAINER="psychomaniak@xakep.ru"
+LICENSE="MPL2"
+WEB_SITE="http://palemoon.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/MoonchildProductions/Pale-Moon/archive/${VERSION}_Release.tar.gz"
-TAGS="browser web-browser"
-PROVIDE="browser-html5"
 
-DEPENDS="gtk2"
 BUILD_DEPENDS="autoconf213 gtk2-dev yasm zip unzip iw dbus-dev dbus-glib-dev \
 iw libpng16-dev gstreamer0 gstreamer0-dev gst0-plugins-base-dev gst0-plugins-base \
 libvpx-dev mesa-dev virtualenv zlib-dev bzip2-dev python-dev \
@@ -21,7 +19,6 @@ xorg-libXt-dev coreutils-file-special alsa-lib-dev spl spl-src"
 # sqlite sqlite-dev libevent libevent-dev
 
 compile_rules() {
-
 	find -type f | grep duckduckgo | xargs \
 		sed -i 's|name="t" value="palemoon"|name="t" value="slitaz"|'
 	cp $stuff/mozconfig $src
@@ -42,9 +39,10 @@ compile_rules() {
 	cd $src/obj-i686-pc-linux-gnu
 	( make package | egrep -v 'error|ERROR' ) > ./instLOG 2>&1
 	cd dist
-	for i in bin lib share/applications;
-	 do install -d $DESTDIR/usr/$i; done
-	cp -a $PACKAGE $DESTDIR/usr/lib/$PACKAGE
+	for i in bin lib share/applications; do
+		install -d $install/usr/$i
+	done
+	cp -a $PACKAGE $install/usr/lib/$PACKAGE
 	cp -a $src/browser/branding/official/$PACKAGE.desktop \
 		$install/usr/share/applications
 }
@@ -57,4 +55,7 @@ genpkg_rules() {
 	ln -sf /usr/lib/$PACKAGE/browser/chrome/icons/default/default48.png \
 		$fs/usr/share/pixmaps/palemoon.png
 	ln -s palemoon $fs/usr/bin/browser-html5
+	DEPENDS="gtk2"
+	PROVIDE="browser-html5"
+	TAGS="browser web-browser"
 }

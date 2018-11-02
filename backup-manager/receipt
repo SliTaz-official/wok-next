@@ -3,30 +3,27 @@
 PACKAGE="backup-manager"
 VERSION=0.7.13
 CATEGORY="network"
-SHORT_DESC="A really simple to use backup tool."
+SHORT_DESC="A really simple to use backup tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://github.com/sukria/Backup-Manager"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$GITHASH.tar.gz"
-CONFIG_FILES="/etc/backup-manager.conf"
-TAGS="backup"
 
-DEPENDS="bash perl"
-BUILD_DEPENDS="gettext coreutils-operations perl"
-SUGGESTED="ssh rsync mysql postgresql"
+BUILD_DEPENDS="gettext-dev coreutils-operations perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make PREFIX=/usr DESTDIR=$DESTDIR install
+compile_rules() {
+	make PREFIX=/usr DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir $fs/etc
 	cp -a $install/* $fs/
 	cp $fs/usr/share/backup-manager/backup-manager.conf.tpl $fs/etc/backup-manager.conf
 	rm -r $fs/usr/share/man
+	DEPENDS="bash perl"
+	SUGGESTED="ssh rsync mysql postgresql"
+	CONFIG_FILES="/etc/backup-manager.conf"
+	TAGS="backup"
 }

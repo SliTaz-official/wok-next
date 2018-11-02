@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://alioth.debian.org/frs/download.php/3741/$TARBALL" # FIXME
 
 BUILD_DEPENDS="eudev-dev perl libtool"
-SPLIT="pcsc-lite-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -22,9 +22,10 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
-	install -Dm755 $stuff/init.d/pcscd $install/etc/init.d/pcscd
+	install -Dm755 $stuff/pcscd      $install/etc/init.d/pcscd
+	install -Dm644 $stuff/pcscd.conf $install/etc/daemons.conf.d/pcscd.conf
 }
 
 genpkg_rules() {
@@ -41,6 +42,7 @@ genpkg_rules() {
 }
 
 # Daemon options in: daemons.conf
+# TODO: use /etc/daemons.conf.d/
 post_install_pcsc_lite() {
 	if ! grep -q 'PCSCD_OPTIONS' "$1/etc/daemons.conf"; then
 		cat >> "$1/etc/daemons.conf" <<EOT

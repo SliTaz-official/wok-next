@@ -3,30 +3,26 @@
 PACKAGE="exiftool"
 VERSION="8.40"
 CATEGORY="system-tools"
-SHORT_DESC="Application for reading, writing and editing meta information in a wide variety of files."
-MAINTAINER="gokhlayeh@slitaz.org"
+SHORT_DESC="Reading, writing and editing meta information in a wide variety of files"
+MAINTAINER="devel@slitaz.org"
 LICENSE="Artistic"
-SUGGESTED="perl-archive-zip perl-io-compress"
+WEB_SITE="http://owl.phy.queensu.ca/~phil/exiftool/"
+
 SOURCE="Image-ExifTool"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://owl.phy.queensu.ca/~phil/exiftool/"
 WGET_URL="http://owl.phy.queensu.ca/~phil/exiftool/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	perl Makefile.PL && make &&
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	perl Makefile.PL &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
 	rm -rf $fs/usr/share
+	DEPENDS="perl"
+	SUGGESTED="perl-archive-zip perl-io-compress"
 }
-

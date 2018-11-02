@@ -4,15 +4,15 @@ PACKAGE="collectd"
 VERSION="5.1.0"
 CATEGORY="network"
 SHORT_DESC="System Statistics Collection Daemon"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://collectd.org"
+WEB_SITE="http://collectd.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://collectd.org/files/$TARBALL"
 
 BUILD_DEPENDS="slitaz-toolchain rrdtool-dev perl curl-dev libxml2-dev"
-SPLIT="collectd collectd-dev collectd-apache:apache collectd-bind:bind"
+SPLIT="$PACKAGE-dev $PACKAGE-apache:apache $PACKAGE-bind:bind"
 
 compile_rules() {
 	case $SET in
@@ -34,7 +34,7 @@ compile_rules() {
 				$CONFIGURE_ARGS &&
 			fix libtool &&
 			make &&
-			make DESTDIR=$DESTDIR install || return 1
+			make DESTDIR=$install install || return 1
 
 			# Add init script and fixes
 			install -Dm755 $stuff/collectd $install/etc/init.d/collectd
@@ -48,7 +48,7 @@ compile_rules() {
 				$CONFIGURE_ARGS &&
 			fix libtool &&
 			make &&
-			make DESTDIR=$DESTDIR install
+			make DESTDIR=$install install
 			;;
 		bind)
 			sed -i 's/ipt_error_target/ipt2_error_target/' src/libiptc/libiptc.c
@@ -60,7 +60,7 @@ compile_rules() {
 				$CONFIGURE_ARGS &&
 			fix libtool &&
 			make &&
-			make DESTDIR=$DESTDIR install
+			make DESTDIR=$install install
 			;;
 	esac
 }

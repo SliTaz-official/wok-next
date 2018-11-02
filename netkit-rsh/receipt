@@ -3,7 +3,7 @@
 PACKAGE="netkit-rsh"
 VERSION="0.17"
 CATEGORY="network"
-SHORT_DESC="Remote connexion tools"
+SHORT_DESC="Remote connection tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="ftp://ftp.uk.linux.org/pub/linux/Networking/netkit"
@@ -14,13 +14,13 @@ WGET_URL="http://ibiblio.org/pub/linux/system/network/netkit/$TARBALL"
 BUILD_DEPENDS="ncurses-dev"
 
 compile_rules() {
-	sed -i \
+	sed \
 		-e 's/union wait/int/' \
 		-e 's/status.w_termsig | status.w_retcode/WTERMSIG(status)/' \
-		rlogin/rlogin.c
+		-i rlogin/rlogin.c
 	sed -i 's|/man|/share&|' configure
-	mkdir -p $DESTDIR/usr/bin $DESTDIR/usr/sbin \
-		 $DESTDIR/usr/share/man/man1 $DESTDIR/usr/share/man/man8
+	mkdir -p $install/usr/bin $install/usr/sbin \
+		 $install/usr/share/man/man1 $install/usr/share/man/man8
 	sed -i 's|.*param.h.*|#include <linux/limits.h>\n&|' \
 		rexecd/rexecd.c rshd/rshd.c
 	sed -i 's|.*rlogind.*|#include <stdio.h>\n&|' rlogind/rlogind.h
@@ -28,8 +28,9 @@ compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--without-pam \
-		--installroot=$DESTDIR &&
-	make && make install
+		--installroot=$install &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

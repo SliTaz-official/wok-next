@@ -3,30 +3,27 @@
 PACKAGE="fritzing"
 VERSION="0.8.7b"
 CATEGORY="development"
-SHORT_DESC="Let's makes electronics accessible as a creative material for anyone."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Let's make electronics accessible as a creative material for anyone"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-${VERSION}.source.tar.bz2"
-WEB_SITE="http://fritzing.org"
-WGET_URL="http://fritzing.org/download/$VERSION/source-tarball/$TARBALL"
-HOST_ARCH="i486 x86_64"
+WEB_SITE="http://fritzing.org/home/"
 
-DEPENDS="boost-graph libQtCore libQtXml quazip"
+TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
+WGET_URL="http://fritzing.org/download/$VERSION/source-tarball/$TARBALL"
+
 BUILD_DEPENDS="boost-dev boost-graph qmake Qt4-dev libQtNetwork \
 quazip-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	 qmake && make &&
-	 make INSTALL_ROOT=$install install
+compile_rules() {
+	qmake &&
+	make &&
+	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/${PACKAGE} $fs/usr/share
+	cp -a $install/usr/share/$PACKAGE $fs/usr/share
 	cp -a $install/usr/share/icons $fs/usr/share/pixmaps
+	DEPENDS="boost-graph libQtCore libQtXml quazip"
 }

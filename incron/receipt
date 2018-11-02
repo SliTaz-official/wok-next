@@ -1,33 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="incron"
 VERSION="0.5.10"
 CATEGORY="base-system"
-SHORT_DESC="The inotify cron handles filesystem events."
+SHORT_DESC="The inotify cron handles filesystem events"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://inotify.aiken.cz/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}download/$PACKAGE/$TARBALL"
-CONFIG_FILES="/etc/incron.d"
 
-DEPENDS="gcc-lib-base"
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|fcntl.h>|&\n#include <unistd.h>|' icd-main.cpp
 	sed -i 's|/usr/local|/usr|' Makefile
+
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 	cp -a $install/etc $fs/
 	cp -a $install/var $fs/
+	CONFIG_FILES="/etc/incron.d"
 }

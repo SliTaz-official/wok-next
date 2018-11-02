@@ -3,21 +3,19 @@
 PACKAGE="dex2jar"
 VERSION="0.0.9.15"
 CATEGORY="development"
-SHORT_DESC="Tools to work with android .dex and java .class files."
+SHORT_DESC="Tools to work with android .dex and java .class files"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
-TARBALL="$PACKAGE-$VERSION.zip"
 WEB_SITE="https://sourceforge.net/projects/dex2jar/"
+
+TARBALL="$PACKAGE-$VERSION.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="java-jre"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/dex2jar $fs/usr/bin
 	cp -a $src/*.sh $src/lib $fs/usr/share/dex2jar
-	for i in $(cd $src ; ls *.sh); do
+	for i in $(cd $src; ls *.sh); do
 		ln -s /usr/share/dex2jar/$i $fs/usr/bin/$i
 	done
+	DEPENDS="java-jre"
 }

@@ -7,24 +7,23 @@ SHORT_DESC="Source code text editor"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://keithhedger.hostingsiteforfree.com/pages/kkedit/help.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://khapplications.darktech.org/zips/kkedit/KKEdit-$VERSION.tar.gz"
 
-DEPENDS="gtk2 gtksourceview libunique"
 BUILD_DEPENDS="automake autoconf gtk2-dev gtksourceview-dev libunique-dev \
 ctags libxml2-dev libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --disable-docviewer --prefix=/usr --&&
+compile_rules() {
+	./configure \
+		--disable-docviewer \
+		--prefix=/usr \
+		--&&
 	make &&
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p \
 		$fs/usr/share/KKEdit \
 		$fs/usr/share/applications \
@@ -33,4 +32,5 @@ genpkg_rules()
 	cp -a $stuff/*.desktop $fs/usr/share/applications
 	cp -a $stuff/*.png $fs/usr/share/pixmaps
 	cp -a $install/usr/share/KKEdit/tools $fs/usr/share/KKEdit
+	DEPENDS="gtk2 gtksourceview libunique"
 }

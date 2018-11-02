@@ -4,7 +4,7 @@ PACKAGE="pekwm"
 VERSION="0.1.13"
 CATEGORY="x-window"
 SHORT_DESC="Very light, configurable and themable window manager for X"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.pekwm.org/projects/pekwm"
 
@@ -16,7 +16,7 @@ BUILD_DEPENDS="xorg-dev xorg-dev-proto zlib-dev"
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	# Custom configuration files and scripts
 	cp -r $stuff/etc     $install
@@ -24,8 +24,8 @@ compile_rules() {
 
 	# Set perms.
 	chown -R root:root $install
-	chmod +x   $install/etc/pekwm/start
-	chmod +x   $install/usr/share/pekwm/scripts/*
+	chmod +x $install/etc/pekwm/start
+	chmod +x $install/usr/share/pekwm/scripts/*
 }
 
 genpkg_rules() {
@@ -36,19 +36,19 @@ genpkg_rules() {
 }
 
 post_install() {
-	# Pekwm searches for default font path (100dpi folder) for xsever to render 
-	# menus; either manually set it in .xinitrc or fake 100dpi folder fonts 
+	# Pekwm searches for default font path (100dpi folder) for xsever to render
+	# menus; either manually set it in .xinitrc or fake 100dpi folder fonts
 	# by linking to ttf-dejavu
 	if [ ! -d "$1/usr/share/fonts/X11/100dpi/" ]; then
 		mkdir -p "$1/usr/share/fonts/X11/100dpi"
 		cd "$1/usr/share/fonts/X11/100dpi"
 		ln -s ../../truetype/ttf-dejavu/* .
 	fi
-	
+
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
 	# Adding WM to SLIM available sessions.
 	if ! echo "$res" | grep -q $PACKAGE; then
-		sed -i "s/^sessions.*/sessions            ${res},$PACKAGE/" "$1/etc/slim.conf"
+		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
 	fi
 }
 

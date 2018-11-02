@@ -12,20 +12,17 @@ REPOLOGY="perl:mailtools"
 TARBALL="MailTools-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/M/MA/MARKOV/$TARBALL"
 
-DEPENDS="perl-timedate"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-timedate"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-timedate"
 }

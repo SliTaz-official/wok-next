@@ -4,18 +4,16 @@ PACKAGE="cryptsetup"
 VERSION="2.0.3"
 CATEGORY="system-tools"
 SHORT_DESC="dm-crypt setup tool for encryption of block devices"
-MAINTAINER="b1+slitaz@nagel.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://gitlab.com/cryptsetup/cryptsetup"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/cryptsetup/v${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev popt-dev libgcrypt-dev \
-argon2-dev"
-BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev gettext popt-dev json-c-dev \
-libgcrypt-dev argon2-dev"
-SPLIT="cryptsetup-dev"
+BUILD_DEPENDS="util-linux-uuid-dev libdevmapper-dev gettext-dev popt-dev \
+json-c-dev libgcrypt-dev argon2-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -27,9 +25,7 @@ compile_rules() {
 	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		cryptsetup)
 			copy @std

@@ -4,7 +4,7 @@ PACKAGE="sane-backends"
 VERSION="1.0.22"
 CATEGORY="system-tools"
 SHORT_DESC="Scanner Access Now Easy"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.sane-project.org/"
 
@@ -13,7 +13,7 @@ WGET_URL="ftp://ftp2.sane-project.org/pub/sane/$PACKAGE-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="libusb-compat-dev libjpeg-turbo-dev tiff-dev zlib-dev v4l-utils-dev \
 libgphoto2-dev libtool eudev-dev"
-SPLIT="sane-backends-dev"
+SPLIT="$package-dev"
 
 compile_rules() {
 	sed -i 's|prefix}/doc|prefix}/share/doc|' configure
@@ -40,7 +40,7 @@ compile_rules() {
 	cp $stuff/tazpanel/drag.gif $install/var/www/tazpanel/styles/default/images/
 	ln -s ../../sane.cgi        $install/var/www/tazpanel/menu.d/hardware/sane
 
-	# fix groups/permissions on /var/lock/sane ; add it to scanner group
+	# fix groups/permissions on /var/lock/sane; add it to scanner group
 	chmod 775 "$install/var/lock/sane"
 	chgrp 96  "$install/var/lock/sane"
 
@@ -66,7 +66,7 @@ post_install_sane_backends() {
 	tazpkg reconfigure eudev --root="$1"
 
 	# add group scanner
-	if ! grep -q scanner "$1/etc/group" ; then
+	if ! grep -q scanner "$1/etc/group"; then
 		chroot "$1/" addgroup -g 96 scanner
 	fi
 	chroot "$1/" chgrp scanner /usr/bin/scanimage

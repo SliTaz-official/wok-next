@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.mozilla.org/pub/js/$TARBALL"
 
 BUILD_DEPENDS="perl zip nspr-dev libffi-dev"
-SPLIT="js185-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	cd js/src
@@ -26,7 +26,8 @@ compile_rules() {
 		--enable-threadsafe \
 		--enable-system-ffi \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	install -Dm755 shell/js -t $install/usr/bin/
 	rm $install/usr/lib/libmozjs185-1.0.a

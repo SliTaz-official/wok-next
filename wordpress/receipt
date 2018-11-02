@@ -4,20 +4,19 @@ PACKAGE="wordpress"
 VERSION="3.4.1"
 CATEGORY="misc"
 SHORT_DESC="Blog Tool and Publishing Platform"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wordpress.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-DEPENDS="php mysql php-mysql"
-
 genpkg_rules() {
 	mkdir -p $fs/var/www/wordpress
 	cp -a $src/* $fs/var/www/wordpress
 	chown -R www.www $fs/var/www/wordpress
-SUGGESTED="apache cherokee"
+	DEPENDS="php mysql php-mysql"
+	SUGGESTED="apache cherokee"
 }
 
 post_install() {
@@ -33,19 +32,23 @@ post_install() {
 		( /etc/init.d/mysql start; status ) || exit
 		sleep 4 #let the mysql daemon start
 	fi
+
 	if ( ! mysql -u root -Be 'show databases' | grep -q $db ); then
 		action "Create $db database"
-		mysql -Be "create database $db"; status
+		mysql -Be "create database $db"
+		status
 
 		# We suppose that $DB_USER user does not exist.
 		# It may be false.
 		action "Create user $db_user with password $db_password"
-		mysql -Be "grant all privileges on $db.* to '"$db_user"'@'localhost' 
-			identified by '"$db_password"'" ; status
+		mysql -Be "grant all privileges on $db.* to '"$db_user"'@'localhost'
+			identified by '"$db_password"'"
+		status
 
 		# At last create the database for $PACKAGE.
-		action "Create $db database schema."
-		#mysql -u glpi -pglpi -D glpi < /usr/share/glpi/install/mysql/glpi-${VERSION}-empty.sql ; status
+		# action "Create $db database schema."
+		# mysql -u glpi -pglpi -D glpi < /usr/share/glpi/install/mysql/glpi-$VERSION-empty.sql
+		# status
 	fi
 }
 

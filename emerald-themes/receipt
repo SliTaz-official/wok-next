@@ -6,22 +6,22 @@ CATEGORY="customization"
 SHORT_DESC="Themes for Emerald"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="https://github.com/compiz-reloaded"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 
-DEPENDS="xorg-libX11 emerald"
 BUILD_DEPENDS="xorg-dev gtk2-dev autoconf automake libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
-	make && make install
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mv $install/* $fs
+	DEPENDS="xorg-libX11 emerald"
 }

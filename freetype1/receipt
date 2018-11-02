@@ -4,7 +4,7 @@ PACKAGE="freetype1"
 VERSION="1.3.1"
 CATEGORY="x-window"
 SHORT_DESC="Freetype1 font engine"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.freetype.org/"
 REPOLOGY="freetype"
@@ -12,25 +12,25 @@ REPOLOGY="freetype"
 TARBALL="freetype-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/freetype/$TARBALL"
 
-SPLIT="freetype1-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# NOTE: DESTDIR is not recognized by freetype1 make install
 	./configure \
-		--sysconfdir=$DESTDIR/etc \
-		--prefix=$DESTDIR/usr \
-		--mandir=$DESTDIR/usr/share/man \
-		--includedir=$DESTDIR/usr/include \
-		--libdir=$DESTDIR/usr/lib \
+		--sysconfdir=$install/etc \
+		--prefix=$install/usr \
+		--mandir=$install/usr/share/man \
+		--includedir=$install/usr/include \
+		--libdir=$install/usr/lib \
 		--with-x \
 		--enable-gif \
 		$CONFIGURE_ARGS &&
 	make ttlib ttpo || return 1
 
 	cd lib
-	make DESTDIR=$DESTDIR -f arch/unix/Makefile install || return 1
+	make DESTDIR=$install -f arch/unix/Makefile install || return 1
 	cd ../po
-	make DESTDIR=$DESTDIR -f Makefile install || return 1
+	make DESTDIR=$install -f Makefile install || return 1
 }
 
 genpkg_rules() {

@@ -7,15 +7,15 @@ SHORT_DESC="AVR/PIC COM/LPT devices programmer software"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL"
 WEB_SITE="http://www.lancos.com/prog.html"
-SOURCE="PonyProg2000"
-TARBALL="$SOURCE-$VERSION.tar.gz"
+
+TARBALL="PonyProg2000-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="xorg-libXaw"
+compile_rules() {
+	install -Dm755 bin/ponyprog2000 $install/usr/bin/ponyprog2000
+}
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-        mkdir -p $fs/usr/bin
-        cp -a $src/bin/${PACKAGE}2000 $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="xorg-libXaw"
 }

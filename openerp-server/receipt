@@ -1,50 +1,48 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="openerp-server"
 VERSION="5.0.1-0"
 CATEGORY="office"
-SHORT_DESC="Open source ERP server files."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Open source ERP server files"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://openerp.com/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/download/stable/source/$TARBALL"
 
-DEPENDS="python postgresql libxml2-python libxslt python-psycopg2 python-reportlab \
-python-pyparsing graphviz libgcrypt python-pil python-lxml matplotlib \
-python-pyxml python-pychart python-pydot python-egenix-mx-base"
-BUILD_DEPENDS="libxml2-python python-psycopg2 libxml2 libxslt-python python-reportlab \
-python-pychart python-pydot python-dev"
+BUILD_DEPENDS="libxml2-python python-psycopg2 libxml2 libxslt-python \
+python-reportlab python-pychart python-pydot python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr $fs/var/log/openerp
 	chmod 777 $fs/var/log/openerp
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $stuff/* $fs
 	sed -i 's|cd .*install|cd |' $fs/usr/bin/openerp-server
+	DEPENDS="python postgresql libxml2-python libxslt python-psycopg2 \
+	python-reportlab python-pyparsing graphviz libgcrypt python-pil \
+	python-lxml matplotlib python-pyxml python-pychart python-pydot \
+	python-egenix-mx-base"
 }
 
-# Pre and post install commands for Tazpkg.
-post_install()
-{
+post_install() {
 	#chroot "$1/" adduser -H -D -S -s /bin/false -h /dev/null -g "OpenERP Daemon user" openerp
 	[ "$1" ] || /etc/init.d/$PACKAGE start
-	cat <<EOF
-----
-To start $PACKAGE server you can run :
 
-    /etc/init.d/$PACKAGE start
+	[ -n "$quiet" ] ||cat <<EOF
 
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
-----
+	.-------------------------------------------------------.
+	| To start openerp server you can run:                  |
+	|                                                       |
+	| /etc/init.d/openerp-server start                      |
+	|                                                       |
+	| or add openerp-server to RUN_DAEMONS in /etc/rcS.conf |
+	'-------------------------------------------------------'
 EOF
 }

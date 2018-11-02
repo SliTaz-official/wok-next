@@ -3,8 +3,8 @@
 PACKAGE="mingw32-runtime"
 VERSION="3.15.2-mingw32"
 CATEGORY="development"
-SHORT_DESC="MinGW32 runtime."
-MAINTAINER="rcx@zoominternet.net"
+SHORT_DESC="MinGW32 runtime"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
 WEB_SITE="http://www.mingw.org/"
 
@@ -22,18 +22,18 @@ compile_rules() {
 	echo "CFLAGS=CXXFLAGS='$CFLAGS'"
 
 	# Configuration only needs included if we're in the build/wok environment
-	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ]; then
 		. $WOK/mingw32-toolchain/stuff/mingw32.conf
 	fi
 
 	sed -i 's|/doc/|/share&|' configure */configure Makefile.in
-	if [ "$MINGW32_ID" != "$MINGW32_TARGET" ] ; then
+	if [ "$MINGW32_ID" != "$MINGW32_TARGET" ]; then
 		echo "ERROR: Conf 'TARGET' string differs from Receipt 'ID' string"
 		return 1
 	fi
 
-	find $src -name 'Makefile*' | xargs sed -i "s|^inst_.*:= *|&$DESTDIR/|"
-	mkdir -p $DESTDIR/usr/bin
+	find $src -name 'Makefile*' | xargs sed -i "s|^inst_.*:= *|&$install/|"
+	mkdir -p $install/usr/bin
 	rm -f -r $src/binutils
 
 	mkdir -p mingwrt-$VERSION-build
@@ -51,7 +51,7 @@ compile_rules() {
 
 genpkg_rules() {
 	# Configuration only needs included if we're in the build/wok environment
-	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
+	if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ]; then
 		.   $WOK/mingw32-toolchain/stuff/mingw32.conf
 	fi
 
@@ -65,8 +65,4 @@ post_install() {
 	MINGW32_ID="i586-pc-mingw32"
 	# Archives get stripped during packaging; need to run ranlib
 	chroot "$1/" find "/usr/$MINGW32_ID/lib/" -name *.a -exec $MINGW32_ID-ranlib {} \;
-}
-
-clean_wok() {
-	rm -r mingwrt-$VERSION-build
 }

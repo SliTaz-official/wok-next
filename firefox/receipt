@@ -3,23 +3,20 @@
 PACKAGE="firefox"
 VERSION="17.0.11esr"
 CATEGORY="network"
-SHORT_DESC="User friendly, secure and fast web browser."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="User friendly, secure and fast web browser"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MPL2"
-TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
-WEB_SITE="http://www.mozilla.org/firefox"
-WGET_URL="ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/$VERSION/source/$TARBALL"
-TAGS="web-browser"
+WEB_SITE="https://www.mozilla.org/en-US/firefox/"
 
-DEPENDS="gtk2 sqlite3 dbus dbus-glib glib jpeg xorg-libX11 xorg-libXdamage \
-alsa-lib xorg-libXt libevent libvpx pango nss libfirefox"
+TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
+WGET_URL="ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/$VERSION/source/$TARBALL"
+
 BUILD_DEPENDS="zip libidl coreutils findutils wireless_tools-dev \
 perl python yasm alsa-lib-dev mesa-dev libevent-dev libvpx-dev dbus-dev \
-dbus-glib-dev gtk2-dev glib-dev pango-dev nss-dev sqlite3-dev tar gzip"
-SPLIT="firefox firefox-dev libfirefox"
+dbus-glib-dev gtk2-dev glib-dev pango-dev nss-dev sqlite3-dev tar gzip \
+libjpeg-turbo-dev"
+SPLIT="$PACKAGE-dev libfirefox"
 
-# Rules to configure and make the package.
-#
 # A long compile time... dont forget to build libidl before and check the
 # .mozconfig file from the stuff and the stuff/README document.
 #
@@ -27,8 +24,7 @@ SPLIT="firefox firefox-dev libfirefox"
 # build time.
 # At least 2.5 GB free disk space
 
-compile_rules()
-{
+compile_rules() {
 	# load mozconfig
 	cp -a $stuff/mozconfig $src
 
@@ -46,7 +42,7 @@ compile_rules()
 	fn2="$tarpath/firefox-${VERSION%esr}.en-US.linux-$(uname -m).tar.bz2"
 	[ -e "$fn1" ] && tarball="$fn1" && echo "$ARCH tarball found"
 	[ -e "$fn2" ] && tarball="$fn2" && echo "$(uname -m) tarball found"
-	[ -z "$tarball" ] && echo "ERROR: tarball not found" && exit 1
+	[ -z "$tarball" ] && echo "ERROR: tarball not found" && return 1
 	# extract tarball
 	mkdir -p $install/usr/lib/firefox-$VERSION &&
 	tar -xvf $tarball -C $install/usr/lib/firefox-$VERSION \
@@ -61,138 +57,135 @@ compile_rules()
 	ln -sf ../mozilla/plugins $install/usr/lib/firefox-$VERSION
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	firefox)
-		# program
-		mkdir -p $fs/usr/lib &&
-		cp -a $install/usr/lib/$PACKAGE-$VERSION $fs/usr/lib &&
-		cp -a $install/usr/lib/mozilla $fs/usr/lib &&
-		cp -a $install/usr/bin $fs/usr
+		firefox)
+			# program
+			mkdir -p $fs/usr/lib &&
+			cp -a $install/usr/lib/$PACKAGE-$VERSION $fs/usr/lib &&
+			cp -a $install/usr/lib/mozilla $fs/usr/lib &&
+			cp -a $install/usr/bin $fs/usr
 
-		# search Plugin (by: oddball)
-		cp -a $stuff/searchplugins $fs/usr/lib/$PACKAGE-$VERSION
+			# search Plugin (by: oddball)
+			cp -a $stuff/searchplugins $fs/usr/lib/$PACKAGE-$VERSION
 
-		# prefs
-		mkdir -p $fs/usr/lib/$PACKAGE-$VERSION/distribution &&
-		cp -a $stuff/distribution.ini $fs/usr/lib/$PACKAGE-$VERSION/distribution
+			# prefs
+			mkdir -p $fs/usr/lib/$PACKAGE-$VERSION/distribution &&
+			cp -a $stuff/distribution.ini $fs/usr/lib/$PACKAGE-$VERSION/distribution
 
-		# mozilla-common files
-		# dictionaries
-		rm -rf $fs/usr/lib/$PACKAGE-$VERSION/dictionaries &&
-		ln -sf ../mozilla-common-$VERSION/dictionaries \
-			$fs/usr/lib/$PACKAGE-$VERSION/dictionaries
-		# plugin-container
-		rm -f $fs/usr/lib/$PACKAGE-$VERSION/plugin-container &&
-		ln -sf ../mozilla-common-$VERSION/plugin-container \
-			$fs/usr/lib/$PACKAGE-$VERSION/plugin-container
-		# mozilla-xremote-client
-		rm -f $fs/usr/lib/$PACKAGE-$VERSION/mozilla-xremote-client &&
-		ln -sf ../mozilla-common-$VERSION/mozilla-xremote-client \
-			$fs/usr/lib/$PACKAGE-$VERSION/mozilla-xremote-client
-		# components/libdbusservice.so
-		# components/libmozgnome.so
-		for file in libdbusservice.so libmozgnome.so; do
-			rm -f $fs/usr/lib/$PACKAGE-$VERSION/components/$file &&
-			ln -sf ../../mozilla-common-$VERSION/components/$file \
-				$fs/usr/lib/$PACKAGE-$VERSION/components/$file
-		done
-		# chrome.manifest
-		rm -f $fs/usr/lib/$PACKAGE-$VERSION/chrome.manifest &&
-		ln -sf ../mozilla-common-$VERSION/chrome.manifest \
-			$fs/usr/lib/$PACKAGE-$VERSION/chrome.manifest
+			# mozilla-common files
+			# dictionaries
+			rm -rf $fs/usr/lib/$PACKAGE-$VERSION/dictionaries &&
+			ln -sf ../mozilla-common-$VERSION/dictionaries \
+				$fs/usr/lib/$PACKAGE-$VERSION/dictionaries
+			# plugin-container
+			rm -f $fs/usr/lib/$PACKAGE-$VERSION/plugin-container &&
+			ln -sf ../mozilla-common-$VERSION/plugin-container \
+				$fs/usr/lib/$PACKAGE-$VERSION/plugin-container
+			# mozilla-xremote-client
+			rm -f $fs/usr/lib/$PACKAGE-$VERSION/mozilla-xremote-client &&
+			ln -sf ../mozilla-common-$VERSION/mozilla-xremote-client \
+				$fs/usr/lib/$PACKAGE-$VERSION/mozilla-xremote-client
+			# components/libdbusservice.so
+			# components/libmozgnome.so
+			for file in libdbusservice.so libmozgnome.so; do
+				rm -f $fs/usr/lib/$PACKAGE-$VERSION/components/$file &&
+				ln -sf ../../mozilla-common-$VERSION/components/$file \
+					$fs/usr/lib/$PACKAGE-$VERSION/components/$file
+			done
+			# chrome.manifest
+			rm -f $fs/usr/lib/$PACKAGE-$VERSION/chrome.manifest &&
+			ln -sf ../mozilla-common-$VERSION/chrome.manifest \
+				$fs/usr/lib/$PACKAGE-$VERSION/chrome.manifest
 
-		# run-mozilla.sh
-		rm -f $fs/usr/lib/$PACKAGE-$VERSION/run-mozilla.sh &&
-		ln -sf ../mozilla-common-$VERSION/run-mozilla.sh \
-			$fs/usr/lib/$PACKAGE-$VERSION/run-mozilla.sh
+			# run-mozilla.sh
+			rm -f $fs/usr/lib/$PACKAGE-$VERSION/run-mozilla.sh &&
+			ln -sf ../mozilla-common-$VERSION/run-mozilla.sh \
+				$fs/usr/lib/$PACKAGE-$VERSION/run-mozilla.sh
 
-		# libmozalloc.so
-		rm -f $fs/usr/lib/$PACKAGE-$VERSION/libmozalloc.so &&
-		ln -sf ../mozilla-common-$VERSION/libmozalloc.so \
-			$fs/usr/lib/$PACKAGE-$VERSION/libmozalloc.so
+			# libmozalloc.so
+			rm -f $fs/usr/lib/$PACKAGE-$VERSION/libmozalloc.so &&
+			ln -sf ../mozilla-common-$VERSION/libmozalloc.so \
+				$fs/usr/lib/$PACKAGE-$VERSION/libmozalloc.so
 
-		chown -R root.root $fs
-		;;
-	firefox-dev)
-		CAT="development|firefox devel files"
-		DEPENDS="alsa-lib sqlite3 cairo dbus-glib pango atk \
-			glib xorg-libXt xorg-libXinerama \
-			xorg-libXcursor xorg-libXcomposite xorg-libXext \
+			chown -R root.root $fs
+			DEPENDS="gtk2 sqlite3 dbus dbus-glib glib jpeg xorg-libX11 \
+			xorg-libXdamage alsa-lib xorg-libXt libevent libvpx pango nss \
+			libfirefox"
+			TAGS="web-browser"
+			;;
+		*-dev)
+			DEPENDS="alsa-lib sqlite3 cairo dbus-glib pango atk glib xorg-libXt \
+			xorg-libXinerama xorg-libXcursor xorg-libXcomposite xorg-libXext \
 			xorg-libXdamage xorg-libxcb xorg-libSM xorg-libICE"
-		mkdir -p $fs/usr/include/$WANTED-$VERSION &&
-		cp -rL $src/obj-firefox/dist/include/* $fs/usr/include/$WANTED-$VERSION
+			mkdir -p $fs/usr/include/$WANTED-$VERSION
+			cp -rL $src/obj-firefox/dist/include/* $fs/usr/include/$WANTED-$VERSION
 
-		mkdir -p $fs/usr/lib/$WANTED-devel/sdk/bin/ply &&
-		cp -rL $src/obj-firefox/dist/sdk/bin/*.py \
-			$fs/usr/lib/$WANTED-devel/sdk/bin &&
-		cp -rL $src/obj-firefox/dist/sdk/bin/ply/*.py \
-			$fs/usr/lib/$WANTED-devel/sdk/bin/ply &&
-		mkdir -p $fs/usr/lib/$WANTED-devel/sdk/lib &&
-		cp -rL $src/obj-firefox/dist/sdk/lib/* \
-			$fs/usr/lib/$WANTED-devel/sdk/lib
+			mkdir -p $fs/usr/lib/$WANTED-devel/sdk/bin/ply
+			cp -rL $src/obj-firefox/dist/sdk/bin/*.py \
+				$fs/usr/lib/$WANTED-devel/sdk/bin
+			cp -rL $src/obj-firefox/dist/sdk/bin/ply/*.py \
+				$fs/usr/lib/$WANTED-devel/sdk/bin/ply
+			mkdir -p $fs/usr/lib/$WANTED-devel/sdk/lib
+			cp -rL $src/obj-firefox/dist/sdk/lib/* \
+				$fs/usr/lib/$WANTED-devel/sdk/lib
 
-#		mkdir -v $fs/usr/include/$WANTED-$VERSION/npapi &&
-#		cp -a $src/dom/plugins/base/*.h $fs/usr/include/$WANTED-$VERSION/npapi
+			# mkdir -v $fs/usr/include/$WANTED-$VERSION/npapi
+			# cp -a $src/dom/plugins/base/*.h $fs/usr/include/$WANTED-$VERSION/npapi
 
-		# /usr/share/idl folder should also be in firefox-dev
-		mkdir -p $fs/usr/share/$WANTED-$VERSION/idl &&
-		cp -rL $src/obj-firefox/dist/idl/* $fs/usr/share/$WANTED-$VERSION/idl
+			# /usr/share/idl folder should also be in firefox-dev
+			mkdir -p $fs/usr/share/$WANTED-$VERSION/idl
+			cp -rL $src/obj-firefox/dist/idl/* $fs/usr/share/$WANTED-$VERSION/idl
 
-		# copy missing *.pc files
-		mkdir -p $fs/usr/lib/pkgconfig &&
-		cp -a $stuff/*.pc $fs/usr/lib/pkgconfig &&
-		# fix version
-		sed -i "s/VERSION/$VERSION/" $fs/usr/lib/pkgconfig/*
-		;;
-	libfirefox)
-		CAT="network|firefox/thunderbird common files"
-		DEPENDS="gtk2 sqlite3 dbus dbus-glib glib jpeg xorg-libX11 \
+			# copy missing *.pc files
+			mkdir -p $fs/usr/lib/pkgconfig
+			cp -a $stuff/*.pc $fs/usr/lib/pkgconfig
+			# fix version
+			sed -i "s/VERSION/$VERSION/" $fs/usr/lib/pkgconfig/*
+			;;
+		libfirefox)
+			CAT="network|firefox/thunderbird common files"
+			DEPENDS="gtk2 sqlite3 dbus dbus-glib glib jpeg xorg-libX11 \
 			xorg-libXdamage alsa-lib xorg-libXt"
-		# dictionaries/en-US.aff
-		# dictionaries/en-US.dic
-		mkdir -p $fs/usr/lib/mozilla-common-$VERSION/dictionaries
-#		cp -a $install/usr/lib/firefox-$VERSION/dictionaries \
-#			$fs/usr/lib/mozilla-common-$VERSION
+			# dictionaries/en-US.aff
+			# dictionaries/en-US.dic
+			mkdir -p $fs/usr/lib/mozilla-common-$VERSION/dictionaries
+			# cp -a $install/usr/lib/firefox-$VERSION/dictionaries \
+			# $fs/usr/lib/mozilla-common-$VERSION
 
-		# plugin-container
-		cp -a $install/usr/lib/firefox-$VERSION/plugin-container \
-			$fs/usr/lib/mozilla-common-$VERSION
+			# plugin-container
+			cp -a $install/usr/lib/firefox-$VERSION/plugin-container \
+				$fs/usr/lib/mozilla-common-$VERSION
 
-		# mozilla-xremote-client
-		cp -a $install/usr/lib/firefox-$VERSION/mozilla-xremote-client \
-			$fs/usr/lib/mozilla-common-$VERSION
+			# mozilla-xremote-client
+			cp -a $install/usr/lib/firefox-$VERSION/mozilla-xremote-client \
+				$fs/usr/lib/mozilla-common-$VERSION
 
-		# components/libdbusservice.so
-		# components/libmozgnome.so
-		mkdir -p $fs/usr/lib/mozilla-common-$VERSION/components
-		for file in libdbusservice.so libmozgnome.so; do
-			cp -a $install/usr/lib/firefox-$VERSION/components/$file \
-			$fs/usr/lib/mozilla-common-$VERSION/components
-		done
+			# components/libdbusservice.so
+			# components/libmozgnome.so
+			mkdir -p $fs/usr/lib/mozilla-common-$VERSION/components
+			for file in libdbusservice.so libmozgnome.so; do
+				cp -a $install/usr/lib/firefox-$VERSION/components/$file \
+				$fs/usr/lib/mozilla-common-$VERSION/components
+			done
 
-		# chrome.manifest
-		cp -a $install/usr/lib/firefox-$VERSION/chrome.manifest \
-			$fs/usr/lib/mozilla-common-$VERSION
+			# chrome.manifest
+			cp -a $install/usr/lib/firefox-$VERSION/chrome.manifest \
+				$fs/usr/lib/mozilla-common-$VERSION
 
-		# run-mozilla.sh
-		cp -a $install/usr/lib/firefox-$VERSION/run-mozilla.sh \
-			$fs/usr/lib/mozilla-common-$VERSION
+			# run-mozilla.sh
+			cp -a $install/usr/lib/firefox-$VERSION/run-mozilla.sh \
+				$fs/usr/lib/mozilla-common-$VERSION
 
-		# libmozalloc.so
-		cp -a $install/usr/lib/firefox-$VERSION/libmozalloc.so \
-			$fs/usr/lib/mozilla-common-$VERSION
-		;;
+			# libmozalloc.so
+			cp -a $install/usr/lib/firefox-$VERSION/libmozalloc.so \
+				$fs/usr/lib/mozilla-common-$VERSION
+			;;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_firefox_dev()
-{
-	for i in usr/share/idl/firefox- usr/include/firefox- \
-		usr/lib/firefox-devel- ; do
+post_install_firefox_dev() {
+	for i in usr/share/idl/firefox- usr/include/firefox- usr/lib/firefox-devel-; do
 		for j in $(ls -d "$1"/$i* 2>/dev/null); do
 			[ "${j##*-}" = "$VERSION" ] && continue
 			[ ! -d "$j" ] || rm -rf "$j"

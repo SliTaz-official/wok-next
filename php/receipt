@@ -4,91 +4,63 @@ PACKAGE="php"
 VERSION="5.5.13"
 CATEGORY="development"
 SHORT_DESC="PHP web programming language"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.php.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.php.net/distributions/$TARBALL"
 
-BUILD_DEPENDS_arm="sqlite3-dev libxml2-dev zlib-dev curl-dev"
 BUILD_DEPENDS="sqlite3-dev libxml2-dev zlib-dev libmysqlclient mysql-dev \
-net-snmp-dev postgresql-dev gettext openssl-dev apache-dev apr-util-dev \
+net-snmp-dev postgresql-dev gettext-dev openssl-dev apache-dev apr-util-dev \
 c-client mhash-dev libpng16-dev libunixODBC unixODBC-dev openldap-dev \
 libldap apr-dev libmcrypt-dev curl-dev cyrus-sasl-dev perl \
 jpeg-dev net-snmp-dev libvpx-dev apache coreutils-conditions sed re2c"
-SPLIT="php-apache php-cherokee php-cli php-common php-curl php-dba php-dev \
-php-gd php-imap php-ldap php-mcrypt php-mysqli php-mysql php-odbc php-openssl \
-php-pdo-mysql php-pdo-pgsql php-pear php-pgsql php-snmp php-soap php-sqlite"
-
+SPLIT="\
+$PACKAGE-apache    $PACKAGE-cherokee $PACKAGE-cli     $PACKAGE-common \
+$PACKAGE-curl      $PACKAGE-dba      $PACKAGE-dev     $PACKAGE-gd \
+$PACKAGE-imap      $PACKAGE-ldap     $PACKAGE-mcrypt  $PACKAGE-mysqli \
+$PACKAGE-mysql     $PACKAGE-odbc     $PACKAGE-openssl $PACKAGE-pdo-mysql \
+$PACKAGE-pdo-pgsql $PACKAGE-pear     $PACKAGE-pgsql   $PACKAGE-snmp \
+$PACKAGE-soap      $PACKAGE-sqlite"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			ARCH_ARGS="\
-			--prefix=/usr \
-			--sysconfdir=/etc \
-			--infodir=/usr/share/info \
-			--mandir=/usr/share/man \
-			--config-cache \
-			--enable-mbstring \
-			--enable-sockets \
-			--enable-ftp \
-			--enable-zip \
-			--enable-calendar \
-			--enable-exif \
-			--enable-dba=shared \
-			--enable-sqlite-utf8 \
-			--with-mhash \
-			--with-sqlite=shared \
-			--with-config-file-path=/etc \
-			--with-zlib \
-			--with-gettext \
-			--with-curl=shared \
-			--with-openssl=shared \
-			--with-jpeg-dir=/usr \
-			--with-png-dir=/usr \
-			--with-apxs2=/usr/bin/apxs"
-			;;
-		*)
-			ARCH_ARGS="\
-			--enable-mbstring \
-			--enable-sockets \
-			--enable-ftp \
-			--enable-zip \
-			--enable-calendar \
-			--enable-exif \
-			--config-cache \
-			--enable-dba=shared \
-			--with-config-file-path=/etc \
-			--with-zlib \
-			--with-gettext \
-			--with-mcrypt=shared,/usr \
-			--with-mysql=shared,/usr \
-			--with-mysqli=shared \
-			--with-mysql-sock=/var/run/mysqld/mysql.sock \
-			--with-pdo-sqlite=shared,/usr \
-			--with-pgsql=shared,/usr \
-			--with-snmp=shared,/usr \
-			--enable-soap=shared,/usr \
-			--with-ldap=shared \
-			--with-imap=shared \
-			--with-imap-ssl \
-			--with-mhash \
-			--with-gd=shared \
-			--with-jpeg-dir=/usr \
-			--with-png-dir=/usr \
-			--with-vpx-dir=/usr \
-			--with-openssl=shared \
-			--with-unixODBC=shared,/usr \
-			--with-pear=/usr/share/php \
-			--with-pdo-mysql=shared \
-			--with-pdo-pgsql=shared \
-			--with-curl=shared \
-			--with-sqlite3=shared,/usr \
-			--enable-maintainer-zts"
-			;;
-	esac
+	ARCH_ARGS="\
+	--enable-mbstring \
+	--enable-sockets \
+	--enable-ftp \
+	--enable-zip \
+	--enable-calendar \
+	--enable-exif \
+	--config-cache \
+	--enable-dba=shared \
+	--with-config-file-path=/etc \
+	--with-zlib \
+	--with-gettext \
+	--with-mcrypt=shared,/usr \
+	--with-mysql=shared,/usr \
+	--with-mysqli=shared \
+	--with-mysql-sock=/var/run/mysqld/mysql.sock \
+	--with-pdo-sqlite=shared,/usr \
+	--with-pgsql=shared,/usr \
+	--with-snmp=shared,/usr \
+	--enable-soap=shared,/usr \
+	--with-ldap=shared \
+	--with-imap=shared \
+	--with-imap-ssl \
+	--with-mhash \
+	--with-gd=shared \
+	--with-jpeg-dir=/usr \
+	--with-png-dir=/usr \
+	--with-vpx-dir=/usr \
+	--with-openssl=shared \
+	--with-unixODBC=shared,/usr \
+	--with-pear=/usr/share/php \
+	--with-pdo-mysql=shared \
+	--with-pdo-pgsql=shared \
+	--with-curl=shared \
+	--with-sqlite3=shared,/usr \
+	--enable-maintainer-zts"
 
 	sed -i 's|PLANE_[UVY]\]|VPX_&|;s|IMG_FMT_I420|VPX_&|' ext/gd/libgd/webpimg.c
 	sed -i 's/pam_start/pam_nostart/' configure
@@ -97,22 +69,22 @@ compile_rules() {
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
-	make -j1 INSTALL_ROOT=$DESTDIR install
+	make -j1 INSTALL_ROOT=$install install
 
 	./configure \
 		$ARCH_ARGS \
 		$CONFIGURE_ARGS \
 		--with-apxs2=/usr/bin/apxs &&
 	make $MAKEFLAGS &&
-	mkdir -p $DESTDIR/etc/apache &&
-	cp /etc/apache/httpd.conf $DESTDIR/etc/apache/httpd.conf &&
-	make -j1 INSTALL_ROOT=$DESTDIR install || return 1
+	mkdir -p $install/etc/apache &&
+	cp /etc/apache/httpd.conf $install/etc/apache/httpd.conf &&
+	make -j1 INSTALL_ROOT=$install install || return 1
 
 	# Production config file.
-	mkdir -p $DESTDIR/etc
-	cp $src/php.ini-production $DESTDIR/etc/php.ini || exit 1
+	mkdir -p $install/etc
+	cp $src/php.ini-production $install/etc/php.ini || return 1
 	sed -e 's|extension_dir = "./"|extension_dir = "/usr/share/php/"|' \
-		-i $DESTDIR/etc/php.ini
+		-i $install/etc/php.ini
 
 	install -Dm755 $src/sapi/cgi/php-cgi    $install/usr/bin/php-cgi
 

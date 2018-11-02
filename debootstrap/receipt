@@ -4,19 +4,17 @@ PACKAGE="debootstrap"
 VERSION="1.0.48"
 CATEGORY="misc"
 SHORT_DESC="Bootstrap a basic Debian system"
-MAINTAINER="shann@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://wiki.debian.org/Debootstrap"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://people.slitaz.org/~shann/packages/$PACKAGE/$TARBALL"
 
-DEPENDS="dpkg tar"
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/sbin $fs/usr/share
 	cp -a $src/usr/sbin/*  $fs/usr/sbin
 	cp -a $src/usr/share/* $fs/usr/share
 	chown -R root.root $fs
+	DEPENDS="dpkg tar"
 }

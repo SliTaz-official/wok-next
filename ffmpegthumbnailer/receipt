@@ -12,12 +12,11 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://github.com/dirkvdb/ffmpegthumbnailer/releases/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="cmake libjpeg-turbo-dev zlib-dev libpng16-dev ffmpeg-dev"
-SPLIT="ffmpegthumbnailer-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build; cd build
+compile_rules() {
+	mkdir build
+	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -25,21 +24,19 @@ compile_rules()
 		-DENABLE_THUMBNAILER=ON \
 		.. &&
 	make &&
-	make install &&
+	make install || return 1
 
 	addtypes="video/x-ms-asx;video/x-ms-wmx;video/x-ms-wvx;application/mxf;\vid\
 eo/3gp;video/3gpp;video/dv;video/divx;video/fli;video/flv;video/mp2t;video/mp4v\
 -es;video/msvideo;video/ogg;video/vivo;video/vnd.divx;video/vnd.mpegurl;video/v\
 nd.rn-realvideo;video/vnd.vivo;video/webm;video/x-anim;video/x-avi;video/x-flc;\
 video/x-fli;video/x-flic;video/x-m4v;video/x-mpeg;video/x-mpeg2;video/x-nsv;vid\
-eo/x-ogm+ogg;video/x-theora+ogg;" &&
+eo/x-ogm+ogg;video/x-theora+ogg;"
 	sed -i "/MimeType=/ s|\$|$addtypes|" \
 		$install/usr/share/thumbnailers/ffmpegthumbnailer.thumbnailer
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		ffmpegthumbnailer)
 			copy @std

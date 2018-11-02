@@ -4,7 +4,7 @@ PACKAGE="tabbed"
 VERSION="0.6"
 CATEGORY="x-window"
 SHORT_DESC="Simple generic tabbed fronted to xembed aware applications"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://tools.suckless.org/tabbed/"
 
@@ -14,16 +14,8 @@ WGET_URL="http://dl.suckless.org/tools/$TARBALL"
 BUILD_DEPENDS="xorg-libX11-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			sysroot="/cross/$ARCH/sysroot"
-			sed -i \
-				-e s"#LIBS =.*#LIBS = -L$sysroot/usr/lib -lc -lX11#" \
-				-e s"#INCS =.*#INCS = -I. -I$sysroot/usr/include#" \
-				config.mk || return 1
-	esac
 	make CC=$HOST_SYSTEM-gcc &&
-	install -Dm755 $src/tabbed $install/usr/bin/tabbed
+	install -Dm755tabbed $install/usr/bin/tabbed
 }
 
 genpkg_rules() {

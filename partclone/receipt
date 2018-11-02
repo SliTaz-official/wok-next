@@ -1,37 +1,35 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="partclone"
 VERSION="0.2.49"
 CATEGORY="system-tools"
-SHORT_DESC="Utilities to smartly backup partitions."
-MAINTAINER="erjo@slitaz.org"
+SHORT_DESC="Utilities to smartly backup partitions"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://partclone.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="backup"
 
-DEPENDS="ncurses ntfs-3g e2fsprogs"
 BUILD_DEPENDS="util-linux-uuid-dev libxslt e2fsprogs-dev \
- ncurses-dev ntfsprogs-dev ntfs-3g-dev docbook-xsl"
+ncurses-dev ntfsprogs-dev ntfs-3g-dev docbook-xsl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS \
+compile_rules() {
+	./configure \
 		--enable-extfs \
 		--enable-fat \
 		--enable-exfat \
 		--enable-ntfs \
 		--enable-btrfs \
 		--enable-hfsp \
-		--enable-ncursesw &&
-		make && make install 2>&1 | sed "s/8': No such/8': no such/"
+		--enable-ncursesw \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share/local
-	cp -a $install/usr/sbin* $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses ntfs-3g e2fsprogs"
+	TAGS="backup"
 }

@@ -1,36 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
+
 PACKAGE="git-gui"
 VERSION="0.13.0"
 CATEGORY="development"
-SHORT_DESC="Graphical interface for the Git dRCS."
-MAINTAINER="ben@seawolfsanctuary.com"
+SHORT_DESC="Graphical interface for the Git dRCS"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
+WEB_SITE="https://mirrors.edge.kernel.org/pub/software/scm/git/docs/git-gui.html"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.kernel.org/pub/software/scm/git/docs/git-gui.html"
 WGET_URL="git|http://repo.or.cz/r/git-gui.git"
 BRANCH="gitgui-$VERSION"
 
-DEPENDS="tk git"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="tk git"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	make clean
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/usr $fs/
-	
+
 	# Extra icons, .desktop file etc.:
 	cp -a $stuff/* $fs/usr
 
 	mkdir -p $fs/usr/bin
 	ln -s /usr/lib/git-core/git-gui /usr/lib/git-core/git-citool \
 		/usr/lib/git-core/git-gui--askpass $fs/usr/bin
+	DEPENDS="tk git"
 }

@@ -17,7 +17,7 @@ eudev-dev xorg-xorgproto \
 xorg-libxcb-dev xorg-libxshmfence-dev xorg-libX11-dev xorg-libXext-dev \
 xorg-libXdamage-dev xorg-libXfixes-dev xorg-libXxf86vm-dev expat-dev \
 elfutils-dev llvm-dev xorg-libpciaccess-dev"
-SPLIT="mesa12 mesa12-dev mesa12-dri mesa12-libegl"
+SPLIT="$PACKAGE-dev $PACKAGE-dri $PACKAGE-libegl"
 
 compile_rules() {
 	# "swr" driver is disabled due to compilation errors
@@ -40,7 +40,8 @@ compile_rules() {
 
 	unset GLL_DRV &&
 
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	install -Dm644 $stuff/90-DRI.conf $install/etc/X11/xorg.conf.d/90-DRI.conf
 }

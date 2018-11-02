@@ -4,28 +4,23 @@ PACKAGE="dega"
 VERSION="1.12"
 CATEGORY="games"
 SHORT_DESC="A small Sega Master System and Game Gear emulator"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="other"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.finalburn.com/dega"
-WGET_URL="http://www.emulinks.de/emus/$TARBALL"
-TAGS="emulator sega"
 
-DEPENDS="libsdl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://www.emulinks.de/emus/$TARBALL"
+
 BUILD_DEPENDS="nasm libsdl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/--libs.*/& -lm/' Makefile
 	make
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp -a $src/dega $fs/usr/bin
+	DEPENDS="libsdl"
+	TAGS="emulator sega"
 }
-

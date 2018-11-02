@@ -4,15 +4,15 @@ PACKAGE="freeradius"
 VERSION="2.1.12"
 CATEGORY="security"
 SHORT_DESC="Radius server"
-MAINTAINER="sdaigl@lacitec.on.ca"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2"
-WEB_SITE="http://www.freeradius.org/"
+WEB_SITE="http://freeradius.org/"
 
 TARBALL="freeradius-server-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.freeradius.org/pub/freeradius/$TARBALL"
 
 BUILD_DEPENDS="libtool openldap-dev openssl-dev pam-dev krb5-dev gdbm-dev libtool"
-SPLIT="freeradius freeradius-dialupadmin freeradius-pam"
+SPLIT="$PACKAGE-dialupadmin $PACKAGE-pam"
 
 compile_rules() {
 	export CFLAGS="$CFLAGS -fno-strict-aliasing"
@@ -23,7 +23,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
-	make R=$DESTDIR install
+	make R=$install install
 }
 
 genpkg_rules() {

@@ -12,7 +12,7 @@ TARBALL="dhcp-$VERSION.tar.gz"
 WGET_URL="https://ftp.isc.org/isc/dhcp/$TARBALL"
 
 BUILD_DEPENDS="perl"
-SPLIT="dhcp6-client dhcp6-relay dhcp6-dev"
+SPLIT="$PACKAGE-client $PACKAGE-relay $PACKAGE-dev"
 SIBLINGS="dhcp"
 
 compile_rules() {
@@ -23,7 +23,7 @@ compile_rules() {
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/etc/init.d
 	cp $WOK/dhcp/stuff/dhcpd     $install/etc/init.d

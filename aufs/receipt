@@ -6,10 +6,9 @@ COMMIT="076999e"
 EXTRAVERSION="_$kvers"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Kernel ${VERSION%-*} aufs module"
-MAINTAINER="godane@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://aufs.sourceforge.net/"
-HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/sfjro/aufs4-standalone/archive/$COMMIT.tar.gz"
@@ -45,11 +44,11 @@ compile_rules() {
 	sed -i.orig "s:aufs.ko usr/include/linux/aufs_type.h:aufs.ko:g" Makefile
 	sed -i.orig "s:__user::g" include/uapi/linux/aufs_type.h
 
-	make -j 1 KDIR=/usr/src/linux || return 1
+	make -j1 KDIR=/usr/src/linux || return 1
 	xz -f fs/aufs/aufs.ko
 
 	install -Dm0644 fs/aufs/aufs.ko.xz \
-		$install/lib/modules/${kvers}-slitaz/kernel/fs/aufs/aufs.ko.xz
+		$install/lib/modules/$kvers-slitaz/kernel/fs/aufs/aufs.ko.xz
 	install -Dm0644 include/uapi/linux/aufs_type.h \
 		$install/usr/include/uapi/linux/aufs_type.h
 }

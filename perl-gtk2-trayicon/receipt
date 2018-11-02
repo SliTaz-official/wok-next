@@ -12,21 +12,18 @@ REPOLOGY="perl:gtk2-trayicon"
 TARBALL="Gtk2-TrayIcon-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/B/BO/BORUP/$TARBALL"
 
-DEPENDS="perl-gtk2"
-BUILD_DEPENDS="$DEPENDS perl-dev perl-extutils-depends perl-extutils-pkgconfig \
+BUILD_DEPENDS="perl-gtk2 perl-dev perl-extutils-depends perl-extutils-pkgconfig \
 gtk2-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std @dev
+	DEPENDS="perl-gtk2"
 }

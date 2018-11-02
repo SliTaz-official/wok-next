@@ -3,27 +3,22 @@
 PACKAGE="pngrewrite"
 VERSION="1.4.0"
 CATEGORY="graphics"
-SHORT_DESC="Utility to reduce unnecessarily large palettes and bit depths in PNG image files"
+SHORT_DESC="Reduce unnecessarily large palettes and bit depths in PNG image files"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="zlib/libpng"
 WEB_SITE="http://entropymine.com/jason/pngrewrite/"
+
 TARBALL="$PACKAGE-$VERSION.zip"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-DEPENDS="libpng16"
 BUILD_DEPENDS="libpng16-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make
-
-	mkdir -p $install/usr/bin
-	cp -a $src/pngrewrite $install/usr/bin
+compile_rules() {
+	make &&
+	install -Dm755 pngrewrite $install/usr/bin/pngrewrite
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpng16"
 }

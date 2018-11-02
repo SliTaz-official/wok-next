@@ -5,7 +5,7 @@ VERSION="1.04"
 CATEGORY="perl"
 SHORT_DESC="Test::NoWarnings - Make sure you didn't emit any warnings while \
 testing"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://metacpan.org/release/Test-NoWarnings"
 REPOLOGY="perl:test-nowarnings"
@@ -13,20 +13,17 @@ REPOLOGY="perl:test-nowarnings"
 TARBALL="Test-NoWarnings-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/A/AD/ADAMK/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

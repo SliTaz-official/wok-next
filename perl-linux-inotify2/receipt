@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-linux-inotify2"
 VERSION="1.22"
@@ -12,20 +12,17 @@ REPOLOGY="perl:linux-inotify2"
 TARBALL="Linux-Inotify2-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/M/ML/MLEHMANN/$TARBALL"
 
-DEPENDS="perl-common-sense"
-BUILD_DEPENDS="$DEPENDS perl-dev"
+BUILD_DEPENDS="perl-common-sense perl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-common-sense"
 }

@@ -3,30 +3,28 @@
 PACKAGE="cmatrix"
 VERSION="1.2a"
 CATEGORY="misc"
-SHORT_DESC="Matrix screensaver."
+SHORT_DESC="Matrix screensaver"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://www.asty.org/cmatrix"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.asty.org/cmatrix/"
 WGET_URL="http://www.asty.org/cmatrix/dist/$TARBALL"
 
-DEPENDS="ncurses"
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make DESTDIR=$DESTDIR install
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="ncurses"
 }

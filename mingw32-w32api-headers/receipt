@@ -1,36 +1,28 @@
 # SliTaz package receipt.
 
 PACKAGE="mingw32-w32api-headers"
-SOURCE="w32api"
 VERSION="3.13-mingw32"
 CATEGORY="development"
-SHORT_DESC="MinGW32 w32api headers."
-MAINTAINER="rcx@zoominternet.net"
+SHORT_DESC="MinGW32 w32api headers"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
-TARBALL="$SOURCE-$VERSION-src.tar.gz"
 WEB_SITE="http://www.mingw.org/"
+
+SOURCE="w32api"
+TARBALL="$SOURCE-$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/mingw/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS=""
-
 # Configuration only needs included if we're in the build/wok environment
-if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ] ; then
-	. $WOK/mingw32-toolchain/stuff/mingw32.conf
+if [ -e $WOK/mingw32-toolchain/stuff/mingw32.conf ]; then
+	.   $WOK/mingw32-toolchain/stuff/mingw32.conf
 fi
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	
-	mkdir -p $DESTDIR$MINGW32_ROOT
-	cp -a include $DESTDIR$MINGW32_ROOT
+compile_rules() {
+	mkdir -p $install$MINGW32_ROOT
+	cp -a include $install$MINGW32_ROOT
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/* $fs
 }

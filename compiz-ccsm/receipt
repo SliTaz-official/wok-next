@@ -3,8 +3,8 @@
 PACKAGE="compiz-ccsm"
 VERSION="0.8.12.3"
 CATEGORY="x-window"
-SHORT_DESC="Compiz Config Settings Manager."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Compiz Config Settings Manager"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/compiz-reloaded/ccsm"
 REPOLOGY="ccsm"
@@ -12,27 +12,23 @@ REPOLOGY="ccsm"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/releases/download/v$VERSION/ccsm-$VERSION.tar.xz"
 
-DEPENDS="python python-pygobject compiz-core compiz-libcompizconfig \
-compiz-compizconfig-python gtk-girepository"
-BUILD_DEPENDS="$DEPENDS python-dev libtool compiz-core-dev \
-compiz-libcompizconfig-dev intltool"
+BUILD_DEPENDS="python-pygobject compiz-compizconfig-python gtk-girepository \
+python-dev libtool compiz-core-dev compiz-libcompizconfig-dev intltool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./setup.py install --prefix=/usr --with-gtk=2.0 --root="$DESTDIR"
+compile_rules() {
+	python -B setup.py install --prefix=/usr --with-gtk=2.0 --root=$install
 
-	find $DESTDIR -name ccsm.desktop | xargs \
+	find $install -name ccsm.desktop | xargs \
 	sed -i 's#Exec=.*#Exec=sh -c \"ccsm \|\| LC_ALL=C LANG=C ccsm\"#'
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/locale
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share/locale/ru $fs/usr/share/locale
 	cp -a $install/usr/share/ccsm $fs/usr/share
 	cp -a $install/usr/share/icons $fs/usr/share
+	DEPENDS="python python-pygobject compiz-core compiz-libcompizconfig \
+	compiz-compizconfig-python gtk-girepository"
 }

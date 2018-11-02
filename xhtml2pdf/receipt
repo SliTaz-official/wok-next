@@ -1,28 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xhtml2pdf"
-SOURCE="pisa"
 VERSION="3.0.32"
 CATEGORY="utilities"
-SHORT_DESC="Converter for HTML/XHTML and CSS to PDF."
+SHORT_DESC="Converter for HTML/XHTML and CSS to PDF"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.xhtml2pdf.com/"
+
+SOURCE="pisa"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://www.xhtml2pdf.com"
 WGET_URL="https://files.pythonhosted.org/packages/source/p/$SOURCE/$TARBALL"
 
-DEPENDS="python python-reportlab python-html5lib python-pypdf"
-BUILD_DEPENDS="$DEPENDS python-dev"
+BUILD_DEPENDS="python-dev python-reportlab python-html5lib python-pypdf"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-reportlab python-html5lib python-pypdf"
 }

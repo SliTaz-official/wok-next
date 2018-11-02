@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ftjam"
 VERSION="2.5.3rc2"
 CATEGORY="development"
-MAINTAINER="jozee@slitaz.org"
-LICENSE="BSD"
 SHORT_DESC=="FT Jam - an enhanced version of the Jam build tool"
-WEB_SITE="http://freetype.org/jam/"
-PROVIDE="jam"
+MAINTAINER="devel@slitaz.org"
+LICENSE="BSD"
+WEB_SITE="https://www.freetype.org/jam/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://david.freetype.org/jam/$TARBALL"
 
-DEPENDS="glibc-base"
 BUILD_DEPENDS="bison"
 
-# Rules to configure and make the package.
 compile_rules() {
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install 
+	make DESTDIR=$install install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="glibc-base"
+	PROVIDE="jam"
 }

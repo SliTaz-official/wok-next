@@ -4,7 +4,7 @@ PACKAGE="perl-xml-simple"
 VERSION="2.25"
 CATEGORY="perl"
 SHORT_DESC="XML::Simple module is used to read and write XML"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/XML-Simple"
 REPOLOGY="perl:xml-simple"
@@ -12,20 +12,17 @@ REPOLOGY="perl:xml-simple"
 TARBALL="XML-Simple-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/G/GR/GRANTM/$TARBALL"
 
-DEPENDS="perl-xml-namespacesupport perl-xml-sax perl-xml-sax-expat"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-xml-namespacesupport perl-xml-sax perl-xml-sax-expat"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-xml-namespacesupport perl-xml-sax perl-xml-sax-expat"
 }

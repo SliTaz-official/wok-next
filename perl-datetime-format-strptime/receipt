@@ -13,22 +13,21 @@ REPOLOGY="perl:datetime-format-strptime"
 TARBALL="DateTime-Format-Strptime-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-datetime perl-datetime-locale perl-datetime-timezone \
+BUILD_DEPENDS="perl-datetime perl-datetime-locale perl-datetime-timezone \
 perl-package-deprecationmanager perl-params-validationcompiler perl-specio \
-perl-try-tiny"
-BUILD_DEPENDS="$DEPENDS perl-test-warnings"
+perl-try-tiny perl-test-warnings"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-datetime perl-datetime-locale perl-datetime-timezone \
+	perl-package-deprecationmanager perl-params-validationcompiler perl-specio \
+	perl-try-tiny"
 }

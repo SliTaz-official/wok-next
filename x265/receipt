@@ -12,12 +12,12 @@ TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="http://ftp.videolan.org/pub/videolan/x265/$TARBALL"
 
 BUILD_DEPENDS="cmake nasm"
-SPLIT="x265-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	# Fix build for i486 arch:
 	# -- CMAKE_SYSTEM_PROCESSOR value `i486` is unknown
-	# -- Please add this value near ${src}/source/CMakeLists.txt:78
+	# -- Please add this value near $src/source/CMakeLists.txt:78
 	sed -i 's|i386 i686|i386 i486 i686|' $src/source/CMakeLists.txt
 
 	cd $src/build

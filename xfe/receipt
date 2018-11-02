@@ -4,23 +4,18 @@ PACKAGE="xfe"
 VERSION="1.40"
 CATEGORY="system-tools"
 SHORT_DESC="FOX tools for X Window"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://roland65.free.fr/xfe/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS_arm="libpng16-dev libjpeg-turbo-dev tiff-dev xorg-libXft-dev \
-fox-dev automake"
 BUILD_DEPENDS="libpng16-dev libjpeg-turbo-dev tiff-dev xorg-libXft-dev fox-dev \
-automake intltool gettext xorg-libXrandr-dev xorg-libXi"
-SPLIT="xfe-extra-icons xfe xfi xfw xfp"
+automake intltool gettext-dev xorg-libXrandr-dev xorg-libXi"
+SPLIT="$PACKAGE-extra-icons $PACKAGE xfi xfw xfp"
 
 compile_rules() {
-	case "$ARCH" in
-		arm) export LDFLAGS="-L/cross/$ARCH/sysroot/usr/lib";;
-	esac
 	# Required by freetype-dev-2.4.11
 	sed -i 's|config/ftheader.h|freetype/config/ftheader.h|' configure.ac
 

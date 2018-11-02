@@ -1,32 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="sonata"
 VERSION="1.6.2.1"
 CATEGORY="multimedia"
 SHORT_DESC="Elegant GTK+ music client for MPD"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://www.nongnu.org/sonata/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/multani/sonata/archive/v$VERSION.tar.gz"
 
-DEPENDS="python-pygtk python-mpd python-dbus mpd libffi"
-BUILD_DEPENDS="python-pygtk-dev python-dbus-dev python-pygobject2-dev gettext \
-acl libcroco python-dev gtk2-dev libffi-dev"
+BUILD_DEPENDS="python-pygtk-dev python-dbus-dev python-pygobject2-dev \
+gettext-dev acl libcroco python-dev gtk2-dev libffi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --prefix=/usr --root="$DESTDIR"
+compile_rules() {
+	python -B setup.py install --prefix=/usr --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/applications $fs/usr/lib
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share/sonata $fs/usr/share
 	cp -a $install/usr/share/pixmaps $fs/usr/share
 	cp -a $stuff/startsonata  $fs/usr/bin/
+	DEPENDS="python-pygtk python-mpd python-dbus mpd libffi"
 }

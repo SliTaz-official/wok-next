@@ -13,20 +13,18 @@ REPOLOGY="perl:package-deprecationmanager"
 TARBALL="Package-DeprecationManager-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-package-stash perl-params-util perl-sub-install perl-sub-name"
-BUILD_DEPENDS="$DEPENDS perl-test-fatal perl-test-warnings"
+BUILD_DEPENDS="perl-package-stash perl-params-util perl-sub-install \
+perl-sub-name perl-test-fatal perl-test-warnings"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-package-stash perl-params-util perl-sub-install perl-sub-name"
 }

@@ -1,33 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="fsarchiver"
 VERSION="0.6.12"
 CATEGORY="utilities"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 SHORT_DESC="A safe and flexible file-system backup and deployment tool"
 WEB_SITE="http://www.fsarchiver.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="compression filesystem archive backup"
 
-DEPENDS="bzip2 e2fsprogs lzo xz libgcrypt liblzma util-linux-blkid \
-libcomerr3 zlib"
 BUILD_DEPENDS="bzip2-dev e2fsprogs-dev libgcrypt-dev lzo-dev xz-dev \
 util-linux-blkid-dev attr-dev util-linux-uuid-dev zlib-dev"
 
-# Rules to configure and make the package.
 compile_rules() {
-	cd $src
-	./configure --prefix=/usr $CONFIGURE_ARGS &&
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR="$DESTDIR" install
+	make DESTDIR=$install install
 }
-	
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/sbin $fs/usr
-	
+	DEPENDS="bzip2 e2fsprogs lzo xz libgcrypt liblzma util-linux-blkid \
+	libcomerr3 zlib"
+	TAGS="compression filesystem archive backup"
 }

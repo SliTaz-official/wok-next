@@ -12,19 +12,22 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/tazpanel/archive/$VERSION.tar.bz2"
 
-BUILD_DEPENDS="gettext jsmin tidy-html5"
-SPLIT="tazpanel tazpanel-extra:extra"
+BUILD_DEPENDS="gettext-dev jsmin tidy-html5"
+SPLIT="$PACKAGE-extra:extra"
 
 compile_rules() {
 	case $SET in
 		'')
-			make && make DESTDIR=$DESTDIR VERSION=$VERSION install
+			make &&
+			make DESTDIR=$install VERSION=$VERSION install || return 1
+
 			mkdir -p $install/etc/init.d
 			# Init script use tazpanel cmdline
 			ln -s ../../usr/bin/tazpanel $install/etc/init.d/tazpanel
 			;;
 		extra)
-			make && make DESTDIR=$DESTDIR VERSION=$VERSION install_extra
+			make &&
+			make DESTDIR=$install VERSION=$VERSION install_extra
 			;;
 	esac
 }

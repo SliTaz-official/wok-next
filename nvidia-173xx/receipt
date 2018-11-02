@@ -4,26 +4,20 @@ PACKAGE="nvidia-173xx"
 VERSION="173.14.39"
 EXTRAVERSION="_$kvers"
 CATEGORY="non-free"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="other"
 SHORT_DESC="NVIDIA drivers (non-free)"
 WEB_SITE="http://www.nvidia.com/"
 REPOLOGY="nvidia-legacy-173.14"
 
-SOURCE="NVIDIA-Linux-x86-${VERSION}-pkg1"
-TARBALL="${SOURCE}.run"
+SOURCE="NVIDIA-Linux-x86-$VERSION-pkg1"
+TARBALL="$SOURCE.run"
 WGET_URL="http://download.nvidia.com/XFree86/Linux-x86/$VERSION/$TARBALL"
 RUN_OPTS="--extract-only"
-TAGS="driver graphic video"
-PROVIDE="nvidia mesa"
 
-DEPENDS="linux xorg-server gtk2 cairo linux-agp xorg-libXv"
 BUILD_DEPENDS="linux-module-headers coreutils-file-summarize xz"
 
-# Rules to configure and make the package.
-
-compile_rules()
-{
+compile_rules() {
 	cd $src/usr/src/nv/
 	sed -i 's|.*utsname.*|&\n#include <linux/acpi.h>|' nv-linux.h
 	# Only use .unblocked_ioctl since 2.6.36
@@ -32,10 +26,7 @@ compile_rules()
 	xz nvidia.ko
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-
+genpkg_rules() {
 	mkdir -p \
 		$fs/usr/share \
 		$fs/usr/lib/X11 \
@@ -48,27 +39,30 @@ genpkg_rules()
 	chown root $fs/lib/modules/$kvers-slitaz/kernel/drivers/video/nvidia.ko.xz
 	chmod 0644 $fs/lib/modules/$kvers-slitaz/kernel/drivers/video/nvidia.ko.xz
 
-	cp -a $src/LICENSE $fs/usr/share/licenses/$PACKAGE
-	cp -a $src/usr/bin $fs/usr
-	cp -a $src/nvidia-installer $fs/usr/bin
-	cp -a $src/usr/lib/*.so* $fs/usr/lib/
-	cp -a $src/usr/lib/tls $fs/usr/lib/
+	cp -a $src/LICENSE                $fs/usr/share/licenses/$PACKAGE
+	cp -a $src/usr/bin                $fs/usr
+	cp -a $src/nvidia-installer       $fs/usr/bin
+	cp -a $src/usr/lib/*.so*          $fs/usr/lib/
+	cp -a $src/usr/lib/tls            $fs/usr/lib/
 	cp -a $src/usr/X11R6/lib/libXvMCNVIDIA.so.$VERSION $fs/usr/lib
-	cp -a $src/usr/X11R6/lib/modules $fs/usr/lib/X11/
+	cp -a $src/usr/X11R6/lib/modules  $fs/usr/lib/X11/
 	cp -a $src/usr/share/applications $fs/usr/share
-	cp -a $src/usr/share/pixmaps $fs/usr/share
-	cp -a $src/usr/share/doc/* $fs/usr/share/doc/$PACKAGE/
-	cp -a $src/usr/X11R6/lib/* $fs/usr/lib/X11
+	cp -a $src/usr/share/pixmaps      $fs/usr/share
+	cp -a $src/usr/share/doc/*        $fs/usr/share/doc/$PACKAGE/
+	cp -a $src/usr/X11R6/lib/*        $fs/usr/lib/X11
 
 	ln -s libcuda.so.$VERSION $fs/usr/lib/libcuda.so
 	ln -s libcuda.so.$VERSION $fs/usr/lib/libcuda.so.1
-	ln -s libGL.so.$VERSION $fs/usr/lib/libGL.so
-	ln -s libGL.so.$VERSION $fs/usr/lib/libGL.so.1
-	# exclude from files.list (for tazpkg's "find-depends")
-        cd $fs/usr/lib
-        for i in $(ls libGL.so*) ; do mv -f $i ${i//./-.-} ; done
+	ln -s libGL.so.$VERSION   $fs/usr/lib/libGL.so
+	ln -s libGL.so.$VERSION   $fs/usr/lib/libGL.so.1
 
-	ln -s libGLcore.so.$VERSION $fs/usr/lib/libGLcore.so.1
+	# exclude from files.list (for tazpkg's "find-depends")
+	cd $fs/usr/lib
+	for i in $(ls libGL.so*); do
+		mv -f $i ${i//./-.-}
+	done
+
+	ln -s libGLcore.so.$VERSION     $fs/usr/lib/libGLcore.so.1
 	ln -s libnvidia-cfg.so.$VERSION $fs/usr/lib/libnvidia-cfg.so
 	ln -s libnvidia-cfg.so.$VERSION $fs/usr/lib/libnvidia-cfg.so.1
 	ln -s libnvidia-tls.so.$VERSION $fs/usr/lib/libnvidia-tls.so.1
@@ -79,22 +73,26 @@ genpkg_rules()
 	ln -s libXvMCNVIDIA.so.$VERSION $fs/usr/lib/libXvMCNVIDIA_dynamic.so
 	ln -s libnvidia-wfb.so.$VERSION $fs/usr/lib/X11/modules/libnvidia-wfb.so
 	ln -s libnvidia-wfb.so.$VERSION $fs/usr/lib/X11/modules/libnvidia-wfb.so.1
-	ln -s libglx.so.$VERSION $fs/usr/lib/X11/modules/extensions/libglx.so
+	ln -s libglx.so.$VERSION        $fs/usr/lib/X11/modules/extensions/libglx.so
+
+	DEPENDS="linux xorg-server gtk2 cairo linux-agp xorg-libXv"
+	PROVIDE="nvidia mesa"
+	TAGS="driver graphic video"
 }
 
-pre_install()
-{
+pre_install() {
 	title "PROPRIETARY LICENSE"
 	echo "You are installing a package with proprietary license."
 	echo "You must accept the license."
 	footer
 }
 
-post_install()
-{
+post_install() {
 	# Restore excluded from files.list (for tazpkg's "find-depends")
-        cd $1/usr/lib
-	for i in $(ls libGL.so*) ; do mv -f $i ${i//-.-/.} ; done
+	cd $1/usr/lib
+	for i in $(ls libGL.so*); do
+		mv -f $i ${i//-.-/.}
+	done
 
 	chroot "$1/" depmod -a ${EXTRAVERSION#_}-slitaz
 

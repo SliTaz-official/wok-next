@@ -4,7 +4,7 @@ PACKAGE="clucene"
 VERSION="2.3.3.4"
 CATEGORY="system-tools"
 SHORT_DESC="CLucene - a C++ search engine"
-MAINTAINER="domcox@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL Apache"
 WEB_SITE="https://sourceforge.net/projects/clucene/"
 
@@ -12,24 +12,21 @@ TARBALL="clucene-core-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="cmake zlib-dev"
-SPLIT="clucene-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build &&
-	cd    build &&
+compile_rules() {
+	mkdir build
+	cd    build
 
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DBUILD_CONTRIBS_LIB=ON .. &&
+		-DBUILD_CONTRIBS_LIB=ON \
+		.. &&
 	make &&
 	make -j1 install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		clucene) copy @std; TAGS="text indexing";;
 		*-dev)   copy @dev;;

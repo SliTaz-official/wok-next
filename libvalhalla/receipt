@@ -4,7 +4,7 @@ PACKAGE="libvalhalla"
 VERSION="2.1.0"
 CATEGORY="multimedia"
 SHORT_DESC="A tiny media scanner API"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://libvalhalla.geexbox.org/"
 
@@ -13,30 +13,19 @@ WGET_URL="http://libvalhalla.geexbox.org/releases/$TARBALL"
 
 BUILD_DEPENDS="ffmpeg-dev ffmpeg-compat-dev libsqlite3 sqlite3-dev \
 libxml2-dev libexif-dev curl-dev"
-SPLIT="libvalhalla-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*)
-			export PKG_CONFIG_PATH=/cross/$ARCH/sysroot/usr/lib/ffmpeg-compat/pkgconfig
-			export LDFLAGS="$LDFLAGS -Wl,-rpath=/cross/$ARCH/sysroot/usr/lib/ffmpeg-compat"
-			export CFLAGS="$CFLAGS -I/cross/$ARCH/sysroot/usr/include/ffmpeg-compat"
-			export LDFLAGS="$LDFLAGS -L/cross/$ARCH/sysroot/usr/lib/ffmpeg-compat -lavformat" 
-			ARCH_ARGS="--cross-compile"
-			;;
-		*)
-			#export LDFLAGS="$LDFLAGS -lavformat"
-			export PKG_CONFIG_PATH=/usr/lib/ffmpeg-compat/pkgconfig
-			export LDFLAGS="$LDFLAGS -Wl,-rpath=/usr/lib/ffmpeg-compat"
-			;;
-	esac
+	#export LDFLAGS="$LDFLAGS -lavformat"
+	export PKG_CONFIG_PATH=/usr/lib/ffmpeg-compat/pkgconfig
+	export LDFLAGS="$LDFLAGS -Wl,-rpath=/usr/lib/ffmpeg-compat"
 
 	# Fix Busybox cat
 	sed -i 's/cat -n/awk '"'"'{ printf "%6d  %s\\n",++n,$0 }'"'"' </' configure
 
 	./configure \
 		--prefix=/usr \
-		$ARCH_ARGS &&
+		&&
 	make &&
 	make install
 }

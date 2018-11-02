@@ -4,7 +4,7 @@ PACKAGE="slitaz-configs"
 VERSION="312"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz config files"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
@@ -12,15 +12,14 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-configs/archive/$VERSION.tar.bz2"
 
-BUILD_DEPENDS_arm="gettext"
 BUILD_DEPENDS="locale-de locale-en locale-fr locale-hu locale-ja locale-pt_BR \
-locale-ru locale-zh_CN gettext"
-SPLIT="slitaz-themes slitaz-configs-base"
+locale-ru locale-zh_CN gettext-dev"
+SPLIT="slitaz-themes $PACKAGE-base"
 
 compile_rules() {
 	# xcompmgr produces visual glitches on the screen
 	sed -i 's|xcompmgr|compton|' ob-menu/menu.xml.in
-	make DESTDIR=$DESTDIR menu
+	make DESTDIR=$install menu
 	ln -s menu.en.xml $install/etc/xdg/openbox/menu.xml
 
 	find /usr/share/locale -type f -name 'slitaz*'
@@ -73,41 +72,29 @@ compile_rules() {
 genpkg_rules() {
 	case $PACKAGE in
 		slitaz-configs)
-			# Special case for ARM since some (most) config files are in slitaz-arm repo.
-			# i486/arm common configs are provided by slitaz-configs-base.
-			case "$ARCH" in
-				arm*)
-					copy \
-						/usr/share/applications/ \
-						/usr/share/slitaz/
-					DEPENDS="slitaz-arm-configs ttf-dejavu slim"
-					;;
-				*)
-					copy \
-						/etc/skel/.gtkrc-2.0* \
-						/etc/skel/.icons/ \
-						/etc/skel/.Xdefaults \
-						/etc/skel/.xinitrc \
-						/etc/skel/.Xresources \
-						/etc/skel/.xsession \
-						/etc/xdg/openbox/autostart \
-						/etc/xdg/openbox/environment \
-						/etc/xdg/openbox/menu.en.xml \
-						/etc/xdg/openbox/menu.xml \
-						/etc/xdg/openbox/rc.xml \
-						/usr/bin/ \
-						/usr/share/applications/ \
-						/usr/share/images/ \
-						/usr/share/pixmaps/ \
-						/usr/share/slitaz/ \
-						/usr/share/templates/ \
-						/usr/share/webhome/ \
-						/root/
-					DEPENDS="slitaz-configs-base xorg-libXcomposite \
-					xorg-libXdamage transset-df ttf-dejavu slim compton"
-					;;
-			esac
-
+			# Common configs are provided by slitaz-configs-base.
+			copy \
+				/etc/skel/.gtkrc-2.0* \
+				/etc/skel/.icons/ \
+				/etc/skel/.Xdefaults \
+				/etc/skel/.xinitrc \
+				/etc/skel/.Xresources \
+				/etc/skel/.xsession \
+				/etc/xdg/openbox/autostart \
+				/etc/xdg/openbox/environment \
+				/etc/xdg/openbox/menu.en.xml \
+				/etc/xdg/openbox/menu.xml \
+				/etc/xdg/openbox/rc.xml \
+				/usr/bin/ \
+				/usr/share/applications/ \
+				/usr/share/images/ \
+				/usr/share/pixmaps/ \
+				/usr/share/slitaz/ \
+				/usr/share/templates/ \
+				/usr/share/webhome/ \
+				/root/
+			DEPENDS="slitaz-configs-base xorg-libXcomposite \
+			xorg-libXdamage transset-df ttf-dejavu slim compton"
 			CAT="base-system|for GUI systems"
 			;;
 		slitaz-themes)
@@ -119,39 +106,17 @@ genpkg_rules() {
 			DEPENDS="slim"
 			;;
 		slitaz-configs-base)
-			CAT="base-system|for text based systems"
-
-			# Copy rootfs files and set permissions.
-			case "$ARCH" in
-				arm*)
-					# Most ARM configs are in slitaz-arm repo but Openbox, webhome
-					# are common to all arch.
-					copy \
-						/usr/bin/ \
-						/etc/lxpanel/ \
-						/etc/skel/
-					# No dbus on ARM
-					sed "s/exec dbus.*$/exec\"/" -i $fs/etc/skel/.xinitrc
-					;;
-				*)
-					copy \
-						/boot/ \
-						/etc/skel/ \
-						/etc/polkit-1/ \
-						/etc/slitaz/
-						CONFIG_FILES="/etc/slitaz/applications.conf"
-					;;
-			esac
 			copy \
+				/boot/ \
+				/etc/skel/ \
+				/etc/polkit-1/ \
+				/etc/slitaz/ \
 				/usr/share/ \
 				/root/ \
 				@rm
-
+			CAT="base-system|for text based systems"
+			CONFIG_FILES="/etc/slitaz/applications.conf"
 			DEPENDS=" "
-			# Handle SliTaz arch
-			case "$SLITAZ_ARCH" in
-				arm*) DEPENDS=" " ;;
-			esac
 			;;
 	esac
 }

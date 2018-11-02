@@ -7,23 +7,26 @@ SHORT_DESC="Code editor"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
 WEB_SITE="http://hugo.pereira.free.fr/software"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/tgz/$TARBALL"
-TAGS="text-editor"
 
-DEPENDS="qt5-base xorg-xcb-util-keysyms"
-BUILD_DEPENDS="qt5-dev cmake xorg-xcb-util-keysyms-dev xorg-dev zlib-dev mesa-dev"
+BUILD_DEPENDS="qt5-dev cmake xorg-xcb-util-keysyms-dev xorg-dev zlib-dev \
+mesa-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	patch $src/patterns/shell_patterns.xml $stuff/strvar_color_slitaz
-	cd $src && cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true . &&
-	make && make DESTDIR=$DESTDIR install
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DUSE_QT5=true \
+		. &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="qt5-base xorg-xcb-util-keysyms"
+	TAGS="text-editor"
 }

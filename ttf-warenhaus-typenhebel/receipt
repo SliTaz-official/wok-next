@@ -1,35 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ttf-warenhaus-typenhebel"
 VERSION="0.1"
 CATEGORY="fonts"
-SHORT_DESC="This font is an imitation of an old type writer."
-MAINTAINER="hackdorte@sapo.pt"
+SHORT_DESC="Imitation of an old type writer font"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
-SOURCE="warenhaus-typenhebel"
 WEB_SITE="http://people.slitaz.org/~leonardolaporte"
-STUFF_DIR="lab.slitaz/5.0/pkg/font/publicdomain"
+
+SOURCE="warenhaus-typenhebel"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}/$STUFF_DIR/$TARBALL"
-TAGS="font ttf"
+WGET_URL="http://people.slitaz.org/~leonardolaporte/lab.slitaz/5.0/pkg/font/publicdomain/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="wget"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-  mkdir -p $install/usr/share/fonts/pd/$SOURCE
-  cp -a $src/* $install/usr/share/fonts/pd/$SOURCE
+compile_rules() {
+	mkdir -p $install/usr/share/fonts/pd/$SOURCE
+	cp -a $src/* $install/usr/share/fonts/pd/$SOURCE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-  cp -a $install/* $fs
+genpkg_rules() {
+	cp -a $install/* $fs
+	TAGS="font ttf"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" /usr/bin/fc-cache
 }

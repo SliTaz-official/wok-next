@@ -1,33 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gtick"
 VERSION="0.4.2"
 CATEGORY="multimedia"
-SHORT_DESC="GTick is a metronome application."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Metronome application"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.antcom.de/gtick/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.antcom.de/gtick/download/$TARBALL"
 
-DEPENDS="gtk2 xorg-libXdamage libsndfile libogg"
 BUILD_DEPENDS="gtk2-dev xorg-xorgproto"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2 xorg-libXdamage libsndfile libogg"
 }

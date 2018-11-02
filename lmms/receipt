@@ -1,36 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="lmms"
 VERSION="0.4.13"
 CATEGORY="multimedia"
 SHORT_DESC="The Linux MultiMedia Studio"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://lmms.io/"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://lmms.sourceforge.net/"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="libsdl glib fluidsynth libpng16 libvorbis fftw xorg-libXft \
-xorg-libXinerama libsamplerate libQtGui libQtXml"
 BUILD_DEPENDS="libsdl-dev glib-dev fftw-dev fluidsynth-dev libpng16-dev \
 libogg-dev libvorbis-dev alsa-lib-dev xorg-libXft-dev xorg-libXinerama-dev \
 libsndfile-dev libsamplerate-dev Qt4-dev qt4-phonon qmake cmake freetype-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|lib64|lib|g' cmake/modules/DetectMachine.cmake
-	cmake . -DCMAKE_INSTALL_PREFIX=/usr
-	make && make DESTDIR=$DESTDIR install
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/lmms $fs/usr/share
-	rm -rf $fs/usr/share/lmms/locale
+genpkg_rules() {
+	copy @std
+	DEPENDS="libsdl glib fluidsynth libpng16 libvorbis fftw xorg-libXft \
+	xorg-libXinerama libsamplerate libQtGui libQtXml"
 }

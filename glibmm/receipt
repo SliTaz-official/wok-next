@@ -4,7 +4,7 @@ PACKAGE="glibmm"
 VERSION="2.56.0"
 CATEGORY="x-window"
 SHORT_DESC="C++ bindings for GLib"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://developer.gnome.org/glibmm/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/glibmm.html"
@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="glib-dev libsigc++-dev"
-SPLIT="libgiomm glibmm-dev"
+SPLIT="libgiomm $PACKAGE-dev"
 
 compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|glibmm-$VERSION|" docs/Makefile.in
@@ -39,7 +39,6 @@ genpkg_rules() {
 			copy @dev
 			DEPENDS="glibmm libgiomm \
 			glib-dev libsigc++-dev   perl"
-			PROVIDE="libgiomm-dev" # single dev package now
 			;;
 	esac
 }

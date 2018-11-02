@@ -3,26 +3,24 @@
 PACKAGE="expedite"
 VERSION="1.7.8"
 CATEGORY="graphics"
-SHORT_DESC="Performance and correctness test suite for Evas."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Performance and correctness test suite for Evas"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://www.enlightenment.org/"
 WGET_URL="http://download.enlightenment.org/releases//$TARBALL"
 TAGS="e enlightenment"
 
-DEPENDS="evas python"
 BUILD_DEPENDS="evas-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure $CONFIGURE_ARGS && make $MAKEFLAGS && make install
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make $MAKEFLAGS &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/usr $fs
+	DEPENDS="evas python"
 }

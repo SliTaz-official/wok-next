@@ -1,32 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gocr"
 VERSION="0.50"
 CATEGORY="office"
-SHORT_DESC="Optical Character Recognition program."
+SHORT_DESC="Optical Character Recognition program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://jocr.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www-e.uni-magdeburg.de/jschulen/ocr/$TARBALL"
 
-DEPENDS="libpng16"
+compile_rules() {
+	sed -i 's|pnmtopng|pnm2png|' src/pnm.c
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i 's/pnmtopng/pnm2png/' src/pnm.c
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/bin
-	cp -a $install/bin/gocr $fs/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="libpng16"
 }
-

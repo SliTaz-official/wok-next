@@ -7,18 +7,16 @@ SHORT_DESC="Hides the mouse cursor in X after a period of inactivity"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="PublicDomain"
 WEB_SITE="https://packages.debian.org/sid/unclutter"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://http.debian.net/debian/pool/main/u/unclutter/unclutter_8.orig.tar.gz"
 PATCH_URL="http://http.debian.net/debian/pool/main/u/unclutter/unclutter_8-20.debian.tar.gz"
 PATCH="$(basename $PATCH_URL)"
 EXTRA_SOURCE_FILES="$PATCH"
 
-DEPENDS="xorg-libX11 xorg-libxcb xorg-libXau xorg-libXdmcp"
 BUILD_DEPENDS="xorg-xorgproto xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	if [ ! -f "$SRC/$PATCH)" ]; then
 		busybox wget -O "$SRC/$PATCH" "$PATCH_URL"
 	fi
@@ -30,14 +28,14 @@ compile_rules()
 		patch -p1 -i $src/patch/debian/patches/$patchfile
 	done < $src/patch/debian/patches/series
 
-	make && make install
+	make &&
+	make install || return 1
+
 	mkdir -p $install/usr/share/man/man1
 	install -m0644 $src/unclutter.man $install/usr/share/man/man1/unclutter.1
-	gzip -9 $install/usr/share/man/man1/unclutter.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="xorg-libX11 xorg-libxcb xorg-libXau xorg-libXdmcp"
 }

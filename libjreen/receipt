@@ -12,16 +12,19 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://qutim.org/dwnl/44/$TARBALL"
 
 BUILD_DEPENDS="Qt4-dev qca-dev libidn-dev cmake qmake zlib-dev"
-SPLIT="libjreen libjreen-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	sed -i	-e 's/ moc_options /&moc_target /' \
+	sed \
+		-e 's/ moc_options /&moc_target /' \
 		-e 's/\(QT4_CREATE_MOC_COMMAND.*\))/\1 "${moc_target}")/' \
-			cmake/jreenMacros.cmake
+		-i cmake/jreenMacros.cmake
 	mkdir build
 	cd    build
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr &&
-	make DESTDIR=$DESTDIR install
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

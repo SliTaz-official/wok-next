@@ -4,7 +4,7 @@ PACKAGE="mupdf"
 VERSION="1.13.0"
 CATEGORY="x-window"
 SHORT_DESC="MuPDF document viewer"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="AGPL3"
 WEB_SITE="https://mupdf.com/"
 
@@ -13,7 +13,7 @@ WGET_URL="https://mupdf.com/downloads/$TARBALL"
 
 BUILD_DEPENDS="freetype-dev libjpeg-turbo-dev jbig2dec-dev openjpeg2-dev \
 freeglut-dev mesa-dev glu-dev curl-dev"
-SPLIT="mupdf mupdf-gl mupdf-tools mupdf-dev"
+SPLIT="$PACKAGE-gl $PACKAGE-tools $PACKAGE-dev"
 
 compile_rules() {
 	# use system wide libraries instead of included ones; leave mujs
@@ -24,25 +24,8 @@ compile_rules() {
 	# fix includes for jbig2dec
 	sed -i '/^JBIG2DEC_CFLAGS :=/s|$| -I./include/mupdf|' Makethird
 
-	case "$ARCH" in
-		arm*)
-			ARCH_ARGS='OS="slitaz-arm"'
-			unset CC CFLAGS
-			make generate
-			cat >> Makerules <<EOT
-ifeq "\$(OS)" "slitaz-arm"
-SYS_FREETYPE_INC = -I/cross/$ARCH/sysroot/usr/include
-CC = ${HOST_SYSTEM}-gcc
-LD = ${HOST_SYSTEM}-ld
-AR = ${HOST_SYSTEM}-ar
-CFLAGS += -I/cross/$ARCH/sysroot/usr/include -O2 -march=armv6 -ftree-vectorize -ffast-math -fsingle-precision-constant
-CROSSCOMPILE=yes
-endif
-EOT
-			;;
-	esac
-	make $ARCH_ARGS build=small libs apps extra &&
-	make $ARCH_ARGS build=small prefix=/usr install || return 1
+	make build=small libs apps extra &&
+	make build=small prefix=/usr install || return 1
 
 	# install tools
 	cd $src/build/small

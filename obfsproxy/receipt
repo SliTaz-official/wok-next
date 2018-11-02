@@ -4,27 +4,25 @@ PACKAGE="obfsproxy"
 # git log --pretty=format:'' | wc -l
 VERSION="280"
 CATEGORY="network"
-SHORT_DESC="A simple obfuscating proxy from the Tor project."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="A simple obfuscating proxy from the Tor project"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.torproject.org/"
-WGET_URL="git|http://git.torproject.org/obfsproxy.git "
+WEB_SITE="https://www.torproject.org/"
 
-DEPENDS="libevent openssl"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="git|http://git.torproject.org/obfsproxy.git"
+
 BUILD_DEPENDS="git wget libevent-dev openssl-dev autoconf automake"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./autogen.sh && ./configure $CONFUGURE_ARGS &&
-	make && make install 
+compile_rules() {
+	./autogen.sh &&
+	./configure $CONFUGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
+	DEPENDS="libevent openssl"
 }

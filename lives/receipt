@@ -4,7 +4,7 @@ PACKAGE="lives"
 VERSION="2.8.6"
 CATEGORY="multimedia"
 SHORT_DESC="Simple to use, yet powerful video editor and VJ tool"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://lives.sourceforge.net/"
 
@@ -12,7 +12,7 @@ TARBALL="LiVES-$VERSION.tar.bz2"
 WGET_URL="http://lives-video.com/releases/$TARBALL"
 
 BUILD_DEPENDS="alsa-lib alsa-lib-dev libpng16-dev gtk2-dev procps expat-dev \
-perl gettext-tools"
+perl gettext"
 
 compile_rules() {
 	./configure \
@@ -20,7 +20,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	# Fix the name (.desktop) file.
 	sed -i 's|^Exec=.*|Exec=lives-exe|' $install/usr/share/applications/LiVES.desktop

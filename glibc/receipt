@@ -4,7 +4,7 @@ PACKAGE="glibc"
 VERSION="2.26"
 CATEGORY="meta"
 SHORT_DESC="The GNU C libraries"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/libc/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/glibc.html"
@@ -12,25 +12,14 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/glibc.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="linux-api-headers autoconf bash gawk gettext bison texinfo"
+BUILD_DEPENDS="linux-api-headers autoconf bash gawk gettext-dev bison texinfo"
 # slitaz-i18n should present in wok
-SPLIT="glibc-base glibc-locale nscd glibc-dev"
+SPLIT="$PACKAGE-base $PACKAGE-locale nscd $PACKAGE-dev"
 
 # Locales include to glibc-base package by default, other locales are in: locale-** and glibc-locale
 DEFAULT_LOCALE="en_US en_GB"
 
-# Handle multiarch compilation.
-case "$ARCH" in
-	arm*) VERSION="2.13";;
-esac
-
-# Handle multiarch installation.
-case "$SLITAZ_ARCH" in
-	arm*) VERSION="2.13";;
-esac
-
-
-# Rules to compile & install the temporary toolchain.
+# Compile & install the temporary toolchain.
 cook_tmp_toolchain() {
 	unset CFLAGS CXXFLAGS
 	case $ARCH in
@@ -65,7 +54,6 @@ cook_tmp_toolchain() {
 	unset SPECS
 }
 
-# Rules to configure and make the package.
 compile_rules() {
 	# Glibc needs ld.so.conf in the install destdir.
 	mkdir -p $install/etc
@@ -159,15 +147,6 @@ genpkg_rules() {
 			TAGS="LFS"
 			;;
 		glibc-base)
-			case "$ARCH" in
-				arm*)
-					# Eglibc is cross compiled by cross to have a toolchain so we can
-					# use these files instead of recooking it. ARM use Eglibc
-					echo "Using cross compiled Eglibc..."
-					install="/cross/$ARCH/sysroot"
-					copy libc_nonshared.a libpthread_nonshared.a
-					;;
-			esac
 			copy \
 				ld-*.so*            ld.so*            \
 				libanl-*.so*        libanl.so*        \

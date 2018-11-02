@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="chntpw"
 VERSION="140201"
 CATEGORY="security"
 SHORT_DESC="Offline NT Password and Registry editor"
-MAINTAINER="db_slitaz@m4x.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-TARBALL="$PACKAGE-source-$VERSION.zip"
 WEB_SITE="http://pogostick.net/~pnh/ntpasswd/"
+
+TARBALL="$PACKAGE-source-$VERSION.zip"
 WGET_URL="http://pogostick.net/~pnh/ntpasswd/$TARBALL"
 
-DEPENDS="openssl"
 BUILD_DEPENDS="openssl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	make
+compile_rules() {
+	make || return 1
+
+	install -Dm755 chntpw $install/usr/bin/chntpw
+	install -Dm755 reged  $install/usr/bin/reged
+	install -Dm755 cpnt   $install/usr/bin/cpnt
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	cp -a $src/chntpw $src/reged $src/cpnt $fs/usr/bin
+genpkg_rules() {
+	copy @std
+	DEPENDS="openssl"
 }
-

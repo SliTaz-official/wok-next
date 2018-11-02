@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="jtoolkit"
 VERSION="0.7.8"
 CATEGORY="system-tools"
-SHORT_DESC="Python web application framework built on modpython and Apache."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Python web application framework built on modpython and Apache"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-SOURCE="jToolkit"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WEB_SITE="http://$PACKAGE.sourceforge.net/"
+WEB_SITE="http://jtoolkit.sourceforge.net/"
+
+TARBALL="jToolkit-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="python"
 BUILD_DEPENDS="python-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python jToolkitSetup.py install --root=$DESTDIR
+compile_rules() {
+	python -B jToolkitSetup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python"
 }

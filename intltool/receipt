@@ -4,7 +4,7 @@ PACKAGE="intltool"
 VERSION="0.51.0"
 CATEGORY="development"
 SHORT_DESC="Internationalization tool"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/intltool/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/intltool.html"
@@ -17,13 +17,15 @@ BUILD_DEPENDS="perl perl-xml-parser"
 compile_rules() {
 	sed -i 's:\\\${:\\\$\\{:' intltool-update.in
 
-	./configure $CONFIGURE_ARGS && make && make install
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	cook_pick_docs doc/I18N-HOWTO
 }
 
 genpkg_rules() {
 	copy @std @dev
-	DEPENDS="perl-xml-parser gettext"
+	DEPENDS="perl-xml-parser gettext-dev"
 	TAGS="LFS"
 }

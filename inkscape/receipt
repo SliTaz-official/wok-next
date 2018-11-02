@@ -4,9 +4,9 @@ PACKAGE="inkscape"
 VERSION="0.92.2"
 CATEGORY="graphics"
 SHORT_DESC="Professional quality vector graphics software"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://inkscape.org/en/"
+WEB_SITE="https://inkscape.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/xsoft/inkscape.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
@@ -15,7 +15,7 @@ WGET_URL="https://gitlab.com/inkscape/inkscape/repository/INKSCAPE_${VERSION//./
 BUILD_DEPENDS="cmake gtest pango-dev fontconfig-dev glib-dev gsl-dev \
 gnome-vfs-dev lcms2-dev gc-dev poppler-dev libwpg-dev libvisio-dev libcdr-dev \
 libwpd-dev popt-dev potrace-dev gtkmm-dev gtk2-dev gtkspell-dev boost-dev \
-aspell-dev libxslt-dev imagemagick6-dev gettext dbus-dev"
+aspell-dev libxslt-dev imagemagick6-dev gettext-dev dbus-dev"
 COOKOPTS="!svgz" # don't process svg or they will be broken
 SPLIT="$PACKAGE-examples $PACKAGE-tutorials $PACKAGE"
 
@@ -28,7 +28,8 @@ compile_rules() {
 		-DWITH_DBUS=ON \
 		.. &&
 	make &&
-	make install &&
+	make install || return 1
+
 	rm $install/usr/lib/inkscape/lib*_LIB.a
 
 #		-DCMAKE_BUILD_TYPE=Release \

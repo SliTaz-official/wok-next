@@ -3,27 +3,26 @@
 PACKAGE="ratpoison"
 VERSION="1.4.5"
 CATEGORY="x-window"
-SHORT_DESC="Ratpoison is an extremely light-weightWM using only keyboard."
-MAINTAINER="gokhlayeh@slitaz.org"
+SHORT_DESC="Extremely lightweight WM using only keyboard"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://www.nongnu.org/ratpoison/"
-WGET_URL="http://savannah.nongnu.org/download/$PACKAGE/$TARBALL"
-TAGS="window-manager"
 
-DEPENDS="microperl xorg-libXtst xorg-libXinerama"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://savannah.nongnu.org/download/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="xorg-libXtst-dev xorg-libXinerama-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure && make CFLAGS="$CFLAGS -DHAVE_GETLINE" && make install
+compile_rules() {
+	./configure &&
+	make CFLAGS="$CFLAGS -DHAVE_GETLINE" &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/ratpoison $fs/usr/share
+	DEPENDS="microperl xorg-libXtst xorg-libXinerama"
+	TAGS="window-manager"
 }

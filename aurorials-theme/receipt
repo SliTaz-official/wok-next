@@ -6,17 +6,14 @@ CATEGORY="customization"
 SHORT_DESC="Aurorials theme for GTK2, Openbox, SLiM, and wallparer"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://holkfoor.deviantart.com/art/Aurorials-pack-themes-382752941"
+WEB_SITE="https://www.deviantart.com/holkfoor/art/Aurorials-pack-themes-382752941"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://dl.dropboxusercontent.com/s/urt40kxaladwpeu/Aurorials_GTK2_Openbox_Slim_Wallpaper.tar.bz2"
-TAGS="holkfoor openbox slim wallpaper"
 
-DEPENDS="gtk2-engine-murrine openbox slim"
 BUILD_DEPENDS="imagemagick"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	A=Aurorials
 	s=$install/usr/share/slim/themes
 	t=$install/usr/share/themes
@@ -40,14 +37,13 @@ compile_rules()
 	ln -s ../slim/themes/$A/background.jpg $i/$A.jpg
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="gtk2-engine-murrine openbox slim"
+	TAGS="holkfoor openbox slim wallpaper"
 }
 
-post_install()
-{
+post_install() {
 	# Set GTK+ Theme
 	for i in $1/etc/xdg/lxsession/*/desktop.conf \
 		$1/home/*/.config/lxsession/*/desktop.conf; do

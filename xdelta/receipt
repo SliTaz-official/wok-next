@@ -1,31 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xdelta"
 VERSION="3.1.0"
 CATEGORY="system-tools"
-SHORT_DESC="Binary diff, VCDIFF/RFC 3284 delta compression."
+SHORT_DESC="Binary diff, VCDIFF/RFC 3284 delta compression"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE$VERSION.tar.gz"
 WEB_SITE="http://xdelta.org/"
+
+TARBALL="$PACKAGE$VERSION.tar.gz"
 WGET_URL="https://github.com/jmacd/xdelta/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="automake autoconf libtool"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/xdelta3
 	autoreconf -fi
-	./configure --prefix=/usr \
+	./configure \
+		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
 }

@@ -3,26 +3,25 @@
 PACKAGE="redshift"
 VERSION="1.7"
 CATEGORY="misc"
-SHORT_DESC="Color temperature adjustement."
+SHORT_DESC="Color temperature adjustement"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://launchpad.net/redshift/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://launchpad.net/$PACKAGE/trunk/$VERSION/+download/$TARBALL"
 
-DEPENDS="python"
-BUILD_DEPENDS="wget python xorg-libXrandr-dev"
+BUILD_DEPENDS="python xorg-libXrandr-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr \
-		$CONFIGURE_ARGS && \
-	make && make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="python"
 }

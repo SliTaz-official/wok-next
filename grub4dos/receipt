@@ -12,16 +12,20 @@ TARBALL="$PACKAGE-$VERSION-src.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$PACKAGE-$VERSION-src.zip"
 
 BUILD_DEPENDS="lzma gcc3"
-SPLIT="grub4dos-linux"
+SPLIT="$PACKAGE-linux"
 
 compile_rules() {
 	sed -i 's/\[ .grub-probe.*\]/mount | grep $grubdir | grep -q xfs/' \
 		util/grub-install.in
-	sh ./configure CC=gcc-3 CFLAGS="-march=i486  -Os -pipe" \
+
+	sh ./configure \
+		CC=gcc-3 \
+		CFLAGS="-march=i486  -Os -pipe" \
 		--enable-preset-menu=$stuff/menu.lst \
 		--without-curses \
-	$CONFIGURE_ARGS &&
-	make && make install
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
 genpkg_rules() {

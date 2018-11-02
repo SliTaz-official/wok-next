@@ -1,25 +1,21 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="seamonkey"
 VERSION="2.7.2"
 CATEGORY="network"
-SHORT_DESC="Seamonkey suite (browser, mail, news reader)."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Seamonkey suite (browser, mail, news reader)"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL MPL"
-TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
 WEB_SITE="http://www.seamonkey-project.org/"
-WGET_URL="ftp://ftp.mozilla.org/pub/mozilla.org/seamonkey/releases/$VERSION/source/$TARBALL"
-TAGS="web-browser"
 
-DEPENDS="gtk2 glib jpeg xorg-libX11 libIDL alsa-lib xorg-libXt curl libnotify \
-libevent libvpx"
+TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
+WGET_URL="ftp://ftp.mozilla.org/pub/mozilla.org/seamonkey/releases/$VERSION/source/$TARBALL"
+
 BUILD_DEPENDS="gtk2-dev zip libIDL coreutils xorg-libXft-dev libevent-dev \
 libvpx-dev perl alsa-lib alsa-lib-dev findutils python python-dev \
 wireless_tools-dev mesa-dev yasm libnotify-dev curl-dev hunspell-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cp -a $stuff/seamonkey.mozconfig $src/.mozconfig
 	sed -i -e 's/USE_INPUT_PARTITION/USE_INPUT_FRAGMENTS/' \
 		-e 's/0.9.7/1.0.0/' mozilla/configure.in mozilla/configure
@@ -33,12 +29,10 @@ EOF
 	export LDFLAGS="$LDFLAGS -Wl,-rpath,/usr/lib/seamonkey"
 	./configure $CONFIGURE_ARGS 2>&1 | grep -v 'cthandlers/calendar/Makefile.in' &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/lib $fs/etc
 	cp -a $install/usr/bin/seamonkey $fs/usr/bin
 	cp -a $install/usr/lib/seamonkey $fs/usr/lib
@@ -57,4 +51,7 @@ genpkg_rules()
 
 	# Create default user preference file
 	cp $stuff/prefs.js $fs/etc/seamonkey/profile/prefs.js
+	DEPENDS="gtk2 glib jpeg xorg-libX11 libIDL alsa-lib xorg-libXt curl \
+	libnotify libevent libvpx"
+	TAGS="web-browser"
 }

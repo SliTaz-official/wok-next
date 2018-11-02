@@ -13,7 +13,7 @@ TARBALL="openbts-$OBVERSION.zip"
 WGET_URL="https://github.com/RangeNetworks/dev/releases/download/v$OBVERSION/v$OBVERSION-source.zip"
 
 BUILD_DEPENDS="xmlto asciidoc"
-SPLIT="zeromq-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	tar xzf range-libzmq_$VERSION.tar.gz
@@ -21,9 +21,9 @@ compile_rules() {
 
 	./configure -prefix=/usr $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 
-	cp debian/zmq.hpp $DESTDIR/usr/include
+	cp debian/zmq.hpp $install/usr/include
 }
 
 genpkg_rules() {

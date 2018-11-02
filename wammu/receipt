@@ -1,30 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="wammu"
 VERSION="0.33"
 CATEGORY="system-tools"
-SHORT_DESC="Wammu is mobile phone manage."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Mobile phone manager"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://wammu.eu/wammu/"
-WGET_URL="$SF_MIRROR/gammu/$PACKAGE/$VERSION/$TARBALL"
 
-DEPENDS="gammu python python-pybluez wxpython"
-BUILD_DEPENDS="$DEPENDS gammu-dev python-dev wxpython-dev"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/gammu/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py build &&
-	python setup.py install --root=$DESTDIR
+BUILD_DEPENDS="gammu-dev python-dev python-pybluez wxpython-dev"
+
+compile_rules() {
+	python -B setup.py build &&
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/lib $fs/usr
 	cp -a $install/usr/share/Wammu $fs/usr/share
+	DEPENDS="gammu python python-pybluez wxpython"
 }

@@ -4,9 +4,9 @@ PACKAGE="abiword"
 VERSION="3.0.2"
 CATEGORY="office"
 SHORT_DESC="Light and speed word processing application"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.abisource.com/"
+WEB_SITE="https://www.abisource.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.abisource.com/downloads/abiword/$VERSION/source/$TARBALL"
@@ -16,9 +16,9 @@ ru sl sv tr uk vi zh"
 BUILD_DEPENDS="gtk3-dev python-pygobject-dev gobject-introspection-dev \
 fribidi-dev libglade-dev popt-dev libxml2-dev libart_lgpl-dev \
 libgsf-dev enchant-dev wv-dev libcroco-dev boost-dev librsvg-dev gtk-doc \
-bison goffice-dev  intltool gettext xorg-dev zlib-dev libjpeg-turbo-dev"
+bison goffice-dev intltool gettext-dev xorg-dev zlib-dev libjpeg-turbo-dev"
 # libgnomeprint-dev libgnomeprintui-dev libgnomecanvas-dev
-SPLIT="abiword-plugins abiword abiword-dev"
+SPLIT="$PACKAGE-plugins $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's|glib/gmacros.h|glib.h|' goffice-bits/goffice/app/goffice-app.h
@@ -34,10 +34,10 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	cd plugins
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

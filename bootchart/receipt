@@ -3,8 +3,8 @@
 PACKAGE="bootchart"
 VERSION="0.9"
 CATEGORY="misc"
-SHORT_DESC="boot process performance analyzer (add init=/sbin/bootchartd to boot options)"
-MAINTAINER="jozee@slitaz.org"
+SHORT_DESC="Boot process performance analyzer (add init=/sbin/bootchartd to boot options)"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.bootchart.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
@@ -13,10 +13,8 @@ TAGS="boot performance profile analysis"
 
 SUGGESTED="pybootchartgui"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/sbin $fs/etc 
+genpkg_rules() {
+	mkdir -p $fs/sbin $fs/etc
 	cp -a $src/script/bootchartd $fs/sbin/bootchartd
 	cp -a $src/script/bootchartd.conf $fs/etc
 	sed -i "s/SAMPLE_PERIOD=0.2/SAMPLE_PERIOD=1/" $fs/etc/bootchartd.conf
@@ -25,8 +23,7 @@ genpkg_rules()
 	chown -R root:root $fs
 }
 
-post_install()
-{
+post_install() {
 	KERNEL_VERSION=$(uname -r | cut -d- -f1)
 	MENU="$1/boot/grub/menu.lst"
 	if [ -f "$MENU" ]; then

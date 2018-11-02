@@ -14,7 +14,8 @@ WGET_URL="https://launchpad.net/ubuntu/+archive/primary/+files/$TARBALL"
 BUILD_DEPENDS="python symlinks"
 
 compile_rules() {
-	python setup.py install --prefix=/usr --root="$install" --optimize=1
+	python -B setup.py install --prefix=/usr --root="$install" || return 1
+
 	rm -rf "$install/usr/lib"
 	. $stuff/symdup.sh
 	cp $stuff/index.theme $install/usr/share/icons/Human

@@ -3,20 +3,19 @@
 PACKAGE="linux-libre-api-headers"
 VERSION="2.6.37-gnu"
 CATEGORY="development"
-SHORT_DESC="Kernel headers sanitized for use in userspace."
-MAINTAINER="gokhlayeh@slitaz.org"
+SHORT_DESC="Kernel headers sanitized for use in userspace"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-PROVIDE="linux-api-headers"
+WEB_SITE="http://www.fsfla.org/svnwiki/selibre/linux-libre/"
+
 SOURCE="linux-libre"
 TARBALL="$SOURCE-$VERSION.tar.bz2"
-WEB_SITE="http://www.fsfla.org/svnwiki/selibre/linux-libre/"
 WGET_URL="http://www.fsfla.org/svnwiki/selibre/linux-libre/download/releases/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="perl"
 
-# Rules to compile & install the temporary toolchain.
-cook_tmp_toolchain()
-{
+# Compile & install the temporary toolchain.
+cook_tmp_toolchain() {
 	cd $src
 	make mrproper &&
 	make headers_check &&
@@ -24,26 +23,20 @@ cook_tmp_toolchain()
 	cp -r dest/include/* /tools/include
 }
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	make mrproper &&
 	make headers_check &&
-	make INSTALL_HDR_PATH=$DESTDIR/usr headers_install
+	make INSTALL_HDR_PATH=$install/usr headers_install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/include $fs/usr
-	rm -f $(find ${fs} -name .install -or -name ..install.cmd)
+	rm -f $(find $fs -name .install -or -name ..install.cmd)
+	PROVIDE="linux-api-headers"
 }
 
-# Post install commands for Tazpkg.
-post_install()
-{
+post_install() {
 	# Removed old linux-libre-headers
 	[ ! -d "$1/var/lib/tazpkg/installed/linux-libre-headers" ] ||
 	rm -rf "$1/var/lib/tazpkg/installed/linux-libre-headers"

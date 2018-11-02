@@ -4,16 +4,16 @@ PACKAGE="libiodbc"
 VERSION="3.52.12"
 CATEGORY="system-tools"
 SHORT_DESC="Independent Open DataBase Connectivity"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.iodbc.org/"
+WEB_SITE="http://www.iodbc.org/dataspace/doc/iodbc/wiki/iodbcWiki/WelcomeVisitors"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libiodbc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/iodbc/$TARBALL"
 
 BUILD_DEPENDS="gtk2-dev chrpath"
-SPLIT="libiodbc-gui libiodbc libiodbc-dev"
+SPLIT="$PACKAGE-gui $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./configure \
@@ -32,7 +32,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		libiodbc-gui)
+		*-gui)
 			copy iodbcadm-gtk libdrvproxy.so* libiodbcadm.so*
 			DEPENDS="glib gtk2 libiodbc"
 			;;

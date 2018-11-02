@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="perl-geo-ipfree"
 VERSION="1.151940"
 CATEGORY="perl"
 SHORT_DESC="Geo::IPfree - Look up the country of an IPv4 address"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/Geo-IPfree"
 REPOLOGY="perl:geo-ipfree"
@@ -12,20 +12,17 @@ REPOLOGY="perl:geo-ipfree"
 TARBALL="Geo-IPfree-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/B/BR/BRICAS/$TARBALL"
 
-DEPENDS="perl"
 BUILD_DEPENDS="perl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl"
 }

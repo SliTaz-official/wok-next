@@ -3,33 +3,32 @@
 PACKAGE="miniupnpd"
 VERSION="2.0.20171212"
 CATEGORY="network"
-SHORT_DESC="UPnP Internet Gateway Device (IGD) specifications server."
+SHORT_DESC="UPnP Internet Gateway Device (IGD) specifications server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://miniupnp.tuxfamily.org/"
-WGET_URL="$WEB_SITE/files/$TARBALL"
-TAGS="upnp"
 
-DEPENDS="iptables openssl"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/files/$TARBALL"
+
 BUILD_DEPENDS="iptables-dev libnfnetlink-dev openssl-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir -p $DESTDIR/usr/share/man/man8
-	sed -i 's,^EXTIF=eth0,EXTIF=$(route -n | awk ''/^0.0.0.0/ { print $8 }''),' netfilter/iptables_init.sh
+compile_rules() {
+	mkdir -p $install/usr/share/man/man8
+	sed -i 's,^EXTIF=eth0,EXTIF=$(route -n | awk ''/^0.0.0.0/ { print $8 }''),' \
+		netfilter/iptables_init.sh
+
 	make -f Makefile.linux config.h
 	KERNEL_VERSION=$(grep -s ^VERSION= $WOK/linux/receipt | cut -d '"' -f 2)
 	sed -i "s,OS_VERSION.*,OS_VERSION \"Linux/$KERNEL_VERSION\"," config.h
 	make CFLAGS="-DIPTABLES_143" -f Makefile.linux &&
-	make -f Makefile.linux DESTDIR=$DESTDIR install
+	make -f Makefile.linux DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/etc $fs
 	cp -a $install/usr/sbin $fs/usr
+	DEPENDS="iptables openssl"
+	TAGS="upnp"
 }

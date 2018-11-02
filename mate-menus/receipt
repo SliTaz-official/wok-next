@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/mate-menus/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="mate-common gobject-introspection-dev python-dev"
-SPLIT="mate-menus-python mate-menus mate-menus-dev"
+SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	./autogen.sh \
@@ -25,7 +25,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		mate-menus-python)
+		*-python)
 			copy python*/*.so *.py
 			DEPENDS="glib mate-menus python"
 			CAT="python|Python bindings"

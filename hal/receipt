@@ -4,18 +4,16 @@ PACKAGE="hal"
 VERSION="0.5.14"
 CATEGORY="x-window"
 SHORT_DESC="Hardware Abstraction Layer"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.freedesktop.org/wiki/Software/hal"
+WEB_SITE="https://www.freedesktop.org/wiki/Software/hal/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://hal.freedesktop.org/releases/$TARBALL"
 
 BUILD_DEPENDS="dbus-dev dbus-glib dbus-glib-dev eudev-dev pciutils \
 util-linux-blkid-dev expat-dev util-linux-uuid-dev glib-dev v4l-utils-dev"
-SPLIT="hal-scripts hal-extra hal hal-dev"
-
-CROSS="error: cannot check for file existence when cross compiling"
+SPLIT="$PACKAGE-scripts $PACKAGE-extra $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's|linux/videodev.h|libv4l1-videodev.h|' \
@@ -41,9 +39,14 @@ compile_rules() {
 	chmod -R +x $install$libexecdir/scripts/*
 
 	# init script
-	cp -a $stuff/etc $install
+	install -Dm755 $stuff/hald $install/etc/init.d/hald
+	# and its conf
+	install -Dm644 $stuff/hald.conf $install/etc/daemons.conf.d/hald.conf
+
 	# policy for ntfs-3g
-	cp -a $stuff/policy $install/usr/share/hal/fdi/
+	install -Dm644 $stuff/30-ntfs-write.fdi \
+		$install/usr/share/hal/fdi/policy/10osvendor/30-ntfs-write.fdi
+
 	# change bash to sh in hal scripts; use full-path
 	sed -i \
 		-e 's:/bin/bash:/bin/sh:' \

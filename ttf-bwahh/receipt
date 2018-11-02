@@ -3,33 +3,25 @@
 PACKAGE="ttf-bwahh"
 VERSION="0.1"
 CATEGORY="fonts"
-SHORT_DESC="Bwahh is public domain and futuristic display truetype font."
-MAINTAINER="hackdorte@sapo.pt"
+SHORT_DESC="Futuristic display truetype font"
+MAINTAINER="devel@slitaz.org"
 LICENSE="PublicDomain"
-SOURCE="bwahh"
 WEB_SITE="http://people.slitaz.org/~leonardolaporte"
-STUFF_DIR="lab.slitaz/5.0/pkg/font/publicdomain"
+
+SOURCE="bwahh"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}/$STUFF_DIR/$TARBALL"
-TAGS="font ttf"
+WGET_URL="${WEB_SITE}/lab.slitaz/5.0/pkg/font/publicdomain/$TARBALL"
 
-DEPENDS=""
-BUILD_DEPENDS="wget"
-
-# Rules to configure and make the package.
-compile_rules()
-{
-  mkdir -p $install/usr/share/fonts/pd/$SOURCE
-  cp -a $src/* $install/usr/share/fonts/pd/$SOURCE
+compile_rules() {
+	mkdir -p $install/usr/share/fonts/pd/$SOURCE
+	cp -a $src/* $install/usr/share/fonts/pd/$SOURCE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-  cp -a $install/* $fs
+genpkg_rules() {
+	cp -a $install/* $fs
+	TAGS="font ttf"
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" /usr/bin/fc-cache
 }

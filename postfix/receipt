@@ -3,7 +3,7 @@
 PACKAGE="postfix"
 VERSION="2.10.2"
 CATEGORY="network"
-SHORT_DESC="fast, easy to administer, and secure mailer"
+SHORT_DESC="Fast, easy to administer, and secure mailer"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="other"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -12,11 +12,9 @@ WGET_URL="ftp://ftp.cs.tu-berlin.de/pub/net/mail/postfix/official/$TARBALL"
 
 BUILD_DEPENDS="db-dev openldap-dev pcre-dev openssl-dev perl mysql-dev \
 cyrus-sasl-dev libsasl"
-SPLIT="postfix postfix-mysql"
+SPLIT="$PACKAGE-mysql"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	make makefiles \
 	CCARGS='-DHAS_DB -DHAS_LDAP \
 		-DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I /usr/include/sasl \
@@ -26,74 +24,69 @@ compile_rules()
 		-DDEF_MANPAGE_DIR=\"/usr/share/man\"' \
 	AUXLIBS="-ldb -lldap -llber -lsasl2 -lssl -lcrypto -lpthread \
 		-L/usr/lib/mysql -lmysqlclient -lz -lm " &&
-	make
+	make &&
 	install_root=$WOK/$PACKAGE/install \
 		sh postfix-install -non-interactive
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	postfix)
-		TAZPANEL_DAEMON="man|edit::/etc/postfix/main.cf|options|web::$WEB_SITE"
-		CONFIG_FILES="/etc/postfix"
-		PROVIDE="sendmail"
-		DEPENDS="libdb libldap pcre openssl slitaz-base-files libsasl \
+		postfix)
+			TAZPANEL_DAEMON="man|edit::/etc/postfix/main.cf|options|web::$WEB_SITE"
+			CONFIG_FILES="/etc/postfix"
+			PROVIDE="sendmail"
+			DEPENDS="libdb libldap pcre openssl slitaz-base-files libsasl \
 			libkrb5 libcomerr3 libmysqlclient"
-		mkdir -p $fs/usr/share/licenses/
-		cp -a $install/usr/lib $fs/usr
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/sbin $fs/usr
-		cp -a $install/etc $fs
+			mkdir -p $fs/usr/share/licenses/
+			cp -a $install/usr/lib $fs/usr
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/sbin $fs/usr
+			cp -a $install/etc $fs
 
-		awk 'BEGIN {n=0} /MUST/ {n++} /ALIASES/ {n++} { if (n==1) print }' \
+			awk 'BEGIN {n=0} /MUST/ {n++} /ALIASES/ {n++} { if (n==1) print }' \
 			< $install/etc/postfix/aliases > $fs/etc/postfix/aliases
-		while read keyword data; do
-			grep -q ^$keyword $fs/etc/postfix/main.cf && continue
-			mv $fs/etc/postfix/main.cf $fs/etc/postfix/main.cf.$$
-			awk "BEGIN { scan=1 } /^#$keyword / { if (scan) { print \"$keyword $data\" ; scan=0 } } { print }" \
+			while read keyword data; do
+				grep -q ^$keyword $fs/etc/postfix/main.cf && continue
+				mv $fs/etc/postfix/main.cf $fs/etc/postfix/main.cf.$$
+				awk "BEGIN { scan=1 } /^#$keyword / { if (scan) { print \"$keyword $data\"; scan=0 } } { print }" \
 				< $fs/etc/postfix/main.cf.$$ > $fs/etc/postfix/main.cf
-			rm -f $fs/etc/postfix/main.cf.$$
-		done << EOF
+				rm -f $fs/etc/postfix/main.cf.$$
+			done << EOF
 mydomain = localdomain
 myorigin = localhost
 mydestination = localhost, localhost.\$mydomain
 mynetworks = 127.0.0.0/8
 alias_maps = hash:/etc/postfix/aliases
 EOF
-		cat >> $fs/etc/postfix/main.cf <<EOF
+			cat >> $fs/etc/postfix/main.cf <<EOF
 
 # Unsafe, see CVE-2014-3566 POODLE
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
 EOF
-		cp -a $stuff/etc $fs
-		cp -a $install/var $fs
-		mv $fs/etc/postfix/TLS_LICENSE $fs/usr/share/licenses/POSTFIX_TLS_LICENSE
-		mv $fs/etc/postfix/LICENSE $fs/usr/share/licenses/POSTFIX_LICENSE
-		cp -a $stuff/etc/init.d $fs/etc
-		rm -f $fs/usr/lib/postfix/post* $fs/usr/lib/postfix/*.cf
-		strip -s $fs/usr/lib/postfix/*
-		;;
-	postfix-mysql)
-		CAT="network|MySQL support for postfix"
-		DEPENDS="postfix libmysqlclient"
-		mkdir -p $fs/usr/lib/postfix/
-		cp -a $src/src/global/dict_mysql.o $fs/usr/lib/postfix
-		;;
+			cp -a $stuff/etc $fs
+			cp -a $install/var $fs
+			mv $fs/etc/postfix/TLS_LICENSE $fs/usr/share/licenses/POSTFIX_TLS_LICENSE
+			mv $fs/etc/postfix/LICENSE $fs/usr/share/licenses/POSTFIX_LICENSE
+			cp -a $stuff/etc/init.d $fs/etc
+			rm -f $fs/usr/lib/postfix/post* $fs/usr/lib/postfix/*.cf
+			strip -s $fs/usr/lib/postfix/*
+			;;
+		*-mysql)
+			CAT="network|postfix support"
+			DEPENDS="postfix libmysqlclient"
+			mkdir -p $fs/usr/lib/postfix/
+			cp -a $src/src/global/dict_mysql.o $fs/usr/lib/postfix
+			;;
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_postfix()
-{
-
+post_install_postfix() {
 	local user
 	local group
-	
+
 	user=postfix
 	group=postdrop
-	
+
 	if ! grep -q $user "$1/etc/passwd"; then
 		echo -n "Adding user/group $user..."
 		chroot "$1/" addgroup -S $user
@@ -104,42 +97,42 @@ post_install_postfix()
 
 	# addgroup postdrop if needed
 	if ! grep -q postdrop "$1/etc/group"; then
-		echo -n "Adding group ${group}..."
+		echo -n "Adding group $group..."
 		chroot "$1/" addgroup -S $group
 		status
 	fi
 
-	chroot "$1/" chown ${user} /var/spool/postfix/* /var/lib/postfix
-	chroot "$1/" chgrp ${group} /var/spool/postfix/maildrop \
+	chroot "$1/" chown $user /var/spool/postfix/* /var/lib/postfix
+	chroot "$1/" chgrp $group /var/spool/postfix/maildrop \
 		/var/spool/postfix/public /usr/sbin/postdrop /usr/sbin/postqueue
 	chmod 2755 "$1/usr/sbin/postdrop" "$1/usr/sbin/postqueue"
 	chmod 2710 "$1/var/spool/postfix/public"
 	chmod 1730 "$1/var/spool/postfix/maildrop"
 	chroot "$1/" postalias /etc/postfix/aliases
 	cat <<EOF
-	
-----
-Warning: you still need to edit myorigin/mydestination/mynetworks
-parameter settings in /etc/postfix/main.cf.
-See also http://www.postfix.org/STANDARD_CONFIGURATION_README.html
 
-To start $PACKAGE server you can run :
-
-    /etc/init.d/$PACKAGE start
-
-Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf
-----
+	.-----------------------------------------------------------.
+	| WARNING:                                                  |
+	| you still need to edit myorigin/mydestination/mynetworks  |
+	| parameter settings in /etc/postfix/main.cf.               |
+	| See also:                                                 |
+	| http://www.postfix.org/STANDARD_CONFIGURATION_README.html |
+	|-----------------------------------------------------------|
+	| To start postfix server you can run:                      |
+	|                                                           |
+	|    /etc/init.d/$PACKAGE start                             |
+	|                                                           |
+	| or add postfix to RUN_DAEMONS in /etc/rcS.conf            |
+	'-----------------------------------------------------------'
 EOF
 }
 
 # Overlap busybox
-pre_install_postfix()
-{
+pre_install_postfix() {
 	rm -f "$1/usr/sbin/sendmail"
 }
 
-post_remove_postfix()
-{
+post_remove_postfix() {
 	deluser postfix
 	delgroup postdrop
 	ln -s /bin/busybox /usr/sbin/sendmail

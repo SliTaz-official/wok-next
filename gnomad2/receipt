@@ -1,29 +1,27 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gnomad2"
 VERSION="2.9.4"
 CATEGORY="multimedia"
 SHORT_DESC="GTK+ music manager and swiss army knife for the Creative Labs NOMAD and Zen range"
-MAINTAINER="keupont@no-log.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-DEPENDS="libusb-compat libnjb libid3tag taglib freetype gtk2 glibc dbus-glib hal \
-libmtp"
-BUILD_DEPENDS="intltool libnjb-dev libid3tag-dev taglib-dev libmtp-dev \
-hal-dev libusb-compat-dev gtk2-dev glib-dev"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://gnomad2.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
-	./configure && make && make install
+BUILD_DEPENDS="intltool libnjb-dev libid3tag-dev taglib-dev libmtp-dev \
+hal-dev libusb-compat-dev gtk2-dev glib-dev"
+
+compile_rules() {
+	./configure &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="libusb-compat libnjb libid3tag taglib freetype gtk2 glibc \
+	dbus-glib hal libmtp"
 }

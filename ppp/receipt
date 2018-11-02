@@ -4,7 +4,7 @@ PACKAGE="ppp"
 VERSION="2.4.7"
 CATEGORY="network"
 SHORT_DESC="Implements the Point-to-Point Protocol (PPP)"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD GPL"
 WEB_SITE="https://ppp.samba.org/"
 
@@ -12,23 +12,19 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/paulusmack/ppp/tarball/ppp-$VERSION"
 
 BUILD_DEPENDS="pam-dev"
-SPLIT="ppp ppp-pam ppp-dev"
+SPLIT="$PACKAGE-pam $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) export PATH=/cross/arm/tools/arm-slitaz-linux-gnueabi/bin:$PATH;;
-	esac
-
 	cp -a $src $src-pam
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR/usr install || return 1
+	make DESTDIR=$install/usr install || return 1
 
 	cd $src-pam
 	sed -i 's/#USE_PAM/USE_PAM/' pppd/Makefile.linux
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR-pam/usr install
+	make DESTDIR=$install-pam/usr install
 }
 
 genpkg_rules() {

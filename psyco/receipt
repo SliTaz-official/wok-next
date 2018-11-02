@@ -4,7 +4,7 @@ PACKAGE="psyco"
 VERSION="1.6"
 CATEGORY="system-tools"
 SHORT_DESC="Module which can massively speed up the execution of any Python code"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://psyco.sourceforge.net/"
 HOST_ARCH="i486" # error: Sorry, non-32-bit platforms are not supported at all.
@@ -19,7 +19,8 @@ compile_rules() {
 	sed -i -e 's/JUMP_IF_FALSE\([: )]\)/JUMP_IF_FALSE_OR_POP\1/' \
 		-e 's/JUMP_IF_TRUE\([: )]\)/JUMP_IF_TRUE_OR_POP\1/' \
 		c/Python/pycompiler.c c/mergepoints.c
-	python setup.py install --root=$DESTDIR
+
+	python -B setup.py install --root=$install
 }
 
 genpkg_rules() {

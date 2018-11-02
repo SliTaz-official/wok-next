@@ -4,7 +4,7 @@ PACKAGE="urxvt"
 VERSION="9.22"
 CATEGORY="utilities"
 SHORT_DESC="Terminal emulator with Unicode support for X11"
-MAINTAINER="sygne@ombres.eu"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://software.schmorp.de/pkg/rxvt-unicode.html"
 
@@ -13,7 +13,7 @@ WGET_URL="http://dist.schmorp.de/rxvt-unicode/$TARBALL"
 
 BUILD_DEPENDS="xorg-libX11-dev xorg-libICE-dev gdk-pixbuf-dev \
 startup-notification-dev xorg-libXmu-dev xorg-libXft-dev perl-dev ncurses-extra"
-SPLIT="urxvt-full:full"
+SPLIT="$PACKAGE-full:full"
 
 compile_rules() {
 	case $SET in
@@ -21,7 +21,8 @@ compile_rules() {
 			./configure \
 				--disable-everything \
 				$CONFIGURE_ARGS &&
-			make && make install
+			make &&
+			make install
 			;;
 		full)
 			./configure \
@@ -29,7 +30,8 @@ compile_rules() {
 				--enable-256-color \
 				--with-terminfo=/usr/share/terminfo \
 				$CONFIGURE_ARGS &&
-			make && make install || return 1
+			make &&
+			make install || return 1
 
 			R="$install/usr/share/terminfo"
 			mkdir -p $R

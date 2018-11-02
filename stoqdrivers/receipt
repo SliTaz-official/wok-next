@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="stoqdrivers"
 VERSION="0.9.8.2"
@@ -6,30 +6,20 @@ CATEGORY="development"
 SHORT_DESC="Useful drivers for Stoq and retail systems"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="LGPL2.1"
-SUGGESTED="stoq"
+WEB_SITE="https://www.stoq.com.br/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://www.stoq.com.br"
 WGET_URL="http://download.stoq.com.br/sources/0.9.11/$TARBALL"
 
-DEPENDS="python python-kiwi python-pyserial python-zope.interface"
-BUILD_DEPENDS="python python-dev python-kiwi python-pyserial python-zope.interface \
-gettext-tools"
+BUILD_DEPENDS="python python-dev python-kiwi python-pyserial \
+python-zope.interface gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	LOCALEDIR="$install/usr/share/locale"
-	for file in `find $install | grep 'pyc$'`; do
-		rm $file
-	done
-	mkdir -p $fs/usr/share/locale/pt
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
-	cp -a $LOCALEDIR/pt_BR/LC_MESSAGES $fs/usr/share/locale/pt
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-kiwi python-pyserial python-zope.interface"
+	SUGGESTED="stoq"
 }

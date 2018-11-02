@@ -6,34 +6,33 @@ CATEGORY="multimedia"
 SHORT_DESC="Video player based on ffmpeg & mplayer2"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
+WEB_SITE="http://mpv.io/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://mpv.io"
 WGET_URL="https://github.com/mpv-player/mpv/archive/v$VERSION.tar.gz"
-WAFTOOL="waf-1.8.4"
 EXTRA_SOURCE_FILES="$WAFTOOL"
 
-DEPENDS="xorg-server xorg-libXv xorg-libXinerama xorg-libXScrnSaver util-linux-uuid \
-alsa-lib enca fribidi libass lua ffmpeg"
-BUILD_DEPENDS="xorg-dev xorg-libXv-dev xorg-libXScrnSaver-dev lua-dev ffmpeg-dev \
-enca-dev fribidi-dev libass-dev alsa-lib-dev"
+BUILD_DEPENDS="xorg-dev xorg-libXv-dev xorg-libXScrnSaver-dev lua-dev \
+ffmpeg-dev enca-dev fribidi-dev libass-dev alsa-lib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
+	WAFTOOL="waf-1.8.4"
+
 	[ -s $SRC/$WAFTOOL ] || wget -P $SRC \
 		http://www.freehackers.org/~tnagy/release/$WAFTOOL
 	install -m 755 $SRC/$WAFTOOL waf
+
 	./bootstrap.py
 	./waf configure \
 		--prefix=/usr \
 		--confdir=/etc/mpv
 		# --enable-libmpv-shared
 	./waf build
-	./waf install --destdir=$DESTDIR
+	./waf install --destdir=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
+	DEPENDS="xorg-server xorg-libXv xorg-libXinerama xorg-libXScrnSaver \
+	util-linux-uuid alsa-lib enca fribidi libass lua ffmpeg"
 }

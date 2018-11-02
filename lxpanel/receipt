@@ -5,33 +5,26 @@ COMMIT="25fd48473bebf02dfc1c099ce6ae58bca9b91645"
 VERSION="0.9.3.postgit20180412"
 CATEGORY="x-window"
 SHORT_DESC="LXDE panel"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.lxde.org/en/LXPanel"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://git.lxde.org/gitweb/?p=lxde/lxpanel.git;a=snapshot;h=$COMMIT;sf=txz"
 
-BUILD_DEPENDS_arm="gtk2-dev menu-cache-dev alsa-lib-dev wireless_tools-dev \
-libxml2-dev lxmenu-data"
 BUILD_DEPENDS="automake libtool intltool gtk2-dev menu-cache-dev alsa-lib-dev \
 wireless_tools-dev libxml2-dev lxmenu-data libwnck2-dev libfm-dev \
 keybinder-dev"
-SPLIT="lxpanel-extra lxpanel lxpanel-dev"
+SPLIT="$PACKAGE-extra $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) ARCH_ARGS='--with-plugins="netstatus,volumealsa,cpu,batt,xkb,thermal,cpufreq,monitors"';;
-	esac
-
 	./autogen.sh
 	CFLAGS="$CFLAGS -lgmodule-2.0"
 	./configure \
-		$ARCH_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install || exit 1
+	make install || return 1
 
 	# SliTaz profile
 	cp -r $stuff/slitaz $install/etc/xdg/lxpanel/

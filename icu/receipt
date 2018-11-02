@@ -4,7 +4,7 @@ PACKAGE="icu"
 VERSION="60.2"
 CATEGORY="system-tools"
 SHORT_DESC="International Components for Unicode"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://site.icu-project.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/icu.html"
@@ -19,7 +19,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="svn|http://source.icu-project.org/repos/icu/tags/release-${VERSION//./-}/"
 
 BUILD_DEPENDS="subversion"
-SPLIT="libicu icu icu-dev libicu-full:full icu-full:full icu-full-dev:full"
+SPLIT="libicu $PACKAGE $PACKAGE-dev \
+libicu-full:full $PACKAGE-full:full $PACKAGE-full-dev:full"
 
 compile_rules() {
 #	fix math
@@ -31,7 +32,8 @@ compile_rules() {
 	fi
 
 	./configure $CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

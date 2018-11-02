@@ -3,28 +3,22 @@
 PACKAGE="lutris"
 VERSION="0.3.4"
 CATEGORY="games"
-SHORT_DESC="An open gaming platform for Linux."
+SHORT_DESC="An open gaming platform for Linux"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WEB_SITE="https://lutris.net/"
+
+TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
-DEPENDS="python python-pyxdg python-pygobject2 python-pyyaml libsoup"
 BUILD_DEPENDS="python python-pyxdg"
 
-SUGGESTED="wine scummvm gens-gs mupen64plus dosbox pcsxr-svn"
-# uae mednafen sdlmame snes9x-gtk steam atari800 dolphin-emu frotz hatari
-# jzintv mednafen nulldc o2em openmsx osmose
-
-# Rules to configure and make the package.
-compile_rules()
-{
-	python setup.py install --root=$DESTDIR
+compile_rules() {
+	python -B setup.py install --root=$install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
+	DEPENDS="python python-pyxdg python-pygobject2 python-pyyaml libsoup"
+	SUGGESTED="wine scummvm gens-gs mupen64plus dosbox pcsxr-svn"
 }

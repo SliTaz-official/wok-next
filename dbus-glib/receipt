@@ -4,7 +4,7 @@ PACKAGE="dbus-glib"
 VERSION="0.110"
 CATEGORY="x-window"
 SHORT_DESC="GLib interfaces to the D-Bus API"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/DBusBindings/#dbus-glibobsoleteunmaintained"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/dbus-glib.html"
@@ -12,26 +12,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/dbus-glib.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dbus.freedesktop.org/releases/dbus-glib/$TARBALL"
 
-BUILD_DEPENDS_arm="dbus-dev glib-dev expat-dev"
-BUILD_DEPENDS="dbus-dev glib-dev expat-dev gettext gtk-doc"
-SPLIT="dbus-glib-dev"
+BUILD_DEPENDS="dbus-dev glib-dev expat-dev gettext-dev gtk-doc"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) export ac_cv_have_abstract_sockets=${ac_cv_have_abstract_sockets=yes} ;;
-	esac
-
 	./configure \
 		--disable-static \
 		--disable-bash-completion \
-		$CONFIGURE_ARGS || return 1
-
-	case "$ARCH" in
-		arm)
-			patch -p1 < $stuff/dbus-glib.patch &&
-			patch -p0 < $stuff/dbus.patch ;;
-	esac
-
+		$CONFIGURE_ARGS &&
 	fix libtool
 	make &&
 	make install

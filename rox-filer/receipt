@@ -3,70 +3,65 @@
 PACKAGE="rox-filer"
 VERSION="2.8"
 CATEGORY="system-tools"
-SHORT_DESC="user friendly filer."
-MAINTAINER="sygne@ombres.eu"
+SHORT_DESC="User friendly filer"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://rox.sourceforge.net/desktop/"
-WGET_URL="$SF_MIRROR/rox/$TARBALL"
-TAGS="file-manager"
 
-DEPENDS="gtk2 libglade libxml2 xorg-libXdamage shared-mime-info xorg-libSM"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/rox/$TARBALL"
+
 BUILD_DEPENDS="libglade-dev libxml2-dev gtk2-dev shared-mime-info-dev \
 xorg-libSM-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
 	echo "compile"
 	# If missing dep compile will block on a read.
 	echo -e "\t" | $src/ROX-Filer/AppRun --compile
 	echo "mkdir"
-	mkdir $DESTDIR
-	cp $src/ROX-Filer/ROX-Filer $DESTDIR/rox-filer
-	cp $src/ROX-Filer/.DirIcon $DESTDIR/
+	mkdir $install
+	cp $src/ROX-Filer/ROX-Filer $install/rox-filer
+	cp $src/ROX-Filer/.DirIcon $install/
 
-	mkdir $DESTDIR/Messages
+	mkdir $install/Messages
 	for locale in de es fr it
 	do
-		cp -r $src/ROX-Filer/Messages/$locale $DESTDIR/Messages
+		cp -r $src/ROX-Filer/Messages/$locale $install/Messages
 	done
 		
-	cp -r $src/ROX-Filer/images $DESTDIR/
-	
-	mkdir $DESTDIR/Help
-	cp $src/ROX-Filer/Help/*.html $DESTDIR/Help/
-	cp $src/ROX-Filer/style.css $DESTDIR/
-	
-	cp $src/ROX-Filer/Options.xml $DESTDIR/
-	cp $src/ROX-Filer/Templates.glade $DESTDIR/
+	cp -r $src/ROX-Filer/images $install/
+
+	mkdir $install/Help
+	cp $src/ROX-Filer/Help/*.html $install/Help/
+	cp $src/ROX-Filer/style.css $install/
+
+	cp $src/ROX-Filer/Options.xml $install/
+	cp $src/ROX-Filer/Templates.glade $install/
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/rox-filer
 	cp -r $install/* $fs/usr/share/rox-filer/
 	cp $install/.DirIcon $fs/usr/share/rox-filer/
-	
+
 	mkdir -p $fs/usr/bin
 	cp -r $stuff/rox-filer $fs/usr/bin/
 	ICI=$(pwd)
 		cd $fs/usr/bin/
 		ln -s rox-filer rox
 	cd $ICI
-	
+
 	mkdir -p $fs/usr/lib/openbox
 	cp $stuff/rox-open-folder-menu.sh $fs/usr/lib/openbox/
-	
+
 	strip -s $fs/usr/share/rox-filer/rox-filer
+	DEPENDS="gtk2 libglade libxml2 xorg-libXdamage shared-mime-info xorg-libSM"
+	TAGS="file-manager"
 }
 
-# Post install commands for Tazpkg.
 # Check /usr/share/icons/ROX
-post_install()
-{ 
+post_install() {
 	if [ -e "$1/usr/share/icons/ROX" ]; then
 		echo ""
 		echo "/usr/share/icons/ROX exists"

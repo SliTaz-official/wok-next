@@ -4,16 +4,16 @@ PACKAGE="gnome-vfs-monikers"
 VERSION="2.15.3"
 CATEGORY="x-window"
 SHORT_DESC="GNOME Bonobo monikers"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gnome.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://ftp.gnome.org/pub/gnome/sources/$PACKAGE/${VERSION%.*}/$TARBALL"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="gnome-vfs-dev libbonobo-dev glib-dev orbit2-dev dbus-glib-dev \
 perl-xml-parser libxml2-dev gnutls-dev libgcrypt-dev"
-SPLIT="gnome-vfs-monikers-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export CFLAGS="-I/usr/include/libbonobo-2.0 -I/usr/include/glib-2.0 \
@@ -23,7 +23,7 @@ compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

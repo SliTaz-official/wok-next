@@ -20,16 +20,13 @@ $S-ja_JP $S-ka    $S-ko_KR $S-lt_LT $S-ms_MY $S-nb_NO $S-nl_NL $S-nn_NO \
 $S-pl_PL $S-pt_BR $S-pt_PT $S-ro_RO $S-ru_RU $S-sk_SK $S-sl_SI $S-sr_YU \
 $S-sv_SE $S-tr_TR $S-ug    $S-uk_UA $S-zh_CN $S-zh_TW"
 
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $install/usr/share/squirrelmail
 	cp -a locale help images $install/usr/share/squirrelmail
 	chown -R root:root $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		squirrelmail-locales)
 			DEPENDS="$SPLIT"
@@ -37,15 +34,14 @@ genpkg_rules()
 		*)
 			locale=${PACKAGE#*-}
 			copy /$locale/ sec_remove_$locale.png
-			name=$(grep "($locale)" $src/ReleaseNotes.locales | sed 's| (.*||; s| Bokm.*| Bokmål|')
+			name=$(grep "($locale)" $src/ReleaseNotes.locales | sed 's| (.*||; s| Bokm.*| Bokmål|')	#"
 			CAT="localization|$name locale"
 			DEPENDS="squirrelmail"
 			;;
 	esac
 }
 
-post_install()
-{
+post_install() {
 	case $PACKAGE in
 		squirrelmail-locales);;
 		*)

@@ -3,8 +3,8 @@
 PACKAGE="gogglesmm"
 VERSION="0.12.6"
 CATEGORY="multimedia"
-SHORT_DESC="Goggles Music Manager is nice a music collection manager and player"
-MAINTAINER="chadi.elahmad@gmail.com"
+SHORT_DESC="Nice music collection manager and player"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://gogglesmm.github.io/"
 
@@ -17,7 +17,7 @@ xorg-libX11-dev libgcrypt-dev mesa-dev glu-dev"
 
 compile_rules() {
 	sed -i 's/0x80/-128/g' src/gmutils.cpp
-	# Fixed installing .mo files since busybox install commmand 
+	# Fixed installing .mo files since busybox install commmand
 	# doesn't have -T option
 	sed -i 's| -T||g' $src/Makefile
 
@@ -27,7 +27,7 @@ compile_rules() {
 		--infodir=/usr/share/info \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p            $install/usr/share/pixmaps/
 	cp $src/extra/*.png $install/usr/share/pixmaps/

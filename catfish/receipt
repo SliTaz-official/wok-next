@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="catfish"
 VERSION="0.3.2"
 CATEGORY="utilities"
-SHORT_DESC="Catfish is a versatile file searching tool"
+SHORT_DESC="Versatile file searching tool"
 MAINTAINER="devl547@gmail.com"
 LICENSE="GPL2"
+WEB_SITE="http://www.twotoasts.de/index.php/catfish/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://twotoasts.de/index.php/catfish/"
 WGET_URL="http://twotoasts.de/media/$PACKAGE/$TARBALL"
 
-DEPENDS="python-pygtk python-pyxdg findutils"
-BUILD_DEPENDS="python-pygtk-dev libglade-dev python-pyxdg gettext"
+BUILD_DEPENDS="python-pygtk-dev libglade-dev python-pyxdg gettext-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure --prefix=/usr &&
 	make &&
 	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share/catfish
 	cat > $fs/usr/bin/catfish << EOT
 #!/bin/sh
@@ -61,4 +57,5 @@ EOT
 	for ext in glade svg; do
 		find $fs -type f -name '*.'$ext -exec chmod 644 {} \;
 	done
+	DEPENDS="python-pygtk python-pyxdg findutils"
 }

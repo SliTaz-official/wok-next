@@ -1,10 +1,10 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="grub"
 VERSION="0.97"
 CATEGORY="base-system"
-SHORT_DESC="GRUB boot loader."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="GRUB boot loader"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/grub/"
 REPOLOGY="grub-legacy"
@@ -15,32 +15,32 @@ CONFIG_FILES="/boot/grub"
 
 BUILD_DEPENDS="gcc3"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/\[ .grub-probe.*\]/mount | grep $grubdir | grep -q xfs/' \
 		util/grub-install.in
-	./configure CC=gcc-3 --prefix=/usr --infodir=/usr/share/info \
-	--without-curses --mandir=/usr/share/man $CONFIGURE_ARGS &&
+
+	./configure \
+		CC=gcc-3 \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--without-curses \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/boot/grub $fs/usr
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 	cp -a $install/usr/lib $fs/usr
-	
+
 	# Permissions
 	chmod 755 $fs/usr/sbin/grub-*
 	chmod 655 $fs/usr/lib/grub/*/*
-	
-	# Strip.
+
 	# Example config file (menu.lst).
 	cp $stuff/example-menu.lst $fs/boot/grub
 	cp $stuff/splash.xpm.gz $fs/boot/grub
 }
-

@@ -3,21 +3,20 @@
 PACKAGE="fltk-2.0.x"
 VERSION="r7725"
 CATEGORY="system-tools"
-SHORT_DESC="Fast Light Tool Kit (provide fluid)."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Fast Light Tool Kit (provide fluid)"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2"
+WEB_SITE="http://www.fltk.org/index.php"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://www.fltk.org/"
 WGET_URL="subversion|http://svn.easysw.com/public/fltk/fltk/trunk"
 BRANCH="${VERSION#r}"
 
 BUILD_DEPENDS="xorg-libXft-dev glu glu-dev mesa mesa-dev \
 subversion autoconf xorg-dev libpng12-dev"
-SPLIT="fltk-2.0.x-dev fltk-2.0.x-fluid2 fltk-2.0.x-gl"
+SPLIT="$PACKAGE-dev $PACKAGE-fluid2 $PACKAGE-gl"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/0xAA\([,}]\)/-86\1/g' src/UpBox.cxx
 	find -name Makefile | sed 's/Makefile/makedepend/' | xargs touch -d 197001010000
 	  patch -p0 src/filename_list.cxx <<EOF
@@ -28,6 +27,7 @@ compile_rules()
 EOF
 	autoconf
 	export LD_LIBRARY_PATH="/lib:/usr/lib:$src/lib"
+
 	./configure \
 		--prefix=/usr \
 		--mandir=/usr/share/man \
@@ -36,43 +36,40 @@ EOF
 		$CONFIGURE_ARGS &&
 	make &&
 	cp -f fltk2-config /usr/bin &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	fltk-2.0.x)
-		DEPENDS="expat fontconfig freetype jpeg xorg-libX11 \
+		fltk-2.0.x)
+			DEPENDS="expat fontconfig freetype jpeg xorg-libX11 \
 			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXft \
 			xorg-libXrender zlib libpng12 xorg-libXi \
 			xorg-libXinerama gcc-lib-base"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		# Remove gl support --> fltk-2.0.x-gl
-		rm $fs/usr/lib/libfltk2*gl*
-		;;
-	fltk-2.0.x-dev)
-		CAT="development|Fast Light Tool Kit devel files (FLZK 2.0)."
-		DEPENDS="fltk-2.0.x"
-		mkdir -p $fs/usr/bin $fs/usr/lib
-		cp -a $install/usr/bin/fltk2-config $fs/usr/bin
-		cp -a $install/usr/lib/*.*a $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		;;
-	fltk-2.0.x-fluid2)
-		CAT="development|Fast Light Tool Kit designer 2.0 serie."
-		DEPENDS="fltk-2.0.x"
-		mkdir -p $fs/usr/bin
-		cp -a $install/usr/bin/fluid2 $fs/usr/bin
-		;;
-	fltk-2.0.x-gl)
-		CAT="x-window|Fast Light Tool Kit GL library."
-		DEPENDS="mesa glu expat fontconfig xorg-libXft \
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			# Remove gl support --> fltk-2.0.x-gl
+			rm $fs/usr/lib/libfltk2*gl*
+			;;
+		*-dev)
+			DEPENDS="fltk-2.0.x"
+			mkdir -p $fs/usr/bin $fs/usr/lib
+			cp -a $install/usr/bin/fltk2-config $fs/usr/bin
+			cp -a $install/usr/lib/*.*a $fs/usr/lib
+			cp -a $install/usr/include $fs/usr
+			;;
+		*-fluid2)
+			CAT="development|designer"
+			DEPENDS="fltk-2.0.x"
+			mkdir -p $fs/usr/bin
+			cp -a $install/usr/bin/fluid2 $fs/usr/bin
+			;;
+		*-gl)
+			CAT="x-window|GL library"
+			DEPENDS="mesa glu expat fontconfig xorg-libXft \
 			xorg-libXi xorg-libXinerama xorg-libXext gcc-lib-base"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/libfltk2*gl*.so* $fs/usr/lib
-		;;
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/libfltk2*gl*.so* $fs/usr/lib
+			;;
 	esac
 }

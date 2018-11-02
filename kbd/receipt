@@ -4,7 +4,7 @@ PACKAGE="kbd"
 VERSION="2.0.4"
 CATEGORY="system-tools"
 SHORT_DESC="Keyboard mapping definitions and tools"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://kbd-project.org/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/kbd.html"
@@ -12,9 +12,8 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/kbd.html"
 TARBALL="kbd-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
 
-BUILD_DEPENDS_arm="flex check-dev"
-BUILD_DEPENDS="check-dev bison flex gettext patch pam-dev busybox"
-SPLIT="kbd-base kbd-vlock kbd-busybox kbd"
+BUILD_DEPENDS="check-dev bison flex gettext-dev patch pam-dev busybox"
+SPLIT="$PACKAGE-base $PACKAGE-vlock $PACKAGE-busybox $PACKAGE"
 
 compile_rules() {
 	sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure
@@ -35,7 +34,8 @@ compile_rules() {
 		--datadir=/usr/share/kbd \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make && make install
+	make &&
+	make install || return 1
 
 	mv $install/usr/share/kbd/locale $install/usr/share
 

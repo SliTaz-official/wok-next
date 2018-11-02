@@ -4,32 +4,21 @@ PACKAGE="udev"
 VERSION="182"
 CATEGORY="base-system"
 SHORT_DESC="Udev creat automaticly right devices in /dev"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.freedesktop.org/software/systemd/man/udev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kernel/hotplug/$TARBALL"
 
-BUILD_DEPENDS_arm="util-linux-blkid-dev kmod-dev acl-dev glib-dev"
 BUILD_DEPENDS="util-linux-blkid-dev gperf pciids acl-dev \
 usbutils-dev libusb-dev glib-dev pciids usbids kmod-dev \
 libgudev-dev pcre-dev xz-dev util-linux-uuid-dev"
-SPLIT="udev-dev"
+SPLIT="$PACKAGE-dev"
 
 BUILD_WARNING="Install new udev package and rebuild hal"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) # ARM Hack
-			for la in libgthread-2.0.la libglib-2.0.la; do
-				if grep -q "^libdir='/usr/lib'" /usr/lib/$la; then
-					sed -i s"#/usr/lib#/cross/$ARCH/sysroot/usr/lib#" \
-						/usr/lib/$la
-				fi
-			done ;;
-	esac
-
 	sed -i 's/.*mtd-user.*/&\n#include <stdint.h>/' src/mtd_probe/mtd_probe.h
 	export LDFLAGS="$LDFLAGS -lrt"
 	./configure \

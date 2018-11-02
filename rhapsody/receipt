@@ -3,32 +3,31 @@
 PACKAGE="rhapsody"
 VERSION="0.28b"
 CATEGORY="network"
-SHORT_DESC="Text mode and easy to use IRC client."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Text mode and easy to use IRC client"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="${PACKAGE}_${VERSION}.tgz"
 WEB_SITE="http://rhapsody.sourceforge.net/"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="irc"
 
-DEPENDS="ncurses"
+TARBALL="${PACKAGE}_$VERSION.tgz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure -i /usr/bin -d /usr/share/doc/rhapsody &&
+compile_rules() {
+	./configure \
+		-i /usr/bin \
+		-d /usr/share/doc/rhapsody &&
 	make clean &&
 	make
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin
 	cp -a $src/rhapsody $fs/usr/bin
 	# Doc stuff.
 	mkdir -p $fs/usr/share/doc/rhapsody
 	cp -a $src/help $fs/usr/share/doc/rhapsody
 	chmod 644 $fs/usr/share/doc/rhapsody/help/*
+	DEPENDS="ncurses"
+	TAGS="irc"
 }

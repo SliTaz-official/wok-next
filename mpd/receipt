@@ -1,39 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="mpd"
 VERSION="0.17.2"
 CATEGORY="multimedia"
-SHORT_DESC="Music Player Daemon (MPD)."
+SHORT_DESC="Music Player Daemon (MPD)"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.musicpd.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/musicpd/$TARBALL"
 
-DEPENDS="libid3tag libmad libogg libvorbis libsamplerate flac alsa-lib \
-audiofile faad2 lame sqlite3 libcurl glib openssl libwrap"
 BUILD_DEPENDS="alsa-lib-dev zlib-dev libid3tag-dev libsamplerate-dev \
 libmad-dev libogg-dev libvorbis-dev flac-dev audiofile-dev faad2-dev \
 glib-dev lame-dev libwrap-dev curl-dev"
 
-# Handle SliTaz arch
-case "$SLITAZ_ARCH" in
-	arm)
-		DEPENDS="alsa-lib zlib glib lame libmad libsamplerate libwrap \
-libogg libvorbis" ;;
-esac
-
-# Handle cross comilation
-case "$ARCH" in
-	arm) 
-		BUILD_DEPENDS="alsa-lib-dev zlib-dev glib-dev lame-dev \
-libmad-dev libsamplerate-dev libwrap-dev libogg-dev libvorbis-dev" ;;
-esac
-
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's/<stdbool.h>/&\n#include <stdio.h>/' src/decoder_api.h
+
 	./configure \
 		--disable-jack \
 		--disable-ao \
@@ -44,20 +28,20 @@ compile_rules()
 		--disable-systemd-daemon \
 		--with-zeroconf=no \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/sbin $fs/etc
 	cp -a $install/usr/bin/mpd $fs/usr/sbin
 	cp $install/usr/share/doc/mpd/mpdconf.example $fs/etc/mpd.conf
 	cp -a $stuff/* $fs
+	DEPENDS="libid3tag libmad libogg libvorbis libsamplerate flac alsa-lib \
+	audiofile faad2 lame sqlite3 libcurl glib openssl libwrap"
 }
 
-post_install()
-{
+post_install() {
 	newline
 	# Drop root priviledges and enable pid file
 	action 'Enabling mpd.conf...'

@@ -3,8 +3,8 @@
 PACKAGE="i3"
 VERSION="4.5.1"
 CATEGORY="x-window"
-SHORT_DESC="i3 tiling window manager"
-MAINTAINER="ybringler@gmail.com"
+SHORT_DESC="Tiling window manager"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://i3wm.org/"
 
@@ -12,28 +12,28 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/downloads/$TARBALL"
 
 BUILD_DEPENDS="make gcc xorg-xcb-proto xorg-libxcb-dev xorg-xcb-util-dev \
-libev-dev flex bison yajl-dev t2 docbook-xml xorg-libXcursor-dev xorg-libX11-dev \
-pcre-dev startup-notification-dev xorg-xcb-util-keysyms-dev xorg-xcb-util-wm-dev pango-dev"
-SPLIT="i3-man"
+libev-dev flex bison yajl-dev t2 docbook-xml xorg-libXcursor-dev \
+xorg-libX11-dev pcre-dev startup-notification-dev xorg-xcb-util-keysyms-dev \
+xorg-xcb-util-wm-dev pango-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	make && make install
+	make &&
+	make install || return 1
+
+	cook_pick_manpages man/*.1
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		i3)
-			cp -a $install/* $fs
+			copy @std
 			DEPENDS="cairo glib libev libpcre pango startup-notification \
 			xorg-libX11 xorg-libXcursor xorg-libxcb xorg-xcb-util \
 			xorg-xcb-util-keysyms xorg-xcb-util-wm yajl   dmenu"
 			;;
-		i3-man)
-			CAT="x-window|man pages"
-			mkdir -p $fs/usr/share/man
-			for i in $src/man/*.man; do
-				cp $i $fs/usr/share/man/raw-${i##*/}
-			done
+		*-dev)
+			copy @dev
 			;;
 	esac
 }

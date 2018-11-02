@@ -4,9 +4,9 @@ PACKAGE="gvim"
 VERSION="7.3"
 CATEGORY="editors"
 SHORT_DESC="Advanced text editor with GTK+ GUI"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="other"
-WEB_SITE="http://www.vim.org/"
+WEB_SITE="https://www.vim.org/"
 REPOLOGY="vim"
 
 SOURCE="vim"
@@ -38,10 +38,10 @@ compile_rules() {
 		VIMRCLOC=/etc/vim \
 		VIMRUNTIMEDIR=/usr/share/vim/vim73 \
 		MAKE="make -e" &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
-	mkdir -p $DESTDIR/etc/vim
-	cp -a $src/runtime/vimrc_example.vim $DESTDIR/etc/vim/vimrc
+	mkdir -p $install/etc/vim
+	cp -a $src/runtime/vimrc_example.vim $install/etc/vim/vimrc
 }
 
 genpkg_rules() {
@@ -50,7 +50,7 @@ genpkg_rules() {
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/vim $fs/usr/share
 	cp -a $src/runtime/vim16x16.png $fs/usr/share/icons/hicolor/16x16/apps/gvim.png
-	cp -a stuff/gvim.desktop $fs/usr/share/applications
+	cp -a $stuff/gvim.desktop $fs/usr/share/applications
 	cp -a $install/etc/vim $fs/etc
 	DEPENDS="ncurses gtk2 xorg-libXt xorg-libXau xorg-libXdmcp"
 	CONFIG_FILES="/etc/vim/vimrc"

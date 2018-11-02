@@ -14,7 +14,7 @@ WGET_URL="ftp://ftp.cyrusimap.org/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libcomerr libcomerr-dev cyrus-sasl cyrus-sasl-dev openssl-dev \
 db-dev perl-dev zlib-dev"
-SPLIT="cyrus-imapd-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -lpthread"
@@ -29,7 +29,7 @@ compile_rules() {
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {
@@ -80,7 +80,7 @@ post_install_cyrus_imapd() {
 pop3 110/tcp pop-3
 nntp 119/tcp readnews untp
 imap 143/tcp imap2 imap4
-imsp 406/tcp 
+imsp 406/tcp
 nntps 563/tcp snntp
 acap 674/tcp
 imaps 993/tcp
@@ -112,7 +112,7 @@ EOF
 		echo "createmailbox user.$i"
 	done | chroot "$1/" cyradm -u cyrus -w cyrus 127.0.0.1 >/dev/null 2>&1
 	chroot "$1/" su -c "/usr/lib/cyrus/bin/reconstruct" cyrus >/dev/null 2>&1
-	cat <<EOF
+	[ -n "$quiet" ] || cat <<EOF
 
 	.---------------------------------------------------.
 	| Users must have a password to access the mailbox. |

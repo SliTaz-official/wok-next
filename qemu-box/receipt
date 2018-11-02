@@ -1,10 +1,10 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="qemu-box"
 VERSION="306"
 CATEGORY="development"
-SHORT_DESC="SliTaz Qemu frontend."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="SliTaz Qemu frontend"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
@@ -12,21 +12,17 @@ REPOLOGY="-"
 TARBALL="slitaz-dev-tools-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
 
-DEPENDS="qemu-light"
 SIBLINGS="mirror-tools slitaz-dev-tools slitaz-mercurial-style tazchroot \
 tazdev tazwikiss yaff"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd $src/qemu-box
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs
 	cp -a $install/* $fs
 	chown -R root.root $fs
+	DEPENDS="qemu-light"
 }

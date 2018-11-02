@@ -6,7 +6,7 @@ CATEGORY="system-tools"
 SHORT_DESC="Network UPS Tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.networkupstools.org"
+WEB_SITE="http://www.networkupstools.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/source/${VERSION%.*}/$TARBALL"
@@ -15,7 +15,9 @@ BUILD_DEPENDS="libusb-dev libusb-compat-dev expat-dev neon-dev zlib-dev \
 openssl-dev" # libwrap-dev
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make DESTDIR=$DESTDIR install || return 1
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install || return 1
 
 	for i in $install/etc/*.sample; do
 		mv $i $install/etc/$(basename $i .sample)

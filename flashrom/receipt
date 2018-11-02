@@ -3,28 +3,25 @@
 PACKAGE="flashrom"
 VERSION="0.9.6.1"
 CATEGORY="misc"
-SHORT_DESC="tility Identify, read, write, verify and erase flash chips."
+SHORT_DESC="Identify, read, write, verify and erase flash chips"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://flashrom.org/Flashrom"
+
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WEB_SITE="http://flashrom.org/"
 WGET_URL="http://download.flashrom.org/releases/$TARBALL"
 
-DEPENDS="pciutils"
 BUILD_DEPENDS="pciutils-dev zlib-dev libftdi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's|/usr/local$|/usr|' Makefile
-	make && make DESTDIR=$DESTDIR install
+
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/sbin $fs/usr
+	DEPENDS="pciutils"
 }
-

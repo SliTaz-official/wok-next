@@ -4,30 +4,24 @@ PACKAGE="lazarus"
 VERSION="1.6.0-0"
 CATEGORY="development"
 SHORT_DESC="Lazarus Component Library and IDE for Freepascal"
-MAINTAINER="shevtsov.anton@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL LGPL"
-WEB_SITE="http://www.lazarus-ide.org"
+WEB_SITE="http://www.lazarus-ide.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/lazarus/$TARBALL"
-TAGS="lazarus ide pascal"
 
-DEPENDS="fpc fpc-src gdb make"
 BUILD_DEPENDS="gtk2-dev fpc fpc-src"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make -j 1 clean bigide
+compile_rules() {
+	make -j1 clean bigide
 	#&& make INSTALL_PREFIX=/usr install
-
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cd $src
+genpkg_rules() {
+	cd $src # keep it
 	#strip lazarus
-	#strip startlazarus	
+	#strip startlazarus
 	#strip lazbuild
 	#strip tools/lazres
 	#strip tools/updatepofiles
@@ -43,7 +37,7 @@ genpkg_rules()
 	install -m 755 -d $fs/usr/bin
 	install -m 755 -d $fs/usr/share/man
 	install -m 755 -d $fs/usr/share/man/man1
-	
+
 	cd $src
 	cp -Rfp packager debugger designer converter ide images languages lazarus.app units $fs/usr/share/lazarus
 	cp -Rfp components docs doceditor examples lcl test tools $fs/usr/share/lazarus
@@ -74,7 +68,6 @@ genpkg_rules()
 
 	rm -f man1/lrstolfm.1.gz man1/lazarus-ide.1.gz man1/lazres.1.gz man1/lazbuild.1.gz man1/startlazarus.1.gz man1/updatepofiles.1.gz man1/svn2revisioninc.1.gz
 
-	
 	install -c -m 644 $src/install/lazarus.desktop $fs/usr/share/applications/lazarus.desktop
 	install -c -m 644 $src/images/icons/lazarus128x128.png $fs/usr/share/pixmaps/lazarus.png
 	install -c -m 644 $src/install/lazarus-mime.xml $fs/usr/share/mime/packages/lazarus.xml
@@ -87,4 +80,6 @@ genpkg_rules()
 	install -m 755 -d $fs/usr/share/lazarus/components/synedit/design/languages
 
 	#cp -a $install/* $fs
+	DEPENDS="fpc fpc-src gdb make"
+	TAGS="lazarus ide pascal"
 }

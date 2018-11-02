@@ -4,7 +4,7 @@ PACKAGE="xournal"
 VERSION="0.4.7"
 CATEGORY="utilities"
 SHORT_DESC="Notetaking application"
-MAINTAINER="meshca@clarkson.edu"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://xournal.sourceforge.net/"
 
@@ -12,15 +12,15 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="autoconf automake gtk2-dev libgnomecanvas-dev poppler-dev \
-zlib-dev libart_lgpl-dev gettext"
+zlib-dev libart_lgpl-dev gettext-dev"
 
 compile_rules() {
 	CFLAGS="$CFLAGS $(pkg-config --cflags --libs gtk+-2.0 x11) -lm -lz"
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install &&
-	make DESTDIR=$DESTDIR desktop-install
+	make DESTDIR=$install install &&
+	make DESTDIR=$install desktop-install
 }
 
 genpkg_rules() {

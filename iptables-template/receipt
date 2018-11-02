@@ -3,20 +3,17 @@
 PACKAGE="iptables-template"
 VERSION="20140704"
 CATEGORY="system-tools"
-SHORT_DESC="Template for iptables setup."
+SHORT_DESC="Template for iptables setup"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://gist.github.com/jirutka/3742890"
 EXTRA_SOURCE_FILES="rules-both.iptables rules-ipv4.iptables rules-ipv6.ip6tables"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	mkdir -p $install/usr/share/iptables
-	while read dir file ; do
+	while read dir file; do
 		[ -s "$SRC/$file" ] ||
-			wget --no-check-certificate -P $SRC \
-				$WEB_SITE/raw/$dir/$file
+			wget --no-check-certificate -P $SRC $WEB_SITE/raw/$dir/$file
 		cp $SRC/$file $install/usr/share/iptables/
 	done <<EOT
 c025b0b8c58af49aa9644982c459314c9adba157 rules-both.iptables
@@ -25,8 +22,6 @@ c025b0b8c58af49aa9644982c459314c9adba157 rules-both.iptables
 EOT
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 }

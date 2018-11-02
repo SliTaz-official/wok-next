@@ -4,8 +4,8 @@ PACKAGE="ndiswrapper-driver"
 VERSION="1.61"
 EXTRAVERSION="_$kvers"
 CATEGORY="system-tools"
-SHORT_DESC="Add Windows network drivers support to Linux kernel."
-MAINTAINER="erjo@slitaz.org"
+SHORT_DESC="Add Windows network drivers support to Linux kernel"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://ndiswrapper.sourceforge.net/joomla/"
 REPOLOGY="ndiswrapper"
@@ -14,23 +14,23 @@ TARBALL="ndiswrapper-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/ndiswrapper/$TARBALL"
 
 BUILD_DEPENDS="linux-module-headers xz"
-SPLIT="ndiswrapper-driver ndiswrapper-utils ndiswrapper"
+SPLIT="ndiswrapper-utils ndiswrapper"
 
 compile_rules() {
-	make KBUILD=/usr/src/linux KVER=linux-${kvers}-slitaz
+	make KBUILD=/usr/src/linux KVER=linux-$kvers-slitaz
 	xz driver/ndiswrapper.ko
 
 	mkdir -p \
 		$install/usr/sbin \
 		$install/sbin \
-		$install/lib/modules/${kvers}-slitaz/kernel/misc
+		$install/lib/modules/$kvers-slitaz/kernel/misc
 
 	# Install utilities
 	install -o root -m755 $src/utils/loadndisdriver      $install/sbin/
 	install -o root -m755 $src/utils/ndiswrapper         $install/usr/sbin/
 	install -o root -m755 $src/utils/ndiswrapper-buginfo $install/usr/sbin/
 	install -o root -m644 $src/driver/ndiswrapper.ko.xz \
-		$install/lib/modules/${kvers}-slitaz/kernel/misc/ndiswrapper.ko.xz
+		$install/lib/modules/$kvers-slitaz/kernel/misc/ndiswrapper.ko.xz
 }
 
 genpkg_rules() {

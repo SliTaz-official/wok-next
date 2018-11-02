@@ -7,7 +7,6 @@ SHORT_DESC="Lossy compression of PNG images"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://pngquant.org/"
-HOST_ARCH="i486 x86_64"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/pornel/pngquant/tarball/$VERSION"
@@ -16,7 +15,7 @@ EXTRA_TARBALL="libimagequant-$VERSION"
 EXTRA_WGET_URL="$GITHUB/ImageOptim/libimagequant/tarball/$VERSION"
 
 BUILD_DEPENDS="lcms2-dev libpng16-dev zlib-dev"
-SPLIT="pngquant pngquant-static:static"
+SPLIT="$PACKAGE-static:static"
 
 compile_rules() {
 	if [ ! -e "$SRC/$EXTRA_TARBALL" ]; then
@@ -38,7 +37,8 @@ compile_rules() {
 			;;
 	esac &&
 
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {

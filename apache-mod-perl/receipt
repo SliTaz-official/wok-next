@@ -4,7 +4,7 @@ PACKAGE="apache-mod-perl"
 VERSION="2.0.10"
 CATEGORY="network"
 SHORT_DESC="PERL module for Apache"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="Apache"
 WEB_SITE="http://perl.apache.org/"
 REPOLOGY="apmod:perl"
@@ -14,14 +14,14 @@ TARBALL="mod_perl-$VERSION.tar.gz"
 WGET_URL="http://apache.ip-connect.vn.ua/perl/$TARBALL"
 
 BUILD_DEPENDS="gdbm-dev apache-dev apr-dev apr-util-dev apache perl-dev"
-SPLIT="apache-mod-perl-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	perl Makefile.PL \
 		MP_APXS=/usr/bin/apxs \
 		MP_APR_CONFIG=/usr/bin/apr-1-config
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	find $install -type f -exec chmod u+w '{}' \;
 }

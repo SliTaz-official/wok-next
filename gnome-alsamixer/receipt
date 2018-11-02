@@ -15,9 +15,7 @@ DEPENDS="gtk2 libgnomeui libgnome-keyring"
 BUILD_DEPENDS="automake autoconf glib dbus-dev libgnomeui-dev libgnome-dev \
 gconf-dev alsa-lib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	if [ ! -f "$SRC/$(basename "$EXTRA_URL")" ]; then
 		wget $EXTRA_URL -P $SRC
 	fi
@@ -32,7 +30,8 @@ compile_rules()
 	sed -i 's|pt_BR|& ru|' $src/configure.ac
 
 	./autogen.sh
-	make && make install
+	make &&
+	make install
 
 	mkdir -p $install/usr/share/applications $install/usr/share/man/man1
 	cp -a $src/debian/$PACKAGE.desktop $install/usr/share/applications
@@ -40,9 +39,7 @@ compile_rules()
 	gzip -9 $install/usr/share/man/man1/$PACKAGE.1
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	find $fs -name '*.xpm' -delete
 }

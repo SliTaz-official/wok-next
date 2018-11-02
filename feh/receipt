@@ -1,44 +1,37 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="feh"
 VERSION="2.10"
 CATEGORY="graphics"
 SHORT_DESC="Lightweight and powerful image viewer and composer"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://feh.finalrewind.org/"
-WGET_URL="https://feh.finalrewind.org/$TARBALL"
-TAGS="image photo viewer"
 
-DEPENDS="imlib2 giblib jpeg libpng16 xorg-libX11 freetype xorg-libXau \
-xorg-libXdmcp xorg-libXext xorg-libXinerama libcurl"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://feh.finalrewind.org/$TARBALL"
+
 BUILD_DEPENDS="imlib2-dev giblib-dev xorg-xorgproto \
 xorg-libX11-dev libpng16-dev jpeg-dev curl-dev xorg-libXinerama-dev \
 xorg-libXt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i -e 's:/usr/local:/usr:g' config.mk &&
-	make && make DESTDIR=$DESTDIR install &&
+compile_rules() {
+	sed -i 's|/usr/local|/usr|g' config.mk
+
+	make &&
+	make DESTDIR=$install install || return 1
+
 	# Fix path to icon and remove from menu since it need a param to
 	# load images.
-	sed -i \
-		-e s'#/home/slitaz/wok/feh/install##' \
-		-e '/Categories.*/'d \
-		$DESTDIR/usr/share/applications/feh.desktop || return 1
+	sed \
+		-e 's|/home/slitaz/wok/feh/install||' \
+		-e '/Categories.*/d' \
+		-i $install/usr/share/applications/feh.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/bin
-	mkdir -p $fs/usr/share/feh
-	mkdir -p $fs/usr/share/feh/fonts
-	mkdir -p $fs/usr/share/feh/images
-	
-	cp -a $install/usr/bin/feh $fs/usr/bin
-	cp -a $install/usr/share/feh/fonts $fs/usr/share/feh
-	cp -a $install/usr/share/feh/images $fs/usr/share/feh
+genpkg_rules() {
+	copy @std
+	DEPENDS="imlib2 giblib jpeg libpng16 xorg-libX11 freetype xorg-libXau \
+	xorg-libXdmcp xorg-libXext xorg-libXinerama libcurl"
+	TAGS="image photo viewer"
 }

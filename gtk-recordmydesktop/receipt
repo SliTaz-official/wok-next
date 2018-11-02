@@ -4,29 +4,24 @@ PACKAGE="gtk-recordmydesktop"
 VERSION="0.3.8"
 CATEGORY="misc"
 SHORT_DESC="Desktop recording software (GTK frontend)"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://recordmydesktop.sourceforge.net/about.php"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://recordmydesktop.sourceforge.net"
-WGET_URL="$SF_MIRROR/project/recordmydesktop/gtk-recordMyDesktop/$VERSION/$TARBALL"
-TAGS="desktop"
+WGET_URL="$SF_MIRROR/recordmydesktop/$TARBALL"
 
-DEPENDS="python python-pygtk recordmydesktop"
-BUILD_DEPENDS="python-dev python-pygtk-dev gettext-tools"
+BUILD_DEPENDS="python-dev python-pygtk-dev gettext"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	./configure \
 		$CONFIGURE_ARGS &&
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-pygtk recordmydesktop"
+	TAGS="desktop"
 }

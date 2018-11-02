@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="csstidy"
 VERSION="1.4"
 CATEGORY="development"
-SHORT_DESC="CSSTidy is a program that optimises, formats and fixes CSS code"
+SHORT_DESC="Optimise, format and fix CSS code"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://csstidy.sourceforge.net/"
+
 TARBALL="$PACKAGE-source-$VERSION.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS=""
 BUILD_DEPENDS="scons2"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	scons
-	mkdir -p $install/usr/bin
-	cp -a $src/release/csstidy/csstidy $install/usr/bin
+compile_rules() {
+	scons &&
+	install -Dm755 release/csstidy/csstidy $install/usr/bin/csstidy
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	cp -a $install/* $fs
+genpkg_rules() {
+	copy @std
 }

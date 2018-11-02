@@ -11,21 +11,22 @@ WEB_SITE="https://sourceforge.net/projects/sbackup/"
 TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="python notify-python gettext-base python-pygtk gvfs fuse2 sshfs-fuse \
-curlftpfs desktop-file-utils gettext-tools"
+BUILD_DEPENDS="python notify-python gettext-base python-pygtk gvfs fuse2 \
+sshfs-fuse curlftpfs desktop-file-utils gettext"
 
 compile_rules() {
-	mkdir -p $DESTDIR/usr/share/sbackup
-	cp scripts/* $DESTDIR/usr/share/sbackup/
-	sed -i 's|dbus force-reload|echo &|;s|gconf-schemas|echo &|' Makefile
+	mkdir -p $install/usr/share/sbackup
+	cp scripts/* $install/usr/share/sbackup/
+	sed -i 's|dbus force-reload|echo &|; s|gconf-schemas|echo &|' Makefile
 
-	make && make DESTDIR=$DESTDIR/usr install
+	make &&
+	make DESTDIR=$install/usr install
 	# sudo sbackupconfig
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="python notify-python gettext-base python-pygtk gvfs fuse2 sshfs-fuse \
-	curlftpfs desktop-file-utils"
+	DEPENDS="python notify-python gettext-base python-pygtk gvfs fuse2 \
+	sshfs-fuse curlftpfs desktop-file-utils"
 	TAGS="backup"
 }

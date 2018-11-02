@@ -4,18 +4,15 @@ PACKAGE="git"
 VERSION="2.17.1"
 CATEGORY="development"
 SHORT_DESC="Fast version control system"
-MAINTAINER="b1+slitaz@nagel.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://git-scm.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/software/scm/git/$TARBALL"
 
-# NO_NSEC=1
-CROSS_BUGS="bug: can't run test and make package."
-
 BUILD_DEPENDS="zlib-dev openssl-dev curl-dev expat-dev perl python-dev \
-tar bzip2 gettext-tools"
+tar bzip2 gettext"
 
 compile_rules() {
 	./configure \
@@ -25,7 +22,7 @@ compile_rules() {
 		--without-tcltk \
 		$CONFIGURE_ARGS &&
 	make THREADED_DELTA_SEARCH=1 &&
-	make THREADED_DELTA_SEARCH=1 DESTDIR=$DESTDIR install || return 1
+	make THREADED_DELTA_SEARCH=1 DESTDIR=$install install || return 1
 
 	install -Dm755 $stuff/git-daemon $install/etc/init.d/git-daemon
 }

@@ -4,25 +4,25 @@ PACKAGE="vlc"
 VERSION="2.2.3"
 CATEGORY="multimedia"
 SHORT_DESC="MPEG, VCD/DVD, and DivX player"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://www.videolan.org/vlc/"
 WGET_URL="http://download.videolan.org/pub/videolan/$PACKAGE/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="Qt4-dev alsa-lib-dev dbus-dev ffmpeg-dev gettext \
+BUILD_DEPENDS="Qt4-dev alsa-lib-dev dbus-dev ffmpeg-dev gettext-dev \
 libmad-dev lua5.1-dev tar xorg-xcb-util-dev yasm expat-dev libxml2-dev \
 util-linux-uuid-dev x264-dev flac-dev taglib-dev gnutls-dev libupnp-dev \
 libsamplerate-dev fribidi-dev zvbi-dev opus-dev gmp-dev ncurses-dev x265-dev"
-SPLIT="vlc libvlc-dev libvlc vlc-locale"
+SPLIT="libvlc-dev libvlc $PACKAGE-locale"
 
-compile_rules()
-{
-	[ -s /var/lib/dbus/machine-id ] || dbus-uuidgen > /var/lib/dbus/machine-id
-	cd $src
+compile_rules() {
+	[ -s /var/lib/dbus/machine-id ] || dbus-uuidgen >/var/lib/dbus/machine-id
+
 	[ -e /usr/bin/luac ] || ln -s luac5.1 /usr/bin/luac
+
 	sed -i 's/ERROR_zip_cannot/error_zip_cannot/' modules/access/zip/zipstream.c
-	# export ncurses paths 
+	# export ncurses paths
 	export NCURSES_CFLAGS="-I/usr/include"
 	export NCURSES_LIBS="-L/lib -lncurses"
 	./configure \
@@ -40,48 +40,47 @@ compile_rules()
 	[ -L /usr/bin/luac ] && rm -f /usr/bin/luac
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	vlc)
-		TAGS="audio video multimedia movie player"
-		DEPENDS="libQtCore libQtGui libvlc"
-		mkdir -p $fs/usr/share/pixmaps
-		cp -a $install/usr/bin $fs/usr
-		cp -a $install/usr/share/$PACKAGE $fs/usr/share
-		#Remove extra icons
-		rm $fs/usr/share/$PACKAGE/*.ico
-		#copy vlc icon
-		cp -a $install/usr/share/icons/hicolor/16x16/apps/vlc.png $fs/usr/share/pixmaps
-		#Remove unnecessary fonts
-		rm $fs/usr/share/$PACKAGE/skins2/fonts/*
-		;;
-	libvlc-dev)
-		mkdir -p $fs/usr/lib $fs/usr/include $fs/usr/bin
-		#cp $src/vlc-config $fs/usr/bin
-		cp -a $install/usr/lib/*a $fs/usr/lib/
-		cp -a $install/usr/lib/pkgconfig $fs/usr/lib/
-		cp -a $install/usr/include/vlc $fs/usr/include
-		cp -a $install/usr/lib/vlc $fs/usr/lib/
-		rm $fs/usr/lib/vlc/plugins/*/*.so
-		;;
-	libvlc)
-		CAT="multimedia|MPEG, VCD/DVD, and DivX library"
-		DEPENDS="alsa-lib dbus ffmpeg libmad lua5.1 tar x264 x265 xorg-xcb-util zvbi nettle"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*so* $fs/usr/lib/
-		cp -a $install/usr/lib/vlc $fs/usr/lib/
-		# Remove libtool archives
-		rm $fs/usr/lib/vlc/plugins/*/*.la
-		;;
-	vlc-locale)
-		CAT="multimedia|Locale files for vlc"
-		SUGGESTED="vlc"
-		for i in de el en:en_GB es fa fr pl pt_BR ru sv zh_CN zh_TW ; do
-			install -D -m 644 -o root -g root $src/po/${i#*:}.gmo \
-				$fs/usr/share/locale/${i%:*}/LC_MESSAGES/vlc.mo
-		done
-		;;
+		vlc)
+			mkdir -p $fs/usr/share/pixmaps
+			cp -a $install/usr/bin $fs/usr
+			cp -a $install/usr/share/$PACKAGE $fs/usr/share
+			#Remove extra icons
+			rm $fs/usr/share/$PACKAGE/*.ico
+			#copy vlc icon
+			cp -a $install/usr/share/icons/hicolor/16x16/apps/vlc.png $fs/usr/share/pixmaps
+			#Remove unnecessary fonts
+			rm $fs/usr/share/$PACKAGE/skins2/fonts/*
+			DEPENDS="libQtCore libQtGui libvlc"
+			TAGS="audio video multimedia movie player"
+			;;
+		libvlc-dev)
+			mkdir -p $fs/usr/lib $fs/usr/include $fs/usr/bin
+			#cp $src/vlc-config $fs/usr/bin
+			cp -a $install/usr/lib/*a $fs/usr/lib/
+			cp -a $install/usr/lib/pkgconfig $fs/usr/lib/
+			cp -a $install/usr/include/vlc $fs/usr/include
+			cp -a $install/usr/lib/vlc $fs/usr/lib/
+			rm $fs/usr/lib/vlc/plugins/*/*.so
+			;;
+		libvlc)
+			mkdir -p $fs/usr/lib
+			cp -a $install/usr/lib/*so* $fs/usr/lib/
+			cp -a $install/usr/lib/vlc $fs/usr/lib/
+			# Remove libtool archives
+			rm $fs/usr/lib/vlc/plugins/*/*.la
+			DEPENDS="alsa-lib dbus ffmpeg libmad lua5.1 tar x264 x265 \
+			xorg-xcb-util zvbi nettle"
+			CAT="multimedia|MPEG, VCD/DVD, and DivX library"
+			;;
+		vlc-locale)
+			for i in de el en:en_GB es fa fr pl pt_BR ru sv zh_CN zh_TW; do
+				install -Dm644 -o root -g root $src/po/${i#*:}.gmo \
+					$fs/usr/share/locale/${i%:*}/LC_MESSAGES/vlc.mo
+			done
+			CAT="multimedia|locale files"
+			SUGGESTED="vlc"
+			;;
 	esac
 }

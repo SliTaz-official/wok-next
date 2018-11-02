@@ -4,7 +4,7 @@ PACKAGE="nagios-plugins"
 VERSION="1.4.16"
 CATEGORY="network"
 SHORT_DESC="Plugins for host, service and network monitoring program"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.nagios.org/"
 
@@ -13,7 +13,7 @@ WGET_URL="$SF_MIRROR/nagiosplug/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev radiusclient-ng-dev radiusclient-ng openldap-dev \
 mysql-dev libmysqlclient"
-SPLIT="nagios-plugins-mysql"
+SPLIT="$PACKAGE-mysql"
 
 compile_rules() {
 	sed -i '/gets is a security hole/d' gl/stdio*.h
@@ -27,8 +27,8 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install &&
-	make DESTDIR=$DESTDIR install-root
+	make DESTDIR=$install install &&
+	make DESTDIR=$install install-root
 }
 
 genpkg_rules() {

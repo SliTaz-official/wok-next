@@ -4,7 +4,7 @@ PACKAGE="freealut"
 COMMIT="2fa9ea27be7bb4124a878d44c14e6634f7beb1e2"
 VERSION="${COMMIT:0:7}"
 CATEGORY="multimedia"
-SHORT_DESC="freealut is a free implementation of OpenAL's ALUT standard"
+SHORT_DESC="Free implementation of OpenAL's ALUT standard"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL"
 #WEB_SITE="http://distro.ibiblio.org/rootlinux/rootlinux-ports/more/freealut/freealut-1.1.0/doc/alut.html"
@@ -14,24 +14,26 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/vancegroup/$PACKAGE/archive/$COMMIT.tar.gz"
 
 BUILD_DEPENDS="cmake openal-dev"
-SPLIT="freealut-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	mkdir build; cd build
-	cmake .. -DCMAKE_INSTALL_PREFIX:STRING="/usr" &&
-	make && make install
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX:STRING="/usr" \
+		.. &&
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		freealut)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
+			copy @std
 			DEPENDS="openal glibc-base"
 			;;
 		*-dev)
-			cp -a $install/* $fs
-			rm -r $fs/usr/lib/*.so*
+			copy @dev
 			DEPENDS="freealut openal-dev"
 			;;
 	esac

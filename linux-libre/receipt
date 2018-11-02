@@ -4,33 +4,37 @@ PACKAGE="linux-libre"
 VERSION="2.6.37-gnu"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Libre kernel"
-MAINTAINER="gokhlayeh@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.fsfla.org/svnwiki/selibre/linux-libre/"
 WGET_URL="http://www.fsfla.org/svnwiki/selibre/linux-libre/download/releases/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="slitaz-toolchain perl git lzma patch gcc3"
-SPLIT="linux-libre-acpi linux-libre-agp linux-libre-aoe linux-libre-appletalk \
-linux-libre-autofs linux-libre-bluetooth linux-libre-bridge linux-libre-btrfs \
-linux-libre-cifs linux-libre-coda linux-libre-configfs linux-libre-cpufreq \
-linux-libre-cramfs linux-libre-crypto linux-libre-cryptoloop \
-linux-libre-dialup linux-libre-dlm linux-libre-drm linux-libre-firewire \
-linux-libre-gfs2 linux-libre-hfs linux-libre-hfsplus linux-libre-hwmon \
-linux-libre-input-misc linux-libre-input-tablet linux-libre-input-touchscreen \
-linux-libre-ipv6 linux-libre-irda linux-libre-isdn linux-libre-jfs \
-linux-libre-joystick linux-libre-kvm linux-libre-logfs linux-libre-md \
-linux-libre-memstick linux-libre-minix linux-libre-mmc \
-linux-libre-module-headers linux-libre-mwave linux-libre-nbd linux-libre-ncpfs \
-linux-libre-netfilter linux-libre-nfsd linux-libre-reiserfs linux-libre-sched \
-linux-libre-scsi linux-libre-sound linux-libre-source linux-libre-speakup \
-linux-libre-squashfs linux-libre-toshiba linux-libre-udf linux-libre-usbdsl \
-linux-libre-usbip linux-libre-usb-misc linux-libre-uwb linux-libre-video \
-linux-libre-wimax linux-libre-wireless linux-libre-without-modules lguest-libre"
+SPLIT="\
+$PACKAGE-acpi         $PACKAGE-agp                $PACKAGE-aoe \
+$PACKAGE-appletalk    $PACKAGE-autofs             $PACKAGE-bluetooth \
+$PACKAGE-bridge       $PACKAGE-btrfs              $PACKAGE-cifs \
+$PACKAGE-coda         $PACKAGE-configfs           $PACKAGE-cpufreq \
+$PACKAGE-cramfs       $PACKAGE-crypto             $PACKAGE-cryptoloop \
+$PACKAGE-dialup       $PACKAGE-dlm                $PACKAGE-drm \
+$PACKAGE-firewire     $PACKAGE-gfs2               $PACKAGE-hfs \
+$PACKAGE-hfsplus      $PACKAGE-hwmon              $PACKAGE-input-misc \
+$PACKAGE-input-tablet $PACKAGEe-input-touchscreen $PACKAGE-ipv6 \
+$PACKAGE-irda         $PACKAGE-isdn               $PACKAGE-jfs \
+$PACKAGE-joystick     $PACKAGE-kvm                $PACKAGE-logfs \
+$PACKAGE-md           $PACKAGE-memstick           $PACKAGE-minix \
+$PACKAGE-mmc          $PACKAGE-module-headers     $PACKAGE-mwave \
+$PACKAGE-nbd          $PACKAGE-ncpfs              $PACKAGE-netfilter \
+$PACKAGE-nfsd         $PACKAGE-reiserfs           $PACKAGE-sched \
+$PACKAGE-scsi         $PACKAGE-sound              $PACKAGE-source \
+$PACKAGE-speakup      $PACKAGE-squashfs           $PACKAGE-toshiba \
+$PACKAGE-udf          $PACKAGE-usbdsl             $PACKAGE-usbip \
+$PACKAGE-usb-misc     $PACKAGE-uwb                $PACKAGE-video \
+$PACKAGE-wimax        $PACKAGE-wireless           $PACKAGE-without-modules \
+lguest-libre"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# this is code to help update the kernel version faster
 	#for i in $(grep -l 'WANTED="linux-libre"' $WOK/*/receipt)
 	#do
@@ -56,13 +60,13 @@ compile_rules()
 	echo "Copying Aufs files and patches..."
 	cp -a $AUFSDIR/Documentation $AUFSDIR/fs $AUFSDIR/include $src
 	cp -a $AUFSDIR/*.patch $stuff
-	
+
 	# SliTaz db
 	rm -rf $WOK/$PACKAGE/slitaz && mkdir $WOK/$PACKAGE/slitaz
 	echo "$WGET_URL" > $WOK/$PACKAGE/slitaz/url
 	cp $stuff/gztazmod.sh $stuff/list_modules.sh $WOK/$PACKAGE/slitaz
 	cp $stuff/bootloader.sh $WOK/$PACKAGE/slitaz
-	
+
 	# Apply patches
 	echo "Applying patches..."
 	while read patch_file; do
@@ -91,7 +95,7 @@ EOT
 
 	export LD_LIBRARY_PATH="/usr/libgcc3:$LD_LIBRARY_PATH"
 	export MAKEFLAGS="$MAKEFLAGS CC=gcc-3 CXX=g++-3"
-	
+
 	make mrproper
 	cd Documentation/lguest
 	make $MAKEFLAGS lguest || return 1
@@ -107,8 +111,8 @@ EOT
 		-e 's/^CONFIG_RT2870/#&/' .config
 	yes '' | make oldconfig
 	make $MAKEFLAGS bzImage || return 1
-	[ -d $DESTDIR ] || mkdir -p $DESTDIR
-	mv arch/x86/boot/bzImage $DESTDIR
+	[ -d $install ] || mkdir -p $install
+	mv arch/x86/boot/bzImage $install
 	mv System.map System.map-without-modules
 
 	# Build bzImage with modules
@@ -117,21 +121,19 @@ EOT
 	ln .config $WOK/$PACKAGE/slitaz/config
 	make $MAKEFLAGS bzImage &&
 	make $MAKEFLAGS modules &&
-	make INSTALL_MOD_PATH=$DESTDIR modules_install &&
-	make INSTALL_HDR_PATH=$DESTDIR/usr headers_install &&
+	make INSTALL_MOD_PATH=$install modules_install &&
+	make INSTALL_HDR_PATH=$install/usr headers_install &&
 	[ -s arch/x86/boot/bzImage ] return 1
-	mkdir -p $DESTDIR/boot 2> /dev/null
-	mv arch/x86/boot/bzImage $DESTDIR/boot/vmlinuz-$VERSION-slitaz
+	mkdir -p $install/boot 2>/dev/null
+	mv arch/x86/boot/bzImage $install/boot/vmlinuz-$VERSION-slitaz
 
 	# Compress all modules.
-	$stuff/gztazmod.sh $DESTDIR/lib/modules/$VERSION-slitaz
+	$stuff/gztazmod.sh $install/lib/modules/$VERSION-slitaz
 	ln System.map System.map-modules
 	ln Module.symvers Module.symvers-modules
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		linux-libre)
 			local path
@@ -147,7 +149,7 @@ genpkg_rules()
 			export _pkg
 			mkdir $WOK/$PACKAGE/tmp
 			$stuff/list_modules.sh \
-			$(cat stuff/modules-$VERSION.list) > $WOK/$PACKAGE/tmp/modules.list
+			$(cat $stuff/modules-$VERSION.list) > $WOK/$PACKAGE/tmp/modules.list
 			while read module; do
 				dir=$(dirname $module)
 				[ -d $path/$dir ] || mkdir -p $path/$dir
@@ -465,7 +467,7 @@ genpkg_rules()
 			# Modules paths and list
 			MOD_PATH="lib/modules/$VERSION-slitaz/kernel"
 			MODULES="fs/dlm/dlm.ko.gz"
-			mkdir -p ${fs}${MOD_PATH} $fs/etc
+			mkdir -p $fs${MOD_PATH} $fs/etc
 			for module in $MODULES; do
 				dir=$MOD_PATH/$(dirname $module)
 				[ -d $fs/$dir ] || mkdir -p $fs/$dir
@@ -878,7 +880,7 @@ genpkg_rules()
 			mkdir -p $fs/$path/drivers/media/video
 			cp -a $src/drivers/media/video/*.h  $fs/$path/drivers/media/video/
 
-			for i in bt8xx cpia2 cx25840 cx88 em28xx et61x251 pwc saa7134 sn9c102 usbvideo ; do
+			for i in bt8xx cpia2 cx25840 cx88 em28xx et61x251 pwc saa7134 sn9c102 usbvideo; do
 				mkdir -p $fs/$path/drivers/media/video/$i
 				cp -a $src/drivers/media/video/$i/*.h $fs/$path/drivers/media/video/$i
 			done
@@ -1172,7 +1174,7 @@ genpkg_rules()
 			# Modules paths and list
 			MOD_PATH="lib/modules/$VERSION-slitaz/kernel"
 			MODULES="drivers/char/toshiba.ko.gz"
-			mkdir -p ${fs}${MOD_PATH}
+			mkdir -p $fs${MOD_PATH}
 			for module in $MODULES; do
 				dir=$MOD_PATH/$(dirname $module)
 				[ -d $fs/$dir ] || mkdir -p $fs/$dir
@@ -1266,7 +1268,7 @@ genpkg_rules()
 			MODULES="drivers/video/backlight/lcd.ko.gz
 			drivers/video/backlight/generic_bl.ko.gz
 			drivers/gpio/bt8xxgpio.ko.gz"
-			mkdir -p ${fs}${MOD_PATH}
+			mkdir -p $fs${MOD_PATH}
 			for module in $MODULES; do
 				dir=$MOD_PATH/$(dirname $module)
 				[ -d $fs/$dir ] || mkdir -p $fs/$dir
@@ -1334,13 +1336,11 @@ genpkg_rules()
 	esac
 }
 
-# Pre and post install commands for Tazpkg.
-post_install_linux_libre()
-{
+post_install_linux_libre() {
 	chroot "$1/" depmod -a $VERSION-slitaz
 	# GRUB stuff.
 	if [ -f "$1/boot/grub/menu.lst" ]; then
-		root_dev=$(cat "$1/boot/grub/menu.lst" | grep root= | sed 's/.*root=\([^ ]*\).*/\1/' | head -n 1)
+		root_dev=$(cat "$1/boot/grub/menu.lst" | grep root= | sed 's/.*root=\([^ ]*\).*/\1/' | head -n 1)	#'MC
 		grub_dev=$(cat "$1/boot/grub/menu.lst" | grep "root (" | head -n 1)
 		# Add new kernel entry in case of upgrade for installed system.
 		if ! grep -q $PACKAGE-$VERSION-slitaz "$1/boot/grub/menu.lst"; then

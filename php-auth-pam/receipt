@@ -4,41 +4,37 @@ PACKAGE="php-auth-pam"
 VERSION="0.4"
 CATEGORY="development"
 SHORT_DESC="PHP extension for PAM"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://packages.debian.org/"
+WEB_SITE="https://www.debian.org/distrib/packages" # and ..?
 REPOLOGY="php:auth-pam"
 
-TARBALL="${PACKAGE}_${VERSION}.orig.tar.gz"
+TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
 WGET_URL="http://ftp.de.debian.org/debian/pool/main/p/php-auth-pam/$TARBALL"
 
-DEPENDS="php-apache pam"
 BUILD_DEPENDS="php-dev pam pam-dev autoconf automake sed coreutils-conditions"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	test -d  ${PACKAGE}-${VERSION} \
-		|| make ${PACKAGE}-${VERSION}.orig ${PACKAGE}-${VERSION}
+compile_rules() {
+	[ -d $PACKAGE-$VERSION ] ||
+	make $PACKAGE-$VERSION.orig $PACKAGE-$VERSION
 	cd $src
 	phpize
-	sed -i 's/^function_entry/zend_&/;s/pval /zval /' pam_auth.c # php 5.4
-	
-	./configure $CONFIGURE_ARGS \
-		--prefix=/usr &&
-	
-	make && make DESTDIR=$DESTDIR install
+	sed -i 's|^function_entry|zend_&|; s|pval |zval |' pam_auth.c # php 5.4
+
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/php
 	cp -a $install/usr/lib/php/extensions/*/*.so $fs/usr/share/php
+	DEPENDS="php-apache pam"
 }
 
-post_install()
-{
+post_install() {
 	grep -q ^extension=pam_auth.so "$1/etc/php.ini" || \
 	    sed -e 's|extension=msql.so|extension=msql.so\nextension=pam_auth.so|' -i "$1/etc/php.ini"
 	# Start Web server.
@@ -58,9 +54,7 @@ EOT
 	true
 }
 
-# Pre and post remove commands for Tazpkg.
-pre_remove()
-{
+pre_remove() {
 	sed -i '/.*=pam_auth.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -74,10 +68,4 @@ pre_remove()
 apache apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
-}
-
-
-clean_wok()
-{
-	test -d  ${PACKAGE}-${VERSION} && rm -rf ${PACKAGE}-${VERSION}
 }

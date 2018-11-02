@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="itstool libxml2-tools glib-dev gtk2-dev intltool"
-SPLIT="gucharmap-dev gucharmap-i18n"
+SPLIT="$PACKAGE-dev $PACKAGE-i18n"
 
 compile_rules() {
 	./configure \
@@ -33,11 +33,11 @@ genpkg_rules() {
 			copy @std
 			DEPENDS="gtk2 xorg-libXdamage"
 			;;
-		gucharmap-dev)
+		*-dev)
 			copy @dev
 			DEPENDS="gucharmap"
 			;;
-		gucharmap-i18n)
+		*-i18n)
 			copy locale/
 			CAT="localization|language files"
 			DEPENDS="gucharmap"

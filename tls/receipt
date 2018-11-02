@@ -4,7 +4,7 @@ PACKAGE="tls"
 VERSION="1.6.7"
 CATEGORY="network"
 SHORT_DESC="OpenSSL Tcl extension"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://tls.sourceforge.net/"
 
@@ -12,7 +12,7 @@ TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="openssl10-dev tcl-dev"
-SPLIT="tls-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's|/include$|/include/openssl-1.0|' ./configure
@@ -22,7 +22,7 @@ compile_rules() {
 		--disable-symboles \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

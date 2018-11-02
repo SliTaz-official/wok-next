@@ -5,7 +5,7 @@ VERSION="3.52"
 CATEGORY="perl"
 SHORT_DESC="XML::Twig - A perl module for processing huge XML documents in \
 tree mode"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/XML-Twig"
 REPOLOGY="perl:xml-twig"
@@ -13,20 +13,17 @@ REPOLOGY="perl:xml-twig"
 TARBALL="XML-Twig-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MIROD/$TARBALL"
 
-DEPENDS="perl-xml-parser"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-xml-parser"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL -y &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-xml-parser"
 }

@@ -4,7 +4,7 @@ PACKAGE="tazbug-website"
 VERSION="95"
 CATEGORY="misc"
 SHORT_DESC="SliTaz Bug Tracker website"
-MAINTAINER="fredericguilbault@live.ca"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://bugs.slitaz.org/"
 REPOLOGY="-"
@@ -12,15 +12,12 @@ REPOLOGY="-"
 TARBALL="tazbug-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/tazbug/archive/$VERSION.tar.bz2"
 
-DEPENDS="busybox gettext-base slitaz-base-files"
-BUILD_DEPENDS="gettext"
+BUILD_DEPENDS="gettext-dev"
 SIBLINGS="tazbug"
 
-# Use compile_rules with: make && make DESTDIR=$DESTDIR install-server
+# Use compile_rules with: make && make DESTDIR=$install install-server
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	#create path
 	mkdir -pm0755 $fs/etc/slitaz
 	mkdir -pm0755 $fs/var/www/bugs
@@ -38,4 +35,5 @@ genpkg_rules()
 	chown -R 80.80 $fs/var/lib/slitaz/people/
 	chmod 0700 $fs/var/lib/slitaz/auth/people
 	chown -R 80.80 $fs/var/lib/slitaz/auth/people
+	DEPENDS="busybox gettext-base slitaz-base-files"
 }

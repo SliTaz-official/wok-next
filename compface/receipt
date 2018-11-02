@@ -6,15 +6,17 @@ CATEGORY="utilities"
 SHORT_DESC="Utils & libs to convert from/to X-Face format"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="http://freecode.com/projects/compface"
+WEB_SITE="http://freshmeat.sourceforge.net/projects/compface"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://ftp.xemacs.org/pub/xemacs/aux/$TARBALL"
 
-SPLIT="xbm2xface compface compface-dev"
+SPLIT="xbm2xface $PACKAGE $PACKAGE-dev"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS && make && make install || return 1
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
 
 	install -Dm755 $src/xbm2xface.pl $install/usr/bin/xbm2xface.pl
 }

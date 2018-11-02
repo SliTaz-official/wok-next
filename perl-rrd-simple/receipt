@@ -13,21 +13,18 @@ REPOLOGY="perl:rrd-simple"
 TARBALL="RRD-Simple-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/N/NI/NICOLAW/$TARBALL"
 
-DEPENDS="perl rrdtool-perl"
 BUILD_DEPENDS="perl rrdtool-perl perl-test-pod perl-test-deep \
 perl-test-pod-coverage perl-module-build"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl rrdtool-perl"
 }

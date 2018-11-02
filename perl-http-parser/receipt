@@ -5,7 +5,7 @@ VERSION="0.06"
 CATEGORY="perl"
 SHORT_DESC="HTTP::Parser - parse HTTP/1.1 request into HTTP::Request/Response \
 object"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="https://metacpan.org/release/HTTP-Parser"
 REPOLOGY="perl:http-parser"
@@ -13,20 +13,17 @@ REPOLOGY="perl:http-parser"
 TARBALL="HTTP-Parser-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/E/ED/EDECA/$TARBALL"
 
-DEPENDS="perl-http-message perl-uri"
-BUILD_DEPENDS="$DEPENDS"
+BUILD_DEPENDS="perl-http-message perl-uri"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-http-message perl-uri"
 }

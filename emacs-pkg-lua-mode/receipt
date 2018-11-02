@@ -3,10 +3,10 @@
 PACKAGE="emacs-pkg-lua-mode"
 VERSION="20111107"
 CATEGORY="development"
-SHORT_DESC="An Emacs major mode for editing Lua code."
-MAINTAINER="domcox@slitaz.org"
+SHORT_DESC="An Emacs major mode for editing Lua code"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://immerrr.github.com/lua-mode/"
+WEB_SITE="http://immerrr.github.io/lua-mode/"
 REPOLOGY="emacs-lua-mode"
 
 BUILD_DEPENDS="emacs"
@@ -14,21 +14,19 @@ TAGS="emacs lua"
 
 DEPENDS="emacs"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	echo -n "Installing start file"
-	mkdir -p $fs/usr/share/emacs/site-lisp/site-start.d && \
+	mkdir -p $fs/usr/share/emacs/site-lisp/site-start.d &&
 	cp -a $stuff/90-lua-mode.el $fs/usr/share/emacs/site-lisp/site-start.d
 	status
 
 	echo -n "Installing lua-mode"
-	mkdir -p $fs/usr/share/emacs/site-lisp/lua-mode && \
+	mkdir -p $fs/usr/share/emacs/site-lisp/lua-mode &&
 	cp -a $stuff/lua-mode.el $fs/usr/share/emacs/site-lisp/lua-mode
 	status
 
 	# byte-compile files, remove src
-	for file in $fs/usr/share/emacs/site-lisp/lua-mode/*.el ; do
+	for file in $fs/usr/share/emacs/site-lisp/lua-mode/*.el; do
 		echo -n "Byte-compiling $(basename file)"
 		emacs -batch -f batch-byte-compile $file 2> /dev/null; err=$?
 		status
@@ -37,12 +35,10 @@ genpkg_rules()
 	true
 }
 
-post_install()
-{
+post_install() {
 	chroot "$1/" tazpkg reconfigure emacs
 }
 
-post_remove()
-{
+post_remove() {
 	chroot "$1/" tazpkg reconfigure emacs
 }

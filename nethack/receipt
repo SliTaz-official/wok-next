@@ -3,10 +3,10 @@
 PACKAGE="nethack"
 VERSION="3.4.3"
 CATEGORY="games"
-SHORT_DESC="NetHack is a single player dungeon exploration game"
+SHORT_DESC="Single-player dungeon exploration game"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="custom"
-WEB_SITE="http://www.nethack.org"
+WEB_SITE="http://www.nethack.org/"
 
 TARBALL="$PACKAGE-343-src.tgz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
@@ -18,11 +18,13 @@ compile_rules() {
 	sed -i "s|\/\* #define LINUX \*\/|#define LINUX|" include/unixconf.h
 	sed -i "s|WINTTYLIB = -ltermlib|# WINTTYLIB = -ltermlib|" src/Makefile
 	sed -i "s|# WINTTYLIB = -lncurses|WINTTYLIB = -lncurses|" src/Makefile
-	sed -i "s|= /usr|= $DESTDIR/usr|" Makefile
+	sed -i "s|= /usr|= $install/usr|" Makefile
 	sed -i "s|= games|= root|" Makefile
 	sed -i "s|= bin|= root|" Makefile
 	sed -i '/rmdir \.\/-p/d' Makefile
-	make && make install
+
+	make &&
+	make install
 }
 
 genpkg_rules() {

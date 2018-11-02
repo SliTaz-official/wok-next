@@ -1,33 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="streamripper"
 VERSION="1.64.6"
 CATEGORY="multimedia"
-SHORT_DESC="Record streaming mp3 to your hard drive."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Record streaming mp3 to your hard drive"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://streamripper.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-DEPENDS="gtk2 libmad libvorbis faad2 glibc-base"
 BUILD_DEPENDS="gtk2-dev libmad-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	chmod +x install-sh
+
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="gtk2 libmad libvorbis faad2 glibc-base"
 }

@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="scrot"
 VERSION="0.8"
@@ -6,27 +6,23 @@ CATEGORY="x-window"
 SHORT_DESC="A screen capture utility"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="BSD"
+WEB_SITE="http://freshmeat.sourceforge.net/projects/scrot"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://freecode.com/projects/scrot"
 WGET_URL="http://www.linuxbrit.co.uk/downloads/$TARBALL"
 
-DEPENDS="bzlib freetype giblib glibc-base imlib2 xorg-libxcb xorg-libX11 \
-xorg-libXau xorg-libXdmcp xorg-libXext zlib"
 BUILD_DEPENDS="patch giblib-dev imlib2-dev xorg-libX11-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|prefix)/doc|prefix)/share/doc|' *
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="bzlib freetype giblib glibc-base imlib2 xorg-libxcb xorg-libX11 \
+	xorg-libXau xorg-libXdmcp xorg-libXext zlib"
 }

@@ -4,7 +4,7 @@ PACKAGE="acl"
 VERSION="2.2.53"
 CATEGORY="system-tools"
 SHORT_DESC="Commands for manipulating POSIX Access Control Lists"
-MAINTAINER="rcx@zoominternet.net"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1 GPL2"
 WEB_SITE="http://savannah.nongnu.org/projects/acl/"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/acl.html"
@@ -12,8 +12,8 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/acl.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/acl/$TARBALL"
 
-BUILD_DEPENDS="attr-dev bash libtool gettext"
-SPLIT="acl-dev"
+BUILD_DEPENDS="attr-dev bash libtool gettext-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	rm /bin/rpm 2>/dev/null
@@ -25,7 +25,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libacl.so.* $install/lib

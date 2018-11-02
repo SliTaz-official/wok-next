@@ -4,7 +4,7 @@ PACKAGE="tazinst"
 VERSION="91"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz installer"
-MAINTAINER="domcox@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 REPOLOGY="-"
@@ -12,14 +12,14 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/tazinst/archive/$VERSION.tar.bz2"
 
-BUILD_DEPENDS="gettext"
-SPLIT="tazinst-gui tazinst"
+BUILD_DEPENDS="gettext-dev"
+SPLIT="$PACKAGE-gui $PACKAGE"
 
 compile_rules() {
 	sed -i 's| = |=|' $src/applications/tazinst.desktop
 
 	make &&
-	make DESTDIR=$DESTDIR VERSION=$VERSION install
+	make DESTDIR=$install VERSION=$VERSION install
 }
 
 genpkg_rules() {

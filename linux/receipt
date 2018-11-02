@@ -1,48 +1,46 @@
 # SliTaz package receipt v2.
 
 PACKAGE="linux"
-VERSION="4.17.7"
+VERSION="4.14.76"
 KBASEVER="$(echo $VERSION | cut -d. -f1,2)"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Kernel"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.kernel.org/"
-HOST_ARCH="i486 arm x86_64"
 
 TARBALL="$PACKAGE-$KBASEVER.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/v4.x/$TARBALL"
 
-BUILD_DEPENDS_arm="xz"
 BUILD_DEPENDS_x86_64="perl xz patch kmod bc elfutils-dev openssl-dev"
 BUILD_DEPENDS="perl xz lzma patch kmod bc elfutils-dev openssl-dev" # git
 # Removed: lguest, linux-firmware, linux-logfs, linux-irda, linux-toshiba
 SPLIT="\
-linux-acpi            linux-agp               linux-aoe \
-linux-appletalk       linux-arcnet            linux-autofs \
-linux-bluetooth       linux-bridge            linux-btrfs \
-linux-cifs            linux-coda              linux-cpufreq \
-linux-cramfs          linux-crypto            linux-cryptoloop \
-linux-dialup          linux-dlm               linux-drm \
-linux-ecryptfs        linux-efi               linux-ethernet \
-linux-exofs           linux-firewire          linux-gfs2 \
-linux-hfs             linux-hfsplus           linux-hid \
-linux-hwmon           linux-ide               linux-input-misc \
-linux-input-tablet    linux-input-touchscreen linux-ipv6 \
-linux-isdn            linux-jfs \
-linux-joystick        linux-kvm               linux-md \
-linux-media           linux-memstick          linux-minix \
-linux-mmc             linux-module-headers    linux-mwave \
-linux-ncpfs           linux-nbd               linux-netfilter \
-linux-nfc             linux-nfs               linux-nfsd \
-linux-ocfs2           linux-orangefs          linux-radio \
-linux-reiserfs        linux-romfs             linux-sched \
-linux-scsi            linux-sound             linux-source \
-linux-speakup         linux-squashfs          linux-staging \
-linux-usb-gadget      linux-usb-misc          linux-usbdsl \
-linux-usbip           linux-uwb               linux-video \
-linux-wan             linux-watchdog          linux-wimax \
-linux-wireless        linux-without-modules   linux-zram"
+$PACKAGE-acpi            $PACKAGE-agp               $PACKAGE-aoe \
+$PACKAGE-appletalk       $PACKAGE-arcnet            $PACKAGE-autofs \
+$PACKAGE-bluetooth       $PACKAGE-bridge            $PACKAGE-btrfs \
+$PACKAGE-cifs            $PACKAGE-coda              $PACKAGE-cpufreq \
+$PACKAGE-cramfs          $PACKAGE-crypto            $PACKAGE-cryptoloop \
+$PACKAGE-dialup          $PACKAGE-dlm               $PACKAGE-drm \
+$PACKAGE-ecryptfs        $PACKAGE-efi               $PACKAGE-ethernet \
+$PACKAGE-exofs           $PACKAGE-firewire          $PACKAGE-gfs2 \
+$PACKAGE-hfs             $PACKAGE-hfsplus           $PACKAGE-hid \
+$PACKAGE-hwmon           $PACKAGE-ide               $PACKAGE-input-misc \
+$PACKAGE-input-tablet    $PACKAGE-input-touchscreen $PACKAGE-ipv6 \
+$PACKAGE-isdn            $PACKAGE-jfs \
+$PACKAGE-joystick        $PACKAGE-kvm               $PACKAGE-md \
+$PACKAGE-media           $PACKAGE-memstick          $PACKAGE-minix \
+$PACKAGE-mmc             $PACKAGE-module-headers    $PACKAGE-mwave \
+$PACKAGE-ncpfs           $PACKAGE-nbd               $PACKAGE-netfilter \
+$PACKAGE-nfc             $PACKAGE-nfs               $PACKAGE-nfsd \
+$PACKAGE-ocfs2           $PACKAGE-orangefs          $PACKAGE-radio \
+$PACKAGE-reiserfs        $PACKAGE-romfs             $PACKAGE-sched \
+$PACKAGE-scsi            $PACKAGE-sound             $PACKAGE-source \
+$PACKAGE-speakup         $PACKAGE-squashfs          $PACKAGE-staging \
+$PACKAGE-usb-gadget      $PACKAGE-usb-misc          $PACKAGE-usbdsl \
+$PACKAGE-usbip           $PACKAGE-uwb               $PACKAGE-video \
+$PACKAGE-wan             $PACKAGE-watchdog          $PACKAGE-wimax \
+$PACKAGE-wireless        $PACKAGE-without-modules   $PACKAGE-zram"
 COOKOPTS="skip-log-errors"
 
 if [ "$KBASEVER" != "${VERSION%.0}" ]; then
@@ -63,22 +61,12 @@ fi
 # CONFIG_RETPOLINE
 #   against Spectre v.2 available both for i386 and x86_64 architectures.
 
-# Handle multiarch installation. ARM use Busybox modutils, so avoid any
-# deps on kmod. SLITAZ_ARCH can have also custom post_install commands
-if [ -f $root/etc/slitaz/slitaz.conf ]; then
-	. $root/etc/slitaz/slitaz.conf
-	case "$SLITAZ_ARCH" in
-		arm) DEPENDS="" ;;
-	esac
-fi
 
-# Rules to configure and make the package.
 compile_rules() {
 	case $ARCH in
 		# Linux don't supported i386 CPU, but ARCH should be 'i386' if we need 32bit CPU support
 		i?86)   ConfigFile="$stuff/linux-slitaz.config";   Arch='i386';;
 		x86_64) ConfigFile="$stuff/linux-slitaz64.config"; Arch='x86_64';;
-		arm*)   ConfigFile="$stuff/arm/linux-arm.config";  Arch='arm';;
 	esac
 
 	# Update sources to the $VERSION using base sources ($KBASEVER) and patch
@@ -95,25 +83,6 @@ compile_rules() {
 	if [ -f "/usr/share/boot/initrd" ]; then
 		cp /usr/share/boot/initrd initrd.cpio
 	fi
-
-	# Handle cross compilation
-	case "$ARCH" in
-		arm)
-			echo "Compiling: $Arch Kernel"
-			make mrproper
-			patch -Np1 < $stuff/arm/linux-arm.patch || exit 1
-			cp -f $ConfigFile .config
-			yes '' | make ARCH=$Arch oldconfig
-			make ARCH=$Arch CROSS_COMPILE=${HOST_SYSTEM}- bzImage &&
-			make ARCH=$Arch CROSS_COMPILE=${HOST_SYSTEM}- modules &&
-			make ARCH=$Arch CROSS_COMPILE=${HOST_SYSTEM}- \
-				INSTALL_MOD_PATH=$DESTDIR modules_install &&
-			mkdir -p $DESTDIR/boot &&
-			cp -a arch/arm/boot/zImage \
-				$DESTDIR/boot/linux-$VERSION-slitaz-$ARCH
-			#$stuff/tools/gztazmod.sh $DESTDIR/lib/modules/$VERSION-slitaz
-			return 0 ;;
-	esac
 
 	# Get and apply Aufs patches
 	. $stuff/tools/aufs-patches
@@ -152,10 +121,10 @@ compile_rules() {
 		yes '' | make ARCH=$Arch oldconfig
 
 		title 'Building bzImage without modules...'
-		make ARCH=$Arch -j4 bzImage || exit 1
+		make ARCH=$Arch -j4 bzImage || return 1
 
-		mkdir -p $DESTDIR
-		mv arch/x86/boot/bzImage $DESTDIR
+		mkdir -p $install
+		mv arch/x86/boot/bzImage $install
 		mv System.map System.map-without-modules
 	fi
 
@@ -169,14 +138,14 @@ compile_rules() {
 	title 'Building bzImage with modules...'
 	make ARCH=$Arch -j4 bzImage &&
 	make ARCH=$Arch -j4 modules &&
-	make ARCH=$Arch INSTALL_MOD_PATH=$DESTDIR     modules_install &&
-	make ARCH=$Arch INSTALL_HDR_PATH=$DESTDIR/usr headers_install &&
+	make ARCH=$Arch INSTALL_MOD_PATH=$install     modules_install &&
+	make ARCH=$Arch INSTALL_HDR_PATH=$install/usr headers_install &&
 
 	[ -s arch/x86/boot/bzImage ] || return 1
-	mkdir -p $DESTDIR/boot
-	mv arch/x86/boot/bzImage $DESTDIR/boot/vmlinuz-$VERSION-slitaz
+	mkdir -p $install/boot
+	mv arch/x86/boot/bzImage $install/boot/vmlinuz-$VERSION-slitaz
 
-	$stuff/tools/install_module_headers.sh $DESTDIR $src $VERSION-slitaz
+	$stuff/tools/install_module_headers.sh $install $src $VERSION-slitaz
 
 	ln System.map System.map-modules
 	ln Module.symvers Module.symvers-modules
@@ -188,7 +157,6 @@ compile_rules() {
 }
 
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
 genpkg_rules() {
 	DEPENDS="linux"				# default, may be subject to change later
 
@@ -274,13 +242,6 @@ genpkg_rules() {
 	case $PACKAGE in
 		linux)
 			DEPENDS="kmod"
-			case "$ARCH" in
-				arm)
-					echo "Packing: ARM Kernel"
-					cp -a $install/* $fs
-					rm -f $fs/lib/modules/*/build $fs/lib/modules/*/source
-					return 0 ;;
-			esac
 
 			# Copy the Kernel
 			cp -a $install/boot $fs
@@ -393,14 +354,6 @@ genpkg_rules() {
 
 
 post_install_linux() {
-	# Handle multiarch installation
-	case "$SLITAZ_ARCH" in
-		arm)
-			echo "Kernel : /boot/linux-$VERSION-slitaz-$ARCH"
-			echo "Modules: /lib/modules/$VERSION-slitaz"
-			return 0 ;;
-	esac
-
 	# GRUB stuff.
 	if [ -f "$1/boot/grub/menu.lst" ]; then
 		# Current root device

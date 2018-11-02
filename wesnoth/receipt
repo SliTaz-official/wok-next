@@ -4,72 +4,71 @@ PACKAGE="wesnoth"
 VERSION="1.12.6"
 CATEGORY="games"
 SHORT_DESC="Turn based strategy game"
-MAINTAINER="mimas@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="http://www.wesnoth.org/"
-WGET_URL="$SF_MIRROR/wesnoth/wesnoth-${VERSION%.*}/$PACKAGE-$VERSION/$TARBALL"
-TAGS="strategy"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="cairo-dev pango-dev boost-dev boost-regex \
 boost-iostreams libsdl-dev libsdl-mixer-dev libsdl-ttf-dev libsdl-ttf \
 libsdl-image-dev libsdl-net-dev libpng16-dev freetype-dev fontconfig-dev \
 findutils lua-dev boost-serialization autoconf automake fribidi-dev \
 boost-system boost-program-options boost-filesystem boost-locale \
-libvorbis-dev cmake gettext-tools"
-SPLIT="wesnoth-music"
+libvorbis-dev cmake gettext"
+SPLIT="$PACKAGE-music"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cmake -DCMAKE_INSTALL_PREFIX=/usr .
-	make $MAKEFLAGS && make DESTDIR=$DESTDIR install
+compile_rules() {
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		. &&
+	make $MAKEFLAGS &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	wesnoth)
-		DEPENDS="libsdl libsdl-mixer libsdl-ttf libsdl-net \
+		wesnoth)
+			DEPENDS="libsdl libsdl-mixer libsdl-ttf libsdl-net \
 			libsdl-image zlib pango cairo fontconfig \
 			boost-regex boost-iostreams libpng16 fribidi \
 			gcc-lib-base xorg-xcb-util boost-system \
 			boost-program-options"
-		# programs
-		mkdir -p $fs/usr/bin
-		cp $install/usr/bin/wesnoth $fs/usr/bin/
+			# programs
+			mkdir -p $fs/usr/bin
+			cp $install/usr/bin/wesnoth $fs/usr/bin/
 
-		# data
-		mkdir -p $fs/usr/share/wesnoth/
-		cp -a $install/usr/share/wesnoth/data $fs/usr/share/wesnoth/
-		cp -a $install/usr/share/wesnoth/fonts $fs/usr/share/wesnoth/
-		cp -a $install/usr/share/wesnoth/images $fs/usr/share/wesnoth/
-		cp -a $install/usr/share/wesnoth/sounds $fs/usr/share/wesnoth/
+			# data
+			mkdir -p $fs/usr/share/wesnoth/
+			cp -a $install/usr/share/wesnoth/data $fs/usr/share/wesnoth/
+			cp -a $install/usr/share/wesnoth/fonts $fs/usr/share/wesnoth/
+			cp -a $install/usr/share/wesnoth/images $fs/usr/share/wesnoth/
+			cp -a $install/usr/share/wesnoth/sounds $fs/usr/share/wesnoth/
 
-		mkdir $fs/usr/share/wesnoth/translations
-		if [ ! "$LOCALE" = "" ]; then
-			for i in $LOCALE
-			do
-				cp -a $install/usr/share/wesnoth/translations/$i \
-					$fs/usr/share/wesnoth/translations
-			done		
-		else
-			cp -a $install/usr/share/wesnoth/translations \
-				$fs/usr/share/wesnoth/
-		fi
-	
-		# Remove music
-		rm $fs/usr/share/wesnoth/data/core/music/*.ogg 2> /dev/null
+			mkdir $fs/usr/share/wesnoth/translations
+			if [ -n "$LOCALE" ]; then
+				for i in $LOCALE; do
+					cp -a $install/usr/share/wesnoth/translations/$i \
+						$fs/usr/share/wesnoth/translations
+				done
+			else
+				cp -a $install/usr/share/wesnoth/translations \
+					$fs/usr/share/wesnoth/
+			fi
 
-		# finalize
-		cp -a $install/usr/share/applications $fs/usr/share
-		cp -a $install/usr/share/pixmaps $fs/usr/share
-		;;
-	wesnoth-music)
-		CAT="games|music files"
-		mkdir -p $fs/usr/share/wesnoth/data/core
-		cp -a $src/data/core/music $fs/usr/share/wesnoth/data/core
-		;;
+			# Remove music
+			rm $fs/usr/share/wesnoth/data/core/music/*.ogg 2>/dev/null
+
+			# finalize
+			cp -a $install/usr/share/applications $fs/usr/share
+			cp -a $install/usr/share/pixmaps $fs/usr/share
+			TAGS="strategy"
+			;;
+		*-music)
+			CAT="games|music files"
+			mkdir -p $fs/usr/share/wesnoth/data/core
+			cp -a $src/data/core/music $fs/usr/share/wesnoth/data/core
+			;;
 	esac
 }

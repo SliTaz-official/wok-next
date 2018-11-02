@@ -3,29 +3,29 @@
 PACKAGE="iftop"
 VERSION="0.17"
 CATEGORY="system-tools"
-SHORT_DESC="Bandwidth usage on an interface."
+SHORT_DESC="Bandwidth usage on an interface"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="http://www.ex-parrot.com/~pdw/iftop/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://ex-parrot.com/~pdw/iftop/"
 WGET_URL="${WEB_SITE}download/$TARBALL"
-TAGS="network monitor usage"
 
 BUILD_DEPENDS="libpcap-dev ncurses-dev"
-DEPENDS="libpcap ncurses"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	./configure --prefix=/usr --infodir=/usr/share/info \
-	--mandir=/usr/share/man $CONFIGURE_ARGS
-	make
-	make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--infodir=/usr/share/info \
+		--mandir=/usr/share/man \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/
 	cp -a $install/usr/sbin $fs/usr
+	DEPENDS="libpcap ncurses"
+	TAGS="network monitor usage"
 }

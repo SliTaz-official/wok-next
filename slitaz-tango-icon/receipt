@@ -3,8 +3,8 @@
 PACKAGE="slitaz-tango-icon"
 VERSION="1.7"
 CATEGORY="misc"
-SHORT_DESC="Tango icons unofficial in size 16x16 and 32x32 (minimum)."
-MAINTAINER="pankso@slitaz.org"
+SHORT_DESC="Tango icons unofficial in size 16x16 and 32x32 (minimum)"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://tango.freedesktop.org/"
 REPOLOGY="-"
@@ -12,22 +12,18 @@ REPOLOGY="-"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.tuxfamily.org/slitaz/sources/artwok/$TARBALL"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share/icons
 	cp -a $src/* $fs/usr/share/icons
 	chown -R root.root $fs
 }
 
-qtfix="usr/share/icons/hicolor/index.theme"
-
-post_install()
-{
+post_install() {
+	qtfix="usr/share/icons/hicolor/index.theme"
 	sed '/Inherits=/s|=.*$|=Tango|' -i "$1/$qtfix"
 }
 
-pre_remove()
-{
+pre_remove() {
+	qtfix="usr/share/icons/hicolor/index.theme"
 	sed '/Inherits=/s|=.*$|=SliTaz|' -i "$1/$qtfix"
 }

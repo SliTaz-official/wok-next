@@ -1,32 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="gmrun"
 VERSION="0.9.2"
 CATEGORY="utilities"
-SHORT_DESC="Program launcher with autocompletion."
-MAINTAINER="rocky@slitaz.org"
+SHORT_DESC="Program launcher with autocompletion"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://sourceforge.net/projects/gmrun/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WEB_SITE="http://sourceforge.net/projects/gmrun"
 WGET_URL="$SF_MIRROR/gmrun/$TARBALL"
 
-DEPENDS="gtk2 gcc-lib-base popt"
 BUILD_DEPENDS="gtk2-dev popt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-    ./configure --prefix=/usr \
-        $CONFIGURE_ARGS &&
-    make &&
-    make install DESTDIR=$DESTDIR
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs/usr
-    cp -a $install/usr/bin $fs/usr
-    cp -a $install/usr/share $fs/usr
-    cp $stuff/gmrunrc $fs/usr/share/gmrun
+genpkg_rules() {
+	mkdir -p $fs/usr
+	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/share $fs/usr
+	cp $stuff/gmrunrc $fs/usr/share/gmrun
+	DEPENDS="gtk2 gcc-lib-base popt"
 }

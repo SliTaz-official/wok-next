@@ -21,10 +21,8 @@ openssl-dev lua-dev lua libpri-dev bluez-dev bluez portaudio-dev alsa-lib-dev \
 libsdl-image-dev net-snmp iksemel libical-dev curl-dev libcap-dev iksemel-dev \
 jack-dev radiusclient-ng-dev radiusclient-ng \
 libvorbis-dev speex-dev"
-SPLIT="asterisk-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-#
 # Graphical configuration: 'make menuconfig' or 'make gmenuconfig'
 #
 compile_rules() {
@@ -48,18 +46,18 @@ compile_rules() {
 	cp $stuff/rfc3951.txt codecs/ilbc
 	[ -f codecs/ilbc/iLBC_define.h ] || ( cd codecs/ilbc &&
 		awk -f $stuff/extract-cfile.awk rfc3951.txt > /dev/null )
-	mkdir -p $DESTDIR/usr/bin
+	mkdir -p $install/usr/bin
 #	export CXXFLAGS="$CXXFLAGS -fPIC"
 	./configure \
 		--without-pwlib \
 		--with-dahdi=$WOK/dahdi/$(ls $WOK/dahdi/taz) \
 		--with-tonezone \
 		$CONFIGURE_ARGS &&
-	make -j 1 2>&1 | grep -v pjproject &&
-	make -j 1 DESTDIR=$DESTDIR install &&
-	make -j 1 DESTDIR=$DESTDIR samples &&
+	make -j1 2>&1 | grep -v pjproject &&
+	make -j1 DESTDIR=$install install &&
+	make -j1 DESTDIR=$install samples &&
 	cd contrib/utils &&
-	gcc rawplayer.c -o $DESTDIR/usr/bin/rawplayer
+	gcc rawplayer.c -o $install/usr/bin/rawplayer
 }
 
 genpkg_rules() {
@@ -87,41 +85,39 @@ genpkg_rules() {
 	esac
 }
 
-# Rules to configure package
-setup_rules()
-{
+setup_rules() {
 	case "$2" in
-	mysql_host)
-		sed -i "s|^hostname=.*|hostname=$3|" "$1/etc/asterisk/cdr_mysql.conf"
-		sed -i "s|^dbhost=.*|dbhost=$3|" "$1/etc/asterisk/res_mysql.conf"
-		;;
-	mysql_user)
-		sed -i "s|^user=.*|user=$3|" "$1/etc/asterisk/cdr_mysql.conf"
-		sed -i "s|^dbuser=.*|dbuser=$3|" "$1/etc/asterisk/res_mysql.conf"
-		;;
-	mysql_password)
-		sed -i "s|^password=.*|password=$3|" "$1/etc/asterisk/cdr_mysql.conf"
-		sed -i "s|^dbpass=.*|dbpass=$3|" "$1/etc/asterisk/res_mysql.conf"
-		;;
-	mysql_database)
-		sed -i "s|^dbname=.*|dbname=$3|" "$1/etc/asterisk/res_mysql.conf" \
-						 "$1/etc/asterisk/cdr_mysql.conf"
-		;;
-	pgsql_host)
-		sed -i "s|^hostname=.*|hostname=$3|" "$1/etc/asterisk/cdr_pgsql.conf"
-		sed -i "s|^dbhost=.*|dbhost=$3|" "$1/etc/asterisk/res_pgsql.conf"
-		;;
-	pgsql_user)
-		sed -i "s|^user=.*|user=$3|" "$1/etc/asterisk/cdr_pgsql.conf"
-		sed -i "s|^dbuser=.*|dbuser=$3|" "$1/etc/asterisk/res_pgsql.conf"
-		;;
-	pgsql_password)
-		sed -i "s|^password=.*|password=$3|" "$1/etc/asterisk/cdr_pgsql.conf"
-		sed -i "s|^dbpass=.*|dbpass=$3|" "$1/etc/asterisk/res_pgsql.conf"
-		;;
-	pgsql_database)
-		sed -i "s|^dbname=.*|dbname=$3|" "$1/etc/asterisk/res_pgsql.conf" \
-						 "$1/etc/asterisk/cdr_pgsql.conf"
+		mysql_host)
+			sed "s|^hostname=.*|hostname=$3|" -i "$1/etc/asterisk/cdr_mysql.conf"
+			sed "s|^dbhost=.*|dbhost=$3|"     -i "$1/etc/asterisk/res_mysql.conf"
+			;;
+		mysql_user)
+			sed "s|^user=.*|user=$3|"     -i "$1/etc/asterisk/cdr_mysql.conf"
+			sed "s|^dbuser=.*|dbuser=$3|" -i "$1/etc/asterisk/res_mysql.conf"
+			;;
+		mysql_password)
+			sed "s|^password=.*|password=$3|" -i "$1/etc/asterisk/cdr_mysql.conf"
+			sed "s|^dbpass=.*|dbpass=$3|"     -i "$1/etc/asterisk/res_mysql.conf"
+			;;
+		mysql_database)
+			sed "s|^dbname=.*|dbname=$3|" "$1/etc/asterisk/res_mysql.conf" \
+				-i "$1/etc/asterisk/cdr_mysql.conf"
+			;;
+		pgsql_host)
+			sed "s|^hostname=.*|hostname=$3|" -i "$1/etc/asterisk/cdr_pgsql.conf"
+			sed "s|^dbhost=.*|dbhost=$3|"     -i "$1/etc/asterisk/res_pgsql.conf"
+			;;
+		pgsql_user)
+			sed "s|^user=.*|user=$3|"     -i "$1/etc/asterisk/cdr_pgsql.conf"
+			sed "s|^dbuser=.*|dbuser=$3|" -i "$1/etc/asterisk/res_pgsql.conf"
+			;;
+		pgsql_password)
+			sed "s|^password=.*|password=$3|" -i "$1/etc/asterisk/cdr_pgsql.conf"
+			sed "s|^dbpass=.*|dbpass=$3|"     -i "$1/etc/asterisk/res_pgsql.conf"
+			;;
+		pgsql_database)
+			sed "s|^dbname=.*|dbname=$3|" "$1/etc/asterisk/res_pgsql.conf" \
+				-i "$1/etc/asterisk/cdr_pgsql.conf"
 		;;
 	*)	cat <<EOT
 mysql_host	hostname or ip of mysql server

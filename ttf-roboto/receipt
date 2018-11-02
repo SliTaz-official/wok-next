@@ -11,21 +11,17 @@ WEB_SITE="https://fonts.google.com/specimen/Roboto"
 TARBALL="roboto-hinted-$VERSION.zip"
 WGET_URL="https://github.com/google/roboto/releases/download/v$VERSION/roboto-hinted.zip"
 
-SPLIT="ttf-roboto-base ttf-roboto"
+SPLIT="$PACKAGE-base $PACKAGE"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	FONTPATH=$install/usr/share/fonts/truetype/ttf-roboto
 	mkdir -p $FONTPATH
 	install -Dm644 $src/*.ttf $FONTPATH
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-		ttf-roboto-base)
+		*-base)
 			copy Roboto-Regular.ttf Roboto-Bold.ttf Roboto-Italic.ttf \
 			Roboto-BoldItalic.ttf
 			CAT="fonts|base family"

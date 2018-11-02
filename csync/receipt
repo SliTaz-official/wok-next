@@ -4,7 +4,7 @@ PACKAGE="csync"
 VERSION="0.50.8"
 CATEGORY="network"
 SHORT_DESC="File synchronizer"
-MAINTAINER="erjo@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.csync.org/"
 
@@ -13,7 +13,7 @@ WGET_URL="http://download.owncloud.com/download/$TARBALL"
 
 BUILD_DEPENDS="check-dev cmake sqlite3-dev iniparser-dev \
 expat-dev openssl-dev log4c-dev neon-dev samba-dev"
-SPLIT="csync-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	mkdir csync-build
@@ -23,22 +23,18 @@ compile_rules() {
 		-DWITH_LOG4C=OFF \
 		-DLOG_TO_CALLBACK=ON \
 		.. &&
-	make && make install
+	make &&
+	make install
 }
 
 genpkg_rules() {
 	case $PACKAGE in
 		csync)
-			mkdir -p $fs/usr/lib
-			cp -a $install/usr/etc $fs/
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/csync-0 $fs/usr/lib
+			copy @std
 			DEPENDS="libsqlite3 neon"
 			;;
 		*-dev)
-			mkdir -p $fs/usr
-			cp -a $install/usr/include $fs/usr
+			copy @dev
 			;;
 	esac
 }

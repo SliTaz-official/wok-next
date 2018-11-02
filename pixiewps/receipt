@@ -11,21 +11,16 @@ WEB_SITE="https://github.com/wiire-a/pixiewps"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|\$(DESTDIR)/usr|/usr|; s|/local||' src/Makefile
 	cd $src/src
 
-	make && make install
+	make &&
+	make install || return 1
 
-	docdir=$install/usr/share/doc/$PACKAGE-$VERSION
-	mkdir -p $docdir
-	cp $src/README.md $docdir
+	cook_pick_docs $src/README.md
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

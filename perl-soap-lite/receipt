@@ -12,22 +12,21 @@ REPOLOGY="perl:soap-lite"
 TARBALL="SOAP-Lite-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/P/PH/PHRED/$TARBALL"
 
-DEPENDS="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
+BUILD_DEPENDS="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
 perl-lwp-protocol-https perl-libwww-perl perl-task-weaken perl-uri \
 perl-xml-parser"
-BUILD_DEPENDS="$DEPENDS"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
+	perl-lwp-protocol-https perl-libwww-perl perl-task-weaken perl-uri \
+	perl-xml-parser"
 }

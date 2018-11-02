@@ -1,29 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="dmenu"
 VERSION="4.5"
 CATEGORY="misc"
-SHORT_DESC="dynamic menu lauch bar"
-MAINTAINER="jozee@slitaz.org"
+SHORT_DESC="Dynamic menu lauch bar"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://tools.suckless.org/dmenu/"
-WGET_URL="http://dl.suckless.org/tools/$TARBALL"
-TAGS="launchbar"
 
-DEPENDS="xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXinerama"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://dl.suckless.org/tools/$TARBALL"
+
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXinerama-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-    make CC=${HOST_SYSTEM}-gcc &&
-    make DESTDIR=$DESTDIR install
+compile_rules() {
+	make CC=${HOST_SYSTEM}-gcc &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-    mkdir -p $fs/usr/bin
-    cp -a $install/usr/local/bin/* $fs/usr/bin/
+genpkg_rules() {
+	mkdir -p $fs/usr/bin
+	cp -a $install/usr/local/bin/* $fs/usr/bin/
+	DEPENDS="xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXinerama"
+	TAGS="launchbar"
 }

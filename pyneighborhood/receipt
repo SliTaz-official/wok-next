@@ -1,33 +1,28 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pyneighborhood"
 VERSION="0.5.4"
 CATEGORY="network"
-SHORT_DESC="GUI frontend for samba tools (smbclient, smbmount, etc)."
+SHORT_DESC="GUI frontend for samba tools (smbclient, smbmount, etc.)"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://launchpad.net/pyneighborhood"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/${VERSION%.*}/$VERSION/+download/$TARBALL"
 
-DEPENDS="python python-pygtk samba"
-BUILD_DEPENDS="python python-dev gettext"
+BUILD_DEPENDS="python-dev gettext-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# hack Makefile
-	sed -i 's/--prefix=/--root=/' Makefile
+	sed -i 's|--prefix=|--root=|' Makefile
 	# hack .desktop file
-	sed -i 's/Application;Network;System;Utility/Application;System;/' pyNeighborhood.desktop
+	sed -i 's|Application;Network;System;Utility|Application;System;|' pyNeighborhood.desktop
 
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr
-	cp -a $install/usr $fs
-	cp -a $install/share $fs/usr
+genpkg_rules() {
+	copy @std
+	DEPENDS="python python-pygtk samba"
 }

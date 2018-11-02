@@ -17,7 +17,8 @@ compile_rules() {
 	sed -i 's/union wait/int/' syslogd.c
 	mkdir -p $install/sbin $install/usr/share/man/man5 $install/usr/share/man/man8
 
-	make && make prefix=$install BINDIR=$install/sbin install
+	make &&
+	make prefix=$install BINDIR=$install/sbin install || return 1
 
 	mkdir -p $install/etc
 	cp $stuff/syslog.conf $install/etc

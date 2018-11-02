@@ -16,16 +16,13 @@ xorg-libXft xorg-libXi zlib"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev libjpeg-turbo-dev \
 xorg-libXext-dev xorg-libXi-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	sed -i "s|/usr/local|$DESTDIR/usr|; s|\$(MACRO) ||" Makefile
+compile_rules() {
+	sed -i "s|/usr/local|$install/usr|; s|\$(MACRO) ||" Makefile
 
-	make && make install
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 }

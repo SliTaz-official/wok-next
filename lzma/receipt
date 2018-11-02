@@ -12,17 +12,10 @@ TARBALL="lzma$(echo $VERSION | sed 's/\.//').tar.bz2"
 WGET_URL="$SF_MIRROR/sevenzip/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev"
-SPLIT="lzma lzlib lzlib-dev"
+SPLIT="lzlib lzlib-dev"
 
 compile_rules() {
 	cd CPP/7zip/Compress/LZMA_Alone
-
-	# Handle cross compilation
-	case "$ARCH" in
-		arm)
-			sed -i s'/g++/arm-slitaz-linux-gnueabi-c++/' makefile.gcc
-			sed -i s'/gcc/arm-slitaz-linux-gnueabi-gcc/' makefile.gcc ;;
-	esac
 
 	# Remove copyright message.
 	sed '/MY_VERSION_COPYRIGHT_DATE/d' -i LzmaAlone.cpp

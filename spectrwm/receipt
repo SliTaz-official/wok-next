@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="spectrwm"
 VERSION="2.7.2"
@@ -7,26 +7,21 @@ SHORT_DESC="Small dynamic tiling window manager for X11"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="ISC MIT"
 WEB_SITE="https://github.com/conformal/spectrwm"
+
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="https://opensource.conformal.com/snapshots/spectrwm/$TARBALL"
-CONFIG_FILES="/etc/spectrwm.conf"
-TAGS="tile window-manager"
 
-DEPENDS="xorg-xcb-util xorg-xcb-util-keysyms xorg-xcb-util-wm xorg-libXcursor xorg-libXft"
 BUILD_DEPENDS="xorg-libX11-dev xorg-libXrandr-dev \
 xorg-libXcursor-dev xorg-libXft-dev xorg-xcb-util-dev xorg-xcb-util-wm-dev \
 xorg-xcb-util-keysyms-dev xorg-libXt-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	cd linux
-	PREFIX=/usr make && PREFIX=/usr DESTDIR=$install make install
+	PREFIX=/usr make &&
+	PREFIX=/usr DESTDIR=$install make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 	mkdir -p $fs/etc
 	# copy conf files (few more exists in $src)
@@ -34,4 +29,7 @@ genpkg_rules()
 	# "switch on" keyboard mapping
 	sed -i 's|# keyboard_mapping.*|keyboard_mapping = /etc/spectrwm_us.conf|' \
 		$fs/etc/spectrwm.conf
+	DEPENDS="xorg-xcb-util xorg-xcb-util-keysyms xorg-xcb-util-wm xorg-libXcursor xorg-libXft"
+	CONFIG_FILES="/etc/spectrwm.conf"
+	TAGS="tile window-manager"
 }

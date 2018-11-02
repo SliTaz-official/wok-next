@@ -4,17 +4,17 @@ PACKAGE="cookutils"
 VERSION="1088"
 CATEGORY="base-system"
 SHORT_DESC="SliTaz packages builder new generation"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.slitaz.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.bz2"
 
-SPLIT="cookutils-daemon"
+SPLIT="$PACKAGE-daemon"
 
 compile_rules() {
-	make DESTDIR=$install install
+	make DESTDIR=$install install || return 1
 
 	# Set correct architecture
 	sed -i "/^ARCH=/ s|.*|ARCH=\"$ARCH\"|" $install/etc/slitaz/cook.conf
@@ -43,7 +43,7 @@ genpkg_rules() {
 NO_post_install_cookutils() {
 	case "$(cat "$1/etc/hostname" 2>/dev/null)" in
 		tank*)
-			if ! chroot "$1/" tazpkg list | grep -q aufs ; then
+			if ! chroot "$1/" tazpkg list | grep -q aufs; then
 				tazpkg get-install aufs --root="$1/"
 				sed -i 's/LOAD_MODULES="/&aufs /' "$1/etc/rcS.conf"
 			fi

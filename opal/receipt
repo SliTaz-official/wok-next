@@ -13,7 +13,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="ptlib-dev openssl-dev"
-SPLIT="opal-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	sed -i 's| abs(| std::fabs(|g' plugins/video/common/mpi.cxx
@@ -33,7 +33,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	CXXFLAGS=-Wno-deprecated-declarations \
 	make $MAKEFLAGS &&
-	make DESTDIR=$DESTDIR install || return 1
+	make DESTDIR=$install install || return 1
 
 	chmod 644 $install/usr/lib/libopal_s.a
 }

@@ -4,9 +4,9 @@ PACKAGE="dhid"
 VERSION="5.5"
 CATEGORY="network"
 SHORT_DESC="Open source Dynamic IP Updater"
-MAINTAINER="pankso@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://dhis.org"
+WEB_SITE="http://dhis.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.dhis.org/pub/dhis/$TARBALL"
@@ -14,11 +14,7 @@ WGET_URL="ftp://ftp.dhis.org/pub/dhis/$TARBALL"
 BUILD_DEPENDS="gmp-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm) ARCH_FLAGS=" LFLAGS=-L/cross/$ARCH/sysroot/usr/lib";;
-	esac
-
-	make CC=$HOST_SYSTEM-gcc $ARCH_FLAGS || return 1
+	make CC=$HOST_SYSTEM-gcc || return 1
 
 	install -Dm644 $src/dhid.conf.sample $install/etc/dhid.conf
 	install -Dm644 $src/README           $install/usr/share/doc/dhid/README

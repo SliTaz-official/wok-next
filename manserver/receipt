@@ -7,14 +7,11 @@ SHORT_DESC="Man to HTML converter which can act as an HTTP server on port 8888"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="custom"
 WEB_SITE="https://web.archive.org/web/20160326063337/http://www.squarebox.co.uk/users/rolf/download/manServer.shtml"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.squarebox.co.uk/download/$TARBALL"
 
-DEPENDS="perl" #also can use busybox to extract gz, bz2 or xz man pages
-
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/bin $fs/usr/share/licenses $fs/usr/share/man/man1 $fs/etc/init.d
 
 	install -Dm755 $src/manServer.pl $fs/usr/bin/manServer
@@ -23,4 +20,5 @@ genpkg_rules()
 	install -Dm644 $src/manServer.1 $fs/usr/share/man/man1
 	install -Dm644 $stuff/manpath.config $fs/etc/manpath.config
 	ln -s daemon $fs/etc/init.d/manserver
+	DEPENDS="perl" #also can use busybox to extract gz, bz2 or xz man pages
 }

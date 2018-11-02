@@ -11,16 +11,16 @@ WEB_SITE="http://hunspell.github.io/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/hunspell/$TARBALL"
 
-BUILD_DEPENDS="automake libtool gettext perl"
-SPLIT="hyphen-dev"
+BUILD_DEPENDS="automake libtool gettext-dev perl"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install-libLTLIBRARIES &&
-	make DESTDIR=$DESTDIR install-binSCRIPTS     &&
-	make DESTDIR=$DESTDIR install-includeHEADERS
+	make DESTDIR=$install install-libLTLIBRARIES &&
+	make DESTDIR=$install install-binSCRIPTS     &&
+	make DESTDIR=$install install-includeHEADERS
 }
 
 genpkg_rules() {

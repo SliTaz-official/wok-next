@@ -11,7 +11,7 @@ WEB_SITE="https://github.com/bbidulock/icewm"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://github.com/bbidulock/icewm/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-mkfontdir gettext fontconfig-dev xorg-libXext-dev \
+BUILD_DEPENDS="xorg-mkfontdir gettext-dev fontconfig-dev xorg-libXext-dev \
 xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev xorg-libXrandr-dev \
 xorg-libXft-dev alsa-lib-dev libsndfile-dev xorg-libXinerama-dev fribidi-dev \
 gdk-pixbuf-dev flac-dev"
@@ -23,7 +23,8 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install &&
+	make install || return 1
+
 	rm $install/usr/share/xsessions/icewm.desktop
 }
 

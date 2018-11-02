@@ -15,7 +15,7 @@ WGET_URL="https://download.samba.org/pub/samba/stable/$TARBALL"
 BUILD_DEPENDS="python-dev perl acl-dev docbook-xsl openldap-dev   \
 gnutls-dev krb5-dev cyrus-sasl-dev zlib-dev popt-dev libtdb-dev talloc-dev \
 libgcrypt-dev nss-dev cups-dev dbus-dev pam pam-dev"
-SPLIT="samba samba-dev samba-pam:pam" # TODO: swat
+SPLIT="$PACKAGE-dev $PACKAGE-pam:pam" # TODO: swat
 
 BUGS="Open directory needs MIT kerberos support (krb5)"
 COOKOPTS="!menus"
@@ -44,7 +44,8 @@ compile_rules() {
 		--enable-selftest \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	mkdir -p $instsll/lib/
 	mv $install/usr/lib/libnss_wins.so*  $install/usr/lib/libnss_winbind.so* \

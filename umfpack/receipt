@@ -12,7 +12,7 @@ TARBALL="SuiteSparse-$VERSION.tar.gz"
 WGET_URL="http://faculty.cse.tamu.edu/davis/SuiteSparse/$TARBALL"
 
 BUILD_DEPENDS="blas lapack libgfortran"
-SPLIT="umfpack-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	cat > dynlink.sh <<EOT
@@ -31,17 +31,17 @@ EOT
 		    -e "s|\$(AR[A-Z]*)|sh $src/dynlink.sh|" \
 			< $i/Makefile > $i/Makefile.d
 	done
-	mkdir -p $DESTDIR/usr/lib $DESTDIR/usr/include
-	sed -i "s/lopenblas/lblas/;s|/usr/local|$DESTDIR/usr|" \
+	mkdir -p $install/usr/lib $install/usr/include
+	sed -i "s/lopenblas/lblas/;s|/usr/local|$install/usr|" \
 		SuiteSparse_config/*.mk
 
-	make -j 1 && make install
+	make -j1 && make install
 
 	for i in */Lib/*.so.*; do
-		cp $i $DESTDIR/usr/lib
+		cp $i $install/usr/lib
 		l=$(basename $i)
-		ln -s $l $DESTDIR/usr/lib/${l%.*.*}
-		ln -s $l $DESTDIR/usr/lib/${l%so*}so
+		ln -s $l $install/usr/lib/${l%.*.*}
+		ln -s $l $install/usr/lib/${l%so*}so
 	done
 }
 

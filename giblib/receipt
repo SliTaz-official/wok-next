@@ -4,7 +4,7 @@ PACKAGE="giblib"
 VERSION="1.2.4"
 CATEGORY="graphics"
 SHORT_DESC="Giblib graphic library"
-MAINTAINER="mallory@sweetpeople.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://freshmeat.sourceforge.net/projects/giblib"
 
@@ -13,18 +13,15 @@ WGET_URL="http://linuxbrit.co.uk/downloads/$TARBALL"
 
 BUILD_DEPENDS="gfortran imlib2-dev imlib2 xorg-xorgproto freetype-dev \
 xorg-libXext-dev"
-SPLIT="giblib-dev"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	case "$ARCH" in
-		arm*) export CFLAGS="$CFLAGS -L/cross/$ARCH/sysroot/usr/lib" ;;
-	esac
-
 	sed -i 's|/doc|/share&|' Makefile*
+
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
 genpkg_rules() {

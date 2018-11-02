@@ -11,20 +11,10 @@ WEB_SITE="http://matt.ucc.asn.au/dropbear/dropbear.html"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://matt.ucc.asn.au/dropbear/releases/$TARBALL"
 
-case "$ARCH" in
-	i486)   BUILD_DEPENDS="zlib-dev pam pam-dev"; SPLIT="dropbear-pam";;
-	x86_64) BUILD_DEPENDS="zlib-dev";;
-	arm*)   BUILD_DEPENDS="";;
-esac
+BUILD_DEPENDS="zlib-dev pam-dev"
+SPLIT="$PACKAGE-pam"
 
 compile_rules() {
-	# Handle multiarch compilation.
-	case "$ARCH" in
-		arm)
-			CROSS_ARGS="--disable-zlib"
-			CROSS_BUGS="Fails to find zlib: -lz... no" ;;
-	esac
-
 	local i DROPBEARS="dropbearkey dropbearconvert dbclient scp"
 	sed -iold -e 's|/usr/.*/xauth|/usr/bin/xauth|' \
 		-e 's|ENABLE_SVR_PAM_AUTH|ENABLE_SVR_PASSWORD_AUTH|' \
@@ -33,27 +23,20 @@ compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--without-pam \
-		$CONFIGURE_ARGS $CROSS_ARGS &&
+		$CONFIGURE_ARGS &&
 	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 SCPPROGRESS=1 &&
-	install -dm755 $install/usr/sbin &&
-	install -m755 dropbearmulti $install/usr/sbin/dropbear || exit 1
+	install -Dm755 dropbearmulti $install/usr/sbin/dropbear || return 1
 
-	# No PAM support in ARM
-	case "$ARCH" in
-		arm) echo "Skipping Dropbear PAM..." ;;
-		i?86)
-			sed -i 's|ENABLE_SVR_PASSWORD_AUTH|ENABLE_SVR_PAM_AUTH|' options.h
-			./configure \
-				--enable-pam \
-				$CONFIGURE_ARGS &&
-			make PROGRAMS="dropbear $DROPBEARS" MULTI=1 SCPPROGRESS=1 &&
-			install -m755 dropbearmulti $install/usr/sbin/dropbear-pam || return 1
-			;;
-	esac
+	sed -i 's|ENABLE_SVR_PASSWORD_AUTH|ENABLE_SVR_PAM_AUTH|' options.h
+	./configure \
+		--enable-pam \
+		$CONFIGURE_ARGS &&
+	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 SCPPROGRESS=1 &&
+	install -Dm755 dropbearmulti $install/usr/sbin/dropbear-pam || return 1
 
 	install -dm755 $install/usr/bin &&
 	for i in $DROPBEARS ssh; do
-		ln -s ../sbin/dropbear $install/usr/bin/$i || exit 1
+		ln -s ../sbin/dropbear $install/usr/bin/$i || return 1
 	done
 
 	cook_pick_manpages $src/*.1 $src/*.8
@@ -77,7 +60,6 @@ compile_rules() {
 	chown -R root:root $install
 
 	ln -s daemon $install/etc/init.d/sshd
-
 }
 
 genpkg_rules() {
@@ -116,14 +98,13 @@ EOT
 	grep -q ssh "$1/etc/inetd.conf" || cat >> "$1/etc/inetd.conf" <<EOT
 #ssh	stream	tcp	nowait	root	dropbear	dropbear	-i -b /etc/dropbear/banner
 EOT
-	[ -n "$quiet" ] && return
-	cat <<EOT
+	[ -n "$quiet" ] || cat <<EOT
 
 	.-------------------------------------------------.
 	| To start dropbear server you can run:           |
+	|    /etc/init.d/dropbear start                   |
 	|                                                 |
-	| /etc/init.d/dropbear start                      |
-	| Or add dropbear to RUN_DAEMONS in /etc/rcS.conf |
+	| or add dropbear to RUN_DAEMONS in /etc/rcS.conf |
 	'-------------------------------------------------'
 EOT
 }

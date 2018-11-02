@@ -3,36 +3,31 @@
 PACKAGE="libpfm"
 VERSION="4.8.0"
 CATEGORY="development"
-SHORT_DESC="Improve performance monitoring on Linux."
+SHORT_DESC="Improve performance monitoring on Linux"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="http://perfmon2.sourceforge.net/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/perfmon2/$TARBALL"
 
-SPLIT="libpfm-dev"
+SPLIT="$PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	sed -i 's|PREFIX=/usr/local|PREFIX=/usr|' config.mk
+
 	make OPTIM="-m32 -O3" &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
-	libpfm)
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/lib/*.so* $fs/usr/lib
-		;;
-	libpfm-dev)
-		DEPENDS="libpfm"
-		mkdir -p $fs/usr/lib
-		cp -a $install/usr/include $fs/usr
-		cp -a $install/usr/lib/*a $fs/usr/lib
-		;;
+		libpfm)
+			copy @std
+			;;
+		libpfm-dev)
+			copy @dev
+			DEPENDS="libpfm"
+			;;
 	esac
 }

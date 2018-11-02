@@ -4,7 +4,7 @@ PACKAGE="pnm2ppa"
 VERSION="1.12"
 CATEGORY="system-tools"
 SHORT_DESC="Ghostscript print filter and color driver for some HP DeskJet printers"
-MAINTAINER="jozee@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://pnm2ppa.sourceforge.net/"
 
@@ -15,17 +15,12 @@ BUILD_DEPENDS="ghostscript-dev"
 
 compile_rules() {
 	make BINDIR="/usr/bin" CONFDIR="/etc" &&
-	make BINDIR=$DESTDIR/usr/bin  CONFDIR=$DESTDIR/etc install
+	make BINDIR=$install/usr/bin CONFDIR=$install/etc install
 }
 
 genpkg_rules() {
-	mkdir -p  $fs/usr/share
-
-	cp -a $install/etc   $fs
-	cp -a $install/usr/bin $fs/usr
-
-	# Still needs ppd file download for the specific printer from 
+	copy @std
+	# Still needs ppd file download for the specific printer from
 	# http://www.linuxprinting.org/show_driver.cgi?driver=pnm2ppa&fromprinter=HP-DeskJet_710C
-
 	DEPENDS="ghostscript cups foomatic-filters"
 }

@@ -15,7 +15,10 @@ BUILD_DEPENDS="libgd-dev"
 
 compile_rules() {
 	sed -i 's/src platforms doc/src platforms/' Makefile
-	SHUTDOWN=/sbin/poweroff ac_cv_func_setpgrp_void=yes ./configure \
+
+	SHUTDOWN=/sbin/poweroff \
+	ac_cv_func_setpgrp_void=yes \
+	./configure \
 		--enable-usb \
 		--disable-snmp \
 		--disable-net \
@@ -27,7 +30,8 @@ compile_rules() {
 		--infodir=/usr/share/info \
 		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
-	make && make install || return 1
+	make &&
+	make install || return 1
 
 	cook_pick_manpages $src/doc/*.5 $src/doc/*.8
 }

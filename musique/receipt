@@ -11,29 +11,28 @@ WEB_SITE="http://flavio.tordini.org/musique"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://gitorious.org/minitunes/minitunes/archive/$COMMIT.tar.gz"
 
-DEPENDS="libQtCore libQtDBus libQtGui libQtNetwork libQtSql libQtXml \
-qt4-phonon taglib"
 BUILD_DEPENDS="Qt4-dev qmake taglib-dev qt4-phonon"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	# put default icons to resources (instead of to hicolor icon theme) + patch
 	cp -a $stuff/*.png $src/images
 
-	mkdir build; cd build
-	qmake PREFIX=/usr ../musique.pro &&
+	mkdir build
+	cd    build
+	qmake \
+		PREFIX=/usr \
+		../musique.pro &&
 	make &&
 	make INSTALL_ROOT=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/* $fs
 
 	# remove big icons
 	for size in 64 128 256 512; do
 		rm -rf $fs/usr/share/icons/hicolor/${size}x$size
 	done
+	DEPENDS="libQtCore libQtDBus libQtGui libQtNetwork libQtSql libQtXml \
+	qt4-phonon taglib"
 }

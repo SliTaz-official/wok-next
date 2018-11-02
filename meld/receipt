@@ -3,27 +3,23 @@
 PACKAGE="meld"
 VERSION="1.6.0"
 CATEGORY="development"
-SHORT_DESC="Visual diff and merge tool for GNOME."
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="Visual diff and merge tool for GNOME"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.tar.xz"
 WEB_SITE="http://meldmerge.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:3}/$TARBALL"
 
-DEPENDS="python-pygtk rarian"
-BUILD_DEPENDS="python-pygtk-dev rarian-dev gnome-doc-utils intltool util-linux-getopt"
+BUILD_DEPENDS="python-pygtk-dev rarian-dev gnome-doc-utils intltool \
+util-linux-getopt"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	make prefix=/usr && make prefix=/usr DESTDIR=$DESTDIR install
+compile_rules() {
+	make prefix=/usr &&
+	make prefix=/usr DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/usr/share/meld $fs/usr/share
+genpkg_rules() {
+	copy @std
+	DEPENDS="python-pygtk rarian"
 }

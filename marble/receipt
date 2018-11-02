@@ -1,31 +1,32 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="marble"
 VERSION="v17.08.2"
 CATEGORY="misc"
-SHORT_DESC="A virtual globe and world atlas."
+SHORT_DESC="A virtual globe and world atlas"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1 GPL3"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WEB_SITE="https://marble.kde.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 BRANCH="$VERSION"
 WGET_URL="git|git://anongit.kde.org/marble"
-TAGS="globe atlas"
 
-DEPENDS="qt5-base "
-BUILD_DEPENDS="git qt5-dev cmake xorg-dev mesa-dev zlib-dev "
+BUILD_DEPENDS="git qt5-dev cmake xorg-dev mesa-dev zlib-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build; cd build
-	cmake	-DCMAKE_BUILD_TYPE=Release -DQTONLY=TRUE \
-		-DCMAKE_INSTALL_PREFIX=/usr .. &&
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DQTONLY=TRUE \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
 	make &&
 	make install
 
 	# remove unwanted files
-#	cd $DESTDIR/usr/share/applications
+#	cd $install/usr/share/applications
 #	mv marble_osm.desktop marble.desktop
 #	for i in $(sed '/MimeType/!d;s/.*=//' marble_*); do
 #		sed -i "s|MimeType.*|&$i|" marble.desktop
@@ -33,13 +34,13 @@ compile_rules()
 #	rm -f marble_*.desktop marble-*.desktop
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	cp -a $install/usr $fs
 
 	# remove unwanted files
 	rm -rf $fs/usr/include
 	rm -rf $fs/usr/share/marble/cmake
 #	rm $fs/usr/bin/marble-mobile $fs/usr/bin/marble-touch
+	DEPENDS="qt5-base"
+	TAGS="globe atlas"
 }

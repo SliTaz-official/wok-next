@@ -12,22 +12,21 @@ REPOLOGY="perl:datetime-locale"
 TARBALL="DateTime-Locale-$VERSION.tar.gz"
 WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
 
-DEPENDS="perl-dist-checkconflicts perl-file-sharedir perl-scalar-list-utils \
-perl-namespace-autoclean perl-params-validationcompiler perl-specio"
-BUILD_DEPENDS="$DEPENDS perl-file-sharedir-install perl-cpan-meta-check \
-perl-test-fatal perl-test-file-sharedir perl-test-requires perl-test-warnings"
+BUILD_DEPENDS="perl-dist-checkconflicts perl-file-sharedir \
+perl-scalar-list-utils perl-namespace-autoclean perl-params-validationcompiler \
+perl-specio perl-file-sharedir-install perl-cpan-meta-check perl-test-fatal \
+perl-test-file-sharedir perl-test-requires perl-test-warnings"
 
-# Rules to configure and make the package.
-compile_rules()
-{
+compile_rules() {
 	perl Makefile.PL &&
-	make && make DESTDIR=$install install &&
+	make &&
+	make DESTDIR=$install install &&
 
 	chmod -R u+w $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
+	DEPENDS="perl-dist-checkconflicts perl-file-sharedir perl-scalar-list-utils \
+	perl-namespace-autoclean perl-params-validationcompiler perl-specio"
 }

@@ -12,18 +12,14 @@ REPOLOGY="-"
 TARBALL="syslinux-slitaz-extra-4.06.cpio"
 WGET_URL="http://mirror1.slitaz.org/packages/5.0/syslinux-extra-4.06.tazpkg"
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-compile_rules()
-{
+compile_rules() {
 	cpio -dmF $src/$TARBALL -i
 	lzma d $src/fs.cpio.lzma -so | cpio -idm
 	mkdir $install
 	cp -r $src/fs/* $install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	copy @std
 	DEPENDS="syslinux-slitaz-repack posixovl"
 	PROVIDE="syslinux-extra"

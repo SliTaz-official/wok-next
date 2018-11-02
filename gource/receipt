@@ -3,8 +3,8 @@
 PACKAGE="gource"
 VERSION="0.38"
 CATEGORY="development"
-SHORT_DESC="software version control visualization"
-MAINTAINER="slaxemulator@gmail.com"
+SHORT_DESC="Software version control visualization"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://gource.io/"
@@ -15,20 +15,16 @@ libsdl-image mesa   ftgl"
 BUILD_DEPENDS="mesa-dev ftgl-dev libsdl-image-dev pcre-dev glew-dev \
 libsdl-dev freetype-dev boost-dev boost-filesystem glm"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	cd $src
+compile_rules() {
 	sed -i 's/boost::filesystem3::/boost::filesystem::/' src/logmill.cpp
-	./configure $CONFIGURE_ARGS && 
-	make && make install
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	mkdir -p $fs/usr/share
 	cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/share/gource $fs/usr/share
 }
-

@@ -4,21 +4,20 @@ PACKAGE="lapack"
 VERSION="3.7.1"
 CATEGORY="libs"
 SHORT_DESC="Linear Algebra PACKage"
-MAINTAINER="slaxemulator@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.netlib.org/lapack"
+WEB_SITE="http://www.netlib.org/lapack/"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
-WGET_URL="$WEB_SITE/$TARBALL"
+WGET_URL="$WEB_SITE$TARBALL"
 
 BUILD_DEPENDS="cmake gfortran gcc-lib-math python"
-SPLIT="blas blas-dev lapack lapack-dev"
+SPLIT="blas blas-dev $PACKAGE $PACKAGE-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-	mkdir build; cd build
-	cmake .. \
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_SKIP_RPATH=ON \
 		-DBUILD_SHARED_LIBS=ON \
@@ -28,9 +27,10 @@ compile_rules()
 		-DCMAKE_Fortran_COMPILER=gfortran \
 		-DLAPACKE_WITH_TMG=ON \
 		-DCBLAS=ON \
-		-DBUILD_DEPRECATED=ON &&
+		-DBUILD_DEPRECATED=ON \
+		.. &&
 	make &&
-	make DESTDIR=$DESTDIR install
+	make DESTDIR=$install install
 
 	licdir="$install/usr/share/licenses"
 	mkdir -p $licdir
@@ -38,9 +38,7 @@ compile_rules()
 	cp $src/LICENSE $licdir/lapack.LICENSE
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules()
-{
+genpkg_rules() {
 	case $PACKAGE in
 		blas)
 			copy lib*blas.so*

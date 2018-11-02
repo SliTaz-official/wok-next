@@ -1,38 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="bvi"
 VERSION="1.4.0"
 CATEGORY="development"
-SHORT_DESC="Binary VIsual (hex editor) based on the vi texteditor."
-MAINTAINER="hackdorte@sapo.pt"
+SHORT_DESC="Binary VIsual (hex editor) based on the vi texteditor"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-TARBALL="$PACKAGE-$VERSION.src.tar.gz"
-WEB_SITE="http://bvi.sourceforge.net"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TAGS="binary development editor hex vi"
+WEB_SITE="http://bvi.sourceforge.net/"
 
-DEPENDS="ncurses"
+TARBALL="$PACKAGE-$VERSION.src.tar.gz"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev"
 
-# Rules to configure and make the package.
-compile_rules()
-{
-  ./configure --prefix=/usr \
-    --mandir=/usr/share/man \
-    --with-ncurses \
-    $CONFIGURE_ARGS &&
-    make $MAKEFLAGS &&
-    make DESTDIR=$DESTDIR install
+compile_rules() {
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--with-ncurses \
+		$CONFIGURE_ARGS &&
+	make $MAKEFLAGS &&
+	make DESTDIR=$install install
 }
 
-# Rules to gen a SliTaz package suitable for Tazpkg.
-genpkg_rules(){
-
-  mkdir -p $fs/usr/bin
-  cp -a $install/usr/bin/* $fs/usr/bin
-
-  mkdir -p $fs/usr/share
-  cp -a $install/usr/share/* $fs/usr/share
-
+genpkg_rules() {
+	copy @std
+	DEPENDS="ncurses"
+	TAGS="binary development editor hex vi"
 }
