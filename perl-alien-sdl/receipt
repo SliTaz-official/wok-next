@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="perl-alien-sdl"
+VERSION="1.446"
+CATEGORY="perl"
+SHORT_DESC="Alien::SDL - building, finding and using SDL binaries"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://metacpan.org/release/Alien-SDL"
+REPOLOGY="perl:alien-sdl"
+
+TARBALL="Alien-SDL-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/F/FR/FROGGS/$TARBALL"
+
+BUILD_DEPENDS="perl-file-which perl-module-build perl-file-sharedir \
+perl-archive-extract perl-text-patch perl-capture-tiny perl-archive-zip \
+libsdl-dev"
+
+# TODO: rebuild if sdl-config in libsdl-dev changed
+
+compile_rules() {
+	# Workaround bug with --with-sdl-config
+	sed -i '/^GetOptions/d' Build.PL
+
+	perl Build.PL --with-sdl-config &&
+	perl Build &&
+	perl Build install installdirs=vendor destdir=$install &&
+
+	chmod -R u+w $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl perl-capture-tiny perl-file-sharedir perl-file-which   libsdl"
+}

@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="perl-capture-tiny"
+VERSION="0.48"
+CATEGORY="perl"
+SHORT_DESC="Capture::Tiny - Capture STDOUT and STDERR from Perl, XS or external programs"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="Apache2"
+WEB_SITE="https://metacpan.org/release/Capture-Tiny"
+HOST_ARCH="any"
+REPOLOGY="perl:capture-tiny"
+
+TARBALL="Capture-Tiny-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/$TARBALL"
+
+BUILD_DEPENDS="perl"
+
+compile_rules() {
+	perl Makefile.PL &&
+	make &&
+	make DESTDIR=$install install &&
+
+	chmod -R u+w $install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="perl"
+}
