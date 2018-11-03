@@ -13,27 +13,57 @@ WGET_URL="$WEB_SITE/download/$TARBALL"
 
 BUILD_DEPENDS="openssl10-dev bzip2-dev spidermonkey-dev zlib-dev libidn-dev \
 expat-dev gpm-dev gettext-dev"
+SPLIT="$PACKAGE-small:small"
 
 compile_rules() {
-	export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
-	export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
+	case $SET in
+		'')
+			export CPPFLAGS="$CPPFLAGS -I/usr/include/openssl-1.0"
+			export LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"
 
-	# --enable-fastmem: disables internal `malloc()` debugging and 
-	# use `alloca()` wherever possible.
-	# --disable-backtrace disables internal backtrace code.
+			# --enable-fastmem: disables internal `malloc()` debugging and 
+			# use `alloca()` wherever possible.
+			# --disable-backtrace disables internal backtrace code.
+			SET_ARGS="\
+				--with-openssl \
+				--enable-88-colors"
+				;;
+		small)
+			SET_ARGS="\
+				--enable-small \
+				--without-gnutls \
+				--without-openssl \
+				--without-spidermonkey \
+				--without-gpm"
+				;;
+	esac
+
 	./configure \
 		--enable-fastmem \
 		--disable-backtrace \
 		--without-x \
-		--with-openssl \
-		--enable-88-colors \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
+	make DESTDIR=$install install	# keep DESTDIR
+
+	# No conflict with full elinks
+	case $SET in
+		small) mv $install/usr/bin/elinks $install/usr/bin/elinks-small;;
+	esac
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="bzlib expat libidn openssl10 spidermonkey zlib"
-	TAGS="web-browser"
+	case $PACKAGE in
+		elinks)
+			copy @std
+			DEPENDS="bzlib expat libidn openssl10 spidermonkey zlib"
+			;;
+		*-small)
+			copy @std
+			CAT="network|without JS, SSL, GPM"
+			DEPENDS="bzlib expat libidn zlib"
+			;;
+	esac
+	TAGS="web-browser browser web"
 }
