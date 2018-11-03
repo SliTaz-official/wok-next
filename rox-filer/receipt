@@ -1,75 +1,81 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rox-filer"
-VERSION="2.8"
+VERSION="2.11"
 CATEGORY="system-tools"
-SHORT_DESC="User friendly filer"
+SHORT_DESC="Simple graphical file manager"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://rox.sourceforge.net/desktop/"
+WEB_SITE="http://rox.sourceforge.net/desktop/ROX-Filer"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/rox/$TARBALL"
 
 BUILD_DEPENDS="libglade-dev libxml2-dev gtk2-dev shared-mime-info-dev \
-xorg-libSM-dev"
+xorg-libSM-dev symlinks"
+SPLIT="$PACKAGE-default-icons $PACKAGE-locales $PACKAGE"
 
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lm"
-	echo "compile"
-	# If missing dep compile will block on a read.
-	echo -e "\t" | $src/ROX-Filer/AppRun --compile
-	echo "mkdir"
-	mkdir $install
-	cp $src/ROX-Filer/ROX-Filer $install/rox-filer
-	cp $src/ROX-Filer/.DirIcon $install/
 
-	mkdir $install/Messages
-	for locale in de es fr it
-	do
-		cp -r $src/ROX-Filer/Messages/$locale $install/Messages
-	done
-		
-	cp -r $src/ROX-Filer/images $install/
+	# it wants to "Press Return" on error, emulate it with "echo"
+	echo | ./ROX-Filer/AppRun --compile || return 1
 
-	mkdir $install/Help
-	cp $src/ROX-Filer/Help/*.html $install/Help/
-	cp $src/ROX-Filer/style.css $install/
+	install -Dm755 $stuff/rox-filer $install/usr/bin/rox-filer
+	ln      -s     rox-filer        $install/usr/bin/rox
+	install -Dm755 $stuff/menu.sh   $install/usr/lib/openbox/rox-open-folder-menu.sh
 
-	cp $src/ROX-Filer/Options.xml $install/
-	cp $src/ROX-Filer/Templates.glade $install/
+	dir="$install/usr/share/rox-filer"
+	mkdir -p $dir/Help
+
+	# Executable
+	install -Dm755 ROX-Filer/ROX-Filer $dir
+
+	# Help
+	cp ROX-Filer/Help/*.html  $dir/Help/
+	cp ROX-Filer/style.css    $dir/
+
+	# Icons
+	mkdir -p $install/usr/share/icons/
+	cp -r ROX-Filer/ROX/ $install/usr/share/icons/
+	chown -R 0:0 $install/usr/share/icons/
+	find $install/usr/share/icons/ -type f -exec chmod 644 '{}' \;
+	$stuff/symdup.sh # symlink duplicated icons
+
+	# Misc
+	cp ROX-Filer/.DirIcon     $dir/
+	cp ROX-Filer/Options.xml  $dir/
+	cp ROX-Filer/Templates.ui $dir/
+	cp -r ROX-Filer/images/   $dir/
+
+	# Translations
+	mkdir -p $install/usr/share/locale/
+	cp -r ROX-Filer/Messages/* $install/usr/share/locale/
+	rm $install/usr/share/locale/README
+	ln -s ../locale $dir/Messages
+
+	cook_pick_manpages rox.1
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr/share/rox-filer
-	cp -r $install/* $fs/usr/share/rox-filer/
-	cp $install/.DirIcon $fs/usr/share/rox-filer/
-
-	mkdir -p $fs/usr/bin
-	cp -r $stuff/rox-filer $fs/usr/bin/
-	ICI=$(pwd)
-		cd $fs/usr/bin/
-		ln -s rox-filer rox
-	cd $ICI
-
-	mkdir -p $fs/usr/lib/openbox
-	cp $stuff/rox-open-folder-menu.sh $fs/usr/lib/openbox/
-
-	strip -s $fs/usr/share/rox-filer/rox-filer
-	DEPENDS="gtk2 libglade libxml2 xorg-libXdamage shared-mime-info xorg-libSM"
-	TAGS="file-manager"
-}
-
-# Check /usr/share/icons/ROX
-post_install() {
-	if [ -e "$1/usr/share/icons/ROX" ]; then
-		echo ""
-		echo "/usr/share/icons/ROX exists"
-	else
-		echo ""
-		echo "/usr/share/icons/ROX doesn't exists"
-		echo -n "linking /usr/share/icons/ROX to /usr/share/icons/Tango"
-		ln -s /usr/share/icons/Tango "$1/usr/share/icons/ROX"
-		status
-	fi
+	case $PACKAGE in
+		*-default-icons)
+			copy icons/
+			DEPENDS="rox-filer"
+			CAT="misc|default icons"
+			DEPENDS="rox-filer"
+			;;
+		*-locales)
+			copy *.mo Messages
+			CAT="localization|locales"
+			DEPENDS="rox-filer"
+			;;
+		*)
+			copy @std @rm
+			DEPENDS="gdk-pixbuf glib gtk2 libglade libxml2 pango xorg-libICE \
+			xorg-libSM xorg-libX11   shared-mime-info"
+			SUGGESTED="rox-filer-default-icons rox-filer-locales"
+			TAGS="file-manager"
+			;;
+	esac
 }
