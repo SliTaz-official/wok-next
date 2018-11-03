@@ -4,7 +4,7 @@ PACKAGE="gettext"
 VERSION="0.19.8.1"
 CATEGORY="development"
 SHORT_DESC="Utilities for the GNU Translation Project"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="nobody@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gettext/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gettext.html"
@@ -14,7 +14,7 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libcroco-dev libxml2-dev glib-dev acl-dev emacs \
 xorg-libXrandr-dev xorg-libXfixes-dev"
-SPLIT="$PACKAGE-base $PACKAGE-tools emacs-pkg-po-mode $PACKAGE"
+SPLIT="$PACKAGE-base $PACKAGE emacs-pkg-po-mode $PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -59,23 +59,22 @@ genpkg_rules() {
 			CAT="base-system|base tools"
 			DEPENDS="glibc-base"
 			;;
-		gettext-tools)
+		gettext)
 			copy msgcat msgfmt msgmerge xgettext \
-			libgettextlib*.so* libgettextsrc*.so*
-			CAT="libs|tools"
+				libgettextlib*.so* libgettextsrc*.so*
 			DEPENDS="acl glib libcroco libgomp libxml2 ncurses"
+			TAGS="LFS"
 			;;
 		emacs-pkg-po-mode)
 			copy emacs/
 			DEPENDS="emacs"
 			CAT="development|Emacs major mode for editing or modifying PO files"
 			;;
-		gettext)
+		*-dev)
 			copy @std @dev @rm
 			rm -rf $fs/usr/share/doc/ # @dev files here
 			# Runtime depends, then dev-depends
-			DEPENDS="gettext-base gettext-tools libxml2"
-			TAGS="LFS"
+			DEPENDS="gettext-base gettext libxml2"
 			;;
 	esac
 }
