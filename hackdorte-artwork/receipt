@@ -1,11 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="hackdorte-artwork"
-VERSION="1.0"
+VERSION="2.0"
 CATEGORY="meta"
 SHORT_DESC="SliTaz artwork by Leonardo Laporte"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="PublicDomain"
+LICENSE="PublicDomain GPL3 CC-BY"
 WEB_SITE="https://github.com/SliTaz-official/hackdorte-artwork"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
@@ -13,13 +13,34 @@ WGET_URL="https://github.com/SliTaz-official/hackdorte-artwork/archive/$VERSION.
 
 SPLIT="blinder-theme chrommo-theme woodland-theme sandfive-theme \
 slim-theme-clean slim-theme-esperanza slim-theme-japan-art slim-theme-leaves \
-slim-theme-montanhoso conky-theme-onsea slitaz-backgrounds"
+slim-theme-montanhoso conky-theme-onsea slitaz-backgrounds aurorials-theme \
+japanes-theme madeirado-theme slim-theme-control slim-theme-pilar \
+slim-theme-radarspider slim-theme-robotic slim-theme-sandfive"
 
 COOKOPTS="!pngquant" # SLiM don't like such images processed by pngquant
 
 compile_rules() {
 	mkdir -p $install/usr/share/
 	cp -r conky/ images/ slim/ themes/ $install/usr/share/
+
+	# Aurorials theme: fix warnings about unsupported options
+	sed -i 's|^.*gradients|#&|' $install/usr/share/themes/Aurorials/gtk-2.0/gtkrc
+
+	# Aurorials theme: link the same image
+	rm $install/usr/share/images/Aurorials.png
+	ln -s ../slim/themes/Aurorials/background.png $install/usr/share/images/Aurorials.png
+
+	# Japanes theme: fix warnings about unsupported options
+	sed -i 's|^.*menuitemstyle|#&|; s|^.*listviewitemstyle|#&|;
+		s|^.*progressbarstyle|#&|' $install/usr/share/themes/Japanes/gtk-2.0/gtkrc
+
+	# Madeirado theme: fix warnings about unsupported options
+	sed -i 's|^.*menuitemstyle|#&|; s|^.*listviewitemstyle|#&|;
+		s|^.*progressbarstyle|#&|' $install/usr/share/themes/Madeirado/gtk-2.0/gtkrc
+
+	# Madeirado theme: link the same image
+	rm $install/usr/share/images/madeirado.png
+	ln -s ../slim/themes/Madeirado/background.png $install/usr/share/images/Madeirado.png
 }
 
 genpkg_rules() {
@@ -119,6 +140,64 @@ genpkg_rules() {
 			# slitaz-backgrounds 2.1
 			# https://github.com/hackdorte/slitaz-backgrounds
 			# https://github.com/hackdorte/slitaz-backgrounds/archive/8f027a0.tar.gz
+			;;
+		aurorials-theme)
+			copy Aurorials/ Aurorials.png
+			CAT="customization|Aurorials theme for GTK2, Openbox, SLiM, and wallpaper"
+			LICENSE="GPL3"
+			DEPENDS="gtk2-engine-murrine openbox slim"
+			TAGS="holkfoor openbox slim wallpaper"
+			# https://www.deviantart.com/holkfoor/art/Aurorials-pack-themes-382752941
+			# https://dl.dropboxusercontent.com/s/urt40kxaladwpeu/Aurorials_GTK2_Openbox_Slim_Wallpaper.tar.bz2
+			;;
+		japanes-theme)
+			copy Japanes/
+			CAT="customization|Japanes Openbox and GTK2 Theme"
+			LICENSE="GPL3"
+			DEPENDS="gtk-clearlooks openbox"
+			TAGS="holkfoor openbox"
+			# https://www.deviantart.com/holkfoor/art/Japanes-Openbox-and-GTK2-Theme-382947891
+			# https://www.dropbox.com/s/2ronvzzogtdlmbt/Japanes_GTK2_and_Openbox.tar.bz2
+			;;
+		madeirado-theme)
+			copy Madeirado/ Madeirado.png
+			CAT="customization|Madeirado theme for GTK2, Openbox, SLiM, and wallparer"
+			LICENSE="GPL3"
+			DEPENDS="gtk-clearlooks openbox slim"
+			TAGS="holkfoor openbox slim wallpaper"
+			# https://www.deviantart.com/holkfoor/art/Madeirado-Pack-Theme-382214228
+			# https://dl.dropboxusercontent.com/s/ax6iqx6aa344fsu/Madeirado_GTK2_Openbox_Slim_Wallpaper.tar.bz2
+			;;
+		slim-theme-control)
+			copy control/
+			CAT="customization|Control - theme for SLiM"
+			LICENSE="CC-BY"
+			DEPENDS="slim slitaz-configs-base"
+			;;
+		slim-theme-pilar)
+			copy pilar/
+			CAT="customization|Pilar - theme for SLiM"
+			LICENSE="CC-BY"
+			DEPENDS="slim slitaz-configs-base"
+			;;
+		slim-theme-radarspider)
+			copy radarspider/
+			CAT="customization|Radar Spider - theme for SLiM"
+			LICENSE="CC-BY"
+			DEPENDS="slim slitaz-configs-base"
+			;;
+		slim-theme-robotic)
+			copy robotic/
+			CAT="customization|Robotic - theme for SLiM"
+			LICENSE="CC-BY"
+			DEPENDS="slim slitaz-configs-base"
+			;;
+		slim-theme-sandfive)
+			copy sandfive/
+			CAT="customization|SliTaz SandFive - theme for SLiM"
+			LICENSE="CC-BY"
+			DEPENDS="slim slitaz-configs-base"
+			;;
 	esac
 }
 
@@ -233,4 +312,198 @@ post_remove_conky_theme_onsea() {
 		rm $i/.conkyrc
 		mv $i/.conkyrc.bak $i/.conkyrc
 	done
+}
+
+
+post_install_aurorials_theme() {
+	# Set GTK+ Theme
+	for i in $1/etc/xdg/lxsession/*/desktop.conf \
+		$1/home/*/.config/lxsession/*/desktop.conf; do
+		[ -f "$i" ] && sed -i 's|sNet/ThemeName=.*|sNet/ThemeName=Aurorials|' $i
+	done
+	pgrep lxsession >/dev/null && lxsession -r
+
+	# Set Openbox theme
+	for i in /etc/xdg/openbox/rc.xml /home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>Aurorials<|' $i
+	done
+	pgrep openbox >/dev/null && openbox --reconfigure
+
+	# Set SLiM theme
+	chroot "$1/" slim-theme -s Aurorials
+
+	# Set PCManFM wallpaper
+	for i in $1/etc/xdg/pcmanfm/default/pcmanfm.conf \
+		$1/home/*/.config/pcmanfm/*/*.conf; do
+		[ -f "$i" ] && sed -i 's|wallpaper[0-9]*=.*|wallpaper=/usr/share/images/Aurorials.jpg|' $i
+	done
+	if [ -z "$1" -a -n "$(pgrep pcmanfm)" ]; then
+		# Change wallpaper for current PCManFM session right now
+		su -c 'pcmanfm -w /usr/share/images/Aurorials.jpg' \
+			$(ps aux | grep '[p]cmanfm' | awk 'END{print $2}')
+	fi
+}
+
+pre_remove_aurorials_theme() {
+	# Restore GTK+ Theme (Clearlooks Human)
+	for i in $1/etc/xdg/lxsession/*/desktop.conf \
+		$1/home/*/.config/lxsession/*/desktop.conf; do
+		[ -f "$i" ] && sed -i 's|sNet/ThemeName=.*|sNet/ThemeName=Clearlooks Human|' $i
+	done
+	pgrep lxsession >/dev/null && lxsession -r
+
+	# Restore Openbox theme (SliTaz)
+	for i in /etc/xdg/openbox/rc.xml /home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>SliTaz<|' $i
+	done
+	pgrep openbox >/dev/null && openbox --reconfigure
+
+	# Restore SLiM theme
+	chroot "$1/" slim-theme -f Madeirado
+
+	# Restore PCManFM wallpaper (slitaz-background.jpg)
+	for i in $1/etc/xdg/pcmanfm/default/pcmanfm.conf \
+		$1/home/*/.config/pcmanfm/*/*.conf; do
+		[ -f "$i" ] && sed -i 's|wallpaper[0-9]*=.*|wallpaper=/usr/share/images/slitaz-background.jpg|' $i
+	done
+	if [ -z "$1" -a -n "$(pgrep pcmanfm)" ]; then
+		# Change wallpaper for current PCManFM session right now
+		su -c 'pcmanfm -w /usr/share/images/slitaz-background.jpg' \
+			$(ps aux | grep '[p]cmanfm' | awk 'END{print $2}')
+	fi
+}
+
+
+post_install_japanes_theme() {
+	# Set GTK+ Theme
+	for i in $1/etc/xdg/lxsession/*/desktop.conf \
+		$1/home/*/.config/lxsession/*/desktop.conf; do
+		[ -f "$i" ] && sed -i 's|sNet/ThemeName=.*|sNet/ThemeName=Japanes|' $i
+	done
+	pgrep lxsession >/dev/null && lxsession -r
+
+	# Set Openbox theme
+	for i in /etc/xdg/openbox/rc.xml /home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>Japanes<|' $i
+	done
+	pgrep openbox >/dev/null && openbox --reconfigure
+}
+
+pre_remove_japanes_theme() {
+	# Restore GTK+ Theme (Clearlooks Human)
+	for i in $1/etc/xdg/lxsession/*/desktop.conf \
+		$1/home/*/.config/lxsession/*/desktop.conf; do
+		[ -f "$i" ] && sed -i 's|sNet/ThemeName=.*|sNet/ThemeName=Clearlooks Human|' $i
+	done
+	pgrep lxsession && lxsession -r
+
+	# Restore Openbox theme (SliTaz)
+	for i in /etc/xdg/openbox/rc.xml /home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>SliTaz<|' $i
+	done
+	pgrep openbox && openbox --reconfigure
+}
+
+
+post_install_madeirado_theme() {
+	# Set GTK+ Theme
+	for i in $1/etc/xdg/lxsession/*/desktop.conf \
+		$1/home/*/.config/lxsession/*/desktop.conf; do
+		[ -f "$i" ] && sed -i 's|sNet/ThemeName=.*|sNet/ThemeName=Madeirado|' $i
+	done
+	pgrep lxsession >/dev/null && lxsession -r
+
+	# Set Openbox theme
+	for i in /etc/xdg/openbox/rc.xml /home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>Madeirado<|' $i
+	done
+	pgrep openbox >/dev/null && openbox --reconfigure
+
+	# Set SLiM theme
+	chroot "$1/" slim-theme -s Madeirado
+
+	# Set PCManFM wallpaper
+	for i in $1/etc/xdg/pcmanfm/default/pcmanfm.conf \
+		$1/home/*/.config/pcmanfm/*/*.conf; do
+		[ -f "$i" ] && sed -i 's|wallpaper[0-9]*=.*|wallpaper=/usr/share/images/Madeirado.png|' $i
+	done
+	if [ -z "$1" -a -n "$(pgrep pcmanfm)" ]; then
+		# Change wallpaper for current PCManFM session right now
+		su -c 'pcmanfm -w /usr/share/images/Madeirado.jpg' \
+			$(ps aux | grep '[p]cmanfm' | awk 'END{print $2}')
+	fi
+}
+
+pre_remove_madeirado_theme() {
+	# Restore GTK+ Theme (Clearlooks Human)
+	for i in $1/etc/xdg/lxsession/*/desktop.conf \
+		$1/home/*/.config/lxsession/*/desktop.conf; do
+		[ -f "$i" ] && sed -i 's|sNet/ThemeName=.*|sNet/ThemeName=Clearlooks Human|' $i
+	done
+	pgrep lxsession >/dev/null && lxsession -r
+
+	# Restore Openbox theme (SliTaz)
+	for i in /etc/xdg/openbox/rc.xml /home/*/.config/openbox/rc.xml; do
+		[ -f $i ] && sed -i '/<theme>/,/<name>/ s|>[^<]*<|>SliTaz<|' $i
+	done
+	pgrep openbox >/dev/null && openbox --reconfigure
+
+	# Restore SLiM theme
+	chroot "$1/" slim-theme -f Madeirado
+
+	# Restore PCManFM wallpaper (slitaz-background.jpg)
+	for i in $1/etc/xdg/pcmanfm/default/pcmanfm.conf \
+		$1/home/*/.config/pcmanfm/*/*.conf; do
+		[ -f "$i" ] && sed -i 's|wallpaper[0-9]*=.*|wallpaper=/usr/share/images/slitaz-background.jpg|' $i
+	done
+	if [ -z "$1" -a -n "$(pgrep pcmanfm)" ]; then
+		# Change wallpaper for current PCManFM session right now
+		su -c 'pcmanfm -w /usr/share/images/slitaz-background.jpg' \
+			$(ps aux | grep '[p]cmanfm' | awk 'END{print $2}')
+	fi
+}
+
+
+post_install_slim_theme_control() {
+	chroot "$1/" slim-theme -scontrol
+}
+
+pre_remove_slim_theme_control() {
+	chroot "$1/" slim-theme -fcontrol
+}
+
+
+post_install_slim_theme_pilar() {
+	chroot "$1/" slim-theme -spilar
+}
+
+pre_remove_slim_theme_pilar() {
+	chroot "$1/" slim-theme -fpilar
+}
+
+
+post_install_slim_theme_radarspider() {
+	chroot "$1/" slim-theme -sradarspider
+}
+
+pre_remove_slim_theme_radarspider() {
+	chroot "$1/" slim-theme -fradarspider
+}
+
+
+post_install_slim_theme_robotic() {
+	chroot "$1/" slim-theme -srobotic
+}
+
+pre_remove_slim_theme_robotic() {
+	chroot "$1/" slim-theme -frobotic
+}
+
+
+post_install_slim_theme_sandfive() {
+	chroot "$1/" slim-theme -ssandfive
+}
+
+pre_remove_slim_theme_sandfive() {
+	chroot "$1/" slim-theme -fsandfive
 }
