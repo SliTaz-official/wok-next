@@ -1,26 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cabextract"
-VERSION="1.7"
+VERSION="1.8"
 CATEGORY="utilities"
-SHORT_DESC="Extracting Microsoft cabinet files"
-MAINTAINER="devel@slitaz.org"
+SHORT_DESC="Extract Microsoft cabinet (.cab) archives"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://www.cabextract.org.uk/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/kyz/libmspack/archive/$VERSION.tar.gz"
-
-BUILD_DEPENDS="automake gettext-dev"
+WGET_URL="https://www.cabextract.org.uk/$TARBALL"
 
 compile_rules() {
-	cd cabextract
-	./cleanup.sh &&
-	autoreconf -i -W all &&
-
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
+
+	cook_pick_docs AUTHORS ChangeLog NEWS README TODO
 }
 
 genpkg_rules() {
