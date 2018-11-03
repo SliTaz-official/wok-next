@@ -1,33 +1,44 @@
 # SliTaz package receipt v2.
 
 PACKAGE="jwm"
-VERSION="2.2.0"
+VERSION="2.3.7"
 CATEGORY="x-window"
-SHORT_DESC="Lightweight Window Manager for the X window system"
-MAINTAINER="devel@slitaz.org"
-LICENSE="GPL2"
-WEB_SITE="http://joewing.net/programs/jwm/"
+SHORT_DESC="A lightweight window manager for the X11 Window System"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://joewing.net/projects/jwm/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="http://www.joewing.net/programs/jwm/releases/$TARBALL"
+WGET_URL="http://joewing.net/projects/jwm/releases/$TARBALL"
 
-BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev jpeg-dev libpng16-dev \
-xorg-libXext-dev gettext-dev"
+BUILD_DEPENDS="xorg-libX11-dev libpng16-dev libjpeg-turbo-dev cairo-dev \
+librsvg-dev freetype-dev xorg-libXft-dev xorg-libXrender-dev fribidi-dev \
+xorg-libXpm-dev xorg-libXmu-dev gettext xorg-libXinerama-dev \
+libxslt libxml2-tools"
 
 compile_rules() {
+	sed -i '/^ICONS/ s|$| jwm-red.svg|' contrib/Makefile.in
+
 	./configure \
 		--sysconfdir=/etc/xdg/jwm \
-		--disable-fribidi \
 		--disable-rpath \
-		--disable-rsvg \
-		--disable-confirm \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
-	# Simple and default config file
-	install -Dm644 $stuff/simple.jwmrc          $install/etc/xdg/jwm/simple.jwmrc
-	install -Dm644 $stuff/slitaz.jwmrc          $install/etc/xdg/jwm/system.jwmrc
+	# Store original author settings
+	mv $install/etc/xdg/jwm/system.jwmrc $install/etc/xdg/jwm/original.jwmrc
+
+	# Convert 2.2 to 2.3 settings, pretty-print and install them
+	export XMLLINT_INDENT=$'\t'
+	for i in simple slitaz; do
+		xsltproc xslt/jwm-2.3.xslt $stuff/$i.jwmrc \
+		| sed 's|^[ \t]||r' \
+		| xmllint --format - \
+		> $install/etc/xdg/jwm/$i{slitaz/system}.jwmrc
+	done
+
+	# Autostart
 	install -Dm644 $stuff/xsessions/jwm.desktop $install/usr/share/xsessions/jwm.desktop
 }
 
@@ -37,29 +48,20 @@ testsuite() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="xorg-libX11 xorg-libXft xorg-libXrender xorg-libXpm xorg-libXext \
-	xorg-libXmu xorg-libXinerama xorg-libXau xorg-libXdmcp xorg-libXt libjpeg \
-	libpng16 slitaz-configs-base xorg-xload xorg-xclock imlib2 hsetroot \
-	compton nano"
+	DEPENDS="cairo fribidi glib libjpeg-turbo libpng16 librsvg xorg-libX11 \
+	xorg-libXext xorg-libXft xorg-libXinerama xorg-libXmu xorg-libXpm \
+	xorg-libXrender   slitaz-configs-base xorg-xload xorg-xclock imlib2 \
+	hsetroot compton nano"
 	TAGS="window-manager"
 }
 
+# Adding WM to SLiM available sessions.
 post_install() {
-	if [ -d "$1/etc/jwm" ]; then
-		# Removing old system wide configs: /etc/jwm
-		rm -rf "$1/etc/jwm"
-	fi
-	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
-	# Adding WM to SLIM available sessions.
-	if ! echo "$res" | grep -q $PACKAGE; then
-		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
-	fi
-	true
+	post_remove
+	sed -i '/^sessions/ s|$|,jwm|' "$1/etc/slim.conf"
 }
 
+# Remove WM from SLiM available sessions.
 post_remove() {
-	# Remove WM from SLIM available sessions.
-	if grep -q $PACKAGE "$1/etc/slim.conf"; then
-		sed -i s/,$PACKAGE// "$1/etc/slim.conf"
-	fi
+	sed -i '/^sessions/ s|,jwm||'  "$1/etc/slim.conf"
 }
