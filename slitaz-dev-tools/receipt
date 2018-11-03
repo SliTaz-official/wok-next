@@ -1,15 +1,188 @@
-# SliTaz package receipt
+# SliTaz package receipt v2.
 
 PACKAGE="slitaz-dev-tools"
-VERSION="266"
+VERSION="306"
 CATEGORY="meta"
-SHORT_DESC="SliTaz developers tools meta package"
+SHORT_DESC="SliTaz developers tools"
 MAINTAINER="devel@slitaz.org"
-LICENSE="GPL2"
+LICENSE="GPL2 GPL3 BSD"
 WEB_SITE="http://www.slitaz.org/"
+HOST_ARCH="any"
 REPOLOGY="-"
 
-SIBLINGS="mirror-tools qemu-box slitaz-mercurial-style slitaz-mercurial-style \
-tazchroot tazdev tazwikiss yaff"
+TARBALL="slitaz-dev-tools-$VERSION.tar.bz2"
+WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
 
-DEPENDS="rsync tazdev mercurial"
+SPLIT="mirror-tools:mt qemu-box:qb slitaz-mercurial-style:sms tazdev:td \
+tazwikiss:tw yaff:ya"
+
+compile_rules() {
+	case $SET in
+		'')
+			mkdir -p $install
+			;;
+		mt)
+			mkdir -p $install/var/www/
+			cp -r mirror-tools/rootfs/* $install
+			cp -r mirror-tools/slitaz $install/var/www/
+			chown -R 80.80 $install/var/www
+			;;
+		qb)
+			cd qemu-box
+			make DESTDIR=$install install
+			;;
+		sms)
+			PYTHON_LIB=python$(. $WOK/python/receipt; echo ${VERSION%.*})
+			mkdir -p $install/usr/lib/$PYTHON_LIB/site-packages/mercurial
+			cp -a slitaz-mercurial-style/templates \
+				$install/usr/lib/$PYTHON_LIB/site-packages/mercurial
+			;;
+		td)
+			install -Dm755 tazdev/tazdev      $install/usr/bin/tazdev
+			install -Dm644 tazdev/tazdev.conf $install/etc/slitaz/tazdev.conf
+			;;
+		tw)
+			mkdir -p $install
+			cp -r tazwikiss/rootfs/* $install
+			chown -R 80.80 $install/var/www/
+
+			# escape '?'
+			sed -i 's|\?|\\?|' $install/usr/share/applications/tazcalc.desktop
+			;;
+		ya)
+			install -Dm755 baba-scripts/yaff          $install/usr/bin/yaff
+			install -Dm644 baba-scripts/mozicon24.png $install/usr/share/icons/hicolor/24x24/apps/mozicon24.png
+			install -Dm644 baba-scripts/yaff.png      $install/usr/share/icons/hicolor/128x128/apps/yaff.png
+			;;
+	esac
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		slitaz-dev-tools)
+			DEPENDS="rsync tazdev mercurial"
+			CAT="meta|meta package"
+			LICENSE="GPL2"
+			;;
+		mirror-tools)
+			copy @std include/
+			DEPENDS="rrdtool rgzip"
+			CAT="misc|mirrors toolset"
+			LICENSE="BSD"
+			;;
+		qemu-box)
+			copy @std
+			DEPENDS="qemu-light"
+			CAT="development|Qemu frontend"
+			LICENSE="BSD"
+			;;
+		slitaz-mercurial-style)
+			copy @std
+			DEPENDS="mercurial"
+			CAT="misc|template for Mercurial Web repos"
+			LICENSE="GPL3"
+			;;
+		tazdev)
+			copy @std
+			DEPENDS="rsync"
+			CAT="development|developers tools"
+			LICENSE="BSD"
+			;;
+		tazwikiss)
+			copy @std
+			DEPENDS="busybox slitaz-base-files"
+			CAT="office|Tiny SliTaz Wiki"
+			LICENSE="BSD"
+			CONFIG_FILES="/var/www/wiki/config.sh /var/www/wiki/config-de.sh \
+			/var/www/wiki/config-fr.sh"
+			;;
+		yaff)
+			copy @std *.png # 24x24 & 128x128 icons only
+			DEPENDS="gtkdialog"
+			CAT="utilities|Mozilla Firefox multi-launcher"
+			LICENSE="BSD"
+			;;
+	esac
+}
+
+post_install_tazwikiss() {
+	server="busybox"
+
+	# Configure lighttpd server
+	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
+		server="lighttpd"
+		if ! grep -q '"/wiki/"' "$1/etc/lighttpd/lighttpd.conf"; then
+			sed -e 's|# Fast CGI|$HTTP["url"] =~ "/wiki/" {\
+  cgi.assign = (\
+    ".sh" => "/bin/sh"\
+  )\
+  index-file.names = ( "index.sh" )\
+ }\n\n&|' -i "$1/etc/lighttpd/lighttpd.conf"
+			if [ -z "$1" ]; then
+				echo
+				# Start Web server.
+				/etc/init.d/lighttpd stop
+				/etc/init.d/lighttpd start
+			fi
+		fi
+	fi
+
+	# Configure apache server
+	if [ -f "$1/etc/apache/httpd.conf" ]; then
+		server="apache"
+		if [ ! -f "$1/etc/apache/conf.d/tazwikiss" ]; then
+			cat > "$1/etc/apache/conf.d/tazwikiss" <<EOT
+<DirectoryMatch /var/www/wiki/>
+    Options +ExecCGI
+    AddHandler cgi-script .sh
+    DirectoryIndex index.sh
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+</DirectoryMatch>
+EOT
+			if [ -z "$1" ]; then
+				echo
+				# Start Web server.
+				/etc/init.d/apache stop
+				/etc/init.d/apache start
+			fi
+		fi
+	fi
+
+	# Configure busybox/httpd server by default
+	if [ "$server" == "busybox" ]; then
+		sed -i 's/lighttpd/httpd/' "$1/etc/rcS.conf"
+		if [ ! -s "$1/etc/httpd.conf" ]; then
+			cat > "$1/etc/httpd.conf" <<EOT
+H:/var/www
+A:0.0.0.0/0
+.xml:text/xml
+.tgz:application/x-tgz
+.tar.gz:application/x-tgz
+.tazpkg:application/x-tazpkg
+EOT
+		fi
+		while read line; do
+			grep -q "$line" "$1/etc/httpd.conf" && continue
+			echo "$line" >> "$1/etc/httpd.conf"
+		done <<EOT
+*.sh:/bin/sh
+EOT
+		grep -q ' httpd ' "$1/etc/rcS.conf" ||
+		sed -i 's/ slim"/ httpd slim"/' "$1/etc/rcS.conf"
+		if [ -z "$1" ]; then
+			echo
+			# Start Web server.
+			/etc/init.d/httpd stop
+			/etc/init.d/httpd start
+		fi
+	fi
+
+	[ -n "$quiet" ] || cat <<EOT
+
+	.----------------------------------------------.
+	| The default password to edit pages is 'test' |
+	'----------------------------------------------'
+EOT
+}
