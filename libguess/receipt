@@ -1,27 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="libguess"
-VERSION="gpl"
-CATEGORY="development"
-SHORT_DESC="User input ambiguity resolver for user inputs written in C++"
+VERSION="1.2"
+CATEGORY="utilities"
+SHORT_DESC="High-speed character set detection"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL3"
-WEB_SITE="https://sourceforge.net/projects/libguess/"
+LICENSE="ISC"
+WEB_SITE="http://atheme.org/projects/libguess.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://git.code.sf.net/p/libguess/code"
+WGET_URL="http://rabbit.dereferenced.org/~nenolod/distfiles/$TARBALL"
 
-BUILD_DEPENDS="git"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	cd Release
-	make
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install || return 1 # keep DESTDIR
+
+	cook_pick_docs README
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr/lib
-	cp -a $src/Release/libguess.so $fs/usr/lib
-	mkdir -p $fs/usr/include/libguess
-	install -m644 $src/src/Guess.h $fs/usr/include/libguess/libguess.h
-	DEPENDS="gcc-lib-base glibc-base"
+	case $PACKAGE in
+		libguess) copy @std;;
+		*-dev)    copy @dev;;
+	esac
 }

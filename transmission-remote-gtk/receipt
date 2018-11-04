@@ -1,29 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="transmission-remote-gtk"
-VERSION="1.1.1"
+VERSION="1.4.0"
 CATEGORY="network"
-SHORT_DESC="GTK remote control for the Transmission BitTorrent client"
-MAINTAINER="devl547@gmail.com"
+SHORT_DESC="Remotely manage the Transmission BitTorrent client"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/transmission-remote-gtk/transmission-remote-gtk"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://transmission-remote-gtk.googlecode.com/files/$TARBALL" # FIXME
+WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="gtk2-dev json-glib-dev curl-dev libnotify-dev \
-libunique-dev intltool gettext"
+BUILD_DEPENDS="automake gettext-dev autoconf-archive appstream-glib-dev \
+libtool json-glib-dev curl-dev gtk3-dev geoip-dev libnotify-dev libmrss-dev \
+libproxy-dev"
 
 compile_rules() {
-	./configure \
-		--enable-gtk2 \
+	./autogen.sh \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="gtk2 json-glib curl libnotify libunique"
+	DEPENDS="gdk-pixbuf glib gtk3 json-glib libcurl libmrss libnotify libproxy \
+	pango"
 }
