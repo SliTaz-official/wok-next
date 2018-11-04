@@ -6,15 +6,16 @@ CATEGORY="system-tools"
 SHORT_DESC="Software RAID tools"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
+WEB_SITE="https://mirrors.edge.kernel.org/pub/linux/utils/raid/mdadm/ANNOUNCE"
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-WEB_SITE="http://www.kernel.org/pub/linux/utils/raid/mdadm/ANNOUNCE"
 WGET_URL="https://www.kernel.org/pub/linux/utils/raid/mdadm/$TARBALL"
 
 compile_rules() {
-	make mdadm
+	make mdadm &&
+	install -Dm755 mdadm $install/usr/bin/mdadm
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr/bin
-	cp -a $src/mdadm $fs/usr/bin
+	copy @std
 }
