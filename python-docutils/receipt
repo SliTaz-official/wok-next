@@ -15,7 +15,15 @@ BUILD_DEPENDS="python python3"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION || return 1
+
+	# Remove .py extension from executables; add suffix
+	for i in $install/usr/bin/*; do
+		case $SET in
+			'') mv $i ${i%.py}-2;;
+			3)  mv $i ${i%.py}-3; ln -s "$(basename $i .py)-3" ${i%.py};;
+		esac
+	done
 }
 
 genpkg_rules() {
