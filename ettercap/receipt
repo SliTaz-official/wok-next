@@ -1,32 +1,54 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ettercap"
-VERSION="NG-0.7.3"
+VERSION="0.8.2"
 CATEGORY="network"
-SHORT_DESC="Suite for 'man in the middle' attacks on LAN"
-MAINTAINER="claudinei@slitaz.org"
+SHORT_DESC="Multipurpose Network sniffer, analyser, interceptor, logger"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://ettercap.sourceforge.net/"
+WEB_SITE="http://www.ettercap-project.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://github.com/Ettercap/ettercap/releases/download/v$VERSION/$TARBALL"
+TARBALL_SHA1="04f50925a5f3b2555371075a048ab7bfe3892976"
 
-BUILD_DEPENDS="libpthread-stubs libpcap libpcap-dev libnet-dev libtool file \
-zlib-dev"
+BUILD_DEPENDS="cmake openssl-dev zlib-dev curl-dev libpcap-dev libnet-dev \
+gtk2-dev"
+SPLIT="$PACKAGE-gtk:gtk"
 
 compile_rules() {
-	sed -i 's/ettercap_LDFLAGS = -export-dynamic @EC_LIBS@/ettercap_LDADD += @EC_LIBS@\nettercap_LDFLAGS = -export-dynamic/' src/Makefile.*
+	case $SET in
+		'')  SET_ARGS='-DENABLE_GTK=OFF';;
+		gtk) SET_ARGS='-DENABLE_GTK=ON';;
+	esac
 
-	./configure \
-		--enable-plugins \
-		--disable-gtk \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		$SET_ARGS \
+		.. &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="libpthread-stubs libpcap libnet libltdl zlib"
+	case $PACKAGE in
+		ettercap)
+			copy @std
+			find $fs \( -name '*.png' -o -name '*.svg' \) -delete
+			DEPENDS="libcurl libnet libpcap libpcre ncurses ncurses-libform \
+			ncurses-libmenu ncurses-libpanel openssl zlib"
+			CAT="network|console flavor"
+			CONFIG_FILES="/etc/ettercap/etter.conf"
+			;;
+		*-gtk)
+			copy @std
+			DEPENDS="glib gtk2 libcurl libnet libpcap libpcre ncurses \
+			ncurses-libform ncurses-libmenu ncurses-libpanel openssl zlib"
+			CAT="network|GTK flavor"
+			PROVIDE="ettercap"
+			CONFIG_FILES="/etc/ettercap/etter.conf"
+			;;
+	esac
 }

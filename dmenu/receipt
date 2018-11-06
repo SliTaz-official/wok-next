@@ -1,26 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dmenu"
-VERSION="4.5"
-CATEGORY="misc"
+VERSION="4.8"
+CATEGORY="x-window"
 SHORT_DESC="Dynamic menu lauch bar"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="http://tools.suckless.org/dmenu/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://dl.suckless.org/tools/$TARBALL"
 
-BUILD_DEPENDS="xorg-libX11-dev xorg-libXinerama-dev"
+BUILD_DEPENDS="xorg-libX11-dev xorg-libXft-dev xorg-libXinerama-dev"
 
 compile_rules() {
-	make CC=${HOST_SYSTEM}-gcc &&
-	make DESTDIR=$install install
+	make &&
+	make PREFIX=/usr install
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr/bin
-	cp -a $install/usr/local/bin/* $fs/usr/bin/
-	DEPENDS="xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXinerama"
+	copy @std
+	DEPENDS="fontconfig xorg-libX11 xorg-libXft xorg-libXinerama"
 	TAGS="launchbar"
 }
