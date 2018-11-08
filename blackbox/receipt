@@ -1,32 +1,44 @@
 # SliTaz package receipt v2.
 
 PACKAGE="blackbox"
-VERSION="0.70.1"
+VERSION="0.74"
 CATEGORY="x-window"
 SHORT_DESC="A small, fast, full-featured window manager for X"
-MAINTAINER="devl547@gmail.com"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://sourceforge.net/projects/blackboxwm/"
+WEB_SITE="https://github.com/bbidulock/blackboxwm"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/blackboxwm/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://github.com/bbidulock/blackboxwm/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-libXt-dev xorg-libXft-dev xorg-xorgproto libxml2-dev"
+BUILD_DEPENDS="cmark-gfm asciidoc links gettext xorg-libX11-dev \
+xorg-libICE-dev xorg-libXext-dev xorg-libXft-dev"
+SPLIT="$PACKAGE-dev"
 
 # TODO: modify tazx for blackbox so it will creat a correct ~/.xinitrc
 # to let user use the wm via slim/F1 or by default with 'tazx blackbox'.
 
 compile_rules() {
+	MARKDOWN=cmark-gfm \
 	./configure \
-		--libexecdir=/usr/bin \
+		--disable-static \
+		--enable-shared \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$install install
+	make install
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="xorg-libXt xorg-libXft"
-	TAGS="window-manager"
+	case $PACKAGE in
+		blackbox)
+			copy @std
+			DEPENDS="xorg-libX11 xorg-libXext xorg-libXft"
+			TAGS="window-manager"
+			;;
+		*-dev)
+			copy @dev
+			DEPENDS="blackbox xorg-libXft-dev"
+			;;
+	esac
 }

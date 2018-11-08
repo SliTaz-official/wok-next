@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mariadb"
-VERSION="10.0.11"
+VERSION="10.2.18"
 CATEGORY="office"
 SHORT_DESC="SQL database system"
 MAINTAINER="devel@slitaz.org"
@@ -9,26 +9,89 @@ LICENSE="GPL2"
 WEB_SITE="https://mariadb.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://pangolin.slitaz.org/downloads/sources/$TARBALL"
+WGET_URL="https://downloads.mariadb.org/interstitial/mariadb-$VERSION/source/$TARBALL"
 
 BUILD_DEPENDS="cmake ncurses-dev bison openssl-dev"
+BUILD_DEPENDS="cmake libaio-dev valgrind-dev zlib-dev openssl-dev ncurses-dev \
+pcre-dev curl-dev libxml2-dev xz-dev "
 SPLIT="libmariadbclient $PACKAGE-client $PACKAGE-dev $PACKAGE-test"
 
 compile_rules() {
+	case $ARCH in
+		i?86) ARCH_ARGS='-DPLUGIN_ROCKSDB=NO';;
+		*)    ARCH_ARGS='-DPLUGIN_ROCKSDB=YES';;
+	esac
+
 	cmake \
+		-DBUILD_CONFIG=mysql_release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DINSTALL-DOCREADMEDIR=/usr/share/doc \
-		-DINSTALL_MYSQLDATADIR=/var/lib/mysql \
-		-DINSTALL_SYSCONFDIR=/etc \
-		-DINSTALL_LIBDIR=lib/mysql \
-		-DINSTALL_INFODIR=share/doc/mysql \
+		-DSYSCONFDIR=/etc \
+		-DSYSCONF2DIR=/etc/my.cnf.d \
+		-DMYSQL_DATADIR=/var/lib/mysql \
+		-DMYSQL_UNIX_ADDR=/run/mysqld/mysqld.sock \
+		-DDEFAULT_CHARSET=utf8 \
+		-DDEFAULT_COLLATION=utf8_general_ci \
+		-DENABLED_LOCAL_INFILE=ON \
+		-DINSTALL_INFODIR=share/info \
 		-DINSTALL_MANDIR=share/man \
-		-DINSTALL_PLUGINDIR=lib/mysql/plugin \
-		-DINSTALL_SHAREDIR=share \
-		-DINSTALL_MYSQLSHAREDIR=share/mysql \
-		-DINSTALL_UNIX_ADDRDIR=/var/run/mysqld/mysqld.sock \
+		-DINSTALL_PLUGINDIR=lib/mariadb/plugin \
+		-DINSTALL_SCRIPTDIR=bin \
+		-DINSTALL_INCLUDEDIR=include/mysql \
+		-DINSTALL_DOCREADMEDIR=share/doc/mariadb \
+		-DINSTALL_SUPPORTFILESDIR=share/mariadb \
+		-DINSTALL_MYSQLSHAREDIR=share/mariadb \
+		-DINSTALL_DOCDIR=share/doc/mariadb \
+		-DTMPDIR=/var/tmp \
+		-DCONNECT_WITH_MYSQL=ON \
+		-DCONNECT_WITH_LIBXML2=system \
+		-DCONNECT_WITH_ODBC=NO \
+		-DCONNECT_WITH_JDBC=NO \
+		-DPLUGIN_ARCHIVE=YES \
+		-DPLUGIN_ARIA=YES \
+		-DPLUGIN_BLACKHOLE=YES \
+		-DPLUGIN_CASSANDRA=NO \
+		-DPLUGIN_CSV=YES \
+		-DPLUGIN_MYISAM=YES \
+		-DPLUGIN_MROONGA=NO \
+		-DPLUGIN_OQGRAPH=NO \
+		-DPLUGIN_PARTITION=YES \
+		-DPLUGIN_SPHINX=NO \
+		-DPLUGIN_TOKUDB=NO \
+		-DPLUGIN_AUTH_PAM=NO \
+		-DPLUGIN_AUTH_GSSAPI=NO \
+		-DPLUGIN_AUTH_GSSAPI_CLIENT=OFF \
+		-DPLUGIN_CRACKLIB_PASSWORD_CHECK=NO \
+		-DWITH_ASAN=OFF \
+		-DWITH_EMBEDDED_SERVER=ON \
+		-DWITH_EXTRA_CHARSETS=complex \
+		-DWITH_INNODB_BZIP2=OFF \
+		-DWITH_INNODB_LZ4=OFF \
+		-DWITH_INNODB_LZMA=ON \
+		-DWITH_INNODB_LZO=OFF \
+		-DWITH_INNODB_SNAPPY=OFF \
+		-DWITH_ROCKSDB_BZIP2=OFF \
+		-DWITH_ROCKSDB_JEMALLOC=OFF \
+		-DWITH_ROCKSDB_LZ4=OFF \
+		-DWITH_ROCKSDB_ZSTD=OFF \
+		-DWITH_ROCKSDB_SNAPPY=OFF \
+		-DWITH_JEMALLOC=NO \
+		-DWITH_LIBARCHIVE=system \
+		-DWITH_LIBNUMA=NO \
+		-DWITH_LIBWRAP=OFF \
+		-DWITH_LIBWSEP=OFF \
+		-DWITH_MARIABACKUP=ON \
+		-DWITH_PCRE=system \
+		-DWITH_READLINE=ON \
+		-DWITH_SYSTEMD=no \
+		-DWITH_SSL=system \
+		-DWITH_VALGRIND=OFF \
+		-DWITH_ZLIB=system \
+		-DSKIP_TESTS=ON \
+		$ARCH_ARGS \
 		. &&
-	make $MAKEFLAGS &&
+	# print config options to log
+	cmake -L &&
+	make &&
 	make install
 }
 

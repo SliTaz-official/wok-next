@@ -1,38 +1,48 @@
 # SliTaz package receipt v2.
 
 PACKAGE="astromenace"
-VERSION="1.3.2"
+VERSION="1.4.0"
 CATEGORY="games"
-SHORT_DESC="Hardcore 3D space shooter with spaceship upgrade possibilities"
-MAINTAINER="devel@slitaz.org"
+SHORT_DESC="Hardcore 3D space scroll-shooter with spaceship upgrade possibilities"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://viewizard.com/"
 
-TARBALL="$PACKAGE-src-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/openastromenace/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/viewizard/astromenace/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="gcc cmake make libsdl-dev libogg-dev libvorbis-dev glu-dev \
-openal-dev freealut-dev xorg-libXinerama-dev freetype-dev mesa-dev \
-fontconfig-dev"
+BUILD_DEPENDS="cmake libsdl2-dev mesa-dev openal-dev freealut-dev libogg-dev \
+libvorbis-dev freetype-dev glu-dev"
+SPLIT="$PACKAGE-data"
 
 compile_rules() {
-	cmake . &&
-	make &&
-	./AstroMenace --pack --rawdata=./RAW_VFS_DATA || return 1
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DDATADIR=/usr/share/astromenace \
+		.. &&
+	make || return 1
 
-	chmod +x AstroMenace
-
-	mkdir -p $install/usr/games/AstroMenace/
-	cp AstroMenace astromenace_64.png astromenace_128.png ChangeLog.txt \
-	gamedata.vfs gpl-3.0.txt $install/usr/games/AstroMenace/
-
-	mkdir -p $install/usr/share/pixmaps/
-	cp astromenace_64.png $install/usr/share/pixmaps/astromenace.png
+	install -Dm755 $src/build/astromenace             $install/usr/bin/astromenace
+	install -Dm644 $src/build/gamedata.vfs            $install/usr/share/astromenace/gamedata.vfs
+	install -Dm644 $src/share/astromenace_64.png      $install/usr/share/icons/hicolor/64x64/apps/astromenace.png
+	install -Dm644 $src/share/astromenace_128.png     $install/usr/share/icons/hicolor/128x128/apps/astromenace.png
+	install -Dm644 $src/share/astromenace.desktop     $install/usr/share/applications/astromenace.desktop
+	install -Dm644 $src/share/astromenace.appdata.xml $install/usr/share/appdata/astromenace.appdata.xml
 }
 
 genpkg_rules() {
-	copy @std
-	TAGS="arcade game shooting space"
-	DEPENDS="freealut freetype glu libsdl libvorbis mesa openal xorg-libX11 \
-	xorg-libXinerama"
+	case $PACKAGE in
+		astromenace)
+			copy bin/
+			DEPENDS="astromenace-data \
+			freealut freetype glu libsdl2 libvorbis mesa openal"
+			TAGS="arcade game shooting space"
+			;;
+		*-data)
+			copy @std icons/ @rm
+			CAT="games|game data"
+			;;
+	esac
 }

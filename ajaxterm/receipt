@@ -1,53 +1,68 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="ajaxterm"
-VERSION="0.10"
+VERSION="0.11"
+COMMIT="2eaa3e989782d8259a12c8cb7d6204433ae19264"
 CATEGORY="network"
 SHORT_DESC="Login terminal for the web"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="PublicDomain LGPL"
-WEB_SITE="http://antony.lesuisse.org/software/ajaxterm/"
+WEB_SITE="https://github.com/antonylesuisse/qweb/tree/master/ajaxterm"
 
-SOURCE="Ajaxterm"
-TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="${WEB_SITE}files/$TARBALL"
+TARBALL="ajaxterm-$VERSION-$COMMIT.tar.gz"
+WGET_URL="https://sources.archlinux.org/other/community/ajaxterm/$TARBALL"
 
 compile_rules() {
+	./configure --prefix=/usr
+
+	install -Dm755 ajaxterm.bin $install/usr/bin/ajaxterm
+
+	mkdir -p $install/usr/share/ajaxterm/
+	install -m644 ajaxterm.css ajaxterm.html qweb.py *.js $install/usr/share/ajaxterm/
+	install -m755 ajaxterm.py $install/usr/share/ajaxterm/
+
+	install -Dm755 $stuff/etc/init.d/ajaxterm $install/etc/init.d/ajaxterm
+
 	cook_pick_manpages $src/ajaxterm.1
+
+	cook_pick_docs $stuff/README.md
+
+	# Note, $stuff/usr/ still contain some rewritten files for the previous
+	# Ajaxterm version. I don't know how they are compatible with this newer
+	# version and don't use them at the moment. It would be much better if
+	# the patch were used...
 }
 
 genpkg_rules() {
-	mkdir -p $fs/usr/share/ajaxterm
-	cp -a $src/*.py $src/*.js $src/*.css $src/*.html $fs/usr/share/ajaxterm
-	cp -a $stuff/* $fs/
-	chown -R root:root $fs
-	find $fs -type f -name '*.py' -exec chmod a+x \{\} \;
+	copy @std
 	DEPENDS="python"
 	SUGGESTED="apache lighttpd-ssl lighttpd-modules"
 	TAGS="web application"
 }
 
 post_install() {
-	grep ^RUN_DAEMONS "$1/etc/rcS.conf" | grep -q "ajaxterm" || sed -i \
-	  's/RUN_DAEMONS="/RUN_DAEMONS="ajaxterm /' "$1/etc/rcS.conf"
+	grep ^RUN_DAEMONS "$1/etc/rcS.conf" | grep -q "ajaxterm" ||
+	sed -i 's|RUN_DAEMONS="|RUN_DAEMONS="ajaxterm |' "$1/etc/rcS.conf"
+
 	# Configure lighttpd server
 	if [ -f "$1/usr/lib/lighttpd/mod_proxy.so" ]; then
-			grep -q mod_proxy "$1/etc/lighttpd/lighttpd.conf" ||
+		grep -q mod_proxy "$1/etc/lighttpd/lighttpd.conf" ||
 			cat >> "$1/etc/lighttpd/lighttpd.conf" <<EOT
 server.modules += ( "mod_proxy" )
 EOT
-			grep -q ajaxterm "$1/etc/lighttpd/lighttpd.conf" ||
+		grep -q ajaxterm "$1/etc/lighttpd/lighttpd.conf" ||
 			cat >> "$1/etc/lighttpd/lighttpd.conf" <<EOT
 proxy.server = ( "/ajaxterm/" =>
 	( ( "host" => "127.0.0.1", "port" => 8022 ) )
 )
 EOT
-			if [ -z "$1" ]; then
-				# Start Web server.
-				/etc/init.d/lighttpd stop
-				/etc/init.d/lighttpd start
-			fi
+		if [ -z "$1" ]; then
+			# Start Web server.
+			/etc/init.d/lighttpd stop
+			/etc/init.d/lighttpd start
+		fi
 	fi
+
 	# Configure apache server
 	if [ -f "$1/etc/apache/httpd.conf" ]; then
 		if [ ! -f "$1/etc/apache/conf.d/ajaxterm" ]; then
@@ -70,22 +85,23 @@ EOT
 			fi
 		fi
 	fi
+
 	[ -z "$1" ] && /etc/init.d/ajaxterm start
 
 	[ ! -f "$1/usr/lib/lighttpd/mod_proxy.so" -a \
 	  ! -f "$1/etc/apache/httpd.conf" ] &&
 	  [ -z "$quiet" ] && cat <<EOT
 
-	.---------------------------------------.
-	| You should install either lighttpd:   |
-	| # tazpkg get-install lighttpd-ssl     |
-	| # tazpkg get-install lighttpd-modules |
-	|                                       |
-	| or apache:                            |
-	| # tazpkg get-install apache           |
-	|                                       |
-	| and reconfigure:                      |
-	| # tazpkg reconfigure ajaxterm         |
-	'---------------------------------------'
+	.-------------------------------------.
+	| You should install either lighttpd: |
+	| # tazpkg -gi lighttpd-ssl           |
+	| # tazpkg -gi lighttpd-modules       |
+	|                                     |
+	| or apache:                          |
+	| # tazpkg -gi apache                 |
+	|                                     |
+	| and reconfigure:                    |
+	| # tazpkg reconfigure ajaxterm       |
+	'-------------------------------------'
 EOT
 }
