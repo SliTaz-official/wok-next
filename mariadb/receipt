@@ -15,12 +15,12 @@ BUILD_DEPENDS="cmake libaio-dev valgrind-dev zlib-dev openssl-dev ncurses-dev \
 pcre-dev curl-dev libxml2-dev xz-dev boost-dev git"
 
 SPLIT="\
-$PACKAGE-test   $PACKAGE-common $PACKAGE-client       $PACKAGE-bench \
-$PACKAGE-backup $PACKAGE-mytop  $PACKAGE-server-utils \
-$PACKAGE-dev    $PACKAGE"
+$PACKAGE-test           $PACKAGE-common   $PACKAGE-client $PACKAGE-bench \
+$PACKAGE-backup         $PACKAGE-embedded $PACKAGE-mytop  $PACKAGE-server-utils \
+$PACKAGE-plugin-rocksdb $PACKAGE-dev      $PACKAGE"
 
 case $ARCH in
-	x86_64) SPLIT="$PACKAGE-plugin-rocksdb $SPLIT";;
+	i?86) SPLIT="${SPLIT/$PACKAGE-plugin-rocksdb/}";;
 esac
 
 compile_rules() {
@@ -101,22 +101,29 @@ compile_rules() {
 	make &&
 	make install || return 1
 
+	# fix Perl files permissions
+	find $install -type f -perm 664 -exec chmod 644 '{}' \;
+	find $install -type f -perm 775 -exec chmod 755 '{}' \;
+	find $install -type d -perm 775 -exec chmod 755 '{}' \;
+
+	# install conf files
 	install -Dm600 $stuff/my.cnf $install/etc/my.cnf
 	install -Dm600 $stuff/mariadb-server.cnf $install/etc/my.cnf.d/mariadb-server.cnf
 
 	mv $install/usr/sql-bench $install/usr/share
 
 	install -Dm755 $stuff/etc/init.d/mysql $install/etc/init.d/mysql
+
+	# move to bin and leave symlink instead
+	mv $install/usr/mysql-test/lib/My/SafeProcess/my_safe_process \
+		$install/usr/bin/
+	ln -s ../../../../bin/my_safe_process \
+		$install/usr/mysql-test/lib/My/SafeProcess/my_safe_process
 }
 
 genpkg_rules() {
 	case $PACKAGE in
-		*-plugin-rocksdb)
-			copy ha_rocksdb.so
-			CAT="RocksDB (MyRocks) plugin"
-			;;
 		*-test)
-			# missing bin/my_safe_process
 			copy bin/mysql_client_test bin/my_safe_process \
 			bin/mysqltest bin/mysqltest_embedded mysql-test/
 			CAT="development|test suite"
@@ -145,6 +152,11 @@ genpkg_rules() {
 			CAT="office|mariabackup tool for physical online backups"
 			DEPENDS=" "
 			;;
+		*-embedded)
+			copy libmariadbd.so* libmysqld.so
+			CAT="office|embeddable library"
+			DEPENDS="mariadb-common"
+			;;
 		*-mytop)
 			copy bin/mytop
 			DEPENDS="perl perl-dbi perl-dbd-mysql perl-getopt-long perl-socket \
@@ -156,6 +168,10 @@ genpkg_rules() {
 			bin/mysqld_safe_helper
 			CAT="office|non-essential server utilities"
 			DEPENDS=""
+			;;
+		*-plugin-rocksdb)
+			copy ha_rocksdb.so
+			CAT="RocksDB (MyRocks) plugin"
 			;;
 		*-dev)
 			copy @dev @rm
