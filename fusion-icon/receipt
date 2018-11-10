@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="fusion-icon"
+VERSION="0.2.4"
+CATEGORY="x-window"
+SHORT_DESC="Compiz tray (indicator) icon"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://gitlab.com/compiz/fusion-icon"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/fusion-icon/-/archive/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="python"
+
+DEPENDS_std="python"
+
+TAGS="compiz"
+
+compile_rules() {
+	python -B setup.py install --root=$install || return 1
+
+	chmod g-w \
+		$install/usr/share/icons/hicolor/scalable/apps/fusion-icon.svg \
+		$install/usr/share/metainfo/fusion-icon.appdata.xml # 664 -> 644
+}
+
+genpkg_rules() {
+	copy @std 22x22/ 24x24/ 32x32/ # copy 22, 24, 32 icons for tray
+	DEPENDS="$DEPENDS_std"
+}

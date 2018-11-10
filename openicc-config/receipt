@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="openicc-config"
+VERSION="0.1.0"
+CATEGORY="x-window"
+SHORT_DESC="Simple JSON based Color Management Configuration"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/OpenICC/config"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/OpenICC/config/archive/$VERSION.tar.gz"
+
+BUILD_DEPENDS="cmake yajl-dev gettext"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="yajl"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		.. &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		openicc-config) copy @std; DEPENDS="$DEPENDS_std";;
+		*-dev)          copy @dev;;
+	esac
+}

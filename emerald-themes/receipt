@@ -1,27 +1,34 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="emerald-themes"
-VERSION="0.8.12.1"
+VERSION="0.8.14"
 CATEGORY="customization"
 SHORT_DESC="Themes for Emerald"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-WEB_SITE="https://github.com/compiz-reloaded"
+WEB_SITE="https://gitlab.com/compiz/emerald-themes"
+HOST_ARCH="any"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
+TARBALL="emerald-themes-v0.8.14.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/emerald-themes/-/archive/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-dev gtk2-dev autoconf automake libtool"
+BUILD_DEPENDS="automake"
+
+DEPENDS_std="emerald"
+
+TAGS="compiz"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
+	./autogen.sh \
 		$CONFIGURE_ARGS &&
 	make &&
-	make install
+	make install || return 1
+
+	chmod 755 \
+		$install/usr/share/emerald/themes/Mavericks/dark/ \
+		$install/usr/share/emerald/themes/Mu/dark/ # 644 -> 755
 }
 
 genpkg_rules() {
-	mv $install/* $fs
-	DEPENDS="xorg-libX11 emerald"
+	copy @std; DEPENDS="$DEPENDS_std"
 }

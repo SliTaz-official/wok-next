@@ -1,23 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="emerald"
-VERSION="0.8.12.4"
+VERSION="0.8.14"
 CATEGORY="x-window"
 SHORT_DESC="Window decorator for Compiz"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="https://github.com/compiz-reloaded"
+WEB_SITE="https://gitlab.com/compiz/emerald"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/emerald/-/archive/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-dev gtk2-dev libwnck2-dev compiz-core-dev \
-libtool autoconf automake intltool"
+BUILD_DEPENDS="automake gettext-dev libtool intltool xorg-libXrender-dev \
+xorg-libXi-dev gtk3-dev libwnck3-dev compiz-dev cairo-dev pango-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="atk cairo compiz gdk-pixbuf glib gtk3 libwnck3 pango xorg-libX11 \
+xorg-libXi xorg-libXrender"
+DEPENDS_dev="emerald atk-dev cairo-dev compiz-dev gdk-pixbuf-dev glib-dev \
+gtk3-dev libwnck3-dev pango-dev xorg-libX11-dev xorg-libXi-dev \
+xorg-libXrender-dev"
+
+TAGS="compiz"
 
 compile_rules() {
 	./autogen.sh \
-		--prefix=/usr \
-		--with-gtk=2.0 \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -41,6 +48,8 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	copy @std
-	DEPENDS="xorg-libX11 gtk2 libwnck2 compiz-core"
+	case $PACKAGE in
+		emerald) copy @std; DEPENDS="$DEPENDS_std";;
+		*-dev)   copy @dev; DEPENDS="$DEPENDS_dev";;
+	esac
 }

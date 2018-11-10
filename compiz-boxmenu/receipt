@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="compiz-boxmenu"
+VERSION="1.1.12"
+CATEGORY="x-window"
+SHORT_DESC="Desktop menu for Compiz"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://gitlab.com/compiz/compiz-boxmenu"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/compiz-boxmenu/-/archive/$VERSION/$TARBALL"
+
+BUILD_DEPENDS="dbus-glib-dev gtk2-dev libwnck2-dev"
+
+DEPENDS_std="dbus dbus-glib gdk-pixbuf glib gtk2 libwnck2 pango python"
+
+TAGS="compiz"
+
+compile_rules() {
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	copy @std
+	DEPENDS="$DEPENDS_std"
+}

@@ -1,0 +1,43 @@
+# SliTaz package receipt v2.
+
+PACKAGE="oyranos"
+VERSION="0.9.6"
+CATEGORY="x-window"
+SHORT_DESC="Colour Management System (CMS) on operating system level"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="BSD"
+WEB_SITE="http://oyranos.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/oyranos-cms/oyranos/archive/$VERSION.tar.gz"
+
+BUILD_DEPENDS="shared-mime-info cmake yajl-dev openicc-config-dev lcms2-dev \
+cairo-dev libraw-dev exiv2-dev libpng16-dev xorg-libXfixes-dev \
+xorg-libXrandr-dev xorg-libXinerama-dev xorg-libXxf86vm-dev xorg-libXmu-dev \
+libxcm-dev libjpeg-turbo-dev tiff-dev gettext"
+SPLIT="$PACKAGE-dev"
+COOKOPTS="skip-log-errors"
+
+DEPENDS_std="cairo exiv2 libgomp libjpeg-turbo libpng16 libraw libxcm libxml2 \
+openicc-config xorg-libX11 xorg-libXfixes xorg-libXinerama xorg-libXrandr \
+xorg-libXxf86vm yajl"
+
+compile_rules() {
+	# --libdir=/usr/lib : don't want to be /usr/lib64
+	./configure \
+		--prefix=/usr \
+		--libdir=/usr/lib \
+		--enable-threads \
+		--enable-xft \
+		--enable-shared \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		oyranos) copy @std; DEPENDS="$DEPENDS_std";;
+		*-dev)   copy @dev;;
+	esac
+}

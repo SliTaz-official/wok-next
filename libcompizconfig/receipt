@@ -1,0 +1,44 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libcompizconfig"
+VERSION="0.8.14"
+CATEGORY="x-window"
+SHORT_DESC="Compiz configuration library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://gitlab.com/compiz/libcompizconfig"
+
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/libcompizconfig/-/archive/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="automake libtool xorg-libX11-dev compiz-dev protobuf-dev \
+libxslt-dev mesa-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libxml2 xorg-libX11"
+DEPENDS_dev="libcompizconfig compiz-dev"
+
+TAGS="compiz"
+
+compile_rules() {
+	mkdir -p m4
+
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		libcompizconfig)
+			copy @std; DEPENDS="$DEPENDS_std"
+			PROVIDE="compiz-libcompizconfig"
+			CONFIG_FILES="/etc/compizconfig/config"
+			;;
+		*-dev)
+			copy @dev; DEPENDS="$DEPENDS_dev"
+			;;
+	esac
+}

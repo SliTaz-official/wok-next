@@ -1,0 +1,153 @@
+--- a/compiz-manager
++++ b/compiz-manager
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ # Compiz Manager wrapper script
+ #
+ # Copyright (c) 2007 Kristian Lyngstøl <kristian@bohemians.org>
+@@ -27,15 +27,7 @@
+ #
+ 
+ 
+-# LIBDIR differs between x86 and x86_64, arm and aarch64, ppc and ppc64.
+-ARCH="$(uname -m)"
+-if [ -d '/usr/lib64/' ] && [[ "$ARCH" = *64 ]]; then
+-       LIBDIR='/usr/lib64'
+-else
+-       LIBDIR='/usr/lib'
+-fi
+-
+-COMPIZ_BIN_PATH="$(dirname "$(which compiz)")" # For window decorators and compiz.
++COMPIZ_BIN_PATH="$(dirname $(which compiz))" # For window decorators and compiz.
+ PLUGIN_PATH="$LIBDIR/compiz"
+ GLXINFO="$(which glxinfo 2>/dev/null)"
+ METACITY="$(which metacity 2>/dev/null)"
+@@ -52,9 +44,9 @@
+ # For detecting what driver is in use, the + is for one or more /'s.
+ XORG_DRIVER_PATH="$LIBDIR/xorg/.*/+"
+ FALLBACKWM="xterm"
+-if [[ "$XDG_CURRENT_DESKTOP" == "MATE" ]] || [ ! -z "$MATE_DESKTOP_SESSION_ID" ]; then
++if [ "$XDG_CURRENT_DESKTOP" == "MATE" -o ! -z "$MATE_DESKTOP_SESSION_ID" ]; then
+ 	FALLBACKWM="$MARCO"
+-elif [[ "$XDG_CURRENT_DESKTOP" == "GNOME" ]] || [ ! -z "$GNOME_DESKTOP_SESSION_ID" ]; then
++elif [ "$XDG_CURRENT_DESKTOP" == "GNOME" -o ! -z "$GNOME_DESKTOP_SESSION_ID" ]; then
+ 	FALLBACKWM="$METACITY"
+ elif ( xprop -root _DT_SAVE_MODE | grep ' = \"xfce4\"$' >/dev/null 2>&1 ); then
+ 	FALLBACKWM="$XFWM"
+@@ -78,7 +70,7 @@
+ # Echos the arguments if verbose.
+ verbose()
+ {
+-	if [[ "$VERBOSE" == "yes" ]]; then
++	if [ "$VERBOSE" == "yes" ]; then
+ 		printf "$*"
+ 	fi
+ }
+@@ -86,12 +78,12 @@
+ # Abort script and run fallback window manager.
+ abort_with_fallback_wm()
+ {
+-	if [[ "$SKIP_CHECKS" == "yes" ]]; then
++	if [ "$SKIP_CHECKS" == "yes" ]; then
+ 		verbose "SKIP_CHECKS is yes, so continuing despite problems.\n"
+ 		return 0
+ 	fi
+ 
+-	if [[ "$CM_DRY" == "yes" ]]; then
++	if [ "$CM_DRY" == "yes" ]; then
+ 		verbose "Dry run failed: Problems detected with 3D support.\n"
+ 		exit 1
+ 	fi
+@@ -124,7 +116,7 @@
+ check_fbconfig()
+ {
+ 	verbose "Checking for FBConfig: "
+-	if [[ "$INDIRECT" == "yes" ]]; then
++	if [ "$INDIRECT" == "yes" ]; then
+ 		"$GLXINFO" -i | grep -q 'GLX.*fbconfig'
+ 		FB=$?
+ 	else
+@@ -132,7 +124,7 @@
+ 		FB=$?
+ 	fi
+ 
+-	if [[ $FB == "0" ]]; then
++	if [ $FB == "0" ]; then
+ 		unset FB
+ 		verbose "present. \n"
+ 		return 0
+@@ -153,7 +145,7 @@
+ 		return 0
+ 	else
+ 		verbose "not present. \n"
+-		if [[ "$INDIRECT" == "yes" ]]; then
++		if [ "$INDIRECT" == "yes" ]; then
+ 			unset LIBGL_ALWAYS_INDIRECT
+ 			INDIRECT="no"
+ 			return 1
+@@ -232,7 +224,7 @@
+ 		HRES=$(echo "$RESOLUTION" | cut -dx -f1)
+ 		VRES=$(echo "$RESOLUTION" | cut -dx -f2)
+ 		verbose "Comparing resolution ($res) to maximum 3D texture size ($TEXTURE_LIMIT): ";
+-		if [ "$VRES" -gt "$TEXTURE_LIMIT" ] || [ "$HRES" -gt "$TEXTURE_LIMIT" ]; then
++		if [ "$VRES" -gt "$TEXTURE_LIMIT" -o "$HRES" -gt "$TEXTURE_LIMIT" ]; then
+ 			verbose "Failed.\n"
+ 			return 1
+ 		fi
+@@ -246,7 +238,7 @@
+ 	if ( check_nvidia ); then
+ 		ENV="__GL_YIELD=NOTHING "
+ 	fi
+-	if [[ "$INDIRECT" == "yes" ]]; then
++	if [ "$INDIRECT" == "yes" ]; then
+ 		ENV="$ENV LIBGL_ALWAYS_INDIRECT=1 "
+ 	fi
+ 
+@@ -259,14 +251,14 @@
+ 
+ build_args()
+ {
+-	if [[ "$LIBGL_ALWAYS_INDIRECT" == "1" ]]; then
++	if [ "$LIBGL_ALWAYS_INDIRECT" == "1" ]; then
+ 		COMPIZ_OPTIONS="$COMPIZ_OPTIONS --indirect-rendering "
+ 	fi
+ 	if [ ! -z "$DESKTOP_AUTOSTART_ID" ]; then
+ 		COMPIZ_OPTIONS="$COMPIZ_OPTIONS --sm-client-id $DESKTOP_AUTOSTART_ID"
+ 	fi
+ 	if ( check_nvidia ); then
+-		if [[ "$LIBGL_ALWAYS_INDIRECT" != "1" ]]; then
++		if [ "$LIBGL_ALWAYS_INDIRECT" != "1" ]; then
+ 			COMPIZ_OPTIONS="$COMPIZ_OPTIONS --loose-binding"
+ 		fi
+ 	fi
+@@ -309,7 +301,7 @@
+ 
+ # In case we are in a mate session, we always want matecompat
+ #  plugin loaded (session registering, key bindings).
+-if [ -f "$PLUGIN_PATH/libmatecompat.so" ] && ( [ "$XDG_CURRENT_DESKTOP" = "MATE" ] || [ -n "$MATE_DESKTOP_SESSION_ID" ] ); then
++if [ -f "$PLUGIN_PATH/libmatecompat.so" ] && [ "$XDG_CURRENT_DESKTOP" == "MATE" -o -n "$MATE_DESKTOP_SESSION_ID" ]; then
+ 	COMPIZ_PLUGINS="$COMPIZ_PLUGINS matecompat"
+ fi
+ 
+@@ -317,17 +309,17 @@
+ build_env
+ build_args
+ 
+-if [[ "$CM_DRY" == "yes" ]]; then
++if [ "$CM_DRY" == "yes" ]; then
+ 	verbose "Dry run finished: everything should work with regards to Compiz and 3D.\n"
+ 	verbose "Execute: $COMPIZ_BIN_PATH/$COMPIZ_NAME $COMPIZ_OPTIONS "$@" $COMPIZ_PLUGINS \n"
+ 	exit 0
+ fi
+ 
+ # Start the decorator.
+-if [ -x "$COMPIZ_BIN_PATH/emerald" ] && [[ "$USE_EMERALD" == "yes" ]]; then
++if [ -x "$COMPIZ_BIN_PATH/emerald" -a "$USE_EMERALD" == "yes" ]; then
+ 	verbose "Starting emerald\n"
+ 	"$COMPIZ_BIN_PATH/emerald" --replace &
+-elif [ -x "$COMPIZ_BIN_PATH/mate-window-decorator" ] && ( [[ "$XDG_CURRENT_DESKTOP" == "MATE" ]] || [ ! -z "$MATE_DESKTOP_SESSION_ID" ] ); then
++elif [ -x "$COMPIZ_BIN_PATH/mate-window-decorator" ] && [ "$XDG_CURRENT_DESKTOP" == "MATE" -o ! -z "$MATE_DESKTOP_SESSION_ID" ]; then
+ 	verbose "Starting mate-window-decorator\n"
+ 	"$COMPIZ_BIN_PATH/mate-window-decorator" --replace &
+ elif [ -x "$COMPIZ_BIN_PATH/gtk-window-decorator" ]; then

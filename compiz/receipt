@@ -1,52 +1,58 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="compiz"
-VERSION="0.8.12"
-CATEGORY="meta"
-SHORT_DESC="Compiz 3D effect support on SliTaz"
-MAINTAINER="devel@slitaz.org"
+VERSION="0.8.14"
+CATEGORY="x-window"
+SHORT_DESC="OpenGL window and compositing manager"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT GPL LGPL"
-WEB_SITE="http://www.compiz.org/"
+WEB_SITE="https://gitlab.com/compiz/compiz-core"
+REPOLOGY="compiz08"
+
+TARBALL="compiz-core-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/compiz-core/-/archive/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="automake gettext-dev libtool intltool xorg-libX11-dev \
+xorg-libXcomposite-dev xorg-libXext-dev xorg-libXfixes-dev xorg-libXdamage-dev \
+xorg-libXrandr-dev xorg-libXi-dev xorg-libXinerama-dev xorg-libXcursor-dev \
+xorg-libICE-dev xorg-libSM-dev libxml2-dev startup-notification-dev libxslt \
+libpng16-dev libjpeg-turbo-dev glu-dev mesa-dev glib-dev dbus-dev libxml2-dev \
+dbus-glib-dev fuse2-dev cairo-dev librsvg-dev \
+xorg-libXrender-dev gtk3-dev libwnck3-dev marco-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="atk cairo dbus fuse2 gdk-pixbuf glib glu gtk3 libpng16 librsvg \
+libwnck3 libxml2 marco mesa pango startup-notification xorg-libICE xorg-libSM \
+xorg-libX11 xorg-libXcomposite xorg-libXcursor xorg-libXdamage xorg-libXext \
+xorg-libXfixes xorg-libXi xorg-libXinerama xorg-libXrandr xorg-libXrender"
+DEPENDS_dev="compiz libxml2-dev startup-notification-dev xorg-libICE-dev \
+xorg-libSM-dev xorg-libX11-dev xorg-libXcomposite-dev xorg-libXcursor-dev \
+xorg-libXdamage-dev xorg-libXext-dev xorg-libXfixes-dev xorg-libXi-dev \
+xorg-libXinerama-dev xorg-libXrandr-dev xorg-libXrender xorg-libXrender-dev"
+
+TAGS="compiz"
+
+compile_rules() {
+	./autogen.sh \
+		--disable-static \
+		--enable-menu-entries \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+#	sed 's|bash|sh|' -i $install/usr/bin/compiz-decorator
+}
 
 genpkg_rules() {
-	mkdir -p $fs/usr/bin
-	cp -r $stuff/xsessions $fs/usr/share
-	install -m 0777 $stuff/compiz-session $fs/usr/bin
-	install -m 0777 $stuff/compiz-startwm $fs/usr/bin
-	chown -R 0.0 $fs
-	DEPENDS="emerald compiz-core compiz-plugins-main compiz-libcompizconfig \
-	slitaz-configs cairo-gl"
-	SUGGESTED="compiz-ccsm compiz-plugins-extra emerald-themes"
-	TAGS="window-manager"
-}
-
-post_install() {
-	chroot "$1/" tazx auto
-
-	res=$(cat $root/etc/slim.conf | grep ^session | sed s/"sessions. *"//)
-	# Adding WM to SLIM available sessions.
-	if ! echo "$res" | grep -q $PACKAGE; then
-		echo -n "Adding $PACKAGE to /etc/slim.conf..."
-		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" $root/etc/slim.conf
-		status
-	fi
-	for i in $(ls -d "$1"/home/* 2> /dev/null);
-	do	[ -d "$i" ] &&
-		sed '/WINDOW_MANAGER=/s|"\([^"]*\)"|"compiz"|' -i \
-		"$i/.config/slitaz/applications.conf" \
-		"$1/etc/slitaz/applications.conf"
-	done
-}
-
-post_remove() {
-	# Remove WM from SLIM available sessions.
-	if grep -q $PACKAGE $root/etc/slim.conf; then
-		sed -i s/,$PACKAGE// $root/etc/slim.conf
-	fi
-	for i in $(ls -d "$1"/home/* 2> /dev/null);
-	do [ -d "$i" ] &&
-		sed '/WINDOW_MANAGER=/s|"\([^"]*\)"|"lxde-session"|' -i \
-		"$i/.config/slitaz/applications.conf" \
-		"$1/etc/slitaz/applications.conf"
-	done
+	case $PACKAGE in
+		compiz)
+			copy @std; DEPENDS="$DEPENDS_std"
+			PROVIDE="compiz-core"
+			;;
+		*-dev)
+			copy @dev; DEPENDS="$DEPENDS_dev"
+			PROVIDE="compiz-core-dev"
+			;;
+	esac
 }

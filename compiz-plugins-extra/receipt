@@ -1,30 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="compiz-plugins-extra"
-VERSION="0.8.12.1"
+VERSION="0.8.14"
 CATEGORY="x-window"
 SHORT_DESC="Compiz extra plugins"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
-WEB_SITE="https://github.com/compiz-reloaded"
+WEB_SITE="https://gitlab.com/compiz/compiz-plugins-extra"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
-WGET_URL2="$WEB_SITE/$PACKAGE/commit/0b2a652.diff"
-EXTRA_SOURCE_FILES="$PACKAGE-0b2a652.u"
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/compiz-plugins-extra/-/archive/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-dev compiz-core-dev compiz-libcompizconfig-dev cmake \
-libxslt-dev startup-notification-dev mesa-dev gtk2-dev intltool librsvg-dev \
-libnotify-dev compiz-bcop util-linux-uuid-dev compiz-plugins-main-dev libtool \
-util-linux-getopt xorg-libxshmfence-dev glu-dev expat-dev xorg-xcb-util-dev"
+BUILD_DEPENDS="automake gettext-dev libtool intltool compiz-dev compiz-bcop-dev \
+compiz-plugins-main-dev libnotify-dev gtk2-dev mesa-dev glu-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	[ -s $SRC/$EXTRA_SOURCE_FILES ] ||
-		wget -O $SRC/$EXTRA_SOURCE_FILES $WGET_URL2
-	patch -p1 -i $SRC/$EXTRA_SOURCE_FILES
+DEPENDS_std="cairo glib glu libnotify xorg-libX11 xorg-libXext xorg-libXfixes"
 
-	./configure $CONFIGURE_ARGS &&
+TAGS="compiz"
+
+compile_rules() {
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -32,13 +29,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		compiz-plugins-extra)
-			copy @std
-			DEPENDS="xorg-libX11 compiz-core compiz-libcompizconfig gtk2 \
-			librsvg libnotify compiz-plugins-main"
-			;;
-		*-dev)
-			copy @dev
-			;;
+		compiz-plugins-extra) copy @std; DEPENDS="$DEPENDS_std";;
+		*-dev)                copy @dev;;
 	esac
 }

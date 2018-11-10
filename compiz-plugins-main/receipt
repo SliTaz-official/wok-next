@@ -1,25 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="compiz-plugins-main"
-VERSION="0.8.12.2"
+VERSION="0.8.14"
 CATEGORY="x-window"
 SHORT_DESC="Compiz main plugins"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://github.com/compiz-reloaded"
+WEB_SITE="https://gitlab.com/compiz/compiz-plugins-main"
 
-TARBALL="$PACKAGE-$VERSION.tar.xz"
-WGET_URL="$WEB_SITE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/compiz-plugins-main/-/archive/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-dev compiz-core-dev libnotify-dev libxslt-dev \
-startup-notification-dev mesa-dev gtk2-dev intltool librsvg-dev \
-compiz-libcompizconfig compiz-libcompizconfig-dev compiz-bcop glu-dev \
-util-linux-uuid-dev libtool util-linux-getopt xorg-libxshmfence-dev expat-dev \
-xorg-xcb-util-dev libjpeg-turbo-dev"
+BUILD_DEPENDS="automake gettext-dev libtool intltool compiz-dev compiz-bcop-dev \
+cairo-dev pango-dev glu-dev mesa-dev libjpeg-turbo-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="cairo glib glu libjpeg-turbo libxml2 pango xorg-libX11 \
+xorg-libXfixes xorg-libXrender"
+DEPENDS_dev="compiz-plugins-main cairo-dev compiz-dev pango-dev"
+
+TAGS="compiz"
+
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./autogen.sh \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
@@ -27,12 +31,7 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		compiz-plugins-main)
-			copy @std
-			DEPENDS="xorg-libX11 compiz-core librsvg"
-			;;
-		*-dev)
-			copy @dev
-			;;
+		compiz-plugins-main) copy @std; DEPENDS="$DEPENDS_std";;
+		*-dev)               copy @dev; DEPENDS="$DEPENDS_dev";;
 	esac
 }

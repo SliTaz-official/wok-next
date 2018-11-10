@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sampleicc"
+VERSION="1.6.8"
+CATEGORY="x-window"
+SHORT_DESC="Reading, writing, manipulating, and applying ICC profiles"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PublicDomain"
+WEB_SITE="https://www.freedesktop.org/wiki/OpenIcc/"
+
+TARBALL="SampleICC-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/sampleicc/$TARBALL"
+
+BUILD_DEPENDS="tiff-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="tiff"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+genpkg_rules() {
+	case $PACKAGE in
+		sampleicc) copy @std; DEPENDS="$DEPENDS_std";;
+		*-dev)     copy @dev;;
+	esac
+}

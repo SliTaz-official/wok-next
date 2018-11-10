@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="simple-ccsm"
+VERSION="0.8.14.1"
+CATEGORY="x-window"
+SHORT_DESC="Compiz settings manager focused on simplicity for an end-user"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://gitlab.com/compiz/simple-ccsm"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-v$VERSION.tar.bz2"
+WGET_URL="https://gitlab.com/compiz/simple-ccsm/-/archive/v$VERSION/$TARBALL"
+
+BUILD_DEPENDS="python intltool"
+
+DEPENDS_std="python"
+
+TAGS="compiz"
+
+compile_rules() {
+	python -B ./setup.py install --prefix=/usr --root=$install
+}
+
+genpkg_rules() {
+	copy @std
+	cook_copy_icons 16 22 24 32
+	DEPENDS="$DEPENDS_std"
+}

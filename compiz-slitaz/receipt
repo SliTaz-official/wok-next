@@ -1,0 +1,57 @@
+# SliTaz package receipt v2.
+
+PACKAGE="compiz-slitaz"
+VERSION="0.8.14"
+CATEGORY="meta"
+SHORT_DESC="Compiz 3D effect support on SliTaz"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT GPL LGPL"
+WEB_SITE="http://www.compiz.org/"
+HOST_ARCH="any"
+
+DEPENDS_std="emerald compiz-core compiz-plugins-main compiz-libcompizconfig \
+slitaz-configs cairo-gl"
+
+TAGS="window-manager"
+
+compile_rules() {
+	install -Dm755 $stuff/compiz-session $install/usr/bin/compiz-session
+	install -Dm755 $stuff/compiz-startwm $install/usr/bin/compiz-startwm
+	install -Dm644 $stuff/compiz.desktop $install/usr/share/xsessions/compiz.desktop
+}
+
+genpkg_rules() {
+	copy @std; DEPENDS="$DEPENDS_std"
+	SUGGESTED="compiz-ccsm compiz-plugins-extra emerald-themes"
+}
+
+post_install() {
+	chroot "$1/" tazx auto
+
+	res=$(cat $root/etc/slim.conf | grep ^session | sed s/"sessions. *"//)
+	# Adding WM to SLIM available sessions.
+	if ! echo "$res" | grep -q compiz; then
+		echo -n "Adding compiz to /etc/slim.conf..."
+		sed -i "s/^sessions.*/sessions            $res,compiz/" $root/etc/slim.conf
+		status
+	fi
+	for i in $(ls -d "$1"/home/* 2>/dev/null);
+	do	[ -d "$i" ] &&
+		sed '/WINDOW_MANAGER=/s|"\([^"]*\)"|"compiz"|' -i \
+		"$i/.config/slitaz/applications.conf" \
+		"$1/etc/slitaz/applications.conf"
+	done
+}
+
+post_remove() {
+	# Remove WM from SLIM available sessions.
+	if grep -q compiz $root/etc/slim.conf; then
+		sed -i 's|,compiz||' $root/etc/slim.conf
+	fi
+	for i in $(ls -d "$1"/home/* 2>/dev/null);
+	do [ -d "$i" ] &&
+		sed '/WINDOW_MANAGER=/s|"\([^"]*\)"|"lxde-session"|' -i \
+		"$i/.config/slitaz/applications.conf" \
+		"$1/etc/slitaz/applications.conf"
+	done
+}
