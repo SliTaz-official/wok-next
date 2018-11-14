@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="partclone"
-VERSION="0.2.49"
+VERSION="0.3.12"
 CATEGORY="system-tools"
 SHORT_DESC="Utilities to smartly backup partitions"
 MAINTAINER="devel@slitaz.org"
@@ -9,12 +9,16 @@ LICENSE="GPL2"
 WEB_SITE="https://partclone.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://github.com/Thomas-Tsai/partclone/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="util-linux-uuid-dev libxslt e2fsprogs-dev \
-ncurses-dev ntfsprogs-dev ntfs-3g-dev docbook-xsl"
+BUILD_DEPENDS="automake libtool gettext util-linux-uuid-dev e2fsprogs-dev \
+ntfs-3g-dev util-linux-blkid-dev openssl-dev"
 
 compile_rules() {
+	export RPM_ARCH=$ARCH
+	sed -i 's|exit 1|exit 0|' fail-mbr/compile-mbr.sh
+
+	./autogen &&
 	./configure \
 		--enable-extfs \
 		--enable-fat \
@@ -30,6 +34,6 @@ compile_rules() {
 
 genpkg_rules() {
 	copy @std
-	DEPENDS="ncurses ntfs-3g e2fsprogs"
+	DEPENDS="e2fsprogs ncurses ntfs-3g openssl util-linux-blkid util-linux-uuid"
 	TAGS="backup"
 }
