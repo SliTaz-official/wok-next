@@ -50,7 +50,7 @@ compile_rules() {
 		$src/libiberty/Makefile.in || return 1
 	mkdir -p ../build && cd ../build
 
-	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')	#'
+	PYTHON_LIB="$(python2 -c 'import os; print os.path.dirname(os.__file__)')"
 
 	../${src##*/}/configure \
 		--prefix=/usr \
@@ -70,7 +70,7 @@ compile_rules() {
 		--with-arch-directory=i386 \
 		--with-jvm-root-dir=/usr/lib/jvm/java-gcj \
 		--with-jvm-jar-dir=/usr/lib/jvm-exports/java-gcj \
-		--with-python-dir=/usr/lib/$PYTHON_LIB/site-packages \
+		--with-python-dir=$PYTHON_LIB/site-packages \
 		--with-x \
 		--enable-java-awt=gtk \
 		--enable-gtk-cairo \

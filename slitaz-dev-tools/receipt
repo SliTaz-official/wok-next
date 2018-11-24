@@ -13,6 +13,7 @@ REPOLOGY="-"
 TARBALL="slitaz-dev-tools-$VERSION.tar.bz2"
 WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
 
+BUILD_DEPENDS="python"
 SPLIT="mirror-tools:mt qemu-box:qb slitaz-mercurial-style:sms tazdev:td \
 tazwikiss:tw yaff:ya"
 
@@ -32,10 +33,10 @@ compile_rules() {
 			make DESTDIR=$install install
 			;;
 		sms)
-			PYTHON_LIB=python$(. $WOK/python/receipt; echo ${VERSION%.*})
-			mkdir -p $install/usr/lib/$PYTHON_LIB/site-packages/mercurial
+			PYTHON_LIB="$(python2 -c 'import os; print os.path.dirname(os.__file__)')"
+			mkdir -p $install$PYTHON_LIB/site-packages/mercurial
 			cp -a slitaz-mercurial-style/templates \
-				$install/usr/lib/$PYTHON_LIB/site-packages/mercurial
+				$install$PYTHON_LIB/site-packages/mercurial
 			;;
 		td)
 			install -Dm755 tazdev/tazdev      $install/usr/bin/tazdev

@@ -18,9 +18,9 @@ compile_rules() {
 }
 
 genpkg_rules() {
-	PYTHON_LIB=python$(grep ^VERSION= $WOK/python/receipt | sed 's/.*"\(...\).*/\1/')
+	PYTHON_LIB="$(python2 -c 'import os; print os.path.dirname(os.__file__)')"
 	sed -i 's|/home/slitaz/wok/gaupol/install||g' \
-		$install/usr/lib/$PYTHON_LIB/site-packages/aeidon/paths.py
+		$install$PYTHON_LIB/site-packages/aeidon/paths.py
 	cp -a $install/usr $fs
 	DEPENDS="python python-pygtk"
 	SUGGESTED="mplayer"
