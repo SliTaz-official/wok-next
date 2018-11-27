@@ -12,6 +12,9 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/acpid.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/acpid2/$TARBALL"
 
+TAGS_std="power-management"
+SUGGESTED_std="pm-utils"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
@@ -25,12 +28,6 @@ compile_rules() {
 	cp -r $stuff/acpi   $install/etc/
 	chmod go-rwx $install/etc/acpi/*.sh
 	chmod go-rwx $install/etc/acpi/events/*
-}
-
-genpkg_rules() {
-	copy @std
-	TAGS="power-management"
-	SUGGESTED="pm-utils"
 }
 
 post_install() {

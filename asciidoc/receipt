@@ -8,21 +8,21 @@ MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://asciidoc.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/asciidoc.html"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/asciidoc/asciidoc/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="automake python libxml2-tools docbook-xml docbook-xsl"
+DEPENDS_std="python"
 
 compile_rules() {
 	autoconf &&
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install &&
-	make DESTDIR=$install docs
-}
+	make DESTDIR=$install docs || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="python"
+	# remove broken symlink
+	rm $install/usr/share/doc/asciidoc-8.6.10/examples/website/asciidoc-graphviz-sample.txt
 }

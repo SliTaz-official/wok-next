@@ -8,9 +8,14 @@ SHORT_DESC="Login terminal for the web"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="PublicDomain LGPL"
 WEB_SITE="https://github.com/antonylesuisse/qweb/tree/master/ajaxterm"
+HOST_ARCH="any"
 
 TARBALL="ajaxterm-$VERSION-$COMMIT.tar.gz"
 WGET_URL="https://sources.archlinux.org/other/community/ajaxterm/$TARBALL"
+
+DEPENDS_std="python"
+SUGGESTED_std="apache lighttpd-ssl lighttpd-modules"
+TAGS_std="web application"
 
 compile_rules() {
 	./configure --prefix=/usr
@@ -31,13 +36,6 @@ compile_rules() {
 	# Ajaxterm version. I don't know how they are compatible with this newer
 	# version and don't use them at the moment. It would be much better if
 	# the patch were used...
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="python"
-	SUGGESTED="apache lighttpd-ssl lighttpd-modules"
-	TAGS="web application"
 }
 
 post_install() {

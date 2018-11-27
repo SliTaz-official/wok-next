@@ -8,11 +8,14 @@ file formats"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://joeyh.name/code/alien/"
+HOST_ARCH="any"
 
 TARBALL="${PACKAGE}_$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/alien-pkg-convert/$TARBALL"
 
 BUILD_DEPENDS="perl"
+
+DEPENDS_std="perl rpm4 cpio"
 
 compile_rules() {
 	perl Makefile.PL &&
@@ -20,9 +23,4 @@ compile_rules() {
 	make DESTDIR=$install install || return 1
 
 	find $install -type f -exec chmod u+w '{}' \;
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl rpm4 cpio"
 }

@@ -8,6 +8,9 @@ MAINTAINER="al.bobylev@gmail.com"
 LICENSE="unknown"
 WEB_SITE="http://linuxfromscratch.org/blfs/view/svn/postlfs/firmware.html#and-microcode" # yes, "and" is typo
 # See also: https://wiki.gentoo.org/wiki/AMD_microcode
+HOST_ARCH="any"
+
+DEPENDS_std="linux"
 
 compile_rules() {
 	mkdir -p $install/lib/firmware/amd-ucode
@@ -23,12 +26,7 @@ compile_rules() {
 	done
 }
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="linux"
-}
-
-post_install_amd_microcode() {
+post_install() {
 	if [ -z "$1" -a -e /sys/devices/system/cpu/microcode/reload ]; then
 		echo 1 > /sys/devices/system/cpu/microcode/reload
 	fi

@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libgd-dev"
+DEPENDS_std="libgd"
 
 compile_rules() {
 	sed -i 's/src platforms doc/src platforms/' Makefile
@@ -24,19 +25,10 @@ compile_rules() {
 		--disable-net \
 		--with-upstype=usb \
 		--with-dev= \
-		--enable-threads \
 		--enable-cgi \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
 	cook_pick_manpages $src/doc/*.5 $src/doc/*.8
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libgd"
 }

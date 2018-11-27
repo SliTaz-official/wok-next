@@ -8,6 +8,7 @@ MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
 WEB_SITE="http://www.alsa-project.org/main/index.php/Main_Page"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/alsa-firmware.html"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.alsa-project.org/pub/firmware/$TARBALL"
@@ -15,9 +16,12 @@ WGET_URL="ftp://ftp.alsa-project.org/pub/firmware/$TARBALL"
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	copy @std
+	# only broken symlinks there:
+	# /lib/firmware/turtlebeach/msndinit.bin -> /etc/sound/msndinit.bin
+	# /lib/firmware/turtlebeach/msndperm.bin -> /etc/sound/msndperm.bin
+	# /lib/firmware/turtlebeach/pndsperm.bin -> /etc/sound/pndsperm.bin
+	# /lib/firmware/turtlebeach/pndspini.bin -> /etc/sound/pndspini.bin
+	rm -r $install/lib/firmware/turtlebeach/
 }

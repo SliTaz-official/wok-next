@@ -12,18 +12,10 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://savannah.nongnu.org/download/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libao-dev"
+DEPENDS_std="libao"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		$CONFIGURE_ARGS &&
+	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	DEPENDS="libao"
+	make install
 }

@@ -13,15 +13,13 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.alsa-project.org/pub/plugins/$TARBALL"
 
 BUILD_DEPENDS="alsa-lib-dev libsamplerate-dev speex-dev speexdsp-dev"
+DEPENDS_std="alsa-lib libsamplerate speex"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make -j1 install
-}
+	make -j1 install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="alsa-lib libsamplerate speex"
+	fix symlinks
 }

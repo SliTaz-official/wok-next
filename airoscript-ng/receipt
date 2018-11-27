@@ -8,9 +8,12 @@ MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 #WEB_SITE="https://code.google.com/archive/p/airoscript/"
 WEB_SITE="http://airoscript.aircrack-ng.org/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-${VERSION%rc3}-3.tar.gz"
 WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/airoscript/$TARBALL"
+
+DEPENDS_std="bash"
 
 compile_rules() {
 	# Remove broken install parts
@@ -33,12 +36,4 @@ compile_rules() {
 	sed -i 's/etc\//etc\/airoscript-ng\//g' $install/usr/sbin/$PACKAGE
 
 	cook_pick_manpages $src/src/airoscript-ng.1
-}
-
-genpkg_rules() {
-	mkdir -p $fs/usr/share
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/share/airoscript-ng $fs/usr/share
-	cp -a $install/etc $fs
-	DEPENDS="bash"
 }
