@@ -15,29 +15,20 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="gtk2-dev libsigc++-dev glibmm-dev gtkmm-dev parted-dev \
 cairomm-dev pangomm-dev glibmm-dev intltool util-linux-uuid-dev"
 
-compile_rules() {
-	# Remove the "-v" option from the swapon/off commands.
-	# This will allow gparted to play nicely with busybox.
-	sed -i 's/swapoff -v/swapoff/; s/swapon -v/swapon/' src/Win_GParted.cc
-	# Process test busybox compatible
-	sed -i 's/ps -e | grep/pgrep/' gparted.in
-	# Remove keywords from desktop file and apply SliTaz graphical SU method
-	sed -i '/^_Keywords=/d; s|@gksuprog@|tazbox su|' gparted.desktop.in.in
+COPY_std="@std @ico"
+DEPENDS_std="atkmm glib glibmm gtk2 gtkmm libsigc++ pangomm parted \
+util-linux-uuid"
+SUGGESTED_std="e2fsprogs dosfstools mtools ntfs-3g ntfsprogs jfsutils xfsprogs \
+reiserfsprogs reiser4progs btrfs-progs f2fs-tools hfsutils hfsprogs \
+util-linux-mkfs util-linux-misc lvm2 cryptsetup dmsetup nilfs-utils xfsdump"
 
+compile_rules() {
 	./configure \
 		--disable-scrollkeeper \
 		--disable-doc \
+		GKSUPROG="tazbox su" \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	copy gparted gpartedbin
-	DEPENDS="atkmm glib glibmm gtk2 gtkmm libsigc++ pangomm parted \
-	util-linux-uuid"
-	SUGGESTED="e2fsprogs dosfstools mtools ntfs-3g ntfsprogs jfsutils xfsprogs \
-	reiserfsprogs reiser4progs btrfs-progs f2fs-tools hfsutils hfsprogs \
-	util-linux-mkfs util-linux-misc lvm2 cryptsetup dmsetup nilfs-utils xfsdump"
 }
