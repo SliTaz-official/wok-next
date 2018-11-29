@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+PACKAGE="abcde"
+VERSION="2.9.2"
+CATEGORY="multimedia"
+SHORT_DESC="A Better CD Encoder"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://abcde.einval.com/wiki/"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://abcde.einval.com/download/$TARBALL"
+
+DEPENDS_std="bash perl cd-discid python-eyed3"
+CONFIG_FILES_std="/etc/abcde.conf"
+
+compile_rules() {
+	sed -e 's|normalize-audio|normalize|g' -i abcde
+
+	make \
+		abcde_version=abcde-$VERSION \
+		prefix=/usr \
+		DESTDIR=$install \
+		install
+}

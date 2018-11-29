@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ruby-sassc"
+VERSION="2.0.0"
+CATEGORY="ruby"
+SHORT_DESC="Use libsass with Ruby"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
+
+TARBALL="${PACKAGE#*-}-$VERSION.gem"
+WGET_URL="https://rubygems.org/downloads/$TARBALL"
+TARBALL_SHA256="b619a0bf48d030e257cfba87c00c04c0eefe6c386bb7b81ee9088423b2e78877"
+
+BUILD_DEPENDS="ruby-dev"
+SPLIT="$PACKAGE-dev"
+
+COPY_std="@ruby"
+COPY_dev="@ruby-dev"
+
+DEPENDS_std="ruby ruby-ffi ruby-rake"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}

@@ -1,19 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rubyripper"
 VERSION="0.6.2"
 CATEGORY="multimedia"
-SHORT_DESC="A secure audio disc ripper"
+SHORT_DESC="A high precision CD ripper"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/bleskodev/rubyripper"
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://rubyripper.googlecode.com/files/$TARBALL" # FIXME
-TAGS="audio CD ripper"
+HOST_ARCH="any"
 
-SUGGESTED="ruby-gtk2 lame vorbis-tools"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/bleskodev/rubyripper/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="ruby-dev ruby-gettext cdparanoia-III cd-discid flac \
+vorbis-tools lame vorbisgain mp3gain normalize"
+
+COPY_std="@std *.png" # 128px icon
 DEPENDS="cd-discid cdparanoia-III flac normalize ruby"
-BUILD_DEPENDS="cd-discid cdparanoia-III lame normalize ruby-dev vorbis-tools"
+SUGGESTED="ruby-gtk2 lame vorbis-tools"
+TAGS="audio CD ripper"
 
 compile_rules() {
 	./configure \
@@ -24,12 +29,4 @@ compile_rules() {
 		&&
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	# launcher
-	cp -a $stuff/$PACKAGE $fs/usr/bin
 }

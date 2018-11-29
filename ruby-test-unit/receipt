@@ -14,6 +14,8 @@ TARBALL="${PACKAGE#*-}-$VERSION.gem"
 WGET_URL="https://rubygems.org/downloads/$TARBALL"
 
 BUILD_DEPENDS="ruby-dev"
+COPY_std="@ruby"
+DEPENDS_std="ruby"
 
 compile_rules() {
 	gem install \
@@ -22,10 +24,6 @@ compile_rules() {
 		--no-user-install \
 		--build-root $install \
 		$src/$TARBALL &&
-	fix gem
-}
-
-genpkg_rules() {
-	copy @ruby
-	DEPENDS="ruby"
+	fix gem &&
+	find $install -type f -perm 664 -exec chmod 644 '{}' \;
 }

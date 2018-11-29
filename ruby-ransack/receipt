@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ruby-ransack"
-VERSION="2.0.1"
+VERSION="2.1.0"
 CATEGORY="ruby"
 SHORT_DESC="Object-based searching for Active Record and Mongoid"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,8 +12,12 @@ REPOLOGY="${PACKAGE/-/:}"
 
 TARBALL="${PACKAGE#*-}-$VERSION.gem"
 WGET_URL="https://rubygems.org/downloads/$TARBALL"
+TARBALL_SHA256="19b81aab0d5a04c165a07b06aaca16b86895c851e021e978b47fb344da101273"
 
 BUILD_DEPENDS="ruby-dev"
+COPY_std="@ruby"
+DEPENDS_std="ruby ruby-actionpack ruby-activerecord ruby-activesupport \
+ruby-i18n"
 
 compile_rules() {
 	gem install \
@@ -23,10 +27,4 @@ compile_rules() {
 		--build-root $install \
 		$src/$TARBALL &&
 	fix gem
-}
-
-genpkg_rules() {
-	copy @ruby
-	DEPENDS="ruby ruby-actionpack ruby-activerecord ruby-activesupport \
-	ruby-i18n"
 }

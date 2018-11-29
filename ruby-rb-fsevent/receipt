@@ -7,13 +7,20 @@ SHORT_DESC="Very simple & usable FSEvents API"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://rubygems.org/gems/${PACKAGE#*-}"
+HOST_ARCH="any"
 REPOLOGY="${PACKAGE/-/:}"
 
 TARBALL="${PACKAGE#*-}-$VERSION.gem"
 WGET_URL="https://rubygems.org/downloads/$TARBALL"
+TARBALL_SHA256="a8f78186feb55bb98579b5e0f8dd925ececfde1b5c2496e5e932997ff999a1d2"
 
 BUILD_DEPENDS="ruby-dev"
 SPLIT="$PACKAGE-dev"
+
+COPY_std="@ruby"
+COPY_dev="@ruby-dev"
+
+DEPENDS_std="ruby"
 
 compile_rules() {
 	# FIXME: hmm... look at the binary file, is it gem OSX-based only?..
@@ -25,16 +32,4 @@ compile_rules() {
 		--build-root $install \
 		$src/$TARBALL &&
 	fix gem
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-dev)
-			copy @ruby-dev
-			;;
-		*)
-			copy @ruby
-			DEPENDS="ruby"
-			;;
-	esac
 }

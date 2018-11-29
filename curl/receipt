@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="curl"
-VERSION="7.61.1"
+VERSION="7.62.0"
 CATEGORY="network"
-SHORT_DESC="Tool and libs for transferring files with URL syntax"
-MAINTAINER="devel@slitaz.org"
+SHORT_DESC="Transfer files with URL syntax"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://curl.haxx.se/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/curl.html"
@@ -12,41 +12,52 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/curl.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://curl.haxx.se/download/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev openssl-dev libidn2-dev"
-# libssh2-dev c-ares-dev brotli-dev openldap-dev libpsl-dev"
-SPLIT="libcurl $PACKAGE-dev"
+BUILD_DEPENDS="zlib-dev openssl-dev libidn2-dev \
+libpsl-dev brotli-dev libssh2-dev openldap-dev nghttp2-dev"
+SPLIT="libcurl $PACKAGE $PACKAGE-dev $PACKAGE-big:big $PACKAGE-big-dev:big"
+
+COPY_big="@std"
+
+DEPENDS_std="libcurl"
+DEPENDS_libcurl="libidn2 openssl zlib"
+DEPENDS_dev="curl libidn2-dev openssl-dev zlib-dev"
+DEPENDS_big="brotli libidn2 libldap libpsl libssh2 nghttp2 openssl zlib"
+DEPENDS_big_dev="curl-big brotli-dev libidn2-dev libpsl-dev libssh2-dev \
+nghttp2-dev openldap-dev openssl-dev zlib-dev"
+
+CAT_libcurl="network|library"
+CAT_big="network|with Brotli, SSH2, LDAP, and HTTP2 support"
+
+PROVIDE_big="curl libcurl"
+PROVIDE_big_dev="curl-dev"
 
 compile_rules() {
-	# --with-libssh2 --with-brotli --enable-ldap --with-nghttp2
+	case $SET in
+		'')
+			SET_ARGS="--without-libpsl --without-brotli --without-libssh2 \
+			--disable-ldap --without-nghttp2"
+			;;
+		big)
+			SET_ARGS="--with-libpsl --with-brotli --with-libssh2 \
+			--enable-ldap --with-nghttp2"
+			;;
+	esac
 
 	./configure \
 		--disable-static \
 		--enable-threaded-resolver \
 		--with-ca-path=/etc/ssl/certs \
+		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
 
-	rm -rf docs/examples/.deps
-	find docs \( -name Makefile\* -o -name \*.1 -o -name \*.3 \) -exec rm {} \;
-	cook_pick_docs docs/*
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		curl)
-			copy curl
-			DEPENDS="libcurl"
-			;;
-		libcurl)
-			copy *.so*
-			DEPENDS="libidn2 openssl zlib"
-			CAT="network|library"
-			;;
-		curl-dev)
-			copy @dev
-			DEPENDS="curl libidn2-dev openssl-dev zlib-dev"
+	case $SET in
+		'')
+			rm -rf docs/examples/.deps
+			find docs \( -name Makefile\* -o -name \*.1 -o -name \*.3 \) -exec rm {} \;
+			cook_pick_docs docs/*
 			;;
 	esac
 }

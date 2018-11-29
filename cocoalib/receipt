@@ -1,32 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cocoalib"
-VERSION="0.9952"
+VERSION="0.99600"
 CATEGORY="misc"
-SHORT_DESC="GPL C++ library for doing Computations in Commutative Algebra"
+SHORT_DESC="C++ library for doing Computations in Commutative Algebra"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="http://cocoa.dima.unige.it/cocoalib/"
 
 TARBALL="CoCoALib-$VERSION.tgz"
-WGET_URL="${WEB_SITE}tgz/$TARBALL"
+WGET_URL="http://cocoa.dima.unige.it/cocoalib/tgz/$TARBALL"
 
 BUILD_DEPENDS="bash gmp-dev gsl-dev boost-dev boost-thread boost-system \
-boost-filesystem boost-iostreams boost-math-tr1"
+boost-filesystem boost-iostreams boost-math-tr1 readline-dev"
+
+COPY_std="@dev"
+DEPENDS_std="gmp gsl boost-thread boost-system boost-filesystem \
+boost-iostreams boost-math-tr1 readline"
 
 compile_rules() {
-	find | grep Makefile | sed 's/Makefile.*/Makefile_dependencies/' | \
-		xargs touch -d 197001010000
-	./configure $CONFIGURE_ARGS && make library || return 1
+	./configure &&
+	make library || return 1
 
-	# INSTALL TARGET for CoCoALib NOT YET IMPLEMENTED
-	mkdir -p $install/usr/lib $install/usr/include
-	cp -r $src/lib/libcocoa.a /$install/usr/lib
+	install -Dm644 lib/libcocoa.a $install/usr/lib/libcocoa.a
+
+	mkdir -p $install/usr/include
 	cp -r $src/include/* $install/usr/include
-}
-
-genpkg_rules() {
-	copy @dev
-	DEPENDS="gmp gsl boost-thread boost-system boost-filesystem \
-	boost-iostreams boost-math-tr1"
+	find $install -type f -name '*.H' -exec chmod 644 '{}' \;
 }
