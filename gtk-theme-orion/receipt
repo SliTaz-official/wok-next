@@ -3,25 +3,20 @@
 PACKAGE="gtk-theme-orion"
 VERSION="1.5"
 CATEGORY="customization"
-SHORT_DESC="GTK+2 and GTK+3 theme from the Shimmer Project"
+SHORT_DESC="Modern light theme"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 CC-BY-SA-3"
 WEB_SITE="https://github.com/shimmerproject/Orion"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/shimmerproject/Orion/archive/v$VERSION.tar.gz"
 
-compile_rules() {
-	T='/usr/share/themes/Orion'
-	mkdir -p $install/$T
-	cp -a \
-		$src/gtk-2.0 \
-		$src/gtk-3.0 \
-		$src/index.theme \
-		$install/$T
-}
+DEPENDS_std="gtk2-engine-murrine"
+TAGS_std="Shimmer theme GTK2 GTK3 Metacity Openbox Xfwm4 Unity"
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="gtk2-engine-murrine"
+compile_rules() {
+	T="$install/usr/share/themes/Orion"
+	mkdir -p $T
+	cp -r gtk-2.0/ gtk-3.0/ metacity-1/ openbox-3/ xfwm4/ index.theme $T
 }

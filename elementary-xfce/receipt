@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="elementary-xfce"
+VERSION="0.13.1"
+CATEGORY="customization"
+SHORT_DESC="Elementary icons forked from upstream, extended and maintained for Xfce"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://github.com/shimmerproject/elementary-xfce"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/shimmerproject/elementary-xfce/archive/v$VERSION.tar.gz"
+
+BUILD_DEPENDS="gtk3-dev gdk-pixbuf-dev findutils coreutils-multicall optipng \
+librsvg-dev"
+
+TAGS_std="Shimmer icons theme"
+
+compile_rules() {
+	./configure --prefix=/usr &&
+
+	# move `svgtopng` to system-wide path and run it from there later
+	make -C svgtopng &&
+	install svgtopng/svgtopng /usr/bin/ &&
+	sed -i 's|svgtopng/svgtopng|svgtopng|' svgtopng/pngtheme.sh &&
+
+	make &&
+	make DESTDIR=$install install
+}

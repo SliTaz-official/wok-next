@@ -1,29 +1,26 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gtk-theme-greybird"
-VERSION="1.6.2"
+VERSION="3.22.9"
 CATEGORY="customization"
-SHORT_DESC="GTK+2 and GTK+3 theme from the Shimmer Project"
+SHORT_DESC="Desktop suite for Xfce"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2 CC-BY-SA-3"
 WEB_SITE="https://github.com/shimmerproject/Greybird"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/shimmerproject/Greybird/archive/v$VERSION.tar.gz"
 
-compile_rules() {
-	T='/usr/share/themes/Greybird'
-	mkdir -p $install/$T
-	cp -a \
-		$src/gtk-2.0 \
-		$src/gtk-3.0 \
-		$src/xfce-notify-4.0 \
-		$src/xfce-notify-4.0_bright \
-		$src/index.theme \
-		$install/$T
-}
+BUILD_DEPENDS="automake ruby-sass glib libxml2-tools gdk-pixbuf librsvg-dev"
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="gtk2-engine-murrine"
+DEPENDS_std="gtk2-engine-murrine"
+TAGS_std="Shimmer theme GTK2 GTK3 Metacity Xfwm4 Plank Unity"
+
+compile_rules() {
+	sed -i 's|sassc|scss|; s|-M||' parse-sass.sh
+
+	./autogen.sh &&
+	make &&
+	make install
 }

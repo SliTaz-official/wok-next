@@ -14,8 +14,8 @@ TARBALL="${PACKAGE#*-}-$VERSION.gem"
 WGET_URL="https://rubygems.org/downloads/$TARBALL"
 
 BUILD_DEPENDS="ruby-dev"
-COPY_std="@ruby"
-DEPENDS_std="ruby ruby-sass-listen"
+COPY_std="@ruby REVISION VERSION*"
+DEPENDS_std="ruby ruby-stdlib ruby-sass-listen"
 
 compile_rules() {
 	gem install \
@@ -23,6 +23,16 @@ compile_rules() {
 		--ignore-dependencies \
 		--no-user-install \
 		--build-root $install \
-		$src/$TARBALL &&
+		$src/$TARBALL || return 1
+
+	# Keep some files from being moved to docdir by `fix gem`:
+	t=$(mktemp -d)
+	find $install/usr/lib/ruby/gems/*/gems/${PACKAGE#*-}-$VERSION/ \
+		\( -name 'REVISION' -o -name 'VERSION*' \) -exec mv '{}' $t \;
+
 	fix gem
+
+	# Return files back:
+	mv $t/* $install/usr/lib/ruby/gems/*/gems/${PACKAGE#*-}-$VERSION/
+	rm -r $t
 }

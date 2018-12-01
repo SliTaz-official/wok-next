@@ -1,28 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pngquant"
-VERSION="2.9.1"
+VERSION="2.12.2"
 CATEGORY="graphics"
-SHORT_DESC="Lossy compression of PNG images"
+SHORT_DESC="Lossy PNG compressor"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://pngquant.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$GITHUB/pornel/pngquant/tarball/$VERSION"
+# libimagequant added as git submodule, so better to use git instead of
+# getting 2 tarballs and putting one to another...
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="git|https://github.com/kornelski/pngquant.git"
 
-EXTRA_TARBALL="libimagequant-$VERSION"
-EXTRA_WGET_URL="$GITHUB/ImageOptim/libimagequant/tarball/$VERSION"
-
-BUILD_DEPENDS="lcms2-dev libpng16-dev zlib-dev"
+BUILD_DEPENDS="git lcms2-dev libpng16-dev zlib-dev"
 SPLIT="$PACKAGE-static:static"
 
+DEPENDS_std="lcms2 libpng16 zlib"
+DEPENDS_static=" "
+
+COPY_static="@std"
+CAT_static="graphics|static binary"
+PROVIDE_static="pngquant"
+
 compile_rules() {
-	if [ ! -e "$SRC/$EXTRA_TARBALL" ]; then
-		wget -O $SRC/$EXTRA_TARBALL $EXTRA_WGET_URL
-	fi
-	tar -xf $SRC/$EXTRA_TARBALL -C $src
-	mv $src/ImageOptim-*/* $src/lib/
+	git checkout tags/$VERSION
 
 	case $SET in
 		static)
@@ -39,19 +41,4 @@ compile_rules() {
 
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		pngquant)
-			copy pngquant
-			DEPENDS="lcms2 libpng16 zlib"
-			;;
-		pngquant-static)
-			copy pngquant
-			CAT="graphics|static binary"
-			PROVIDE="pngquant"
-			DEPENDS=" "
-			;;
-	esac
 }
