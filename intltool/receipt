@@ -8,11 +8,16 @@ MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://freedesktop.org/wiki/Software/intltool/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/intltool.html"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://launchpad.net/intltool/trunk/$VERSION/+download/$TARBALL"
 
 BUILD_DEPENDS="perl perl-xml-parser"
+
+COPY_std="@std @dev"
+DEPENDS_std="perl-xml-parser gettext-dev"
+TAGS_std="LFS"
 
 compile_rules() {
 	sed -i 's:\\\${:\\\$\\{:' intltool-update.in
@@ -22,10 +27,4 @@ compile_rules() {
 	make install || return 1
 
 	cook_pick_docs doc/I18N-HOWTO
-}
-
-genpkg_rules() {
-	copy @std @dev
-	DEPENDS="perl-xml-parser gettext-dev"
-	TAGS="LFS"
 }

@@ -7,9 +7,13 @@ SHORT_DESC="Collection of educational activities for young children"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.schoolsplay.org/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://download.savannah.nongnu.org/releases/childsplay/$TARBALL"
+
+DEPENDS="python python-pygtk python-pygame python-pysqlite python-sqlalchemy \
+libogg"
 
 compile_rules() {
 	mkdir -p $install/usr/share/childsplay
@@ -19,10 +23,4 @@ compile_rules() {
 	cook_pick_docs docs/*.html
 
 	install -Dm755 $stuff/childsplay $install/usr/games/childsplay
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="python python-pygtk python-pygame python-pysqlite python-sqlalchemy \
-	libogg"
 }

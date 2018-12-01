@@ -14,18 +14,17 @@ WGET_URL="https://github.com/mate-desktop/engrampa/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="mate-common yelp-tools-dev gtk3-dev caja-dev json-glib-dev \
 itstool xorg-libSM-dev"
 
+DEPENDS_std="cairo caja gdk-pixbuf glib gtk3 json-glib pango"
+SUGGESTED_std="unrar unace p7zip zip"
+TAGS_std="MATE"
+
 compile_rules() {
 	./autogen.sh \
 		--disable-packagekit \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="cairo caja gdk-pixbuf glib gtk3 json-glib pango"
-	SUGGESTED="unrar unace p7zip zip"
-	TAGS="MATE"
+	fix symlinks
 }

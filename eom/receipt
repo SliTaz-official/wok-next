@@ -17,26 +17,19 @@ dbus-glib-dev librsvg-dev gtk3-dev mate-desktop-dev gdk-pixbuf-dev \
 shared-mime-info-dev libpeas-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="atk cairo dbus-glib exempi gdk-pixbuf glib gobject-introspection \
+gtk3 lcms2 libexif libjpeg-turbo libpeas libpeas-gtk librsvg libxml2 \
+mate-desktop xorg-libX11 zlib"
+DEPENDS_dev="eom glib-dev gtk3-dev"
+
+TAGS_std="MATE"
+
 compile_rules() {
 	./autogen.sh \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	case $PACKAGE in
-		eom)
-			copy @std
-			DEPENDS="atk cairo dbus-glib exempi gdk-pixbuf glib \
-			gobject-introspection gtk3 lcms2 libexif libjpeg-turbo libpeas \
-			libpeas-gtk librsvg libxml2 mate-desktop xorg-libX11 zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="eom glib-dev gtk3-dev"
-			;;
-	esac
-	TAGS="MATE"
+	fix symlinks
 }
