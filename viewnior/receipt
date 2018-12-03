@@ -1,30 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="viewnior"
-VERSION="1.6"
+VERSION="1.7"
 CATEGORY="graphics"
 SHORT_DESC="Fast and elegant image viewer"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://siyanpanayotov.com/project/viewnior"
+WEB_SITE="https://siyanpanayotov.com/project/viewnior"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/xsisqox/Viewnior/archive/$TARBALL"
+WGET_URL="https://github.com/hellosiyan/Viewnior/archive/$TARBALL"
 
-BUILD_DEPENDS="automake libtool gtk2-dev exiv2-dev intltool \
-shared-mime-info-dev curl-dev libssh-dev"
+BUILD_DEPENDS="meson ninja gtk2-dev exiv2-dev gettext-dev \
+desktop-file-utils-extra curl-dev libssh-dev"
+
+DEPENDS_std="exiv2 gdk-pixbuf glib gtk2"
+TAGS_std="image photo viewer"
 
 compile_rules() {
-	mkdir -p $src/m4
+	mkdir build
+	cd    build
 
-	autoreconf -fi
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make $MAKEFLAGS install
-}
+	meson-wrapper &&
+	ninja &&
+	ninja install || return 1
 
-genpkg_rules() {
-	copy viewnior *.ui @ico
-	DEPENDS="exiv2 gdk-pixbuf glib gtk2"
-	TAGS="image photo viewer"
+	chmod 644 $install/usr/share/icons/hicolor/scalable/apps/viewnior.svg # was 755
 }
