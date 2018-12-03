@@ -6,12 +6,15 @@ CATEGORY="x-window"
 SHORT_DESC="Full-screen gesture recognition program for X"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://cworth.org/cworth/papers/xstroke/"
+#WEB_SITE="https://cworth.org/cworth/papers/xstroke/"
+#WEB_SITE="https://web.archive.org/web/20170829030627/https://cworth.org/cworth/papers/xstroke/"
+WEB_SITE="https://www.usenix.org/legacy/publications/library/proceedings/usenix03/tech/freenix03/full_papers/worth/worth_html/xstroke.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://davesource.com/Projects/xstroke/xstroke.tar.gz"
 
 BUILD_DEPENDS="xorg-libX11-dev"
+DEPENDS_std="xorg-libX11"
 
 compile_rules() {
 	sed \
@@ -23,10 +26,6 @@ compile_rules() {
 	make xstroke || return 1
 
 	install -Dm755 xstroke $install/usr/bin/xstroke
+	chmod 644 xstroke.man
 	cook_pick_docs xstroke.man
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="xorg-libX11"
 }

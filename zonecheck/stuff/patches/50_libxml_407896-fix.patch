@@ -1,0 +1,24 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 50_libxml_407896-fix.dpatch by Sebastien Delafond <seb@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Don't use libxml even if it's available.
+
+@DPATCH@
+diff -urNad 2.0.4~/zc/ext/myxml.rb 2.0.4/zc/ext/myxml.rb
+--- 2.0.4~/zc/ext/myxml.rb	2004-01-07 08:44:56.000000000 -0800
++++ 2.0.4/zc/ext/myxml.rb	2007-04-06 12:30:17.000000000 -0700
+@@ -46,12 +46,7 @@
+ 			  if $zc_xml_parser
+ 			      $zc_xml_parser.intern
+ 			  else
+-			      begin
+-				  require 'xml/libxml'
+-				  :libxml
+-			      rescue LoadError
+-				  :rexml
+-			      end
++                            :rexml
+ 			  end
+ 		      }).call
+ 

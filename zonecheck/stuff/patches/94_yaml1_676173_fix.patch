@@ -1,0 +1,18 @@
+Description: Proper YAML syntax error exception handling for Ruby 1.9
+ The default YAML engine does not have a ParseError exception, but a SyntaxError one.
+Author: Antonio Terceiro <terceiro@debian.org>
+Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=676173
+
+---
+
+--- zonecheck-3.0.3.orig/test/rootserver.rb
++++ zonecheck-3.0.3/test/rootserver.rb
+@@ -82,7 +82,7 @@ module CheckNetworkAddress
+                if f = $rootserver_hintfile
+              begin
+                  rootserver = RootServerList.from_hintfile(f)
+-             rescue YAML::ParseError,SystemCallError => e
++             rescue YAML::SyntaxError,SystemCallError => e
+                  Dbg.msg(DBG::CONFIG, 
+                    "Unable to read/parse rootserver hint file (#{e})")
+              end

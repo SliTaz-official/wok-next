@@ -1,0 +1,74 @@
+# SliTaz package receipt v2.
+
+PACKAGE="privatebin"
+VERSION="1.2.1"
+CATEGORY="network"
+SHORT_DESC="Online pastebin where the server has zero knowledge of pasted data"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="zlib/libpng GPL2 BSD MIT Apache CC-BY"
+WEB_SITE="https://privatebin.info/"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/PrivateBin/PrivateBin/archive/$VERSION.tar.gz"
+
+DEPENDS_std="php php-gd"
+CONFIG_FILES_std="/etc/privatebin/conf.php"
+TAGS_std="pastebin privacy"
+
+compile_rules() {
+	mkdir -p $install/usr/share/privatebin
+	cp -R *  $install/usr/share/privatebin
+
+	mkdir -p $install/etc/
+	mv  $install/usr/share/privatebin/cfg \
+		$install/etc/privatebin/
+	ln -s /etc/privatebin $install/usr/share/privatebin/cfg
+	cp $install/etc/privatebin/conf.sample.php $install/etc/privatebin/conf.php
+
+	# data and runtime folders
+	for i in model purgelimit trafficlimits; do
+		mkdir -p $install/var/lib/privatebin/$i
+	done
+	chown -R www.www $install/var/lib/privatebin/*
+
+	cook_pick_docs *.md
+
+	fix symlinks
+}
+
+post_install() {
+	# Configure lighttpd server
+	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
+		if ! grep -q /usr/share/privatebin/ "$1/etc/lighttpd/lighttpd.conf"; then
+			sed -e 's|.*"/examples/" => "/usr/share/examples/",|    "/examples/" => "/usr/share/examples/",\n    "/paste/" => "/usr/share/privatebin/",|g' -i "$1/etc/lighttpd/lighttpd.conf"
+			if [ -z "$1" ]; then
+				# Start Web server.
+				/etc/init.d/lighttpd stop
+				/etc/init.d/lighttpd start
+			fi
+		fi
+	fi
+
+	# Configure apache server
+	if [ -f "$1/etc/apache/httpd.conf" ]; then
+		sed -i 's/lighttpd/apache/' "$1/etc/rcS.conf"
+		if [ ! -f "$1/etc/apache/conf.d/pastebin" ]; then
+			cat > "$1/etc/apache/conf.d/pastebin" <<EOT
+<IfModule mod_alias.c>
+    Alias /paste /usr/share/pastebin/
+</IfModule>
+<DirectoryMatch /usr/share/pastebin/>
+    php_value upload_max_filesize 2147483647
+    DirectoryIndex index.php
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+</DirectoryMatch>
+EOT
+
+			# Start Web server.
+			[ -n "$1" ] || /etc/init.d/apache restart
+		fi
+	fi
+}

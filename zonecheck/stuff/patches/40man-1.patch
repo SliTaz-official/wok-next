@@ -1,0 +1,272 @@
+#!/bin/sh -e
+## 40man-1.dpatch by Sebastien Delafond <sdelafond@gmx.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+##
+## DP: Escape '-' signs where needed, per 
+## DP:  http://lists.debian.org/debian-devel/2003/03/msg01481.html
+
+if [ $# -lt 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+Index: zonecheck-3.0.0/man/zonecheck.1
+===================================================================
+--- zonecheck-3.0.0.orig/man/zonecheck.1	2010-06-03 10:09:28.000000000 +0200
++++ zonecheck-3.0.0/man/zonecheck.1	2010-06-24 11:41:45.000000000 +0200
+@@ -62,7 +62,7 @@
+ .B \-voet
+ .I opt
+ ] [
+-.B -46
++.B \-46
+ ] [
+ .B \-c
+ .I conf
+@@ -91,12 +91,12 @@
+ that case happens the most recent option will be taken into account,
+ silently discarding the others.
+ .TP
+-\fB--lang\fR \fIlang\fR
++\fB\-\-lang\fR \fIlang\fR
+ Select another language (en, fr, ...). The syntax is the same as for the
+ environment variable \fILANG\fR.
+ .
+ .TP
+-\fB--debug\fR, \fB-d\fR \fIlvl\fR
++\fB\-\-debug\fR, \fB\-d\fR \fIlvl\fR
+ Select the debugging messages to print or activate debugging code.
+ This parameter will override the value of the environment variable \fIZC_DEBUG\fR.
+ .br
+@@ -116,15 +116,15 @@
+   0x4000 : Disable caching
+   0x8000 : Don't try to rescue exceptions
+ .TP
+-\fB--help\fR, \fB-h\fR
++\fB\-\-help\fR, \fB\-h\fR
+ Show a short description of the different options available in \fIZoneCheck\fR.
+ .
+ .TP
+-\fB--version\fR, \fB-V\fR
++\fB\-\-version\fR, \fB\-V\fR
+ Display the version and exit.
+ .
+ .TP
+-\fB--batch\fR, \fB-B\fR \fIfilename\fR
++\fB\-\-batch\fR, \fB\-B\fR \fIfilename\fR
+ Depreciated option. You can use this script instead :
+ .br
+   for domain in `cat list_dom`; do
+@@ -133,19 +133,19 @@
+   done
+ .
+ .TP
+-\fB--config\fR, \fB-c\fR \fIfilename\fR
++\fB\-\-config\fR, \fB\-c\fR \fIfilename\fR
+ Specify the location of the configuration file (default is \fIzc.conf\fR).
+ .
+ .TP
+-\fB--testdir\fR \fIdirectory\fR
++\fB\-\-testdir\fR \fIdirectory\fR
+ Location of the directory holding the tests definition.
+ .
+ .TP
+-\fB--profile\fR, \fB-P\fR \fIprofilename\fR
++\fB\-\-profile\fR, \fB\-P\fR \fIprofilename\fR
+ Force uses of profile \fIprofilename\fR.
+ .
+ .TP
+-\fB--category\fR, \fB-C\fR \fIcatlist\fR
++\fB\-\-category\fR, \fB\-C\fR \fIcatlist\fR
+ Limit the test to perform to the categories specified by \fIcatlist\fR.
+ The syntax for the catgory description is as follow:
+   allow=[+|]    disallow=[-|!]    subcomponent=:    separator=,
+@@ -153,21 +153,21 @@
+       don't perform DNS tests that are not SOA related
+ .
+ .TP
+-\fB--test\fR, \fB-T\fR \fItestname\fR
++\fB\-\-test\fR, \fB\-T\fR \fItestname\fR
+ \fItestname\fR is the test to perform. In this case failing to pass
+ the test is considered as fatal.
+ .
+ .TP
+-\fB--testlist\fR
++\fB\-\-testlist\fR
+ List all the tests available.
+ .
+ .TP
+-\fB--testdesc\fR \fIdesctype\fR
++\fB\-\-testdesc\fR \fIdesctype\fR
+ Give a description of the test, the possible values for \fIdesctype\fR
+ are \fBname\fR, \fBsuccess\fR, \fBfailure\fR, \fBexplanation\fR.
+ .
+ .TP
+-\fB--resolver\fR, \fB-r\fR \fIresolver\fR
++\fB\-\-resolver\fR, \fB\-r\fR \fIresolver\fR
+ Resolver to use (only IP address is accepted) for finding the information 
+ about the tested zone,
+ by default the name servers used are the one specified in 
+@@ -175,7 +175,7 @@
+ should already have been delegated.
+ .
+ .TP
+-\fB--ns\fR, \fB-n\fR \fInslist\fR
++\fB\-\-ns\fR, \fB\-n\fR \fInslist\fR
+ List of nameservers for the domain. Nameservers name are separated by 
+ a semicolon, the name can be followed by the equal sign and its
+ IP addresses separated by a colon.
+@@ -183,7 +183,7 @@
+ This can give the following example: ns1;ns2=ip1,ip2;ns3=ip3
+ .
+ .TP
+-\fB--securedelegation\fR, \fB-s\fR \fI[dsordnskey]\fR
++\fB\-\-securedelegation\fR, \fB\-s\fR \fI[dsordnskey]\fR
+ Force the execution of the full DNSSEC profile. Arguments are optional. 
+ You can precise the Trust Anchor of your zone by giving the DNSKEY 
+ or the DS and the algorithm used to hash your key. Several Trust
+@@ -193,20 +193,20 @@
+   \fBDNSKEY:af1Bs0F+4rg-g19\fP
+ .
+ .TP
+-\fB--quiet\fR, \fB-q\fR
++\fB\-\-quiet\fR, \fB\-q\fR
+ Don't display extra titles.
+ .
+ .TP
+-\fB--one\fR, \fB-1\fR
++\fB\-\-one\fR, \fB\-1\fR
+ Only display the most relevant message in a compact format.
+ .
+ .TP
+-\fB--tagonly\fR, \fB-g\fR
++\fB\-\-tagonly\fR, \fB\-g\fR
+ Display only tag. This option should be used for scripting.
+ .
+ .TP
+-\fB--verbose\fR, \fB-v\fR \fIoptions\fR
+-Display extra information, they can be prefix by '-' or '!'
++\fB\-\-verbose\fR, \fB\-v\fR \fIoptions\fR
++Display extra information, they can be prefix by '\-' or '!'
+ to remove the effect, available options are:
+ .
+ .RS
+@@ -241,7 +241,7 @@
+ .RE
+ .
+ .TP
+-\fB--output\fR, \fB-o\fR \fIoptions\fR
++\fB\-\-output\fR, \fB\-o\fR \fIoptions\fR
+ Output rendering/format selection, avalaible options are:
+ .RS
+ .TP
+@@ -266,7 +266,7 @@
+ .RE
+ .
+ .TP
+-\fB--error\fR, \fB-e\fR \fIoptions\fR
++\fB\-\-error\fR, \fB\-e\fR \fIoptions\fR
+ Behaviour in case of error, available options are:
+ .RS
+ .TP
+@@ -292,7 +292,7 @@
+ .RE
+ .
+ .TP
+-\fB--transp\fR, \fB-t\fR \fIoptions\fR
++\fB\-\-transp\fR, \fB\-t\fR \fIoptions\fR
+ Transport/routing layer selection, available options are:
+ .RS
+ .TP
+@@ -322,20 +322,20 @@
+ route to name servers can carry EDNS queries.
+ .
+ .TP
+-\fB--ipv4\fR, \fB-4\fR
++\fB\-\-ipv4\fR, \fB\-4\fR
+ Only check the zone with IPv4 connectivity.
+ .
+ .TP
+-\fB--ipv6\fR, \fB-6\fR
++\fB\-\-ipv6\fR, \fB\-6\fR
+ Only check the zone with IPv6 connectivity.
+ .
+ .TP
+-\fB--preset\fR \fIname\fR
++\fB\-\-preset\fR \fIname\fR
+ Use of a preset configuration defined in the zc.conf configuration file.
+ .
+ .TP
+-\fB--option\fR \fIoptions\fR
+-Set extra options. The syntax is: -,-opt,opt,opt=foo
++\fB\-\-option\fR \fIoptions\fR
++Set extra options. The syntax is: \-,\-opt,opt,opt=foo
+ .RS
+ .TP
+ \fBihtml\fR
+@@ -355,14 +355,14 @@
+ .TP
+ .I ZC_CONFIG_FILE
+ Name of the configuration file to use (defaul to zc.conf), it is
+-override by the \fB--config\fR option.
++override by the \fB\-\-config\fR option.
+ .TP
+ .I ZC_LOCALIZATION_DIR
+ Directory where all the localization files are located.
+ .TP
+ .I ZC_TEST_DIR
+ Directory where all the tests are located, it is override by the
+-\fB--testdir\fR option.
++\fB\-\-testdir\fR option.
+ .TP
+ .I ZC_HTML_PATH
+ Path relative to the web server to use when generating HTML pages.
+@@ -439,14 +439,14 @@
+ and details of failed tests.
+ .RS
+ .nf
+-\fBzonecheck -6 --verbose=i,x,d domain_name\fP
++\fBzonecheck \-6 \-\-verbose=i,x,d domain_name\fP
+ .fi
+ .RE
+ .LP
+ Ask for the 'error' message associated with the test 'soa'.
+ .RS
+ .nf
+-\fBzonecheck --testdesc error -T soa\fP
++\fBzonecheck \-\-testdesc error \-T soa\fP
+ .fi
+ .RE
+ .LP
+@@ -455,7 +455,7 @@
+ a short description of why their domains are not correctly configured.
+ .RS
+ .nf
+-\fBzonecheck -q -vn,d,x,f domain_name\fP
++\fBzonecheck \-q \-vn,d,x,f domain_name\fP
+ .fi
+ .RE
+ .LP
+@@ -465,7 +465,7 @@
+ autodetection will failed).
+ .RS
+ .nf
+-\fBzonecheck -4 -vi,x,d,c domain_name\fP
++\fBzonecheck \-4 \-vi,x,d,c domain_name\fP
+ .fi
+ .RE
+ .

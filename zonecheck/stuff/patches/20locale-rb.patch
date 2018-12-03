@@ -1,0 +1,38 @@
+#!/bin/sh -e
+##  by Sebastien Delafond <sdelafond@gmx.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes locale handling in case there is a trailing @\w+ at the
+## DP: end of the locale name (like in fr_FR@euro)
+
+if [ $# -lt 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch} ${2:+-d $2}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+Index: zonecheck-3.0.0/zc/locale.rb
+===================================================================
+--- zonecheck-3.0.0.orig/zc/locale.rb	2010-06-07 10:51:25.000000000 +0200
++++ zonecheck-3.0.0/zc/locale.rb	2010-06-24 11:06:43.000000000 +0200
+@@ -32,7 +32,7 @@
+ #
+ module ZoneCheck
+ class Locale
+-    LANGRegex	= /^(\w+?)(?:_(\w+))?(?:\.([\w\-]+))?$/
++    LANGRegex	= /^(\w+?)(?:_(\w+))?(?:\.([\w\-]+))?(?:@\w+)?$/
+ 
+     #
+     # Normalize lang

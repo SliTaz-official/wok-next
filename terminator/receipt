@@ -1,25 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="terminator"
-VERSION="0.96"
+VERSION="1.91"
 CATEGORY="x-window"
-SHORT_DESC="Tool for arranging terminals"
+SHORT_DESC="Terminal emulator that supports tabs and grids"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://launchpad.net/terminator/"
+WEB_SITE="https://gnometerminator.blogspot.com/p/introduction.html"
+HOST_ARCH="any"
 
-TARBALL="${PACKAGE}_$VERSION.tar.gz"
-WGET_URL="https://launchpad.net/terminator/trunk/$VERSION/+download/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://launchpad.net/terminator/gtk3/$VERSION/+download/$TARBALL"
 
 BUILD_DEPENDS="python-dev gettext-dev intltool"
+DEPENDS_std="python python-pygtk notify-python"
 
 compile_rules() {
-	python -B setup.py install --root=$install
-}
+	python -B setup.py install --root=$install || return 1
 
-genpkg_rules() {
-	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	DEPENDS="python python-pygtk notify-python"
+	find $install -type f -exec chmod g-w '{}' \;
 }

@@ -1,0 +1,31 @@
+Description: Do not require rubygems.
+Author: Sébastien Delafond <seb@debian.org>
+
+Index: zonecheck-3.0.0/zc/zc.rb
+===================================================================
+--- zonecheck-3.0.0.orig/zc/zc.rb	2010-06-24 11:40:08.000000000 +0200
++++ zonecheck-3.0.0/zc/zc.rb	2010-06-24 11:40:18.000000000 +0200
+@@ -207,22 +207,7 @@
+ $dbg.level = ENV['ZC_DEBUG'] if ENV['ZC_DEBUG']
+ 
+ 
+-begin 
+-  require 'rubygems'
+-rescue LoadError => e
+-  $dbg.msg(ZoneCheck::DBG::INIT, "Unable to require rubygems (#{e})")
+-  $stderr.puts "ERROR: You have to install rubygems and Dnsruby in order to execute ZoneCheck"
+-  exit EXIT_ERROR
+-end
+-
+-# External libraries
+-begin 
+-  require 'dnsruby'
+-rescue LoadError => e
+-  $dbg.msg(ZoneCheck::DBG::INIT, "Unable to require dnsruby (#{e})")
+-  $stderr.puts "ERROR: You have to install Dnsruby in order to execute ZoneCheck"
+-  exit EXIT_ERROR
+-end
++require 'dnsruby'
+ 
+ if Dnsruby.version < 1.47
+   $dbg.msg(ZoneCheck::DBG::INIT, "Unable to require dnsruby (#{e})")

@@ -18,11 +18,15 @@ compile_rules() {
 	#	  sed '/linuxstart/!d;s/.*href="\([^"]*\)".*/\1/')
 	#wget $WEB_SITE/$tarball
 	#tar xzf $tarball
+	# may use web archive: https://web.archive.org/web/20161227063415/http://bellard.org/jslinux/tech.html
+
 	mkdir -p $install/usr/bin
-	cc -o $install/usr/bin/runcom $stuff/runcom.c
-	cc -o $src/debug.o -Wa,-a=$src/debug.lst -c $stuff/debug.S
-	objcopy -O binary $src/debug.o $install/usr/bin/debug.bin
-	cp $stuff/debug.com $install/usr/bin
+	cc -o $install/usr/bin/runcom $stuff/runcom.c &&
+
+	cc -o $src/debug.o -Wa,-a=$src/debug.lst -c $stuff/debug.S &&
+	objcopy -O binary $src/debug.o $install/usr/bin/debug.bin &&
+
+	cp $stuff/debug.com $install/usr/bin &&
 	chmod +x $install/usr/bin/debug.*
 }
 
