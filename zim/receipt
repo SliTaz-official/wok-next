@@ -20,7 +20,9 @@ python-pyxdg desktop-file-utils shared-mime-info xdg-utils"
 TAGS_std="wiki notebook"
 
 compile_rules() {
-	python -B setup.py install --root=$install install || return 1
+	[ "$HOME" == '/' ] && export HOME=/root # fix build problems
+
+	python -B setup.py install --root=$install --skip-xdg-cmd || return 1
 
 	find $install -type f -exec chmod g-w '{}' \;
 }
