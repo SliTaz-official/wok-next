@@ -1,0 +1,26 @@
+# SliTaz package receipt v2.
+
+ORIGIN="pyenchant"
+PACKAGE="python-pyenchant"
+VERSION="2.0.0"
+CATEGORY="python"
+SHORT_DESC="Python bindings for the Enchant spellchecking system"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL"
+WEB_SITE="https://pypi.org/project/$ORIGIN/"
+HOST_ARCH="any"
+REPOLOGY="python:pyenchant"
+
+BUILD_DEPENDS="python python3 enchant"
+SPLIT="${PACKAGE/python/python3}:3"
+
+compile_rules() {
+	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+}
+
+genpkg_rules() {
+	copy @std
+	py="${PACKAGE%%-*}" # python/python3
+	DEPENDS="$py enchant"
+	TAGS="spelling spellcheck enchant"
+}

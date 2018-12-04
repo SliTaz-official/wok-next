@@ -1,27 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gaupol"
-VERSION="0.19.2"
+VERSION="1.4.1"
 CATEGORY="multimedia"
-SHORT_DESC="Text-based subtitle files editor"
-MAINTAINER="claudinei@slitaz.org"
+SHORT_DESC="Editor for text-based subtitles"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://otsaloma.io/gaupol/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.gna.org/$PACKAGE/${VERSION:0:4}/$TARBALL" # FIXME
+WGET_URL="https://github.com/otsaloma/gaupol/archive/$VERSION.tar.gz"
+TARBALL_SHA256="6c5bfa20fc7aa25c81027049ca7d87569e938ca272462f22ace4a6ebb00dcfc8"
 
-BUILD_DEPENDS="python-dev intltool gettext-dev"
+BUILD_DEPENDS="python3 gettext-dev"
+
+DEPENDS_std="python3 python3-pygobject gtk3"
+SUGGESTED_std="gstreamer1 gst1-plugins-base gst1-plugins-good gst1-plugins-bad \
+gst1-plugins-ugly gst1-libav python3-pyenchant gtkspell3 iso-codes \
+python3-chardet mplayer"
 
 compile_rules() {
-	python -B setup.py clean install --prefix=$install/usr
-}
+	# don't use '-B' flag: *.egg-info will not be created
+	python3 setup.py install --root=$install || return 1
 
-genpkg_rules() {
-	PYTHON_LIB="$(python2 -c 'import os; print os.path.dirname(os.__file__)')"
-	sed -i 's|/home/slitaz/wok/gaupol/install||g' \
-		$install$PYTHON_LIB/site-packages/aeidon/paths.py
-	cp -a $install/usr $fs
-	DEPENDS="python python-pygtk"
-	SUGGESTED="mplayer"
+	find $install -type f -name '*.pyc' -delete
+	find $install -type f -exec chmod g-w '{}' \;
 }
