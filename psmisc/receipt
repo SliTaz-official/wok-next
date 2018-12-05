@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="psmisc"
-VERSION="23.1"
+VERSION="23.2"
 CATEGORY="system-tools"
 SHORT_DESC="PSmisc - Small utilities that use the /proc filesystem"
 MAINTAINER="al.bobylev@gmail.com"
@@ -14,6 +14,9 @@ WGET_URL="$SF_MIRROR/psmisc/$TARBALL"
 
 BUILD_DEPENDS="gettext-dev ncurses-dev"
 
+DEPENDS_std="ncurses"
+TAGS_std="LFS"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
@@ -22,10 +25,4 @@ compile_rules() {
 	mkdir -p $install/bin
 	mv $install/usr/bin/fuser   $install/bin
 	mv $install/usr/bin/killall $install/bin
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="ncurses"
-	TAGS="LFS"
 }

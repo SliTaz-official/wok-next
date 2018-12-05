@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="procps-ng"
-VERSION="3.3.12"
+VERSION="3.3.15"
 CATEGORY="base-system"
 SHORT_DESC="Programs for monitoring processes"
 MAINTAINER="al.bobylev@gmail.com"
@@ -14,6 +14,9 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="gettext-dev ncurses-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="gettext-base ncurses"
+TAGS_std="LFS"
 
 compile_rules() {
 	./configure \
@@ -30,15 +33,4 @@ compile_rules() {
 	mv $install/usr/lib/libprocps.so.* $install/lib
 	ln -sf ../../lib/$(readlink $install/usr/lib/libprocps.so) \
 		$install/usr/lib/libprocps.so
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		procps-ng)
-			copy @std
-			DEPENDS="gettext-base ncurses"
-			TAGS="LFS"
-			;;
-		*-dev) copy @dev;;
-	esac
 }

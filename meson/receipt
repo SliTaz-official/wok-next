@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="meson"
-VERSION="0.48.1"
+VERSION="0.48.2"
 CATEGORY="development"
 SHORT_DESC="A high performance build system"
 MAINTAINER="al.bobylev@gmail.com"
@@ -14,15 +14,12 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mesonbuild/meson/releases/download/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="python3"
+DEPENDS_std="python3"
+
+TAGS_std="LFS"
 
 compile_rules() {
 	python3 -B setup.py install --root=$install || return 1
 
 	install -m755 $stuff/meson-wrapper $install/usr/bin/
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="python3"
-	TAGS="LFS"
 }

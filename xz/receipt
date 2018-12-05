@@ -15,6 +15,19 @@ WGET_URL="$WEB_SITE$TARBALL"
 BUILD_DEPENDS="gettext-dev"
 SPLIT="$PACKAGE-tools $PACKAGE liblzma $PACKAGE-dev"
 
+COPY_tools="/usr/bin/"
+COPY_std="bin/ @rm"
+COPY_liblzma="liblzma.so*"
+
+CAT_tools="utilities|misc commandline utilities"
+CAT_liblzma="libs|library"
+
+DEPENDS_tools="liblzma"
+DEPENDS_std="liblzma"
+DEPENDS_liblzma=" "
+
+TAGS_std="LFS compression archive"
+
 compile_rules() {
 	./configure \
 		--disable-static \
@@ -31,28 +44,4 @@ compile_rules() {
 	mv $install/usr/lib/liblzma.so.* $install/lib
 	ln -sf ../../lib/$(readlink $install/usr/lib/liblzma.so) \
 		$install/usr/lib/liblzma.so
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		xz-tools)
-			copy /usr/bin/
-			CAT="utilities|misc commandline utilities"
-			DEPENDS="liblzma"
-			;;
-		xz)
-			copy bin/ @rm
-			DEPENDS="liblzma"
-			TAGS="LFS compression archive"
-			;;
-		liblzma)
-			copy liblzma.so*
-			CAT="libs|library"
-			DEPENDS=" "
-			;;
-		xz-dev)
-			copy @dev
-			rm -r $fs/usr/share/
-			;;
-	esac
 }

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="iproute2"
-VERSION="4.17.0"
+VERSION="4.19.0"
 CATEGORY="network"
 SHORT_DESC="Utilites for networking and traffic control"
 MAINTAINER="allan316@gmail.com"
@@ -13,6 +13,10 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/net/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="bison flex iptables-dev db-dev libmnl-dev elfutils-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="iptables db"
+TAGS_std="LFS network route"
 
 compile_rules() {
 	./configure \
@@ -24,10 +28,4 @@ compile_rules() {
 		DOCDIR=/usr/share/doc/$PACKAGE-$VERSION \
 		DESTDIR=$install \
 		install
-}
-
-genpkg_rules() {
-	copy @std
-	TAGS="LFS network route"
-	DEPENDS="iptables db"
 }

@@ -32,7 +32,9 @@ compile_rules() {
 	case $SET in
 		'')
 			#chmod +x install-sh
-			./configure $CONFIGURE_ARGS &&
+			./configure \
+				--disable-werror \
+				$CONFIGURE_ARGS &&
 			make $MAKEFLAGS &&
 			make DESTDIR=$install install || return 1
 
@@ -41,10 +43,12 @@ compile_rules() {
 			;;
 		efi)
 			case $ARCH in
-			i?86)	bootimg=bootia32.efi
-				EFI_ARCH=i386;;
-			x86_64)	bootimg=bootx64.efi
-				EFI_ARCH=x86_64;;
+				i?86)
+					bootimg=bootia32.efi
+					EFI_ARCH=i386;;
+				x86_64)
+					bootimg=bootx64.efi
+					EFI_ARCH=x86_64;;
 			esac
 			export EFI_ARCH
 			./configure \
@@ -88,8 +92,8 @@ genpkg_rules() {
 		grub2-efi-modules)
 			DEPENDS="grub2-efi"
 			case $ARCH in
-			i?86)	efi_path=boot/efi/grub/i386-efi;;
-			x86_64)	efi_path=boot/efi/grub/x86_64-efi;;
+				i?86)   efi_path=boot/efi/grub/i386-efi;;
+				x86_64) efi_path=boot/efi/grub/x86_64-efi;;
 			esac
 			mkdir -p $fs/$efi_path
 			cp $src/grub-core/*.mod $src/grub-core/*.lst $fs/$efi_path

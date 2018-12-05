@@ -15,27 +15,25 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="glibc-dev"
 SPLIT="$PACKAGE-full"
 
+COPY_std="gzip gunzip zgrep"
+COPY_full="bin/ @rm"
+
+DEPENDS_full="gzip"
+
+TAGS_std="LFS"
+CAT_full="system-tools|full set"
+
 compile_rules() {
+	# fixes for glibc-2.28
+	sed -i 's|IO_ftrylockfile|IO_EOF_SEEN|' lib/*.c
+	echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
+
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
 	mkdir -p $install/bin
 	mv -v $install/usr/bin/gzip $install/bin
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gzip)
-			copy gzip gunzip zgrep
-			TAGS="LFS"
-			;;
-		gzip-full)
-			copy bin/ @rm
-			CAT="system-tools|full set"
-			DEPENDS="gzip"
-			;;
-	esac
 }
 
 # Removing Busybox gunzip applet

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="perl"
-VERSION="5.28.0"
+VERSION="5.28.1"
 CATEGORY="development"
 SHORT_DESC="Perl interpreter and modules"
 MAINTAINER="devel@slitaz.org"
@@ -19,7 +19,7 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/perl.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.cpan.org/src/5.0/$TARBALL"
 # Integrity check: http://www.cpan.org/src/5.0/
-TARBALL_SHA256="059b3cb69970d8c8c5964caced0335b4af34ac990c8e61f7e3f90cd1c2d11e49"
+TARBALL_SHA256="fea7162d4cca940a387f0587b93f6737d884bf74d8a9d7cfd978bc12cd0b202d"
 
 COOKOPTS="!perlz"
 BUILD_DEPENDS="zlib-dev bzip2-dev less gdbm-dev"
@@ -37,7 +37,9 @@ compile_rules() {
 		-Duseshrplib \
 		-Dusethreads &&
 	make &&
-	make install
+	make install || return 1
+
+	find $install -type f -exec chmod u+w '{}' \; # 444->644, 555->755
 }
 
 genpkg_rules() {
