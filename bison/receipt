@@ -1,28 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bison"
-VERSION="3.2"
+VERSION="3.2.2"
 CATEGORY="development"
 SHORT_DESC="GNU parser generator"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/bison/"
-LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/bison.html"
+LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/bison.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="m4 perl libxslt gettext-dev"
 
+COPY_std="@std @dev"
+DEPENDS_std="m4"
+TAGS_std="LFS parser language"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	copy @std @dev
-	rm -rf $fs/usr/share/doc # one *.h file copied here with @dev
-	DEPENDS="m4"
-	TAGS="LFS parser language"
 }

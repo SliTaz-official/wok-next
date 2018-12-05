@@ -1,13 +1,13 @@
 # SliTaz package receipt v2.
 
 PACKAGE="binutils"
-VERSION="2.29"
+VERSION="2.31.1"
 CATEGORY="development"
 SHORT_DESC="GNU assembler, linker and binary utilities"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2 LGPL2 GPL3 LGPL3"
-WEB_SITE="http://www.gnu.org/software/binutils/"
-LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/binutils.html"
+WEB_SITE="https://www.gnu.org/software/binutils/"
+LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/binutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
@@ -15,10 +15,16 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="glibc-dev zlib-dev texinfo bison flex gettext"
 SPLIT="libbfd $PACKAGE"
 
-compile_rules() {
-	mkdir build
-	cd    build
+COPY_libbfd="libbfd*.so"
+COPY_std="@std @dev @rm"
 
+CAT_libbfd="system-tools|Binary File Descriptor library"
+TAGS_std="LFS assembler linker"
+
+DEPENDS_libbfd="zlib"
+DEPENDS_std="libbfd zlib   flex glibc"
+
+compile_rules() {
 	./configure \
 		--enable-gold \
 		--enable-ld=default \
@@ -38,21 +44,6 @@ compile_rules() {
 		ln -s $TOOLPREFIX$i $i
 	done
 
-#	# Install libiberty (-liberty flag): dependency described in *.la files
-#	install -o root -g root -m 644 $src/include/libiberty.h $install/usr/include
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libbfd)
-			copy libbfd*.so
-			CAT="system-tools|Binary File Descriptor library"
-			DEPENDS="zlib"
-			;;
-		binutils)
-			copy @std @dev @rm
-			DEPENDS="libbfd zlib   flex glibc"
-			TAGS="LFS assembler linker"
-			;;
-	esac
+	# Install libiberty (-liberty flag): dependency described in *.la files
+	install -m644 $src/include/libiberty.h $install/usr/include
 }

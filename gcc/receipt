@@ -2,13 +2,13 @@
 
 # Note, currently first pass is broken. Sorry.
 PACKAGE="gcc"
-VERSION="7.3.0"
+VERSION="8.2.0"
 CATEGORY="development"
 SHORT_DESC="The GNU Compiler Collection"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gcc.gnu.org/"
-LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gcc.html"
+LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/gcc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/$TARBALL"
@@ -16,6 +16,7 @@ WGET_URL="http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/$TARBALL"
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
 SPLIT="$PACKAGE-lib-base $PACKAGE-lib-math libgfortran gfortran libgomp libobjc \
 libatomic $PACKAGE"
+COOKOPTS="skip-log-errors"
 
 if [ "$2" == "--first-pass" -o "$3" == "--first-pass" ]; then
 	STAGE='first'
@@ -26,7 +27,7 @@ compile_rules() {
 	# Handle cross compilation (native i486/ARM gcc)
 	case "$ARCH" in
 		i?86)
-			ARCH_ARGS="--with-tune=$ARCH"
+			ARCH_ARGS="--with-arch=$ARCH --with-tune=generic --enable-cld"
 			pkgversion="SliTaz"
 			languages="c,c++,objc,fortran"
 			sed -i 's/^T_CFLAGS =$/& -fomit-frame-pointer/' gcc/Makefile.in
@@ -76,6 +77,7 @@ compile_rules() {
 				--enable-languages=$languages \
 				--disable-multilib \
 				--disable-bootstrap \
+				--disable-libmpx \
 				--with-system-zlib \
 				--with-pkgversion="$pkgversion" \
 				$CONFIGURE_ARGS $ARCH_ARGS
@@ -99,8 +101,7 @@ compile_rules() {
 	# http://www.linuxfromscratch.org/lfs/view/stable/chapter06/strippingagain.html
 
 	[ "$STAGE" == 'first' ] ||
-	for i in libquadmath.so.0.0.0 libstdc++.so.6.0.24 libmpx.so.2.0.1 \
-		libmpxwrappers.so.2.0.1 libitm.so.1.0.0 libcilkrts.so.5.0.0 \
+	for i in libquadmath.so.0.0.0 libstdc++.so.6.0.25 libitm.so.1.0.0 \
 		libatomic.so.1.2.0; do
 		cd $install/usr/lib/
 		objcopy --only-keep-debug $i $i.dbg

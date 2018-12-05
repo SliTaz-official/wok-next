@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glibc"
-VERSION="2.26"
+VERSION="2.28"
 CATEGORY="meta"
 SHORT_DESC="The GNU C libraries"
 MAINTAINER="devel@slitaz.org"
@@ -91,12 +91,12 @@ compile_rules() {
 	make install_root=$install install || return 1
 
 	# nscd
-	cp ../nscd/nscd.conf $install/etc/nscd.conf
+	install -Dm644 ../nscd/nscd.conf $install/etc/nscd.conf
 	mkdir -p $install/var/cache/nscd $install/var/db
 	install -Dm755 $stuff/nscd $install/etc/init.d/nscd
 
 	# nsswitch.conf
-	cp $stuff/nsswitch.conf $install/etc
+	install -Dm644 $stuff/nsswitch.conf $install/etc/nsswitch.conf
 
 	# ld.so.conf
 	install -Dm644 $stuff/ld.so.conf $install/etc/ld.so.conf
@@ -128,10 +128,10 @@ compile_rules() {
 
 	# Place the debugging symbols for selected libraries in separate files.
 	# This debugging information is needed if running regression tests that use valgrind or gdb.
-	# http://www.linuxfromscratch.org/lfs/view/stable/chapter06/strippingagain.html
+	# http://www.linuxfromscratch.org/lfs/view/development/chapter06/strippingagain.html
 
+	cd $install/lib/
 	for i in ld-$VERSION.so libc-$VERSION.so libpthread-$VERSION.so libthread_db-1.0.so; do
-		cd $install/lib/
 		objcopy --only-keep-debug $i $i.dbg
 		strip   --strip-unneeded  $i
 		objcopy --add-gnu-debuglink=$i.dbg $i
