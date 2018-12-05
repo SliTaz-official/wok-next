@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="aufs"
-VERSION="4.17-20180716"
-COMMIT="076999e"
-EXTRAVERSION="_$kvers"
+VERSION="4.14-20181119"
+COMMIT="bd41c2e"
+#EXTRAVERSION="_$kvers"
 CATEGORY="base-system"
 SHORT_DESC="The Linux Kernel ${VERSION%-*} aufs module"
 MAINTAINER="devel@slitaz.org"
@@ -14,13 +14,17 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/sfjro/aufs4-standalone/archive/$COMMIT.tar.gz"
 
 BUILD_DEPENDS="linux-module-headers xz"
-SIBLINGS="linux64-aufs"
+#SIBLINGS="linux64-aufs"
 
 # How to update:
 # 1. Go to https://github.com/sfjro/aufs4-standalone/
-# 2. Select "aufs4.17" for the Linux Kernel-4.17.x in the "Branch:" dropdown
+# 2. Select "aufs4.14" for the Linux Kernel-4.14.x in the "Branch:" dropdown
 # 3. Copy 7 hex digits after the "Latest commit": it's $COMMIT
 # 4. Copy AUFS_VERSION value from the updated file include/uapi/linux/aufs_type.h
+
+COPY_std="@std @dev"
+DEPENDS_std="linux"
+PROVIDE_std="linux-aufs"
 
 compile_rules() {
 	sed -i.orig \
@@ -51,10 +55,4 @@ compile_rules() {
 		$install/lib/modules/$kvers-slitaz/kernel/fs/aufs/aufs.ko.xz
 	install -Dm0644 include/uapi/linux/aufs_type.h \
 		$install/usr/include/uapi/linux/aufs_type.h
-}
-
-genpkg_rules() {
-	copy @std @dev
-	DEPENDS="linux"
-	PROVIDE="linux-aufs"
 }
