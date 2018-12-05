@@ -17,6 +17,13 @@ BUILD_DEPENDS="bison gettext-dev help2man indent"
 
 SPLIT="libflex $PACKAGE"
 
+COPY_libflex="*.so*"
+COPY_std="@std @dev @rm"
+
+CAT_libflex="libdevel|library"
+DEPENDS_std="libflex   bison"
+TAGS_std="LFS"
+
 compile_rules() {
 	# Fix a problem introduced with glibc-2.26
 	sed -i "/math.h/a #include <malloc.h>" src/flexdef.h
@@ -27,17 +34,4 @@ compile_rules() {
 	make install || return 1
 
 	ln -s flex $install/usr/bin/lex
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libflex)
-			copy *.so*
-			;;
-		*)
-			copy @std @dev @rm
-			DEPENDS="libflex   bison"
-			TAGS="LFS"
-			;;
-	esac
 }

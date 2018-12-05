@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gdbm"
-VERSION="1.16"
+VERSION="1.18.1"
 CATEGORY="misc"
 SHORT_DESC="GNU database manager"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -15,6 +15,14 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="gettext-dev readline-dev"
 SPLIT="$PACKAGE-tools $PACKAGE-dev"
 
+COPY_std="*.so*"
+COPY_tools="bin/"
+
+DEPENDS_tools="gdbm ncurses readline"
+CAT_tools="misc|tools"
+
+TAGS_std="LFS"
+
 compile_rules() {
 	./configure \
 		--disable-static \
@@ -23,19 +31,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gdbm)
-			copy *.so*
-			TAGS="LFS"
-			;;
-		gdbm-tools)
-			copy bin/
-			DEPENDS="gdbm ncurses readline"
-			CAT="misc|tools"
-			;;
-		*-dev) copy @dev;;
-	esac
 }
