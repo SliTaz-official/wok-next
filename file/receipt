@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="file"
-VERSION="5.34"
+VERSION="5.35"
 CATEGORY="system-tools"
 SHORT_DESC="Determines file type using 'magic' numbers"
 MAINTAINER="devel@slitaz.org"
@@ -12,8 +12,8 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/file.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/file/file/archive/FILE${VERSION/./_}.tar.gz"
 
-BUILD_DEPENDS="automake libtool zlib-dev python"
-SPLIT="libmagic libmagic-dev python-magic"
+BUILD_DEPENDS="automake libtool zlib-dev python python3"
+SPLIT="libmagic libmagic-dev python-magic python3-magic"
 
 compile_rules() {
 	autoreconf -f -i &&
@@ -27,8 +27,12 @@ compile_rules() {
 	rmdir --ignore-fail-on-non-empty $install/usr/share/man/man5/
 
 	cd python
-	python -B setup.py build &&
-	python -B setup.py install --root=$install
+	python  -B setup.py build &&
+	python  -B setup.py install --root=$install || return 1
+
+	python3 -B setup.py build &&
+	python3 -B setup.py install --root=$install
+
 }
 
 # Be sure it as cross compile.
@@ -53,7 +57,12 @@ genpkg_rules() {
 			DEPENDS="libmagic"
 			;;
 		python-magic)
-			copy python*/
+			copy python2*/
+			CAT="development|Python bindings"
+			DEPENDS="file python"
+			;;
+		python3-magic)
+			copy python3*/
 			CAT="development|Python bindings"
 			DEPENDS="file python"
 			;;
