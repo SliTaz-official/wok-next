@@ -2,7 +2,7 @@
 
 ORIGIN="setuptools"
 PACKAGE="python-setuptools"
-VERSION="40.4.3"
+VERSION="40.6.2"
 CATEGORY="python"
 SHORT_DESC="Easily download, build, install, upgrade, and uninstall Python packages"
 MAINTAINER="al.bobylev@gmail.com"
@@ -14,14 +14,20 @@ REPOLOGY="python:setuptools"
 TARBALL="$ORIGIN-$VERSION.tar.gz"
 WGET_URL="https://github.com/pypa/setuptools/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="python python3"
+BUILD_DEPENDS="\
+python  python-six  python-appdirs  python-packaging \
+python3 python3-six python3-appdirs python3-packaging"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	python$SET bootstrap.py &&
-	python$SET -B setup.py install --root=$install
+	# Remove post-release tag since we are using stable tags
+	sed -i '/tag_build = .post/d; /tag_date = 1/d' setup.cfg
+
+	python$SET bootstrap.py
+	python$SET setup.py install --root=$install
 
 	find $install -type f -exec chmod g-w '{}' \; # 664->644
+	find $install -type f -name '*.pyc' -delete
 }
 
 genpkg_rules() {

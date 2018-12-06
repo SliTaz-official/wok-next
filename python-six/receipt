@@ -5,17 +5,22 @@ PACKAGE="python-six"
 VERSION="1.11.0"
 CATEGORY="python"
 SHORT_DESC="Six is a Python 2 and 3 compatibility library"
-MAINTAINER="claudinei@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:six"
 
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://pypi.io/packages/source/${ORIGIN:0:1}/$ORIGIN/$TARBALL"
+
 BUILD_DEPENDS="python python3"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+	python$SET setup.py install --root=$install
+
+	find $install -type f -name '*.pyc' -delete
 }
 
 genpkg_rules() {

@@ -2,7 +2,7 @@
 
 ORIGIN="pyparsing"
 PACKAGE="python-pyparsing"
-VERSION="2.2.1"
+VERSION="2.3.0"
 CATEGORY="python"
 SHORT_DESC="Python parsing module"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,11 +11,16 @@ WEB_SITE="https://pypi.org/project/$ORIGIN/"
 HOST_ARCH="any"
 REPOLOGY="python:pyparsing"
 
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://pypi.io/packages/source/${ORIGIN:0:1}/$ORIGIN/$TARBALL"
+
 BUILD_DEPENDS="python python3"
 SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
-	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
+	python$SET setup.py install --root=$install
+
+	find $install -type f -name '*.pyc' -delete
 }
 
 genpkg_rules() {
