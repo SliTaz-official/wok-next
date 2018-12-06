@@ -2,7 +2,7 @@
 
 ORIGIN="pip"
 PACKAGE="python-pip"
-VERSION="18.0"
+VERSION="18.1"
 CATEGORY="python"
 SHORT_DESC="The PyPA recommended tool for installing Python packages"
 MAINTAINER="al.bobylev@gmail.com"
@@ -19,6 +19,8 @@ SPLIT="${PACKAGE/python/python3}:3"
 
 compile_rules() {
 	python$SET -B setup.py install --root=$install
+
+	find $install -type f -exec chmod g-w '{}' \; # 664->644
 }
 
 genpkg_rules() {

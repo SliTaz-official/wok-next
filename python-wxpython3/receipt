@@ -15,6 +15,8 @@ BUILD_DEPENDS="python-dev wxWidgets-dev mesa-dev glu-dev libjpeg-turbo-dev \
 tiff-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="python wxWidgets" # false positive: perl
+
 compile_rules() {
 	export CXXFLAGS="-Wno-narrowing"
 	mv wxPython/wx/tools/Editra/editra wxPython/wx/tools/Editra/Editra
@@ -36,16 +38,6 @@ compile_rules() {
 	cd $src/wxPython
 	python -B setup.py WXPORT=gtk2 UNICODE=1 build &&
 	python -B setup.py WXPORT=gtk2 UNICODE=1 install --root=$install
-}
 
-genpkg_rules() {
-	case $PACKAGE in
-		python-wxpython3)
-			copy @std
-			DEPENDS="python wxWidgets" # false positive: perl
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	find $install -type f -exec chmod g-w '{}' \; # 664->644, 775->755
 }
