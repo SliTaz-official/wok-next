@@ -1,33 +1,29 @@
 # SliTaz package receipt v2.
 
+ORIGIN="SGMLSpm"
 PACKAGE="perl-sgmlspm"
 VERSION="1.1"
+#AUTHOR=""
 CATEGORY="perl"
 SHORT_DESC="SGMLSpm - parsing the output from James Clark's SGMLS and NSGMLS \
 parsers"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="http://www.linuxfromscratch.org/blfs/view/svn/general/perl-modules.html#perl-sgmlspm"
+WEB_SITE="http://www.linuxfromscratch.org/blfs/view/svn/general/perl-modules.html#perl-sgmlspm" # !!!
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/perl-modules.html#perl-sgmlspm"
-REPOLOGY="perl:sgmlspm"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="SGMLSpm-$VERSION.tar.gz"
-WGET_URL="http://anduin.linuxfromscratch.org/BLFS/perl-modules/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="http://anduin.linuxfromscratch.org/BLFS/perl-modules/$TARBALL" # !!!
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
 	chmod 644 MYMETA.yml
 
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install || return 1
+	cook_perl || return 1
 
 	ln -sv sgmlspl.pl $install/usr/bin/sgmlspl
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
 }

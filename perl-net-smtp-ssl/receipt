@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Net-SMTP-SSL"
 PACKAGE="perl-net-smtp-ssl"
 VERSION="1.04"
+AUTHOR="RJBS"
 CATEGORY="perl"
 SHORT_DESC="Net::SMTP::SSL - SSL support for Net::SMTP"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Net-SMTP-SSL"
-REPOLOGY="perl:net-smtp-ssl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Net-SMTP-SSL-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-io-socket-ssl"
+DEPENDS_std="perl-io-socket-ssl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-io-socket-ssl"
+	cook_perl
 }

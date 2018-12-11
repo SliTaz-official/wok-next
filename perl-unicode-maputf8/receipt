@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Unicode-MapUTF8"
 PACKAGE="perl-unicode-maputf8"
 VERSION="1.11"
+AUTHOR="SNOWHARE"
 CATEGORY="perl"
 SHORT_DESC="Unicode::MapUTF8 - Conversions to and from arbitrary character \
 sets and UTF8"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Unicode-MapUTF8"
-REPOLOGY="perl:unicode-maputf8"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Unicode-MapUTF8-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/SN/SNOWHARE/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-jcode perl-unicode-map perl-unicode-map8 perl-unicode-string"
+DEPENDS_std="perl-jcode perl-unicode-map perl-unicode-map8 perl-unicode-string"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-jcode perl-unicode-map perl-unicode-map8 perl-unicode-string"
+	cook_perl
 }

@@ -1,19 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Tk"
 PACKAGE="perl-tk"
 VERSION="804.034"
+AUTHOR="SREZIC"
 CATEGORY="perl"
 SHORT_DESC="Tk - a graphical user interface toolkit for Perl"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Tk"
-REPOLOGY="perl:tk"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Tk-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/SR/SREZIC/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev xorg-libX11-dev freetype-dev xorg-libXft-dev \
-fontconfig-dev libpng16-dev zlib-dev libjpeg-turbo-dev tk-dev"
+DEPENDS_std="perl fontconfig libjpeg-turbo libpng16 xorg-libX11 \
+xorg-libXft zlib tk"
+BUILD_DEPENDS="$DEPENDS_std perl-dev xorg-libX11-dev freetype-dev \
+xorg-libXft-dev fontconfig-dev libpng16-dev zlib-dev libjpeg-turbo-dev tk-dev"
+
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
@@ -21,21 +26,5 @@ compile_rules() {
 	sed -i 's/XKeycodeToKeysym\(.*\)unsigned int/XKeycodeToKeysym\1KeyCode/' \
 		pTk/Xlib.h
 
-	perl Makefile.PL &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		perl-tk)
-			copy @std
-			DEPENDS="perl fontconfig libjpeg-turbo libpng16 xorg-libX11 \
-			xorg-libXft zlib tk"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	cook_perl
 }

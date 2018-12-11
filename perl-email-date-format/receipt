@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Email-Date-Format"
 PACKAGE="perl-email-date-format"
 VERSION="1.005"
+AUTHOR="RJBS"
 CATEGORY="perl"
 SHORT_DESC="Email::Date::Format - produce RFC 2822 date strings"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Email-Date-Format"
-REPOLOGY="perl:email-date-format"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Email-Date-Format-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

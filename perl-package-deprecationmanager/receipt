@@ -1,30 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Package-DeprecationManager"
 PACKAGE="perl-package-deprecationmanager"
 VERSION="0.17"
+AUTHOR="DROLSKY"
 CATEGORY="perl"
 SHORT_DESC="Package::DeprecationManager - Manage deprecation warnings for your \
 distribution"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Package-DeprecationManager"
-REPOLOGY="perl:package-deprecationmanager"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Package-DeprecationManager-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-package-stash perl-params-util perl-sub-install \
-perl-sub-name perl-test-fatal perl-test-warnings"
+DEPENDS_std="perl-package-stash perl-params-util perl-sub-install perl-sub-name"
+BUILD_DEPENDS="$DEPENDS_std perl-test-fatal perl-test-warnings"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-package-stash perl-params-util perl-sub-install perl-sub-name"
+	cook_perl
 }

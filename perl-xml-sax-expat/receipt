@@ -1,30 +1,30 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="XML-SAX-Expat"
 PACKAGE="perl-xml-sax-expat"
 VERSION="0.51"
+AUTHOR="BJOERN"
 CATEGORY="perl"
 SHORT_DESC="XML::SAX::Expat - SAX2 Driver for Expat (XML::Parser)"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/XML-SAX-Expat"
-REPOLOGY="perl:xml-sax-expat"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="XML-SAX-Expat-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/B/BJ/BJOERN/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-xml-namespacesupport perl-xml-parser perl-xml-sax \
+DEPENDS_std="perl-xml-namespacesupport perl-xml-parser perl-xml-sax \
 perl-xml-sax-base"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make -j1 install &&
-	make -j1 DESTDIR=$install install &&
+	# keep installing to / and then to $install
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor &&
+	make -j1 &&
+	make -j1 PERL_MM_USE_DEFAULT=1 install &&
+	make -j1 PERL_MM_USE_DEFAULT=1 DESTDIR=$install install &&
 
 	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-xml-namespacesupport perl-xml-parser perl-xml-sax \
-	perl-xml-sax-base"
 }

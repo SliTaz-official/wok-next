@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Test-Fatal"
 PACKAGE="perl-test-fatal"
 VERSION="0.014"
+AUTHOR="RJBS"
 CATEGORY="perl"
 SHORT_DESC="Test::Fatal - incredibly simple helpers for testing code with \
 exceptions"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Test-Fatal"
-REPOLOGY="perl:test-fatal"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Test-Fatal-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-try-tiny"
+DEPENDS_std="perl-try-tiny"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-try-tiny"
+	cook_perl
 }

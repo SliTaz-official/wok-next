@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Text-Iconv"
 PACKAGE="perl-text-iconv"
 VERSION="1.7"
+AUTHOR="MPIOTR"
 CATEGORY="perl"
 SHORT_DESC="Text::Iconv - Perl interface to iconv() codeset conversion function"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Text-Iconv"
-REPOLOGY="perl:text-iconv"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Text-Iconv-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MP/MPIOTR/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

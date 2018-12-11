@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Gtk2-TrayIcon"
 PACKAGE="perl-gtk2-trayicon"
 VERSION="0.06"
+AUTHOR="BORUP"
 CATEGORY="perl"
 SHORT_DESC="Gtk2::TrayIcon - Perl interface to the EggTrayIcon library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Gtk2-TrayIcon"
-REPOLOGY="perl:gtk2-trayicon"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Gtk2-TrayIcon-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/B/BO/BORUP/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-gtk2 perl-dev perl-extutils-depends perl-extutils-pkgconfig \
-gtk2-dev"
+DEPENDS_std="perl-gtk2"
+BUILD_DEPENDS="$DEPENDS_std perl-dev perl-extutils-depends \
+perl-extutils-pkgconfig gtk2-dev"
+
+COPY_std="@std @dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std @dev
-	DEPENDS="perl-gtk2"
+	cook_perl
 }

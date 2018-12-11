@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="ExtUtils-PkgConfig"
 PACKAGE="perl-extutils-pkgconfig"
 VERSION="1.16"
+AUTHOR="XAOC"
 CATEGORY="perl"
 SHORT_DESC="ExtUtils::PkgConfig - simplistic interface to pkg-config"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="https://metacpan.org/release/ExtUtils-PkgConfig"
-REPOLOGY="perl:extutils-pkgconfig"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="ExtUtils-PkgConfig-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl pkg-config"
+DEPENDS_std="perl pkg-config"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl pkg-config"
+	cook_perl
 }

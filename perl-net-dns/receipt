@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Net-DNS"
 PACKAGE="perl-net-dns"
-VERSION="1.18"
+VERSION="1.19"
+AUTHOR="NLNETLABS"
 CATEGORY="perl"
 SHORT_DESC="Net::DNS - Perl Interface to the Domain Name System"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Net-DNS"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
 HOST_ARCH="any"
-REPOLOGY="perl:net-dns"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Net-DNS-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/N/NL/NLNETLABS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-digest-hmac"
+DEPENDS_std="perl-digest-hmac"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-digest-hmac"
+	cook_perl
 }

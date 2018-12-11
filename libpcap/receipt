@@ -13,28 +13,27 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libpcap.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.tcpdump.org/release/$TARBALL"
 
-BUILD_DEPENDS="flex bison libnl-dev"
+BUILD_DEPENDS="flex bison libnl-dev bluez-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libnl"
+DEPENDS_dev="libnl-dev"
+
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	CFLAGS="$CFLAGS -I$src/include $(pkg-config libnl-genl-3.0 --cflags)" \
+	./configure \
+		--enable-ipv6 \
+		--enable-bluetooth \
+		--with-libnl \
+		$CONFIGURE_ARGS &&
 	make || return 1
 
 	# disable static
 	sed -i '/INSTALL_DATA.*libpcap.a\|RANLIB.*libpcap.a/ s/^/#/' Makefile
 
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	case $PACKAGE in
-		libpcap)
-			copy @std
-			DEPENDS="libnl"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libnl-dev"
-			;;
-	esac
+	# backwards compatibility, programs often look for net/bpf.h
+	mkdir -p $install/usr/include/net
+	ln -s ../pcap-bpf.h $install/usr/include/net/bpf.h
 }

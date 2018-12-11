@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="List-MoreUtils"
 PACKAGE="perl-list-moreutils"
 VERSION="0.428"
+AUTHOR="REHSACK"
 CATEGORY="perl"
 SHORT_DESC="List::MoreUtils - Provide the stuff missing in List::Util"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/List-MoreUtils"
-REPOLOGY="perl:list-moreutils"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="List-MoreUtils-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RE/REHSACK/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev perl-exporter-tiny perl-list-moreutils-xs"
+DEPENDS_std="perl-exporter-tiny perl-list-moreutils-xs"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-exporter-tiny perl-list-moreutils-xs"
+	cook_perl
 }

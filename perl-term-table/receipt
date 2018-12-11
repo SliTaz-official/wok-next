@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Term-Table"
 PACKAGE="perl-term-table"
-VERSION="0.012"
+VERSION="0.013"
+AUTHOR="EXODIST"
 CATEGORY="perl"
 SHORT_DESC="Term::Table - Format a header and rows into a table"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Term-Table"
-REPOLOGY="perl:term-table"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Term-Table-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/EX/EXODIST/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-importer"
+DEPENDS_std="perl-importer"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-importer"
+	cook_perl
 }

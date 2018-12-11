@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Test2-Suite"
 PACKAGE="perl-test2-suite"
-VERSION="0.000115"
+VERSION="0.000117"
+AUTHOR="EXODIST"
 CATEGORY="perl"
 SHORT_DESC="Distribution with a rich set of tools built upon the Test2 \
 framework"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Test2-Suite"
-REPOLOGY="perl:test2-suite"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Test2-Suite-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/EX/EXODIST/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-importer perl-sub-info perl-term-table perl-test-simple"
+DEPENDS_std="perl-importer perl-sub-info perl-term-table perl-test-simple"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-importer perl-sub-info perl-term-table perl-test-simple"
+	cook_perl
 }

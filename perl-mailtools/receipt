@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="MailTools"
 PACKAGE="perl-mailtools"
 VERSION="2.20"
+AUTHOR="MARKOV"
 CATEGORY="perl"
 SHORT_DESC="Various e-mail related modules"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/MailTools"
-REPOLOGY="perl:mailtools"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="MailTools-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MA/MARKOV/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-timedate"
+DEPENDS_std="perl-timedate"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-timedate"
+	cook_perl
 }

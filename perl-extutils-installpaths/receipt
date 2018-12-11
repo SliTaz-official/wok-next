@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="ExtUtils-InstallPaths"
 PACKAGE="perl-extutils-installpaths"
 VERSION="0.012"
+AUTHOR="LEONT"
 CATEGORY="perl"
 SHORT_DESC="ExtUtils::InstallPaths - Build.PL install path logic made easy"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/ExtUtils-InstallPaths"
-REPOLOGY="perl:extutils-installpaths"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="ExtUtils-InstallPaths-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-extutils-config"
+DEPENDS_std="perl-extutils-config"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-extutils-config"
+	cook_perl
 }

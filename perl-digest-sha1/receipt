@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Digest-SHA1"
 PACKAGE="perl-digest-sha1"
 VERSION="2.13"
+AUTHOR="GAAS"
 CATEGORY="perl"
 SHORT_DESC="Digest::SHA1 - Perl interface to the SHA-1 algorithm"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Digest-SHA1"
-REPOLOGY="perl:digest-sha1"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Digest-SHA1-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

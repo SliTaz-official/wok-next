@@ -1,19 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="HTML-Tree"
 PACKAGE="perl-html-tree"
 VERSION="5.07"
+AUTHOR="KENTNL"
 CATEGORY="perl"
 SHORT_DESC="HTML::Tree - build and scan parse-trees of HTML"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/HTML-Tree"
-REPOLOGY="perl:html-tree"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="HTML-Tree-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/K/KE/KENTNL/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-html-parser perl-html-tagset perl-module-build \
-perl-test-fatal perl-html-formatter perl-libwww-perl"
+DEPENDS_std="perl-html-parser perl-html-tagset"
+BUILD_DEPENDS="$DEPENDS_std perl-module-build perl-test-fatal \
+perl-html-formatter perl-libwww-perl"
 # BDEP loop: 'perl-html-tree' needs 'perl-html-formatter' needs 'perl-html-tree'
 
 compile_rules() {
@@ -22,9 +26,4 @@ compile_rules() {
 	./Build install --destdir $install &&
 
 	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-html-parser perl-html-tagset"
 }

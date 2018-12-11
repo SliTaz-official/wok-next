@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Sub-Exporter-Progressive"
 PACKAGE="perl-sub-exporter-progressive"
 VERSION="0.001013"
+AUTHOR="FREW"
 CATEGORY="perl"
 SHORT_DESC="Sub::Exporter::Progressive - Only use Sub::Exporter if you need it"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Sub-Exporter-Progressive"
-REPOLOGY="perl:sub-exporter-progressive"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Sub-Exporter-Progressive-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/F/FR/FREW/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

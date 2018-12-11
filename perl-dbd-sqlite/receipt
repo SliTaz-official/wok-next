@@ -1,29 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="DBD-SQLite"
 PACKAGE="perl-dbd-sqlite"
-VERSION="1.58"
+VERSION="1.60"
+AUTHOR="ISHIGAKI"
 CATEGORY="perl"
 SHORT_DESC="DBD::SQLite - Self-contained RDBMS in a DBI Driver"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/DBD-SQLite"
-REPOLOGY="perl:dbd-sqlite"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="DBD-SQLite-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
 # FIXME: sqlite3-dev and libsqlite3 aren't detected as (b)deps
-BUILD_DEPENDS="perl-dbi libsqlite3 perl-dev sqlite3-dev"
+DEPENDS_std="perl-dbi libsqlite3"
+BUILD_DEPENDS="$DEPENDS_std perl-dev sqlite3-dev"
+
+COPY_std="@std @dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std @dev
-	DEPENDS="perl-dbi libsqlite3"
+	cook_perl
 }

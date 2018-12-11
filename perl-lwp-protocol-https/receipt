@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="LWP-Protocol-https"
 PACKAGE="perl-lwp-protocol-https"
 VERSION="6.07"
+AUTHOR="OALDERS"
 CATEGORY="perl"
 SHORT_DESC="LWP::Protocol::https - Provide https support for LWP::UserAgent"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/LWP-Protocol-https"
-REPOLOGY="perl:lwp-protocol-https"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="LWP-Protocol-https-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/O/OA/OALDERS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-io-socket-ssl perl-libwww-perl perl-mozilla-ca perl-net-http"
+DEPENDS_std="perl-io-socket-ssl perl-libwww-perl perl-mozilla-ca perl-net-http"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-io-socket-ssl perl-libwww-perl perl-mozilla-ca perl-net-http"
+	cook_perl
 }

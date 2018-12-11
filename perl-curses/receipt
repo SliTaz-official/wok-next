@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Curses"
 PACKAGE="perl-curses"
 VERSION="1.36"
+AUTHOR="GIRAFFED"
 CATEGORY="perl"
 SHORT_DESC="Curses - terminal screen handling and optimization"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Curses"
-REPOLOGY="perl:curses"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Curses-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GI/GIRAFFED/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-DEPENDS="perl ncurses ncurses-libform ncurses-libmenu ncurses-libpanel"
-BUILD_DEPENDS="perl-dev ncurses-dev"
+DEPENDS_std="perl ncurses ncurses-libform ncurses-libmenu ncurses-libpanel"
+BUILD_DEPENDS="$DEPENDS_std perl-dev ncurses-dev"
 
 compile_rules() {
-	perl Makefile.PL PANELS MENUS FORMS &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
+	cook_perl "PANELS MENUS FORMS"
 }

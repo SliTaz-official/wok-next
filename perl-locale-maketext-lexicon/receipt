@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Locale-Maketext-Lexicon"
 PACKAGE="perl-locale-maketext-lexicon"
 VERSION="1.00"
+AUTHOR="DRTECH"
 CATEGORY="perl"
 SHORT_DESC="Locale::Maketext::Lexicon - Use other catalog formats in Maketext"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Locale-Maketext-Lexicon"
-REPOLOGY="perl:locale-maketext-lexicon"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Locale-Maketext-Lexicon-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DRTECH/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

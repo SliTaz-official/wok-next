@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="IO-CaptureOutput"
 PACKAGE="perl-io-captureoutput"
 VERSION="1.1104"
+AUTHOR="DAGOLDEN"
 CATEGORY="perl"
 SHORT_DESC="IO::CaptureOutput - capture STDOUT and STDERR from Perl code, \
 subprocesses or XS"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IO-CaptureOutput"
-REPOLOGY="perl:io-captureoutput"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IO-CaptureOutput-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

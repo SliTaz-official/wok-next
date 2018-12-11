@@ -1,31 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="IO-Socket-SSL"
 PACKAGE="perl-io-socket-ssl"
 VERSION="2.060"
+AUTHOR="SULLR"
 CATEGORY="perl"
 SHORT_DESC="IO::Socket::SSL - SSL sockets with IO::Socket interface"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IO-Socket-SSL"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
 HOST_ARCH="any"
-REPOLOGY="perl:io-socket-ssl"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IO-Socket-SSL-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/SU/SULLR/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-net-ssleay perl-uri"
+DEPENDS_std="perl-net-ssleay perl-mozilla-ca"
+BUILD_DEPENDS="$DEPENDS_std perl-uri"
 
 compile_rules() {
-	# avoid interactive questions
-	PERL_MM_USE_DEFAULT=1 \
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-net-ssleay"
+	cook_perl
 }

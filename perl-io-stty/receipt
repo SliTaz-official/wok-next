@@ -1,27 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="IO-Stty"
 PACKAGE="perl-io-stty"
 VERSION="0.03"
+AUTHOR="TODDR"
 CATEGORY="perl"
 SHORT_DESC="IO::Stty - Change and print terminal line settings"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IO-Stty"
-REPOLOGY="perl:io-stty"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IO-Stty-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/T/TO/TODDR/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-module-build"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-module-build"
 
 compile_rules() {
 	perl Build.PL &&
 	./Build --destdir $install install &&
 
 	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
 }

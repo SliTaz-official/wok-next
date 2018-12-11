@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="File-BaseDir"
 PACKAGE="perl-file-basedir"
 VERSION="0.08"
+AUTHOR="KIMRYAN"
 CATEGORY="perl"
 SHORT_DESC="File::BaseDir - Use the Freedesktop.org base directory \
 specification"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/File-BaseDir"
-REPOLOGY="perl:file-basedir"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="File-BaseDir-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/K/KI/KIMRYAN/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-ipc-system-simple perl-module-build perl-file-which"
+DEPENDS_std="perl-ipc-system-simple"
+BUILD_DEPENDS="$DEPENDS_std perl-module-build perl-file-which"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-ipc-system-simple"
+	cook_perl
 }

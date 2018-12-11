@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="IO-HTML"
 PACKAGE="perl-io-html"
 VERSION="1.001"
+AUTHOR="CJM"
 CATEGORY="perl"
 SHORT_DESC="IO::HTML - Open an HTML file with automatic charset detection"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IO-HTML"
-REPOLOGY="perl:io-html"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IO-HTML-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/C/CJ/CJM/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

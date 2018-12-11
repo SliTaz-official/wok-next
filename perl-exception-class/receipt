@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Exception-Class"
 PACKAGE="perl-exception-class"
 VERSION="1.44"
+AUTHOR="DROLSKY"
 CATEGORY="perl"
 SHORT_DESC="Exception::Class - A module that allows you to declare real \
 exception classes in Perl"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Exception-Class"
-REPOLOGY="perl:exception-class"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Exception-Class-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-class-data-inheritable perl-devel-stacktrace"
+DEPENDS_std="perl-class-data-inheritable perl-devel-stacktrace"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-class-data-inheritable perl-devel-stacktrace"
+	cook_perl
 }

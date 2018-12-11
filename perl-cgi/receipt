@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="CGI"
 PACKAGE="perl-cgi"
 VERSION="4.40"
+AUTHOR="LEEJO"
 CATEGORY="perl"
 SHORT_DESC="CGI - Handle Common Gateway Interface requests and responses"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/CGI"
-REPOLOGY="perl:cgi"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="CGI-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEEJO/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-html-parser perl-test-deep perl-test-nowarnings \
-perl-test-warn"
+DEPENDS_std="perl-html-parser"
+BUILD_DEPENDS="$DEPENDS_std perl-test-deep perl-test-nowarnings perl-test-warn"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-html-parser"
+	cook_perl
 }

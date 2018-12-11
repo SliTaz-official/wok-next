@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="YAML-Syck"
 PACKAGE="perl-yaml-syck"
-VERSION="1.30"
+VERSION="1.31"
+AUTHOR="TODDR"
 CATEGORY="perl"
 SHORT_DESC="YAML::Syck - Fast, lightweight YAML loader and dumper"
 MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="https://metacpan.org/release/YAML-Syck"
-REPOLOGY="perl:yaml-syck"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="YAML-Syck-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/T/TO/TODDR/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL -y &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl "-y"
 }

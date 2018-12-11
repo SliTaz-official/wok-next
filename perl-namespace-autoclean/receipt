@@ -1,29 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="namespace-autoclean"
 PACKAGE="perl-namespace-autoclean"
 VERSION="0.28"
+AUTHOR="ETHER"
 CATEGORY="perl"
 SHORT_DESC="namespace::autoclean - Keep imports out of your namespace"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/namespace-autoclean"
-REPOLOGY="perl:namespace-autoclean"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="namespace-autoclean-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-b-hooks-endofscope perl-namespace-clean perl-sub-identify \
-perl-test-requires"
+DEPENDS_std="perl-b-hooks-endofscope perl-namespace-clean perl-sub-identify"
+BUILD_DEPENDS="$DEPENDS_std perl-test-requires"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-b-hooks-endofscope perl-namespace-clean perl-sub-identify"
+	cook_perl
 }

@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Template-Toolkit"
 PACKAGE="perl-template-toolkit"
 VERSION="2.28"
+AUTHOR="ATOOMIC"
 CATEGORY="perl"
 SHORT_DESC="Template::Toolkit - Template Processing System"
 MAINTAINER="devel@slitaz.org"
 LICENSE="Perl"
-WEB_SITE="https://metacpan.org/release/Template-Toolkit"
-REPOLOGY="perl:template-toolkit"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Template-Toolkit-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/A/AT/ATOOMIC/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev perl-appconfig"
+DEPENDS_std="perl perl-appconfig"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL TT_XS_ENABLE=y TT_XS_DEFAULT=y TT_ACCEPT=y TT_QUIET=n &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl perl-appconfig"
+	cook_perl "TT_XS_ENABLE=y TT_XS_DEFAULT=y TT_ACCEPT=y TT_QUIET=n"
 }

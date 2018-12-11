@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Text-Patch"
 PACKAGE="perl-text-patch"
 VERSION="1.8"
+AUTHOR="CADE"
 CATEGORY="perl"
 SHORT_DESC="Text::Patch - Patches text with given patch"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Text-Patch"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
 HOST_ARCH="any"
-REPOLOGY="perl:text-patch"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Text-Patch-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/C/CA/CADE/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

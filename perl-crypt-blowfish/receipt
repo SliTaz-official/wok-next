@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Crypt-Blowfish"
 PACKAGE="perl-crypt-blowfish"
 VERSION="2.14"
+AUTHOR="DPARIS"
 CATEGORY="perl"
 SHORT_DESC="Crypt::Blowfish - Perl Blowfish encryption module"
 MAINTAINER="devel@slitaz.org"
-LICENSE="Perl"
-WEB_SITE="https://metacpan.org/release/Crypt-Blowfish"
-REPOLOGY="perl:crypt-blowfish"
+LICENSE="Perl" # metacpan: unknown
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Crypt-Blowfish-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DP/DPARIS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

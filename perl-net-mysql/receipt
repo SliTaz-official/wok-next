@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Net-MySQL"
 PACKAGE="perl-net-mysql"
 VERSION="0.11"
+AUTHOR="TSUCCHI"
 CATEGORY="perl"
 SHORT_DESC="Net::MySQL - Pure Perl MySQL network protocol interface"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Net-MySQL"
-REPOLOGY="perl:net-mysql"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Net-MySQL-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/T/TS/TSUCCHI/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-digest-sha1 libmysqlclient"
+DEPENDS_std="perl-digest-sha1 libmysqlclient"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-digest-sha1 libmysqlclient"
+	cook_perl
 }

@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Unicode-Map"
 PACKAGE="perl-unicode-map"
 VERSION="0.112"
+AUTHOR="MSCHWARTZ"
 CATEGORY="perl"
 SHORT_DESC="Unicode::Map - An utility to map texts from and to unicode"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Unicode-Map"
-REPOLOGY="perl:unicode-map"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Unicode-Map-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MS/MSCHWARTZ/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

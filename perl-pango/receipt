@@ -1,29 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Pango"
 PACKAGE="perl-pango"
 VERSION="1.227"
+AUTHOR="XAOC"
 CATEGORY="perl"
 SHORT_DESC="Pango - Layout and render international text"
-MAINTAINER="claudinei@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="https://metacpan.org/release/Pango"
-REPOLOGY="perl:pango"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Pango-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-cairo perl-glib cairo freetype glib pango perl-dev \
-perl-extutils-depends perl-extutils-pkgconfig pango-dev"
+DEPENDS_std="perl-cairo perl-glib cairo freetype glib pango"
+BUILD_DEPENDS="$DEPENDS_std perl-dev perl-extutils-depends \
+perl-extutils-pkgconfig pango-dev"
+
+COPY_std="@std @dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std @dev
-	DEPENDS="perl-cairo perl-glib cairo freetype glib pango"
+	cook_perl
 }

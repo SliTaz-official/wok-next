@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Algorithm-Permute"
 PACKAGE="perl-algorithm-permute"
 VERSION="0.16"
+AUTHOR="SLOYD"
 CATEGORY="perl"
 SHORT_DESC="Algorithm::Permute - Handy and fast permutation with object \
 oriented interface"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Algorithm-Permute"
-REPOLOGY="perl:algorithm-permute"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Algorithm-Permute-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/SL/SLOYD/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

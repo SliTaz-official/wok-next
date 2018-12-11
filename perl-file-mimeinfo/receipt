@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="File-MimeInfo"
 PACKAGE="perl-file-mimeinfo"
 VERSION="0.29"
+AUTHOR="MICHIELB"
 CATEGORY="perl"
 SHORT_DESC="File::MimeInfo - Determine file type from the file name"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/File-MimeInfo"
-REPOLOGY="perl:file-mimeinfo"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="File-MimeInfo-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-file-basedir perl-file-desktopentry"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-file-basedir perl-file-desktopentry"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

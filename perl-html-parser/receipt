@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="HTML-Parser"
 PACKAGE="perl-html-parser"
 VERSION="3.72"
+AUTHOR="GAAS"
 CATEGORY="perl"
 SHORT_DESC="HTML::Parser - HTML parser class"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/HTML-Parser"
-REPOLOGY="perl:html-parser"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="HTML-Parser-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev perl-html-tagset"
+DEPENDS_std="perl-html-tagset"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-html-tagset"
+	cook_perl
 }

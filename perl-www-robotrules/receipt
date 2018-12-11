@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="WWW-RobotRules"
 PACKAGE="perl-www-robotrules"
 VERSION="6.02"
+AUTHOR="GAAS"
 CATEGORY="perl"
 SHORT_DESC="WWW::RobotRules - database of robots.txt-derived permissions"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/WWW-RobotRules"
-REPOLOGY="perl:www-robotrules"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="WWW-RobotRules-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GA/GAAS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-uri"
+DEPENDS_std="perl-uri"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-uri"
+	cook_perl
 }

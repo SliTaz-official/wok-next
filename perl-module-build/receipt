@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Module-Build"
 PACKAGE="perl-module-build"
 VERSION="0.4224"
+AUTHOR="LEONT"
 CATEGORY="perl"
 SHORT_DESC="Module::Build - Build and install Perl modules"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Module-Build"
-REPOLOGY="perl:module-build"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Module-Build-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-inc-latest"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-inc-latest"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

@@ -1,33 +1,26 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="DateTime-Format-Strptime"
 PACKAGE="perl-datetime-format-strptime"
 VERSION="1.75"
+AUTHOR="DROLSKY"
 CATEGORY="perl"
 SHORT_DESC="DateTime::Format::Strptime - Parse and format strp and strf time \
 patterns"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://metacpan.org/release/DateTime-Format-Strptime"
-REPOLOGY="perl:datetime-format-strptime"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="DateTime-Format-Strptime-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-datetime perl-datetime-locale perl-datetime-timezone \
+DEPENDS_std="perl-datetime perl-datetime-locale perl-datetime-timezone \
 perl-package-deprecationmanager perl-params-validationcompiler perl-specio \
-perl-try-tiny perl-test-warnings"
+perl-try-tiny"
+BUILD_DEPENDS="$DEPENDS_std perl-test-warnings"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-datetime perl-datetime-locale perl-datetime-timezone \
-	perl-package-deprecationmanager perl-params-validationcompiler perl-specio \
-	perl-try-tiny"
+	cook_perl
 }

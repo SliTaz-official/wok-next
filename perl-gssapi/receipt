@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="GSSAPI"
 PACKAGE="perl-gssapi"
 VERSION="0.28"
+AUTHOR="AGROLMS"
 CATEGORY="perl"
 SHORT_DESC="GSSAPI - Perl extension providing access to the GSSAPIv2 library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/GSSAPI"
-REPOLOGY="perl:gssapi"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="GSSAPI-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/A/AG/AGROLMS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev krb5-dev"
+DEPENDS_std="libcomerr3 libkrb5 perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev krb5-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libcomerr3 libkrb5 perl"
+	cook_perl
 }

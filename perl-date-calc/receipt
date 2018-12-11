@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Date-Calc"
 PACKAGE="perl-date-calc"
 VERSION="6.4"
+AUTHOR="STBEY"
 CATEGORY="perl"
 SHORT_DESC="Date::Calc - Gregorian calendar date calculations"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Date-Calc"
-REPOLOGY="perl:date-calc"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Date-Calc-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/ST/STBEY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-bit-vector perl-carp-clan"
+DEPENDS_std="perl-bit-vector perl-carp-clan"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install UNINST=1 install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-bit-vector perl-carp-clan"
+	cook_perl "" "" "UNINST=1"
 }

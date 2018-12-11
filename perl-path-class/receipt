@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Path-Class"
 PACKAGE="perl-path-class"
 VERSION="0.37"
+AUTHOR="KWILLIAMS"
 CATEGORY="perl"
 SHORT_DESC="Path::Class - Cross-platform path specification manipulation"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Path-Class"
-REPOLOGY="perl:path-class"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Path-Class-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/K/KW/KWILLIAMS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-module-build"
+DEPENDS_std="perl-module-build"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-module-build"
+	cook_perl
 }

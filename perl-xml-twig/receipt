@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="XML-Twig"
 PACKAGE="perl-xml-twig"
 VERSION="3.52"
+AUTHOR="MIROD"
 CATEGORY="perl"
 SHORT_DESC="XML::Twig - A perl module for processing huge XML documents in \
 tree mode"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/XML-Twig"
-REPOLOGY="perl:xml-twig"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="XML-Twig-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MIROD/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-xml-parser"
+DEPENDS_std="perl-xml-parser"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL -y &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-xml-parser"
+	cook_perl "-y"
 }

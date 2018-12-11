@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Test2-Plugin-NoWarnings"
 PACKAGE="perl-test2-plugin-nowarnings"
 VERSION="0.06"
+AUTHOR="DROLSKY"
 CATEGORY="perl"
 SHORT_DESC="Test2::Plugin::NoWarnings - Fail if tests warn"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Test2-Plugin-NoWarnings"
-REPOLOGY="perl:test2-plugin-nowarnings"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Test2-Plugin-NoWarnings-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-ipc-run3 perl-test2-suite"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-ipc-run3 perl-test2-suite"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Convert-ASN1"
 PACKAGE="perl-convert-asn1"
 VERSION="0.27"
+AUTHOR="GBARR"
 CATEGORY="perl"
 SHORT_DESC="Convert::ASN1 - Convert between perl data structures and ASN.1 \
 encoded packets"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Convert-ASN1"
-REPOLOGY="perl:convert-asn1"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Convert-ASN1-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GB/GBARR/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

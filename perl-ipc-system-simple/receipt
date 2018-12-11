@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="IPC-System-Simple"
 PACKAGE="perl-ipc-system-simple"
 VERSION="1.25"
+AUTHOR="PJF"
 CATEGORY="perl"
 SHORT_DESC="IPC::System::Simple - Run commands simply, with detailed \
 diagnostics"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IPC-System-Simple"
-REPOLOGY="perl:ipc-system-simple"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IPC-System-Simple-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/P/PJ/PJF/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

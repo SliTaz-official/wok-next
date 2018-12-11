@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Scalar-List-Utils"
 PACKAGE="perl-scalar-list-utils"
 VERSION="1.50"
+AUTHOR="PEVANS"
 CATEGORY="perl"
 SHORT_DESC="Common Scalar and List utility subroutines"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Scalar-List-Utils"
-REPOLOGY="perl:scalar-list-utils"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Scalar-List-Utils-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/P/PE/PEVANS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

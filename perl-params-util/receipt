@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Params-Util"
 PACKAGE="perl-params-util"
 VERSION="1.07"
+AUTHOR="ADAMK"
 CATEGORY="perl"
 SHORT_DESC="Params::Util - Simple, compact and correct param-checking functions"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Params-Util"
-REPOLOGY="perl:params-util"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Params-Util-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/A/AD/ADAMK/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

@@ -1,19 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Module-Build-Tiny"
 PACKAGE="perl-module-build-tiny"
 VERSION="0.039"
+AUTHOR="LEONT"
 CATEGORY="perl"
 SHORT_DESC="Module::Build::Tiny - A tiny replacement for Module::Build"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Module-Build-Tiny"
-REPOLOGY="perl:module-build-tiny"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Module-Build-Tiny-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-extutils-config perl-extutils-helpers \
+DEPENDS_std="perl-extutils-config perl-extutils-helpers \
 perl-extutils-installpaths"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
 	perl Build.PL &&
@@ -21,10 +25,4 @@ compile_rules() {
 	./Build install --destdir $install &&
 
 	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-extutils-config perl-extutils-helpers \
-	perl-extutils-installpaths"
 }

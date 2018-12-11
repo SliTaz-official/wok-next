@@ -1,32 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="SOAP-Lite"
 PACKAGE="perl-soap-lite"
 VERSION="1.27"
+AUTHOR="PHRED"
 CATEGORY="perl"
 SHORT_DESC="SOAP::Lite - Perl's Web Services Toolkit"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/SOAP-Lite"
-REPOLOGY="perl:soap-lite"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="SOAP-Lite-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/P/PH/PHRED/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
+DEPENDS_std="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
 perl-lwp-protocol-https perl-libwww-perl perl-task-weaken perl-uri \
 perl-xml-parser"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-class-inspector perl-io-sessiondata perl-io-socket-ssl \
-	perl-lwp-protocol-https perl-libwww-perl perl-task-weaken perl-uri \
-	perl-xml-parser"
+	cook_perl
 }

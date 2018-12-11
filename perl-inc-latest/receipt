@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="inc-latest"
 PACKAGE="perl-inc-latest"
 VERSION="0.500"
+AUTHOR="DAGOLDEN"
 CATEGORY="perl"
 SHORT_DESC="inc::latest - use modules bundled in inc/ if they are newer than \
 installed ones"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/inc-latest"
-REPOLOGY="perl:inc-latest"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="inc-latest-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="File-DesktopEntry"
 PACKAGE="perl-file-desktopentry"
 VERSION="0.22"
+AUTHOR="MICHIELB"
 CATEGORY="perl"
 SHORT_DESC="File::DesktopEntry - Object to handle .desktop files"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/File-DesktopEntry"
-REPOLOGY="perl:file-desktopentry"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="File-DesktopEntry-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-file-basedir perl-uri"
+DEPENDS_std="perl-file-basedir perl-uri"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-file-basedir perl-uri"
+	cook_perl
 }

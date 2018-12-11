@@ -1,29 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="DBD-mysql"
 PACKAGE="perl-dbd-mysql"
-VERSION="4.048"
+VERSION="4.049"
+AUTHOR="DVEEDEN"
 CATEGORY="perl"
 SHORT_DESC="DBD::mysql - MySQL driver for the Perl5 Database Interface (DBI)"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/DBD-mysql"
-HOST_ARCH="any"
-REPOLOGY="perl:dbd-mysql"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="DBD-mysql-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/M/MI/MICHIELB/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev perl-dbi mysql-dev perl-devel-checklib"
+DEPENDS_std="perl perl-dbi libmysqlclient zlib"
+BUILD_DEPENDS="$DEPENDS_std perl-dev mysql-dev perl-devel-checklib"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl perl-dbi libmysqlclient zlib"
+	cook_perl
 }

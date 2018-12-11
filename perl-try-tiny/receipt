@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Try-Tiny"
 PACKAGE="perl-try-tiny"
 VERSION="0.30"
+AUTHOR="ETHER"
 CATEGORY="perl"
 SHORT_DESC='Try::Tiny - Minimal try/catch with proper preservation of \$@'
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Try-Tiny"
-REPOLOGY="perl:try-tiny"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Try-Tiny-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

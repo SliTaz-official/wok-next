@@ -1,18 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="XML-SAX"
 PACKAGE="perl-xml-sax"
 VERSION="1.00"
+AUTHOR="GRANTM"
 CATEGORY="perl"
 SHORT_DESC="XML::SAX - Simple API for XML"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/XML-SAX"
-REPOLOGY="perl:xml-sax"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="XML-SAX-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GR/GRANTM/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-xml-namespacesupport perl-xml-sax-base"
+DEPENDS_std="perl-xml-namespacesupport perl-xml-sax-base"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
 	# Please keep `make -j1 install` to FS before installing to the DESTDIR
@@ -23,9 +27,4 @@ compile_rules() {
 	chmod -R u+w $install
 #	cp -v       /usr/lib/perl5/site_perl/5.24.1/XML/SAX/ParserDetails.ini \
 #		$install/usr/lib/perl5/site_perl/5.24.1/XML/SAX/
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="$BUILD_DEPENDS"
 }

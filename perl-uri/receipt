@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="URI"
 PACKAGE="perl-uri"
 VERSION="1.74"
+AUTHOR="ETHER"
 CATEGORY="perl"
 SHORT_DESC="URI - Uniform Resource Identifiers (absolute and relative)"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/URI"
-REPOLOGY="perl:uri"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="URI-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl perl-test-needs"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

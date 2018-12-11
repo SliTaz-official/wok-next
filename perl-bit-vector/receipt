@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Bit-Vector"
 PACKAGE="perl-bit-vector"
 VERSION="7.4"
+AUTHOR="STBEY"
 CATEGORY="perl"
-SHORT_DESC="Bit::Vector - Efficient bit vector, set of integers and \"big \
-int\" math library"
+SHORT_DESC="Bit::Vector - Efficient bit vector, set of integers and 'big \
+int' math library"
 MAINTAINER="devel@slitaz.org"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Bit-Vector"
-REPOLOGY="perl:bit-vector"
+LICENSE="GPL" # metacpan: unknown
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Bit-Vector-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/ST/STBEY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-carp-clan perl-dev"
+DEPENDS_std="perl-carp-clan"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-carp-clan"
+	cook_perl
 }

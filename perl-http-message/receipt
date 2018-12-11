@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="HTTP-Message"
 PACKAGE="perl-http-message"
 VERSION="6.18"
+AUTHOR="OALDERS"
 CATEGORY="perl"
 SHORT_DESC="HTTP::Message - HTTP style message"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/HTTP-Message"
-REPOLOGY="perl:http-message"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="HTTP-Message-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/O/OA/OALDERS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-encode-locale perl-http-date perl-io-html \
-perl-lwp-mediatypes perl-uri"
+DEPENDS_std="perl-encode-locale perl-http-date perl-io-html \
+perl-lwp-mediatypes perl-uri perl-try-tiny"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="$BUILD_DEPENDS"
+	cook_perl
 }

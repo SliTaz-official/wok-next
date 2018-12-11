@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="MRO-Compat"
 PACKAGE="perl-mro-compat"
 VERSION="0.13"
+AUTHOR="HAARG"
 CATEGORY="perl"
 SHORT_DESC="MRO::Compat - mro::* interface compatibility for Perls < 5.9.5"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/MRO-Compat"
-REPOLOGY="perl:mro-compat"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="MRO-Compat-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/H/HA/HAARG/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

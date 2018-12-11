@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Crypt-CBC"
 PACKAGE="perl-crypt-cbc"
 VERSION="2.33"
+AUTHOR="LDS"
 CATEGORY="perl"
 SHORT_DESC="Crypt::CBC - Encrypt Data with Cipher Block Chaining Mode"
 MAINTAINER="devel@slitaz.org"
-LICENSE="Perl"
-WEB_SITE="https://metacpan.org/release/Crypt-CBC"
-REPOLOGY="perl:crypt-cbc"
+LICENSE="Perl" # metacpan: unknown
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Crypt-CBC-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/L/LD/LDS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

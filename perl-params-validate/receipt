@@ -1,28 +1,26 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Params-Validate"
 PACKAGE="perl-params-validate"
 VERSION="1.29"
+AUTHOR="DROLSKY"
 CATEGORY="perl"
 SHORT_DESC="Params::Validate - Validate method/function parameters"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Params-Validate"
-REPOLOGY="perl:params-validate"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Params-Validate-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-module-implementation perl-dev perl-module-build \
-perl-test-fatal perl-test-requires"
+DEPENDS_std="perl-module-implementation"
+BUILD_DEPENDS="$DEPENDS_std perl-dev perl-module-build perl-test-fatal \
+perl-test-requires"
 
 compile_rules() {
 	perl Build.PL &&
 	./Build --destdir $install install &&
 
 	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-module-implementation"
 }

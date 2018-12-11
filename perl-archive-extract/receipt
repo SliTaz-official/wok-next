@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Archive-Extract"
 PACKAGE="perl-archive-extract"
 VERSION="0.80"
+AUTHOR="BINGOS"
 CATEGORY="perl"
 SHORT_DESC="Archive::Extract - A generic archive extracting mechanism"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Archive-Extract"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
 HOST_ARCH="any"
-REPOLOGY="perl:archive-extract"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Archive-Extract-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/B/BI/BINGOS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

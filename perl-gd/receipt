@@ -1,30 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="GD"
 PACKAGE="perl-gd"
 VERSION="2.69"
+AUTHOR="RURBAN"
 CATEGORY="perl"
 SHORT_DESC="GD - Interface to Gd Graphics Library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/GD"
-REPOLOGY="perl:gd"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="GD-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RU/RURBAN/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev libgd-dev libgd perl-extutils-pkgconfig"
+DEPENDS_std="perl libgd"
+BUILD_DEPENDS="$DEPENDS_std perl-dev libgd-dev libgd perl-extutils-pkgconfig"
 
 compile_rules() {
-	# avoid interactive questions
-	PERL_MM_USE_DEFAULT=1 \
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl libgd"
+	cook_perl
 }

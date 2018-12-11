@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="File-RsyncP"
 PACKAGE="perl-file-rsyncp"
 VERSION="0.74"
+AUTHOR="CBARRATT"
 CATEGORY="perl"
 SHORT_DESC="File::RsyncP - Perl Rsync client"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/File-RsyncP"
-REPOLOGY="perl:file-rsyncp"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="File-RsyncP-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/C/CB/CBARRATT/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl rsync"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make -j1 &&
-	make -j1 DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl rsync"
+	cook_perl "" "-j1" "-j1"
 }

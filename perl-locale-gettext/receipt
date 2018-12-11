@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="gettext"
 PACKAGE="perl-locale-gettext"
 VERSION="1.07"
+AUTHOR="PVANDRY"
 CATEGORY="perl"
 SHORT_DESC="Locale::gettext - message handling functions"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/gettext"
-REPOLOGY="perl:locale-gettext"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="gettext-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/P/PV/PVANDRY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev gettext-base"
+DEPENDS_std="perl gettext-base"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl gettext-base"
+	cook_perl
 }

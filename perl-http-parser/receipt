@@ -1,29 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="HTTP-Parser"
 PACKAGE="perl-http-parser"
 VERSION="0.06"
+AUTHOR="EDECA"
 CATEGORY="perl"
 SHORT_DESC="HTTP::Parser - parse HTTP/1.1 request into HTTP::Request/Response \
 object"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/HTTP-Parser"
-REPOLOGY="perl:http-parser"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="HTTP-Parser-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/ED/EDECA/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-http-message perl-uri"
+DEPENDS_std="perl-http-message perl-uri"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-http-message perl-uri"
+	cook_perl
 }

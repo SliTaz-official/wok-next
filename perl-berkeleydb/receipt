@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="BerkeleyDB"
 PACKAGE="perl-berkeleydb"
 VERSION="0.55"
+AUTHOR="PMQS"
 CATEGORY="perl"
 SHORT_DESC="BerkeleyDB - Perl extension for Berkeley DB version 2, 3, 4 or 5"
 MAINTAINER="pascal.bellard@slitaz.org"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/BerkeleyDB"
-REPOLOGY="perl:berkeleydb"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="BerkeleyDB-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/P/PM/PMQS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev db-dev"
+DEPENDS_std="perl db"
+BUILD_DEPENDS="$DEPENDS_std perl-dev db-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl db"
+	cook_perl
 }

@@ -1,30 +1,24 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Specio"
 PACKAGE="perl-specio"
-VERSION="0.42"
+VERSION="0.43"
+AUTHOR="DROLSKY"
 CATEGORY="perl"
 SHORT_DESC="Specio - Type constraints and coercions for Perl"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Specio"
-REPOLOGY="perl:specio"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Specio-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-devel-stacktrace perl-eval-closure perl-module-runtime \
-perl-mro-compat perl-role-tiny perl-test-fatal perl-test-needs"
+DEPENDS_std="perl-devel-stacktrace perl-eval-closure perl-module-runtime \
+perl-mro-compat perl-role-tiny perl-test-fatal"
+BUILD_DEPENDS="$DEPENDS_std perl-test-needs"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-devel-stacktrace perl-eval-closure perl-module-runtime \
-	perl-mro-compat perl-role-tiny perl-test-fatal"
+	cook_perl
 }

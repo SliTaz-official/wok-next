@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Geo-IPfree"
 PACKAGE="perl-geo-ipfree"
 VERSION="1.151940"
+AUTHOR="BRICAS"
 CATEGORY="perl"
 SHORT_DESC="Geo::IPfree - Look up the country of an IPv4 address"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Geo-IPfree"
-REPOLOGY="perl:geo-ipfree"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Geo-IPfree-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/B/BR/BRICAS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

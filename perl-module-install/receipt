@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Module-Install"
 PACKAGE="perl-module-install"
 VERSION="1.19"
+AUTHOR="ETHER"
 CATEGORY="perl"
 SHORT_DESC="Module::Install - Standalone, extensible Perl module installer"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Module-Install"
-REPOLOGY="perl:module-install"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Module-Install-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-file-remove perl-yaml-tiny perl-module-build \
-perl-module-scandeps"
+DEPENDS_std="perl-file-remove perl-yaml-tiny perl-module-scandeps"
+BUILD_DEPENDS="$DEPENDS_std perl-module-build"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-file-remove perl-yaml-tiny perl-module-scandeps"
+	cook_perl
 }

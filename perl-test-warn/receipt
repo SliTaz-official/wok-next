@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Test-Warn"
 PACKAGE="perl-test-warn"
 VERSION="0.36"
+AUTHOR="BIGJ"
 CATEGORY="perl"
 SHORT_DESC="Test::Warn - Perl extension to test methods for warnings"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Test-Warn"
-REPOLOGY="perl:test-warn"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Test-Warn-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/B/BI/BIGJ/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-sub-uplevel"
+DEPENDS_std="perl-sub-uplevel"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-sub-uplevel"
+	cook_perl
 }

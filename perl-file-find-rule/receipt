@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="File-Find-Rule"
 PACKAGE="perl-file-find-rule"
 VERSION="0.34"
+AUTHOR="RCLAMP"
 CATEGORY="perl"
 SHORT_DESC="File::Find::Rule - Alternative interface to File::Find"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/File-Find-Rule"
-REPOLOGY="perl:file-find-rule"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="File-Find-Rule-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RC/RCLAMP/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-number-compare perl-text-glob"
+DEPENDS_std="perl-number-compare perl-text-glob"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-number-compare perl-text-glob"
+	cook_perl
 }

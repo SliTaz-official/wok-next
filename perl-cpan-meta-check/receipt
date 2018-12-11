@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="CPAN-Meta-Check"
 PACKAGE="perl-cpan-meta-check"
 VERSION="0.014"
+AUTHOR="LEONT"
 CATEGORY="perl"
 SHORT_DESC="CPAN::Meta::Check - Verify requirements in a CPAN::Meta object"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/CPAN-Meta-Check"
-REPOLOGY="perl:cpan-meta-check"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="CPAN-Meta-Check-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/L/LE/LEONT/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-test-deep"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

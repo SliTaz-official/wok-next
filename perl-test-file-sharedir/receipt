@@ -1,31 +1,25 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Test-File-ShareDir"
 PACKAGE="perl-test-file-sharedir"
 VERSION="1.001002"
+AUTHOR="KENTNL"
 CATEGORY="perl"
 SHORT_DESC="Test::File::ShareDir - Create a Fake ShareDir for your modules for \
 testing"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Test-File-ShareDir"
-REPOLOGY="perl:test-file-sharedir"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Test-File-ShareDir-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/K/KE/KENTNL/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-class-tiny perl-file-copy-recursive perl-file-sharedir \
-perl-path-tiny perl-scope-guard perl-test-fatal"
+DEPENDS_std="perl-class-tiny perl-file-copy-recursive perl-file-sharedir \
+perl-path-tiny perl-scope-guard"
+BUILD_DEPENDS="$DEPENDS_std perl-test-fatal"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-class-tiny perl-file-copy-recursive perl-file-sharedir \
-	perl-path-tiny perl-scope-guard"
+	cook_perl
 }

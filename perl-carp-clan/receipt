@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Carp-Clan"
 PACKAGE="perl-carp-clan"
-VERSION="6.06"
+VERSION="6.07"
+AUTHOR="ETHER"
 CATEGORY="perl"
 SHORT_DESC="Carp::Clan - Report errors from perspective of caller of a \
-\"clan\" of modules"
+'clan' of modules"
 MAINTAINER="devel@slitaz.org"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Carp-Clan"
-REPOLOGY="perl:carp-clan"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Carp-Clan-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/K/KE/KENTNL/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-test-exception"
+DEPENDS_std="perl-test-exception"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-test-exception"
+	cook_perl
 }

@@ -1,31 +1,25 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Crypt-SSLeay"
 PACKAGE="perl-crypt-ssleay"
 VERSION="0.72"
+AUTHOR="NANIS"
 CATEGORY="perl"
 SHORT_DESC="Crypt::SSLeay - OpenSSL support for LWP"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Crypt-SSLeay"
-REPOLOGY="perl:crypt-ssleay"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Crypt-SSLeay-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/N/NA/NANIS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-lwp-protocol-https perl-dev openssl-dev perl-path-class \
+DEPENDS_std="perl openssl perl-lwp-protocol-https"
+BUILD_DEPENDS="$DEPENDS_std perl-dev openssl-dev perl-path-class \
 perl-io-interactive-tiny"
 
 compile_rules() {
 	sed -i 's|inc::||' Makefile.PL
 
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl openssl perl-lwp-protocol-https"
+	cook_perl
 }

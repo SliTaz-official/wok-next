@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Package-Stash"
 PACKAGE="perl-package-stash"
 VERSION="0.37"
+AUTHOR="DOY"
 CATEGORY="perl"
 SHORT_DESC="Package::Stash - routines for manipulating stashes"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Package-Stash"
-REPOLOGY="perl:package-stash"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Package-Stash-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/D/DO/DOY/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dist-checkconflicts perl-module-implementation \
-perl-package-stash-xs perl-test-fatal perl-test-requires"
+DEPENDS_std="perl-dist-checkconflicts perl-module-implementation"
+BUILD_DEPENDS="$DEPENDS_std perl-package-stash-xs perl-test-fatal \
+perl-test-requires"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-dist-checkconflicts perl-module-implementation"
+	cook_perl
 }

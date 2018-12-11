@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Sub-Identify"
 PACKAGE="perl-sub-identify"
 VERSION="0.14"
+AUTHOR="RGARCIA"
 CATEGORY="perl"
 SHORT_DESC="Sub::Identify - Retrieve names of code references"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Sub-Identify"
-REPOLOGY="perl:sub-identify"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Sub-Identify-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RG/RGARCIA/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

@@ -1,28 +1,22 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Text-Aspell"
 PACKAGE="perl-text-aspell"
 VERSION="0.09"
+AUTHOR="HANK"
 CATEGORY="perl"
 SHORT_DESC="Text::Aspell - Perl interface to the GNU Aspell library"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Text-Aspell"
-REPOLOGY="perl:text-aspell"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Text-Aspell-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/H/HA/HANK/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev aspell aspell-dev"
+DEPENDS_std="perl aspell"
+BUILD_DEPENDS="$DEPENDS_std perl-dev aspell-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl aspell gcc-lib-base"
+	cook_perl
 }

@@ -1,28 +1,22 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Sub-Name"
 PACKAGE="perl-sub-name"
 VERSION="0.21"
+AUTHOR="ETHER"
 CATEGORY="perl"
 SHORT_DESC="Sub::Name - (Re)name a sub"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Sub-Name"
-REPOLOGY="perl:sub-name"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Sub-Name-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/E/ET/ETHER/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

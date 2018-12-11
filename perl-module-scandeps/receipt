@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Module-ScanDeps"
 PACKAGE="perl-module-scandeps"
 VERSION="1.25"
+AUTHOR="RSCHUPP"
 CATEGORY="perl"
 SHORT_DESC="Module::ScanDeps - Recursively scan Perl code for dependencies"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Module-ScanDeps"
-REPOLOGY="perl:module-scandeps"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Module-ScanDeps-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RS/RSCHUPP/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-test-requires"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-test-requires"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

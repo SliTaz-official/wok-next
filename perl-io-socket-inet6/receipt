@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="IO-Socket-INET6"
 PACKAGE="perl-io-socket-inet6"
 VERSION="2.72"
+AUTHOR="SHLOMIF"
 CATEGORY="perl"
 SHORT_DESC="IO::Socket::INET6 - Object interface for AF_INET/AF_INET6 domain \
 sockets"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IO-Socket-INET6"
-REPOLOGY="perl:io-socket-inet6"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IO-Socket-INET6-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-socket6"
+DEPENDS_std="perl-socket6"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-socket6"
+	cook_perl
 }

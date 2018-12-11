@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="Number-Compare"
 PACKAGE="perl-number-compare"
 VERSION="0.03"
+AUTHOR="RCLAMP"
 CATEGORY="perl"
 SHORT_DESC="Number::Compare - numeric comparisons"
 MAINTAINER="devel@slitaz.org"
 LICENSE="unknown"
-WEB_SITE="https://metacpan.org/release/Number-Compare"
-REPOLOGY="perl:number-compare"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Number-Compare-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RC/RCLAMP/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

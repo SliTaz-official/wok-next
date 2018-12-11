@@ -1,29 +1,24 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Cairo"
 PACKAGE="perl-cairo"
 VERSION="1.106"
+AUTHOR="XAOC"
 CATEGORY="perl"
 SHORT_DESC="Cairo - Perl interface to the cairo 2d vector graphics library"
-MAINTAINER="claudinei@slitaz.org"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
-WEB_SITE="https://metacpan.org/release/Cairo"
-REPOLOGY="perl:cairo"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Cairo-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/X/XA/XAOC/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="cairo freetype perl-extutils-depends perl-extutils-pkgconfig \
-perl-dev cairo-dev"
+DEPENDS_std="cairo freetype perl-extutils-depends perl-extutils-pkgconfig"
+BUILD_DEPENDS="$DEPENDS_std perl-dev cairo-dev"
+
+COPY_std="@std *.h"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std *.h
-	DEPENDS="cairo freetype perl-extutils-depends perl-extutils-pkgconfig"
+	cook_perl
 }

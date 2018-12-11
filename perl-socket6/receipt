@@ -1,29 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Socket6"
 PACKAGE="perl-socket6"
 VERSION="0.29"
+AUTHOR="UMEMOTO"
 CATEGORY="perl"
 SHORT_DESC="Socket6 - IPv6 related part of the C socket.h defines and \
 structure manipulators"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Socket6"
-REPOLOGY="perl:socket6"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Socket6-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/U/UM/UMEMOTO/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-dev"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std perl-dev"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }

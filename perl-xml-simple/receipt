@@ -1,28 +1,23 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
+ORIGIN="XML-Simple"
 PACKAGE="perl-xml-simple"
 VERSION="2.25"
+AUTHOR="GRANTM"
 CATEGORY="perl"
 SHORT_DESC="XML::Simple module is used to read and write XML"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/XML-Simple"
-REPOLOGY="perl:xml-simple"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="XML-Simple-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/G/GR/GRANTM/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-xml-namespacesupport perl-xml-sax perl-xml-sax-expat"
+DEPENDS_std="perl-xml-namespacesupport perl-xml-sax perl-xml-sax-expat"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl-xml-namespacesupport perl-xml-sax perl-xml-sax-expat"
+	cook_perl
 }

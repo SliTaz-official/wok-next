@@ -1,20 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="Alien-SDL"
 PACKAGE="perl-alien-sdl"
 VERSION="1.446"
+AUTHOR="FROGGS"
 CATEGORY="perl"
 SHORT_DESC="Alien::SDL - building, finding and using SDL binaries"
 MAINTAINER="al.bobylev@gmail.com"
-LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/Alien-SDL"
-REPOLOGY="perl:alien-sdl"
+LICENSE="Perl"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="Alien-SDL-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/F/FR/FROGGS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl-file-which perl-module-build perl-file-sharedir \
-perl-archive-extract perl-text-patch perl-capture-tiny perl-archive-zip \
-libsdl-dev"
+DEPENDS_std="perl perl-capture-tiny perl-file-sharedir perl-file-which   libsdl"
+BUILD_DEPENDS="$DEPENDS_std perl-module-build perl-archive-extract \
+perl-text-patch perl-archive-zip libsdl-dev"
 
 # TODO: rebuild if sdl-config in libsdl-dev changed
 
@@ -27,9 +30,4 @@ compile_rules() {
 	perl Build install installdirs=vendor destdir=$install &&
 
 	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl perl-capture-tiny perl-file-sharedir perl-file-which   libsdl"
 }

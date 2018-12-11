@@ -1,28 +1,23 @@
 # SliTaz package receipt v2.
 
+ORIGIN="IPC-Run3"
 PACKAGE="perl-ipc-run3"
 VERSION="0.048"
+AUTHOR="RJBS"
 CATEGORY="perl"
 SHORT_DESC="IPC::Run3 - run a subprocess with input/ouput redirection"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL"
-WEB_SITE="https://metacpan.org/release/IPC-Run3"
-REPOLOGY="perl:ipc-run3"
+WEB_SITE="https://metacpan.org/release/$ORIGIN"
+HOST_ARCH="any"
+REPOLOGY="${PACKAGE/-/:}"
 
-TARBALL="IPC-Run3-$VERSION.tar.gz"
-WGET_URL="https://cpan.metacpan.org/authors/id/R/RJ/RJBS/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://cpan.metacpan.org/authors/id/${AUTHOR:0:1}/${AUTHOR:0:2}/$AUTHOR/$TARBALL"
 
-BUILD_DEPENDS="perl"
+DEPENDS_std="perl"
+BUILD_DEPENDS="$DEPENDS_std"
 
 compile_rules() {
-	perl Makefile.PL &&
-	make &&
-	make DESTDIR=$install install &&
-
-	chmod -R u+w $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl"
+	cook_perl
 }
