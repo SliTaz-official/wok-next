@@ -216,8 +216,8 @@ cclcfox	графический сервер для libccls
 cclfox	графический сервер для libccls
 c-client	поддержка формата почтового хранилища
 cd-discid	утилита CDDB DiscID
-cdparanoia-III-dev	файлы разработчика для CDparanoia
-cdparanoia-III	инструмент для оцифровки CD-аудио дисков
+cdparanoia-dev	файлы разработчика для CDparanoia
+cdparanoia	инструмент для оцифровки CD-аудио дисков
 cdrdao	записывает CD диски в режиме Disk-At-Once (DAO)
 cdrkit	утилита записи CD/DVD с интерфейсом командной строки
 celestia	симулятор видимого космоса в реальном времени
