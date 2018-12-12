@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cairo"
-VERSION="1.14.12"
+VERSION="1.16.0"
 CATEGORY="x-window"
 SHORT_DESC="2D graphics library"
 MAINTAINER="devel@slitaz.org"
@@ -17,74 +17,30 @@ xorg-libXrender-dev xorg-libxcb-dev libpng16-dev freetype-dev fontconfig-dev \
 libspectre-dev poppler-dev librsvg-dev gtk2-dev xorg-pixman-dev"
 SPLIT="$PACKAGE-tools $PACKAGE-dev"
 
-# use --nogl to disable building cairo-gl* packages
-if [ -z "$nogl" ]; then
-	BUILD_DEPENDS="$BUILD_DEPENDS mesa-dev eudev-dev xorg-libXxf86vm-dev \
-	libdrm-dev mesa-libegl xorg-libxshmfence-dev"
-	SPLIT="$SPLIT cairo-gl:gl cairo-gl-tools:gl cairo-gl-dev:gl"
-fi
 COOKOPTS="skip-log-errors"
 
-compile_rules() {
-	case "$SET" in
-		gl) SET_ARGS='--enable-gl';;
-		*)  SET_ARGS='--disable-gl';;
-	esac
+COPY_std="libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*"
+COPY_tools="bin/ cairo-fdr.so* cairo-sphinx.so* libcairo-trace.so*"
 
+CAT_tools="development|development tools"
+
+DEPENDS_std="fontconfig freetype glib libpng16 xorg-libX11 xorg-libxcb \
+xorg-pixman zlib"
+DEPENDS_tools="cairo glib xorg-libX11 xorg-libXrender xorg-libxcb xorg-pixman \
+zlib"
+DEPENDS_dev="cairo cairo-tools \
+fontconfig-dev freetype-dev glib-dev libpng16-dev xorg-libX11-dev \
+xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev xorg-pixman-dev zlib-dev"
+
+compile_rules() {
 	./configure \
 		--enable-xcb \
 		--enable-xlib-xcb \
 		--enable-tee \
 		--disable-static \
-		$SET_ARGS \
+		--disable-gl \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		cairo)
-			copy libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*
-			DEPENDS="fontconfig freetype glib libpng16 xorg-libX11 xorg-libxcb \
-			xorg-pixman zlib"
-			;;
-		cairo-tools)
-			copy bin/ cairo-fdr.so* cairo-sphinx.so* libcairo-trace.so*
-			CAT="development|development tools"
-			DEPENDS="cairo glib xorg-libX11 xorg-libXrender xorg-libxcb \
-			xorg-pixman zlib"
-			;;
-		cairo-dev)
-			copy @dev
-			DEPENDS="cairo cairo-tools \
-			fontconfig-dev freetype-dev glib-dev libpng16-dev xorg-libX11-dev \
-			xorg-libXext-dev xorg-libXrender-dev xorg-libxcb-dev \
-			xorg-pixman-dev zlib-dev"
-			;;
-
-		cairo-gl)
-			copy usr/lib/*.so*
-			CAT="x-window|with GL support"
-			DEPENDS="fontconfig freetype glib libpng16 mesa mesa-libegl \
-			xorg-libX11 xorg-libxcb xorg-pixman zlib"
-			PROVIDE="cairo:mesa"
-			;;
-		cairo-gl-tools)
-			copy usr/bin/ usr/lib/cairo/*.so*
-			CAT="development|development tools with GL support"
-			DEPENDS="cairo-gl glib mesa mesa-libegl xorg-libX11 \
-			xorg-libXrender xorg-libxcb xorg-pixman zlib"
-			PROVIDE="cairo-tools:mesa cairo-tools:cairo-gl"
-			;;
-		cairo-gl-dev)
-			copy @dev
-			CAT="development|development files with GL support"
-			DEPENDS="cairo-gl cairo-gl-tools \
-			fontconfig-dev freetype-dev glib-dev libpng16-dev mesa-dev \
-			xorg-libX11-dev xorg-libXext-dev xorg-libXrender-dev \
-			xorg-libxcb-dev xorg-pixman-dev zlib-dev"
-			;;
-	esac
 }

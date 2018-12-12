@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="openssl"
-VERSION="1.1.0h"
+VERSION="1.1.1a"
 CATEGORY="security"
 SHORT_DESC="Open source Secure Sockets Layer"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -12,10 +12,12 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/openssl.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://www.openssl.org/source/$TARBALL"
 # Integrity check: https://www.openssl.org/source/
-TARBALL_SHA256="5835626cde9e99656585fc7aaa2302a73a7e1340bf8c14fd635a62c66802a517"
+TARBALL_SHA256="fc20130f8b7cbd2fb918b2f14e2f429e109c31ddd0fb38fc5d71d9ffed3f9f41"
 
 BUILD_DEPENDS="perl zlib-dev"
 SPLIT="$PACKAGE-dev"
+
+TAGS_std="SSL security"
 
 compile_rules() {
 	# MAKEFLAGS make OpenSSL build fail.
@@ -45,16 +47,4 @@ compile_rules() {
 
 testsuite() {
 	readelf -h $install/usr/bin/openssl
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		openssl)
-			copy @std
-			TAGS="SSL security"
-			;;
-		openssl-dev)
-			copy @dev
-			;;
-	esac
 }

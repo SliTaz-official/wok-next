@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cmake"
-VERSION="3.12.4"
+VERSION="3.13.1"
 CATEGORY="development"
 SHORT_DESC="Cross-platform build system generator"
 MAINTAINER="devel@slitaz.org"
@@ -12,9 +12,21 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/cmake.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.cmake.org/files/v${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev xz-dev libarchive-dev \
-expat-dev ncurses-dev gfortran libuv-dev jsoncpp-dev"
+BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev xz-dev libarchive-dev expat-dev \
+ncurses-dev gfortran libuv-dev jsoncpp-dev"
 SPLIT="$PACKAGE-common"
+
+COPY_std="bin/"
+COPY_common="@std @dev @rm"
+
+DEPENDS_std="cmake-common expat jsoncpp libarchive libcurl libuv ncurses \
+ncurses-libform zlib"
+DEPENDS_common=" "
+
+CAT_common="development|common files"
+
+# CMake should be updated both with Boost:
+# https://stackoverflow.com/questions/42123509/cmake-finds-boost-but-the-imported-targets-not-available-for-boost-version
 
 compile_rules() {
 	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
@@ -29,20 +41,3 @@ compile_rules() {
 	make &&
 	make DESTDIR=$install install
 }
-
-genpkg_rules() {
-	case $PACKAGE in
-		cmake)
-			copy bin/
-			DEPENDS="cmake-common expat jsoncpp libarchive libcurl libuv \
-			ncurses ncurses-libform zlib"
-			;;
-		cmake-common)
-			copy @std @dev @rm
-			CAT="development|common files"
-			;;
-	esac
-}
-
-# CMake should be updated both with Boost:
-# https://stackoverflow.com/questions/42123509/cmake-finds-boost-but-the-imported-targets-not-available-for-boost-version

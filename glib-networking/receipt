@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glib-networking"
-VERSION="2.56.1"
+VERSION="2.58.0"
 CATEGORY="x-window"
 SHORT_DESC="TLS support for glib"
 MAINTAINER="devel@slitaz.org"
@@ -15,21 +15,19 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="meson ninja intltool gnutls-dev gsettings-desktop-schemas-dev \
 glib-dev"
 
+DEPENDS_std="glib libgnutls libp11-kit"
+CONFIG_FILES_std="/etc/profile.d/gio.sh"
+
 compile_rules() {
 	mkdir build
 	cd    build
 
 	meson-wrapper \
 		-Dlibproxy_support=false \
-		-Dca_certificates_path=/etc/ssl/ca-bundle.crt &&
+		-Dpkcs11_support=true \
+		&&
 	ninja &&
 	ninja install || return 1
 
 	install -Dm644 $stuff/gio.sh $install/etc/profile.d/gio.sh
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="glib libgnutls libp11-kit"
-	CONFIG_FILES="/etc/profile.d/gio.sh"
 }

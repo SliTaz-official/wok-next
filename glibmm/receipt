@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glibmm"
-VERSION="2.56.0"
+VERSION="2.58.0"
 CATEGORY="x-window"
 SHORT_DESC="C++ bindings for GLib"
 MAINTAINER="devel@slitaz.org"
@@ -15,6 +15,16 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="glib-dev libsigc++-dev"
 SPLIT="libgiomm $PACKAGE-dev"
 
+COPY_std="libglibmm*.so*"
+COPY_libgiomm="libgiomm*.so*"
+COPY_dev="@std @rm @dev" # perl and dev
+
+DEPENDS="glib libsigc++"
+DEPENDS_libgiomm="glib glibmm libsigc++"
+DEPENDS_dev="glibmm libgiomm glib-dev libsigc++-dev perl"
+
+CAT_libgiomm="x-window|GIO Framework"
+
 compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|glibmm-$VERSION|" docs/Makefile.in
 
@@ -22,23 +32,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		glibmm)
-			copy libglibmm*.so*
-			DEPENDS="glib libsigc++"
-			;;
-		libgiomm)
-			copy libgiomm*.so*
-			DEPENDS="glib glibmm libsigc++"
-			CAT="x-window|GIO Framework"
-			;;
-		glibmm-dev)
-			copy @dev
-			DEPENDS="glibmm libgiomm \
-			glib-dev libsigc++-dev   perl"
-			;;
-	esac
 }

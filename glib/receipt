@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glib"
-VERSION="2.56.1"
+VERSION="2.58.1"
 CATEGORY="x-window"
 SHORT_DESC="C routines"
 MAINTAINER="devel@slitaz.org"
@@ -13,46 +13,29 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="automake libtool zlib-dev libffi-dev gettext-dev \
-util-linux-mount-dev pcre-dev glib-dev   elfutils-dev gtk-doc libxslt \
-docbook-xsl dbus-dev"
-SPLIT="$PACKAGE-static $PACKAGE-dev"
+util-linux-mount-dev pcre-dev libxslt docbook-xsl   elfutils-dev"
+SPLIT="$PACKAGE-static $PACKAGE-dev $PACKAGE"
 
-# glib require glib to be built.
-# And if glib failed to build and not present on the mirror, you will catch
-# into the dead loop. Be careful!
+COPY_static="*.a"
+COPY_dev="gdbus-codegen gobject-query bin/gresource bin/gtester* \
+bin/glib-gettextize bin/glib-mkenums gdb/ gettext/ glib-2.0/ @dev @rm"
+
+DEPENDS_std="libffi libpcre util-linux-mount zlib"
+DEPENDS_dev="glib elfutils libffi libpcre pcre-dev python util-linux-mount-dev \
+zlib-dev   perl"
+
+CAT_static="development|static libraries"
 
 compile_rules() {
 	# --enable-static: desktop-file-validate-static require such lib
-	NOCONFIGURE=1 ./autogen.sh &&
-	./configure \
+	./autogen.sh \
 		--enable-debug=no \
 		--enable-static \
+		--disable-selinux \
 		--disable-fam \
+		--enable-man \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		glib)
-			copy @std
-			# Python codegen, tester, Perl mkenums --> glib-dev
-			cd $fs/usr/bin
-			rm gdbus-codegen gtester* glib-mkenums glib-gettextize
-			rm -r $fs/usr/share
-			DEPENDS="elfutils libffi libpcre util-linux-mount zlib"
-			;;
-		*-static)
-			copy *.a
-			DEPENDS=" "
-			CAT="development|static libraries"
-			;;
-		*-dev)
-			copy @std @dev @rm
-			DEPENDS="glib libffi-dev pcre-dev python util-linux-mount-dev \
-			zlib-dev   perl"
-			;;
-	esac
 }

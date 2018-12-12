@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gobject-introspection"
-VERSION="1.52.1"
+VERSION="1.58.2"
 CATEGORY="development"
 SHORT_DESC="Introspection system for GObject-based libraries"
 MAINTAINER="devel@slitaz.org"
@@ -12,8 +12,15 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/gobject-introspection
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev util-linux-mount-dev openssl-dev"
+BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev util-linux-mount-dev \
+openssl-dev libffi-dev"
 SPLIT="$PACKAGE-dev"
+
+COPY_std="@std *.typelib"
+COPY_dev="@std @dev @rm"
+
+DEPENDS_std="glib libffi python"
+DEPENDS_dev="gobject-introspection glib-dev libffi-dev"
 
 compile_rules() {
 	./configure \
@@ -22,18 +29,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gobject-introspection)
-			copy @std *.typelib
-			rm -r $fs/usr/share
-			DEPENDS="glib libffi python"
-			;;
-		*-dev)
-			copy @std @dev @rm
-			DEPENDS="gobject-introspection glib-dev libffi-dev"
-			;;
-	esac
 }

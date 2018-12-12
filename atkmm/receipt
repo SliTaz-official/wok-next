@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="atkmm"
-VERSION="2.24.2"
+VERSION="2.28.0"
 CATEGORY="x-window"
 SHORT_DESC="C++ interface for the ATK accessibility toolkit library"
 MAINTAINER="devel@slitaz.org"
@@ -15,6 +15,9 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="atk-dev glibmm-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="atk glib glibmm libsigc++"
+DEPENDS_dev="atkmm atk-dev glibmm-dev"
+
 compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|atkmm-$VERSION|" doc/Makefile.in
 
@@ -22,17 +25,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		atkmm)
-			copy @std
-			DEPENDS="atk glib glibmm libsigc++"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="atkmm atk-dev glibmm-dev"
-			;;
-	esac
 }

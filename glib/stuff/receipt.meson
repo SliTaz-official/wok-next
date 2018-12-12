@@ -1,0 +1,39 @@
+# SliTaz package receipt v2.
+
+PACKAGE="glib"
+VERSION="2.58.1"
+CATEGORY="x-window"
+SHORT_DESC="C routines"
+MAINTAINER="devel@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://developer.gnome.org/glib/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/glib2.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+
+BUILD_DEPENDS="meson ninja cmake pcre-dev libffi-dev zlib-dev gettext-dev \
+util-linux-mount-dev libxml2-tools elfutils-dev dbus-dev libxslt"
+SPLIT="$PACKAGE-static $PACKAGE-dev $PACKAGE"
+
+COPY_static="*.a"
+COPY_dev="gdbus-codegen gobject-query bin/gresource bin/gtester* bin/glib-* \
+gdb/ gettext/ glib-2.0/ @dev @rm"
+
+DEPENDS_std="elfutils libffi libpcre util-linux-mount zlib"
+DEPENDS_dev="glib libffi-dev pcre-dev python util-linux-mount-dev zlib-dev   perl"
+
+CAT_static="development|static libraries"
+
+compile_rules() {
+	mkdir build-glib # build/ already exists
+	cd    build-glib
+
+	meson-wrapper \
+		--default-library=both \
+		-Dselinux=false \
+		-Dman=true \
+		&&
+	ninja &&
+	ninja install
+}

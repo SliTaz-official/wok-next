@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="emacs"
-VERSION="25.3"
+VERSION="26.1"
 CATEGORY="editors"
 SHORT_DESC="The GNU Emacs editor"
 MAINTAINER="devel@slitaz.org"
@@ -12,15 +12,33 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="atk-dev cairo-dev expat-dev dbus-dev freetype-dev \
-fontconfig-dev glib-dev gnutls-dev gtk2-dev jpeg-dev \
-libpng16-dev librsvg-dev ncurses-dev pango-dev tiff-dev xorg-dev \
-xorg-dev-proto" # giflib-dev: version 4 needed, add --with-gif=no)
-SPLIT="$PACKAGE-help $PACKAGE-lisp-sources $PACKAGE"
+fontconfig-dev glib-dev gnutls-dev gtk2-dev libjpeg-turbo-dev libpng16-dev \
+librsvg-dev ncurses-dev pango-dev tiff-dev xorg-dev xorg-dev-proto lcms2-dev"
+# giflib-dev: version 4 needed, add --with-gif=no)
+SPLIT="$PACKAGE-help $PACKAGE-lisp-sources $PACKAGE $PACKAGE-common"
+
+COPY_help="info/ tutorials/ refcards/*.pdf etc/[A-Z]* etc/*.txt"
+COPY_lisp_sources="*.el.gz refcards/*.tex"
+COPY_std="bin/ libexec/"
+COPY_common="@std @rm"
+
+DEPENDS_help="emacs"
+DEPENDS_lisp_sources="emacs"
+DEPENDS_std="dbus fontconfig freetype gdk-pixbuf glib gtk2 lcms2 libgnutls \
+libpng16 librsvg libxml2 ncurses tiff xorg-libICE xorg-libSM xorg-libX11 \
+xorg-libXext xorg-libXfixes xorg-libXft xorg-libXpm xorg-libXrender \
+xorg-libxcb zlib"
+DEPENDS_common=" "
+
+CAT_help="development|help files"
+CAT_lisp_sources="development|Lisp source files"
+CAT_common="editors|architecture independent part"
+
+SUGGESTED_std="alsa-lib"
+TAGS_std="text-editor"
 
 compile_rules() {
 	./configure \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
 		--without-makeinfo \
 		--without-gconf \
 		--with-gif=no --with-jpeg=no \
@@ -28,9 +46,6 @@ compile_rules() {
 		--with-x \
 		--with-toolkit-scroll-bars \
 		--with-xpm=yes \
-		--libexecdir=/usr/lib \
-		--localstatedir=/var/lib \
-		--sharedstatedir=/var/lib \
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install || return 1
@@ -44,48 +59,6 @@ compile_rules() {
 	# Use default site-lisp
 	ln -s ../site-lisp $install/usr/share/emacs/$VERSION/site-lisp
 
-	chown -R root:root $install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		emacs-help)
-			copy \
-				info/ \
-				tutorials/ \
-				refcards/*.pdf \
-				etc/[A-Z]* \
-				etc/*.txt
-			DEPENDS="emacs"
-			CAT="development|help files"
-			;;
-		emacs-lisp-sources)
-			copy \
-				*.el.gz \
-				refcards/*.tex
-			DEPENDS="emacs"
-			CAT="development|Lisp source files"
-			;;
-		emacs)
-			copy @std @dev @rm
-			strip -s $fs/usr/lib/emacs/$VERSION/i486-pc-linux-gnu/* 2>/dev/null
-			DEPENDS="atk cairo dbus expat freetype fontconfig giflib glib \
-			gnutls gtk2 jpeg libpng16 librsvg util-linux-uuid \
-			ncurses pango tiff xorg-server zlib librsvg libgsf \
-			libgnutls harfbuzz"
-			SUGGESTED="alsa-lib"
-			TAGS="text-editor"
-		;;
-	esac
-}
-
-# linking /usr/bin/emacs to new version
-post_install_emacs() {
-	ln -sf /usr/bin/emacs-$VERSION "$1/usr/bin/emacs"
-}
-
-post_remove_emacs() {
-	rm -rf "$1/usr/share/emacs"
-	rm -rf "$1/usr/lib/emacs"
-	rm -f  "$1/usr/bin/emacs"
+	chown -R 0:0 $install
+	find $install -type f -exec chmod g-w '{}' \; # 664->644
 }
