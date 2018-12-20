@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-evdev"
+VERSION="2.10.6" # 2018-05-29
+CATEGORY="x-window"
+SHORT_DESC="Generic Linux input driver"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#xorg-evdev-driver"
+REPOLOGY="xdrv:evdev"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="660de292d5a40e2b8f385965c6a4e149c981ba59"
+
+BUILD_DEPENDS="util-macros xorg-server-dev xorgproto eudev-dev libevdev-dev \
+mtdev-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="eudev libevdev mtdev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xf86-input-evdev"
+PROVIDE_dev="xorg-xf86-input-evdev-dev"

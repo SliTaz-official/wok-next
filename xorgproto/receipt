@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xorgproto"
+VERSION="2018.4"
+CATEGORY="x-window"
+SHORT_DESC="X.Org combined protocol headers"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/freedesktop/xorg-xorgproto"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/xorgproto.html"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/freedesktop/xorg-xorgproto/archive/$TARBALL"
+TARBALL_SHA1="f0870dfbaa9cccac5d0acbf61ea76196b20b5ad8"
+
+BUILD_DEPENDS="meson ninja"
+
+COPY="@dev"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	# legacy=true will install these additional .pc's:
+	# evieproto, fontcacheproto, lg3dproto, printproto, xcalibrateproto, xf86rushproto
+	meson-wrapper \
+		--datadir=/usr/lib \
+		-Dlegacy=true &&
+	ninja &&
+	ninja install || return 1
+
+	cook_pick_docs ../[^m]*.txt ../PM_spec
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xorgproto"

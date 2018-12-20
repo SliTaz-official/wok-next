@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxkbcommon"
-VERSION="0.7.2"
+VERSION="0.8.2"
 CATEGORY="x-window"
 SHORT_DESC="Keyboard handling library using XKB data"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,11 +11,23 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxkbcommon.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://xkbcommon.org/download/$TARBALL"
+TARBALL_SHA1="5589b09b8490392573bba5527cc0cc82824028b1"
 
-BUILD_DEPENDS="xorg-libxcb-dev xorg-util-macros xorg-xkeyboard-config-dev \
-bison wayland-protocols-dev wayland-dev"
+BUILD_DEPENDS="libxcb-dev util-macros xkeyboard-config-dev bison \
+wayland-protocols-dev wayland-dev"
 SPLIT="$PACKAGE-x11 $PACKAGE $PACKAGE-dev \
 $PACKAGE-wayland:w $PACKAGE-wayland-dev:w"
+
+COPY_x11="libxkbcommon-x11.so*"
+COPY_wayland="@std"
+COPY_wayland_dev="@dev"
+
+DEPENDS_x11="libxkbcommon libxcb   xkeyboard-config libx11"
+DEPENDS_dev="$PACKAGE $PACKAGE-x11 libxcb-dev"
+DEPENDS_wayland_dev="$PACKAGE-wayland"
+
+CAT_wayland="x-window|Wayland support"
+CAT_wayland_dev="development|development files with Wayland support"
 
 compile_rules() {
 	case $SET in
@@ -30,32 +42,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libxkbcommon-x11)
-			copy libxkbcommon-x11.so*
-			DEPENDS="libxkbcommon xorg-libXau xorg-libXdmcp xorg-libxcb   \
-			xorg-xkeyboard-config xorg-libX11"
-			;;
-		libxkbcommon)
-			copy @std @rm
-			DEPENDS=" "
-			;;
-		libxkbcommon-dev)
-			copy @dev
-			DEPENDS="libxkbcommon libxkbcommon-x11 \
-			xorg-libXau-dev xorg-libXdmcp-dev xorg-libxcb-dev"
-			;;
-
-		libxkbcommon-wayland)
-			CAT="x-window|Wayland support"
-			copy @std
-			;;
-		libxkbcommon-wayland-dev)
-			CAT="development|development files with Wayland support"
-			copy @dev
-			;;
-	esac
 }

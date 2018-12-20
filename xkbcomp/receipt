@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xkbcomp"
+VERSION="1.4.2"
+CATEGORY="x-window"
+SHORT_DESC="Compile XKB keyboard description"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7app.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="9a39cf7a562c152465e04fc7cf1002c59f883870"
+
+BUILD_DEPENDS="util-macros libx11-dev libxkbfile-dev xorgproto"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libx11 libxkbfile"
+DEPENDS_dev="$PACKAGE libx11-dev libxkbfile-dev xorgproto"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xkbcomp"
+PROVIDE_dev="xorg-xkbcomp-dev"

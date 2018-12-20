@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-video-suncg6"
+VERSION="1.1.2" # 2013-01-22
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for Sun GX and Turbo GX (also known as cgsix) video \
+cards"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+REPOLOGY="xdrv:suncg6"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="f23daaa1bffb9ebe168c6c6fc101743becf113ac"
+
+BUILD_DEPENDS="util-macros xorg-server-dev"
+DEPENDS="xorg-server"
+
+compile_rules() {
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xf86-video-suncg6"

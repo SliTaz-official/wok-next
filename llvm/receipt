@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="llvm"
-VERSION="5.0.0"
+VERSION="7.0.0"
 CATEGORY="development"
 SHORT_DESC="LLVM (Low Level Virtual Machine): collection of modular and \
 reusable compiler and toolchain technologies"
@@ -11,12 +11,15 @@ WEB_SITE="http://llvm.org/"
 
 TARBALL="$PACKAGE-$VERSION.src.tar.xz"
 WGET_URL="${WEB_SITE}releases/$VERSION/$TARBALL"
+TARBALL_SHA1="27503a22614626e935a05b609ab4211be72cd78b"
 
-BUILD_DEPENDS="cmake zlib-dev libffi-dev python"
-SPLIT="$PACKAGE-dev $PACKAGE-libs"
+BUILD_DEPENDS="cmake zlib-dev libffi-dev ninja"
+SPLIT="libllvm $PACKAGE $PACKAGE-dev"
+
+DEPENDS_std="libffi libllvm"
+DEPENDS_libllvm="libffi"
 
 compile_rules() {
-#	fix math
 	mkdir build
 	cd    build
 
@@ -25,28 +28,14 @@ compile_rules() {
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLLVM_ENABLE_FFI=ON \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_SHARED_LIBS=ON \
-		-DLLVM_TARGETS_TO_BUILD="host;AMDGPU" \
+		-DLLVM_BUILD_LLVM_DYLIB=ON \
+		-DLLVM_LINK_LLVM_DYLIB=ON \
+		-DLLVM_TARGETS_TO_BUILD="host;AMDGPU;BPF" \
+		-DLLVM_BUILD_TESTS=ON \
 		-Wno-dev \
+		-G Ninja \
 		.. &&
-	make &&
-	make install
+	ninja install
 }
 
-genpkg_rules() {
-	case $PACKAGE in
-		llvm)
-			DEPENDS="libffi gcc-lib-base llvm-libs"
-			copy bin/
-			;;
-		llvm-dev)
-			DEPENDS="llvm"
-			copy include/ cmake/
-			;;
-		llvm-libs)
-			CAT="libs|libraries"
-			DEPENDS="libffi gcc-lib-base"
-			copy *.so*
-			;;
-	esac
-}
+PROVIDE_libllvm="llvm-libs"

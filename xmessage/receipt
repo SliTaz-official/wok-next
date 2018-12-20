@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xmessage"
+VERSION="1.0.5"
+CATEGORY="x-window"
+SHORT_DESC="Display a message or query in a window"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7app.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="d3eca72c7173d0d9547c676a16bcec51ca1213a2"
+
+BUILD_DEPENDS="util-macros libxaw-dev"
+DEPENDS="libx11 libxaw libxt"
+
+CONFIG_FILES="/etc/X11/app-defaults/Xmessage \
+/etc/X11/app-defaults/Xmessage-color"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xmessage"

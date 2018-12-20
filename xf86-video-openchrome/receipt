@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-video-openchrome"
+VERSION="0.6.0" # 2017-03-07
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for VIA chipsets that have an integrated Unichrome \
+graphics engine"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+REPOLOGY="xdrv:openchrome"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="2077181ded4d86e9cbe6d3e9b1245339692e848d"
+
+BUILD_DEPENDS="xorg-server-dev libxvmc-dev eudev-dev"
+DEPENDS="xorg-server eudev libdrm libx11 libxext libxv libxvmc"
+
+compile_rules() {
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xf86-video-openchrome"

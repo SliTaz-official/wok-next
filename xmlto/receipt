@@ -11,21 +11,21 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/pst/xmlto.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://releases.pagure.org/xmlto/$TARBALL"
+TARBALL_SHA1="aa63af9a86ab6ed0c92ea8b177dc808c18902c73"
 
 BUILD_DEPENDS="docbook-xsl util-linux-getopt flex"
+DEPENDS="libxslt perl-yaml-syck perl-test-pod bash docbook-xsl"
+# links: for text backend post-processing; fop: for PDF backend post-processing
+SUGGESTED="links-cli fop"
 
 compile_rules() {
+	LINKS="/usr/bin/links" \
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 
-	for file in $install/usr/share/xmlto/format/*/*; do
-		sed -i "s|http://docbook.sourceforge.net/release/xsl/current/|\
-/usr/share/xml/docbook/stylesheet/docbook-xsl/|" "$file"
-	done
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libxslt perl-yaml-syck perl-test-pod bash"
+#	for file in $install/usr/share/xmlto/format/*/*; do
+#		sed -i "s|http://docbook.sourceforge.net/release/xsl/current/|\
+#/usr/share/xml/docbook/stylesheet/docbook-xsl/|" "$file"
+#	done
 }

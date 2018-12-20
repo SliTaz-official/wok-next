@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libxpm"
+VERSION="3.5.12"
+CATEGORY="x-window"
+SHORT_DESC="XPM format pixmap library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libXpm-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="4e22fefe61714209539b08051b5287bcd9ecfd04"
+
+BUILD_DEPENDS="libxt-dev libxext-dev libsm-dev util-linux-uuid-dev gettext-dev"
+SPLIT="$PACKAGE-util $PACKAGE-dev"
+
+COPY_std="*.so*"
+COPY_util="bin/"
+
+DEPENDS_std="libx11"
+DEPENDS_util="$PACKAGE libx11 libxext libxt"
+DEPENDS_dev="$PACKAGE $PACKAGE-util libx11-dev"
+
+CAT_util="x-window|utilities"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libXpm"
+PROVIDE_util="xorg-libXpm-util"
+PROVIDE_dev="xorg-libXpm-dev"

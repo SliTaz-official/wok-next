@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xfs"
+VERSION="1.2.0"
+CATEGORY="x-window"
+SHORT_DESC="X Font Server"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="00848fcc2915ed8b00e75ac311c4727327324f57"
+
+BUILD_DEPENDS="util-macros font-util-dev xorgproto libxfont2-dev xtrans"
+DEPENDS="libxfont2"
+
+CONFIG_FILES="/etc/X11/fs/config"
+
+compile_rules() {
+	touch /root/missing /missing
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xfs"

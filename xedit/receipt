@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xedit"
+VERSION="1.2.2"
+CATEGORY="x-window"
+SHORT_DESC="Simple text editor for X"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="f37b5d0f8ec461955f0419dbb1890d8cf63d179d"
+
+BUILD_DEPENDS="util-macros libxaw-dev libxmu-dev libxt-dev libx11-dev"
+DEPENDS="libx11 libxaw libxmu libxt"
+
+CONFIG_FILES="/etc/X11/app-defaults/Xedit /etc/X11/app-defaults/Xedit-color"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg text-editor"
+
+PROVIDE="xorg-xedit"

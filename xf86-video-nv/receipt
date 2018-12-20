@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-video-nv"
+VERSION="2.1.21" # 2017-01-17
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for NVIDIA video cards"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+REPOLOGY="xdrv:nv"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="708cab4a59649fc0b9816ffda580a9b7e57236be"
+
+BUILD_DEPENDS="util-macros xorg-server-dev"
+DEPENDS="xorg-server"
+
+compile_rules() {
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xf86-video-nv"

@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-wacom"
+VERSION="0.36.1" # 2018-03-19
+CATEGORY="x-window"
+SHORT_DESC="X input driver for Wacom and Wacom-like tablets"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://linuxwacom.github.io/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#xorg-wacom-driver"
+REPOLOGY="xdrv:wacom"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://github.com/linuxwacom/xf86-input-wacom/releases/download/xf86-input-wacom-$VERSION/$TARBALL"
+TARBALL_SHA1="51d1b198f86bf7609b0464ce34a93c90f1ef557c"
+
+BUILD_DEPENDS="util-macros xorg-server-dev libxext-dev xorgproto libxi-dev \
+libxrandr-dev libxinerama-dev eudev-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="eudev libx11 libxau libxdmcp libxext libxi libxinerama libxrandr \
+libxrender libxcb"
+DEPENDS_dev="$PACKAGE xorg-server-dev"
+
+compile_rules() {
+	./configure \
+		--with-systemd-unit-dir=no \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xf86-input-wacom"
+PROVIDE_dev="xorg-xf86-input-wacom-dev"

@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libsm"
+VERSION="1.2.3"
+CATEGORY="x-window"
+SHORT_DESC="Session Management library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libSM-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="437d7b13fa2eba325df3a106f177df46ccec6546"
+
+BUILD_DEPENDS="libice-dev xtrans util-linux-uuid-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="util-linux-uuid libice"
+DEPENDS_dev="$PACKAGE libice-dev xorgproto"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libSM"
+PROVIDE_dev="xorg-libSM-dev"

@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="liblbxutil"
+VERSION="1.1.0"
+CATEGORY="x-window"
+SHORT_DESC="LBX utility routines"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="99616bab0ca0afeaa9c0a19222091b1ff4f18680"
+
+BUILD_DEPENDS="gfortran xorgproto zlib-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="zlib"
+DEPENDS_dev="$PACKAGE zlib-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-liblbxutil"
+PROVIDE_dev="xorg-liblbxutil-dev"

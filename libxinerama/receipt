@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libxinerama"
+VERSION="1.1.4"
+CATEGORY="x-window"
+SHORT_DESC="Xinerama protocol library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libXinerama-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="34a1d9908ffbd46805d2357c6b05f5e341a8dc7c"
+
+BUILD_DEPENDS="libxext-dev xorgproto"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libx11 libxext"
+DEPENDS_dev="$PACKAGE libx11-dev libxext-dev xorgproto"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libXinerama"
+PROVIDE_dev="xorg-libXinerama-dev"

@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xcompmgr"
+VERSION="1.1.7"
+CATEGORY="x-window"
+SHORT_DESC="X composite manager"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="5590d1bdd2669f083e4c2bb25edd89cce8abbd58"
+
+BUILD_DEPENDS="util-macros libxcomposite-dev libxfixes-dev libxdamage-dev \
+libxrender-dev libxext-dev"
+DEPENDS="libx11 libxcomposite libxdamage libxext libxfixes libxrender"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install || return 1
+
+	install -Dm644 $stuff/autostart/xcompmgr.desktop \
+		$install/etc/xdg/autostart/xcompmgr.desktop
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xcompmgr"

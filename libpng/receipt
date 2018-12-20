@@ -1,0 +1,41 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libpng"
+VERSION="1.6.36"
+CATEGORY="libs"
+SHORT_DESC="PNG images library 1.6 series with APNG support"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="zlib/libpng"
+WEB_SITE="http://www.libpng.org/pub/png/libpng.html"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libpng.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$SF_MIRROR/libpng/$TARBALL"
+TARBALL_SHA1="aec9548c8319104226cc4c31d1f5e524f1b55295"
+
+BUILD_DEPENDS="zlib-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="zlib"
+DEPENDS_dev="$PACKAGE zlib-dev"
+
+compile_rules() {
+	# don't use --disable-static: optipng-static require such lib
+
+	LIBS=-lpthread \
+	./configure \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	cook_pick_docs README libpng-manual.txt
+
+	# Misc png tools
+	cd contrib/pngminus
+	make PNGLIB="-L$install/usr/lib -lpng" -f makefile.std png2pnm pnm2png
+	cp -a png2pnm pnm2png $install/usr/bin
+}
+
+PROVIDE_std="libpng16"
+PROVIDE_dev="libpng16-dev"

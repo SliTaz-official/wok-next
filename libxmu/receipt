@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libxmu"
+VERSION="1.1.2"
+CATEGORY="x-window"
+SHORT_DESC="X miscellaneous utility routines"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libXmu-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="7e6aeef726743d21aa272c424e7d7996e92599eb"
+
+BUILD_DEPENDS="libxext-dev libxt-dev util-linux-uuid-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libx11 libxext libxt"
+DEPENDS_dev="$PACKAGE libx11-dev libxext-dev libxt-dev xorgproto"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libXmu"
+PROVIDE_dev="xorg-libXmu-dev"

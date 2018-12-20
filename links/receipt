@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="links"
-VERSION="2.14"
+VERSION="2.17"
 CATEGORY="network"
 SHORT_DESC="Light and fast web browser"
 MAINTAINER="devel@slitaz.org"
@@ -11,10 +11,26 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/links.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://links.twibright.com/download/$TARBALL"
+TARBALL_SHA1="296670173368f1962c25604e2bdb78cf8d8d33e4"
 
-BUILD_DEPENDS="gpm-dev openssl-dev zlib-dev bzip2-dev xz-dev xorg-libX11-dev \
-xorg-libXt-dev libpng16-dev libjpeg-turbo-dev tiff-dev directfb-dev"
+BUILD_DEPENDS="gpm-dev openssl-dev zlib-dev bzip2-dev xz-dev libx11-dev \
+libxt-dev libpng-dev libjpeg-turbo-dev tiff-dev directfb-dev"
 SPLIT="$PACKAGE-dfb:dfb $PACKAGE-cli:cli"
+
+COPY_dfb="@std"
+COPY_cli="@std"
+
+DEPENDS_std="bzlib libgomp libjpeg-turbo liblzma libpng openssl tiff libx11 \
+zlib"
+DEPENDS_dfb="bzlib directfb libgomp libjpeg-turbo liblzma libpng openssl tiff \
+zlib"
+DEPENDS_cli="bzlib liblzma openssl zlib"
+
+SUGGESTED_std="gpm"
+PROVIDE_dfb="links"
+PROVIDE_cli="links"
+
+TAGS="web-browser"
 
 compile_rules() {
 	case $SET in
@@ -31,27 +47,4 @@ compile_rules() {
 
 	install -Dm644 $src/graphics/links.xpm $install/usr/share/pixmaps/links.xpm
 	install -Dm644 $stuff/links.html       $install/usr/share/webhome/links.html
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		links)
-			copy @std
-			DEPENDS="bzlib libgomp libjpeg-turbo liblzma libpng16 openssl tiff \
-			xorg-libX11 zlib"
-			SUGGESTED="gpm"
-			;;
-		links-dfb)
-			copy @std
-			DEPENDS="bzlib directfb libgomp libjpeg-turbo liblzma libpng16 \
-			openssl tiff zlib"
-			PROVIDE="links"
-			;;
-		links-cli)
-			copy @std
-			DEPENDS="bzlib liblzma openssl zlib"
-			PROVIDE="links"
-			;;
-	esac
-	TAGS="web-browser"
 }

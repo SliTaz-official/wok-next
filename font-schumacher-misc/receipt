@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="font-schumacher-misc"
+VERSION="1.1.2"
+CATEGORY="x-window"
+SHORT_DESC="Schumacher bitmap font Clean"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/font/$TARBALL"
+TARBALL_SHA1="fbe3629e9dcc03d12300d4ebab64fd038ea98952"
+
+BUILD_DEPENDS="util-macros font-util-dev mkfontdir bdftopcf"
+COOKOPTS="!gz" # too long
+
+compile_rules() {
+	./configure \
+		--disable-all-encodings \
+		$CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+post_install() {
+	chroot "$1/" fc-cache -r /usr/share/fonts/X11/misc
+}
+post_remove() {
+	chroot "$1/" fc-cache -r
+}
+
+TAGS="Xorg font"
+
+PROVIDE="xorg-font-schumacher-misc"

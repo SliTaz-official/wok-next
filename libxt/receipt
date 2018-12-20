@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libxt"
+VERSION="1.1.5"
+CATEGORY="x-window"
+SHORT_DESC="X Toolkit Intrinsics library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libXt-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="c79e2c4f7de5259a2ade458817a139b66a043d59"
+
+BUILD_DEPENDS="libsm-dev libx11-dev glib-dev util-linux-uuid-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libice libsm libx11"
+DEPENDS_dev="$PACKAGE libice-dev libsm-dev libx11-dev xorgproto"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		--with-appdefaultdir=/etc/X11/app-defaults \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libXt"
+PROVIDE_dev="xorg-libXt-dev"

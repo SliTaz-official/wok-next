@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xclipboard"
+VERSION="1.1.3"
+CATEGORY="x-window"
+SHORT_DESC="X clipboard manager"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="971ac3900b4eb5ad54f3c3d9527e96ccdcb9e504"
+
+BUILD_DEPENDS="util-macros libxaw-dev libxmu-dev libxt-dev libx11-dev xorgproto"
+DEPENDS="libx11 libxaw libxmu libxt"
+
+CONFIG_FILES="/etc/X11/app-defaults/XClipboard"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xclipboard"

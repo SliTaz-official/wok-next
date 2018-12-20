@@ -7,12 +7,17 @@ SHORT_DESC="VDPAU (Video Decode and Presentation API for Unix) library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/VDPAU/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#libvdpau"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://people.freedesktop.org/~aplattner/vdpau/$TARBALL"
+TARBALL_SHA1="86516e2a962fd34f65d49115d6ddf15fd912f579"
 
-BUILD_DEPENDS="xorg-libX11-dev xorg-xorgproto xorg-libXext-dev"
+BUILD_DEPENDS="libx11-dev xorgproto libxext-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libx11 libxau libxdmcp libxext libxcb"
+DEPENDS_dev="$PACKAGE libx11-dev libxau-dev libxdmcp-dev libxext-dev libxcb-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -20,19 +25,3 @@ compile_rules() {
 	make &&
 	make install
 }
-
-genpkg_rules() {
-	case $PACKAGE in
-		libvdpau)
-			copy @std
-			DEPENDS="xorg-libX11 xorg-libXau xorg-libXdmcp xorg-libXext \
-			xorg-libxcb"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libvdpau xorg-libX11-dev xorg-libXau-dev \
-			xorg-libXdmcp-dev xorg-libXext-dev xorg-libxcb-dev"
-			;;
-	esac
-}
-

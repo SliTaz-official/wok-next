@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libxrandr"
+VERSION="1.5.1"
+CATEGORY="x-window"
+SHORT_DESC="Xrandr extension library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/libraries/libxrandr/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libXrandr-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="7232fe2648b96fed531208c3ad2ba0be61990041"
+
+BUILD_DEPENDS="xorgproto libxext-dev libxrender-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libx11 libxext libxrender"
+DEPENDS_dev="$PACKAGE libx11-dev libxext-dev libxrender-dev xorgproto"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libXrandr"
+PROVIDE_dev="xorg-libXrandr-dev"

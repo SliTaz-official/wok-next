@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xclock"
+VERSION="1.0.7"
+CATEGORY="x-window"
+SHORT_DESC="X clock"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/xclock.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="1b54b96e057469f90a00a9f1ca79ed056cbde271"
+
+BUILD_DEPENDS="util-macros libxaw-dev libxmu-dev libx11-dev libxrender-dev \
+libxft-dev libxkbfile-dev"
+DEPENDS="libx11 libxaw libxft libxmu libxrender libxt libxkbfile"
+
+CONFIG_FILES="/etc/X11/app-defaults/XClock /etc/X11/app-defaults/XClock-color"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xclock"

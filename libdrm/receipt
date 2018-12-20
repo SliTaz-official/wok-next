@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libdrm"
-VERSION="2.4.92"
+VERSION="2.4.96"
 CATEGORY="x-window"
 SHORT_DESC="Freedesktop DRM Library"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,78 +11,54 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libdrm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://dri.freedesktop.org/libdrm/$TARBALL"
+TARBALL_SHA1="51eb4c248a437b3f200bd1cd84461d3e0b60d71e"
 
-BUILD_DEPENDS="autoconf automake libtool xorg-util-macros libxslt \
-xorg-libpciaccess-dev cairo-dev eudev-dev libxslt docbook-xsl valgrind-dev"
-SPLIT="$PACKAGE-amdgpu $PACKAGE-etnaviv $PACKAGE-exynos $PACKAGE-intel \
-$PACKAGE-nouveau $PACKAGE-omap $PACKAGE-radeon $PACKAGE-tegra $PACKAGE-dev"
+BUILD_DEPENDS="meson ninja util-macros libxslt libpciaccess-dev eudev-dev \
+libxslt docbook-xsl valgrind-dev"
+SPLIT="\
+$PACKAGE-amdgpu  $PACKAGE-etnaviv $PACKAGE-exynos $PACKAGE-intel \
+$PACKAGE-nouveau $PACKAGE-omap    $PACKAGE-radeon $PACKAGE-tegra $PACKAGE-dev"
+
+COPY_std="libdrm.so* libkms.so*"
+COPY_amdgpu=" libdrm_amdgpu.so* amdgpu.ids"
+COPY_etnaviv="libdrm_etnaviv.so*"
+COPY_exynos=" libdrm_exynos.so*"
+COPY_intel="  libdrm_intel.so*"
+COPY_nouveau="libdrm_nouveau.so*"
+COPY_omap="   libdrm_omap.so*"
+COPY_radeon=" libdrm_radeon.so*"
+COPY_tegra="  libdrm_tegra.so*"
+
+DEPENDS_std="eudev linux-drm libpciaccess" # all deps are implicit
+DEPENDS_amdgpu="libdrm"
+DEPENDS_etnaviv="libdrm"
+DEPENDS_exynos="libdrm"
+DEPENDS_intel="libdrm libpciaccess"
+DEPENDS_nouveau="libdrm"
+DEPENDS_omap="libdrm"
+DEPENDS_radeon="libdrm"
+DEPENDS_tegra="libdrm"
+
+CAT_amdgpu="x-window|AMDGPU API"
+CAT_etnaviv="x-window|Etnaviv API"
+CAT_exynos="x-window|EXYNOS API"
+CAT_intel="x-window|Intel API"
+CAT_nouveau="x-window|Nouveau API"
+CAT_omap="x-window|OMAP API"
+CAT_radeon="x-window|Radeon API"
+CAT_tegra="x-window|Tegra API"
 
 compile_rules() {
-	autoreconf -fiv &&
-
+	mkdir build
+	cd    build
 	# Freedreno API and VC4 API enabled on the ARM
-	GREP=grep \
-	./configure \
-		--enable-udev \
-		--enable-vmwgfx \
-		--enable-omap-experimental-api \
-		--enable-exynos-experimental-api \
-		--enable-tegra-experimental-api \
-		--enable-etnaviv-experimental-api \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libdrm)
-			copy libdrm.so* libkms.so*
-			DEPENDS="eudev linux-drm xorg-libpciaccess" # all deps are implicit
-			;;
-		*-amdgpu)
-			copy libdrm_amdgpu.so* amdgpu.ids
-			CAT="x-window|AMDGPU API"
-			DEPENDS="libdrm"
-			;;
-		*-etnaviv)
-			copy libdrm_etnaviv.so*
-			CAT="x-window|Etnaviv API"
-			DEPENDS="libdrm"
-			;;
-		*-exynos)
-			copy libdrm_exynos.so*
-			CAT="x-window|EXYNOS API"
-			DEPENDS="libdrm"
-			;;
-		*-intel)
-			copy libdrm_intel.so*
-			CAT="x-window|Intel API"
-			DEPENDS="libdrm xorg-libpciaccess"
-			;;
-		*-nouveau)
-			copy libdrm_nouveau.so*
-			CAT="x-window|Nouveau API"
-			DEPENDS="libdrm"
-			;;
-		*-omap)
-			copy libdrm_omap.so*
-			CAT="x-window|OMAP API"
-			DEPENDS="libdrm"
-			;;
-		*-radeon)
-			copy libdrm_radeon.so*
-			CAT="x-window|Radeon API"
-			DEPENDS="libdrm"
-			;;
-		*-tegra)
-			copy libdrm_tegra.so*
-			CAT="x-window|Tegra API"
-			DEPENDS="libdrm"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	meson-wrapper \
+		-Domap=true \
+		-Dexynos=true \
+		-Dtegra=true \
+		-Detnaviv=true \
+		-Dudev=true \
+		&&
+	ninja &&
+	ninja install
 }

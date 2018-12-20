@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-video-s3virge"
+VERSION="1.10.7" # 2015-09-26
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for Trident S3 virge cards"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/s3virge/"
+REPOLOGY="xdrv:s3virge"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="d670f02ec4372e4a4ed299d7f29b5bd6e2fa9e83"
+
+BUILD_DEPENDS="util-macros xorg-server-dev"
+DEPENDS="xorg-server"
+
+compile_rules() {
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xf86-video-s3virge"

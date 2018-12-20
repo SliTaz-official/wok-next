@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libxcb"
+VERSION="1.13.1"
+CATEGORY="x-window"
+SHORT_DESC="A C binding to the X11 protocol"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://xcb.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libxcb.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
+TARBALL_SHA1="2ab17a1bb2a44e0a9cb0b26bcf899689ba1bbb3b"
+
+BUILD_DEPENDS="libxslt-dev xcb-proto libxau-dev libxdmcp-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libxau libxdmcp"
+DEPENDS_dev="$PACKAGE libxau-dev libxdmcp-dev"
+
+compile_rules() {
+	sed -i "s|pthread-stubs||" configure
+
+	./configure \
+		--disable-static \
+		--enable-xinput \
+		--enable-xprint \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	chown -R 0:0 $install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libxcb"
+PROVIDE_dev="xorg-libxcb-dev"

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xorg-server"
-VERSION="1.20.1"
+VERSION="1.20.3"
 CATEGORY="x-window"
 SHORT_DESC="X server"
 MAINTAINER="devel@slitaz.org"
@@ -11,20 +11,56 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/xorg-server.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$XORG_MIRROR/xserver/$TARBALL"
+TARBALL_SHA1="a522cd543606b4d0509d821b8061904951171c50"
 
-BUILD_DEPENDS="patch xorg-util-macros xorg-pixman-dev eudev-dev dbus-dev \
-xorg-libxshmfence-dev libdrm-dev xorg-libX11-dev mesa-dev xorg-libXdmcp-dev \
-libgcrypt-dev xorg-xorgproto xorg-libxkbfile-dev xorg-libXfont2-dev \
-xorg-libpciaccess-dev xorg-libXxf86dga-dev xorg-libdmx-dev xorg-libXaw-dev \
-xorg-libXpm-dev xorg-libXtst-dev xorg-libXres-dev xorg-libXmu-dev \
-xorg-libXext-dev xorg-libXrender-dev xorg-libXfixes-dev xorg-libXi-dev \
-xorg-libXau-dev xorg-libXdmcp-dev libepoxy-dev tslib-dev \
-xorg-xcb-util-renderutil-dev xorg-xcb-util-dev xorg-xcb-util-image-dev \
-xorg-xcb-util-wm-dev xorg-xcb-util-keysyms-dev expat-dev xorg-xtrans \
-xorg-xkbcomp-dev openssl-dev"
-SPLIT="$PACKAGE-Xdmx $PACKAGE-Xephyr $PACKAGE-Xnest $PACKAGE-Xvfb \
-$PACKAGE-module-glamor $PACKAGE-dev $PACKAGE $PACKAGE-light:light"
+BUILD_DEPENDS="patch util-macros pixman-dev eudev-dev dbus-dev \
+libxshmfence-dev libdrm-dev libx11-dev mesa-dev libxdmcp-dev libgcrypt-dev \
+xorgproto libxkbfile-dev libxfont2-dev libpciaccess-dev libxxf86dga-dev \
+libdmx-dev libxaw-dev libxpm-dev libxtst-dev libxres-dev libxmu-dev \
+libxext-dev libxrender-dev libxfixes-dev libxi-dev libxau-dev libxdmcp-dev \
+libepoxy-dev tslib-dev xcb-util-renderutil-dev xcb-util-dev xcb-util-image-dev \
+xcb-util-wm-dev xcb-util-keysyms-dev expat-dev xtrans xkbcomp-dev openssl-dev"
+SPLIT="\
+$PACKAGE-xdmx          $PACKAGE-xephyr $PACKAGE-xnest $PACKAGE-xvfb \
+$PACKAGE-module-glamor $PACKAGE-dev    $PACKAGE       $PACKAGE-light:light"
 COOKOPTS="skip-log-errors"
+
+COPY_xdmx="Xdmx"
+COPY_xephyr="Xephyr"
+COPY_xnest="Xnest"
+COPY_xvfb="Xvfb"
+COPY_module_glamor="libglamoregl.so libglx.so"
+COPY_dev="@dev protocol.txt"
+COPY_std="@std var/log/ xorg.conf.d/ @rm"
+COPY_light="@std"
+
+CAT_xdmx="x-window|DMX X server"
+CAT_xephyr="x-window|Xephyr X server"
+CAT_xnest="x-window|Xnest X server"
+CAT_xvfb="x-window|Xvfb X server"
+CAT_module_glamor="x-window|Glamor DIX (Device Independent X) module"
+CAT_std="x-window|core X server"
+CAT_light="x-window|light version without DRI, GL, and friends"
+
+DEPENDS_xdmx="libgcrypt libx11 libxau libxdmcp libxext libxfixes libxfont2 \
+libxi libxmu libxrender pixman"
+DEPENDS_xephyr="eudev libepoxy libgcrypt mesa libx11 libxau libxdmcp libxfont2 \
+libxcb libxshmfence pixman xcb-util xcb-util-image xcb-util-keysyms \
+xcb-util-renderutil xcb-util-wm"
+DEPENDS_xnest="libgcrypt libx11 libxau libxdmcp libxext libxfont2 pixman"
+DEPENDS_xvfb="libgcrypt mesa libxau libxdmcp libxfont2 pixman"
+DEPENDS_module_glamor="libepoxy mesa mesa-libgbm"
+DEPENDS_dev="$PACKAGE $PACKAGE-xdmx $PACKAGE-xephyr $PACKAGE-xnest \
+$PACKAGE-xvfb $PACKAGE-module-glamor \
+mesa-dev xorgproto libpciaccess-dev pixman-dev"
+DEPENDS_std="eudev libdrm libgcrypt libx11 libxau libxaw libxdmcp libxfont2 \
+libxt libdmx libpciaccess libxshmfence pixman   xkeyboard-config xkbcomp"
+DEPENDS_light="libgcrypt libxau libxdmcp libxfont2 libpciaccess libxshmfence \
+pixman"
+
+SUGGESTED_std="xf86-input-evdev xf86-video-vesa"
+SUGGESTED_light="xf86-video-vesa xf86-video-fbdev"
+PROVIDE_light="xorg-server"
 
 compile_rules() {
 	case $SET in
@@ -32,6 +68,7 @@ compile_rules() {
 			SET_ARGS="
 				--disable-static \
 				--enable-glamor \
+				--enable-install-setuid \
 				--enable-suid-wrapper \
 				--disable-xwayland \
 				--enable-dmx \
@@ -75,78 +112,18 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$install install &&
+	make DESTDIR=$install install || return 1
 
 	mkdir -pv $install/etc/X11/xorg.conf.d
+
+	# chmod 4711 $install/usr/bin/Xdmx
+	# chmod 4711 $install/usr/bin/Xephyr
+	# chmod 4711 $install/usr/bin/Xnest
+	# chmod 4711 $install/usr/bin/Xvfb
 }
 
 testsuite() {
 	readelf -h $install/usr/bin/Xorg
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-Xdmx)
-			copy Xdmx
-			# chmod 4711 $fs/usr/bin/Xdmx
-			CAT="x-window|DMX X server"
-			DEPENDS="libgcrypt xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXfixes xorg-libXfont2 xorg-libXi xorg-libXmu \
-			xorg-libXrender xorg-pixman"
-			;;
-		*-Xephyr)
-			copy Xephyr
-			# chmod 4711 $fs/usr/bin/Xephyr
-			CAT="x-window|Xephyr X server"
-			DEPENDS="eudev libepoxy libgcrypt mesa xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXfont2 xorg-libxcb xorg-libxshmfence \
-			xorg-pixman xorg-xcb-util xorg-xcb-util-image \
-			xorg-xcb-util-keysyms xorg-xcb-util-renderutil xorg-xcb-util-wm"
-			;;
-		*-Xnest)
-			copy Xnest
-			# chmod 4711 $fs/usr/bin/Xnest
-			CAT="x-window|Xnest X server"
-			DEPENDS="libgcrypt xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXfont2 xorg-pixman"
-			;;
-		*-Xvfb)
-			copy Xvfb
-			# chmod 4711 $fs/usr/bin/Xvfb
-			CAT="x-window|Xvfb X server"
-			DEPENDS="libgcrypt mesa xorg-libXau xorg-libXdmcp xorg-libXfont2 \
-			xorg-pixman"
-			;;
-		*-module-glamor)
-			copy libglamoregl.so libglx.so
-			CAT="x-window|Glamor DIX (Device Independent X) module"
-			DEPENDS="libepoxy mesa mesa-libgbm"
-			;;
-		*-dev)
-			copy @dev protocol.txt
-			DEPENDS="xorg-server xorg-server-Xdmx xorg-server-Xephyr \
-			xorg-server-Xfbdev xorg-server-Xnest xorg-server-Xvfb \
-			xorg-server-module-glamor \
-			mesa-dev xorg-xorgproto xorg-libpciaccess-dev xorg-pixman-dev"
-			;;
-		*-server)
-			copy @std var/log/ xorg.conf.d/ @rm
-			CAT="x-window|core X server"
-			DEPENDS="eudev libdrm libgcrypt xorg-libX11 xorg-libXau \
-			xorg-libXaw xorg-libXdmcp xorg-libXfont2 xorg-libXt xorg-libdmx \
-			xorg-libpciaccess xorg-libxshmfence xorg-pixman   \
-			xorg-xkeyboard-config xorg-xkbcomp"
-			SUGGESTED="xorg-xf86-input-evdev xorg-xf86-video-vesa"
-			;;
-		xorg-server-light)
-			copy @std
-			CAT="x-window|light version without dri, gl, and friends"
-			DEPENDS="libgcrypt xorg-libXau xorg-libXdmcp xorg-libXfont2 \
-			xorg-libpciaccess xorg-libxshmfence xorg-pixman"
-			SUGGESTED="xorg-xf86-video-vesa xorg-xf86-video-fbdev"
-			PROVIDE="xorg-server"
-			;;
-	esac
 }
 
 post_install_xorg_server() {
@@ -171,3 +148,11 @@ post_install_xorg_server_Xvfb() {
 post_install_xorg_server_light() {
 	chmod 1777 "$1/var/tmp"
 }
+
+
+TAGS="Xorg"
+
+PROVIDE_xdmx="xorg-server-Xdmx"
+PROVIDE_xephyr="xorg-server-Xephyr"
+PROVIDE_xnest="xorg-server-Xnest"
+PROVIDE_xvfb="xorg-server-Xvfb"

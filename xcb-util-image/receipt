@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xcb-util-image"
+VERSION="0.4.0"
+CATEGORY="x-window"
+SHORT_DESC="Utility libraries for XC Binding - Port of Xlib's XImage and \
+XShmImage functions"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://xcb.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/xcb-util-image.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
+TARBALL_SHA1="c9c9361781911a47b28f74fc6ebe0abd1273fae4"
+
+BUILD_DEPENDS="libxcb-dev xcb-util-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libxcb xcb-util"
+DEPENDS_dev="$PACKAGE libxcb-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xcb-util-image"
+PROVIDE_dev="xorg-xcb-util-image-dev"

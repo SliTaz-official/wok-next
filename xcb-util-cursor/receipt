@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xcb-util-cursor"
+VERSION="0.1.3"
+CATEGORY="x-window"
+SHORT_DESC="Module that implements the XCB cursor library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://xcb.freedesktop.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/xcb-util-cursor.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/xcb/$TARBALL"
+TARBALL_SHA1="26562eb6d4151307f7b6a53453d360ecfc0563ac"
+
+BUILD_DEPENDS="libxcb-dev xcb-util-dev xcb-util-renderutil-dev \
+xcb-util-image-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libxcb xcb-util-image xcb-util-renderutil"
+DEPENDS_dev="$PACKAGE libxcb-dev xcb-util-image-dev xcb-util-renderutil-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xcb-util-cursor"
+PROVIDE_dev="xorg-xcb-util-cursor-dev"

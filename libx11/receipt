@@ -1,0 +1,40 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libx11"
+VERSION="1.6.7"
+CATEGORY="x-window"
+SHORT_DESC="X11 Client library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libX11-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="5076f7853713d7db958a05f6fd1c18f7e111a0ad"
+
+BUILD_DEPENDS="xtrans libxcb-dev xorgproto libxau-dev libxdmcp-dev perl"
+SPLIT="$PACKAGE-dev"
+
+COPY_std="*.so* XErrorDB Xcms.txt compose.dir locale.alias locale.dir \
+C/ en_US.UTF-8/" # split -> locale-* packages
+
+DEPENDS_std="libxcb"
+DEPENDS_dev="$PACKAGE xorgproto libxcb-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+
+	# strip whitespace - reduce size
+	find $install -name Compose -exec sed -i 's|\t| |g; s|  *| |g; /^$/d' '{}' \+
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libX11"
+PROVIDE_dev="xorg-libX11-dev"

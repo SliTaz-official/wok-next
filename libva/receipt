@@ -1,37 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libva"
-VERSION="1.8.2"
+VERSION="2.3.0"
 CATEGORY="x-window"
 SHORT_DESC="Userspace Video Acceleration (VA) library"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="https://www.freedesktop.org/wiki/Software/vaapi/"
+WEB_SITE="https://github.com/intel/libva"
+# https://www.freedesktop.org/wiki/Software/vaapi/ - old
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#libva"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://www.freedesktop.org/software/vaapi/releases/libva/$TARBALL"
+WGET_URL="https://github.com/intel/libva/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="e1138529355cce78fa2edc7c5b1c5aeb40dd0ce5"
 
-BUILD_DEPENDS="libdrm-dev xorg-libX11-dev xorg-libXext-dev xorg-libXfixes-dev \
-mesa-dev expat-dev xorg-libxshmfence-dev wayland-dev"
+BUILD_DEPENDS="libdrm-dev libx11-dev libxext-dev libxfixes-dev mesa-dev \
+expat-dev libxshmfence-dev wayland-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libdrm libx11 libxext libxfixes mesa wayland"
+DEPENDS_dev="$PACKAGE wayland-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libva)
-			copy @std
-			DEPENDS="libdrm mesa wayland xorg-libX11 xorg-libXext \
-			xorg-libXfixes"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libva wayland-dev"
-			;;
-	esac
 }

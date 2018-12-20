@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-joystick"
+VERSION="1.6.3" # 2016-11-17
+CATEGORY="x-window"
+SHORT_DESC="Xorg input driver for controlling the pointer with a joystick \
+device"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+REPOLOGY="xdrv:joystick"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="b8664249d50ed266556877e15e3782c40614459c"
+
+BUILD_DEPENDS="util-macros xorg-server-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="xorg-server"
+DEPENDS_dev="$PACKAGE xorg-server-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xf86-input-joystick"
+PROVIDE_dev="xorg-xf86-input-joystick-dev"

@@ -1,0 +1,29 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xrdb"
+VERSION="1.1.1"
+CATEGORY="x-window"
+SHORT_DESC="X server resource database utility"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7app.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="0d6b1cae357574d565d6e6bc10f6ccf073e1b9dd"
+
+BUILD_DEPENDS="util-macros libxmu-dev libx11-dev xorgproto"
+DEPENDS="libx11 libxmu"
+
+compile_rules() {
+	touch /root/missing /missing
+
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xrdb"

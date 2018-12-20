@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xdpyinfo"
+VERSION="1.3.2"
+CATEGORY="x-window"
+SHORT_DESC="Display information utility for X"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7app.html"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/app/$TARBALL"
+TARBALL_SHA1="0922fc31f8fc82ac20e326a6c9eb33ed7d57ad87"
+
+BUILD_DEPENDS="util-macros libxext-dev libx11-dev libxtst-dev libxcb-dev \
+xorgproto libxxf86vm-dev libxxf86dga-dev libxrender-dev libxcomposite-dev \
+libxinerama-dev libdmx-dev libxxf86misc-dev"
+DEPENDS="libx11 libxcomposite libxext libxi libxinerama libxrender libxtst \
+libxxf86dga libxxf86misc libxxf86vm libdmx libxcb"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xdpyinfo"

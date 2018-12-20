@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-mouse"
+VERSION="1.9.3" # 2018-06-19
+CATEGORY="x-window"
+SHORT_DESC="Xorg mouse input driver"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+REPOLOGY="xdrv:mouse"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="b3982998808ba43117fc066c4ecc94ce67c5818e"
+
+BUILD_DEPENDS="util-macros xorg-server-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="xorg-server" # implicit
+DEPENDS_dev="$PACKAGE xorg-server-dev" # implicit
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xf86-input-mouse"
+PROVIDE_dev="xorg-xf86-input-mouse-dev"

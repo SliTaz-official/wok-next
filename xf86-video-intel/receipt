@@ -1,0 +1,46 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-video-intel"
+VERSION="2.99.917" # 2014-12-21
+CATEGORY="x-window"
+SHORT_DESC="Xorg driver for Intel integrated graphics chipsets"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/intel/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#xorg-intel-driver"
+REPOLOGY="xdrv:intel"
+
+TARBALL="xf86-video-intel-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="9af9ded7a29026c211e5eb50a547e3e33976301d"
+
+BUILD_DEPENDS="util-macros eudev-dev libx11-dev libxcomposite-dev \
+libxdamage-dev libxrender-dev libxrandr-dev cairo-dev libxshmfence-dev \
+libxxf86vm-dev libdrm-dev libxinerama-dev libxcursor-dev libxtst-dev \
+libxscrnsaver-dev xorg-server-dev libxvmc-dev xcb-util-dev libxfont2-dev \
+automake libtool git"
+DEPENDS="eudev libdrm libdrm-intel libx11 libxscrnsaver libxcursor libxdamage \
+libxext libxfixes libxinerama libxrandr libxrender libxtst libxv libxvmc \
+libxcb libxshmfence pixman xcb-util"
+
+compile_rules() {
+	autoreconf -vif
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+	./configure \
+		--enable-kms-only \
+		--enable-uxa \
+		--enable-xvmc \
+		--disable-selective-werror \
+		--with-default-dri=3 \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	chmod o-x $install/usr/libexec/xf86-video-intel-backlight-helper
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xf86-video-intel"

@@ -1,0 +1,34 @@
+# SliTaz package receipt v2.
+
+PACKAGE="font-winitzki-cyrillic"
+VERSION="1.0.3"
+CATEGORY="x-window"
+SHORT_DESC="Winitzki Cyrillic bitmap font: Proof"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="PublicDomain"
+WEB_SITE="https://www.x.org/wiki/"
+HOST_ARCH="any"
+REPOLOGY="fonts:winitzki-cyrillic"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/font/$TARBALL"
+TARBALL_SHA1="29249b49eac7e3f32d7a1a93808fcfd9d399011c"
+
+BUILD_DEPENDS="util-macros font-util-dev mkfontdir bdftopcf"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	make &&
+	make install
+}
+
+post_install() {
+	chroot "$1/" fc-cache -r /usr/share/fonts/X11/cyrillic
+}
+post_remove() {
+	chroot "$1/" fc-cache -r
+}
+
+TAGS="Xorg font"
+
+PROVIDE="xorg-font-winitzki-cyrillic"

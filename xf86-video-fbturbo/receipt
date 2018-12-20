@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-video-fbturbo"
+VERSION="0.4.0.postgit20151006" # 2015-10-06
+COMMIT="f9a6ed7"
+CATEGORY="x-window"
+SHORT_DESC="Xorg DDX driver for ARM devices (Allwinner, RPi and others)"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://github.com/ssvb/xf86-video-fbturbo"
+REPOLOGY="xdrv:fbturbo"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$WEB_SITE/archive/${COMMIT:-VERSION}.tar.gz"
+TARBALL_SHA1="947fa3d5db6431ef281e1fa475618c1228b38c52"
+
+BUILD_DEPENDS="util-macros xorg-server-dev automake autoconf libtool"
+DEPENDS="xorg-server"
+
+compile_rules() {
+	export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+	autoreconf -vi
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg display"
+
+PROVIDE="xorg-xf86-video-fbturbo"

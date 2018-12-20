@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libice"
+VERSION="1.0.9"
+CATEGORY="x-window"
+SHORT_DESC="Inter-Client Exchange library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7lib.html"
+
+TARBALL="libICE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/lib/$TARBALL"
+TARBALL_SHA1="3c3a857a117ce48a1947a16860056e77cd494fdf"
+
+BUILD_DEPENDS="xorgproto xtrans"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_dev="$PACKAGE xorgproto"
+
+compile_rules() {
+	touch /root/missing /missing
+
+	# ICE_LIBS=-lpthread: fixes a change in glibc which breaks pulseaudio at runtime
+	./configure \
+		--disable-static \
+		ICE_LIBS=-lpthread \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-libICE"
+PROVIDE_dev="xorg-libICE-dev"

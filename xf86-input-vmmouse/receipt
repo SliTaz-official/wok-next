@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-vmmouse"
+VERSION="13.1.0" # 2015-06-25
+CATEGORY="x-window"
+SHORT_DESC="Xorg input driver for VMware Mouse"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#xorg-vmmouse-driver"
+REPOLOGY="xdrv:vmmouse"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="c00fbf985b22a86901fa905a8037005bca96d805"
+
+BUILD_DEPENDS="util-macros xorg-server-dev eudev-dev"
+DEPENDS="xorg-server eudev"
+
+compile_rules() {
+	./configure \
+		--without-hal-fdi-dir \
+		--without-hal-callouts-dir \
+		--with-udev-rules-dir=/lib/udev/rules.d \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE="xorg-xf86-input-vmmouse"

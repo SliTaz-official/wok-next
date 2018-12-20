@@ -1,0 +1,33 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-synaptics"
+VERSION="1.9.1" # 2018-05-29
+CATEGORY="x-window"
+SHORT_DESC="Xorg input driver for touchpads"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#xorg-synaptics-driver"
+REPOLOGY="xdrv:synaptics"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="07eeef716820105cae959bbc3aa103e2fcfd0084"
+
+BUILD_DEPENDS="util-macros xorg-server-dev xorgproto libevdev-dev libxi-dev \
+libxtst-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libevdev libx11 libxi libxtst"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xf86-input-synaptics"
+PROVIDE_dev="xorg-xf86-input-synaptics-dev"

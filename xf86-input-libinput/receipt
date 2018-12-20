@@ -1,0 +1,35 @@
+# SliTaz package receipt v2.
+
+PACKAGE="xf86-input-libinput"
+VERSION="0.28.1" # 2018-10-14
+CATEGORY="x-window"
+SHORT_DESC="libinput-based X.Org input driver"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://www.x.org/wiki/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/x7driver.html#xorg-libinput-driver"
+REPOLOGY="xdrv:libinput"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$XORG_MIRROR/driver/$TARBALL"
+TARBALL_SHA1="f72f298c23fa993857ff1a9a06754f2f5962b376"
+
+BUILD_DEPENDS="util-macros xorg-server-dev libinput-dev mtdev-dev libevdev-dev \
+eudev-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="xorg-server eudev libevdev libinput mtdev"
+DEPENDS_dev="$PACKAGE xorg-server-dev eudev-dev libevdev-dev libinput-dev \
+mtdev-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}
+
+TAGS="Xorg"
+
+PROVIDE_std="xorg-xf86-input-libinput"
+PROVIDE_dev="xorg-xf86-input-libinput-dev"
