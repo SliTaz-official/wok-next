@@ -16,10 +16,10 @@ PATCH="Do-not-make-lack-of-SSE2-support-on-x86-32-fatal.patch"
 PATCH_URL="https://anonscm.debian.org/cgit/pkg-kde/qt/qtdeclarative.git/plain/debian/patches/"
 
 BUILD_DEPENDS="dbus-dev eudev-dev zlib-dev glib-dev icu-dev pcre-dev \
-openssl-dev sqlite3-dev xorg-libxcb-dev mesa-dev freetype-dev fontconfig-dev \
-libinput-dev harfbuzz-dev libjpeg-turbo-dev libpng16-dev tslib-dev \
-xorg-libX11-dev libxkbcommon-dev xorg-libXrender-dev cups-dev \
-xorg-libXcomposite-dev alsa-lib-dev gst1-plugins-base-dev gtk3-dev"
+openssl-dev sqlite3-dev libxcb-dev mesa-dev freetype-dev fontconfig-dev \
+libinput-dev harfbuzz-dev libjpeg-turbo-dev libpng-dev tslib-dev \
+libx11-dev libxkbcommon-dev libxrender-dev cups-dev \
+libxcomposite-dev alsa-lib-dev gst1-plugins-base-dev gtk3-dev"
 # Name split packages according to sources structure, for example:
 # $src/qtgamepad/ -> qt5-gamepad
 SPLIT="\
@@ -190,7 +190,7 @@ genpkg_rules() {
 			copy libqgtk3.so
 			CAT="development|GTK+3 theme support"
 			DEPENDS="qt5-base atk cairo gdk-pixbuf glib gtk3 mesa pango \
-			xorg-libX11 xorg-libXext";;
+			libx11 libxext";;
 		qt5-base-egl)
 			copy libQt5Egl*so*
 			CAT="development|EGL libs"
@@ -239,10 +239,10 @@ genpkg_rules() {
 
 			CAT="development|Base module"
 			DEPENDS="dbus eudev fontconfig freetype glib icu openssl libcups \
-			libdrm libharfbuzz libicu libinput libjpeg-turbo libpng16 \
+			libdrm libharfbuzz libicu libinput libjpeg-turbo libpng \
 			libsqlite3 libxkbcommon libxkbcommon-x11 mesa \
-			mtdev tslib xorg-libICE xorg-libSM xorg-libX11 xorg-libXext \
-			xorg-libXi xorg-libxcb zlib libatomic";;
+			mtdev tslib libice libsm libx11 libxext \
+			libxi libxcb zlib libatomic";;
 		qt5-canvas3d)
 			CAT="development|Canvas3D module"
 			DEPENDS="qt5-base qt5-declarative mesa";;
@@ -319,12 +319,12 @@ genpkg_rules() {
 			DEPENDS="qt5-base qt5-declarative mesa";;
 		qt5-virtualkeyboard)
 			CAT="development|VirtualKeyboard module"
-			DEPENDS="qt5-base qt5-declarative qt5-svg mesa xorg-libxcb";;
+			DEPENDS="qt5-base qt5-declarative qt5-svg mesa libxcb";;
 		qt5-wayland)
 			CAT="development|Wayland module"
 			DEPENDS="qt5-base qt5-declarative fontconfig freetype glib \
 			libxkbcommon mesa mesa-libegl mesa-libwayland-egl wayland \
-			xorg-libX11 xorg-libXcomposite xorg-libXext";;
+			libx11 libxcomposite libxext";;
 		qt5-webchannel)
 			CAT="development|WebChannel module"
 			DEPENDS="qt5-base qt5-declarative mesa";;

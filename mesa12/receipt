@@ -13,10 +13,10 @@ TARBALL="mesa-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="autoconf automake libtool python libdrm-dev libgcrypt-dev \
-eudev-dev xorg-xorgproto \
-xorg-libxcb-dev xorg-libxshmfence-dev xorg-libX11-dev xorg-libXext-dev \
-xorg-libXdamage-dev xorg-libXfixes-dev xorg-libXxf86vm-dev expat-dev \
-elfutils-dev llvm-dev xorg-libpciaccess-dev"
+eudev-dev xorgproto \
+libxcb-dev libxshmfence-dev libx11-dev libxext-dev \
+libxdamage-dev libxfixes-dev libxxf86vm-dev expat-dev \
+elfutils-dev llvm-dev libpciaccess-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-dri $PACKAGE-libegl"
 
 compile_rules() {
@@ -51,8 +51,8 @@ genpkg_rules() {
 		mesa12)
 			copy etc/ libGL.so* libGLESv1_CM.so* libGLESv2.so* \
 			libOSMesa.so* libgbm.so* libglapi.so* libxatracker.so*
-			DEPENDS="expat libdrm xorg-libXdamage xorg-libXxf86vm \
-			xorg-libXt udev xorg-libxshmfence"
+			DEPENDS="expat libdrm libxdamage libxxf86vm \
+			libxt udev libxshmfence"
 			SUGGESTED="nvidia"
 			PROVIDE="libgl"
 			CONFIG_FILES="/etc/drirc"
@@ -60,15 +60,15 @@ genpkg_rules() {
 		mesa12-dev)
 			copy @dev
 			DEPENDS="mesa12 mesa12-dri mesa12-libegl libdrm-dev \
-			xorg-libXdamage-dev  xorg-libXxf86vm-dev \
-			xorg-libXt-dev xorg-xorgproto"
+			libxdamage-dev libxxf86vm-dev \
+			libxt-dev xorgproto"
 			;;
 		mesa12-dri)
 			copy *_dri.so 90-DRI.conf
 			CAT="x-window|DRI drivers"
 			DEPENDS="elfutils expat libdrm libdrm-intel libdrm-nouveau \
 			libdrm-radeon libgcrypt libgpg-error llvm-libs \
-			xorg-libpciaccess zlib"
+			libpciaccess zlib"
 			;;
 		mesa12-libegl)
 			copy libEGL*

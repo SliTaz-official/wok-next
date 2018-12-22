@@ -13,8 +13,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/wxwindows/$TARBALL"
 
 BUILD_DEPENDS="gtk2-dev expat-dev zlib-dev \
-xorg-dev xorg-xorgproto glu mesa-dev libpng16-dev tiff-dev \
-jpeg-dev xorg-libXpm-dev patch xorg-libxshmfence-dev glu-dev"
+xorg-dev xorgproto glu mesa-dev libpng-dev tiff-dev \
+jpeg-dev libxpm-dev patch libxshmfence-dev glu-dev"
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
@@ -44,11 +44,11 @@ genpkg_rules() {
 			# Remove devel files.
 			rm -rf $fs/usr/lib/wx/include
 			DEPENDS="glib glibc-base gcc-lib-base expat zlib atk \
-			gtk2 cairo fontconfig freetype jpeg libpng16 tiff pango \
-			xorg-pixman util-linux-uuid xorg-libSM xorg-libICE xorg-libX11 \
-			xorg-libXau xorg-libXcomposite xorg-libXcursor xorg-libXdamage \
-			xorg-libXdmcp xorg-libXext glu xorg-libXfixes \
-			xorg-libXinerama xorg-libXrender xorg-libXxf86vm mesa"
+			gtk2 cairo fontconfig freetype jpeg libpng tiff pango \
+			pixman util-linux-uuid libsm libice libx11 \
+			libxau libxcomposite libxcursor libxdamage \
+			libxdmcp libxext glu libxfixes \
+			libxinerama libxrender libxxf86vm mesa"
 			;;
 		*-dev)
 			mkdir -p $fs/usr/lib/wx
@@ -59,8 +59,8 @@ genpkg_rules() {
 
 			cp -a $install/usr/share $fs/usr
 			rm -r $fs/usr/share/locale
-			DEPENDS="wxWidgets gtk2-dev xorg-libXinerama-dev xorg-libSM-dev \
-			xorg-libICE-dev expat zlib"
+			DEPENDS="wxWidgets gtk2-dev libxinerama-dev libsm-dev \
+			libice-dev expat zlib"
 			;;
 	esac
 }

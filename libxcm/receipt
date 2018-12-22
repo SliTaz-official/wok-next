@@ -11,22 +11,15 @@ WEB_SITE="https://www.oyranos.org/libxcm/index.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/oyranos-cms/libxcm/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="xorg-libX11-dev xorg-libXfixes-dev xorg-libXmu-dev"
+BUILD_DEPENDS="libx11-dev libxfixes-dev libxmu-dev"
 SPLIT="$PACKAGE-dev"
 
-DEPENDS_std="xorg-libX11 xorg-libXfixes xorg-libXmu"
-DEPENDS_dev="libxcm xorg-libX11-dev xorg-xorgproto"
+DEPENDS_std="libx11 libxfixes libxmu"
+DEPENDS_dev="$PACKAGE libx11-dev xorgproto"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libxcm) copy @std; DEPENDS="$DEPENDS_std";;
-		*-dev)  copy @dev; DEPENDS="$DEPENDS_dev";;
-	esac
 }

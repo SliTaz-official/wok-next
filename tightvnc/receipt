@@ -10,10 +10,10 @@ TARBALL="$PACKAGE-${VERSION}_unixsrc.tar.bz2"
 WEB_SITE="http://www.tightvnc.com/"
 WGET_URL="$SF_MIRROR/vnc-tight/$TARBALL"
 
-BUILD_DEPENDS="xorg-imake xorg-gccmakedep xorg-cf-files xorg-libXp \
-xorg-libXaw-dev xorg-libXt-dev xorg-libXau-dev xorg-libXdmcp-dev \
-xorg-libXmu-dev xorg-xorgproto \
-xorg-xauth jpeg-dev zlib-dev xorg-libXrandr-dev"
+BUILD_DEPENDS="imake gccmakedep xorg-cf-files libxp \
+libxaw-dev libxt-dev libxau-dev libxdmcp-dev \
+libxmu-dev xorgproto \
+xauth jpeg-dev zlib-dev libxrandr-dev"
 SPLIT="$PACKAGE-extra $PACKAGE-java $PACKAGE-viewer"
 
 compile_rules() {
@@ -39,7 +39,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		tightvnc)
 			TAGS="remote-desktop vnc"
-			DEPENDS="xorg-base-fonts jpeg zlib"
+			DEPENDS="font-misc-misc-base jpeg zlib"
 			mkdir -p $fs/usr/bin
 			cp -a $install/usr/bin/Xvnc $fs/usr/bin
 			cp $src/vncpasswd/vncpasswd $fs/usr/bin
@@ -65,8 +65,8 @@ EOM
 		tightvnc-extra)
 			CAT="x-window|extra tools"
 			TAGS="vnc"
-			DEPENDS="perl jpeg zlib xorg-libXdmcp xorg-libXau xorg-libX11 \
-			xorg-libXext"
+			DEPENDS="perl jpeg zlib libxdmcp libxau libx11 \
+			libxext"
 			mkdir -p $fs/usr/bin $fs/etc
 			cp $src/vncconnect/vncconnect $src/vncserver $fs/usr/bin
 			cp $src/tightvncserver.conf $fs/etc
@@ -84,9 +84,9 @@ EOF
 		tightvnc-viewer)
 			CAT="x-window|X client"
 			TAGS="vnc remote-desktop"
-			DEPENDS="jpeg zlib xorg-libXdmcp xorg-libXau xorg-libX11 \
-			xorg-libXext xorg-libXp xorg-libXpm xorg-libICE \
-			xorg-libSM xorg-libXt xorg-libXmu xorg-libXaw"
+			DEPENDS="jpeg zlib libxdmcp libxau libx11 \
+			libxext libxp libxpm libice \
+			libsm libxt libxmu libxaw"
 			mkdir -p $fs/usr/bin
 			cp -a $install/usr/bin/vncviewer $fs/usr/bin
 			;;

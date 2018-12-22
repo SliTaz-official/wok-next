@@ -12,8 +12,8 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gdk-pixbuf.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="meson ninja glib-dev shared-mime-info-dev libpng16-dev \
-libjpeg-turbo-dev tiff-dev gobject-introspection-dev xorg-libX11-dev \
+BUILD_DEPENDS="meson ninja glib-dev shared-mime-info-dev libpng-dev \
+libjpeg-turbo-dev tiff-dev gobject-introspection-dev libx11-dev \
 gettext-dev libxslt docbook-xsl libxml2-tools"
 SPLIT="$PACKAGE-dev $PACKAGE"
 
@@ -34,12 +34,12 @@ genpkg_rules() {
 	case $PACKAGE in
 		*-dev)
 			copy @dev gdk-pixbuf-csource
-			DEPENDS="gdk-pixbuf glib-dev shared-mime-info-dev xorg-libX11-dev"
+			DEPENDS="gdk-pixbuf glib-dev shared-mime-info-dev libx11-dev"
 			# gdk-pixbuf-csource use shared-mime-info to detect the image file format
 			;;
 		*)
 			copy @std @rm
-			DEPENDS="glib libjpeg-turbo libpng16 tiff xorg-libX11"
+			DEPENDS="glib libjpeg-turbo libpng tiff libx11"
 			;;
 	esac
 }

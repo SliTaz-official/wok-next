@@ -11,10 +11,10 @@ WEB_SITE="http://recordmydesktop.sourceforge.net/about.php"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="alsa-lib-dev xorg-libX11-dev xorg-libICE-dev xorg-libSM-dev \
-xorg-libXext-dev xorg-libXdamage-dev xorg-libXfixes-dev libogg libogg-dev \
-libvorbis libvorbis-dev libtheora-dev zlib-dev xorg-libXfixes-dev \
-xorg-xorgproto"
+BUILD_DEPENDS="alsa-lib-dev libx11-dev libice-dev libsm-dev \
+libxext-dev libxdamage-dev libxfixes-dev libogg libogg-dev \
+libvorbis libvorbis-dev libtheora-dev zlib-dev \
+xorgproto"
 
 compile_rules() {
 	sed -i 's|shmstr.h|shmproto.h|g' src/*.h
@@ -32,7 +32,7 @@ compile_rules() {
 genpkg_rules() {
 	mkdir -p $fs/usr
 	cp -a $install/usr/bin $fs/usr
-	DEPENDS="libtheora alsa-lib xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-	xorg-libXdamage xorg-libXdmcp xorg-libXext xorg-libXfixes zlib"
+	DEPENDS="libtheora alsa-lib libice libsm libx11 libxau \
+	libxdamage libxdmcp libxext libxfixes zlib"
 	TAGS="desktop"
 }

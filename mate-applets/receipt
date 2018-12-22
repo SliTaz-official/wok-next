@@ -11,7 +11,7 @@ WEB_SITE="https://github.com/mate-desktop/mate-applets"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mate-desktop/mate-applets/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="mate-common yelp-tools-dev xorg-libX11-dev python-dev gtk3-dev \
+BUILD_DEPENDS="mate-common yelp-tools-dev libx11-dev python-dev gtk3-dev \
 mate-panel-dev libgtop-dev libwnck3-dev libnotify-dev dbus-glib-dev \
 polkit-dev upower-dev gucharmap3-dev python-pygobject-dev itstool libmateweather-dev \
 gtksourceview3-dev wireless_tools-dev" # + cpufrequtils-dev + libcpupower(absent)
@@ -32,15 +32,15 @@ compile_rules() {
 
 genpkg_rules() {
 	deps="atk bzlib cairo fontconfig freetype gdk-pixbuf glib gtk3 libffi \
-	libharfbuzz liblzma libpng16 libxml2 mate-panel pango pcre \
-	util-linux-blkid util-linux-mount util-linux-uuid xorg-libX11 xorg-libXau \
-	xorg-libXdmcp xorg-libXext xorg-libXrender xorg-libxcb xorg-pixman zlib"
+	libharfbuzz liblzma libpng libxml2 mate-panel pango pcre \
+	util-linux-blkid util-linux-mount util-linux-uuid libx11 libxau \
+	libxdmcp libxext libxrender libxcb pixman zlib"
 
 	case $PACKAGE in
 		*-accessx-status)
 			copy accessx-status* *AccessxStatus* *accessx-status*/mate-* \
 			apps/mate-ax-applet.png
-			DEPENDS="$deps xorg-libICE xorg-libSM"
+			DEPENDS="$deps libice libsm"
 			CAT="x-window|Keyboard Accessibility Monitor"
 			;;
 		*-battstat)
@@ -86,7 +86,7 @@ genpkg_rules() {
 		*-stickynotes)
 			copy *stickynotes* *StickyNotes* mate-sticky-notes-*
 			DEPENDS="$deps gtksourceview3 libwnck3 startup-notification \
-			xorg-xcb-util"
+			xcb-util"
 			CAT="x-window|Sticky Notes"
 			;;
 		*-timer)

@@ -11,7 +11,7 @@ WEB_SITE="http://libvnc.github.io/"
 TARBALL="LibVNCServer-$VERSION.tar.gz"
 WGET_URL="https://github.com/LibVNC/libvncserver/archive/$TARBALL"
 
-BUILD_DEPENDS="automake libtool openssl-dev libjpeg-turbo-dev libpng16-dev"
+BUILD_DEPENDS="automake libtool openssl-dev libjpeg-turbo-dev libpng-dev"
 SPLIT="$PACKAGE-novnc $PACKAGE-dev"
 
 compile_rules() {
@@ -29,7 +29,7 @@ genpkg_rules() {
 	case $PACKAGE in
 		libvncserver)
 			copy *.so*
-			DEPENDS="openssl libjpeg-turbo libpng16 zlib"
+			DEPENDS="openssl libjpeg-turbo libpng zlib"
 			;;
 		libvncserver-novnc)
 			copy novnc/
@@ -39,7 +39,7 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			rm -r $fs/var	# it includes 'include/' too and false recognized as dev files
-			DEPENDS="libvncserver libjpeg-turbo-dev libpng16-dev openssl-dev \
+			DEPENDS="libvncserver libjpeg-turbo-dev libpng-dev openssl-dev \
 			zlib-dev"
 			;;
 	esac

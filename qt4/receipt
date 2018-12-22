@@ -12,13 +12,13 @@ WEB_SITE="https://www.qt.io/developers/"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="http://download.qt-project.org/archive/qt/${VERSION%.*}/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="xorg-libX11-dev dbus-dev gstreamer0-dev gst0-python-dev \
+BUILD_DEPENDS="libx11-dev dbus-dev gstreamer0-dev gst0-python-dev \
 libmng-dev cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev mesa-libegl \
 glu glw postgresql-dev gst0-plugins-base-dev atk-dev autoconf automake bash \
 binutils bison bzip2-dev cairo-dev coreutils expat-dev flex fontconfig-dev \
-freetype-dev gettext-dev glib-dev jpeg-dev libIDL libcap-dev libpng16-dev \
+freetype-dev gettext-dev glib-dev jpeg-dev libIDL libcap-dev libpng-dev \
 libtool libxml2-dev linux-api-headers m4 make mercurial ncurses-dev openssl-dev \
-pango-dev patch pcre-dev perl perl-xml-parser perl-xml-simple xorg-pixman-dev \
+pango-dev patch pcre-dev perl perl-xml-parser perl-xml-simple pixman-dev \
 tiff-dev xorg-dev-proto xorg-dev zip unzip gtk2-dev alsa-lib-dev \
 sqlite3-dev glu-dev glw-dev wayland-dev"
 SPLIT="libQt3Support libQtClucene libQtCore libQtDBus libQtDeclarative \
@@ -149,10 +149,10 @@ genpkg_rules() {
 			;;
 		libQtGui)
 			CAT="development|Qt Gui Library"
-			DEPENDS="libQtCore expat fontconfig freetype xorg-libICE \
-			xorg-libSM xorg-libX11 xorg-libXau xorg-libXdmcp \
-			xorg-libXext xorg-libXi xorg-libXrandr xorg-libXrender \
-			libpng16"
+			DEPENDS="libQtCore expat fontconfig freetype libice \
+			libsm libx11 libxau libxdmcp \
+			libxext libxi libxrandr libxrender \
+			libpng"
 			mkdir -p $fs/usr/lib
 			cp -a $install/usr/lib/libQtGui.so* $fs/usr/lib
 
@@ -183,7 +183,7 @@ genpkg_rules() {
 			;;
 		libQtOpenGL)
 			CAT="development|Qt OpenGL Library"
-			DEPENDS="libQtGui mesa glu xorg-libXxf86vm xorg-libXdamage libdrm"
+			DEPENDS="libQtGui mesa glu libxxf86vm libxdamage libdrm"
 			mkdir -p $fs/usr/lib
 			cp -a $install/usr/lib/libQtOpenGL.so* $fs/usr/lib
 			;;
@@ -222,7 +222,7 @@ genpkg_rules() {
 			;;
 		libQtSvg)
 			CAT="development|Qt Svg Library"
-			DEPENDS="libQtCore libQtGui libQtXml libpng16"
+			DEPENDS="libQtCore libQtGui libQtXml libpng"
 			mkdir -p $fs/usr/lib/qt/plugins/imageformats $fs/usr/lib/qt/plugins/iconengines
 			cp -a $install/usr/lib/libQtSvg.so*	$fs/usr/lib
 			cp -a $install/usr/lib/qt/plugins/imageformats/libqsvg.so	$fs/*/*/*/*/imageformats
@@ -236,7 +236,7 @@ genpkg_rules() {
 			;;
 		libQtWebkit-video)
 			CAT="multimedia|Web browser engine for Qt (with gstreamer HTML5 audio video support)"
-			DEPENDS="libQtCore libQtGui libQtNetwork libpng16 \
+			DEPENDS="libQtCore libQtGui libQtNetwork libpng \
 			gst0-plugins-base gst0-plugins-good gst0-ffmpeg"
 			SUGGESTED="gst0-plugins-bad gst0-plugins-ugly"
 			mkdir -p $fs/usr/lib
@@ -261,9 +261,9 @@ genpkg_rules() {
 		Qt4-dev)
 			CAT="development|qt x11 toolkit"
 			SUGGESTED="libmng nvidia"
-			DEPENDS="QtDesigner jpeg tiff libpng16 mesa glu \
+			DEPENDS="QtDesigner jpeg tiff libpng mesa glu \
 			freetds libmysqlclient libpostgresqlclient libunixODBC \
-			xorg-xcb-util libQt3Support libQtClucene libQtPlugins \
+			xcb-util libQt3Support libQtClucene libQtPlugins \
 			libQtDBus libQtHelp libQtOpenGL libQtScript libQtSql \
 			libQtScriptTools libQtWebkit libQtTest qtconfig \
 			gcc-lib-base"
@@ -314,9 +314,9 @@ genpkg_rules() {
 			TAGS="qt"
 			DEPENDS="libQtCore libQtGui libQtNetwork libQtSvg libQtXml \
 			libQtDesigner libQtScript expat fontconfig freetype \
-			glib xorg-libICE xorg-libSM xorg-libX11 xorg-libXau \
-			xorg-libXdmcp xorg-libXext xorg-libXi xorg-libXrandr \
-			xorg-libXrender zlib libpng16 gcc-lib-base"
+			glib libice libsm libx11 libxau \
+			libxdmcp libxext libxi libxrandr \
+			libxrender zlib libpng gcc-lib-base"
 			mkdir -p $fs/usr/bin \
 				$fs/usr/share/pixmaps \
 				$fs/usr/share/applications

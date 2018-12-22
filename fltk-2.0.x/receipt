@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="subversion|http://svn.easysw.com/public/fltk/fltk/trunk"
 BRANCH="${VERSION#r}"
 
-BUILD_DEPENDS="xorg-libXft-dev glu glu-dev mesa mesa-dev \
+BUILD_DEPENDS="libxft-dev glu glu-dev mesa mesa-dev \
 subversion autoconf xorg-dev libpng12-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-fluid2 $PACKAGE-gl"
 
@@ -42,10 +42,10 @@ EOF
 genpkg_rules() {
 	case $PACKAGE in
 		fltk-2.0.x)
-			DEPENDS="expat fontconfig freetype jpeg xorg-libX11 \
-			xorg-libXau xorg-libXdmcp xorg-libXext xorg-libXft \
-			xorg-libXrender zlib libpng12 xorg-libXi \
-			xorg-libXinerama gcc-lib-base"
+			DEPENDS="expat fontconfig freetype jpeg libx11 \
+			libxau libxdmcp libxext libxft \
+			libxrender zlib libpng12 libxi \
+			libxinerama gcc-lib-base"
 			mkdir -p $fs/usr/lib
 			cp -a $install/usr/lib/*.so* $fs/usr/lib
 			# Remove gl support --> fltk-2.0.x-gl
@@ -66,8 +66,8 @@ genpkg_rules() {
 			;;
 		*-gl)
 			CAT="x-window|GL library"
-			DEPENDS="mesa glu expat fontconfig xorg-libXft \
-			xorg-libXi xorg-libXinerama xorg-libXext gcc-lib-base"
+			DEPENDS="mesa glu expat fontconfig libxft \
+			libxi libxinerama libxext gcc-lib-base"
 			mkdir -p $fs/usr/lib
 			cp -a $install/usr/lib/libfltk2*gl*.so* $fs/usr/lib
 			;;

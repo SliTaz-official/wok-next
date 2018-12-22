@@ -11,9 +11,9 @@ WEB_SITE="https://github.com/conformal/spectrwm"
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="https://opensource.conformal.com/snapshots/spectrwm/$TARBALL"
 
-BUILD_DEPENDS="xorg-libX11-dev xorg-libXrandr-dev \
-xorg-libXcursor-dev xorg-libXft-dev xorg-xcb-util-dev xorg-xcb-util-wm-dev \
-xorg-xcb-util-keysyms-dev xorg-libXt-dev"
+BUILD_DEPENDS="libx11-dev libxrandr-dev \
+libxcursor-dev libxft-dev xcb-util-dev xcb-util-wm-dev \
+xcb-util-keysyms-dev libxt-dev"
 
 compile_rules() {
 	cd linux
@@ -29,7 +29,7 @@ genpkg_rules() {
 	# "switch on" keyboard mapping
 	sed -i 's|# keyboard_mapping.*|keyboard_mapping = /etc/spectrwm_us.conf|' \
 		$fs/etc/spectrwm.conf
-	DEPENDS="xorg-xcb-util xorg-xcb-util-keysyms xorg-xcb-util-wm xorg-libXcursor xorg-libXft"
+	DEPENDS="xcb-util xcb-util-keysyms xcb-util-wm libxcursor libxft"
 	CONFIG_FILES="/etc/spectrwm.conf"
 	TAGS="tile window-manager"
 }
