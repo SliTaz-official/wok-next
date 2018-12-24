@@ -15,6 +15,11 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 BUILD_DEPENDS="meson ninja glib-dev gobject-introspection-dev gettext-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="glib"
+DEPENDS_dev="$PACKAGE glib-dev"
+
+TAGS_std="accessibility"
+
 compile_rules() {
 	mkdir build
 	cd    build
@@ -22,18 +27,4 @@ compile_rules() {
 	meson-wrapper &&
 	ninja &&
 	ninja install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		atk)
-			copy @std
-			DEPENDS="glib"
-			TAGS="accessibility"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="atk glib-dev"
-			;;
-	esac
 }

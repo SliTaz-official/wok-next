@@ -14,22 +14,12 @@ WGET_URL="http://download.savannah.gnu.org/releases/libunwind/$TARBALL"
 BUILD_DEPENDS="xz-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="liblzma"
+DEPENDS_dev="$PACKAGE xz-dev"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libunwind)
-			copy @std
-			DEPENDS="liblzma"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libunwind xz-dev"
-			;;
-	esac
 }

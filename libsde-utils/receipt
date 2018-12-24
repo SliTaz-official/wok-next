@@ -15,23 +15,13 @@ WGET_URL="https://github.com/sde-gui/libsde-utils/archive/$COMMIT.tar.gz"
 BUILD_DEPENDS="automake libtool glib-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="glib"
+DEPENDS_dev="$PACKAGE glib-dev"
+
 compile_rules() {
 	./autogen.sh &&
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libsde-utils)
-			copy @std
-			DEPENDS="glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libsde-utils glib-dev"
-			;;
-	esac
 }

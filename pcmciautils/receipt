@@ -13,17 +13,13 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://sourceware.mirrors.tds.net/pub/kernel.org/linux/utils/kernel/pcmcia/$TARBALL"
 
 BUILD_DEPENDS="sysfsutils-dev"
+DEPENDS="sysfsutils   eudev"
 
 compile_rules() {
 	sed -i 's|/lib/udev|/usr/lib/udev|g; s|/sbin|/usr/bin|g' Makefile
 
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="sysfsutils   eudev"
 }
 
 #post_install() {

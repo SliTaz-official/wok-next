@@ -13,15 +13,11 @@ WGET_URL="$WEB_SITE/tarball/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="apache-dev apr-dev apr-util-dev pcre-dev libxml2-dev \
 util-linux-uuid-dev curl-dev"
+DEPENDS="apr apr-util libcurl libpcre libxml2 perl   apache"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="apr apr-util libcurl libpcre libxml2 perl   apache"
 }

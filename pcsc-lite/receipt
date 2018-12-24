@@ -14,6 +14,9 @@ WGET_URL="https://alioth.debian.org/frs/download.php/3741/$TARBALL" # FIXME
 BUILD_DEPENDS="eudev-dev perl libtool"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="eudev"
+SUGGESTED_std="ccid"
+
 compile_rules() {
 	./configure \
 		--enable-libudev \
@@ -26,19 +29,6 @@ compile_rules() {
 
 	install -Dm755 $stuff/pcscd      $install/etc/init.d/pcscd
 	install -Dm644 $stuff/pcscd.conf $install/etc/daemons.conf.d/pcscd.conf
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		pcsc-lite)
-			copy @std
-			DEPENDS="eudev"
-			SUGGESTED="ccid"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }
 
 # Daemon options in: daemons.conf

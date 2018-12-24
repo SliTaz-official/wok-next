@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="cups-dev gtk2-dev autoconf automake libtool gettext"
+DEPENDS="cups gtk2"
 
 compile_rules() {
 	sed -i 's/^gettextize .*/autopoint -f/' autogen.sh
@@ -24,9 +25,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="cups gtk2"
 }

@@ -12,6 +12,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/TobiX/screentest/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="gtk2-dev libglade-dev automake autoconf libtool"
+DEPENDS="gtk2 libglade"
+
+TAGS="test diagnostic screen"
 
 compile_rules() {
 	sed -i 's/prune , -name/prune -or -name/' autogen.sh
@@ -21,10 +24,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="gtk2 libglade"
-	TAGS="test diagnostic screen"
 }

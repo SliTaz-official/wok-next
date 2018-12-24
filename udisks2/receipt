@@ -16,6 +16,9 @@ BUILD_DEPENDS="docbook-xsl gtk-doc gobject-introspection-dev libgudev-dev \
 libblockdev-dev polkit-dev libatasmart-dev acl-dev intltool"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="acl glib libatasmart libblockdev libgudev polkit util-linux-mount"
+DEPENDS_dev="$PACKAGE glib-dev"
+
 compile_rules() {
 	./configure \
 		--disable-static \
@@ -28,18 +31,4 @@ compile_rules() {
 	# mount to "/media" instead of "/media/<user>"
 	mkdir -p $install/etc/udev/rules.d/
 	cp $stuff/99-udisks2.rules $install/etc/udev/rules.d/
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		udisks2)
-			copy @std
-			DEPENDS="acl glib libatasmart libblockdev libgudev polkit \
-			util-linux-mount"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="udisks2 glib-dev"
-			;;
-	esac
 }

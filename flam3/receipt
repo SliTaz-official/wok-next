@@ -15,6 +15,9 @@ WGET_URL="https://github.com/scottdraves/flam3/archive/v$VERSION.tar.gz"
 BUILD_DEPENDS="expat-dev libjpeg-turbo-dev libpng-dev libxml2-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libjpeg-turbo libpng libxml2 zlib"
+DEPENDS_dev="$PACKAGE libjpeg-turbo-dev libpng-dev libxml2-dev"
+
 compile_rules() {
 	./configure \
 		--disable-static \
@@ -23,17 +26,4 @@ compile_rules() {
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install -j1 install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		flam3)
-			copy @std
-			DEPENDS="libjpeg-turbo libpng libxml2 zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="flam3 libjpeg-turbo-dev libpng-dev libxml2-dev"
-			;;
-	esac
 }

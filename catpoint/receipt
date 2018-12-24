@@ -13,6 +13,7 @@ TARBALL="$PACKAGE-$HASH.tar.bz2"
 WGET_URL="http://git.r-36.net/catpoint/snapshot/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev"
+DEPENDS="ncurses"
 
 compile_rules() {
 	sed -i 's|/usr/local|/usr|' config.mk
@@ -21,9 +22,4 @@ compile_rules() {
 	make install || return 1
 
 	cook_pick_docs README.md showoff
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="ncurses"
 }

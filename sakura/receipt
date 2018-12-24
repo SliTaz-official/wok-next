@@ -12,6 +12,9 @@ TARBALL="sakura-$VERSION.tar.bz2"
 WGET_URL="https://launchpad.net/sakura/trunk/$VERSION/+download/$TARBALL"
 
 BUILD_DEPENDS="cmake glib-dev gtk3-dev vte-dev gettext-dev"
+DEPENDS="glib gtk3 pango vte"
+
+TAGS="terminal"
 
 compile_rules() {
 	sed -i '/TryExec/d; s|Icon=.*|Icon=utilities-terminal|' sakura.desktop
@@ -24,10 +27,4 @@ compile_rules() {
 	make install || return 1
 
 	rm -rf $install/usr/share/pixmaps
-}
-
-genpkg_rules() {
-	copy @std
-	TAGS="terminal"
-	DEPENDS="glib gtk3 pango vte"
 }

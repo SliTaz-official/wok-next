@@ -14,6 +14,8 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="patch libx11-dev libice-dev libxext-dev \
 libxscrnsaver-dev freetype-dev pango-dev giflib-dev libjpeg-turbo-dev \
 libpng-dev tiff-dev"
+DEPENDS="perl jpeg libpng zlib libtiff libx11 freetype pango fontconfig \
+glib libxau libxdmcp expat giflib libxscrnsaver gcc-lib-base util-linux-uuid"
 
 compile_rules() {
 	./configure \
@@ -21,11 +23,4 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make -j1 &&
 	make install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="perl jpeg libpng zlib libtiff libx11 freetype pango fontconfig \
-glib libxau libxdmcp expat giflib libxscrnsaver gcc-lib-base \
- util-linux-uuid"
 }

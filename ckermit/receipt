@@ -12,15 +12,11 @@ TARBALL="cku${VERSION##*.}.tar.gz"
 WGET_URL="ftp://kermit.columbia.edu/kermit/archives/$TARBALL"
 
 BUILD_DEPENDS="ncurses-dev"
+DEPENDS="ncurses"
 
 compile_rules() {
 	make linux "LNKFLAGS=-lncurses" || return 1
 
 	install -Dm755 $src/wart   $install/usr/bin/wart
 	install -Dm755 $src/wermit $install/usr/bin/wermit
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="ncurses"
 }

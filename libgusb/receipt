@@ -16,6 +16,9 @@ BUILD_DEPENDS="meson ninja glib-dev libusb-dev gobject-introspection-dev vala \
 gtk-doc"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="glib libusb"
+DEPENDS_dev="$PACKAGE glib-dev libusb-dev"
+
 compile_rules() {
 	mkdir build
 	cd    build
@@ -23,17 +26,4 @@ compile_rules() {
 	meson-wrapper &&
 	ninja &&
 	ninja install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libgusb)
-			copy @std
-			DEPENDS="glib libusb"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libgusb glib-dev libusb-dev"
-			;;
-	esac
 }

@@ -14,6 +14,9 @@ WGET_URL="http://librdf.org/dist/source/$TARBALL"
 BUILD_DEPENDS="perl libxml2-dev libxslt-dev curl-dev yajl-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libcurl libxml2 libxslt yajl"
+DEPENDS_dev="$PACKAGE libxml2-dev libxslt-dev yajl-dev"
+
 compile_rules() {
 	./configure \
 		--disable-static \
@@ -21,17 +24,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		raptor)
-			copy @std
-			DEPENDS="libcurl libxml2 libxslt yajl"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="raptor libxml2-dev libxslt-dev yajl-dev"
-			;;
-	esac
 }

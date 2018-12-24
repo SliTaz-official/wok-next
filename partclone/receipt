@@ -13,6 +13,9 @@ WGET_URL="https://github.com/Thomas-Tsai/partclone/archive/$VERSION.tar.gz"
 
 BUILD_DEPENDS="automake libtool gettext util-linux-uuid-dev e2fsprogs-dev \
 ntfs-3g-dev util-linux-blkid-dev openssl-dev"
+DEPENDS="e2fsprogs ncurses ntfs-3g openssl util-linux-blkid util-linux-uuid"
+
+TAGS="backup"
 
 compile_rules() {
 	export RPM_ARCH=$ARCH
@@ -30,10 +33,4 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="e2fsprogs ncurses ntfs-3g openssl util-linux-blkid util-linux-uuid"
-	TAGS="backup"
 }

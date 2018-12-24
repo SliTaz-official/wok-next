@@ -14,21 +14,11 @@ WGET_URL="${WEB_SITE}downloads/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="tiff-dev zlib-dev jpeg-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libtiff zlib jpeg"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make -j1 install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		spandsp)
-			copy @std
-			DEPENDS="libtiff zlib jpeg"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

@@ -12,6 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.habets.pp.se/synscan/files/$TARBALL"
 
 BUILD_DEPENDS="automake libpcap-dev libnet-dev libcap-dev"
+DEPENDS="libcap libnet libpcap"
 
 compile_rules() {
 	./bootstrap.sh &&
@@ -19,9 +20,4 @@ compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libcap libnet libpcap"
 }

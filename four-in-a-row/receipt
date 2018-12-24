@@ -13,6 +13,7 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 BUILD_DEPENDS="vala glib-dev gtk3-dev librsvg-dev libcanberra-dev gettext-dev \
 itstool"
+DEPENDS="cairo gdk-pixbuf glib gtk3 libcanberra libcanberra-gtk3"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -20,9 +21,4 @@ compile_rules() {
 	make install || return 1
 
 	fix symlinks
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="cairo gdk-pixbuf glib gtk3 libcanberra libcanberra-gtk3"
 }

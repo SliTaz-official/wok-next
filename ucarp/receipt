@@ -12,6 +12,9 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://download.pureftpd.org/pub/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libpcap-dev gfortran gettext-dev"
+DEPENDS="libpcap"
+
+TAGS="HA"
 
 compile_rules() {
 	sed -i 's/\$(SHELL) @install_sh@/@install_sh@/' po/Makefile.in*
@@ -20,10 +23,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libpcap"
-	TAGS="High availability HA"
 }

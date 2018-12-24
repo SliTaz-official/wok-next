@@ -14,6 +14,10 @@ WGET_URL="http://www.galago-project.org/files/releases/source/notify-python/$TAR
 BUILD_DEPENDS="gfortran python-dev libnotify-dev python-pygtk-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="gdk-pixbuf glib libnotify python   python-pygtk"
+
+TAGS_std="python"
+
 compile_rules() {
 #	sed -i 's|, attach||; s| attach[^;]*||; /GtkWidget .attach/d' src/pynotify.c
 
@@ -29,17 +33,4 @@ compile_rules() {
 	make clean &&
 	make &&
 	make -j1 install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		notify-python)
-			copy @std
-			DEPENDS="gdk-pixbuf glib libnotify python   python-pygtk"
-			TAGS="python"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

@@ -14,22 +14,12 @@ WGET_URL="https://github.com/CGAL/cgal/releases/download/releases%2FCGAL-$VERSIO
 BUILD_DEPENDS="cmake boost-dev gmp-dev mpfr-dev boost-thread"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="boost-thread boost-system gcc-lib-base"
+
 compile_rules() {
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		. &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		cgal)
-			copy @std
-			DEPENDS="boost-thread boost-system gcc-lib-base"
-			;;
-		*-dev)
-			copy @dev
-		;;
-	esac
 }

@@ -16,6 +16,15 @@ BUILD_DEPENDS="automake libtool \
 db-dev libsndfile-dev libsamplerate-dev alsa-lib-dev readline-dev doxygen"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="alsa-lib flac libdb libogg libsamplerate libsndfile libvorbis \
+ncurses readline"
+DEPENDS_dev="$PACKAGE alsa-lib-dev db-dev libsamplerate-dev"
+
+PROVIDE_std="jack-audio-connection-kit"
+PROVIDE_dev="jack-audio-connection-kit-dev"
+
+TAGS_std="audio server"
+
 compile_rules() {
 	autoreconf -fi &&
 	sed -i 's|md5 -q|md5sum|' jackd/Makefile.in
@@ -35,21 +44,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		jack)
-			copy @std
-			DEPENDS="alsa-lib flac libdb libogg libsamplerate libsndfile \
-			libvorbis ncurses readline"
-			PROVIDE="jack-audio-connection-kit"
-			TAGS="audio server"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="jack alsa-lib-dev db-dev libsamplerate-dev"
-			PROVIDE="jack-audio-connection-kit-dev"
-			;;
-	esac
 }
