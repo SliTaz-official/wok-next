@@ -23,6 +23,9 @@ ilmbase-dev gtk2-dev glib-dev gstreamer1-dev gst1-plugins-base-dev \
 libgphoto2-dev shared-mime-info xine-lib-dev protobuf-dev " # lapack-dev
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="cairo gdk-pixbuf glib gst1-plugins-base gstreamer1 gtk2 jasper \
+libgphoto2 libjpeg-turbo libpng libwebp openexr libtiff xine-lib zlib"
+
 compile_rules() {
 	ipp_file=$SRC/$(basename $WGET_URL2)
 	if [ ! -e "$ipp_file" ]; then
@@ -63,18 +66,4 @@ compile_rules() {
 		*)      a='ia32';;
 	esac
 	cp -v 3rdparty/ippicv/ippicv_lnx/lib/$a/libippicv.a $install/usr/lib
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		opencv)
-			copy @std
-			DEPENDS="cairo gdk-pixbuf glib gst1-plugins-base gstreamer1 gtk2 \
-			jasper libgphoto2 libjpeg-turbo libpng libwebp openexr tiff \
-			xine-lib zlib"
-			;;
-		opencv-dev)
-			copy @dev
-			;;
-	esac
 }

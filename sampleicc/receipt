@@ -14,18 +14,11 @@ WGET_URL="$SF_MIRROR/sampleicc/$TARBALL"
 BUILD_DEPENDS="tiff-dev"
 SPLIT="$PACKAGE-dev"
 
-DEPENDS_std="tiff"
+DEPENDS_std="libtiff"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		sampleicc) copy @std; DEPENDS="$DEPENDS_std";;
-		*-dev)     copy @dev;;
-	esac
 }

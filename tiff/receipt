@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tiff"
-VERSION="4.0.9"
+VERSION="4.0.10"
 CATEGORY="graphics"
-SHORT_DESC="TIFF images"
+SHORT_DESC="Tag Image File Format"
 MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.libtiff.org/"
@@ -12,17 +12,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libtiff.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.osgeo.org/libtiff/$TARBALL"
 
-BUILD_DEPENDS="cmake ninja zlib-dev libjpeg-turbo-dev xz-dev \
-mesa-dev glu-dev freeglut-dev"
-SPLIT="$PACKAGE-apps $PACKAGE-dev $PACKAGE-gl:gl $PACKAGE-gl-apps:gl \
-$PACKAGE-gl-dev:gl"
+BUILD_DEPENDS="cmake ninja zlib-dev libjpeg-turbo-dev xz-dev"
+SPLIT="lib$PACKAGE $PACKAGE $PACKAGE-dev"
+
+DEPENDS_libtiff="libjpeg-turbo liblzma zlib"
+DEPENDS_std="libtiff"
 
 compile_rules() {
-	case $SET in
-		# no options for it
-		'') sed -i 's|HAVE_OPENGL TRUE|HAVE_OPENGL FALSE|' CMakeLists.txt;;
-	esac
-
 	mkdir -p libtiff-build
 	cd       libtiff-build
 
@@ -33,41 +29,4 @@ compile_rules() {
 		.. &&
 	ninja &&
 	ninja install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		tiff)
-			copy *.so*
-			CAT="graphics|libraries"
-			DEPENDS="libjpeg-turbo liblzma zlib"
-			;;
-		tiff-apps)
-			copy bin/
-			CAT="graphics|CLI applications"
-			DEPENDS="tiff"
-			;;
-		tiff-dev)
-			copy @dev
-			DEPENDS="tiff tiff-apps"
-			;;
-
-		tiff-gl)
-			copy *.so*
-			CAT="graphics|libraries"
-			DEPENDS="libjpeg-turbo liblzma zlib"
-			PROVIDE="tiff:mesa"
-			;;
-		tiff-gl-apps)
-			copy bin/
-			CAT="graphics|CLI applications"
-			DEPENDS="freeglut mesa tiff"
-			PROVIDE="tiff-apps:mesa"
-			;;
-		tiff-gl-dev)
-			copy @dev
-			DEPENDS="tiff-gl tiff-gl-apps"
-			PROVIDE="tiff-dev:mesa"
-			;;
-	esac
 }

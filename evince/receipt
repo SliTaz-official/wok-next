@@ -3,7 +3,7 @@
 PACKAGE="evince"
 VERSION="2.32.0"
 CATEGORY="office"
-SHORT_DESC="Document viewer for Gnome"
+SHORT_DESC="Document viewer for GNOME"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wiki.gnome.org/Apps/Evince"
@@ -15,6 +15,9 @@ BUILD_DEPENDS="gnome-doc-utils docbook-xml libxml2-dev \
 gnome-icon-theme gtk2-dev intltool lcms-dev util-linux-uuid-dev \
 poppler-dev tiff-dev dbus-glib-dev xorg-dev lcms2-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="lcms poppler libtiff dbus-glib glib util-linux-uuid"
+TAGS_std="viewer pdf tiff ps postscript dvi"
 
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -lICE"
@@ -37,17 +40,4 @@ compile_rules() {
 	make -j1 DESTDIR=$install install || return 1
 
 	install -Dm644 $stuff/evince.desktop $install/usr/share/applications/evince.desktop
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		evince)
-			copy @std
-			TAGS="viewer pdf tiff ps postscript dvi"
-			DEPENDS="lcms poppler tiff dbus-glib glib util-linux-uuid"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

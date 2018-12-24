@@ -14,22 +14,11 @@ WGET_URL="http://www.leptonica.org/source/$TARBALL"
 BUILD_DEPENDS="giflib-dev jpeg-dev libpng-dev tiff-dev xorg-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="giflib jpeg libpng libtiff libx11 libxau libxdmcp libxcb"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		leptonica)
-			copy @std
-			DEPENDS="giflib jpeg libpng tiff libx11 libxau \
-			libxdmcp libxcb"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }
