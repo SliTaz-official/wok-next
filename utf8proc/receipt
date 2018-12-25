@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="utf8proc"
+VERSION="2.2.0"
+CATEGORY="libs"
+SHORT_DESC="Library for processing UTF-8 encoded Unicode strings"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://juliastrings.github.io/utf8proc/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/JuliaStrings/utf8proc/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="476efd08dbff38c63f01bb9176905edb09384e63"
+
+BUILD_DEPENDS="cmake ninja"
+SPLIT="$PACKAGE-dev"
+
+compile_rules() {
+	sed "s|@VERSION@|$VERSION|" $stuff/libutf8proc.pc.in > libutf8proc.pc
+
+	mkdir build
+	cd    build
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_SHARED_LIBS=ON \
+		-G Ninja \
+		.. &&
+	ninja &&
+	ninja install || return 1
+
+	cd ..
+	install -Dm644 utf8proc.h     $install/usr/include/utf8proc.h
+	install -Dm644 libutf8proc.pc $install/usr/lib/pkgconfig/libutf8proc.pc
+
+	cook_pick_docs *.md
+}

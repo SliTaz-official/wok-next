@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="posixovl"
-VERSION="1.2"
+VERSION="1.3"
 CATEGORY="system-tools"
 SHORT_DESC="FUSE file system that provides POSIX functionality"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,24 +10,18 @@ WEB_SITE="https://sourceforge.net/projects/posixovl/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="c6b868f5a0b3ff0d316759214fe69dbd1fec694b"
 
-BUILD_DEPENDS="autoconf automake fuse2-dev attr-dev"
+BUILD_DEPENDS="fuse2-dev attr-dev"
+DEPENDS="fuse2"
+
+TAGS="filesystem"
 
 compile_rules() {
-	mv $PACKAGE $src 2>/dev/null
-	cd $src
-	grep -q 'else if (!S_ISREG' posixovl.c ||
-	sed -i 's/if (!S_ISREG/if (S_ISLNK(cb->ll.mode))\n\t\tcb->sb.st_size = strlen(cb->ll.target);\n\telse &/' posixovl.c
-	sed -i 's/cb->ll.size/0/' posixovl.c
-
-	sh autogen.sh
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	copy sbin/
-	DEPENDS="fuse2"
-	TAGS="filesystem"
+	cook_pick_manpages posixovl.1
+	cook_pick_docs format.txt
 }

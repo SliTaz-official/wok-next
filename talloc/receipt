@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="talloc"
-VERSION="2.1.11"
+VERSION="2.1.14"
 CATEGORY="system-tools"
 SHORT_DESC="Hierarchical pool based memory allocator with destructors"
 MAINTAINER="devel@slitaz.org"
@@ -11,28 +11,17 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/talloc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://www.samba.org/ftp/talloc/$TARBALL"
+TARBALL_SHA1="9d563b768148b620bdae1c97b36cfc30928a1044"
 
 BUILD_DEPENDS="python-dev docbook-xsl"
 SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
+
+COPY_python="python*/ libpytalloc*"
+CAT_python="development|Python bindings"
+DEPENDS_python="$PACKAGE python"
 
 compile_rules() {
 	./configure --prefix=/usr &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		talloc-python)
-			copy python*/ libpytalloc*
-			CAT="development|Python bindings"
-			DEPENDS="talloc python"
-			;;
-		talloc)
-			copy @std @rm
-			;;
-		talloc-dev)
-			copy @dev
-			;;
-	esac
 }

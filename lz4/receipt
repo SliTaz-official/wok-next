@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lz4"
-VERSION="1.8.2"
+VERSION="1.8.3"
 CATEGORY="base-system"
 SHORT_DESC="High speed lossless compressor"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,8 +10,14 @@ WEB_SITE="http://lz4.github.io/lz4/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GITHUB/lz4/lz4/tarball/v$VERSION"
+TARBALL_SHA1="dc65188bccd33fa203b1a9ea3de77a060de3d4e7"
 
-SPLIT="$PACKAGE-lib $PACKAGE-dev"
+SPLIT="lib$PACKAGE $PACKAGE $PACKAGE-dev"
+
+DEPENDS_liblz4=" "
+DEPENDS_std=" "
+
+CAT_liblz4="base-system|shared library"
 
 compile_rules() {
 	export AR="$HOST_SYSTEM-ar"
@@ -19,20 +25,4 @@ compile_rules() {
 	make PREFIX=/usr DESTDIR=$install install
 }
 
-genpkg_rules() {
-	case $PACKAGE in
-		lz4)
-			copy lz4 unlz4 lz4cat
-			DEPENDS=" "
-			TAGS="compression"
-			;;
-		*-lib)
-			copy *.so*
-			CAT="base-system|shared library"
-			DEPENDS=" "
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
-}
+PROVIDE_liblz4="lz4-lib"

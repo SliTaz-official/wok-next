@@ -1,37 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="upx"
-VERSION="3.94"
+VERSION="3.95"
 CATEGORY="system-tools"
 SHORT_DESC="Ultimate Packer for eXecutables (free version using UCL compression)"
-MAINTAINER="devl547@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://upx.github.io/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/upx/upx/archive/v$VERSION.tar.gz"
-TARBALL2="upx-lzma-sdk-$VERSION.tar.gz"
-WGET_URL2="https://github.com/upx/upx-lzma-sdk/archive/v$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION-src.tar.xz"
+WGET_URL="https://github.com/upx/upx/releases/download/v$VERSION/$TARBALL"
+TARBALL_SHA1="2f69002bd6012011c90732e8da96c366157e51e9"
 
 BUILD_DEPENDS="ucl-dev zlib-dev perl"
+DEPENDS="ucl zlib"
 
 compile_rules() {
-	[ -s $SRC/$TARBALL2 ] ||
-		wget -O $SRC/$TARBALL2 $WGET_URL2
-	tar -xf $SRC/$TARBALL2
-	rm -r $src/src/lzma-sdk
-	mv    $src/$(basename $TARBALL2 .tar.gz) $src/src/lzma-sdk
+	make \
+		UPX_LZMA_VERSION=0x465 \
+		UPX_LZMADIR="$src" \
+		CHECK_WHITESPACE=/bin/true \
+		all || return 1
 
-	make CHECK_WHITESPACE=/bin/true all || return 1
-
-	mkdir -p $install/usr/bin $install/usr/share/man/man1
-	cp -a $src/src/upx.out $install/usr/bin/upx
-	cp -a $src/doc $install/usr/share
-	rm $install/usr/share/doc/Makefile
-	mv $install/usr/share/doc/upx.1 $install/usr/share/man/man1
-}
-
-genpkg_rules() {
-	copy upx
-	DEPENDS="ucl zlib"
+	install -Dm755 src/upx.out $install/usr/bin/upx
+	cook_pick_manpages doc/upx.1
+	cook_pick_docs doc/*.txt doc/*.html doc/*.doc
 }
