@@ -1,17 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="doxygen"
-VERSION="1.8.11"
+VERSION="1.8.14"
 CATEGORY="development"
 SHORT_DESC="Source code documentation generator tool"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.stack.nl/~dimitri/doxygen/"
+WEB_SITE="http://doxygen.nl/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/doxygen.html"
 
 TARBALL="$PACKAGE-$VERSION.src.tar.gz"
-WGET_URL="http://ftp.stack.nl/pub/doxygen/$TARBALL"
+WGET_URL="http://doxygen.nl/files/$TARBALL"
+TARBALL_SHA1="8f999c95d1e42d725b7cd55bef0ed2a841eb0b34"
 
 BUILD_DEPENDS="cmake python" # graphviz
+
+TAGS="language documentation"
 
 compile_rules() {
 	mkdir build
@@ -20,6 +24,7 @@ compile_rules() {
 	cmake -G "Unix Makefiles" \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
+		-Wno-dev \
 		.. &&
 	make &&
 	make install || return 1
@@ -29,9 +34,4 @@ compile_rules() {
 		sed "s|@VERSION@|$VERSION|g; s|@DATE@|$(date +%Y)|g" $i > \
 			$install/usr/share/man/man1/${i##*/}
 	done
-}
-
-genpkg_rules() {
-	copy bin/
-	TAGS="language documentation"
 }

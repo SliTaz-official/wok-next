@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="wget"
-VERSION="1.19.5"
+VERSION="1.20"
 CATEGORY="network"
 SHORT_DESC="GNU Wget - the non-interactive network downloader"
 MAINTAINER="devel@slitaz.org"
@@ -10,10 +10,22 @@ WEB_SITE="https://www.gnu.org/software/wget/"
 
 TARBALL="$PACKAGE-$VERSION.tar.lz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="c8d3e646e6c3ed7f004107e36094414f36cf52d9"
 
 BUILD_DEPENDS="lzip openssl-dev libidn2-dev util-linux-uuid-dev gettext-dev \
 zlib-dev perl pcre-dev libpsl-dev gnutls-dev"
 SPLIT="wget+gnutls:gnutls"
+
+DEPENDS="libidn2 libpcre libpsl openssl util-linux-uuid zlib"
+DEPENDS_wget_gnutls="libgnutls libidn2 libpcre libpsl nettle util-linux-uuid \
+zlib"
+
+CONFIG_FILES="/etc/wgetrc"
+CONFIG_FILES_wget_gnutls="/etc/wgetrc"
+
+COPY_wget_gnutls="@std"
+CAT_wget_gnutls="network|using GNUTLS instead of OpenSSL"
+PROVIDE_wget_gnutls="wget"
 
 compile_rules() {
 	case $SET in
@@ -24,21 +36,5 @@ compile_rules() {
 	./configure \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	case $PACKAGE in
-		wget)
-			DEPENDS="libidn2 libpcre libpsl openssl util-linux-uuid zlib"
-			;;
-		wget+gnutls)
-			DEPENDS="libgnutls libidn2 libpcre libpsl nettle util-linux-uuid \
-			zlib"
-			CAT="network|using GNUTLS instead of OpenSSL"
-			PROVIDE="wget"
-			;;
-	esac
-	CONFIG_FILES="/etc/wgetrc"
+	make install
 }

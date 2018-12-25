@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dbus"
-VERSION="1.12.10"
+VERSION="1.12.12"
 CATEGORY="x-window"
 SHORT_DESC="D-Bus, a message bus system"
 MAINTAINER="devel@slitaz.org"
@@ -11,10 +11,23 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/dbus.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://dbus.freedesktop.org/releases/dbus/$TARBALL"
+TARBALL_SHA1="ff61dc5bb7e3b4dd86444f4a72fb54378edc54fa"
 
 BUILD_DEPENDS="expat-dev libx11-dev glib-dev libice-dev \
 libsm-dev libxslt xmlto libxml2-tools" # docbook-xsl
 SPLIT="$PACKAGE-helper $PACKAGE-introspect $PACKAGE $PACKAGE-dev"
+
+COPY_helper="dbus-daemon-launch-helper"
+COPY_introspect="introspect.*"
+
+DEPENDS_helper="$PACKAGE expat"
+DEPENDS_introspect="libxml2-tools"
+DEPENDS_std="expat libx11   slitaz-base-files"
+
+CAT_helper="x-window|dbus-daemon-launch-helper"
+CAT_introspect="development|introspect DTD & XSL"
+
+CONFIG_FILES_std="/etc/dbus-1/session.conf /etc/dbus-1/system.conf /etc/dbus-1/system.d/"
 
 compile_rules() {
 	# temporarily: --disable-xml-docs
@@ -39,27 +52,6 @@ compile_rules() {
 	# docbook stuff
 	mkdir -p $install/usr/share/xml/docbook/stylesheet/dbus
 	cp doc/introspect.* $install/usr/share/xml/docbook/stylesheet/dbus
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		dbus-helper)
-			copy dbus-daemon-launch-helper
-			CAT="x-window|dbus-daemon-launch-helper"
-			DEPENDS="dbus expat"
-			;;
-		dbus-introspect)
-			copy introspect.*
-			CAT="development|introspect DTD & XSL"
-			DEPENDS="libxml2-tools"
-			;;
-		dbus)
-			copy @std @rm
-			DEPENDS="expat libx11   slitaz-base-files"
-			CONFIG_FILES="/etc/dbus-1/session.conf /etc/dbus-1/system.conf /etc/dbus-1/system.d/"
-			;;
-		*-dev) copy @dev;;
-	esac
 }
 
 pre_install_dbus() {

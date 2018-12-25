@@ -10,56 +10,36 @@ WEB_SITE="http://xmlsoft.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxml2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="ftp://xmlsoft.org/libxml2/$TARBALL"
+WGET_URL="http://xmlsoft.org/sources/$TARBALL"
+TARBALL_SHA1="66bcefd98a6b7573427cf66f9d3841b59eb5b8c3"
 
-BUILD_DEPENDS="zlib-dev xz-dev python-dev ncurses-dev readline-dev"
-SPLIT="$PACKAGE-tools $PACKAGE-python $PACKAGE-dev $PACKAGE-min:min"
+BUILD_DEPENDS="zlib-dev xz-dev python3-dev ncurses-dev readline-dev"
+SPLIT="$PACKAGE-tools $PACKAGE-python $PACKAGE-dev"
 
-# Note: libxml2 can be build using option --with-minimum
-# and binaries are splited into libxml2-tools
+COPY_std="libxml2.so*"
+COPY_tools="xmllint xmlcatalog"
+COPY_python="site-packages/*.py libxml2mod.so"
+COPY_dev="@dev *.sh"
+
+DEPENDS_std="liblzma zlib"
+DEPENDS_tools="$PACKAGE readline"
+DEPENDS_python="$PACKAGE python3" # libxslt
+DEPENDS_dev="xz-dev zlib-dev   $PACKAGE-tools"
+
+CAT_tools="system-tools|utilities"
+CAT_python="development|adapter for the Python"
+
 compile_rules() {
-	case $SET in
-		min) SET_ARGS='--with-minimum';;
-	esac
+	sed -i '/_PyVerify_fd/,+1d' python/types.c
 
-	#	autoreconf -fi
 	./configure \
 		--disable-static \
-		--with-html-dir=/usr/share/doc \
-		--with-threads \
 		--with-history \
-		$CONFIGURE_ARGS $SET_ARGS &&
+		--with-python=/usr/bin/python3 \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$install install || return 1
+	make install || return 1
 
-	find $install -name '*.sh' -exec chmod +x \{\} \;
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libxml2)
-			copy libxml2.so*
-			DEPENDS="liblzma zlib"
-			;;
-		libxml2-tools)
-			copy xmllint xmlcatalog
-			CAT="system-tools|xmllint tester and xmlcatalog parser utility"
-			DEPENDS="libxml2 readline"
-			;;
-		libxml2-python)
-			copy python2.7/; find $fs -name '*.la' -delete
-			CAT="development|adapter for the Python"
-			DEPENDS="libxml2 python" # libxslt
-			;;
-		libxml2-dev)
-			copy @dev *.sh
-			DEPENDS="xz-dev zlib-dev   libxml2-tools"
-			;;
-		libxml2-min)
-			copy libxml2.so*
-			CAT="system-tools|minimally sized library"
-			DEPENDS="liblzma"
-			;;
-	esac
+	find $install -name '*.sh' -exec chmod +x '{}' \;
 }

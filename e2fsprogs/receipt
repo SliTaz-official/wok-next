@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="e2fsprogs"
-VERSION="1.44.4"
+VERSION="1.44.5"
 CATEGORY="base-system"
 SHORT_DESC="Filesystem utilities for use with ext2 and ext3"
 MAINTAINER="devel@slitaz.org"
@@ -11,10 +11,28 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/e2fsprogs.ht
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="c3f64d10b6ef1a268a077838a5cafb6aaebe2986"
 
 BUILD_DEPENDS="util-linux-uuid-dev util-linux-blkid-dev gettext-dev attr-dev \
 acl-dev texinfo"
 SPLIT="libcomerr-dev $PACKAGE-dev $PACKAGE-fsck libcomerr $PACKAGE"
+
+COPY_libcomerr_dev="libcom_err.a com_err.h com_err.pc"
+COPY_e2fsprogs_dev="@dev *.sed *.awk @rm compile_et mk_cmds"
+COPY_fsck="sbin/fsck.*"
+COPY_libcomerr="libcom_err.so*"
+
+DEPENDS_libcomerr_dev="libcomerr"
+DEPENDS_e2fsprogs_dev="$PACKAGE $PACKAGE-fsck libcomerr-dev"
+DEPENDS_fsck="$PACKAGE libcomerr util-linux-blkid util-linux-uuid"
+DEPENDS_libcomerr=" "
+DEPENDS_std="libcomerr util-linux-blkid util-linux-uuid"
+
+CAT_libcomerr_dev="development|libcomerr development files"
+CAT_fsck="system-tools|fsck tools"
+CAT_libcomerr="base-system|libcomerr library"
+
+TAGS_std="LFS"
 
 compile_rules() {
 #	mkdir -p $install/usr/share/man/man8/
@@ -55,35 +73,6 @@ compile_rules() {
 
 	# Make symlinks relative
 	fix symlinks
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libcomerr-dev)
-			copy libcom_err.a com_err.h com_err.pc
-			CAT="development|libcomerr development files"
-			DEPENDS="libcomerr"
-			;;
-		e2fsprogs-dev)
-			copy @dev *.sed *.awk @rm compile_et mk_cmds
-			DEPENDS="e2fsprogs e2fsprogs-fsck libcomerr-dev"
-			;;
-		e2fsprogs-fsck)
-			copy sbin/fsck.*
-			CAT="system-tools|fsck tools"
-			DEPENDS="e2fsprogs libcomerr util-linux-blkid util-linux-uuid"
-			;;
-		libcomerr)
-			copy libcom_err.so*
-			CAT="base-system|libcomerr library"
-			DEPENDS=" "
-			;;
-		e2fsprogs)
-			copy @std @rm
-			DEPENDS="libcomerr util-linux-blkid util-linux-uuid"
-			TAGS="LFS"
-			;;
-	esac
 }
 
 # Overlap busybox

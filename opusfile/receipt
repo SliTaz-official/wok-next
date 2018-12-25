@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="opusfile"
-VERSION="0.10"
+VERSION="0.11"
 CATEGORY="multimedia"
 SHORT_DESC="Library for opening, seeking, and decoding .opus files"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,26 +10,19 @@ WEB_SITE="https://opus-codec.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://downloads.xiph.org/releases/opus/$TARBALL"
+TARBALL_SHA1="fc3bf2a73be16836a16d9e55ff1097de3835dce3"
 
 BUILD_DEPENDS="openssl-dev libogg-dev opus-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libogg openssl opus"
+DEPENDS_dev="$PACKAGE libogg-dev openssl-dev opus-dev"
+
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		opusfile)
-			copy @std
-			DEPENDS="libogg openssl opus"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="opusfile libogg-dev openssl-dev opus-dev"
-			;;
-	esac
 }

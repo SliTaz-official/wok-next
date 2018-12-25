@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pangomm"
-VERSION="2.40.1"
+VERSION="2.42.0"
 CATEGORY="x-window"
 SHORT_DESC="Pango binding for GTKmm"
 MAINTAINER="devel@slitaz.org"
@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/pangomm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="6d85e5600389c7ee04cc08b6a826832cd360e944"
 
 BUILD_DEPENDS="glibmm-dev cairomm-dev pango-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="cairomm glib glibmm libsigc++ pango"
+DEPENDS_dev="$PACKAGE cairomm-dev glibmm-dev pango-dev"
 
 compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|pangomm-$VERSION|" docs/Makefile.in
@@ -23,17 +27,3 @@ compile_rules() {
 	make &&
 	make install
 }
-
-genpkg_rules() {
-	case $PACKAGE in
-		pangomm)
-			copy @std
-			DEPENDS="cairomm glib glibmm libsigc++ pango"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="pangomm cairomm-dev glibmm-dev pango-dev"
-			;;
-	esac
-}
-

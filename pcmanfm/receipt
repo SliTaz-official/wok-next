@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pcmanfm"
-VERSION="1.3.0"
+VERSION="1.3.1"
 CATEGORY="system-tools"
 SHORT_DESC="Light and easy to use file manager"
 MAINTAINER="devel@slitaz.org"
@@ -10,22 +10,26 @@ WEB_SITE="https://wiki.lxde.org/en/PCManFM"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/pcmanfm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
-#WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL" # SF download problems
 WGET_URL="http://git.lxde.org/gitweb/?p=lxde/pcmanfm.git;a=snapshot;h=$VERSION;sf=txz"
+TARBALL_SHA1="09d70c8297f373e49f94494136b73f9c0bce8fbb"
 
 BUILD_DEPENDS="intltool libx11-dev pango-dev libfm-dev gtk2-dev automake"
+DEPENDS="atk cairo gdk-pixbuf glib gtk2 libfm libfm-gtk libx11 pango"
+
+SUGGESTED="gvfs"
+TAGS="file-manager"
 
 compile_rules() {
 	# tarball from git.lxde.org requires this step
-	[ -e "$src/configure" ] || ./autogen.sh
+	./autogen.sh
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
-	mkdir -p $install/etc/xdg/pcmanfm/
 	# default settings
-	cp -r $stuff/default/ $install/etc/xdg/pcmanfm/
+	install -Dm644 $stuff/pcmanfm.conf $install/etc/xdg/pcmanfm/default/pcmanfm.conf
+
 	# XDG autostart desktop file (lxsession will use it automatically)
 	cp -r $stuff/autostart/ $install/etc/xdg/
 	# add custom actions
@@ -35,11 +39,4 @@ compile_rules() {
 
 	# avoid warning about missed modules dir
 	mkdir -p $install/usr/lib/pcmanfm
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="atk cairo gdk-pixbuf glib gtk2 libfm libfm-gtk pango libx11"
-	SUGGESTED="gvfs"
-	TAGS="file-manager"
 }

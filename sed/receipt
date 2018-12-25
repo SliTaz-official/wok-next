@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="sed"
-VERSION="4.5"
+VERSION="4.7"
 CATEGORY="development"
 SHORT_DESC="GNU stream editor"
 MAINTAINER="paul@slitaz.org"
@@ -11,25 +11,23 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/sed.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="dbc842f6fdf538f366d97e7c4b4f241eaefd14a5"
 
 BUILD_DEPENDS="acl-dev gettext-dev texinfo"
+DEPENDS="acl"
+
+TAGS="LFS"
 
 compile_rules() {
-	# Rebuild after patching
-	msgfmt po/ru.po -o po/ru.gmo
+#	# Rebuild after patching
+#	msgfmt po/ru.po -o po/ru.gmo
 
 	./configure \
 		--bindir=/bin \
 		$CONFIGURE_ARGS &&
-	make $MAKEFLAGS &&
+	make &&
 	make html &&
 	make install || return 1
 
 	cook_pick_docs doc/sed.html
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="acl"
-	TAGS="LFS"
 }

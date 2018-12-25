@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libtirpc"
-VERSION="1.0.3"
+VERSION="1.1.4"
 CATEGORY="system-tools"
 SHORT_DESC="Transport-Independent RPC library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,26 +11,20 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libtirpc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="d85717035cb9bd6c45557a1eb1351d3af9a69ff7"
 
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure \
-		--sysconfdir=/etc \
 		--disable-static \
 		--disable-gssapi \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install || return 1
 
 	mkdir -p $install/lib
 	mv -v $install/usr/lib/libtirpc.so.* $install/lib
 	ln -sfv ../../lib/$(readlink $install/lib/libtirpc.so.3) $install/usr/lib/libtirpc.so
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libtirpc) copy @std;;
-		*-dev)    copy @dev;;
-	esac
 }

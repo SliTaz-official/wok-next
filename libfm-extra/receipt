@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libfm-extra"
-VERSION="1.3.0.2"
+VERSION="1.3.1"
 CATEGORY="system-tools"
 SHORT_DESC="Library and other files required by menu-cache-gen"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,16 +11,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/lxde/libfm-extra.html"
 REPOLOGY="libfm"
 
 TARBALL="libfm-$VERSION.tar.xz"
-#WGET_URL="$SF_MIRROR/pcmanfm/$TARBALL" # SF download problems
 WGET_URL="https://git.lxde.org/gitweb/?p=lxde/libfm.git;a=snapshot;h=$VERSION;sf=txz"
+TARBALL_SHA1="34dc0795e8a8a2dec735fdedc7b7cfc5412d8174"
 
 BUILD_DEPENDS="automake gtk-doc libtool gettext-dev intltool glib-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="glib"
+DEPENDS_dev="$PACKAGE glib-dev"
+
 SIBLINGS="libfm"
 
 compile_rules() {
-	# tarball from git.lxde.org requires this step
-	[ -e "$src/configure" ] || ./autogen.sh
+	./autogen.sh
 
 	./configure \
 		--with-extra-only \
@@ -30,17 +33,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libfm-extra)
-			copy @std
-			DEPENDS="glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libfm-extra glib-dev"
-			;;
-	esac
 }

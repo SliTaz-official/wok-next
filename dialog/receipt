@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dialog"
-VERSION="1.3-20181022"
+VERSION="1.3-20181107"
 CATEGORY="base-system"
 SHORT_DESC="Script-interpreter which provides a set of curses widgets"
 MAINTAINER="devel@slitaz.org"
@@ -9,10 +9,13 @@ LICENSE="LGPL2.1"
 WEB_SITE="http://invisible-island.net/dialog/" # "HTTP/1.1 403 Forbidden" for wget
 
 TARBALL="$PACKAGE-$VERSION.tgz"
-WGET_URL="ftp://ftp.invisible-island.net/dialog/$TARBALL"
+WGET_URL="https://invisible-mirror.net/archives/dialog/$TARBALL"
+TARBALL_SHA1="9bbfba93cf8a818251c6a4e707ba5c1135cb21a8"
 
 BUILD_DEPENDS="ncurses-dev gettext-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="ncurses"
 
 compile_rules() {
 	./configure \
@@ -27,16 +30,4 @@ compile_rules() {
 	install -Dm644 $stuff/dialogrc $install/etc/dialogrc
 
 	cook_pick_manpages dialog.3
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		dialog)
-			copy @std
-			DEPENDS="ncurses"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

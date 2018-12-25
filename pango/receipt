@@ -1,19 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="pango"
-VERSION="1.42.2"
+VERSION="1.42.4"
 CATEGORY="x-window"
 SHORT_DESC="Layout and rendering of internationalized text"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.pango.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/pango.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="240942b1307eaa3819e6e534596271c57cd75457"
 
-BUILD_DEPENDS="harfbuzz-dev libxft-dev cairo-dev \
-gobject-introspection-dev meson ninja fribidi-dev"
+BUILD_DEPENDS="harfbuzz-dev libxft-dev cairo-dev gobject-introspection-dev \
+meson ninja fribidi-dev"
 SPLIT="$PACKAGE-typelib $PACKAGE-dev"
+
+COPY_typelib="*.typelib"
+
+DEPENDS_std="cairo fontconfig freetype fribidi glib libharfbuzz libx11 libxft \
+libxrender"
+DEPENDS_typelib="pango"
+DEPENDS_dev="$PACKAGE $PACKAGE-typelib cairo-dev fontconfig-dev freetype-dev \
+fribidi-dev glib-dev harfbuzz-dev libxft-dev"
+
+CAT_typelib="development|typelib files"
 
 compile_rules() {
 	mkdir build
@@ -26,26 +38,4 @@ compile_rules() {
 	rm -rf \
 		$install/usr/lib/installed-tests \
 		$install/usr/share/installed-tests
-	find $install -type f -perm 664 -exec chmod 644 '{}' \;
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		pango)
-			copy @std
-			DEPENDS="cairo fontconfig freetype fribidi glib libharfbuzz \
-			libx11 libxft libxrender"
-			;;
-		pango-typelib)
-			copy *.typelib
-			CAT="development|typelib files"
-			DEPENDS="pango"
-			;;
-		*-dev)
-			copy @dev @rm
-			DEPENDS="pango pango-typelib \
-			cairo-dev fontconfig-dev freetype-dev fribidi-dev glib-dev \
-			harfbuzz-dev libxft-dev"
-			;;
-	esac
 }

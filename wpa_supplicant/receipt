@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="wpa_supplicant"
-VERSION="2.6"
+VERSION="2.7"
 CATEGORY="utilities"
-SHORT_DESC="WPA Supplicant with support for WPA and WPA2"
+SHORT_DESC="WPA/WPA2/IEEE 802.1X Supplicant"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://w1.fi/wpa_supplicant/"
@@ -12,37 +12,22 @@ REPOLOGY="wpa-supplicant"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://w1.fi/releases/$TARBALL"
+TARBALL_SHA1="3c3c2c6bc493fb32b919d9b410768324f3729e25"
 
 BUILD_DEPENDS="libnl-dev dbus-dev openssl-dev readline-dev"
+DEPENDS="dbus libnl openssl readline   ncurses"
+
+CONFIG_FILES="/etc/wpa/wpa_supplicant.conf"
+TAGS="wireless Wi-Fi network"
 
 compile_rules() {
 	cd $src/wpa_supplicant
-	cp -a defconfig .config
 
-	# Main build configs
-	cat >> .config <<EOT
-CONFIG_DEBUG_FILE=y
-CONFIG_DEBUG_SYSLOG=y
-CONFIG_DEBUG_SYSLOG_FACILITY=LOG_DAEMON
-CONFIG_IPV6=y
-CONFIG_LIBNL32=y
-CONFIG_READLINE=y
-CONFIG_WPS=y
-CONFIG_AP=y
-CONFIG_BGSCAN_SIMPLE=y
-CFLAGS += -I/usr/include/libnl3
-CONFIG_CTRL_IFACE_DBUS=y
-CONFIG_CTRL_IFACE_DBUS_NEW=y
-CONFIG_CTRL_IFACE_DBUS_INTRO=y
-EOT
+	cp $stuff/.config .
 	make BINDIR=/sbin LIBDIR=/lib || return 1
 
-	# commands
-	bindir="$install/sbin"
-	mkdir -p $bindir
-	install -vm755 wpa_cli        $bindir
-	install -vm755 wpa_passphrase $bindir
-	install -vm755 wpa_supplicant $bindir
+	mkdir -p $install/sbin/
+	install -m755 wpa_cli wpa_passphrase wpa_supplicant $install/sbin/
 
 	cook_pick_manpages \
 		doc/docbook/wpa_supplicant.conf.5 \
@@ -50,24 +35,15 @@ EOT
 		doc/docbook/wpa_passphrase.8 \
 		doc/docbook/wpa_supplicant.8
 
-	mkdir -p $install/usr/share/dbus-1/system-services
-	install -vm644 dbus/*.service $install/usr/share/dbus-1/system-services/
+	mkdir -p $install/usr/share/dbus-1/system-services/
+	install -m644 dbus/*.service $install/usr/share/dbus-1/system-services/
 
-	mkdir -p $install/etc/dbus-1/system.d
-	install -vm644 dbus/dbus-wpa_supplicant.conf \
+	install -Dm644 dbus/dbus-wpa_supplicant.conf \
 		$install/etc/dbus-1/system.d/wpa_supplicant.conf
 
-	# Startup script and cleaned up wpa_empty.conf
-	cp -a $stuff/etc $install
-	install -vm644 $src/wpa_supplicant/wpa_supplicant.conf $install/etc/wpa
-	chown -R root:root $install/etc
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="dbus openssl libnl ncurses readline"
-	CONFIG_FILES="/etc/wpa/wpa_supplicant.conf"
-	TAGS="wireless wifi network"
+	install -Dm755 $stuff/wpa_supplicant $install/etc/init.d/wpa_supplicant
+	install -Dm644 $stuff/wpa_empty.conf $install/etc/wpa/wpa_empty.conf
+	install -m644  wpa_supplicant.conf   $install/etc/wpa/wpa_supplicant.conf
 }
 
 post_install() {
