@@ -13,18 +13,16 @@ WGET_URL="https://github.com/mate-desktop/mate-terminal/archive/v$VERSION.tar.gz
 
 BUILD_DEPENDS="mate-common yelp-tools-dev vte-dev gtk3-dev dconf-dev \
 libx11-dev itstool libsm-dev"
+DEPENDS="atk dconf gdk-pixbuf glib gtk3 pango vte libice libsm libx11"
+
+TAGS="MATE"
 
 compile_rules() {
 	./autogen.sh \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="atk dconf gdk-pixbuf glib gtk3 pango vte libice libsm \
-	libx11"
-	TAGS="MATE"
+	fix symlinks
 }

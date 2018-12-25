@@ -14,8 +14,8 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/$TARBALL"
 
 BUILD_DEPENDS="mpc-library-dev mpfr-dev gmp-dev elfutils-dev zlib-dev"
-SPLIT="$PACKAGE-lib-base $PACKAGE-lib-math libgfortran gfortran libgomp libobjc \
-libatomic $PACKAGE"
+SPLIT="$PACKAGE-debug $PACKAGE-lib-base $PACKAGE-lib-math libgfortran \
+gfortran libgomp libobjc libatomic $PACKAGE"
 COOKOPTS="skip-log-errors"
 
 if [ "$2" == "--first-pass" -o "$3" == "--first-pass" ]; then
@@ -123,14 +123,17 @@ genpkg_rules() {
 	esac
 
 	case $PACKAGE in
+		gcc-debug)
+			copy *.dbg
+			;;
 		gcc-lib-base)
-			copy libgcc_s.so* libstdc++.so*
+			copy libgcc_s.so* libstdc++.so* @rm
 			rm $fs/usr/lib*/*.py
 			CAT="libs|base libraries"
 			DEPENDS="glibc-base"
 			;;
 		gcc-lib-math)
-			copy libquadmath.so*
+			copy libquadmath.so* @rm
 			CAT="libs|math libraries"
 			DEPENDS="glibc-base"
 			;;
@@ -156,7 +159,7 @@ genpkg_rules() {
 			DEPENDS="gcc-lib-base glibc-base"
 			;;
 		libatomic)
-			copy libatomic.so*
+			copy libatomic.so* @rm
 			CAT="libs|libatomic"
 			DEPENDS=" "
 			;;

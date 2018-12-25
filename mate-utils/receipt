@@ -15,24 +15,19 @@ BUILD_DEPENDS="mate-common yelp-tools-dev gtk-doc gtk3-dev mate-panel-dev \
 libgtop-dev libcanberra-dev itstool libsm-dev"
 SPLIT="$PACKAGE-dev"
 
+COPY_std="@std @ico" # only 16 and 48 icons
+
+DEPENDS_std="atk cairo gdk-pixbuf glib gtk3 libcanberra libcanberra-gtk3 \
+libgtop mate-panel pango libice libsm libx11 libxext zlib"
+DEPENDS_dev="$PACKAGE gtk3-dev"
+
+TAGS_std="MATE"
+
 compile_rules() {
 	./autogen.sh $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	case $PACKAGE in
-		mate-utils)
-			copy @std @ico # only 16 and 48 icons
-			DEPENDS="atk cairo gdk-pixbuf glib gtk3 libcanberra \
-			libcanberra-gtk3 libgtop mate-panel pango libice libsm \
-			libx11 libxext zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="mate-utils gtk3-dev"
-	esac
-	TAGS="MATE"
+	fix symlinks
 }

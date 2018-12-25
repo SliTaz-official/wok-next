@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libwebp"
-VERSION="1.0.0"
+VERSION="1.0.1"
 CATEGORY="graphics"
 SHORT_DESC="WebP image library"
-MAINTAINER="devl547@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="Apache2"
 WEB_SITE="https://developers.google.com/speed/webp/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libwebp.html"
@@ -15,6 +15,12 @@ WGET_URL="https://storage.googleapis.com/downloads.webmproject.org/releases/webp
 BUILD_DEPENDS="libpng-dev libjpeg-turbo-dev tiff-dev giflib-dev"
 SPLIT="$PACKAGE-apps $PACKAGE-dev"
 
+COPY_std="*.so*"
+COPY_apps="bin/"
+
+CAT_apps="graphics|applications"
+DEPENDS_apps="$PACKAGE giflib libjpeg-turbo libpng libtiff"
+
 compile_rules() {
 	./configure \
 		--enable-libwebpmux \
@@ -24,22 +30,7 @@ compile_rules() {
 		--enable-swap-16bit-csp \
 		--disable-static \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libwebp)
-			copy *.so*
-			;;
-		libwebp-apps)
-			copy bin/
-			CAT="graphics|applications"
-			DEPENDS="giflib libjpeg-turbo libpng libwebp libtiff"
-			;;
-		libwebp-dev)
-			copy @dev
-			;;
-	esac
 }

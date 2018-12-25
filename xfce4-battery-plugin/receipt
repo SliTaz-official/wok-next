@@ -20,7 +20,9 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
+	make install || return 1
+
+	find $install -name '*.so' -exec -chmod +x '{}' \; # 644
 }
 
 genpkg_rules() {
