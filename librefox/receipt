@@ -1,0 +1,64 @@
+# SliTaz package receipt v2.
+
+PACKAGE="librefox"
+VERSION="2.1"; FIREFOX_VERSION="64.0.0"
+CATEGORY="network"
+SHORT_DESC="Librefox, patching Firefox for an enforced privacy and security"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MPL2"
+WEB_SITE="https://github.com/intika/Librefox/"
+
+case $ARCH in
+	i?86)
+		TARBALL="Librefox-$VERSION-Firefox-Linux-$FIREFOX_VERSION-x32.tar.xz"
+		TARBALL_SHA1="531ec9b6e1e763d7e13f6b7ce96640c26b7a85f5"
+		;;
+	x86_64)
+		TARBALL="Librefox-$VERSION-Firefox-Linux-$FIREFOX_VERSION-x64.tar.xz"
+		TARBALL_SHA1="1d25c606e08e6ad2e674abf3032255902067a81d"
+		;;
+esac
+WGET_URL="https://github.com/intika/Librefox/releases/download/Librefox-v$VERSION-v$FIREFOX_VERSION/$TARBALL"
+
+DEPENDS="atk cairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk2 \
+gtk3 libatomic libx11 libxcb libxcomposite libxcursor libxdamage libxext \
+libxfixes libxi libxrender libxt nspr nss pango"
+
+compile_rules() {
+	# Installation path
+	fx='/opt/intika/librefox'
+
+	mkdir -p \
+		$install$fx \
+		$install/usr/bin \
+		$install/usr/share/applications
+
+	# Copy everything
+	cp -a $src/* $install$fx
+
+	# Executable
+	ln -s $fx/firefox $install/usr/bin/librefox
+
+	# Icons
+	for size in 16 32 48 128; do
+		icon_folder="$install/usr/share/icons/hicolor/${size}x$size/apps"
+		mkdir -p $icon_folder
+		ln -s $fx/browser/chrome/icons/default/default$size.png \
+			$icon_folder/librefox.png
+	done
+
+	# Make symlinks relative
+	fix symlinks
+
+	# Allow user updates (save user's and our traffic)
+	chmod -R o+w $install$fx
+
+	# Desktop shortcuts
+	cp $stuff/*.desktop $install/usr/share/applications
+
+	# Fix ownership
+	chown -R 0:0 $install
+
+	# Clean
+	rm -r $src
+}
