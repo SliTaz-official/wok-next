@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="librsvg"
-VERSION="2.42.2"
+VERSION="2.44.10"
 CATEGORY="graphics"
 SHORT_DESC="Rendering SVG"
 MAINTAINER="devel@slitaz.org"
@@ -11,10 +11,24 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/librsvg.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="cd407c6d121d4f61677dd6896a4b3eb713c1011d"
 
 BUILD_DEPENDS="glib-dev gdk-pixbuf-dev libxml2-dev pango-dev libcroco-dev \
 gtk-doc gobject-introspection-dev vala gtk3-dev rust"
 SPLIT="rsvg-convert rsvg-view $PACKAGE-dev"
+
+COPY_std="*.so*"
+COPY_rsvg_convert="rsvg-convert"
+COPY_rsvg_view="rsvg-view*"
+
+DEPENDS_std="cairo fontconfig gdk-pixbuf glib libcroco libxml2 pango"
+DEPENDS_rsvg_convert="$PACKAGE cairo glib"
+DEPENDS_rsvg_view="$PACKAGE cairo glib gtk3"
+DEPENDS_dev="$PACKAGE rsvg-convert rsvg-view cairo-dev gdk-pixbuf-dev glib-dev"
+
+CAT_std="graphics|library"
+CAT_rsvg_convert="graphics|converter"
+CAT_rsvg_view="graphics|viewer"
 
 compile_rules() {
 	./configure \
@@ -24,31 +38,6 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		librsvg)
-			copy *.so*
-			CAT="graphics|library"
-			DEPENDS="cairo fontconfig gdk-pixbuf glib libcroco libxml2 pango"
-			;;
-		rsvg-convert)
-			copy rsvg-convert
-			CAT="graphics|converter"
-			DEPENDS="cairo glib librsvg"
-			;;
-		rsvg-view)
-			copy rsvg-view*
-			CAT="graphics|viewer"
-			DEPENDS="cairo glib gtk3 librsvg"
-			;;
-		librsvg-dev)
-			copy @dev
-			DEPENDS="librsvg rsvg-convert rsvg-view \
-			cairo-dev gdk-pixbuf-dev glib-dev"
-			;;
-	esac
 }
 
 post_install_librsvg() {

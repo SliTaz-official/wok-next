@@ -11,9 +11,20 @@ WEB_SITE="http://www.advancemame.it/comp-readme"
 
 TARBALL="$PACKAGE-${COMMIT:-$VERSION}.tar.gz"
 WGET_URL="$GITHUB/amadvance/advancecomp/tarball/${COMMIT:-v$VERSION}"
+TARBALL_SHA1="a00bc548ff72ff19edc12105b2f7a31158129c4b"
 
-BUILD_DEPENDS="automake zlib-dev"
+BUILD_DEPENDS="automake zlib-dev zlib-static"
 SPLIT="$PACKAGE-static:static"
+
+COPY_static="@std"
+
+DEPENDS_std="zlib"
+DEPENDS_static=" "
+
+CAT_static="system-tools|static binary"
+PROVIDE_static="advancecomp"
+
+TAGS="compression archive"
 
 compile_rules() {
 	./autogen.sh &&
@@ -29,20 +40,4 @@ compile_rules() {
 
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		advancecomp)
-			copy @std
-			DEPENDS="zlib"
-			;;
-		*-static)
-			copy @std
-			CAT="system-tools|static binary"
-			DEPENDS=" "
-			PROVIDE="advancecomp"
-			;;
-	esac
-	TAGS="compression archive"
 }

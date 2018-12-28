@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl-mixer"
+VERSION="1.2.12"
+CATEGORY="development"
+SHORT_DESC="A multichannel sample and music mixer"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL2.1"
+WEB_SITE="http://www.libsdl.org/projects/SDL_mixer/release-1.2.html"
+
+TARBALL="SDL_mixer-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/projects/SDL_mixer/release/$TARBALL"
+TARBALL_SHA1="a20fa96470ad9e1052f1957b77ffa68fb090b384"
+
+BUILD_DEPENDS="sdl-dev fluidsynth-dev libvorbis-dev flac-dev smpeg-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="fluidsynth sdl tslib"
+DEPENDS_dev="$PACKAGE sdl-dev fluidsynth-dev tslib-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nss"
-VERSION="3.38"
+VERSION="3.41"
 CATEGORY="utilities"
 SHORT_DESC="Mozilla Network Security Services (NSS)"
 MAINTAINER="devel@slitaz.org"
@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/nss.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://archive.mozilla.org/pub/security/nss/releases/NSS_${VERSION//./_}_RTM/src/$TARBALL"
+TARBALL_SHA1="69c60e8d3190573dbcbc01f50e68e3ceb7d92522"
 
 BUILD_DEPENDS="nspr-dev sqlite3-dev zlib-dev perl"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libsqlite3 nspr" # zlib
+DEPENDS_dev="$PACKAGE nspr-dev"
 
 compile_rules() {
 	case $ARCH in
@@ -53,17 +57,4 @@ compile_rules() {
 	install -vm755 Linux*/bin/pk12util         $install/usr/bin/
 
 	install -vm644 Linux*/lib/pkgconfig/nss.pc $install/usr/lib/pkgconfig/
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		nss)
-			copy @std
-			DEPENDS="libsqlite3 nspr" # zlib
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="nss nspr-dev"
-			;;
-	esac
 }

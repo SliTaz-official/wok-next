@@ -1,0 +1,31 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl2-ttf"
+VERSION="2.0.14"
+CATEGORY="x-window"
+SHORT_DESC="SDL2 ttf support"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL2.1"
+WEB_SITE="http://www.libsdl.org/projects/SDL_ttf/"
+
+TARBALL="SDL2_ttf-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/projects/SDL_ttf/release/$TARBALL"
+TARBALL_SHA1="34c5fdc8508c7e14356579477f9ca2b0d6c06ffc"
+
+BUILD_DEPENDS="freetype-dev sdl2-dev libx11-dev libice-dev mesa-dev expat-dev \
+libxshmfence-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="freetype sdl2"
+DEPENDS_dev="$PACKAGE sdl2-dev"
+
+SUGGESTED_std="mesa"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}

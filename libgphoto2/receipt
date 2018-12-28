@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libgphoto2"
-VERSION="2.5.19"
+VERSION="2.5.21"
 CATEGORY="graphics"
 SHORT_DESC="Core library of gphoto2 to access photos from digital camera"
 MAINTAINER="devel@slitaz.org"
@@ -9,14 +9,22 @@ LICENSE="LGPL2.1"
 WEB_SITE="http://www.gphoto.org/"
 REPOLOGY="gphoto2"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
+TARBALL="$PACKAGE-${VERSION//./_}-release.tar.gz"
+WGET_URL="https://github.com/gphoto/libgphoto2/archive/$TARBALL"
+TARBALL_SHA1="574948a2ef9e45f25b72bd324de0870fb649dd1c"
 
-BUILD_DEPENDS="libtool gettext-dev libjpeg-turbo-dev libexif-dev libusb-dev \
-libxml2-dev libgd-dev" # use of libusb-compat-dev disabled while libusb found
+BUILD_DEPENDS="automake libtool gettext-dev libjpeg-turbo-dev libexif-dev \
+libusb-dev libxml2-dev libgd-dev" # use of libusb-compat-dev disabled while libusb found
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libexif libgd libjpeg-turbo libltdl libusb libxml2   eudev"
+DEPENDS_dev="libgphoto2 libexif-dev"
+
+TAGS_std="camera photo"
+
 compile_rules() {
+	autoreconf --install --symlink
+
 	./configure \
 		udevscriptdir=/lib/udev \
 		--with-exif \
@@ -29,35 +37,19 @@ compile_rules() {
 	# Remove recursive symlink
 	rm $install/usr/include/gphoto2/gphoto2
 
-	# fix line:
-	# driverdir=$(libdir)/$(PACKAGE_TARNAME)/$(VERSION)
-	sed -i 's|^driverdir=.*|driverdir=${libdir}/libgphoto2_port/${VERSION}|' \
-		$install/usr/lib/pkgconfig/libgphoto2_port.pc
-
+	echo "Making 20-gphoto.hwdb..."
 	mkdir -p $install/lib/udev/rules.d/
 	export LD_LIBRARY_PATH="$install/usr/lib${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH"
 	export CAMLIBS="$install/usr/lib/libgphoto2/$VERSION"
 	$install/usr/lib/libgphoto2/print-camera-list hwdb \
 		| install -Dm644 /dev/stdin $install/lib/udev/hwdb.d/20-gphoto.hwdb
+
+	echo "Making 40-gphoto.rules..."
 	# version <num> is UDEV version, one of: "pre-0.98", "0.98", "136", "175", "201"
 	# See #src/packaging/generic/print-camera-list.c.
 	# We use eudev, so maybe udev version here should be changed.
 	$install/usr/lib/libgphoto2/print-camera-list udev-rules version 201 group camera mode 0660 \
 		| install -Dm644 /dev/stdin $install/lib/udev/rules.d/40-gphoto.rules
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libgphoto2)
-			copy @std
-			DEPENDS="libexif libgd libjpeg-turbo libltdl libusb libxml2   eudev"
-			TAGS="camera photo"
-			;;
-		libgphoto2-dev)
-			copy @dev
-			DEPENDS="libgphoto2 libexif-dev"
-			;;
-	esac
 }
 
 post_install_libgphoto2() {

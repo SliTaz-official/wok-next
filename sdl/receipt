@@ -1,0 +1,37 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl"
+VERSION="1.2.15"
+CATEGORY="x-window"
+SHORT_DESC="Simple DirectMedia Layer"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL2.1"
+WEB_SITE="http://www.libsdl.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/sdl.html"
+
+TARBALL="SDL-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/release/$TARBALL"
+TARBALL_SHA1="0c5f193ced810b0d7ce3ab06d808cbb5eef03a2c"
+
+BUILD_DEPENDS="nasm alsa-lib-dev libx11-dev libice-dev libxrandr-dev mesa-dev \
+glu-dev tslib-dev libusb-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="tslib"
+DEPENDS_dev="$PACKAGE tslib-dev libx11-dev"
+
+compile_rules() {
+	sed -e '/_XData32/s:register long:register _Xconst long:' \
+		-i src/video/x11/SDL_x11sym.h &&
+
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	rm $install/usr/lib/*.a # --disable-static doesn't work
+	cook_pick_docs docs/html/*.html
+}
+
+PROVIDE_std="libsdl"
+PROVIDE_dev="libsdl-dev"

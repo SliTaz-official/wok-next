@@ -9,19 +9,75 @@ LICENSE="GPL2"
 WEB_SITE="https://wiki.gnome.org/Projects/gvfs"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/gvfs.html"
 
+# gvfs-1.38.1 require polkit >= 0.114 while
+#  - original polkit gets fatter and fatter using mozjs
+#  - polkit-no-script is stuck on 0.113
+
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gvfs/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="fb5fe05f0661da8c88f5fa41014bcd526ad39993"
 
 BUILD_DEPENDS="meson ninja shared-mime-info libxslt glib-dev gtk-doc dbus-dev \
 gcr-dev gettext-dev polkit-dev libcap-dev libgphoto2-dev libarchive-dev \
 libsoup-dev libcdio-paranoia-dev libmtp-dev fuse2-dev udisks2-dev gtk3-dev \
 libbluray-dev libgudev-dev libsecret-dev libxml2-dev openssh samba-dev \
 dbus-glib-dev libnfs-dev libgdata-dev gnome-online-accounts-dev"
-SPLIT="$PACKAGE-admin $PACKAGE-afp $PACKAGE-archive $PACKAGE-cdda \
-$PACKAGE-fuse $PACKAGE-goa $PACKAGE-google $PACKAGE-gphoto2 $PACKAGE-gtk \
-$PACKAGE-http $PACKAGE-libmtp $PACKAGE-nfs $PACKAGE-smb $PACKAGE-udisks2 \
-$PACKAGE $PACKAGE-dev"
+SPLIT="\
+$PACKAGE-admin $PACKAGE-afp     $PACKAGE-archive $PACKAGE-cdda \
+$PACKAGE-fuse  $PACKAGE-goa     $PACKAGE-google  $PACKAGE-gphoto2 \
+$PACKAGE-gtk   $PACKAGE-http    $PACKAGE-libmtp  $PACKAGE-nfs \
+$PACKAGE-smb   $PACKAGE-udisks2 $PACKAGE         $PACKAGE-dev"
 COOKOPTS="skip-log-errors"
+
+COPY_admin="gvfsd-admin admin.mount"
+COPY_afp="gvfsd-afp afp.mount gvfsd-afp-browse afp-browse.mount"
+COPY_archive="gvfsd-archive archive.mount"
+COPY_cdda="gvfsd-cdda cdda.mount"
+COPY_fuse="gvfsd-fuse"
+COPY_goa="gvfs-goa-volume-monitor *.GoaVolumeMonitor.service goa.monitor"
+COPY_google="gvfsd-google google.mount"
+COPY_gphoto2="gvfsd-gphoto2 gphoto2.mount gvfs-gphoto2-volume-monitor *.GPhoto2VolumeMonitor.service gphoto2.monitor"
+COPY_gtk="gvfsd-recent recent.mount"
+COPY_http="gvfsd-dav dav.mount gvfsd-http http.mount"
+COPY_libmtp="gvfsd-mtp mtp.mount gvfs-mtp-volume-monitor *.MTPVolumeMonitor.service mtp.monitor"
+COPY_nfs="gvfsd-nfs nfs.mount"
+COPY_smb="gvfsd-smb smb.mount gvfsd-smb-browse smb-browse.mount gvfs-smb.convert *.smb.gschema.xml"
+COPY_udisks2="gvfs-udisks2-volume-monitor *.UDisks2VolumeMonitor.service udisks2.monitor"
+
+CAT_admin="system-tools|admin backend"
+CAT_afp="system-tools|Apple Filing Protocol support - afp:///"
+CAT_archive="system-tools|archive support - archive:///"
+CAT_cdda="system-tools|CDDA support"
+CAT_fuse="system-tools|FUSE support"
+CAT_goa="system-tools|GOA support"
+CAT_google="system-tools|Google support"
+CAT_gphoto2="system-tools|Gphoto2 support"
+CAT_gtk="system-tools|recent files support (GTK+3) - recent:///"
+CAT_http="system-tools|HTTP/WebDAV support"
+CAT_libmtp="system-tools|MTP support"
+CAT_nfs="system-tools|NFS support - nfs:///"
+CAT_smb="system-tools|Samba support - smb:///"
+CAT_udisks2="system-tools|Udisks2 volume monitor"
+
+DEPENDS_admin="$PACKAGE glib polkit"
+DEPENDS_afp="$PACKAGE glib libgcrypt"
+DEPENDS_archive="$PACKAGE glib libarchive"
+DEPENDS_cdda="$PACKAGE glib libcdio libcdio-paranoia libgudev"
+DEPENDS_fuse="$PACKAGE fuse2 glib"
+DEPENDS_goa="glib gnome-online-accounts   $PACKAGE"
+DEPENDS_google="$PACKAGE glib gnome-online-accounts libgdata"
+DEPENDS_gphoto2="$PACKAGE glib libgphoto2 libgudev"
+DEPENDS_gtk="$PACKAGE glib" # + gtk3 ?
+DEPENDS_http="$PACKAGE glib libsoup libxml2"
+DEPENDS_libmtp="$PACKAGE glib libgudev libmtp libusb"
+DEPENDS_nfs="$PACKAGE glib libnfs"
+DEPENDS_smb="$PACKAGE glib samba"
+DEPENDS_udisks2="glib libbluray libgudev libsecret udisks2   $PACKAGE"
+DEPENDS_std="gcr-base glib libgudev libsecret   dbus eudev"
+
+SUGGESTED_std="$PACKAGE-afp $PACKAGE-archive $PACKAGE-cdda $PACKAGE-fuse \
+$PACKAGE-gphoto2 $PACKAGE-http $PACKAGE-libmtp $PACKAGE-obexftp $PACKAGE-smb \
+$PACKAGE-udisks2"
 
 # while webkit2gtk is broken on x86_64...
 case $ARCH in
@@ -32,7 +88,7 @@ case $ARCH in
 esac
 
 compile_rules() {
-	sed -i 's|dependendencies|dependencies|' meson.build # typo
+	sed -i.orig 's|dependendencies|dependencies|' meson.build # typo
 
 	# while webkit2gtk is broken on x86_64...
 	case $ARCH in
@@ -74,106 +130,6 @@ compile_rules() {
 		&&
 	ninja -j1 -C build &&
 	ninja -j1 -C build install
-}
-
-genpkg_rules() {
-	# gvfs-obexftp is called obsolete and deleted by gvfs authors.
-	case $PACKAGE in
-		gvfs-admin)
-			copy gvfsd-admin admin.mount
-			CAT="system-tools|admin backend"
-			DEPENDS="glib gvfs polkit"
-			;;
-		gvfs-afp)
-			copy \
-			gvfsd-afp        afp.mount \
-			gvfsd-afp-browse afp-browse.mount
-			CAT="system-tools|Apple Filing Protocol support - afp:///"
-			DEPENDS="glib gvfs libgcrypt"
-			;;
-		gvfs-archive)
-			copy gvfsd-archive archive.mount
-			CAT="system-tools|archive support - archive:///"
-			DEPENDS="glib gvfs libarchive"
-			;;
-		gvfs-cdda)
-			copy gvfsd-cdda cdda.mount
-			CAT="system-tools|CDDA support"
-			DEPENDS="glib gvfs libcdio libcdio-paranoia libgudev"
-			;;
-		gvfs-fuse)
-			copy gvfsd-fuse
-			CAT="system-tools|FUSE support"
-			DEPENDS="fuse2 glib gvfs"
-			;;
-		gvfs-goa)
-			copy gvfs-goa-volume-monitor *.GoaVolumeMonitor.service \
-			goa.monitor
-			CAT="system-tools|GOA support"
-			DEPENDS="glib gnome-online-accounts   gvfs"
-			;;
-		gvfs-google)
-			copy gvfsd-google google.mount
-			CAT="system-tools|Google support"
-			DEPENDS="glib gnome-online-accounts gvfs libgdata"
-			;;
-		gvfs-gphoto2)
-			copy \
-			gvfsd-gphoto2 gphoto2.mount \
-			gvfs-gphoto2-volume-monitor *.GPhoto2VolumeMonitor.service \
-			gphoto2.monitor
-			CAT="system-tools|Gphoto2 support"
-			DEPENDS="glib gvfs libgphoto2 libgudev"
-			;;
-		gvfs-gtk)
-			copy gvfsd-recent recent.mount
-			CAT="system-tools|recent files support (GTK+3) - recent:///"
-			DEPENDS="glib gvfs" # + gtk3 ?
-			;;
-		gvfs-http)
-			copy \
-			gvfsd-dav  dav.mount \
-			gvfsd-http http.mount
-			CAT="system-tools|HTTP/WebDAV support"
-			DEPENDS="glib gvfs libsoup libxml2"
-			;;
-		gvfs-libmtp)
-			copy \
-			gvfsd-mtp mtp.mount \
-			gvfs-mtp-volume-monitor *.MTPVolumeMonitor.service \
-			mtp.monitor
-			CAT="system-tools|MTP support"
-			DEPENDS="glib gvfs libgudev libmtp libusb"
-			;;
-		gvfs-nfs)
-			copy gvfsd-nfs nfs.mount
-			CAT="system-tools|NFS support - nfs:///"
-			DEPENDS="glib gvfs libnfs"
-			;;
-		gvfs-smb)
-			copy \
-			gvfsd-smb        smb.mount \
-			gvfsd-smb-browse smb-browse.mount \
-			gvfs-smb.convert *.smb.gschema.xml
-			CAT="system-tools|Samba support - smb:///"
-			DEPENDS="glib gvfs samba"
-			;;
-		gvfs-udisks2)
-			copy gvfs-udisks2-volume-monitor *.UDisks2VolumeMonitor.service \
-			udisks2.monitor
-			CAT="system-tools|Udisks2 volume monitor"
-			DEPENDS="glib libbluray libgudev libsecret udisks2   gvfs"
-			;;
-		gvfs)
-			copy @std @rm
-			DEPENDS="gcr-base glib libgudev libsecret   dbus eudev"
-			SUGGESTED="gvfs-afp gvfs-archive gvfs-cdda gvfs-fuse gvfs-gphoto2 \
-			gvfs-http gvfs-libmtp gvfs-obexftp gvfs-smb gvfs-udisks2"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }
 
 post_remove_gvfs() {

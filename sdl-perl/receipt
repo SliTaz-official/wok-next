@@ -1,0 +1,25 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl-perl"
+VERSION="2.2.6"
+CATEGORY="x-window"
+SHORT_DESC="SDL perl support"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL2"
+WEB_SITE="http://sdl.perl.org/"
+REPOLOGY="perl:sdl-perl"
+
+TARBALL="SDL_Perl-v$VERSION.tar.gz"
+WGET_URL="http://search.cpan.org/CPAN/authors/id/K/KT/KTHAKORE/$TARBALL"
+TARBALL_SHA1="f4a0e630374ab0277071351094ce91faf9c366e3"
+
+BUILD_DEPENDS="perl-module-build perl-yaml sdl-dev perl-dev mesa-dev glu-dev"
+DEPENDS="glu sdl mesa perl"
+
+compile_rules() {
+	perl Build.PL destdir="$install" &&
+	perl Build &&
+	perl Build install || return 1
+
+	find $install -type f -exec chmod u+w '{}' \;
+}

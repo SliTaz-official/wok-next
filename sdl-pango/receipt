@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl-pango"
+VERSION="0.1.2"
+CATEGORY="x-window"
+SHORT_DESC="Pango SDL binding"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL2.1"
+WEB_SITE="http://sdlpango.sourceforge.net/"
+
+TARBALL="SDL_Pango-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/sdlpango/$TARBALL"
+TARBALL_SHA1="c30f2941d476d9362850a150d29cb4a93730af68"
+
+BUILD_DEPENDS="patch gfortran pango-dev sdl-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="fontconfig freetype glib sdl pango"
+DEPENDS_dev="$PACKAGE bzip2-dev fontconfig-dev freetype-dev glib-dev \
+harfbuzz-dev libffi-dev libpng-dev libxml2-dev pango-dev pcre-dev xz-dev \
+zlib-dev"
+
+compile_rules() {
+	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
+	make $ARCH_MAKE &&
+	make DESTDIR=$install install
+}

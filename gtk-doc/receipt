@@ -1,29 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gtk-doc"
-VERSION="1.26"
+VERSION="1.29"
 CATEGORY="development"
 SHORT_DESC="Generate API documentation from comments added to C code"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gtk.org/gtk-doc/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/gtk-doc.html"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION:0:4}/$TARBALL"
+TARBALL_SHA1="c3dc579d84221c43ce2b0b5f523c46b13525416b"
 
-BUILD_DEPENDS="docbook-xml docbook-xsl libxslt python perl itstool gettext-dev"
+BUILD_DEPENDS="docbook-xml docbook-xsl libxslt python3 perl itstool gettext-dev"
+DEPENDS="docbook-xsl python3-six"
+
+COPY="@std @dev gtk-doc/"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	copy @std @dev gtk-doc/
-	DEPENDS="docbook-xsl python-six"
 }
 
 post_install() {

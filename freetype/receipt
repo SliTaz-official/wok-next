@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="220c82062171c513e4017c523d196933c9de4a7d"
 
 BUILD_DEPENDS="automake libtool autoconf zlib-dev bzip2-dev libpng-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="bzlib libharfbuzz libpng zlib"
+DEPENDS_dev="$PACKAGE bzip2-dev harfbuzz-dev libpng-dev zlib-dev"
 
 # Option "--harfbuzz" used in the task to install build dependency harfbuzz-dev
 [ -n "$harfbuzz" ] && BUILD_DEPENDS="$BUILD_DEPENDS harfbuzz-dev"
@@ -32,17 +36,4 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		freetype)
-			copy @std
-			DEPENDS="bzlib libharfbuzz libpng zlib"
-			;;
-		freetype-dev)
-			copy @dev
-			DEPENDS="freetype bzip2-dev harfbuzz-dev libpng-dev zlib-dev"
-			;;
-	esac
 }

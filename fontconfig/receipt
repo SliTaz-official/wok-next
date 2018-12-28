@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/fontconfig.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.freedesktop.org/software/fontconfig/release/$TARBALL"
+TARBALL_SHA1="75612356ef4f801735b49baf987f8942b4a7a5e1"
 
 BUILD_DEPENDS="gettext-dev libxml2-dev freetype-dev gperf"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="freetype libxml2"
+DEPENDS_dev="$PACKAGE freetype-dev libxml2-dev"
 
 compile_rules() {
 	rm -f src/fcobjshash.h
@@ -29,17 +33,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		fontconfig)
-			copy @std
-			DEPENDS="freetype libxml2"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="fontconfig freetype-dev libxml2-dev"
-			;;
-	esac
 }

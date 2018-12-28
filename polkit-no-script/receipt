@@ -1,0 +1,71 @@
+# SliTaz package receipt v2.
+
+PACKAGE="polkit-no-script"
+VERSION="0.113"
+COMMIT="bc8423c"
+CATEGORY="base-system"
+SHORT_DESC="Authorization manager - no-script fork"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL2"
+WEB_SITE="https://github.com/ikeydoherty/polkit-no-script"
+# See also https://dev.getsol.us/T4824
+
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/ikeydoherty/polkit-no-script/archive/$COMMIT.tar.gz"
+TARBALL_SHA1="07f3bc5c9126c60dec5d16600e05c7b908d5426f"
+
+BUILD_DEPENDS="automake libtool gtk-doc glib-dev gobject-introspection-dev \
+intltool gettext-dev expat-dev"
+SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev gettext/"
+
+DEPENDS_std="expat glib"
+DEPENDS_dev="$PACKAGE expat-dev glib-dev"
+
+compile_rules() {
+	if ! grep -q polkitd "/etc/passwd"; then
+		addgroup -g 27 polkitd
+		adduser -g "PolicyKit Daemon Owner" -h /etc/polkit-1 -u 27 \
+			-G polkitd -s /bin/false -D polkitd
+	fi
+
+	./autogen.sh \
+		--disable-static \
+		--enable-libsystemd-login=no \
+		--enable-libelogind=no \
+		--with-authfw=shadow \
+		--disable-test \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	# for access file in web interface, will be changed back in post-install to 700
+	chmod 755 "$install/etc/polkit-1/rules.d/" \
+	          "$install/usr/share/polkit-1/rules.d/"
+	chown 0:0 "$install/usr/share/polkit-1/rules.d/"
+
+	cp $stuff/*.keyrules $install/usr/share/polkit-1/rules.d/
+}
+
+post_install_polkit_no_script() {
+	if ! grep -q polkitd "$1/etc/group"; then
+		chroot "$1/" /usr/sbin/addgroup -g 27 polkitd
+		chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
+			-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
+	fi
+
+	mkdir -p "$1/var"
+
+	chmod 4755 "$1/usr/lib/polkit-1/polkit-agent-helper-1"
+	chmod 4755 "$1/usr/bin/pkexec"
+
+	chmod  700 "$1/etc/polkit-1/rules.d/" "$1/usr/share/polkit-1/rules.d/"
+	chown 27:0 "$1/etc/polkit-1/rules.d/" "$1/usr/share/polkit-1/rules.d/"
+}
+
+post_remove_polkit_no_script() {
+	chroot "$1/" deluser  polkitd
+	chroot "$1/" delgroup polkitd
+}

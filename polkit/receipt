@@ -11,11 +11,26 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/polkit.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.freedesktop.org/software/polkit/releases/$TARBALL"
+TARBALL_SHA1="ef855c2d04184dceb38e0940dc7bec9cc3da415c"
 
 JS='js185'
 BUILD_DEPENDS="glib-dev $JS-dev expat-dev intltool pam-dev \
 gobject-introspection-dev gtk-doc"
-SPLIT="$PACKAGE-dev  $PACKAGE-pam:pam $PACKAGE-pam-dev:pam"
+SPLIT="$PACKAGE-dev $PACKAGE-pam:pam $PACKAGE-pam-dev:pam"
+
+COPY_pam="@std"
+COPY_pam_dev="@dev"
+
+DEPENDS_std="expat glib $JS"
+DEPENDS_dev="$PACKAGE expat-dev glib-dev $JS-dev"
+DEPENDS_pam="expat glib $JS pam"
+DEPENDS_pam_dev="$PACKAGE expat-dev glib-dev $JS-dev pam-dev"
+
+CAT_pam="base-system|using PAM"
+CAT_pam_dev="development|development files, using PAM"
+
+PROVIDE_pam="$PACKAGE:pam"
+PROVIDE_pam_dev="$PACKAGE-dev:pam"
 
 compile_rules() {
 	if ! grep -q polkitd "/etc/passwd"; then
@@ -30,7 +45,9 @@ compile_rules() {
 	esac
 
 	./configure \
+		--disable-static \
 		--enable-libsystemd-login=no \
+		--enable-libelogind=no \
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
@@ -45,32 +62,6 @@ compile_rules() {
 	chmod 755 "$install/etc/polkit-1/rules.d/"
 
 	cp $stuff/*.rules $install/etc/polkit-1/rules.d/
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		polkit)
-			copy @std
-			DEPENDS="expat glib $JS"
-			;;
-		polkit-dev)
-			copy @dev
-			DEPENDS="polkit expat-dev glib-dev $JS-dev"
-			;;
-
-		polkit-pam)
-			copy @std
-			CAT="base-system|using PAM"
-			DEPENDS="expat glib $JS pam"
-			PROVIDE="polkit:pam"
-			;;
-		polkit-pam-dev)
-			copy @dev
-			CAT="development|development files, using PAM"
-			DEPENDS="polkit expat-dev glib-dev $JS-dev pam-dev"
-			PROVIDE="polkit-dev:pam"
-			;;
-	esac
 }
 
 post_install_polkit() {

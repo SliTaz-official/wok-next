@@ -1,0 +1,16 @@
+After the substitution made by autoconf in the libgphoto2_port.pc file
+variable `driverdir` defined as:
+driverdir=$(libdir)/$(PACKAGE_TARNAME)/$(VERSION)
+making this variable in the .pc file unusable.
+
+--- a/libgphoto2_port/configure.ac
++++ b/libgphoto2_port/configure.ac
+@@ -459,7 +459,7 @@
+     IOLIB_LTLIST="${IOLIB_LTLIST} ${x}.la"
+ done
+ AC_SUBST(IOLIB_LTLIST)
+-AC_SUBST([iolibdir],["\$(libdir)/\$(PACKAGE_TARNAME)/\$(VERSION)"])
++AC_SUBST([iolibdir],["\${libdir}/libgphoto2_port/\${VERSION}"])
+ AM_CPPFLAGS="$AM_CPPFLAGS -DIOLIBS=\\\"${iolibdir}\\\""
+ 
+ sorted_iolib_list="$(echo "${IOLIB_LIST}" | tr ' ' '\n' | sort | ${SED} '/^$/d' | tr '\n' ' ' | ${SED} 's/ $//')"

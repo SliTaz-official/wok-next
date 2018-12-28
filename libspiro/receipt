@@ -1,32 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libspiro"
-VERSION="0.3.20150131"
+VERSION="0.5.20150702"
 CATEGORY="misc"
 SHORT_DESC="Spiro simplifies the drawing of beautiful curves"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/fontforge/libspiro"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
+TARBALL="$PACKAGE-dist-$VERSION.tar.gz"
+WGET_URL="https://github.com/fontforge/libspiro/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="2520a0d4c43e9db3d2d137885a8a29633f4b2c5e"
 
-BUILD_DEPENDS="autoconf automake libtool bash"
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	autoreconf -i
-	automake --foreign -Wall
-
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libspiro) copy @std;;
-		*-dev)    copy @dev;;
-	esac
 }

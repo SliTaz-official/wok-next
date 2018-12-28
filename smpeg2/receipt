@@ -1,0 +1,36 @@
+# SliTaz package receipt v2.
+
+PACKAGE="smpeg2"
+VERSION="2.0.0"
+CATEGORY="multimedia"
+SHORT_DESC="SDL2 MPEG Player Library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="LGPL2"
+WEB_SITE="http://icculus.org/smpeg/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/Distrotech/smpeg/archive/release_${VERSION//./_}.tar.gz"
+TARBALL_SHA1="ac200a91292a2db2b784a6a544fca3f5717768ea"
+
+BUILD_DEPENDS="automake sdl2-dev"
+SPLIT="$PACKAGE-player $PACKAGE $PACKAGE-dev"
+
+COPY_player="plaympeg"
+
+CAT_player="multimedia|player"
+
+DEPENDS_player="$PACKAGE sdl2"
+DEPENDS_std="sdl2"
+
+compile_rules() {
+	CFLAGS="$CFLAGS -Wno-error=narrowing"
+	./autogen.sh &&
+
+	./configure \
+		--disable-static \
+		--disable-debug \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}

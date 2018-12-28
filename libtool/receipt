@@ -11,28 +11,24 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/libtool.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="3e7504b832eb2dd23170c91b6af72e15b56eb94e"
 
 BUILD_DEPENDS="automake autoconf gfortran"
 SPLIT="libltdl $PACKAGE"
+
+COPY_libltdl="*.so*"
+COPY_std="@std @dev @rm"
+
+DEPENDS_libltdl="glibc-base"
+DEPENDS_std="libltdl automake autoconf"
+
+CAT_libltdl="system-tools|library"
+
+TAGS_std="LFS"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libltdl)
-			copy *.so*
-			CAT="system-tools|library"
-			DEPENDS="glibc-base"
-			;;
-		libtool)
-			copy @std @dev @rm
-			DEPENDS="libltdl automake autoconf"
-			TAGS="LFS"
-			;;
-	esac
 }

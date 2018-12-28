@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="volume_key"
-VERSION="0.3.11"
+VERSION="0.3.12"
 CATEGORY="libs"
 SHORT_DESC="Manipulating storage volume encryption keys"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,13 +12,21 @@ REPOLOGY="volume-key"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://releases.pagure.org/volume_key/$TARBALL"
+TARBALL_SHA1="c983123b3b7f36819d26c7421a290657a02534b7"
 
 BUILD_DEPENDS="automake gettext-dev gpgme-dev libtool cryptsetup-dev nss-dev \
-python3-dev util-linux-blkid-dev glib-dev"
+python-dev python3-dev util-linux-blkid-dev glib-dev"
 SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
+COPY_python="python3.*/" # rm *.la
+
+DEPENDS_python="glib nss python3 volume_key"
+DEPENDS_std="cryptsetup glib gpgme nspr nss util-linux-blkid    libassuan \
+libdevmapper libgcrypt libgpg-error"
+
+CAT_python="libs|Python 3 bindings"
+
 compile_rules() {
-	sed -i '/config.h/d' lib/libvolume_key.h
 	autoreconf -fiv &&
 
 	./configure $CONFIGURE_ARGS &&
@@ -27,21 +35,3 @@ compile_rules() {
 	make install
 }
 
-genpkg_rules() {
-	case $PACKAGE in
-		*-python)
-			copy python3.*/
-			find $fs -name '*.la' -delete
-			CAT="libs|python 3 bindings"
-			DEPENDS="glib nss python3 volume_key"
-			;;
-		volume_key)
-			copy @std @rm
-			DEPENDS="cryptsetup glib gpgme nspr nss util-linux-blkid \
-			   libassuan libdevmapper libgcrypt libgpg-error"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
-}

@@ -10,10 +10,13 @@ WEB_SITE="https://icculus.org/SDL_sound/"
 
 TARBALL="SDL_sound-$VERSION.tar.gz"
 WGET_URL="https://icculus.org/SDL_sound/downloads/$TARBALL"
+TARBALL_SHA1="1984bc20b2c756dc71107a5a0a8cebfe07e58cb1"
 
-BUILD_DEPENDS="gfortran libsdl-dev libsmpeg-dev libmikmod-dev libmodplug-dev \
+BUILD_DEPENDS="gfortran sdl-dev smpeg-dev libmikmod-dev libmodplug-dev \
 libogg-dev libvorbis-dev flac-dev speex-dev physfs-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="flac libmikmod libmodplug libogg sdl libvorbis physfs speex"
 
 compile_rules() {
 	./configure \
@@ -22,17 +25,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		sdl-sound)
-			copy @std
-			DEPENDS="flac libmikmod libmodplug libogg libsdl libvorbis physfs \
-			speex"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

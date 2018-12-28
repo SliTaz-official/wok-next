@@ -1,32 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libuninameslist"
-VERSION="0.4.20140731"
+VERSION="20180701"
 CATEGORY="misc"
 SHORT_DESC="A Library of Unicode names and annotation data"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="other"
 WEB_SITE="https://github.com/fontforge/libuninameslist"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
+TARBALL="$PACKAGE-dist-$VERSION.tar.gz"
+WGET_URL="https://github.com/fontforge/libuninameslist/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="ca0cbdd4784ab27f82cb6241199f90e93ed3540c"
 
-BUILD_DEPENDS="autoconf automake libtool bash"
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	autoreconf -i
-	automake
-
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libuninameslist) copy @std;;
-		*-dev)           copy @dev;;
-	esac
 }

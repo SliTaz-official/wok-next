@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="udisks2"
-VERSION="2.7.7"
+VERSION="2.8.1"
 CATEGORY="system-tools"
 SHORT_DESC="D-Bus service to access and manipulate storage devices"
 MAINTAINER="devel@slitaz.org"
@@ -11,12 +11,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/udisks2.html"
 
 TARBALL="udisks-$VERSION.tar.bz2"
 WGET_URL="https://github.com/storaged-project/udisks/releases/download/udisks-$VERSION/$TARBALL"
+TARBALL_SHA1="e69fc1a417f4d5e116487ca735bbef89e96cc0f4"
 
 BUILD_DEPENDS="docbook-xsl gtk-doc gobject-introspection-dev libgudev-dev \
-libblockdev-dev polkit-dev libatasmart-dev acl-dev intltool"
+libblockdev-dev polkit-no-script-dev libatasmart-dev acl-dev intltool"
 SPLIT="$PACKAGE-dev"
 
-DEPENDS_std="acl glib libatasmart libblockdev libgudev polkit util-linux-mount"
+DEPENDS_std="acl glib libatasmart libblockdev libgudev polkit-no-script \
+util-linux-mount"
 DEPENDS_dev="$PACKAGE glib-dev"
 
 compile_rules() {
@@ -26,9 +28,9 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
+	sed -i -r 's|^ +||; s|\\m\[blue\]||; s|\\m\[\]||' doc/man/*.[158] &&
 	make install || return 1
 
 	# mount to "/media" instead of "/media/<user>"
-	mkdir -p $install/etc/udev/rules.d/
-	cp $stuff/99-udisks2.rules $install/etc/udev/rules.d/
+	install -Dm644 $stuff/99-udisks2.rules $install/etc/udev/rules.d/99-udisks2.rules
 }

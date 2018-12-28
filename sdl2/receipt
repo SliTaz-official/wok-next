@@ -1,0 +1,38 @@
+# SliTaz package receipt v2.
+
+PACKAGE="sdl2"
+VERSION="2.0.9"
+CATEGORY="x-window"
+SHORT_DESC="Cross-platform interactive media development library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="zlib/libpng"
+WEB_SITE="http://libsdl.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/sdl2.html"
+
+TARBALL="SDL2-$VERSION.tar.gz"
+WGET_URL="http://www.libsdl.org/release/$TARBALL"
+TARBALL_SHA1="4354c6baad9a48486182656a7506abfb63e9bff5"
+
+BUILD_DEPENDS="alsa-lib-dev pulseaudio-dev libxcursor-dev libxinerama-dev \
+libxscrnsaver-dev libxxf86vm-dev mesa-dev wayland-dev wayland-protocols-dev \
+libxkbcommon-dev eudev-dev dbus-dev ibus-dev tslib-dev" # + fcitx-dev -> broken
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="   tslib"
+DEPENDS_std="$PACKAGE tslib-dev"
+
+SUGGESTED_std="alsa-lib mesa dbus"
+
+compile_rules() {
+	./configure \
+		--disable-oss \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	rm $install/usr/lib/*.a # --disable-static doesn't work
+}
+
+PROVIDE_std="libsdl2"
+PROVIDE_dev="libsdl2-dev"
