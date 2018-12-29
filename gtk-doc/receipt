@@ -20,6 +20,12 @@ DEPENDS="docbook-xsl python3-six"
 COPY="@std @dev gtk-doc/"
 
 compile_rules() {
+	# Remove arch-specific prefix from pkg-config filename by defining
+	# PKG_CONFIG variable to make this package really "noarch".
+	# Files affected:
+	#  - /usr/bin/gtkdoc-depscan
+	#  - /usr/share/gtk-doc/python/gtkdoc/config.py
+	PKG_CONFIG=/usr/bin/pkg-config \
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
