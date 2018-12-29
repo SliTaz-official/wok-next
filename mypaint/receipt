@@ -16,7 +16,9 @@ python-dev scons2 swig gettext"
 
 compile_rules() {
 	scons &&
-	scons prefix=$install/usr install
+	scons prefix=$install/usr install || return 1
+
+	find $install -type f -name '*.so*' -exec chmod 755 '{}' \; # 644->755
 }
 
 genpkg_rules() {

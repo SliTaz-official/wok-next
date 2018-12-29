@@ -16,7 +16,9 @@ SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	make PREFIX=/usr &&
-	make PREFIX=/usr DESTDIR=$install install
+	make PREFIX=/usr DESTDIR=$install install || return 1
+
+	find $install -type f -name '*.so*' -exec chmod 755 '{}' \; # 644->755
 }
 
 genpkg_rules() {
