@@ -32,6 +32,9 @@ compile_rules() {
 	mv $install/usr/lib/libcap.so.* $install/lib
 	ln -sf ../../lib/$(readlink $install/usr/lib/libcap.so) \
 		$install/usr/lib/libcap.so
+
+	# fix pc on x86_64
+	sed -i 's|lib64|lib|' $install/usr/lib/pkgconfig/libcap.pc
 }
 
 genpkg_rules() {

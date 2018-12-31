@@ -11,12 +11,16 @@ WEB_SITE="http://mtop.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
+COOKOPTS="force-arch" # different bin/*
+
 BUILD_DEPENDS="perl-curses perl-dbd-mysql"
 
 compile_rules() {
 	perl Makefile.PL --prefix=/usr &&
 	make &&
-	make DESTDIR=$install install
+	make DESTDIR=$install install || return 1
+
+	chmod u+w $install/usr/bin/* # 555->755
 }
 
 genpkg_rules() {
