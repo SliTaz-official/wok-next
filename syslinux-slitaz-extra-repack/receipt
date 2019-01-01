@@ -1,26 +1,25 @@
 # SliTaz package receipt.
 
 PACKAGE="syslinux-slitaz-extra-repack"
-VERSION="4.06"
+# check the timestamps on the cooker page http://cook.slitaz.org/index.cgi?pkg=syslinux-extra
+VERSION="181231-1226" # YYmmdd-HHMM
 CATEGORY="base-system"
 SHORT_DESC="MBR/FAT/EXT3/PXE bootloader: SliTaz fork, repacked from SliTaz-5"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://hg.slitaz.org/wok/file/tip/syslinux"
+WEB_SITE="http://cook.slitaz.org/index.cgi?pkg=syslinux-extra"
+HOST_ARCH="i486"
 REPOLOGY="-"
 
-TARBALL="syslinux-slitaz-extra-4.06.cpio"
-WGET_URL="http://mirror1.slitaz.org/packages/5.0/syslinux-extra-4.06.tazpkg"
+TARBALL="syslinux-slitaz-extra-$VERSION.cpio" # allow changes for source tarball
+WGET_URL="http://cook.slitaz.org/index.cgi?download=syslinux-extra-4.06.tazpkg"  # this URL is always the same
+
+DEPENDS="syslinux-slitaz-repack posixovl"
+PROVIDE="syslinux-extra"
 
 compile_rules() {
-	cpio -dmF $src/$TARBALL -i
-	lzma d $src/fs.cpio.lzma -so | cpio -idm
+	cpio -dmF $TARBALL -i
+	lzma -d fs.cpio.lzma -c | cpio -idm
 	mkdir $install
-	cp -r $src/fs/* $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="syslinux-slitaz-repack posixovl"
-	PROVIDE="syslinux-extra"
+	cp -r fs/* $install
 }

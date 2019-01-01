@@ -1,40 +1,37 @@
 # SliTaz package receipt.
 
 PACKAGE="syslinux-slitaz-repack"
-VERSION="4.06"
+# check the timestamps on the cooker page http://cook.slitaz.org/index.cgi?pkg=syslinux
+VERSION="181231-1226" # YYmmdd-HHMM
 CATEGORY="base-system"
 SHORT_DESC="LiveCD ISO bootloader: SliTaz fork, repacked from SliTaz-5"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://hg.slitaz.org/wok/file/tip/syslinux"
+WEB_SITE="http://cook.slitaz.org/index.cgi?pkg=syslinux"
+HOST_ARCH="any"
 REPOLOGY="-"
 
-TARBALL="syslinux-slitaz-4.06.cpio"
-WGET_URL="http://mirror1.slitaz.org/packages/5.0/syslinux-4.06.tazpkg"
+TARBALL="syslinux-slitaz-$VERSION.cpio" # allow changes for source tarball
+WGET_URL="http://cook.slitaz.org/index.cgi?download=syslinux-4.06.tazpkg" # this URL is always the same
 
-COOKOPTS="force-arch" # different boot/
+CONFIG_FILES="/boot/isolinux/i18n.cfg /boot/isolinux/isolinux.cfg \
+/boot/isolinux/kbd"
+TAGS="boot"
+DEPENDS="ipxe memtest"
+PROVIDE="syslinux"
 
 compile_rules() {
-	cpio -dmF $src/$TARBALL -i
-	lzma d $src/fs.cpio.lzma -so | cpio -idm
+	cpio -dmF $TARBALL -i
+	lzma -d fs.cpio.lzma -c | cpio -idm
 	mkdir $install
-	cp -r $src/fs/* $install
+	cp -r fs/* $install
 	sed -i 's|5\.0-RC4|Next|; s|\.jpg|\.png|; s|autologin|font=ter-v14n &|' \
 		$install/boot/isolinux/isolinux.cfg
-}
-
-genpkg_rules() {
-	copy @std
-	CONFIG_FILES="/boot/isolinux/i18n.cfg /boot/isolinux/isolinux.cfg \
-	/boot/isolinux/kbd"
-	TAGS="boot"
-	DEPENDS="ipxe memtest"
-	PROVIDE="syslinux"
 }
 
 post_install() {
 	sed -i "/MENU TITLE SliTaz GNU\/Linux/ s| [0-9X]*$| $(date +%Y%m%d)|" \
 		"$1/boot/isolinux/isolinux.cfg"
-	sed '/MENU TITLE/!d;s/MENU TITLE //' > $1/etc/slitaz-version \
+	sed '/MENU TITLE/!d; s|MENU TITLE ||' > $1/etc/slitaz-version \
 		< "$1/boot/isolinux/isolinux.cfg"
 }

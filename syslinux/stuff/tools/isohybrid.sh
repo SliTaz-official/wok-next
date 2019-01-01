@@ -187,44 +187,48 @@ main()
 	store32 440 $id
 	store32 508 0xAA550000
 	e=$(( ((${entry:-1} -1) % 4) *16 +446))
-	store32 $e 0x10080
 	esect=$(( ($sectors + ((($cylinders -1) & 0x300) >>2)) <<16))
 	ecyl=$(( (($cylinders -1) & 0xff) <<24))
-	store32 $(($e + 4)) $(($partype + (($heads - 1) <<8) +$esect +$ecyl))
-	store32 $(($e + 8)) $offset
-	store32 $(($e + 12)) $(($cylinders * $heads * $sectors))
-	if [ -n "$efi_ofs" ]; then
+	epart=$(((($heads - 1) <<8) +$esect +$ecyl))
+	sectorcount=$(($cylinders * $heads * $sectors))
+	lastlba=$(($sectorcount -1))
+	if [ -z "$efi_ofs" ]; then
+		store32 $e 0x10080
+		store32 $(($e + 4)) $(($partype + $epart))
+		store32 $(($e + 8)) $offset
+		store32 $(($e + 12)) $sectorcount
+	else
 		[ $(read16 0 1024) -eq 35615 -a $(read16 11 0) -ne 35615 ] &&
 		ddq bs=512 conv=notrunc skip=2 seek=44 count=20 if=$iso of=$iso
-		store32 $((446+16)) $((0xFFFFFE00))
-		store32 $((446+16+4)) $((0xFFFFFEEF))
-		store32 $((446+16+8)) $efi_ofs
-		store32 $((446+16+12)) $efi_len
+		store32 $((446)) $((0x10000))
+		store32 $((446+4)) $((0xFFFFFEEE))
+		store32 $((446+8)) 1
+		store32 $((446+12)) $lastlba
 		uudecode <<EOT | unlzma | ddq bs=512 seek=1 of=$iso conv=notrunc
 begin-base64 644 -
-XQAAgAD//////////wAikYVN1N2VY3JXMnUMJn1RCdQOHN33EegtIBhrUQ7Q
-JNaW37NYVuUAmqtISPiCdgAxPRlBS0xDlmAPPOCSZXmEFz9jEkXSzmsGn6+o
-7SMAKMfvpMa3U1bJv/napT+/NFttJSJSx0xJA3em3KJcZsO66vaYeJC5tE+3
-T0p9AJtSH6X8SMic3vU3hYWwHsYnsmeoGmsy4EJba9Wf/0liMQA=
+XQAAgAD//////////wAikYVN1N2VY3JXMnUMJn1TblyFehfeJH+D4/XPYFjO
+OzQluqM2w0L9b1dJMfZHJbnNnBFhYprW0PWPY1UOgQJkhF/W2Z0lXvaSrZ7t
+yEtpmE3Go6qt6FetOfWNMJZhtBdE0TjxFZCvh5z8hy/kRQb1XOkLxeb5VHT3
+H4JI5S76wY0TueXYsBOJwlwW9fZ8IXP72cDO3JArS4ZhUGxbOOF2oDuf/hFM
+zQ==
 ====
 EOT
-		lastlba=$((($cylinders * $heads * $sectors) -1))
+		lastlba=$(($sectorcount -1))
 		usablelba=34
 		store32 $((0x218)) 1
 		store32 $((0x220)) $lastlba
 		store32 $((0x228)) $usablelba
 		store32 $((0x230)) $(($lastlba-$usablelba+1))
-		store32 $((0x428)) $(($lastlba-0x800))
-		store32 $((0x4A0)) $efi_ofs
-		store32 $((0x4A8)) $(($efi_ofs+$efi_len-1))
-		store32 $((0x258)) $(crc32 0x400 0x4000)
-		store32 $((0x210)) $(crc32 0x200 $(read32 0 $((0x20C))))
+		store32 $((0x420)) $efi_ofs
+		store32 $((0x428)) $(($efi_ofs+$efi_len-1))
 		store32sw $((0x1008)) $(($efi_ofs/4))
 		store32sw $((0x1054)) $(($efi_len/4))
 		for i in 238 410 490 ; do
 			ddq if=/dev/urandom count=16 bs=1 conv=notrunc \
 			    of=$iso seek=$((0x$i))
 		done
+		store32 $((0x258)) $(crc32 0x400 $((128*$(read32 0 $((0x250))))))
+		store32 $((0x210)) $(crc32 0x200 $(read32 0 $((0x20C))))
 	fi
 }
 
@@ -241,10 +245,12 @@ cat=$(read32 17 71)
 	abort "invalid boot catalog."
 efi_ofs=
 if [ $(read8 $cat 65) -eq 239 ]; then
-	[ -n "$entry" ] && echo "$iso: efi boot ignore --entry $entry" && entry=
+	[ ${entry:-1} != 1 ] && echo "$iso: efi boot ignore --entry $entry"
+	entry=1
 	partype=0
-	efi_len=$(read16 $cat 102)
 	efi_ofs=$((4*$(read32 $cat 104)))
+	efi_len=$(($(read16 $(($efi_ofs/4)) 19)))
+	[ $efi_len -eq 0 ] && efi_len=$(($(read32 $(($efi_ofs/4)) 32)))
 fi
 lba=$(read32 $cat 40)
 [ $(read32 $lba 64) -eq 1886961915 ] ||
