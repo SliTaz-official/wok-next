@@ -1,46 +1,37 @@
 # SliTaz package receipt v2.
 
 PACKAGE="git"
-VERSION="2.17.1"
+VERSION="2.20.1"
 CATEGORY="development"
 SHORT_DESC="Fast version control system"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://git-scm.com/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/git.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/software/scm/git/$TARBALL"
+TARBALL_SHA1="58dca49db21f4bebf56f8861f15800f1c57c5ee3"
 
-BUILD_DEPENDS="zlib-dev openssl-dev curl-dev expat-dev perl python-dev \
-tar bzip2 gettext"
+BUILD_DEPENDS="zlib-dev openssl-dev curl-dev expat-dev perl python-dev tar \
+bzip2 gettext"
+DEPENDS="zlib openssl curl expat"
+
+CONFIG_FILES="/etc/gitconfig /etc/daemons.conf.d/git-daemon.conf"
 
 compile_rules() {
 	./configure \
 		--prefix=/usr \
 		--with-gitconfig=/etc/gitconfig \
-		--libexecdir=/usr/lib \
 		--without-tcltk \
 		$CONFIGURE_ARGS &&
 	make THREADED_DELTA_SEARCH=1 &&
-	make THREADED_DELTA_SEARCH=1 DESTDIR=$install install || return 1
+	make \
+		THREADED_DELTA_SEARCH=1 \
+		INSTALL_SYMLINKS=1 \
+		DESTDIR=$install install || return 1
 
-	install -Dm755 $stuff/git-daemon $install/etc/init.d/git-daemon
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="zlib openssl curl expat"
-}
-
-# edit daemons.conf.
-post_install() {
-	if ! grep -q 'GIT_OPTIONS' "$1/etc/daemons.conf"; then
-		mkdir -p "$1/var/www/git"
-		cat >> "$1/etc/daemons.conf" <<EOT
-# Git daemon options.
-GIT_REPO="/var/www/git/"
-GIT_OPTIONS="--detach --syslog --verbose --base-path=$GIT_REPO $GIT_REPO"
-
-EOT
-	fi
+	install -Dm755 $stuff/git-daemon      $install/etc/init.d/git-daemon
+	install -Dm644 $stuff/git-daemon.conf $install/etc/daemons.conf.d/git-daemon.conf
+	mkdir -p $install/var/www/git/
 }
