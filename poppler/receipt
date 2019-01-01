@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="poppler"
-VERSION="0.68.0"
+VERSION="0.72.0"
 CATEGORY="office"
 SHORT_DESC="PDF rendering library"
 MAINTAINER="devel@slitaz.org"
@@ -11,15 +11,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/poppler.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://poppler.freedesktop.org/$TARBALL"
+TARBALL_SHA1="34d3035eef26bf54cf847925a5b69bd0bf75c672"
 
 BUILD_DEPENDS="cmake freetype-dev fontconfig-dev libjpeg-turbo-dev zlib-dev \
 libpng-dev tiff-dev nss-dev cairo-dev gobject-introspection-dev gtk3-dev \
 gdk-pixbuf-dev openjpeg2-dev lcms2-dev curl-dev poppler-data"
-SPLIT="$PACKAGE-apps $PACKAGE-dev"
+SPLIT="lib$PACKAGE $PACKAGE $PACKAGE-dev"
+
+DEPENDS_libpoppler="cairo fontconfig freetype glib lcms2 libcurl libjpeg-turbo \
+libpng nspr nss openjpeg2 libtiff zlib"
+DEPENDS_std="lib$PACKAGE cairo freetype lcms2"
+DEPENDS_dev="$PACKAGE lib$PACKAGE cairo-dev glib-dev"
 
 compile_rules() {
-	fix math
-
 	mkdir build
 	cd    build
 
@@ -33,23 +37,4 @@ compile_rules() {
 	make install || return 1
 
 	cook_pick_docs ../glib/reference/html
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		poppler)
-			copy *.so*
-			DEPENDS="cairo fontconfig freetype glib lcms2 libcurl \
-			libjpeg-turbo libpng nspr nss openjpeg2 libtiff zlib"
-			;;
-		*-apps)
-			copy bin/
-			CAT="office|utilities to manipulate PDF file"
-			DEPENDS="cairo freetype lcms2 poppler"
-			;;
-		*-dev)
-			copy @dev @rm
-			DEPENDS="poppler poppler-apps cairo-dev glib-dev"
-			;;
-	esac
 }
