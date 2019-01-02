@@ -15,24 +15,15 @@ BUILD_DEPENDS="gtk2-dev glu glu-dev mesa-dev \
 util-linux-uuid-dev autoconf pangox-compat-dev expat-dev libxshmfence-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="gtk2 mesa glu pangox-compat"
+DEPENDS_dev="$PACKAGE pangox-compat-dev"
+
+SUGGESTED_std="nvidia"
+
 compile_rules() {
 	autoconf --force
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gtkglext)
-			copy @std
-			DEPENDS="gtk2 mesa glu pangox-compat"
-			SUGGESTED="nvidia"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gtkglext pangox-compat-dev"
-			;;
-	esac
 }
