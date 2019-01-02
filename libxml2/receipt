@@ -13,17 +13,19 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://xmlsoft.org/sources/$TARBALL"
 TARBALL_SHA1="66bcefd98a6b7573427cf66f9d3841b59eb5b8c3"
 
-BUILD_DEPENDS="zlib-dev xz-dev python3-dev ncurses-dev readline-dev"
-SPLIT="$PACKAGE-tools $PACKAGE-python $PACKAGE-dev"
+BUILD_DEPENDS="zlib-dev xz-dev python3-dev python-dev ncurses-dev readline-dev"
+SPLIT="$PACKAGE-tools $PACKAGE-python $PACKAGE-python3 $PACKAGE-dev"
 
 COPY_std="libxml2.so*"
 COPY_tools="xmllint xmlcatalog"
-COPY_python="site-packages/*.py libxml2mod.so"
+COPY_python="python2.*/site-packages/*.py python2.*/site-packages/*.so"
+COPY_python3="python3.*/site-packages/*.py python3.*/site-packages/*.so"
 COPY_dev="@dev *.sh"
 
 DEPENDS_std="liblzma zlib"
 DEPENDS_tools="$PACKAGE readline"
-DEPENDS_python="$PACKAGE python3" # libxslt
+DEPENDS_python="$PACKAGE python" # libxslt
+DEPENDS_python3="$PACKAGE python3" # libxslt
 DEPENDS_dev="xz-dev zlib-dev   $PACKAGE-tools"
 
 CAT_tools="system-tools|utilities"
@@ -36,6 +38,15 @@ compile_rules() {
 		--disable-static \
 		--with-history \
 		--with-python=/usr/bin/python3 \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install || return 1
+
+	./configure \
+		--disable-static \
+		--with-history \
+		--with-python=/usr/bin/python2 \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
