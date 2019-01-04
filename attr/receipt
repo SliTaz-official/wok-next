@@ -11,9 +11,12 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/attr.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/attr/$TARBALL"
+TARBALL_SHA1="d7c88cb5db51c5e255a511b0a15e832fcdda5b4f"
 
 BUILD_DEPENDS="autoconf automake m4 libtool gettext-dev coreutils-operations"
 SPLIT="$PACKAGE-dev"
+
+TAGS_std="LFS"
 
 compile_rules() {
 	rm /bin/rpm >/dev/null
@@ -30,14 +33,4 @@ compile_rules() {
 	mv $install/usr/lib/libattr.so.* $install/lib
 	ln -sf ../../lib/$(readlink $install/usr/lib/libattr.so) \
 		$install/usr/lib/libattr.so
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		attr)
-			copy @std
-			TAGS="LFS"
-			;;
-		*-dev) copy @dev;;
-	esac
 }

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bash"
-VERSION="4.4.p23"
+VERSION="4.4.p23" # update stuff/patches/series too
 BASEVERSION="${VERSION%.*}"
 CATEGORY="shells"
 SHORT_DESC="The GNU bourne shell"
@@ -12,6 +12,7 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/bash.html"
 
 TARBALL="$PACKAGE-$BASEVERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="8de012df1e4f3e91f571c3eb8ec45b43d7c747eb"
 
 BASHCHECKURL="https://raw.githubusercontent.com/hannob/bashcheck/master/bashcheck"
 BASHCHECK="$(basename $BASHCHECKURL)"
@@ -21,45 +22,35 @@ EXTRA_SOURCE_FILES="$BASHCHECK $BASHPATCHES"
 BUILD_DEPENDS="ncurses-dev readline-dev texinfo gettext-dev patch"
 SPLIT="$PACKAGE-dev"
 
-COOKOPTS="force-arch" # different config.h, .inc, .pc
+DEPENDS_std="ncurses readline"
+TAGS_std="LFS shell"
 
-patch_bash() {
-	for i in $BASHPATCHES; do
-		[ -s "$SRC/$i" ] ||
-			wget -O "$SRC/$i" \
-			http://ftp.gnu.org/gnu/bash/bash-$BASEVERSION-patches/$i
-		echo "Apply $i patch..."
-		patch -p0 -i $SRC/$i | awk '{print "  * " $0;}'
-	done
-}
+COOKOPTS="force-arch" # different config.h, .inc, .pc
 
 cook_tmp_toolchain() {
 	cd $src
-	patch_bash
+	patchit
 	./configure --without-bash-malloc &&
 	make &&
 	make install
 }
 
 compile_rules() {
-	# Patch and then build.
-	patch_bash
-
 	# Skip tests that can not run while cross-compiling.
-	cat > config.cache <<EOF
-ac_cv_func_mmap_fixed_mapped=yes
-ac_cv_func_strcoll_works=yes
-ac_cv_func_working_mktime=yes
-bash_cv_func_sigsetjmp=present
-bash_cv_getcwd_malloc=yes
-bash_cv_job_control_missing=present
-bash_cv_printf_a_format=yes
-bash_cv_sys_named_pipes=present
-bash_cv_ulimit_maxfds=yes
-bash_cv_under_sys_siglist=yes
-bash_cv_unusable_rtsigs=no
-gt_cv_int_divbyzero_sigfpe=yes
-EOF
+	cat > config.cache <<-EOF
+		ac_cv_func_mmap_fixed_mapped=yes
+		ac_cv_func_strcoll_works=yes
+		ac_cv_func_working_mktime=yes
+		bash_cv_func_sigsetjmp=present
+		bash_cv_getcwd_malloc=yes
+		bash_cv_job_control_missing=present
+		bash_cv_printf_a_format=yes
+		bash_cv_sys_named_pipes=present
+		bash_cv_ulimit_maxfds=yes
+		bash_cv_under_sys_siglist=yes
+		bash_cv_unusable_rtsigs=no
+		gt_cv_int_divbyzero_sigfpe=yes
+	EOF
 
 	./configure \
 		--cache-file=config.cache \
@@ -90,18 +81,6 @@ EOF
 	grep Vulnerable bashcheck.log && echo "ERROR: Vulnerable"
 	:
 }
-
-genpkg_rules() {
-	case $PACKAGE in
-		bash)
-			copy @std
-			DEPENDS="ncurses readline"
-			TAGS="LFS shell"
-			;;
-		*-dev) copy @dev;;
-	esac
-}
-
 
 post_install_bash() {
 	mkdir -p "$1/etc/skel"; cp -a "$1/etc/bashrc" "$1/etc/skel/.bashrc"

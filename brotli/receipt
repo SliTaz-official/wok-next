@@ -10,32 +10,45 @@ WEB_SITE="https://github.com/google/brotli"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/google/brotli/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="ee64a380152aa20fbc1098fe3799104884c570c1"
 
-BUILD_DEPENDS="cmake"
-SPLIT="$PACKAGE-dev"
+BUILD_DEPENDS="cmake python-dev python3-dev"
+SPLIT="lib$PACKAGE $PACKAGE $PACKAGE-dev \
+python-$PACKAGE:py2 python3-$PACKAGE:py3"
+# brotli binary doesn't depends on its libs, so pack them separately
+
+COPY_python_brotli="@std"
+COPY_python3_brotli="@std"
+
+CAT_python_brotli="python|use in Python2"
+CAT_python3_brotli="python|use in Python3"
+
+DEPENDS_std=" "
+DEPENDS_libbrotli=" "
+DEPENDS_dev="brotli libbrotli"
+DEPENDS_python_brotli="python"
+DEPENDS_python3_brotli="python3"
+
+TAGS_std="compression"
 
 compile_rules() {
-	mkdir build
-	cd    build
-	cmake \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		.. &&
-	make &&
-	make install || return 1
+	case $SET in
+		'')
+			mkdir build
+			cd    build
+			cmake \
+				-DCMAKE_BUILD_TYPE=Release \
+				-DCMAKE_INSTALL_PREFIX=/usr \
+				.. &&
+			make &&
+			make install || return 1
 
-	cook_pick_docs $src/docs/*.pdf
-	cook_pick_manpages $src/docs/*.1 $src/docs/*.3
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		brotli)
-			copy @std
-			TAGS="compression"
+			cook_pick_docs $src/docs/*.pdf
+			cook_pick_manpages $src/docs/*.1 $src/docs/*.3
 			;;
-		*-dev)
-			copy @dev
-			;;
+		py2)
+			python  -B setup.py install --root="$install";;
+		py3)
+			python3 -B setup.py install --root="$install";;
 	esac
 }

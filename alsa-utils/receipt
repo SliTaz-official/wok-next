@@ -11,9 +11,22 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/alsa-utils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.alsa-project.org/pub/utils/$TARBALL"
+TARBALL_SHA1="5c9d6bee351c06baa645d89153d492199a60e66b"
 
 BUILD_DEPENDS="alsa-lib-dev ncurses-dev gettext-dev eudev-dev"
 SPLIT="$PACKAGE-test alsa-info $PACKAGE"
+
+COPY_test="speaker-test speaker-test/ *.wav"
+COPY_alsa_info="alsa-info.sh"
+
+CAT_test="multimedia|speaker test"
+CAT_alsa_info="multimedia|gather ALSA subsystem information"
+
+DEPENDS_test="alsa-lib"
+DEPENDS_alsa_info="$PACKAGE bash dialog ncurses-extra pciutils wget"
+DEPENDS_std="alsa-lib ncurses ncurses-libform ncurses-libmenu ncurses-libpanel"
+
+CONFIG_FILES_std="/var/lib/alsa/asound.state"
 
 compile_rules() {
 	./configure \
@@ -36,25 +49,4 @@ compile_rules() {
 
 	# For conf we need /var/tmp
 	install -dm1777 $install/var/tmp
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		alsa-utils-test)
-			copy speaker-test speaker-test/ *.wav
-			CAT="multimedia|speaker test"
-			DEPENDS="alsa-lib"
-			;;
-		alsa-info)
-			copy alsa-info.sh
-			CAT="multimedia|gather ALSA subsystem information"
-			DEPENDS="alsa-utils bash dialog ncurses-extra pciutils wget"
-			;;
-		alsa-utils)
-			copy @std @rm
-			DEPENDS="alsa-lib ncurses ncurses-libform ncurses-libmenu \
-			ncurses-libpanel"
-			CONFIG_FILES="/var/lib/alsa/asound.state"
-			;;
-	esac
 }

@@ -11,10 +11,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/at-spi2-atk.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="67e7f2f807a93f2d6e7bc89f0d8937568b41e963"
 
 BUILD_DEPENDS="meson ninja dbus-dev glib-dev atk-dev at-spi2-core-dev \
 libxml2-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="at-spi2-core atk dbus glib"
+DEPENDS_dev="$PACKAGE at-spi2-core-dev glib-dev"
 
 compile_rules() {
 	mkdir build
@@ -23,17 +27,4 @@ compile_rules() {
 	meson-wrapper &&
 	ninja &&
 	ninja install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		at-spi2-atk)
-			copy @std
-			DEPENDS="at-spi2-core atk dbus glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="at-spi2-atk at-spi2-core-dev glib-dev"
-			;;
-	esac
 }

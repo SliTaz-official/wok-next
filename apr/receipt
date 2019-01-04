@@ -11,11 +11,18 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/apr.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://archive.apache.org/dist/apr/$TARBALL"
+TARBALL_SHA1="6fdedcd21de9da806d0a01769b8be7ba0c495145"
 
 BUILD_DEPENDS="util-linux-uuid-dev"
 SPLIT="$PACKAGE-dev"
 
 COOKOPTS="skip-log-errors force-arch" # different apr-1-config, .h, .pc, .mk, libtool
+
+COPY_std="*.so*"
+COPY_dev="@dev build/ *.exp"
+
+DEPENDS_std="util-linux-uuid"
+DEPENDS_dev="$PACKAGE util-linux-uuid-dev"
 
 compile_rules() {
 	# should define prefix
@@ -29,17 +36,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		apr)
-			copy *.so*
-			DEPENDS="util-linux-uuid"
-			;;
-		apr-dev)
-			copy @dev build/ *.exp
-			DEPENDS="apr util-linux-uuid-dev"
-			;;
-	esac
 }

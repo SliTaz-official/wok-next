@@ -11,11 +11,42 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/apr-util.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://archive.apache.org/dist/apr/$TARBALL"
+TARBALL_SHA1="4cc73bc36ca697419f555476f2fc1c63df6069f4"
 
 BUILD_DEPENDS="apr-dev openssl-dev gdbm-dev postgresql-dev sqlite3-dev \
 unixODBC-dev expat-dev mysql-dev openldap-dev"
 SPLIT="apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite apr-crypto \
 apr-dbm-gdbm apr-ldap $PACKAGE-dev"
+
+COPY_std="libaprutil-1.so* aprutil.exp"
+COPY_apr_dbd_mysql="*mysql*.so"
+COPY_apr_dbd_odbc="*odbc*.so"
+COPY_apr_dbd_pgsql="*pgsql*.so"
+COPY_apr_dbd_sqlite="*sqlite*.so"
+COPY_apr_crypto="*crypto*.so"
+COPY_apr_dbm_gdbm="*dbm*.so"
+COPY_apr_ldap="apr_ldap*.so"
+
+CAT_apr_dbd_mysql="libdevel|MySQL DBD driver"
+CAT_apr_dbd_odbc="libdevel|ODBC DBD driver"
+CAT_apr_dbd_pgsql="libdevel|PostgreSQL DBD driver"
+CAT_apr_dbd_sqlite="libdevel|SQLite DBD driver"
+CAT_apr_crypto="libdevel|OpenSSL crypto plugin"
+CAT_apr_dbm_gdbm="libdevel|GDBM plugin"
+CAT_apr_ldap="libdevel|LDAP plugin"
+
+DEPENDS_std="apr expat"
+DEPENDS_apr_dbd_mysql="libmysqlclient   $PACKAGE"
+DEPENDS_apr_dbd_odbc="libunixODBC   $PACKAGE"
+DEPENDS_apr_dbd_pgsql="libpostgresqlclient   $PACKAGE"
+DEPENDS_apr_dbd_sqlite="libsqlite3   $PACKAGE"
+DEPENDS_apr_crypto="openssl   $PACKAGE"
+DEPENDS_apr_dbm_gdbm="gdbm   $PACKAGE"
+DEPENDS_apr_ldap="libldap   $PACKAGE"
+DEPENDS_dev="$PACKAGE apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql apr-dbd-sqlite \
+apr-crypto apr-dbm-gdbm apr-ldap apr-dev expat-dev gdbm-dev mysql-dev \
+openldap-dev openssl-dev postgresql-dev sqlite3-dev unixODBC-dev \
+util-linux-uuid-dev zlib-dev"
 
 compile_rules() {
 	./configure \
@@ -29,56 +60,4 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		apr-util)
-			copy libaprutil-1.so* aprutil.exp
-			DEPENDS="apr expat"
-			;;
-		apr-dbd-mysql)
-			copy *mysql*.so
-			DEPENDS="libmysqlclient   apr-util"
-			CAT="libdevel|MySQL DBD driver"
-			;;
-		apr-dbd-odbc)
-			copy *odbc*.so
-			DEPENDS="libunixODBC   apr-util"
-			CAT="libdevel|ODBC DBD driver"
-			;;
-		apr-dbd-pgsql)
-			copy *pgsql*.so
-			DEPENDS="libpostgresqlclient   apr-util"
-			CAT="libdevel|PostgreSQL DBD driver"
-			;;
-		apr-dbd-sqlite)
-			copy *sqlite*.so
-			DEPENDS="libsqlite3   apr-util"
-			CAT="libdevel|SQLite DBD driver"
-			;;
-		apr-crypto)
-			copy *crypto*.so
-			DEPENDS="openssl   apr-util"
-			CAT="libdevel|OpenSSL crypto plugin"
-			;;
-		apr-dbm-gdbm)
-			copy *dbm*.so
-			DEPENDS="gdbm   apr-util"
-			CAT="libdevel|GDBM plugin"
-			;;
-		apr-ldap)
-			copy apr_ldap*.so
-			DEPENDS="libldap   apr-util"
-			CAT="libdevel|LDAP plugin"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="apr-util apr-dbd-mysql apr-dbd-odbc apr-dbd-pgsql \
-			apr-dbd-sqlite apr-crypto apr-dbm-gdbm apr-ldap \
-			apr-dev expat-dev gdbm-dev mysql-dev openldap-dev openssl-dev \
-			postgresql-dev sqlite3-dev unixODBC-dev util-linux-uuid-dev \
-			zlib-dev"
-			;;
-	esac
 }

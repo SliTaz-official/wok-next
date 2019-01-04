@@ -10,21 +10,19 @@ WEB_SITE="http://littlesvr.ca/asunder/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/releases/$TARBALL"
+TARBALL_SHA1="87d01217517265a8bcd8113c99e7a080eb328a79"
 
-BUILD_DEPENDS="gtk2-dev alsa-lib-dev libcddb-dev cdparanoia-dev \
-libxdamage-dev intltool"
+BUILD_DEPENDS="gtk2-dev alsa-lib-dev libcddb-dev cdparanoia-dev libxdamage-dev \
+intltool"
+DEPENDS="atk gdk-pixbuf glib gtk2 libcddb   cdparanoia"
+
+SUGGESTED="lame flac"
+TAGS="audio rip"
 
 compile_rules() {
 	./configure \
 		--prefix=/usr \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="atk gdk-pixbuf glib gtk2 libcddb   cdparanoia"
-	SUGGESTED="lame flac"
-	TAGS="audio rip"
+	make install
 }

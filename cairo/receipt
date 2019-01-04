@@ -11,26 +11,23 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/cairo.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
+TARBALL_SHA1="00e81842ae5e81bb0343108884eb5205be0eac14"
 
-BUILD_DEPENDS="zlib-dev libx11-dev libxext-dev libice-dev \
-libxrender-dev libxcb-dev libpng-dev freetype-dev fontconfig-dev \
-libspectre-dev poppler-dev librsvg-dev gtk2-dev pixman-dev"
-SPLIT="$PACKAGE-tools $PACKAGE-dev"
+BUILD_DEPENDS="zlib-dev libx11-dev libxext-dev libice-dev libxrender-dev \
+libxcb-dev libpng-dev freetype-dev fontconfig-dev libspectre-dev poppler-dev \
+librsvg-dev gtk2-dev pixman-dev"
+SPLIT="lib$PACKAGE $PACKAGE $PACKAGE-dev"
+
+COPY_libcairo="libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*"
+
+CAT_std="development|development tools"
 
 COOKOPTS="skip-log-errors"
 
-COPY_std="libcairo.so* libcairo-gobject.so* libcairo-script-interpreter.so*"
-COPY_tools="bin/ cairo-fdr.so* cairo-sphinx.so* libcairo-trace.so*"
-
-CAT_tools="development|development tools"
-
-DEPENDS_std="fontconfig freetype glib libpng libx11 libxcb \
-pixman zlib"
-DEPENDS_tools="cairo glib libx11 libxrender libxcb pixman \
-zlib"
-DEPENDS_dev="cairo cairo-tools \
-fontconfig-dev freetype-dev glib-dev libpng-dev libx11-dev \
-libxext-dev libxrender-dev libxcb-dev pixman-dev zlib-dev"
+DEPENDS_libcairo="fontconfig freetype glib libpng libx11 libxcb pixman zlib"
+DEPENDS_std="lib$PACKAGE glib libbfd libx11 libxcb libxrender pixman zlib"
+DEPENDS_dev="lib$PACKAGE $PACKAGE fontconfig-dev freetype-dev glib-dev \
+libpng-dev libx11-dev libxcb-dev libxext-dev libxrender-dev pixman-dev zlib-dev"
 
 compile_rules() {
 	./configure \

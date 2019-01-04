@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mc"
-VERSION="4.8.21"
+VERSION="4.8.22"
 CATEGORY="system-tools"
 SHORT_DESC="Midnight Commander - ncurses based file manager"
 MAINTAINER="devel@slitaz.org"
@@ -11,11 +11,22 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/mc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://ftp.midnight-commander.org/$TARBALL"
+TARBALL_SHA1="5a207973a69269e6bdc9a7e4e989a8acfb4a46af"
 
 BUILD_DEPENDS="check-dev glib-dev gettext-dev gpm-dev libssh2-dev"
 SPLIT="$PACKAGE-noarch"
 
 COOKOPTS="!menus"
+
+COPY_std="mc mcdiff mcedit mcview cons.saver"
+COPY_noarch="@std @rm"
+
+DEPENDS_std="$PACKAGE-noarch glib libssh2 ncurses"
+
+CAT_noarch="system-tools|common files"
+
+SUGGESTED_std="perl python openssl gpm xz cdrkit-isoinfo lynx w3m wv poppler file"
+TAGS_std="file-manager text-editor"
 
 compile_rules() {
 	./configure \
@@ -33,20 +44,4 @@ compile_rules() {
 	install -Dm644 $stuff/mc.desktop      $install/usr/share/applications/mc.desktop
 	install -Dm644 $stuff/mc-root.desktop $install/usr/share/applications/mc-root.desktop
 	install -Dm755 $stuff/mc.sh           $install/usr/bin/mc.sh
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		mc)
-			copy mc mcdiff mcedit mcview cons.saver
-			DEPENDS="glib libssh2 ncurses"
-			SUGGESTED="perl python openssl gpm xz cdrkit-isoinfo lynx w3m wv \
-			poppler file"
-			TAGS="file-manager text-editor"
-			;;
-		mc-noarch)
-			copy @std @rm
-			CAT="system-tools|common files"
-			;;
-	esac
 }
