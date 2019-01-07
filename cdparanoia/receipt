@@ -10,6 +10,7 @@ WEB_SITE="https://www.xiph.org/paranoia/"
 
 TARBALL="$PACKAGE-III-$VERSION.src.tgz"
 WGET_URL="http://downloads.xiph.org/releases/$PACKAGE/$TARBALL"
+TARBALL_SHA1="1901e20d3a370ca6afa4c76a9ef30d3f03044320"
 
 SPLIT="$PACKAGE-dev"
 
@@ -21,5 +22,7 @@ compile_rules() {
 
 	./configure $CONFIGURE_ARGS &&
 	make -j1 &&
-	make install
+	make install || return 1
+
+	find $install -type f \( -name '*.so*' -o -name '*.a' \) -exec chmod a+x '{}' \; # 644->755
 }

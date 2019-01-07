@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/cairomm.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://cairographics.org/releases/$TARBALL"
+TARBALL_SHA1="621546f32221a2ddc079167a13ce5b5409bed704"
 
 BUILD_DEPENDS="cairo-dev libsigc++-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libcairo libsigc++"
+DEPENDS_dev="$PACKAGE cairo-dev libsigc++-dev"
 
 compile_rules() {
 	sed -i "/^libdocdir =/ s|\$(book_name)|cairomm-$VERSION|" docs/Makefile.in
@@ -22,17 +26,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		cairomm)
-			copy @std
-			DEPENDS="libcairo libsigc++"
-			;;
-		cairomm-dev)
-			copy @dev
-			DEPENDS="cairomm cairo-dev libsigc++-dev"
-			;;
-	esac
 }

@@ -11,10 +11,14 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter05/check.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/libcheck/check/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="f6d95392b8c6b9efdab559e6dba239b30a389b56"
 
 SPLIT="$PACKAGE-dev"
 
 COOKOPTS="force-arch" # different .h
+
+COPY_std="*.so*"
+COPY_dev="@dev checkmk"
 
 compile_rules() {
 	./configure \
@@ -23,16 +27,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		check)
-			copy *.so*
-			;;
-		*-dev)
-			copy @dev checkmk
-			rm -r $fs/usr/share/doc
-			;;
-	esac
 }

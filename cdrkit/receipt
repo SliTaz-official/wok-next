@@ -3,65 +3,50 @@
 PACKAGE="cdrkit"
 VERSION="1.1.11"
 CATEGORY="utilities"
-SHORT_DESC="Wodim for recording/blanking CDs/DVDs and genisoimage for ISO"
+SHORT_DESC="A collection of CD/DVD utilities"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.cdrkit.org/"
+WEB_SITE="http://www.cdrkit.org/" # website is empty
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://cdrkit.org/releases/$TARBALL"
+#WGET_URL="http://cdrkit.org/releases/$TARBALL" # website is empty
+WGET_URL="https://dev.alpinelinux.org/archive/cdrkit/$TARBALL"
+TARBALL_SHA1="3f7ddc06db0272942e1a4cd98c3c96462df77387"
+
 EXTRA_SOURCE_FILES="cdrkit-1.1.9-efi-boot.patch"
 
-BUILD_DEPENDS="cmake libcap-dev zlib-dev bzip2-dev attr-dev"
+BUILD_DEPENDS="cmake libcap-dev zlib-dev bzip2-dev attr-dev libzstd"
 SPLIT="$PACKAGE-audio $PACKAGE-isoinfo readom"
 
+COPY_std="genisoimage wodim cdrecord mkisofs mkhybrid"
+COPY_audio="cdda2mp3 cdda2ogg cdda2wav icedax pitchplay"
+COPY_isoinfo="isoinfo"
+COPY_readom="readom readcd"
+
+CAT_audio="multimedia|extracting audio files"
+CAT_isoinfo="multimedia|work with iso9660 images"
+CAT_readom="utilities|for use with graveman"
+
+DEPENDS_std="libcap zlib libbzip2 attr"
+
 compile_rules() {
-	sed -i -e '/USE_MAGIC/d' -e '/(MAGICLIBS magic)/d' \
-		genisoimage/CMakeLists.txt
-	[ -s $SRC/cdrkit-1.1.9-efi-boot.patch ] ||
-		wget -P $SRC https://github.com/NixOS/nixpkgs/raw/master/pkgs/tools/cd-dvd/cdrkit/cdrkit-1.1.9-efi-boot.patch
-	patch -p1 < $SRC/cdrkit-1.1.9-efi-boot.patch
+	LDFLAGS="$LDFLAGS -Wno-dev" # mute cmake developer warnings
+	sed -i -e '/USE_MAGIC/d' -e '/(MAGICLIBS magic)/d' genisoimage/CMakeLists.txt
 
 	make PREFIX=/usr &&
-	make PREFIX=/usr install
-}
+	make PREFIX=/usr install || return 1
 
-genpkg_rules() {
-	case $PACKAGE in
-		cdrkit)
-			DEPENDS="libcap zlib libbzip2 attr"
-			mkdir -p $fs/usr/bin
-			cp $install/usr/bin/genisoimage $fs/usr/bin
-			cp $install/usr/bin/wodim $fs/usr/bin
-			# Make symlinks for cdrtools compatibility
-			cd $fs/usr/bin
-			ln -s wodim cdrecord
-			ln -s genisoimage mkisofs
-			ln -s genisoimage mkhybrid
-			;;
-		cdrkit-audio)
-			CAT="multimedia|Icedax, cdda2ogg and other tools for extracting audio files."
-			mkdir -p $fs/usr/bin
-			cp -a $install/usr/bin/cdda* $fs/usr/bin
-			cp $install/usr/bin/icedax $fs/usr/bin
-			cp $install/usr/bin/pitchplay $fs/usr/bin
-			# Make symlinks for cdrtools compatibility
-			cd $fs/usr/bin
-			ln -s icedax cdda2wav 
-			;;
-		cdrkit-isoinfo)
-			CAT="multimedia|Isoinfo Utility programs for iso9660 images"
-			mkdir -p $fs/usr/bin
-			cp -a $install/usr/bin/isoinfo $fs/usr/bin	
-			;;
-		readom)
-			CAT="utilities|readom as readcd for use with graveman"
-			mkdir -p $fs/usr/bin
-			cp $install/usr/bin/readom $fs/usr/bin
-
-			# Make symlinks for cdrtools compatibility
-			cd $fs/usr/bin
-			ln -s readom readcd
-			;;
-	esac
+	# make symlinks for cdrtools compatibility
+	cd $install/usr/bin
+	ln -s genisoimage   mkhybrid
+	ln -s genisoimage   mkisofs
+	ln -s icedax        cdda2wav
+	ln -s readom        readcd
+	ln -s wodim         cdrecord
+	cd $install/usr/share/man/man1
+	ln -s genisoimage.1 mkhybrid.1
+	ln -s genisoimage.1 mkisofs.1
+	ln -s icedax.1      cdda2wav.1
+	ln -s readom.1      readcd.1
+	ln -s wodim.1       cdrecord.1
 }
