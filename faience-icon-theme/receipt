@@ -12,13 +12,11 @@ HOST_ARCH="any"
 TARBALL="${PACKAGE}_$VERSION.tar.gz"
 WGET_URL="http://ppa.launchpad.net/tiheum/equinox/ubuntu/pool/main/f/$PACKAGE/$TARBALL"
 
+DEPENDS="faenza-icon-theme"
+
 compile_rules() {
 	mkdir -p $install/usr/share/icons
 	cp -r Faience* $install/usr/share/icons
 	find $install -name '*.theme' -exec chmod 0644 '{}' \;
-}
-
-genpkg_rules() {
-	cp -a $install/* $fs
-	DEPENDS="faenza-icon-theme"
+	fix symlinks # remove './' from symlinks start; some 'dropboxstatus-x.png' missed
 }

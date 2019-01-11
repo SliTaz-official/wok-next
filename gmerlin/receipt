@@ -13,6 +13,8 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="texinfo libxml2-dev expat-dev gavl-dev gtk2-dev alsa-lib-dev \
 libpng-dev mesa-dev libxshmfence-dev gettext-dev"
+DEPENDS="libxml2 expat gavl gtk2 alsa-lib libpng"
+
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -29,10 +31,7 @@ compile_rules() {
 	sed -i 's|ln -sf $(DESTDIR)$(pkgdatadir)|ln -sf $(pkgdatadir)|' icons/Makefile
 
 	make &&
-	make -j1 install
-}
+	make -j1 install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="libxml2 expat gavl gtk2 alsa-lib libpng"
+	fix symlinks
 }

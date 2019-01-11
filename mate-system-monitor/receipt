@@ -13,18 +13,17 @@ WGET_URL="https://github.com/mate-desktop/mate-system-monitor/archive/v$VERSION.
 
 BUILD_DEPENDS="mate-common yelp-tools-dev libgtop-dev libwnck3-dev gtk3-dev \
 gtkmm3-dev librsvg-dev glibmm-dev glibmm-dev itstool"
+DEPENDS="libcairo gdk-pixbuf glib glibmm gtk3 gtkmm3 libgiomm libgtop librsvg \
+libsigc++ libwnck3 libxml2 pango"
+
+TAGS="MATE"
 
 compile_rules() {
 	./autogen.sh \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="libcairo gdk-pixbuf glib glibmm gtk3 gtkmm3 libgiomm libgtop \
-	librsvg libsigc++ libwnck3 libxml2 pango"
-	TAGS="MATE"
+	fix symlinks
 }

@@ -12,15 +12,14 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.openprinting.org/download/foomatic/$TARBALL"
 
 BUILD_DEPENDS="ghostscript-dev cups-dev cups a2ps autoconf"
+DEPENDS="ghostscript gcc-lib-base"
+
+TAGS="printer driver printing"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
-}
+	make DESTDIR=$install install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="ghostscript gcc-lib-base"
-	TAGS="printer driver printing"
+	fix symlinks
 }

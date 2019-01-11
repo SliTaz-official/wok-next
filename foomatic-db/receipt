@@ -15,6 +15,9 @@ WGET_URL="http://www.openprinting.org/download/foomatic/$TARBALL"
 COOKOPTS="force-arch" # different .ppd.gz ?
 
 BUILD_DEPENDS="ghostscript-dev cups-dev perl libxml2-dev"
+DEPENDS="ghostscript perl libxml2"
+
+TAGS="printer driver printing"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -22,10 +25,5 @@ compile_rules() {
 	make DESTDIR=$install install || return 1
 
 	chown -R root:root $install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="ghostscript perl libxml2"
-	TAGS="printer driver printing"
+	fix symlinks
 }

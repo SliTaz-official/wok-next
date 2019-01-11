@@ -14,6 +14,10 @@ WGET_URL="$WEB_SITE/$TARBALL"
 
 BUILD_DEPENDS="flex libxml2-dev openldap-dev cyrus-sasl-dev openssl-dev \
 krb5-dev rpcsvc-proto libtirpc-dev coreutils-operations"
+DEPENDS="libkrb5 libldap libsasl libtirpc libxml2   linux-autofs"
+
+TAZPANEL_DAEMON="man|help::automount|edit::/etc/auto.misc|options::AUTOMOUNT_OPTIONS|web::$WEB_SITE"
+TAGS="filesystem"
 
 compile_rules() {
 	./configure \
@@ -25,14 +29,8 @@ compile_rules() {
 	install -Dm755 $stuff/etc/init.d/autofs $install/etc/init.d/autofs
 	install -Dm644 $stuff/etc/auto.master   $install/etc/auto.master
 	install -Dm644 $stuff/etc/auto.misc     $install/etc/auto.misc
-}
 
-genpkg_rules() {
-	copy @std
-	rm $fs/usr/lib/autofs/lookup_nis.so # broken link
-	DEPENDS="libkrb5 libldap libsasl libtirpc libxml2   linux-autofs"
-	TAZPANEL_DAEMON="man|help::automount|edit::/etc/auto.misc|options::AUTOMOUNT_OPTIONS|web::$WEB_SITE"
-	TAGS="filesystem"
+	rm $install/usr/lib/autofs/lookup_nis.so # broken link
 }
 
 post_install() {

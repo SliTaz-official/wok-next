@@ -13,6 +13,8 @@ HOST_ARCH="any"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://launchpad.net/$PACKAGE/trunk/$VERSION/+download/$TARBALL"
 
+DEPENDS="bash findutils imagemagick sed zenity-gtk2"
+
 compile_rules() {
 	mkdir -p $install/usr/bin $install/usr/share/applications
 
@@ -31,9 +33,7 @@ compile_rules() {
 		[ $(head -n1 $file | grep '#!/bin/bash') ] && chmod 755 $file
 	done
 	chown -R root.root $install
-}
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="bash findutils imagemagick sed zenity-gtk2"
+	# broken symlink to /home/azd/Workshop/Programming/imdb-thumbnailer/imdb-thumbnailer
+	rm $install/usr/share/avatar-factory/thumbnailer
 }

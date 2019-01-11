@@ -13,6 +13,9 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.openprinting.org/download/foomatic/$TARBALL"
 
 BUILD_DEPENDS="cups-dev file libxml2-dev perl"
+DEPENDS="ghostscript perl libxml2 foomatic-filters bash"
+
+TAGS="printer driver printing"
 
 compile_rules() {
 	PERL_VER=$(grep ^VERSION= $WOK/perl/receipt | cut -d "=" -f2 | sed -e 's/"//g')
@@ -25,15 +28,12 @@ compile_rules() {
 		INSTALLARCHLIB=/usr/lib/perl5/$PERL_VER/$archname \
 		INSTALLSITELIB=/usr/lib/perl5/site_perl/$PERL_VER/ \
 		INSTALLSITEARCH=/usr/lib/perl5/site_perl/$PERL_VER/$archname \
-		install
+		install || return 1
+
+	find $install -type f -name '*.pm' -exec chmod u+w '{}' \; # 444->644
+	fix symlinks
 }
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="ghostscript perl libxml2 foomatic-filters bash"
-	TAGS="printer driver printing"
-}
-
-pre_install() {
-	rm -rf "$1/usr/lib/perl5/site_perl/current"
-}
+#pre_install() {
+#	rm -rf "$1/usr/lib/perl5/site_perl/current"
+#}

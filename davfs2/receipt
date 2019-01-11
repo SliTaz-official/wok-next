@@ -12,20 +12,19 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.savannah.gnu.org/releases/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev krb5-dev krb5 expat-dev neon-dev"
+DEPENDS="openssl libkrb5 krb5 expat neon zlib libcomerr3"
+
+CONFIG_FILES="/etc/davfs2/"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
-}
+	make DESTDIR=$install install || return 1
 
-genpkg_rules() {
-	copy @std
+	fix symlinks
 	sed \
 		-e 's/# dav_user/dav_user/' \
 		-e 's/# dav_group/dav_group/' \
 		-e 's/ davfs2 / www /' \
-		-i $fs/etc/davfs2/davfs2.conf
-	DEPENDS="openssl libkrb5 krb5 expat neon zlib libcomerr3"
-	CONFIG_FILES="/etc/davfs2/"
+		-i $install/etc/davfs2/davfs2.conf
 }

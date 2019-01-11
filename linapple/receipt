@@ -12,6 +12,10 @@ TARBALL="$PACKAGE-src_$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="sdl-dev zlib-dev curl-dev libzip-dev"
+DEPENDS="gcc-lib-base sdl zlib curl libzip"
+
+CONFIG_FILES="/etc/linapple.conf"
+TAGS="emulator apple2"
 
 compile_rules() {
 	cd $src/src
@@ -23,19 +27,9 @@ compile_rules() {
 
 	make CXXFLAGS="-O3 -I/usr/lib/libzip/include -I/usr/include/SDL" || return 1
 
-	mkdir -p \
-		$install/usr/share/apple2 \
-		$install/usr/bin \
-		$install/etc
-	cp $src/linapple         $install/usr/bin
-	cp $src/*.bmp            $install/usr/share/apple2
-	cp $src/linapple.conf    $install/etc
-	ln -s /etc/linapple.conf $install/usr/share/apple2
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="gcc-lib-base sdl zlib curl libzip"
-	CONFIG_FILES="/etc/linapple.conf"
-	TAGS="emulator apple2"
+	install -Dm755 $src/linapple       $install/usr/bin/linapple
+	install -Dm644 $src/linapple.conf  $install/etc/linapple.conf
+	mkdir -p $install/usr/share/apple2/
+	install -m644  $src/*.bmp          $install/usr/share/apple2/
+	ln -s ../../../etc/linapple.conf   $install/usr/share/apple2/linapple.conf
 }
