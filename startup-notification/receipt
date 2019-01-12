@@ -10,10 +10,12 @@ WEB_SITE="https://www.freedesktop.org/wiki/Software/startup-notification/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.freedesktop.org/software/startup-notification/releases/$TARBALL"
+TARBALL_SHA1="4198bce2808d03160454a2940d989f3a5dc96dbb"
 
-BUILD_DEPENDS="libx11-dev libice-dev libxcb-dev \
-xcb-util-dev"
+BUILD_DEPENDS="libx11-dev libice-dev libxcb-dev xcb-util-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libx11 libxcb xcb-util"
 
 compile_rules() {
 	./configure \
@@ -24,16 +26,4 @@ compile_rules() {
 	make install || return 1
 
 	cook_pick_docs doc/startup-notification.txt
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		startup-notification)
-			copy @std
-			DEPENDS="libx11 libxcb xcb-util"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }
