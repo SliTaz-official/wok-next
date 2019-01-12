@@ -1,30 +1,56 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gtk3"
-VERSION="3.24.1"
+VERSION="3.24.2"
 CATEGORY="x-window"
-SHORT_DESC="GNOME Toolkit 3" # it isn't GIMP Toolkit, don't try to convince me
+SHORT_DESC="GNOME Toolkit 3"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2"
 WEB_SITE="https://www.gtk.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gtk3.html"
-REPOLOGY="gtk3"
 
 TARBALL="gtk+-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gtk+/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="3c1d2c716cd17ac85554b130f92c22dadb4e04ad"
 
-COOKOPTS="force-arch" # different .pc
-
-BUILD_DEPENDS="libsm-dev"
 BUILD_DEPENDS="gettext-dev wayland-protocols-dev wayland-dev glib-dev atk-dev \
-pango-dev cairo-dev gdk-pixbuf-dev libxinerama-dev libxi-dev \
-libxrandr-dev libxcomposite-dev libxdamage-dev libxkbcommon-dev \
-mesa-dev libepoxy-dev at-spi2-atk-dev iso-codes-dev cups-dev rest-dev \
-json-glib-dev gobject-introspection-dev colord-dev gtk-doc libxslt "
+pango-dev cairo-dev gdk-pixbuf-dev libxinerama-dev libxi-dev libxrandr-dev \
+libxcomposite-dev libxdamage-dev libxkbcommon-dev mesa-dev libepoxy-dev \
+at-spi2-atk-dev iso-codes-dev cups-dev rest-dev json-glib-dev \
+gobject-introspection-dev colord-dev gtk-doc libxslt"
 SPLIT="$PACKAGE-demo $PACKAGE-widget-factory $PACKAGE-icon-browser \
 $PACKAGE-broadwayd $PACKAGE-dev $PACKAGE"
 
-COOKOPTS="skip-log-errors" # Failed to open file ?./gdk.gresource.xml?: No such file or directory
+COPY_demo="gtk3-demo gtk3-demo-application gtk3-demo.desktop gtk3-demo*.png *Demo* *exampleapp*"
+COPY_widget_factory="gtk3-widget-factory gtk3-widget-factory.desktop gtk3-widget-factory*.png"
+COPY_icon_browser="gtk3-icon-browser gtk3-icon-browser.desktop"
+COPY_broadwayd="broadwayd"
+COPY_dev="@dev *.its *.loc *.rng"
+COPY_std="etc/ bin/ themes/ *.so* *.xml @rm"
+
+CAT_demo="development|example code and demo"
+CAT_widget_factory="development|widget factory"
+CAT_icon_browser="development|icon browser"
+CAT_broadwayd="x-window|HTML5 GTK backend"
+
+DEPENDS_demo="$PACKAGE libcairo gdk-pixbuf glib libepoxy libharfbuzz pango"
+DEPENDS_widget_factory="$PACKAGE atk libcairo gdk-pixbuf glib"
+DEPENDS_icon_browser="$PACKAGE glib"
+DEPENDS_broadwayd="libcairo glib"
+DEPENDS_dev="$PACKAGE at-spi2-atk-dev atk-dev cairo-dev fontconfig-dev \
+gdk-pixbuf-dev glib-dev libepoxy-dev libx11-dev libxcomposite-dev \
+libxdamage-dev libxext-dev libxfixes-dev libxi-dev libxinerama-dev \
+libxkbcommon-dev libxrandr-dev mesa-dev pango-dev wayland-dev \
+wayland-protocols-dev"
+DEPENDS_std="at-spi2-atk atk colord fontconfig freetype gdk-pixbuf glib \
+json-glib libcairo libcups libepoxy libharfbuzz libx11 libxcomposite \
+libxdamage libxext libxfixes libxi libxinerama libxkbcommon libxrandr \
+mesa-libwayland-egl pango rest wayland"
+CONFIG_FILES_std="/etc/gtk-3.0/settings.ini"
+
+# skip-log-errors: Failed to open file ?./gdk.gresource.xml?: No such file or directory
+# force-arch: different .pc
+COOKOPTS="!menus skip-log-errors force-arch"
 
 compile_rules() {
 	./configure \
@@ -48,54 +74,7 @@ compile_rules() {
 	make install || return 1
 
 	cp -f $stuff/settings.ini $install/etc/gtk-3.0
-#	find $install -name '*.desktop' | xargs sed -i '/NoDisplay/d'
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-demo)
-			copy gtk3-demo* *Demo* *exampleapp*
-			rm -r $fs/usr/share/gtk-doc $fs/usr/share/man
-			CAT="development|example code and demo"
-			DEPENDS="libcairo gdk-pixbuf glib gtk3 libepoxy libharfbuzz pango"
-			;;
-		*-widget-factory)
-			copy gtk3-widget*
-			rm -r $fs/usr/share/gtk-doc $fs/usr/share/man
-			CAT="development|widget factory"
-			DEPENDS="atk libcairo gdk-pixbuf glib gtk3"
-			;;
-		*-icon-browser)
-			copy gtk3-icon-browser gtk3-icon-browser.desktop
-			CAT="development|icon browser"
-			DEPENDS="glib gtk3"
-			;;
-		*-broadwayd)
-			copy broadwayd
-			CAT="x-window|HTML5 GTK backend"
-			DEPENDS="libcairo glib"
-			;;
-		*-dev)
-			copy @dev *.its *.loc *.rng
-			DEPENDS="gtk3 \
-			at-spi2-atk-dev atk-dev cairo-dev fontconfig-dev gdk-pixbuf-dev \
-			glib-dev libepoxy-dev libxkbcommon-dev mesa-dev pango-dev \
-			wayland-dev wayland-protocols-dev libx11-dev \
-			libxcomposite-dev libxdamage-dev libxext-dev \
-			libxfixes-dev libxi-dev libxinerama-dev \
-			libxrandr-dev"
-			;;
-		*)
-			COOKOPTS="!menus"
-			copy etc/ bin/ themes/ *.so* *.xml @rm
-			DEPENDS="at-spi2-atk atk libcairo colord fontconfig freetype \
-			gdk-pixbuf glib json-glib libcups libepoxy libharfbuzz \
-			libxkbcommon mesa-libwayland-egl pango rest wayland libx11 \
-			libxcomposite libxdamage libxext libxfixes \
-			libxi libxinerama libxrandr"
-			CONFIG_FILES="/etc/gtk-3.0/settings.ini"
-			;;
-	esac
+	find $install -name '*.desktop' | xargs sed -i '/NoDisplay/d'
 }
 
 post_install_gtk3() {
