@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gtk2"
-VERSION="2.24.31"
+VERSION="2.24.32"
 CATEGORY="x-window"
 SHORT_DESC="The GIMP Toolkit"
 MAINTAINER="devel@slitaz.org"
@@ -11,61 +11,42 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gtk2.html"
 
 TARBALL="gtk+-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gtk+/${VERSION:0:4}/$TARBALL"
+TARBALL_SHA1="c885ade62b06854590822c8eb906daf7dd15d90a"
 
 COOKOPTS="force-arch" # different .pc
 
-BUILD_DEPENDS="paper-icon-theme rsvg-convert optipng-static pngquant-static \
-symlinks \
-glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
-gobject-introspection-dev gtk-doc automake gettext-dev libxinerama-dev"
 BUILD_DEPENDS="glib-dev atk-dev pango-dev cairo-dev gdk-pixbuf-dev cups-dev \
 gobject-introspection-dev gtk-doc gettext-dev libxinerama-dev \
 shared-mime-info-dev"
 SPLIT="$PACKAGE-demo $PACKAGE $PACKAGE-dev"
 
-compile_rules() {
-#	. $stuff/replace-icons-paper; cd $src
+COPY_demo="gtk-demo demo/ *.desktop"
+CAT_demo="development|example code and demo"
 
-#	find $src -type f -name 'Makefile.in' -exec sed -i 's|1.15|1.15.1|' '{}' \;
-# or
-#	autoreconf -fi && # fix 'version mismatch' between 1.15 and 1.15.1
+DEPENDS_demo="$PACKAGE gdk-pixbuf glib libcairo pango"
+DEPENDS_std="atk fontconfig gdk-pixbuf glib libcairo libcups libx11 libxext \
+libxinerama libxrender pango"
+DEPENDS_dev="$PACKAGE atk-dev cairo-dev gdk-pixbuf-dev glib-dev pango-dev"
+
+CONFIG_FILES_std="/etc/gtk-2.0/im-multipress.conf"
+
+COOKOPTS="!menus"
+
+compile_rules() {
 	./configure \
 		--enable-debug=no \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
-	make $MAKEFLAGS $LIBTOOL &&
+	make &&
 	make install || return 1
 
-	ln -s /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache \
+	touch $install/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+	ln -s ../../usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache \
 		$install/etc/gtk-2.0/gdk-pixbuf.loaders
-
-	mkdir -p $install/usr/share/applications
-	cp $stuff/*.desktop $install/usr/share/applications
+	install -Dm644 $stuff/gtk2-demo.desktop \
+		$install/usr/share/applications/gtk2-demo.desktop
 }
 
-genpkg_rules() {
-	case $PACKAGE in
-		*-demo)
-			copy gtk-demo demo/ *.desktop
-			CAT="development|example code and demo"
-			DEPENDS="libcairo gdk-pixbuf glib gtk2 pango"
-			;;
-		gtk2)
-			COOKOPTS="!menus"
-			copy @std @rm
-			DEPENDS="atk libcairo fontconfig gdk-pixbuf glib libcups pango \
-			libx11 libxext libxinerama libxrender"
-			CONFIG_FILES="/etc/gtk-2.0/im-multipress.conf"
-			SUGGESTED="cups gnutls libgcrypt libgpg-error"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gtk2 \
-			atk-dev cairo-dev gdk-pixbuf-dev glib-dev pango-dev"
-			;;
-	esac
-}
-
-post_install_gtk_() {
+post_install_gtk2() {
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 --update-cache
 }
