@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="keyutils"
-VERSION="1.5.11"
+VERSION="1.6"
 CATEGORY="system-tools"
 SHORT_DESC="Linux key management utilities"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,9 +11,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/keyutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://people.redhat.com/~dhowells/keyutils/$TARBALL"
+TARBALL_SHA1="a1d276562c435d6976444f5dc1d1258b52cbf741"
 
 BUILD_DEPENDS="file krb5-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="libcomerr3 libkrb5"
+CONFIG_FILES_std="/etc/request-key.conf /etc/request-key.d/"
+
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -21,17 +26,4 @@ compile_rules() {
 	make NO_ARLIB=1 DESTDIR=$install install || return 1
 
 	fix symlinks
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		keyutils)
-			copy @std
-			DEPENDS="libcomerr3 libkrb5"
-			CONFIG_FILES="/etc/request-key.conf /etc/request-key.d/"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

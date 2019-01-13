@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="ecryptfs-simple"
+VERSION="2017"
+CATEGORY="security"
+SHORT_DESC="A very simple utility for working with eCryptfs"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="GPL2"
+WEB_SITE="https://xyne.archlinux.ca/projects/ecryptfs-simple/"
+
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="${WEB_SITE}src/$TARBALL"
+TARBALL_SHA1="1f94f21500ca870e3a5302a6fe8fe28544484da2"
+
+BUILD_DEPENDS="cmake libgcrypt-dev ecryptfs-utils-dev util-linux-mount-dev"
+DEPENDS="ecryptfs-utils keyutils libgcrypt util-linux-mount"
+
+TAGS="cryptography"
+
+compile_rules() {
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.. &&
+	make &&
+	make install || return 1
+
+	cook_pick_manpages $src/ecryptfs_src/ecryptfs.7
+}
