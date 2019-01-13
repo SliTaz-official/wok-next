@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxfce4ui"
-VERSION="4.12.0" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
+VERSION="4.13.4"
 CATEGORY="x-window"
 SHORT_DESC="Xfce GTK widget library"
 MAINTAINER="devel@slitaz.org"
@@ -10,11 +10,22 @@ WEB_SITE="https://www.xfce.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="480de7fa8e9cb14902ebb6af13054bfdd5bae947"
 
-BUILD_DEPENDS="intltool libx11-dev libice-dev libsm-dev \
-gtk2-dev libxfce4util-dev startup-notification-dev xfconf-dev glade3-dev \
-xcb-util-dev"
+BUILD_DEPENDS="intltool libx11-dev libice-dev libsm-dev gtk3-dev \
+libxfce4util-dev startup-notification-dev xfconf-dev glade3-dev glade-dev \
+xcb-util-dev" # gobject-introspection-dev vala
 SPLIT="$PACKAGE-dev $PACKAGE-glade3 $PACKAGE"
+
+COPY_glade3="glade3/modules/*.so glade3/catalogs/ glade3/pixmaps/"
+CAT_glade3="x-window|Glade3 module"
+
+DEPENDS_dev="$PACKAGE gtk3-dev libxfce4util-dev xfconf-dev"
+DEPENDS_glade3="$PACKAGE glade3 glib gtk2"
+DEPENDS_std="atk gdk-pixbuf glib gtk2 libcairo libice libsm libx11 \
+libxfce4util pango startup-notification xfconf"
+
+TAGS_std="Xfce"
 
 compile_rules() {
 	./configure \
@@ -26,24 +37,14 @@ compile_rules() {
 	make install
 }
 
-genpkg_rules() {
-	case $PACKAGE in
-		*-dev)
-			copy @dev
-			DEPENDS="libxfce4ui libxfce4ui-glade3 \
-			gtk2-dev libxfce4util-dev xfconf-dev"
-			;;
-		*-glade3)
-			copy glade3/ @rm
-			find $fs -name '*.la' -delete
-			DEPENDS="glade3 glib gtk2 libxfce4ui"
-			CAT="x-window|Glade3 module"
-			;;
-		libxfce4ui)
-			copy @std @rm
-			DEPENDS="atk libcairo gdk-pixbuf glib gtk2 libxfce4util pango \
-			startup-notification xfconf libice libsm libx11"
-			;;
-	esac
-	TAGS="Xfce"
-}
+# use of "gobject-introspection-dev vala" in BUILD_DEPENDS produce errors:
+# ** (process:5280): CRITICAL **: 02:49:10.805: Failed to get connection to xfconfd: The connection is closed
+# ** (process:5484): CRITICAL **: 02:49:14.682: Failed to get connection to xfconfd: The connection is closed
+# ** (g-ir-compiler:5507): CRITICAL **: 02:49:16.576: Failed to get connection to xfconfd: The connection is closed
+#
+# starting xfconfd using `/usr/lib/xfce4/xfconf/xfconfd` produce error:
+# (xfconfd:1150): xfconfd-CRITICAL **: 02:48:43.550: Xfconfd failed to start: The connection is closed
+# and nothing changed
+
+# use of "introspection" here require using "introspection" in the libxfce4util
+# package (add "gobject-introspection-dev vala" to BUILD_DEPENDS there)

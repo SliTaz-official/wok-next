@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxfce4util"
-VERSION="4.12.1" # Xfce release 4.12: http://archive.xfce.org/xfce/4.12/src/
+VERSION="4.13.2"
 CATEGORY="x-window"
 SHORT_DESC="Xfce utility library"
 MAINTAINER="devel@slitaz.org"
@@ -10,9 +10,15 @@ WEB_SITE="https://www.xfce.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://archive.xfce.org/src/xfce/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="8ce7bcbea1b41298f1e7f6181afd27c1bbc079b5"
 
-BUILD_DEPENDS="intltool glib-dev"
+BUILD_DEPENDS="intltool glib-dev" # gobject-introspection-dev vala
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="glib"
+DEPENDS_dev="$PACKAGE glib-dev"
+
+TAGS_std="Xfce"
 
 compile_rules() {
 	./configure \
@@ -22,18 +28,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libxfce4util)
-			copy @std
-			DEPENDS="glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libxfce4util glib-dev"
-			;;
-	esac
-	TAGS="Xfce"
 }
