@@ -1,0 +1,28 @@
+# SliTaz package receipt v2.
+
+PACKAGE="libfilezilla"
+VERSION="0.15.1"
+CATEGORY="network"
+SHORT_DESC="Basic functionality to build high-performing, platform-independent programs"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL2"
+WEB_SITE="https://lib.filezilla-project.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://download.filezilla-project.org/libfilezilla/$TARBALL"
+TARBALL_SHA1="a51116de85232b186c4345433106ade192387e55"
+
+BUILD_DEPENDS="nettle-dev cppunit-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="nettle"
+DEPENDS_dev="$PACKAGE nettle-dev"
+
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
+	fix libtool &&
+	make &&
+	make install
+}

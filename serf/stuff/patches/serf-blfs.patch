@@ -1,0 +1,38 @@
+--- a/SConstruct
++++ b/SConstruct
+@@ -183,7 +183,7 @@
+ 
+ unknown = opts.UnknownVariables()
+ if unknown:
+-  print 'Warning: Used unknown variables:', ', '.join(unknown.keys())
++  print( 'Warning: Used unknown variables:', ', '.join(unknown.keys()))
+ 
+ apr = str(env['APR'])
+ apu = str(env['APU'])
+@@ -224,7 +224,7 @@
+ else:
+   LIBNAMESTATIC = 'serf-${MAJOR}'
+ 
+-env.Append(RPATH=libdir,
++env.Append(
+            PDB='${TARGET.filebase}.pdb')
+ 
+ if sys.platform == 'darwin':
+@@ -404,7 +404,7 @@
+                                                        env.get('GSSAPI_LIBS', '')),
+                            })
+ 
+-env.Default(lib_static, lib_shared, pkgconfig)
++env.Default(lib_shared, pkgconfig)
+ 
+ if CALLOUT_OKAY:
+   conf = Configure(env)
+@@ -434,7 +434,7 @@
+                                      % (target_install_shared_path,
+                                         install_shared_path)))
+ 
+-env.Alias('install-lib', [install_static, install_shared,
++env.Alias('install-lib', [install_shared,
+                           ])
+ env.Alias('install-inc', env.Install(incdir, HEADER_FILES))
+ env.Alias('install-pc', env.Install(os.path.join(libdir, 'pkgconfig'),

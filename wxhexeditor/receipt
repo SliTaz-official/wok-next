@@ -1,0 +1,23 @@
+# SliTaz package receipt.
+
+PACKAGE="wxhexeditor"
+VERSION="0.24"
+CATEGORY="development"
+SHORT_DESC="Hex editor for massive files"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="GPL"
+WEB_SITE="https://github.com/EUA/wxHexEditor"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/EUA/wxHexEditor/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="4821ccb37015830f872b7ce87e0ee9084b6b7dc1"
+
+BUILD_DEPENDS="automake libtool gfortran gettext wxwidgets-dev"
+DEPENDS="libgomp wxwidgets"
+
+compile_rules() {
+	sed -i 's|VERSION = 0.24 Beta|VERSION = 0.24|' Makefile
+
+	make &&
+	make install
+}

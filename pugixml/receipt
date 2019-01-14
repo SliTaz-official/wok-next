@@ -1,28 +1,29 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="pugixml"
-VERSION="1.6"
+VERSION="1.9"
 CATEGORY="misc"
 SHORT_DESC="Light-weight, simple and fast XML parser for C++ with XPath support"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
-TARBALL="$PACKAGE-$VERSION.tar.gz"
 WEB_SITE="https://pugixml.org/"
-WGET_URL="https://github.com/zeux/pugixml/releases/download/v$VERSION/$TARBALL"
 
-SUGGESTED="cmake"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/zeux/pugixml/releases/download/v$VERSION/$TARBALL"
+TARBALL_SHA1="752958e524b67bea879d420c6d961d594920c5cc"
+
 BUILD_DEPENDS="cmake"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	mkdir build
 	cd    build
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		../scripts &&
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=Release \
+		.. &&
 	make &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	cp -a $install/* $fs/
+	make install
 }

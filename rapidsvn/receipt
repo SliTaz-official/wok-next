@@ -1,4 +1,4 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="rapidsvn"
 VERSION="0.12.1"
@@ -7,22 +7,26 @@ SHORT_DESC="A cross-platform GUI front-end for the Subversion revision system"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://rapidsvn.tigris.org/"
+
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.rapidsvn.org/download/release/$VERSION/$TARBALL"
+TARBALL_SHA1="65d051b5a84fe8b5b0ce906f2ba5cf134a560feb"
+
+BUILD_DEPENDS="automake libtool apr-dev apr-util-dev subversion-dev \
+wxwidgets-dev"
+DEPENDS="apr libsvn wxwidgets"
+
 TAGS="subversion svn version-control versioning"
 
-BUILD_DEPENDS="libxxf86vm libtool wxWidgets28-dev subversion-dev apr-dev \
-apr-util-dev cyrus-sasl-dev neon-dev libproxy-dev sqlite3-dev expat-dev python \
-util-linux-uuid-dev"
-
 compile_rules() {
-	cp $stuff/client_ls.cpp src/svncpp/client_ls.cpp
+	autoreconf -vi
+	export CPPFLAGS="$CPPFLAGS -DNDEBUG"
+	sed -i 's|src/tests/svncpp/Makefile||' configure
 
 	./configure \
 		--prefix=/usr \
 		--with-apr-config=apr-1-config \
 		--with-apu-config=apu-1-config \
-		--with-neon-config=neon-config \
 		--with-wx-config=wx-config \
 		--with-svn-include=/usr/include \
 		--with-svn-lib=/usr/lib \
@@ -30,12 +34,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	mkdir -p $fs/usr/lib
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	DEPENDS="wxWidgets28 libsvn apr libltdl libxxf86vm libproxy libsqlite3 \
-	libsasl apr-util"
 }

@@ -10,46 +10,46 @@ WEB_SITE="https://www.ntop.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="bbb8de893b1d0bb3c20785445ff62c7dbf398d0b"
 
 BUILD_DEPENDS="libtool automake autoconf wget subversion libpcap-dev gdbm-dev \
 pcre-dev rrdtool-dev openssl-dev zlib-dev python-dev geoip-dev"
 SPLIT="$PACKAGE-dev"
+
+CONFIG_FILES_std="/etc/ntop/"
+DEPENDS_std="gdbm geoip libpcap openssl python rrdtool zlib" # ? libpng perl pcre libwrap
+TAGS_std="network"
+
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
+	# config nDPI
+	cd nDPI
+	./configure --with-pic $CONFIGURE_ARGS
+	cd ..
+
+	export DISTRO="SliTaz"
+	export DISTRO_VERSION="Next"
 	./autogen.sh \
-		--prefix=/usr \
-		--sysconfdir=/usr/share \
-		--localstatedir=/var/lib \
 		--disable-snmp \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install-recursive || return 1
 
 	mkdir -p $install/var/lib/ntop $install/var/lib/ntop/rrd
 
 	for i in $install/usr/lib/ntop/plugins/*.so; do
+		cmp -s "../../lib$(basename $i)" $i &&
 		ln -sf "../../lib$(basename $i)" $i
 	done
 
-	install -Dm755 $stuff/ntop $install/etc/init.d/ntop
+	install -Dm755 $stuff/ntop      $install/etc/init.d/ntop
+	install -Dm644 $stuff/ntop.conf $install/etc/daemons.conf.d/ntop.conf
+
 	mkdir -p $install/var/log/ntop/
 	chown -R root:root $install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		ntop)
-			copy @std
-			chown -R www:www $fs/usr/share/ntop/
-			CONFIG_FILES="/etc/ntop/"
-			DEPENDS="libgdbm geoip libpcap openssl python rrdtool zlib" # ? libpng perl pcre libwrap
-			TAGS="network"
-			;;
-		ntop-dev)
-			copy @dev
-			;;
-	esac
+	find $install -type f -exec chmod g-w '{}' \; # 664->644, 775->755
 }
 
 post_install_ntop() {
@@ -65,7 +65,7 @@ post_install_ntop() {
 	chroot "$1/" chown -R $user.$group /var/lib/ntop /var/log/ntop
 
 	# Start package daemon if we are on running system
-	[ "$1" ] || /etc/init.d/$PACKAGE start
+	[ "$1" ] || /etc/init.d/ntop start
 
 	# post_install message
 	[ -n "$quiet" ] || cat <<EOT
@@ -80,7 +80,7 @@ EOT
 }
 
 pre_remove_ntop() {
-	[ "$1" ] || /etc/init.d/$PACKAGE stop
+	[ "$1" ] || /etc/init.d/ntop stop
 }
 
 post_remove_ntop() {

@@ -11,30 +11,23 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libarchive.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
+TARBALL_SHA1="499a8f48a895faff4151d7398b24070d578f0b2e"
 
 BUILD_DEPENDS="e2fsprogs-dev zlib-dev bzip2-dev gettext-dev lz4-dev zstd-dev \
-xz-dev lzo-dev libxml2-dev expat-dev attr-dev acl-dev nettle-dev openssl-dev"
+xz-dev lzo-dev libxml2-dev expat-dev attr-dev acl-dev openssl-dev" # nettle-dev
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="acl libbzip2 liblz4 liblzma libxml2 libzstd openssl zlib"
+DEPENDS_dev="$PACKAGE acl-dev bzip2-dev libxml2-dev lz4-dev openssl-dev xz-dev \
+zlib-dev zstd-dev"
+
 compile_rules() {
+	# --without-nettle: choose between nettle and openssl
 	./configure \
 		--disable-static \
+		--without-nettle \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make -j1 DESTDIR=$install install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libarchive)
-			copy @std
-			DEPENDS="acl libbzip2 liblzma libxml2 lz4-lib nettle zlib libzstd"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libarchive acl-dev bzip2-dev libxml2-dev lz4-dev \
-			nettle-dev xz-dev zlib-dev zstd-dev"
-			;;
-	esac
+	make install
 }

@@ -1,28 +1,31 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="xchm"
-VERSION="1.19"
+VERSION="1.23"
 CATEGORY="utilities"
 SHORT_DESC="Cross-platform GUI for chmlib"
-MAINTAINER="allan316@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://xchm.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="d0de589775164ee8123b25082c54587f0cc72e1d"
 
-BUILD_DEPENDS="wxWidgets28-dev chmlib-dev"
+BUILD_DEPENDS="wxwidgets-dev chmlib-dev"
+DEPENDS="chmlib wxwidgets"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	mkdir -p $fs/usr/share/locale
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/locale/fr $fs/usr/share/locale
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	DEPENDS="wxWidgets28 chmlib libxdamage libxxf86vm"
+	rm -r $install/usr/share/pixmaps/
+
+	install -Dm644 art/xchm-16.png    $install/usr/share/icons/hicolor/16x16/apps/xchm.png
+	install -Dm644 art/xchm-48.png    $install/usr/share/icons/hicolor/48x48/apps/xchm.png
+	install -Dm644 art/xchmdoc-16.png $install/usr/share/icons/hicolor/16x16/mimetypes/application-vnd.ms-htmlhelp.png
+	install -Dm644 art/xchmdoc-48.png $install/usr/share/icons/hicolor/48x48/mimetypes/application-vnd.ms-htmlhelp.png
+
+	install -Dm644 $stuff/xchm.desktop $install/usr/share/applications/xchm.desktop
 }
