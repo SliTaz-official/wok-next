@@ -1,0 +1,43 @@
+# SliTaz package receipt v2.
+
+PACKAGE="wxwidgets"
+VERSION="3.0.4"
+CATEGORY="x-window"
+SHORT_DESC="Cross-platform GUI Library"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL"
+WEB_SITE="http://www.wxwidgets.org/"
+
+TARBALL="wxWidgets-$VERSION.tar.bz2"
+WGET_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v$VERSION/$TARBALL"
+TARBALL_SHA1=""
+
+BUILD_DEPENDS="zlib-dev libpng-dev libjpeg-turbo-dev tiff-dev xz-dev expat-dev \
+gtk2-dev glib-dev xorg-libXxf86vm-dev libsm-dev mesa-dev glu-dev sdl2-dev \
+libnotify-dev gstreamer1-dev gst1-plugins-base-dev cppunit-dev"
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="expat gdk-pixbuf glib gst1-plugins-base gstreamer1 gtk2 libcairo \
+libjpeg-turbo libnotify libpng libsdl2 libsm libtiff libx11 libxxf86vm mesa \
+pango python zlib"
+
+compile_rules() {
+	./configure \
+		--with-sdl \
+		--with-opengl \
+		--enable-unicode \
+		--enable-aui \
+		--enable-no_deps \
+		--enable-shared \
+		--enable-sound \
+		--enable-mediactrl \
+		--disable-rpath \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install || return 1 # keep DESTDIR
+
+	fix symlinks
+}
+
+PROVIDE_std="wxWidgets"
+PROVIDE_dev="wxWidgets-dev"

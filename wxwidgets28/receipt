@@ -1,0 +1,48 @@
+# SliTaz package receipt v2.
+
+PACKAGE="wxwidgets28"
+VERSION="2.8.12"
+CATEGORY="x-window"
+SHORT_DESC="Cross-platform GUI Library (oldstable version)"
+MAINTAINER="devel@slitaz.org"
+LICENSE="LGPL"
+WEB_SITE="http://www.wxwidgets.org/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/wxWidgets/wxWidgets/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="536c564d27516f4b47b3fdd5a9160cfb2182f726"
+
+BUILD_DEPENDS="zlib-dev libjpeg-turbo-dev libpng-dev tiff-dev expat-dev \
+gtk2-dev glib-dev libxinerama-dev libsm-dev mesa-dev glu-dev libxt-dev \
+cppunit-dev" # sdl-dev gstreamer0-dev gst0-plugins-base-dev
+SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="expat gdk-pixbuf glib gtk2 libjpeg-turbo libpng libsm libtiff \
+libxinerama libxxf86vm mesa pango zlib"
+
+COPY_std="wxrc wxrc-2.8 *.so* *.bkl"
+COPY_dev="@dev config/ wx-config"
+
+compile_rules() {
+	./configure \
+		--with-sdl \
+		--with-opengl \
+		--enable-unicode \
+		--enable-no_deps \
+		--enable-shared \
+		--enable-sound \
+		--enable-mediactrl \
+		--disable-rpath \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$install install || return 1 # keep DESTDIR
+
+	fix symlinks
+
+#	cd $src/contrib
+#	make &&
+#	make DESTDIR=$install install # keep DESTDIR
+}
+
+PROVIDE_std="wxWidgets28"
+PROVIDE_dev="wxWidgets28-dev"
