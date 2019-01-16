@@ -1,6 +1,6 @@
 # SliTaz package receipt v2.
 
-PACKAGE="florence-gtk2"
+PACKAGE="florence05"
 VERSION="0.5.4"
 CATEGORY="utilities"
 SHORT_DESC="On-screen virtual keyboard (GTK2 version)"
@@ -11,10 +11,16 @@ REPOLOGY="florence"
 
 TARBALL="florence-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/florence/$TARBALL"
+TARBALL_SHA1="116f24fb640f9ea918ec9d1b1406cfd1eb1ea39d"
 
-BUILD_DEPENDS="intltool gconf-dev libx11-dev glib-dev cairo-dev \
-librsvg-dev libxml2-dev gtk2-dev gstreamer0-dev libxtst-dev \
-at-spi2-core-dev at-spi2-atk-dev gtk2-dev"
+BUILD_DEPENDS="intltool gconf-dev libx11-dev glib-dev cairo-dev librsvg-dev \
+libxml2-dev gtk2-dev gstreamer0-dev libxtst-dev at-spi2-core-dev \
+at-spi2-atk-dev gtk2-dev"
+DEPENDS="at-spi2-core gconf gdk-pixbuf glib gstreamer0 gtk2 libcairo librsvg \
+libx11 libxml2 libxtst pango"
+
+COPY="@std *.mo"
+PROVIDE="florence"
 
 compile_rules() {
 	./configure \
@@ -24,11 +30,4 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make -j1 &&
 	make -j1 install
-}
-
-genpkg_rules() {
-	copy @std *.mo
-	DEPENDS="gconf at-spi2-core libcairo gdk-pixbuf glib gstreamer0 gtk2 librsvg \
-	libxml2 pango libx11 libxtst"
-	PROVIDE="florence"
 }
