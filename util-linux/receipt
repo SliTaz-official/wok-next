@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="util-linux"
-VERSION="2.33"
+VERSION="2.33.1"
 CATEGORY="meta"
 SHORT_DESC="Random collection of Linux utilities"
 MAINTAINER="devel@slitaz.org"
@@ -9,20 +9,99 @@ LICENSE="GPL2 LGPL2.1 BSD PublicDomain"
 WEB_SITE="https://en.wikipedia.org/wiki/Util-linux"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/util-linux.html"
 
-HIVERSION=$(echo $VERSION | cut -d. -f1,2)
+HIVERSION=$(echo $VERSION | cut -d. -f1,2) # may be 2 or 3 numbers: 2.33, 2.33.1
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/util-linux/v$HIVERSION/$TARBALL"
+TARBALL_SHA1="f57232d9594d23e7c20b5728b24bf4e5d977accc"
 
-BUILD_DEPENDS="libcap-dev readline-dev python-dev glib gtk-doc \
-libxslt gettext-dev ncurses-dev zlib-dev"
+BUILD_DEPENDS="libcap-dev readline-dev python-dev glib gtk-doc libxslt \
+gettext-dev ncurses-dev zlib-dev"
+SPLIT="\
+$PACKAGE-blkid     $PACKAGE-blkid-dev $PACKAGE-blockdev  $PACKAGE-cfdisk \
+$PACKAGE-column    $PACKAGE-cramfs    $PACKAGE-eject     $PACKAGE-fdisk \
+$PACKAGE-fdisk-dev $PACKAGE-flock     $PACKAGE-getopt    $PACKAGE-minix \
+$PACKAGE-mkfs      $PACKAGE-mount     $PACKAGE-mount-dev $PACKAGE-partx \
+$PACKAGE-setterm   $PACKAGE-sfdisk    $PACKAGE-smartcols $PACKAGE-smartcols-dev \
+$PACKAGE-uuid      $PACKAGE-uuid-dev  $PACKAGE-whereis   $PACKAGE-misc"
+
+COPY_blkid="bin/lsblk sbin/blkid libblkid.so.1*"
+COPY_blkid_dev="blkid.h blkid.pc libblkid.so"
+COPY_blockdev="sbin/blockdev"
+COPY_cfdisk="sbin/cfdisk cfdisk.desktop"
+COPY_column="bin/column bin/col bin/colrm bin/colcrt"
+COPY_cramfs="sbin/*.cramfs"
+COPY_eject="bin/eject"
+COPY_fdisk="sbin/fdisk libfdisk.so.1*"
+COPY_fdisk_dev="libfdisk.h fdisk.pc libfdisk.so"
+COPY_flock="bin/flock bin/lslocks"
+COPY_getopt="bin/getopt"
+COPY_minix="sbin/*.minix"
+COPY_mkfs="sbin/mkfs sbin/mkswap"
+COPY_mount="bin/findmnt bin/mount libmount.so.1* bin/mountpoint bin/umount"
+COPY_mount_dev="libmount.h mount.pc libmount.so"
+COPY_partx="sbin/addpart sbin/delpart sbin/partx sbin/resizepart"
+COPY_setterm="bin/setterm"
+COPY_sfdisk="sbin/sfdisk"
+COPY_smartcols="libsmartcols.so.1*"
+COPY_smartcols_dev="libsmartcols.h smartcols.pc libsmartcols.so"
+COPY_uuid="libuuid.so.1* bin/uuidgen sbin/uuidd"
+COPY_uuid_dev="uuid.h uuid.pc libuuid.so"
+COPY_whereis="bin/whereis"
+COPY_misc="@std @dev @rm"
+
+CAT_blkid="base-system|blkid utility"
+CAT_blkid_dev="development|blkid development files"
+CAT_blockdev="base-system|blockdev utility"
+CAT_cfdisk="system-tools|cfdisk utility"
+CAT_column="base-system|column utility"
+CAT_cramfs="system-tools|cramfs utilities"
+CAT_eject="base-system|eject utility"
+CAT_fdisk="system-tools|fdisk utility"
+CAT_fdisk_dev="development|fdisk utility development files"
+CAT_flock="base-system|flock utility"
+CAT_getopt="base-system|getopt utility"
+CAT_minix="system-tools|minix utilities"
+CAT_mkfs="base-system|mkfs utilities"
+CAT_mount="base-system|mount utilities"
+CAT_mount_dev="development|mount utilities development files"
+CAT_partx="system-tools|partx utilities"
+CAT_setterm="base-system|setterm utility"
+CAT_sfdisk="system-tools|sfdisk utility"
+CAT_smartcols="system-tools|smartcols library"
+CAT_smartcols_dev="development|smartcols library development files"
+CAT_uuid="base-system|uuid utility and library"
+CAT_uuid_dev="development|uuid utility and library development files"
+CAT_whereis="base-system|whereis utility"
+CAT_misc="system-tools|misc utilities"
+
+DEPENDS_blkid="util-linux-mount util-linux-smartcols util-linux-uuid"
+DEPENDS_blkid_dev="util-linux-blkid util-linux-uuid-dev"
+DEPENDS_blockdev=" "
+DEPENDS_cfdisk="ncurses util-linux-fdisk util-linux-mount util-linux-smartcols"
+DEPENDS_column="util-linux-smartcols"
+DEPENDS_cramfs="zlib"
+DEPENDS_eject="util-linux-mount"
+DEPENDS_fdisk="ncurses readline util-linux-blkid util-linux-smartcols util-linux-uuid"
+DEPENDS_fdisk_dev="util-linux-fdisk util-linux-blkid-dev util-linux-uuid-dev"
+DEPENDS_flock="util-linux-mount util-linux-smartcols"
+DEPENDS_getopt=" "
+DEPENDS_minix=" "
+DEPENDS_mkfs="util-linux-blkid util-linux-uuid"
+DEPENDS_mount="util-linux-blkid util-linux-smartcols"
+DEPENDS_mount_dev="util-linux-mount util-linux-blkid-dev"
+DEPENDS_partx="util-linux-blkid util-linux-smartcols"
+DEPENDS_setterm="ncurses"
+DEPENDS_sfdisk="ncurses readline util-linux-fdisk util-linux-smartcols"
+DEPENDS_smartcols=" "
+DEPENDS_smartcols_dev="util-linux-smartcols"
+DEPENDS_uuid=" "
+DEPENDS_uuid_dev="util-linux-uuid"
+DEPENDS_whereis=" "
+DEPENDS_misc="ncurses python util-linux-blkid util-linux-mount util-linux-smartcols util-linux-uuid"
+
+TAGS_std="LFS"
+
 COOKOPTS="!menus"
-SPLIT="$PACKAGE-bash-completion $PACKAGE-blkid $PACKAGE-blkid-dev \
-$PACKAGE-blockdev $PACKAGE-cfdisk $PACKAGE-column $PACKAGE-cramfs \
-$PACKAGE-eject $PACKAGE-fdisk $PACKAGE-fdisk-dev $PACKAGE-flock \
-$PACKAGE-getopt $PACKAGE-manpages $PACKAGE-minix $PACKAGE-mkfs \
-$PACKAGE-mount $PACKAGE-mount-dev $PACKAGE-partx $PACKAGE-setterm \
-$PACKAGE-sfdisk $PACKAGE-smartcols $PACKAGE-smartcols-dev \
-$PACKAGE-uuid $PACKAGE-uuid-dev $PACKAGE-whereis $PACKAGE-misc"
 
 compile_rules() {
 	mkdir -p $install/var/lib/hwclock
@@ -37,154 +116,4 @@ compile_rules() {
 
 	install -Dm644 $stuff/cfdisk.desktop \
 		$install/usr/share/applications/cfdisk.desktop
-}
-
-genpkg_rules() {
-	case ${PACKAGE#util-linux-} in
-		bash-completion)
-			copy bash-completion/
-			CAT="shells|BASH completions"
-			DEPENDS="bash"
-			;;
-		blkid)
-			copy lsblk blkid libblkid.so*
-			CAT="base-system|blkid utility"
-			DEPENDS="glibc-base util-linux-mount util-linux-smartcols \
-			util-linux-uuid"
-			;;
-		blkid-dev)
-			copy blkid.h blkid.pc
-			CAT="development|blkid development files"
-			DEPENDS="util-linux-blkid util-linux-uuid-dev"
-			;;
-		blockdev)
-			copy blockdev
-			CAT="base-system|blockdev utility"
-			DEPENDS="glibc-base"
-			;;
-		cfdisk)
-			copy cfdisk cfdisk.desktop
-			CAT="system-tools|cfdisk utility"
-			DEPENDS="glibc-base ncurses util-linux-blkid util-linux-fdisk \
-			util-linux-mount util-linux-smartcols util-linux-uuid"
-			;;
-		column)
-			copy column col colrm colcrt
-			CAT="base-system|column utility"
-			DEPENDS="glibc-base"
-			;;
-		cramfs)
-			copy *.cramfs
-			CAT="system-tools|cramfs utilities"
-			DEPENDS="glibc-base zlib"
-			;;
-		eject)
-			copy eject
-			CAT="base-system|eject utility"
-			DEPENDS="glibc-base util-linux-blkid util-linux-mount \
-			util-linux-uuid"
-			;;
-		fdisk)
-			copy fdisk libfdisk.so*
-			CAT="system-tools|fdisk utility"
-			DEPENDS="glibc-base ncurses readline util-linux-blkid \
-			util-linux-smartcols util-linux-uuid"
-			;;
-		fdisk-dev)
-			copy libfdisk.h fdisk.pc
-			CAT="development|fdisk utility development files"
-			DEPENDS="util-linux-fdisk util-linux-blkid-dev util-linux-uuid-dev"
-			;;
-		flock)
-			copy flock lslocks
-			CAT="base-system|flock utility"
-			DEPENDS="glibc-base"
-			;;
-		getopt)
-			copy getopt
-			CAT="base-system|getopt utility"
-			DEPENDS="glibc-base"
-			;;
-		manpages)
-			copy man/
-			CAT="doc|manual pages"
-			DEPENDS=" "
-			;;
-		minix)
-			copy *.minix
-			CAT="system-tools|minix utilities"
-			DEPENDS="glibc-base"
-			;;
-		mkfs)
-			copy mk*
-			rm -r $fs/usr
-			CAT="base-system|mkfs utilities"
-			DEPENDS="glibc-base util-linux-blkid util-linux-uuid zlib"
-			;;
-		mount)
-			copy findmnt mount libmount.so* mountpoint umount
-			CAT="base-system|mount utilities"
-			DEPENDS="glibc-base util-linux-blkid util-linux-uuid \
-			util-linux-smartcols"
-			;;
-		mount-dev)
-			copy libmount.h mount.pc
-			CAT="development|mount utilities development files"
-			DEPENDS="util-linux-mount util-linux-blkid-dev util-linux-uuid-dev"
-			;;
-		partx)
-			copy addpart delpart partx resizepart
-			CAT="system-tools|partx utilities"
-			DEPENDS="glibc-base util-linux-blkid util-linux-uuid \
-			util-linux-smartcols"
-			;;
-		setterm)
-			copy setterm
-			CAT="base-system|setterm utility"
-			DEPENDS="glibc-base ncurses"
-			;;
-		sfdisk)
-			copy sfdisk
-			CAT="system-tools|sfdisk utility"
-			DEPENDS="glibc-base ncurses readline util-linux-blkid \
-			util-linux-fdisk util-linux-smartcols util-linux-uuid"
-			;;
-		smartcols)
-			copy libsmartcols.so*
-			CAT="system-tools|smartcols library"
-			DEPENDS="glibc-base"
-			;;
-		smartcols-dev)
-			copy libsmartcols.h smartcols.pc
-			CAT="development|smartcols library development files"
-			DEPENDS="util-linux-smartcols"
-			;;
-		uuid)
-			copy libuuid.so* uuidgen uuidd
-			CAT="base-system|uuid utility and library"
-			DEPENDS="glibc-base"
-			;;
-		uuid-dev)
-			copy uuid.h uuid.pc
-			CAT="development|uuid utility and library development files"
-			DEPENDS="util-linux-uuid"
-			;;
-		whereis)
-			copy whereis
-			CAT="base-system|whereis utility"
-			DEPENDS="glibc-base"
-			;;
-		misc)
-			copy @std @dev @rm
-			CAT="system-tools|misc utilities"
-			;;
-		util-linux)
-			TAGS="LFS"
-			;;
-	esac
-
-	if [ "$PACKAGE" != 'util-linux-bash-completion' -a -d "$fs/usr/share/bash-completion" ]; then
-		rm -r $fs/usr/share/bash-completion
-		rmdir --parents --ignore-fail-on-non-empty $fs/usr/share
-	fi
 }
