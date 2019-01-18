@@ -1,19 +1,33 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tk"
-VERSION="8.6.8"
+VERSION="8.6.9.1"
 CATEGORY="development"
-SHORT_DESC="The TCL GUI toolkit"
+SHORT_DESC="GUI toolkit for Tcl"
 MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://tcl.sourceforge.net/"
+WEB_SITE="https://www.tcl.tk/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/tk.html"
 
 TARBALL="$PACKAGE$VERSION-src.tar.gz"
 WGET_URL="$SF_MIRROR/tcl/$TARBALL"
+TARBALL_SHA1="473019c00461fb55724d1923ed6330d01d9483b8"
 
-BUILD_DEPENDS="tcl-dev libx11-dev"
-SPLIT="$PACKAGE-demos $PACKAGE $PACKAGE-dev"
+BUILD_DEPENDS="tcl-dev libx11-dev libxt-dev libxft-dev libxscrnsaver-dev \
+libxext-dev"
+SPLIT="$PACKAGE-dev $PACKAGE-demos $PACKAGE"
+
+COPY_dev="@dev *Config.sh"
+COPY_demos="demos/"
+
+CAT_demos="development|demo applications"
+
+DEPENDS_demos=" "
+DEPENDS_std="fontconfig libx11 libxscrnsaver libxft tcl"
+DEPENDS_dev="$PACKAGE fontconfig-dev libx11-dev libxext-dev libxft-dev \
+libxscrnsaver-dev tcl-dev"
+
+TAGS_std="programming language"
 
 compile_rules() {
 	case $ARCH in
@@ -34,24 +48,5 @@ compile_rules() {
 	ln -v -sf wish${VERSION:0:3} $install/usr/bin/wish
 	chmod -v 755 $install/usr/lib/libtk${VERSION:0:3}.so
 	find $install -name '*.sh' -exec chmod -v 755 '{}' \;
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		tk-demos)
-			copy demos/
-			CAT="development|demo applications"
-			DEPENDS=" "
-			;;
-		tk)
-			copy @std @rm
-			find $fs -name '*Config.sh' -delete
-			DEPENDS="tcl libx11"
-			TAGS="programming language"
-			;;
-		*-dev)
-			copy @dev *Config.sh
-			DEPENDS="tk libx11-dev"
-			;;
-	esac
+	find $install/usr/share/man -type f -exec chmod u+w '{}' \; # 444->644
 }

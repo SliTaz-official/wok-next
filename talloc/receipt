@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="talloc"
-VERSION="2.1.14"
+VERSION="2.1.15"
 CATEGORY="system-tools"
 SHORT_DESC="Hierarchical pool based memory allocator with destructors"
 MAINTAINER="devel@slitaz.org"
@@ -11,17 +11,31 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/talloc.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://www.samba.org/ftp/talloc/$TARBALL"
-TARBALL_SHA1="9d563b768148b620bdae1c97b36cfc30928a1044"
+TARBALL_SHA1="17c74ab8612f17ae1ed65751da1335a5a2d93704"
 
-BUILD_DEPENDS="python-dev docbook-xsl"
-SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
+BUILD_DEPENDS="python3-dev python-dev docbook-xsl \
+acl-dev zlib-dev libtirpc-dev libnsl-dev libxslt docbook-xsl"
+SPLIT="$PACKAGE-python $PACKAGE-python3 $PACKAGE $PACKAGE-dev"
 
-COPY_python="python*/ libpytalloc*"
-CAT_python="development|Python bindings"
+COPY_python="python2*/ libpytalloc-util.so*"
+COPY_python3="python3*/ libpytalloc-util.cpython-*"
+
+CAT_python="development|Python2 bindings"
+CAT_python3="development|Python3 bindings"
+
 DEPENDS_python="$PACKAGE python"
+DEPENDS_python3="$PACKAGE python3"
+DEPENDS_dev="$PACKAGE"
+
+SUGGESTED_dev="$PACKAGE-python $PACKAGE-python3"
 
 compile_rules() {
-	./configure --prefix=/usr &&
+	sed -i 's|../../buildtools/bin/waf|buildtools/bin/waf|' Makefile
+
+	./configure \
+		--prefix=/usr \
+		--extra-python=/usr/bin/python2 \
+		&&
 	make &&
 	make install
 }
