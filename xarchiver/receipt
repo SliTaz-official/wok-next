@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="xarchiver"
-VERSION="0.5.4.13"
+VERSION="0.5.4.14"
 CATEGORY="x-window"
 SHORT_DESC="A GTK+ lightweight archive manager"
 MAINTAINER="devel@slitaz.org"
@@ -11,8 +11,15 @@ WEB_SITE="https://github.com/ib/xarchiver"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/ib/xarchiver/archive/$VERSION.tar.gz"
+TARBALL_SHA1="db763b3eaf926ebfc78ba0f647902d0d3764a813"
 
-BUILD_DEPENDS="gtk2-dev intltool libxslt"
+BUILD_DEPENDS="gtk2-dev intltool libxslt docbook-xsl"
+DEPENDS="gdk-pixbuf glib gtk2"
+
+# binutils for ar; busybox also contains gzip & cpio; rar is get-rar; gtar is absent
+SUGGESTED="arj binutils bzip2 cpio gzip lha lzma lzop p7zip-full rar xz zip"
+
+COPY="@std index.html xarchiver-add.png xarchiver-extract.png" # 24x24 skipped by default
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -21,18 +28,15 @@ compile_rules() {
 	make &&
 	make install || return 1
 
+	docdir="$install/usr/share/doc/$PACKAGE-$VERSION"
+	mv $docdir/index.html $docdir/index.orig.html
 	install -Dm644 $stuff/xarchiver.cgi $install/var/www/cgi-bin/xarchiver.cgi
-	install -Dm644 $stuff/index.html    $install/usr/share/doc/xarchiver/html/index.html
+	install -Dm644 $stuff/index.html    $docdir/index.html
 
-	sed -i 's|multipart/x-zip;||; /Exec/s/.*/& %f/' \
-		$install/usr/share/applications/xarchiver.desktop
-}
-
-genpkg_rules() {
-	copy @std @ico
-	rm -r $fs/usr/share/pixmaps/
-	DEPENDS="gdk-pixbuf glib gtk2"
-	# binutils for ar; busybox also contains gzip & cpio; rar is get-rar;
-	# gtar is absent
-	SUGGESTED="arj binutils bzip2 cpio gzip lha lzma lzop p7zip-full rar xz zip"
+	# move icons from pixmaps to default hicolor theme
+	install -Dm644 $install/usr/share/pixmaps/xarchiver/xarchiver-add.png \
+		$install/usr/share/icons/hicolor/24x24/actions/xarchiver-add.png
+	install -Dm644 $install/usr/share/pixmaps/xarchiver/xarchiver-extract.png \
+		$install/usr/share/icons/hicolor/24x24/actions/xarchiver-extract.png
+	rm -r $install/usr/share/pixmaps/
 }
