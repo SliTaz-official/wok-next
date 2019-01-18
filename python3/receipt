@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="python3"
-VERSION="3.7.1"
+VERSION="3.7.2"
 CATEGORY="development"
 SHORT_DESC="The Python 3 programming language"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,22 +11,31 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/Python.html"
 
 TARBALL="Python-$VERSION.tar.xz"
 WGET_URL="https://www.python.org/ftp/python/$VERSION/$TARBALL"
+TARBALL_SHA1="c3dc6928516bcb934cf4740461044c79c7c35494"
 
 BUILD_DEPENDS="readline-dev gdbm-dev openssl-dev sqlite3-dev zlib-dev tk-dev \
 ncurses-dev xz-dev bzip2-dev expat-dev libffi-dev"
-SPLIT="$PACKAGE-dev"
-COOKOPTS="!zip"
+SPLIT="$PACKAGE-idle $PACKAGE-tcltk $PACKAGE-ensurepip $PACKAGE $PACKAGE-dev"
 
-COPY_std="@std pyconfig.h"
-COPY_dev="@dev @rm"
+COPY_idle="idle3 idle${VERSION%.*} idlelib/"
+COPY_tcltk="_tkinter.*.so tkinter/"
+COPY_ensurepip="ensurepip/"
+COPY_std="@std @rm pyconfig.h"
 
-DEPENDS_std="python3-setuptools python3-pip libbzip2 expat libgdbm libffi liblzma \
-libsqlite3 ncurses ncurses-libpanel openssl readline zlib" # tcl tk libx11
+CAT_idle="development|GUI IDE using TK Toolkit"
+CAT_tcltk="development|Tcl/Tk files"
+CAT_ensurepip="development|ensurepip"
 
-PROVIDE_std="py3k"
-PROVIDE_dev="py3k-dev"
+DEPENDS_idle="$PACKAGE"
+DEPENDS_tcltk="$PACKAGE tcl tk"
+DEPENDS_ensurepip="$PACKAGE"
+DEPENDS_std="expat libbzip2 libffi libgdbm liblzma libsqlite3 ncurses \
+ncurses-libpanel openssl readline util-linux-uuid zlib   python3-setuptools \
+python3-pip"
+DEPENDS_dev="$PACKAGE"
 
 TAGS_std="LFS"
+COOKOPTS="!zip"
 
 compile_rules() {
 	mkdir -p $install/usr/lib/pkgconfig
@@ -42,4 +51,9 @@ compile_rules() {
 
 	chmod 755 $install/usr/lib/libpython${VERSION%.*}m.so
 	chmod 755 $install/usr/lib/libpython${VERSION%%.*}.so
+
+	find $install -type f -name '*.pyc' -delete
 }
+
+PROVIDE_std="py3k"
+PROVIDE_dev="py3k-dev"
