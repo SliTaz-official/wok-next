@@ -1,46 +1,45 @@
 # SliTaz package receipt v2.
 
 PACKAGE="paper-icon-theme"
-VERSION="1.4.0.31"	# released v.1.4.0 + 31 commits since it
-COMMIT="c153195"
+VERSION="1.5.0"
 CATEGORY="customization"
 SHORT_DESC="Simple and modern icon theme with material design influences"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="CC-BY-SA-4"
 WEB_SITE="https://snwh.org/paper"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$COMMIT.tar.gz"
-WGET_URL="$GITHUB/snwh/paper-icon-theme/tarball/${COMMIT:-$VERSION}"
+WGET_URL="https://github.com/snwh/paper-icon-theme/archive/v.$VERSION.tar.gz"
+TARBALL_SHA1="1a91245113971687a12f8fb2bc2e9ceae1e705f8"
 
-BUILD_DEPENDS="automake" # svgcleaner"
+BUILD_DEPENDS="meson ninja jdupes"
+SPLIT="$PACKAGE-huge $PACKAGE-hidpi $PACKAGE"
+
+COPY_huge="512x512/"
+COPY_hidpi="*@2x/"
+
+CAT_huge="customization|512x512 px"
+CAT_hidpi="customization|for HiDPI screens"
+
+DEPENDS_huge="$PACKAGE"
+DEPENDS_hidpi="$PACKAGE"
+DEPENDS_std=" "
 
 compile_rules() {
-	./autogen.sh &&
-	sed -i 's|-Rv|-R|' Makefile &&
-	make &&
-	make install || return 1
+	# Lots of files incorrectly have executable permissions.
+	# Remove all such permissions, then restore the few that are correct.
+	busybox find $src -type f -perm +111 ! -name '*.py' -exec chmod a-x '{}' \;
 
-	# remove hdpi icons, and huge sizes
-	it="$install/usr/share/icons/Paper/index.theme"
-	for i in 8x8@2x 16x16@2x 24x24@2x 32x32@2x 48x48@2x 512x512@2x 512x512; do
-		echo "Remove $i"
-		rm -r $install/usr/share/icons/Paper/$i
-		sed -i "s|$i[^,]*,||g" $it
-		sed -i "/^\[$i/,/^\[/{/^\[/b;d}" $it
-		sed -i "/^\[$i/d" $it
-	done
-	sed -i '/HiDPi/,$d' $it
+	mkdir build
+	cd    build
 
-#	# remove duplicates (keep <name>.png, remove <name>.svg)
-#	for svg in $(find $install -name '*.svg'); do
-#		if [ -e "${svg%svg}png" ]; then
-#			echo "Remove duplicate: ${svg#*Paper/}"
-#			rm "$svg"
-#		fi
-#	done
-}
+	meson-wrapper &&
+	ninja &&
+	ninja install || return 1
 
-genpkg_rules() {
-	cp -a $install/* $fs
-	DEPENDS="librsvg"
+	jdupes -l -R $install/usr/share/icons/
+
+	cd $src
+	cook_pick_docs AUTHORS COPYING LICENSE README.md
 }
