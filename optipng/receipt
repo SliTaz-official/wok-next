@@ -1,19 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="optipng"
-VERSION="0.7.6"
+VERSION="0.7.7"
 CATEGORY="utilities"
 SHORT_DESC="Compress and optimize PNG images"
 MAINTAINER="devel@slitaz.org"
 LICENSE="zlib/libpng"
 WEB_SITE="http://optipng.sourceforge.net/"
-TAGS="image compression"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="68aa89fbde642b104aeefa9efbc4dfbb936fa630"
 
-BUILD_DEPENDS="libpng-dev zlib-dev"
+BUILD_DEPENDS="libpng-dev zlib-dev zlib-static"
 SPLIT="$PACKAGE-static:static"
+
+COPY_static="@std"
+
+CAT_static="graphics|static binary"
+PROVIDE_static="optipng"
+
+DEPENDS_std="libpng zlib"
+DEPENDS_static=" "
+
+TAGS="image compression"
 
 compile_rules() {
 	sed -i 's|prefix)/man|prefix)/share/man|' configure
@@ -34,19 +44,4 @@ compile_rules() {
 
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		optipng)
-			copy @std
-			DEPENDS="libpng zlib"
-			;;
-		optipng-static)
-			copy @std
-			CAT="graphics|static binary"
-			PROVIDE="optipng"
-			DEPENDS=" "
-			;;
-	esac
 }
