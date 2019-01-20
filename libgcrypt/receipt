@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libgcrypt"
-VERSION="1.8.3"
+VERSION="1.8.4"
 CATEGORY="security"
 SHORT_DESC="Cryptographic library based on GnuPG"
 MAINTAINER="devel@slitaz.org"
@@ -11,30 +11,20 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libgcrypt.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/libgcrypt/$TARBALL"
+TARBALL_SHA1="4a8ef9db6922f3a31992aca5640b4198a69b58fc"
 # https://www.gnupg.org/download/integrity_check.html
-TARBALL_SHA1="13bd2ce69e59ab538e959911dfae80ea309636e3"
 
 COOKOPTS="force-arch" # different configs
 
 BUILD_DEPENDS="libgpg-error-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libgpg-error"
+DEPENDS_dev="$PACKAGE libgpg-error-dev"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libgcrypt)
-			copy @std
-			DEPENDS="libgpg-error"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libgcrypt libgpg-error-dev"
-			;;
-	esac
 }

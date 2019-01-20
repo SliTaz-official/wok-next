@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxslt"
-VERSION="1.1.32"
+VERSION="1.1.33"
 CATEGORY="system-tools"
 SHORT_DESC="XSLT support for libxml2"
 MAINTAINER="devel@slitaz.org"
@@ -11,9 +11,21 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxslt.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://xmlsoft.org/sources/$TARBALL"
+TARBALL_SHA1="7dcda921d9d3d3325449dae5cf84dbb102d26928"
 
 BUILD_DEPENDS="libgcrypt-dev libgpg-error-dev libxml2-dev zlib-dev python-dev"
 SPLIT="$PACKAGE-python $PACKAGE-dev"
+
+COPY_std="xsltproc lib/*.so.*"
+COPY_python="python2*/*/*.py python2*/*/*.so"
+COPY_dev="@dev xsltConf.sh libxslt.so libexslt.so"
+
+DEPENDS_std="libgcrypt libxml2" # libgpg-error liblzma zlib
+DEPENDS_python="$PACKAGE libxml2 python" # libgcrypt libgpg-error liblzma zlib
+DEPENDS_dev="$PACKAGE libgcrypt-dev libgpg-error-dev libxml2-dev" # xz-dev zlib-dev
+
+CAT_python="development|python module"
+
 COOKOPTS="skip-log-errors"
 
 compile_rules() {
@@ -24,25 +36,7 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	case $PACKAGE in
-		libxslt)
-			copy xsltproc libxslt.so* libexslt.so*
-			DEPENDS="libgcrypt libgpg-error liblzma libxml2 zlib"
-			;;
-		libxslt-python)
-			copy python*/
-			find $fs -name '*.la' -delete
-			DEPENDS="libgcrypt libgpg-error liblzma libxml2 libxslt python zlib"
-			CAT="development|python module"
-			;;
-		libxslt-dev)
-			copy @dev xsltConf.sh
-			DEPENDS="libxslt libxslt-python libgcrypt-dev libgpg-error-dev \
-			libxml2-dev xz-dev zlib-dev"
-			;;
-	esac
+	find $install -name '*.sh' -exec chmod +x '{}' \;
 }

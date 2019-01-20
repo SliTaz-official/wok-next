@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libxml2"
-VERSION="2.9.8"
+VERSION="2.9.9"
 CATEGORY="system-tools"
 SHORT_DESC="XML C parser and toolkit"
 MAINTAINER="devel@slitaz.org"
@@ -11,16 +11,16 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libxml2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://xmlsoft.org/sources/$TARBALL"
-TARBALL_SHA1="66bcefd98a6b7573427cf66f9d3841b59eb5b8c3"
+TARBALL_SHA1="96686d1dd9fddf3b35a28b1e2e4bbacac889add3"
 
 BUILD_DEPENDS="zlib-dev xz-dev python3-dev python-dev ncurses-dev readline-dev"
 SPLIT="$PACKAGE-tools $PACKAGE-python $PACKAGE-python3 $PACKAGE-dev"
 
-COPY_std="libxml2.so*"
+COPY_std="libxml2.so.*"
 COPY_tools="xmllint xmlcatalog"
-COPY_python="python2.*/site-packages/*.py python2.*/site-packages/*.so"
-COPY_python3="python3.*/site-packages/*.py python3.*/site-packages/*.so"
-COPY_dev="@dev *.sh"
+COPY_python="python2.*/*/*.py python2.*/*/*.so"
+COPY_python3="python3.*/*/*.py python3.*/*/*.so"
+COPY_dev="@dev *.sh libxml2.so"
 
 DEPENDS_std="liblzma zlib"
 DEPENDS_tools="$PACKAGE readline"
@@ -29,11 +29,10 @@ DEPENDS_python3="$PACKAGE python3" # libxslt
 DEPENDS_dev="xz-dev zlib-dev   $PACKAGE-tools"
 
 CAT_tools="system-tools|utilities"
-CAT_python="development|adapter for the Python"
+CAT_python="development|adapter for the Python2"
+CAT_python3="development|adapter for the Python3"
 
 compile_rules() {
-	sed -i '/_PyVerify_fd/,+1d' python/types.c
-
 	./configure \
 		--disable-static \
 		--with-history \
