@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="clisp"
-VERSION="2.50"
+VERSION="2.49"
 CATEGORY="development"
 SHORT_DESC="GNU ANSI Common Lisp implementation"
 MAINTAINER="paul@slitaz.org"
@@ -9,27 +9,24 @@ LICENSE="GPL2"
 WEB_SITE="https://clisp.sourceforge.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="https://gitlab.com/gnu-clisp/clisp/-/archive/clisp-$VERSION/clisp-clisp-$VERSION.tar.bz2"
+WGET_URL="https://downloads.sourceforge.net/sourceforge/$PACKAGE/$TARBALL"
+TARBALL_SHA1="7e8d585ef8d0d6349ffe581d1ac08681e6e670d4"
 
-BUILD_DEPENDS="libunistring-dev gettext-dev libffcall readline-dev libsigsegv-dev"
+BUILD_DEPENDS="gettext-dev libffcall-dev readline-dev libsigsegv-dev"
+
+COPY="@std @dev"
+DEPENDS="libffcall libsigsegv ncurses readline"
 
 compile_rules() {
-	FORCE_UNSAFE_CONFIGURE=1 \
+	ulimit -s 16384
+
 	./configure \
 		--with-ffcall \
 		--with-readline \
-		build &&
-	cd  build &&
-	./makemake \
-		--with-ffcall \
-		--with-readline \
 		--with-dynamic-ffi \
-		> Makefile &&
-	make &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std @dev
-	DEPENDS="libsigsegv libunistring ncurses readline"
+		--without-dynamic-modules \
+		. &&
+	fix libtool &&
+	make -j1 &&
+	make -j1 DESTDIR=$install install
 }

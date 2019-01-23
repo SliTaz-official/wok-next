@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libffcall"
-VERSION="20091209"
+VERSION="2.1"
 CATEGORY="development"
 SHORT_DESC="Foreign function call libraries"
 MAINTAINER="paul@slitaz.org"
@@ -9,21 +9,20 @@ LICENSE="GPL2"
 WEB_SITE="http://www.gnu.org/software/libffcall/"
 REPOLOGY="ffcall"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="cvs|pserver:anonymous@cvs.sv.gnu.org:/sources/libffcall"
-CVS_MODULE="ffcall"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="aa2bf00587dec333704cbda19fb6786370bd7762"
 
-BUILD_DEPENDS="cvs gfortran"
+BUILD_DEPENDS="gfortran"
+SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
+	fix libtool &&
 	make -j1 &&
-	make install || return 1
+	make \
+		htmldir=/usr/share/doc/ffcall \
+		install || return 1
 
-	mkdir -p $install/usr/share/doc/
-	mv $install/usr/share/html/ $install/usr/share/doc/$PACKAGE/
-}
-
-genpkg_rules() {
-	copy @dev *.la # .a + .la
+	find $install -type f \( -name '*.so.*' -o -name '*.a' \) -exec chmod a+x '{}' \;
 }
