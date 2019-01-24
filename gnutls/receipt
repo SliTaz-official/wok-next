@@ -14,7 +14,15 @@ TARBALL_SHA1="51b29b7e37467a765378f3c8e546a5c1bb2a5054"
 
 BUILD_DEPENDS="nettle-dev libtasn1-dev libunistring-dev gettext-dev openssl-dev \
 libidn2-dev unbound-dev p11-kit-dev zlib-dev"
-SPLIT="libgnutls $PACKAGE-dev"
+SPLIT="lib$PACKAGE $PACKAGE $PACKAGE-dev"
+
+CAT_libgnutls="security|shared libraries"
+
+DEPENDS_libgnutls="gmp libidn2 libp11-kit libtasn1 libunistring nettle unbound \
+zlib   cacerts"
+DEPENDS_std="lib$PACKAGE libtasn1"
+DEPENDS_dev="$PACKAGE lib$PACKAGE gmp-dev libidn2-dev libtasn1-dev nettle-dev \
+p11-kit-dev unbound-dev zlib-dev"
 
 compile_rules() {
 	./configure \
@@ -25,25 +33,4 @@ compile_rules() {
 	make &&
 	make install &&
 	make -C doc/reference install-data-local
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gnutls)
-			copy bin/
-			DEPENDS="libgnutls libtasn1"
-			;;
-		libgnutls)
-			copy *.so*
-			CAT="security|shared libraries"
-			DEPENDS="gmp libidn2 libp11-kit libtasn1 libunistring nettle \
-			unbound zlib   cacerts"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gnutls libgnutls \
-			gmp-dev libidn2-dev libtasn1-dev nettle-dev p11-kit-dev \
-			unbound-dev zlib-dev"
-			;;
-	esac
 }
