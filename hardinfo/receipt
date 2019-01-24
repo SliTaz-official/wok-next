@@ -1,35 +1,29 @@
 # SliTaz package receipt.
 
 PACKAGE="hardinfo"
-VERSION="0.5.1"
+VERSION="0.5.1" # 2009-04-06
 CATEGORY="system-tools"
 SHORT_DESC="A tool to get hardware informations and perform benchmarks"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://hardinfo.berlios.de/"
+WEB_SITE="https://github.com/lpereira/hardinfo"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://download.berlios.de/hardinfo/$TARBALL"
+WGET_URL="$SF_MIRROR/hardinfo.berlios/$TARBALL"
+TARBALL_SHA1="983f0445aa60e02156bc5a5eaedeffb30b8e4d64"
 
 BUILD_DEPENDS="gtk2-dev"
+DEPENDS="gdk-pixbuf glib gtk2 pango   pciutils"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		$CONFIGURE_ARGS &&
-	sed -i 's/^GTK_LIBS.*/& -lgmodule-2.0 -lm/' Makefile &&
+	./configure $CONFIGURE_ARGS &&
+	sed -i 's|^GTK_LIBS.*|& -lgmodule-2.0 -lm|' Makefile &&
 	make &&
-	make DESTDIR=$install install
-}
+	make install || return 1
 
-genpkg_rules() {
-	mkdir -p $fs/usr/lib/$PACKAGE/modules $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
-	cp -a $src/*.so $fs/usr/lib/$PACKAGE/modules
-	cp -a $install/usr/share/$PACKAGE $fs/usr/share
-
-	cd $fs/usr/share/pixmaps
-	rm ../$PACKAGE/pixmaps/logo.xcf
-	ln -s ../$PACKAGE/pixmaps/logo.png hardinfo.png
-	DEPENDS="gtk2 pciutils libxdamage"
+	rmdir $install/usr/local/ # empty
+	rm $install/usr/share/hardinfo/pixmaps/logo.xcf
+	mkdir -p $install/usr/share/icons/hicolor/48x48/apps/
+	ln -s ../../../../hardinfo/pixmaps/logo.png \
+		$install/usr/share/icons/hicolor/48x48/apps/hardinfo.png
 }

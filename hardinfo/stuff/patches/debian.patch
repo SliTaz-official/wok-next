@@ -1,0 +1,54 @@
+Combined patches from Debian (hardinfo_0.5.1-1.5)
+
+--- a/binreloc.c
++++ b/binreloc.c
+@@ -594,7 +594,7 @@
+     }
+ 
+ #ifdef ARCH_x86_64
+-    dir = g_build_filename(prefix, "lib64", NULL);
++    dir = g_build_filename(prefix, "lib", NULL);
+ #else
+     dir = g_build_filename(prefix, "lib", NULL);
+ #endif
+--- a/config.h
++++ b/config.h
+@@ -0,0 +1,17 @@
++#ifndef __CONFIG_H__
++#define __CONFIG_H__
++
++#define VERSION "0.5.1"
++#define ARCH_i386
++#define ARCH     "ARCH_i386"
++#define PLATFORM "Linux"
++#define KERNEL   "2.6.30-1-686"
++#define HOSTNAME "comanche"
++#define PREFIX "/usr/share/hardinfo/"
++#define LIBPREFIX "/usr/lib/hardinfo/"
++#define HAS_LINUX_WE
++#define DEBUG(...)
++#define ENABLE_BINRELOC 1
++#define RELEASE 1
++
++#endif	/* __CONFIG_H__ */
+--- a/configure
++++ b/configure
+@@ -56,7 +56,7 @@
+ 	x86_64)
+ 		ln -sf linux/x86_64 arch/this
+ 		ARCH="ARCH_x86_64"
+-		LIBDIR="/usr/lib64" ;;
++		LIBDIR="/usr/lib" ;;
+ 	mips*)
+ 		ln -sf linux/mips arch/this
+ 		ARCH="ARCH_MIPS" ;;
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -1,6 +1,6 @@
+ 
+ CCFLAGS = -fPIC -pipe -Wall -g 
+-CFLAGS = $(GTK_CFLAGS) $(SOUP_CFLAGS) -I.
++CFLAGS = $(GTK_CFLAGS) $(SOUP_CFLAGS) -I. -std=gnu89
+ CC = gcc $(ARCHOPTS) -g
+ CCSLOW = gcc -O0 -g
+ 
