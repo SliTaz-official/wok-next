@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libidn2"
-VERSION="2.0.5"
+VERSION="2.1.0"
 CATEGORY="system-tools"
 SHORT_DESC="Encode and decode internationalized domain names"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,9 +11,16 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libidn2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/libidn/$TARBALL"
+TARBALL_SHA1="dffdab4dd69ad39f6a65cebc464c2603a136f074"
 
 BUILD_DEPENDS="gtk-doc gettext-dev glib-dev git libunistring-dev"
 SPLIT="$PACKAGE-dev"
+
+COPY_std="idn2 *.so.*"
+COPY_dev="@dev *.so"
+
+DEPENDS_std="libunistring"
+DEPENDS_dev="$PACKAGE libunistring-dev"
 
 compile_rules() {
 	./configure \
@@ -22,17 +29,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libidn2)
-			copy @std
-			DEPENDS="libunistring"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libidn2 libunistring-dev"
-			;;
-	esac
 }
