@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libassuan"
-VERSION="2.5.1"
+VERSION="2.5.2"
 CATEGORY="security"
 SHORT_DESC="IPC library used by some of the other GnuPG related packages"
 MAINTAINER="devel@slitaz.org"
@@ -11,30 +11,20 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libassuan.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/libassuan/$TARBALL"
+TARBALL_SHA1="fb66bc1e8971d48ac9dbacd1cdaf6487a3e77375"
 # https://www.gnupg.org/download/integrity_check.html
-TARBALL_SHA1="c8432695bf1daa914a92f51e911881ed93d50604"
 
 COOKOPTS="force-arch" # different configs
 
 BUILD_DEPENDS="libgpg-error-dev"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libgpg-error"
+DEPENDS_dev="$PACKAGE libgpg-error-dev"
+
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libassuan)
-			copy @std
-			DEPENDS="libgpg-error"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libassuan libgpg-error-dev"
-			;;
-	esac
 }

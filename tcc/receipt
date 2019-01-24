@@ -1,20 +1,45 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tcc"
-GITHASH="0cc24d0e8487eaf53bb2849fef7e438a8e8fc94d" # 21/7/2017
-VERSION="20170721"
+VERSION="0.9.27" # 2017-12-17
 CATEGORY="development"
 SHORT_DESC="Fast Tiny C Compiler"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1 MIT"
 WEB_SITE="https://bellard.org/tcc/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://repo.or.cz/tinycc.git/snapshot/$GITHASH.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="http://download.savannah.gnu.org/releases/tinycc/$TARBALL"
+TARBALL_SHA1="3bab3acd404ea92ba18e0c261d9d8cb2f366a8a5"
 
 BUILD_DEPENDS="perl texinfo diffutils"
 SPLIT="$PACKAGE-arm $PACKAGE-c67 $PACKAGE-i386 $PACKAGE-x86_64 $PACKAGE-win \
 $PACKAGE-osx"
+
+COPY_std="tcc libtcc.a libtcc1.a libtcc.h /usr/lib/tcc/include/"
+COPY_arm="arm-tcc arm64-tcc arm-libtcc1.a arm64-libtcc1.a"
+COPY_c67="c67-tcc"
+COPY_win="i386-win32-tcc x86_64-win32-tcc arm-wince-tcc win32/"
+COPY_i386="i386-tcc i386-libtcc1.a"
+COPY_x86_64="x86_64-tcc x86_64-libtcc1.a"
+COPY_osx="x86_64-osx-tcc x86_64-osx-libtcc1.a"
+
+CAT_arm="development|to ARM Hard Float Linux, AArch64 Linux targets"
+CAT_c67="development|to C67 Linux target"
+CAT_win="development|to i386 Windows, x86_64 Windows, ARM Hard Float Windows targets"
+CAT_i386="development|to i386 Linux target"
+CAT_x86_64="development|to x86_64 Linux target"
+CAT_osx="development|to x86_64 Darwin target"
+
+TAGS_std="compiler C assembler"
+TAGS_arm="compiler C arm"
+TAGS_c67="compiler C c67"
+TAGS_win="compiler C"
+TAGS_i386="compiler C"
+TAGS="compiler C"
+TAGS_osx="compiler C"
+
+SUGGESTED_win="mingw32-w32api"
 
 compile_rules() {
 	./configure \
@@ -24,44 +49,4 @@ compile_rules() {
 	make &&
 	make test &&
 	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		tcc)
-			copy tcc libtcc.a libtcc1.a libtcc.h /usr/lib/tcc/include/
-			TAGS="compiler C assembler"
-			;;
-		tcc-arm)
-			copy arm-tcc arm64-tcc libtcc1-arm.a libtcc1-arm64.a
-			CAT="development|to ARM Hard Float Linux, AArch64 Linux targets"
-			TAGS="compiler C arm"
-			;;
-		tcc-c67)
-			copy c67-tcc
-			CAT="development|to C67 Linux target"
-			TAGS="compiler C c67"
-			;;
-		tcc-win)
-			copy i386-win32-tcc x86_64-win32-tcc arm-wince-tcc win32/
-			CAT="development|to i386 Windows, x86_64 Windows, ARM Hard Float Windows targets"
-			SUGGESTED="mingw32-w32api"
-			TAGS="compiler C"
-			;;
-		tcc-i386)
-			copy i386-tcc libtcc1-i386.a
-			CAT="development|to i386 Linux target"
-			TAGS="compiler C"
-			;;
-		tcc-x86_64)
-			copy x86_64-tcc libtcc1-x86_64.a
-			CAT="development|to x86_64 Linux target"
-			TAGS="compiler C"
-			;;
-		tcc-osx)
-			copy x86_64-osx-tcc libtcc1-x86_64-osx.a
-			CAT="development|to x86_64 Darwin target"
-			TAGS="compiler C"
-			;;
-	esac
 }

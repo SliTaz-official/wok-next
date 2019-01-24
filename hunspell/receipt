@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="hunspell"
-VERSION="1.6.2"
+VERSION="1.7.0"
 CATEGORY="system-tools"
 SHORT_DESC="A spell checker"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,9 +10,12 @@ WEB_SITE="https://hunspell.github.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/hunspell/hunspell/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="e42ea8342a191b9cd7da57d0d6ad4ae1566c5dcc"
 
 BUILD_DEPENDS="automake libtool gettext-dev readline-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="ncurses readline"
 
 compile_rules() {
 	autoreconf -vfi &&
@@ -22,21 +25,8 @@ compile_rules() {
 		--with-ui \
 		--with-readline \
 		--disable-static \
-		--without-included-gettext \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make -j1 DESTDIR=$install install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		hunspell)
-			copy @std
-			DEPENDS="ncurses readline"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
+	make install #-j1 DESTDIR=$install install
 }

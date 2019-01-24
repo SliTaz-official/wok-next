@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="enchant"
-VERSION="1.6.1"
+VERSION="2.2.3"
 CATEGORY="text"
 SHORT_DESC="Enchant spell checking library"
 MAINTAINER="devel@slitaz.org"
@@ -10,39 +10,38 @@ WEB_SITE="https://abiword.github.io/enchant/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/enchant.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://github.com/AbiWord/enchant/releases/download/enchant-${VERSION//./-}/$TARBALL"
+WGET_URL="https://github.com/AbiWord/enchant/releases/download/v$VERSION/$TARBALL"
+TARBALL_SHA1="181d5563d282af0f30c7ab68c5d432271b6fd11e"
 
 BUILD_DEPENDS="glib-dev hunspell-dev aspell-dev"
-SPLIT="$PACKAGE-aspell $PACKAGE-hunspell $PACKAGE $PACKAGE-dev"
+SPLIT="$PACKAGE-aspell $PACKAGE-hunspell $PACKAGE-dev $PACKAGE"
+
+COPY_aspell="enchant_aspell.so"
+COPY_hunspell="enchant_hunspell.so"
+COPY_dev="@dev *.la *.so @rm"
+
+CAT_aspell="text|aspell backend"
+CAT_hunspell="text|hunspell backend"
+
+DEPENDS_aspell="$PACKAGE aspell glib"
+DEPENDS_hunspell="$PACKAGE glib hunspell"
+DEPENDS_std="glib"
+DEPENDS_dev="$PACKAGE $PACKAGE-aspell $PACKAGE-hunspell glib-dev"
+
+SUGGESTED_std="aspell"
+TAGS_std="spell check"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make install
-}
+	make install || return 1
 
-genpkg_rules() {
-	case $PACKAGE in
-		*-aspell)
-			copy libenchant_aspell.so
-			CAT="text|aspell backend"
-			DEPENDS="aspell enchant glib"
-			;;
-		*-hunspell)
-			copy libenchant_myspell.so
-			CAT="text|hunspell backend"
-			DEPENDS="enchant glib hunspell"
-			;;
-		enchant)
-			copy @std @rm
-			DEPENDS="glib"
-			SUGGESTED="aspell"
-			TAGS="spell check"
-			;;
-		*-dev)
-			copy @dev *.la
-			DEPENDS="enchant enchant-aspell enchant-hunspell glib-dev"
-			;;
-	esac
+	# compatibility with old enchant
+	ln -sfv enchant-2       $install/usr/include/enchant
+	ln -sfv enchant-2       $install/usr/bin/enchant
+	ln -sfv libenchant-2.so $install/usr/lib/libenchant.so
+	ln -sfv enchant-2.pc    $install/usr/lib/pkgconfig/enchant.pc
 }
