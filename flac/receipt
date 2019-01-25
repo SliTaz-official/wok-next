@@ -10,29 +10,23 @@ WEB_SITE="https://xiph.org/flac/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://downloads.xiph.org/releases/flac/$TARBALL"
+TARBALL_SHA1="2bdbb56b128a780a5d998e230f2f4f6eb98f33ee"
 TARBALL_SHA256="91cfc3ed61dc40f47f050a109b08610667d73477af6ef36dcad31c31a4a8d53f"
 
 BUILD_DEPENDS="libogg-dev"
 SPLIT="$PACKAGE-dev"
 
+COPY_std="bin/ *.so.*"
+COPY_dev="@dev *.so"
+
+DEPENDS_std="libogg"
+DEPENDS_dev="$PACKAGE libogg-dev"
+
+TAGS_std="codec audio"
+
 compile_rules() {
-	# gcc4 fix: http://bugs.gentoo.org/199579
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		flac)
-			copy @std
-			DEPENDS="libogg"
-			TAGS="codec audio"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="flac libogg-dev"
-			;;
-	esac
 }

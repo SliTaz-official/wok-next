@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gawk.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="3b0bf6beeaa2171bcd2413c906f32432653bcecf"
 
 BUILD_DEPENDS="readline-dev gettext-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="readline"
+TAGS_std="LFS"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -21,15 +25,4 @@ compile_rules() {
 	make install || return 1
 
 	cook_pick_docs doc/awkforai.txt doc/*.eps doc/*.pdf doc/*.jpg
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gawk)
-			copy @std
-			DEPENDS="readline"
-			TAGS="LFS"
-			;;
-		*-dev) copy @dev;;
-	esac
 }

@@ -11,9 +11,19 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/kmod.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE$TARBALL"
+TARBALL_SHA1="761ee76bc31f5db10d470dad607a5f9d68acef68"
 
 BUILD_DEPENDS="zlib-dev xz-dev tar"
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev *.so"
+
+# please keep glibc-base here because kmod used in the post-install
+# of linux-* packages and will not work instead
+DEPENDS_std="glibc-base zlib liblzma"
+DEPENDS_dev="$PACKAGE xz-dev"
+
+TAGS_std="LFS"
 
 compile_rules() {
 	./configure \
@@ -35,19 +45,4 @@ compile_rules() {
 	ln -s kmod $install/bin/lsmod
 }
 
-genpkg_rules() {
-	case $PACKAGE in
-		kmod)
-			copy @std
-			PROVIDE="modules-init-tools depmod"
-			# please keep glibc-base here because kmod used in the post-install
-			# of linux-* packages and will not work instead
-			DEPENDS="glibc-base zlib liblzma"
-			TAGS="LFS"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="kmod xz-dev"
-			;;
-	esac
-}
+PROVIDE_std="modules-init-tools depmod"

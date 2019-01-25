@@ -3,7 +3,7 @@
 PACKAGE="lcms"
 VERSION="1.19"
 CATEGORY="graphics"
-SHORT_DESC="A free color management engine in 100K"
+SHORT_DESC="A free color management engine"
 MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.littlecms.com/"
@@ -11,9 +11,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/lcms.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="d5b075ccffc0068015f74f78e4bc39138bcfe2d4"
 
 BUILD_DEPENDS="tiff-dev libjpeg-turbo-dev zlib-dev gfortran xz-dev"
-SPLIT="$PACKAGE-dev $PACKAGE-apps"
+SPLIT="lib$PACKAGE $PACKAGE-dev $PACKAGE"
+
+COPY_liblcms="*.so.*"
+COPY_dev="@dev *.so"
+
+CAT_liblcms="graphics|shared library"
+
+DEPENDS_liblcms=" "
+DEPENDS_std="lib$PACKAGE libjpeg-turbo libtiff"
+DEPENDS_dev="$PACKAGE"
 
 compile_rules() {
 	./configure \
@@ -24,18 +34,4 @@ compile_rules() {
 	make install || return 1
 
 	cook_pick_docs README.1ST doc/*
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		lcms)
-			copy *.so*
-			;;
-		lcms-apps)
-			copy bin/
-			CAT="development|applications"
-			DEPENDS="lcms libjpeg-turbo libtiff"
-			;;
-		*-dev) copy @dev;;
-	esac
 }

@@ -11,9 +11,41 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/kbd.html"
 
 TARBALL="kbd-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/utils/kbd/$TARBALL"
+TARBALL_SHA1="9aeac5556b827a9f13ccdb25257a1ac4b0243387"
 
 BUILD_DEPENDS="check-dev bison flex gettext-dev patch pam-dev busybox"
 SPLIT="$PACKAGE-base $PACKAGE-vlock $PACKAGE-busybox $PACKAGE"
+
+COPY_base="loadkeys setfont \
+be-latin1.map*    fr-latin1.map*  dvorak.map*       dvorak-r.map*  \
+dvorak-l.map*     br-abnt2.map*   cf.map*           cz-lat2.map*   \
+dk-latin1.map*    qwerty/es.map*  fi.map*           gr.map*        \
+gr-pc.map*        it.map*         is-latin1.map*    jp106.map*     \
+nl2.map*          no-latin1.map*  pl2.map*          pt-latin1.map* \
+ru.map*           se-lat6.map*    tr_q-latin5.map*  trq.map*       \
+uk.map*           us-acentos.map* us.map*           croat.map*     \
+de_CH-latin1.map* de-latin1.map*  fr_CH-latin1.map* hu.map*        \
+sg-latin1.map*    slovene.map*    hr.map* \
+\
+azerty-layout.inc compose.inc euro1.inc euro1.map.gz euro2.map.gz \
+linux-keys-bare.inc linux-with-alt-and-altgr.inc \
+linux-with-two-alt-keys.inc qwerty-layout.inc qwertz-layout.inc \
+compose.latin1"
+COPY_vlock="vlock"
+COPY_busybox="*.kmap"
+COPY_std="bin/ kbd/ @rm"
+
+DEPENDS_base=" "
+DEPENDS_vlock="pam"
+DEPENDS_busybox="busybox"
+DEPENDS_std="$PACKAGE-base"
+
+CAT_base="base-system|loadkeys and setfont utilities"
+CAT_vlock="system-tools|vlock - Virtual Console lock program"
+CAT_busybox="base-system|mappings for busybox"
+
+TAGS_vlock="console"
+TAGS_std="LFS keyboard"
 
 compile_rules() {
 	sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure
@@ -48,8 +80,9 @@ compile_rules() {
 	mkdir -p $install/usr/share/kmap
 	for i in $(find $install/usr/share/kbd/keymaps/i386 -name '*.map.gz' | grep -v 'include'); do
 		j=$(basename $i .map.gz)
-		echo $j
+		action "Making $j.kmap..."
 		$install/usr/bin/loadkeys -ub $i > $install/usr/share/kmap/$j.kmap
+		status
 	done
 }
 
@@ -57,46 +90,4 @@ compile_rules() {
 testsuite() {
 	readelf -h $install/usr/bin/loadkeys
 	readelf -h $install/usr/bin/setfont
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		kbd-base)
-			copy loadkeys setfont \
-			\
-			be-latin1.map*    fr-latin1.map*  dvorak.map*       dvorak-r.map*  \
-			dvorak-l.map*     br-abnt2.map*   cf.map*           cz-lat2.map*   \
-			dk-latin1.map*    es.map*         fi.map*           gr.map*        \
-			gr-pc.map*        it.map*         is-latin1.map*    jp106.map*     \
-			nl2.map*          no-latin1.map*  pl2.map*          pt-latin1.map* \
-			ru.map*           se-lat6.map*    tr_q-latin5.map*  trq.map*       \
-			uk.map*           us-acentos.map* us.map*           croat.map*     \
-			de_CH-latin1.map* de-latin1.map*  fr_CH-latin1.map* hu.map*        \
-			sg-latin1.map*    slovene.map*    hr.map* \
-			\
-			azerty-layout.inc compose.inc euro1.inc euro1.map.gz euro2.map.gz \
-			linux-keys-bare.inc linux-with-alt-and-altgr.inc \
-			linux-with-two-alt-keys.inc qwerty-layout.inc qwertz-layout.inc \
-			compose.latin1
-			rm -rf $fs/usr/share/kbd/keymaps/i386/olpc
-			DEPENDS=" "
-			CAT="base-system|loadkeys and setfont utilities"
-			;;
-		kbd-vlock)
-			copy vlock
-			CAT="system-tools|vlock - Virtual Console lock program"
-			DEPENDS="pam"
-			TAGS="console"
-			;;
-		kbd-busybox)
-			copy *.kmap
-			DEPENDS="busybox"
-			CAT="base-system|mappings for busybox"
-			;;
-		kbd)
-			copy bin/ kbd/ @rm
-			DEPENDS="kbd-base"
-			TAGS="LFS keyboard"
-			;;
-	esac
 }

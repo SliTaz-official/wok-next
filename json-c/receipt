@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/json-c.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://s3.amazonaws.com/json-c_releases/releases/$TARBALL"
+TARBALL_SHA1="00e049ffc9878b9c2e3c3dcb6b58c4ce9e65024b"
 
 BUILD_DEPENDS="automake"
 SPLIT="$PACKAGE-dev"
+
+COPY_std="*.so.*"
+COPY_dev="@dev *.so"
 
 compile_rules() {
 	./configure \
@@ -22,11 +26,4 @@ compile_rules() {
 	fix libtool &&
 	make -j1 &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		json-c) copy @std;;
-		*-dev)  copy @dev;;
-	esac
 }

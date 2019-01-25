@@ -10,8 +10,13 @@ WEB_SITE="https://www.audiocoding.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/faac/$TARBALL"
+TARBALL_SHA1="0d49c516d4a83c39053a9bd214fddba72cbc34ad"
 
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev *.so"
+
+TAGS_std="AAC decoder MP44 MPEG"
 
 compile_rules() {
 	./configure \
@@ -20,16 +25,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		faad2)
-			copy @std
-			TAGS="AAC decoder MP44 MPEG"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

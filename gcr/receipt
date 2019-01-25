@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gcr"
-VERSION="3.28.0"
+VERSION="3.28.1"
 CATEGORY="security"
 SHORT_DESC="Displaying certificates and accessing key stores"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,10 +11,21 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/gcr.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gcr/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="947ca5958d20f9d648e82210f056ff5ed63d9ccc"
 
 BUILD_DEPENDS="intltool gtk-doc gobject-introspection-dev gtk3-dev vala \
 p11-kit-dev libgcrypt-dev"
-SPLIT="$PACKAGE-base $PACKAGE $PACKAGE-dev"
+SPLIT="$PACKAGE-base $PACKAGE-dev $PACKAGE"
+
+COPY_base="libgcr-base-3.so.* libgck-1.so.*"
+COPY_dev="@dev *.so"
+COPY_std="@std @rm *.mo @ico"
+
+DEPENDS_base="glib libgcrypt libp11-kit"
+DEPENDS_std="$PACKAGE-base gdk-pixbuf glib gtk3 libcairo libgcrypt pango"
+DEPENDS_dev="$PACKAGE $PACKAGE-base glib-dev gtk3-dev p11-kit-dev"
+
+CAT_base="security|base files"
 
 compile_rules() {
 	sed -i -r 's:"(/desktop):"/org/gnome\1:' schema/*.xml
@@ -23,23 +34,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gcr-base)
-			copy libgcr-base-3.so* libgck-1.so*
-			DEPENDS="glib libgcrypt libp11-kit"
-			CAT="security|base files"
-			;;
-		gcr)
-			copy @std @rm *.mo @ico
-			DEPENDS="libcairo gcr-base gdk-pixbuf glib gtk3 libgcrypt pango"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gcr gcr-base \
-			glib-dev gtk3-dev p11-kit-dev"
-			;;
-	esac
 }

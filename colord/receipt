@@ -11,11 +11,15 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/colord.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.freedesktop.org/software/colord/releases/$TARBALL"
+TARBALL_SHA1="a845fb51a54dda936d1a9696e30cc3d947bfa628"
 
 BUILD_DEPENDS="meson ninja glib-dev lcms2-dev sqlite3-dev libgusb-dev \
 libgudev-dev vala polkit-dev gobject-introspection-dev gettext-dev \
 docbook-utils libxml2-tools gtk-doc dbus-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="eudev glib liblcms2 libgudev libgusb libsqlite3 polkit"
+DEPENDS_dev="$PACKAGE eudev-dev glib-dev lcms2-dev libgusb-dev"
 
 compile_rules() {
 	if ! grep -q colord "/etc/passwd"; then
@@ -41,19 +45,6 @@ compile_rules() {
 
 	# > ignoring invalid country code: fur
 	# https://bugs.freedesktop.org/show_bug.cgi?id=106288 : unresolved
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		colord)
-			copy @std
-			DEPENDS="eudev glib lcms2 libgudev libgusb libsqlite3 polkit"
-			;;
-		colord-dev)
-			copy @dev
-			DEPENDS="colord eudev-dev glib-dev lcms2-dev libgusb-dev"
-			;;
-	esac
 }
 
 post_install_colord() {

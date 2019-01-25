@@ -11,11 +11,18 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gdk-pixbuf.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="6e6bef71a1f06ecd1cd282d074ae068f89867144"
 
 BUILD_DEPENDS="meson ninja glib-dev shared-mime-info-dev libpng-dev \
-libjpeg-turbo-dev tiff-dev gobject-introspection-dev libx11-dev \
-gettext-dev libxslt docbook-xsl libxml2-tools"
+libjpeg-turbo-dev tiff-dev gobject-introspection-dev libx11-dev gettext-dev \
+libxslt docbook-xsl libxml2-tools"
 SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev gdk-pixbuf-csource libgdk_pixbuf-2.0.so libgdk_pixbuf_xlib-2.0.so"
+
+DEPENDS_std="glib libjpeg-turbo libpng libtiff libx11"
+DEPENDS_dev="$PACKAGE glib-dev shared-mime-info-dev libx11-dev"
+# gdk-pixbuf-csource use shared-mime-info to detect the image file format
 
 compile_rules() {
 	mkdir build
@@ -28,20 +35,6 @@ compile_rules() {
 	ninja install || return 1
 
 	touch $install/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-dev)
-			copy @dev gdk-pixbuf-csource
-			DEPENDS="gdk-pixbuf glib-dev shared-mime-info-dev libx11-dev"
-			# gdk-pixbuf-csource use shared-mime-info to detect the image file format
-			;;
-		*)
-			copy @std @rm
-			DEPENDS="glib libjpeg-turbo libpng libtiff libx11"
-			;;
-	esac
 }
 
 # Updating gdk pixbuf loaders cache file...

@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnupg"
-VERSION="2.2.10"
+VERSION="2.2.12"
 CATEGORY="security"
 SHORT_DESC="Free implementation of the OpenPGP"
 MAINTAINER="devel@slitaz.org"
@@ -11,14 +11,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/gnupg.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gnupg/$TARBALL"
+TARBALL_SHA1="2aeccc35ea8034306ff7a1072b84abbaa79619c3"
 # https://www.gnupg.org/download/integrity_check.html
-TARBALL_SHA1="3e87504e2ca317718aa9b6299947ebf7e906b54e"
 
 BUILD_DEPENDS="libgpg-error-dev libassuan-dev libgcrypt-dev libksba-dev \
 npth-dev perl libusb-dev sqlite3-dev gettext-dev zlib-dev bzip2-dev \
 readline-dev texinfo gnutls-dev openldap-dev"
+DEPENDS="libassuan libbzip2 libgcrypt libgnutls libgpg-error libksba libldap \
+libsqlite3 libusb npth readline zlib   pinentry"
 
 compile_rules() {
+	sed -e '/noinst_SCRIPTS = gpg-zip/c sbin_SCRIPTS += gpg-zip' \
+		-i tools/Makefile.in # to build gpg-zip
+
 	./configure \
 		--enable-symcryptrun \
 		--enable-maintainer-mode \
@@ -28,26 +33,8 @@ compile_rules() {
 	makeinfo --plaintext       -o doc/gnupg.txt           doc/gnupg.texi &&
 	make install || return 1
 
-	# FIXME.
-	# Looks like functions install-exec-hook() from g10/Makefile work in
-	# an unexpected manner. It required to spend too many time in debugging, so
-	# better I'll apply here "fast and dirty hack" that will make the same:
-	install -m755 g10/gpg  $install/usr/bin/gpg2
-	install -m755 g10/gpgv $install/usr/bin/gpgv2
-	# The same "hack" for doc/Makefile
-	cook_pick_manpages doc/gpg.1 doc/gpgv.1
-
-	docdir="$install/usr/share/doc/gnupg-$VERSION"
+	docdir="$install/usr/share/doc/$PACKAGE-$VERSION"
 	install -v -m755 -d $docdir/html
 	install -v -m644    doc/gnupg_nochunks.html  $docdir/html/gnupg.html
 	install -v -m644    doc/*.texi doc/gnupg.txt $docdir
-
-	ln -svf gpg2  $install/usr/bin/gpg
-	ln -svf gpgv2 $install/usr/bin/gpgv
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libbzip2 libassuan libgcrypt libgnutls libgpg-error libksba libldap \
-	libsqlite3 libusb npth readline zlib   pinentry"
 }

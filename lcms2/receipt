@@ -11,29 +11,25 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/lcms2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/lcms/$TARBALL"
+TARBALL_SHA1="60bea9875e017dd1c466e988c2ad98f8766e4e55"
 
 BUILD_DEPENDS="libjpeg-turbo-dev zlib-dev tiff-dev"
-SPLIT="$PACKAGE-apps $PACKAGE-dev"
+SPLIT="lib$PACKAGE $PACKAGE-static $PACKAGE-dev $PACKAGE"
+
+COPY_liblcms2="*.so.*"
+COPY_static="*.a"
+COPY_dev="@dev @rm *.so"
+
+CAT_liblcms="graphics|shared library"
+CAT_static="development|static library"
+
+DEPENDS_liblcms2=" "
+DEPENDS_static=" "
+DEPENDS_std="lib$PACKAGE libjpeg-turbo libtiff"
 
 compile_rules() {
-	# don't use --disable-static: optipng-static require such lib
-
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		lcms2)
-			copy *.so*
-			;;
-		lcms2-apps)
-			copy bin/
-			CAT="graphics|applications"
-			DEPENDS="lcms2 libjpeg-turbo libtiff"
-			;;
-		*-dev) copy @dev;;
-	esac
 }

@@ -10,10 +10,10 @@ WEB_SITE="http://galculator.mnim.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://galculator.mnim.org/downloads/$TARBALL"
+TARBALL_SHA1="7e4c46192e78fec9d7e55c91b3945d212aa13434"
 
 BUILD_DEPENDS="gtk2-dev flex intltool"
-
-COOKOPTS="!pixmaps !menus"
+DEPENDS="glib gtk2 pango"
 
 compile_rules() {
 	./configure \
@@ -23,15 +23,5 @@ compile_rules() {
 	make &&
 	make install || return 1
 
-	sed -i 's|Icon=.*|Icon=accessories-calculator|;
-		s|Categories=.*|Categories=Utility;Calculator;|' \
-		$install/usr/share/applications/galculator.desktop
-}
-
-genpkg_rules() {
-	copy @std
-	rm -r $fs/usr/share/pixmaps
-	find $fs -name '*gtk3*' -delete
-	sed -i 's|^[ ]*||g' $fs/usr/share/galculator/ui/*
-	DEPENDS="glib gtk2 pango"
+	rm -r $install/usr/share/pixmaps
 }

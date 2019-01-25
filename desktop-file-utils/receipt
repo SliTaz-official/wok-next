@@ -10,9 +10,21 @@ WEB_SITE="https://www.freedesktop.org/wiki/Software/desktop-file-utils/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.freedesktop.org/software/desktop-file-utils/releases/$TARBALL"
+TARBALL_SHA1="10e9df65fdf2b896ce4d5f16616ea0df7c01d8f8"
 
 BUILD_DEPENDS="glib-dev glib-static"
 SPLIT="desktop-file-validate-static $PACKAGE-extra"
+
+COPY_std="bin/update-desktop-database"
+COPY_desktop_file_validate_static="sbin/"
+COPY_extra="@std @rm"
+
+CAT_desktop_file_validate_static="system tools|static desktop-file-validate"
+CAT_extra="system-tools|extra utils"
+
+DEPENDS_std="glib"
+DEPENDS_desktop_file_validate_static=" "
+DEPENDS_extra="glib"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
@@ -26,24 +38,4 @@ compile_rules() {
 		$CONFIGURE_ARGS &&
 	make &&
 	make bin_PROGRAMS=desktop-file-validate LN_S=echo install
-}
-
-genpkg_rules() {
-	val='desktop-file-validate'
-	case $PACKAGE in
-		desktop-file-utils)
-			copy bin/update-desktop-database
-			DEPENDS="glib"
-			;;
-		*-static)
-			copy sbin/
-			CAT="system tools|static desktop-file-validate"
-			DEPENDS=" "
-			;;
-		*-extra)
-			copy @std @rm
-			CAT="system-tools|extra utils"
-			DEPENDS="glib"
-			;;
-	esac
 }
