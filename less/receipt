@@ -7,23 +7,21 @@ SHORT_DESC="A terminal based program for viewing text files"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.greenwoodsoftware.com/less/"
-LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/less.html"
+LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/less.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE$TARBALL"
+TARBALL_SHA1="d8ba1f43e88b706ef701f978cd3262b5b44dffd6"
 
 BUILD_DEPENDS="ncurses-dev pcre-dev"
+DEPENDS="libpcre ncurses"
+
+TAGS="LFS"
 
 compile_rules() {
 	./configure \
 		--with-regex=pcre \
 		$CONFIGURE_ARGS &&
 	make &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	copy @std
-	DEPENDS="libpcre ncurses"
-	TAGS="LFS"
+	make DESTDIR=$install install # keep DESTDIR
 }

@@ -10,9 +10,15 @@ WEB_SITE="http://www.videolan.org/developers/libbluray.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.videolan.org/pub/videolan/libbluray/$VERSION/$TARBALL"
+TARBALL_SHA1="025ef1c0a25b42f4a13a9fb2df09fc9cef1a821b"
 
 BUILD_DEPENDS="libxml2-dev freetype-dev fontconfig-dev"
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev *.so"
+
+DEPENDS_std="fontconfig freetype libxml2"
+DEPENDS_dev="$PACKAGE fontconfig-dev freetype-dev libxml2-dev"
 
 compile_rules() {
 	./configure \
@@ -22,18 +28,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libbluray)
-			copy @std
-			DEPENDS="fontconfig freetype libxml2"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libbluray \
-			fontconfig-dev freetype-dev libxml2-dev"
-			;;
-	esac
 }

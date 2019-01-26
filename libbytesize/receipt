@@ -11,32 +11,23 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libbytesize.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/storaged-project/libbytesize/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="ef29982499abeeeeffc71cfa500eea15ab64ceb5"
 
 BUILD_DEPENDS="gettext-dev gmp-dev mpfr-dev pcre-dev"
-SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
+SPLIT="$PACKAGE-python $PACKAGE-dev $PACKAGE"
+
+COPY_python="python2*/"
+COPY_dev="@dev *.so"
+
+CAT_python="libs|Python2 bindings"
+
+DEPENDS_python="$PACKAGE python"
+DEPENDS_std="gmp libpcre mpfr"
+DEPENDS_dev="$PACKAGE $PACKAGE-python gmp-dev mpfr-dev"
 
 compile_rules() {
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-python)
-			copy *.py
-			DEPENDS="libbytesize python"
-			CAT="libs|python bindings"
-			;;
-		libbytesize)
-			copy @std @rm
-			DEPENDS="gmp libpcre mpfr"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libbytesize libbytesize-python \
-			gmp-dev mpfr-dev"
-			;;
-	esac
 }

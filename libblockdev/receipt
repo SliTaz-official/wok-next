@@ -11,12 +11,27 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libblockdev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/storaged-project/libblockdev/releases/download/$VERSION-1/$TARBALL"
+TARBALL_SHA1="5066dbd1098e433fe713a04b14033d130d041888"
 
 BUILD_DEPENDS="automake libtool python python3 glib-dev \
 gobject-introspection-dev eudev-dev kmod-dev cryptsetup-dev nss-dev \
 coreutils-file-special volume_key-dev libdevmapper-dev parted-dev \
 util-linux-mount-dev util-linux-blkid-dev libbytesize-dev ndctl-dev yaml-dev"
-SPLIT="$PACKAGE-python $PACKAGE-python3 $PACKAGE $PACKAGE-dev"
+SPLIT="$PACKAGE-python $PACKAGE-python3 $PACKAGE-dev $PACKAGE"
+
+COPY_python="python2*/"
+COPY_python3="python3*/"
+COPY_dev="@dev *.so"
+
+CAT_python="libs|Python2 bindings"
+CAT_python3="libs|Python3 bindings"
+
+DEPENDS_python="$PACKAGE python"
+DEPENDS_python3="$PACKAGE python3"
+DEPENDS_std="cryptsetup eudev glib kmod libbytesize libdevmapper \
+ndctl nss parted util-linux-blkid util-linux-mount util-linux-uuid \
+volume_key yaml"
+DEPENDS_dev="$PACKAGE glib-dev"
 
 compile_rules() {
 	./configure \
@@ -27,29 +42,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-python)
-			copy python2*/
-			CAT="libs|Python2 bindings"
-			DEPENDS="libblockdev python"
-			;;
-		*-python3)
-			copy python3*/
-			CAT="libs|Python3 bindings"
-			DEPENDS="libblockdev python3"
-			;;
-		libblockdev)
-			copy @std @rm
-			DEPENDS="cryptsetup eudev glib kmod libbytesize libdevmapper \
-			ndctl nss parted util-linux-blkid util-linux-mount util-linux-uuid \
-			volume_key yaml"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libblockdev libblockdev-python glib-dev"
-			;;
-	esac
 }
