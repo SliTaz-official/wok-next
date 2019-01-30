@@ -1,0 +1,50 @@
+# SliTaz package receipt v2.
+
+ORIGIN="luafilesystem"
+PACKAGE="lua-filesystem"
+VERSION="1.7.0.2"
+CATEGORY="libdevel"
+SHORT_DESC="File system library for the Lua programming language"
+MAINTAINER="pascal.bellard@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://keplerproject.github.io/luafilesystem/"
+REPOLOGY="lua:filesystem"
+
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="https://github.com/keplerproject/$ORIGIN/archive/v${VERSION//./_}.tar.gz"
+TARBALL_SHA1="910de0959ff72703b284c26783979b663c4dc0d2"
+
+BUILD_DEPENDS="lua51-dev lua52-dev lua53-dev"
+SPLIT="lua51-filesystem:5.1 lua52-filesystem:5.2 lua53-filesystem:5.3"
+
+COPY_lua51_filesystem="@std"
+COPY_lua52_filesystem="@std"
+COPY_lua53_filesystem="@std"
+
+CAT_std="nopack|"
+CAT_lua51_filesystem="system-tools|for Lua 5.1"
+CAT_lua52_filesystem="system-tools|for Lua 5.2"
+CAT_lua53_filesystem="system-tools|for Lua 5.3"
+
+DEPENDS_lua51_filesystem="lua51"
+DEPENDS_lua52_filesystem="lua52"
+DEPENDS_lua53_filesystem="lua53"
+
+compile_rules() {
+	if [ -z "$SET" ]; then
+		cook_pick_docs $src/doc/us/*
+		return
+	fi
+
+	case $ARCH in
+		x86_64) CFLAGS="$CFLAGS -fPIC";;
+	esac
+
+	# get variables from .pc file
+	pc="lua${SET/./}"
+	cflags=$(pkg-config --cflags $pc)
+	install_cmod=$(pkg-config --variable=INSTALL_CMOD $pc)
+
+	make CFLAGS="$CFLAGS $cflags" &&
+	make LUA_LIBDIR=$install$install_cmod install
+}

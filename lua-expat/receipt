@@ -1,0 +1,45 @@
+# SliTaz package receipt v2.
+
+ORIGIN="luaexpat"
+PACKAGE="lua-expat"
+VERSION="1.3.0"
+CATEGORY="system-tools"
+SHORT_DESC="SAX XML parser based on the Expat library"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://matthewwild.co.uk/projects/luaexpat/"
+REPOLOGY="lua:expat"
+
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="http://matthewwild.co.uk/projects/luaexpat/$TARBALL"
+TARBALL_SHA1="e56bbf2e980ffb3f82629270221bdf98f3bd757b"
+
+BUILD_DEPENDS="expat-dev lua51-dev lua52-dev lua53-dev"
+SPLIT="lua51-expat:5.1 lua52-expat:5.2 lua53-expat:5.3"
+
+COPY_lua51_expat="@std"
+COPY_lua52_expat="@std"
+COPY_lua53_expat="@std"
+
+CAT_std="nopack|"
+CAT_lua51_expat="system-tools|for Lua 5.1"
+CAT_lua52_expat="system-tools|for Lua 5.2"
+CAT_lua53_expat="system-tools|for Lua 5.3"
+
+DEPENDS_lua51_expat="expat lua51"
+DEPENDS_lua52_expat="expat lua52"
+DEPENDS_lua53_expat="expat lua53"
+
+compile_rules() {
+	if [ -z "$SET" ]; then
+		cook_pick_docs $src/doc/us/*
+		return
+	fi
+
+	case $ARCH in
+		x86_64) CFLAGS="$CFLAGS -fPIC";;
+	esac
+
+	make LUA_V=$SET CFLAGS="$CFLAGS -DLUA_C89_NUMBERS" &&
+	make LUA_V=$SET install
+}

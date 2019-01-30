@@ -1,0 +1,24 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua-alt-getopt"
+VERSION="0.7.0"
+CATEGORY="development"
+SHORT_DESC="Lua module for processing options similar to getopt_long(3)"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://luaforge.net/projects/alt-getopt/"
+HOST_ARCH="any"
+REPOLOGY="lua:alt-getopt"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="http://files.luaforge.net/releases/alt-getopt/alt-getopt/alt-getopt-$VERSION/$TARBALL"
+TARBALL_SHA1="431b590002f5fdced78e0745a9a283aefdd1dfa0"
+
+DEPENDS="lua" # virtual "lua" package
+
+compile_rules() {
+	install -Dm644 alt_getopt.lua $install/usr/share/lua/common/alt_getopt.lua
+
+	mv alt_getopt alt-getopt.lua
+	cook_pick_docs ChangeLog NEWS README alt-getopt.lua
+}

@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua-markdown"
+VERSION="0.33"
+CATEGORY="system-tools"
+SHORT_DESC="Markdown text-to-html markup system"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/mpeterv/markdown"
+HOST_ARCH="any"
+REPOLOGY="lua:markdown"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mpeterv/markdown/archive/$VERSION.tar.gz"
+TARBALL_SHA1="692030bee6553756bd82c527b23446c05c4263b3"
+
+BUILD_DEPENDS="lua53" # for test
+DEPENDS="lua" # virtual "lua" package
+
+compile_rules() {
+	install -Dm644 markdown.lua $install/usr/share/lua/common/markdown.lua
+
+	cook_pick_docs README.md
+}
+
+testsuite() {
+	action 'Testing...'
+	lua53 ./markdown-tests.lua
+	status
+}
