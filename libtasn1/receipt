@@ -11,8 +11,11 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libtasn1.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
+TARBALL_SHA1="a84afb4cd8187c1fa5901c6bc1cf1486eea66635"
 
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev *.so"
 
 compile_rules() {
 	# Package failed to build when optimized for size
@@ -26,11 +29,4 @@ compile_rules() {
 	make install || return 1
 
 	make -C doc/reference install-data-local
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libtasn1) copy @std;;
-		*-dev)    copy @dev;;
-	esac
 }

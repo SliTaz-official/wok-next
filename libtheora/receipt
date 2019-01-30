@@ -7,36 +7,34 @@ SHORT_DESC="Theora video compression format"
 MAINTAINER="devel@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://www.theora.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/libtheora.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://downloads.xiph.org/releases/theora/$TARBALL"
+TARBALL_SHA1="800aa48cf9e59d546c18ecdac1d06d7643cbb2d3"
 
 BUILD_DEPENDS="libogg-dev libvorbis-dev libpng-dev"
 SPLIT="$PACKAGE-enc $PACKAGE-dev"
 
-compile_rules() {
-	sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c &&
+COPY_std="libtheora.so.*"
+COPY_enc="libtheoradec.so.* libtheoraenc.so.*"
+COPY_dev="@dev *.so"
 
-	./configure $CONFIGURE_ARGS &&
+CAT_enc="multimedia|encoding/decoding library"
+
+DEPENDS_std="libogg"
+DEPENDS_enc="libogg"
+DEPENDS_dev="$PACKAGE $PACKAGE-enc libogg-dev"
+
+TAGS_std="Xiph.org"
+
+compile_rules() {
+	sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c
+
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libtheora)
-			copy libtheora.so*
-			DEPENDS="libogg"
-			;;
-		*-enc)
-			copy libtheoradec.so* libtheoraenc.so*
-			CAT="multimedia|encoding/decoding library"
-			DEPENDS="libogg"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libtheora libtheora-enc libogg-dev"
-			;;
-	esac
 }

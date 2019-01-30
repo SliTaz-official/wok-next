@@ -7,29 +7,27 @@ SHORT_DESC="Vorbis base library"
 MAINTAINER="devel@slitaz.org"
 LICENSE="other"
 WEB_SITE="https://www.xiph.org/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/libvorbis.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.xiph.org/releases/vorbis/$TARBALL"
+TARBALL_SHA1="91f140c220d1fe3376d637dc5f3d046263784b1f"
 
 BUILD_DEPENDS="libogg-dev"
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev *.so"
+
+DEPENDS_std="libogg"
+DEPENDS_dev="$PACKAGE libogg-dev"
+
+TAGS_std="Xiph.org"
 
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libvorbis)
-			copy @std
-			DEPENDS="libogg"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libvorbis libogg-dev"
-			;;
-	esac
 }
