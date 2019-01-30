@@ -1,0 +1,61 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua51"
+VERSION="5.1.5"
+CATEGORY="development"
+SHORT_DESC="Powerful, fast, light-weight, embeddable scripting language"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://www.lua.org/"
+
+
+TARBALL="lua-$VERSION.tar.gz"
+WGET_URL="https://www.lua.org/ftp/$TARBALL"
+TARBALL_SHA1="b3882111ad02ecc6b972f8c1241647905cb2e3fc"
+# Integrity check: https://www.lua.org/ftp/
+
+BUILD_DEPENDS="readline-dev"
+SPLIT="lib$PACKAGE $PACKAGE-dev $PACKAGE"
+
+COPY_dev="@dev luac51" # move luac compiler to dev
+
+DEPENDS_liblua51=" "
+DEPENDS_std="readline"
+DEPENDS_dev="$PACKAGE lib$PACKAGE"
+
+PROVIDE_std="lua"
+
+compile_rules() {
+	sed -r -e '/^LUA_(SO|A|T)=/ s/lua/lua51/' \
+		-e '/^LUAC_T=/ s/luac/luac51/' -i src/Makefile
+
+	case $ARCH in
+		x86_64) CFLAGS="$CFLAGS -fPIC";;
+	esac
+
+	make \
+		MYCFLAGS="$CFLAGS" \
+		MYLDFLAGS="$LDFLAGS" \
+		linux &&
+	make \
+		INSTALL_TOP=$install/usr \
+		INSTALL_DATA="cp -d" \
+		INSTALL_INC=$install/usr/include/lua5.1 \
+		INSTALL_MAN=$install/usr/share/man/man1 \
+		TO_BIN='lua51 luac51' \
+		TO_LIB="liblua51.so liblua51.so.5.1 liblua51.so.$VERSION" \
+		install || return 1
+
+	cook_pick_docs doc/*.html doc/*.css doc/*.png doc/*.gif
+
+	mkdir -p $install/usr/lib/pkgconfig
+	sed "s|@RELEASE@|$VERSION|" $stuff/lua.pc.in >$install/usr/lib/pkgconfig/lua51.pc
+}
+
+testsuite() {
+	$install/usr/bin/lua51 -v
+}
+
+post_install_lua51() {
+	ln -sf lua51 "$1/usr/bin/lua"
+}
