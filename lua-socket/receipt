@@ -1,0 +1,59 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua-socket"
+VERSION="3.0-rc1"
+CATEGORY="system-tools"
+SHORT_DESC="Network support for the Lua language"
+MAINTAINER="devel@slitaz.org"
+LICENSE="MIT"
+WEB_SITE="https://github.com/diegonehab/luasocket"
+REPOLOGY="lua:socket"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/diegonehab/luasocket/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="aff9122b26c01487c06a32133df78c1506af350f"
+
+BUILD_DEPENDS="lua51-dev lua52-dev lua53-dev"
+SPLIT="lua51-socket:5.1 lua52-socket:5.2 lua53-socket:5.3"
+
+COPY_lua51_socket="@std"
+COPY_lua52_socket="@std"
+COPY_lua53_socket="@std"
+
+DEPENDS_lua51_socket="lua51"
+DEPENDS_lua52_socket="lua52"
+DEPENDS_lua53_socket="lua53"
+
+CAT_std="nopack|"
+CAT_lua51_socket="system-tools|for Lua 5.1"
+CAT_lua52_socket="system-tools|for Lua 5.2"
+CAT_lua53_socket="system-tools|for Lua 5.3"
+
+compile_rules() {
+	if [ -z "$SET" ]; then
+		cook_pick_docs $src/doc/*
+		return
+	fi
+
+	case $ARCH in
+		x86_64) CFLAGS="$CFLAGS -fPIC";;
+	esac
+
+	# get variables from .pc file
+	pc="lua${SET/./}"
+	includedir=$(pkg-config --variable=includedir $pc)
+	install_lmod=$(pkg-config --variable=INSTALL_LMOD $pc)
+	install_cmod=$(pkg-config --variable=INSTALL_CMOD $pc)
+
+	make \
+		LUAV="$SET" \
+		prefix=/usr \
+		LUAINC_linux=$includedir \
+		&&
+	make \
+		prefix=/usr \
+		INSTALL_TOP_SHARE=$install$install_lmod \
+		INSTALL_TOP_LIB=$install$install_cmod \
+		DESTDIR=$install \
+		install
+}

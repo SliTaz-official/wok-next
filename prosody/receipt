@@ -1,18 +1,20 @@
 # SliTaz package receipt.
 
 PACKAGE="prosody"
-VERSION="0.9.14"
+VERSION="0.11.2"
 CATEGORY="network"
-SHORT_DESC="xmpp-jabber server in lua"
-MAINTAINER="allan316@gmail.com"
+SHORT_DESC="Lua based Jabber/XMPP server"
+MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="http://prosody.im/"
+WEB_SITE="https://prosody.im/"
+HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/downloads/source/$TARBALL"
+TARBALL_SHA1="0508cfc1c3c74a7eb8fdac2ed50435e190930f6a"
 
-BUILD_DEPENDS="lua5.1-dev libidn-dev openssl-dev lua53-expat luasocket \
-lua53-filesystem libidn-dev libcrypto"
+BUILD_DEPENDS="lua53-dev openssl-dev libidn-dev"
+DEPENDS="libidn openssl   lua53 lua53-expat lua53-socket lua53-filesystem"
 
 compile_rules() {
 	./configure \
@@ -23,13 +25,10 @@ compile_rules() {
 		--with-lua=/usr \
 		--with-lua-lib=/usr/lib \
 		--runwith=lua53 \
-		--with-lua-include=/usr/include/lua/5.3 &&
+		--with-lua-include=$(pkg-config --variable=includedir lua53) \
+		&&
 	make &&
-	make DESTDIR=$install install
-}
+	make install || return 1
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="lua5.1 libidn openssl lua53-expat luasocket lua53-filesystem libidn \
-	libcrypto"
+	chown -R 0:0 $install
 }

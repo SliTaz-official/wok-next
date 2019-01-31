@@ -1,26 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="luajit"
-VERSION="2.0.3"
+VERSION="2.0.5"
 CATEGORY="development"
-SHORT_DESC="Just-In-Time Compiler for Lua"
+SHORT_DESC="Just-In-Time Compiler for Lua 5.1"
 MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://luajit.org/"
 
 TARBALL="LuaJIT-$VERSION.tar.gz"
 WGET_URL="http://luajit.org/download/$TARBALL"
+TARBALL_SHA1="10427215da7d424fd9e48adbea087966053cdb6f"
 
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	make PREFIX=/usr amalg &&
-	make DESTDIR=$install PREFIX=/usr install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		luajit) copy @std;;
-		*-dev)  copy @dev;;
-	esac
+	make PREFIX=/usr DESTDIR=$install install
 }
