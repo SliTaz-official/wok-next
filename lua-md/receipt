@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua-md"
+VERSION="20170414" # many improvements since latest release 0.0 on 20160412
+COMMIT="08b9e04"   # so using latest shapshot
+CATEGORY="system-tools"
+SHORT_DESC="Markdown text-to-html markup system"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/bakpakin/luamd"
+HOST_ARCH="any"
+REPOLOGY="lua:md"
+
+TARBALL="$PACKAGE-$COMMIT.tar.gz"
+WGET_URL="https://github.com/bakpakin/luamd/archive/$COMMIT.tar.gz"
+TARBALL_SHA1="03e5607bf176500cd2c3e2977f213afdd8d60f5c"
+
+BUILD_DEPENDS="lua53" # for test
+DEPENDS="lua" # virtual "lua" package
+
+compile_rules() {
+	install -Dm644 md.lua $install/usr/share/lua/common/md.lua
+	install -Dm755 luamd  $install/usr/bin/luamd
+
+	cook_pick_docs *.md
+}
+
+testsuite() {
+	lua53 ./testrender.lua
+}

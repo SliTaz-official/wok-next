@@ -1,0 +1,54 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua-zlib"
+VERSION="1.2"
+CATEGORY="system-tools"
+SHORT_DESC="Simple streaming interface to zlib for Lua"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://github.com/brimworks/lua-zlib"
+REPOLOGY="lua:zlib"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/brimworks/lua-zlib/archive/v$VERSION.tar.gz"
+TARBALL_SHA1="4005d0fc08258742558a8993fa4479307b3771dc"
+
+BUILD_DEPENDS="zlib-dev lua51-dev lua52-dev lua53-dev"
+SPLIT="lua51-zlib:5.1 lua52-zlib:5.2 lua53-zlib:5.3"
+
+COPY_lua51_zlib="@std"
+COPY_lua52_zlib="@std"
+COPY_lua53_zlib="@std"
+
+DEPENDS_lua51_zlib="lua51"
+DEPENDS_lua52_zlib="lua52"
+DEPENDS_lua53_zlib="lua53"
+
+CAT_std="nopack|"
+CAT_lua51_zlib="system-tools|for Lua 5.1"
+CAT_lua52_zlib="system-tools|for Lua 5.2"
+CAT_lua53_zlib="system-tools|for Lua 5.3"
+
+compile_rules() {
+	if [ -z "$SET" ]; then
+		cook_pick_docs README
+		return
+	fi
+
+	case $ARCH in
+		x86_64) CFLAGS="$CFLAGS -fPIC";;
+	esac
+
+	# get variables from .pc file
+	pc="lua${SET/./}"
+	includedir=$(pkg-config --variable=includedir $pc)
+	libs=$(pkg-config --libs $pc)
+	install_cmod=$(pkg-config --variable=INSTALL_CMOD $pc)
+
+	gcc -o zlib.so -O2 $CFLAGS -shared -I$includedir lua_zlib.c $libs -lz &&
+	install -Dm755 zlib.so $install$install_cmod/zlib.so
+}
+
+testsuite() {
+	lua53 ./test.lua
+}

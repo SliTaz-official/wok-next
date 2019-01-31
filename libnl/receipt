@@ -11,9 +11,16 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libnl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/thom311/libnl/releases/download/libnl${VERSION//./_}/$TARBALL"
+TARBALL_SHA1="4fc4c3b6812dc7e68ef8acb69287583685266a0b"
 
 BUILD_DEPENDS="flex"
-SPLIT="$PACKAGE-tools $PACKAGE-dev"
+SPLIT="$PACKAGE-tools $PACKAGE $PACKAGE-dev"
+
+COPY_libnl_tools="bin/"
+CAT_libnl_tools="network|tiny tools"
+DEPENDS_libnl_tools="$PACKAGE"
+
+CONFIG_FILES_std="/etc/libnl/classid /etc/libnl/pktloc"
 
 compile_rules() {
 	./configure \
@@ -22,18 +29,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libnl)
-			copy etc/ *.so*
-			CONFIG_FILES="/etc/libnl/classid /etc/libnl/pktloc"
-			;;
-		libnl-tools)
-			copy @std @rm
-			CAT="network|tiny tools"
-			;;
-		*-dev) copy @dev;;
-	esac
 }

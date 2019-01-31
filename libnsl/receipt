@@ -11,13 +11,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libnsl.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/thkukuk/libnsl/archive/v$VERSION/$TARBALL"
+TARBALL_SHA1="f141c7cf0ff96d96e369dda36af8ed19af0fc3ca"
 
 BUILD_DEPENDS="automake gettext-dev libtool libtirpc-dev rpcsvc-proto"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="libtirpc"
+DEPENDS_dev="$PACKAGE libtirpc-dev"
+
 compile_rules() {
 	autoreconf -fi &&
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
@@ -25,17 +31,4 @@ compile_rules() {
 	mkdir -p $install/lib
 	mv $install/usr/lib/libnsl.so.2*  $install/lib
 	ln -sfv ../../lib/libnsl.so.2.0.0 $install/usr/lib/libnsl.so
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libnsl)
-			copy @std
-			DEPENDS="libtirpc"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libnsl libtirpc-dev"
-			;;
-	esac
 }

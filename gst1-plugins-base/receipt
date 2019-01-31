@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gst1-plugins-base"
-VERSION="1.10.3"
+VERSION="1.14.4"
 CATEGORY="multimedia"
 SHORT_DESC="GStreamer Base Plugins"
 MAINTAINER="devel@slitaz.org"
@@ -11,11 +11,17 @@ REPOLOGY="gstreamer1plugins:base"
 
 TARBALL="gst-plugins-base-$VERSION.tar.xz"
 WGET_URL="https://gstreamer.freedesktop.org/src/gst-plugins-base/$TARBALL"
+TARBALL_SHA1="204ad46dca52230adb80bd96fcad923555251af2"
 
-BUILD_DEPENDS="gettext-dev valgrind-dev python gstreamer1-dev \
-orc-dev libx11-dev libxv-dev alsa-lib-dev cdparanoia-dev \
-libvorbis-dev libogg-dev opus-dev pango-dev libtheora-dev"
+BUILD_DEPENDS="gettext-dev valgrind-dev python gstreamer1-dev orc-dev \
+libx11-dev libxv-dev alsa-lib-dev cdparanoia-dev libvorbis-dev libogg-dev \
+opus-dev pango-dev libtheora-dev gobject-introspection-dev mesa-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="alsa-lib cdparanoia glib gstreamer1 libcairo libogg libpng \
+libtheora-enc libvorbis libx11 libxcb libxext libxv mesa mesa-libegl opus orc \
+pango wayland zlib"
+DEPENDS_dev="$PACKAGE glib-dev gstreamer1-dev orc-dev zlib-dev"
 
 COOKOPTS="skip-log-errors"
 
@@ -27,19 +33,4 @@ compile_rules() {
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gst1-plugins-base)
-			copy @std
-			DEPENDS="alsa-lib libcairo cdparanoia glib gstreamer1 libogg \
-			libtheora-enc libvorbis opus orc pango libx11 libxext \
-			libxv zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gst1-plugins-base glib-dev gstreamer1-dev"
-			;;
-	esac
 }

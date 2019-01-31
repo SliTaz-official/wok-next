@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libusb.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://github.com/libusb/libusb/releases/download/v$VERSION/$TARBALL"
+TARBALL_SHA1="10116aa265aac4273a0c894faa089370262ec0dc"
 
 BUILD_DEPENDS="eudev-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="eudev"
+DEPENDS_dev="$PACKAGE eudev-dev"
 
 compile_rules() {
 	sed -i 's|^PROJECT_LOGO|#&|' doc/doxygen.cfg.in
@@ -25,17 +29,4 @@ compile_rules() {
 	fix libtool &&
 	make -j1 &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libusb)
-			copy *.so*
-			DEPENDS="eudev"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libusb eudev-dev"
-			;;
-	esac
 }

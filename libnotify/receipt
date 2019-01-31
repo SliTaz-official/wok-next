@@ -7,34 +7,24 @@ SHORT_DESC="Notification library"
 MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://developer.gnome.org/libnotify/"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libnotify.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="4cdf482737df504ac37f5489940b5c7ea5e18d57"
 
 BUILD_DEPENDS="gdk-pixbuf-dev glib-dev gtk2-dev gobject-introspection-dev \
 gtk-doc xmlto"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	sed -e 's/REQ_GTK_VERSION=2.90/REQ_GTK_VERSION=2.24/' \
-	-e 's/tests_modules="gtk+-3.0 >= $REQ_GTK_VERSION"/tests_modules="gtk+-2.0 >= $REQ_GTK_VERSION"/' \
-	-i configure
+DEPENDS_std="gdk-pixbuf glib"
+DEPENDS_dev="$PACKAGE gdk-pixbuf-dev glib-dev"
 
-	./configure $CONFIGURE_ARGS &&
+compile_rules() {
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libnotify)
-			copy @std
-			DEPENDS="gdk-pixbuf glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libnotify gdk-pixbuf-dev glib-dev"
-			;;
-	esac
 }

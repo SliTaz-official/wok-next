@@ -10,28 +10,20 @@ WEB_SITE="http://quvi.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/quvi/$TARBALL"
+TARBALL_SHA1="41f059964c8f47aeb241cc53b883592b5db77e53"
 
 COOKOPTS="force-arch" # different "version"
 
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="lua53-bitop lua53-expat lua53-json"
 
 compile_rules() {
 	./configure \
 		--with-nsfw \
 		--with-geoblocked \
 		$CONFIGURE_ARGS &&
+	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libquvi-scripts)
-			copy @std
-			DEPENDS="lua53-bitop lua53-expat lua53-json"
-			;;
-		*-dev)
-			copy @dev
-			;;
-	esac
 }

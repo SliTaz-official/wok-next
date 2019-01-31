@@ -10,21 +10,17 @@ WEB_SITE="https://github.com/sahlberg/libnfs"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/sahlberg/libnfs/archive/$TARBALL"
+TARBALL_SHA1="0e6f8e94ff7c7465ca7fbbbd78a10bf6115bebed"
 
 BUILD_DEPENDS="automake libtool   fuse2-dev talloc-dev"
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
 	autoreconf -vif &&
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libnfs) copy @std;;
-		*-dev)  copy @dev;;
-	esac
 }

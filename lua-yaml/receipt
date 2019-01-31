@@ -1,0 +1,56 @@
+# SliTaz package receipt v2.
+
+PACKAGE="lua-yaml"
+VERSION="1.1.2"
+CATEGORY="system-tools"
+SHORT_DESC="LibYAML binding for Lua"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="http://yaml.luaforge.net/"
+REPOLOGY="lua:yaml"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/lubyk/yaml/archive/REL-$VERSION.tar.gz"
+TARBALL_SHA1="e455ec834a0be4998b7be0d6b292fa169cbe7f89"
+
+BUILD_DEPENDS="cmake yaml-dev lua51-dev lua52-dev lua53-dev"
+SPLIT="lua51-yaml:51 lua52-yaml:52 lua53-yaml:53"
+
+COPY_lua51_yaml="@std"
+COPY_lua52_yaml="@std"
+COPY_lua53_yaml="@std"
+
+DEPENDS_lua51_yaml="lua51 lua-lub"
+DEPENDS_lua52_yaml="lua52 lua-lub"
+DEPENDS_lua53_yaml="lua53 lua-lub"
+
+CAT_std="nopack|"
+CAT_lua51_yaml="system-tools|for Lua 5.1"
+CAT_lua52_yaml="system-tools|for Lua 5.2"
+CAT_lua53_yaml="system-tools|for Lua 5.3"
+
+compile_rules() {
+	if [ -z "$SET" ]; then
+		cook_pick_docs src/HISTORY src/LICENSE* src/README*
+		return
+	fi
+
+	# get variables from .pc file
+	pc="lua$SET"
+	cflags=$(pkg-config --cflags $pc)
+	install_lmod=$(pkg-config --variable=INSTALL_LMOD $pc)
+	install_cmod=$(pkg-config --variable=INSTALL_CMOD $pc)
+
+	mkdir build
+	cd    build
+	cmake \
+		-DCMAKE_C_FLAGS="$CFLAGS -Wall -DNDEBUG $cflags" \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_SKIP_RPATH=TRUE \
+		-DCMAKE_VERBOSE_MAKEFILE=TRUE \
+		-DLUA_INSTALL_DIR=$install_lmod \
+		-DLUA_INSTALL_BINDIR=$install_cmod \
+		.. &&
+	make &&
+	make install
+}

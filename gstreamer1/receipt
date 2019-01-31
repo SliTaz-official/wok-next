@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gstreamer1"
-VERSION="1.10.3"
+VERSION="1.14.4"
 CATEGORY="multimedia"
 SHORT_DESC="GStreamer Multimedia Framework"
 MAINTAINER="devel@slitaz.org"
@@ -10,9 +10,13 @@ WEB_SITE="https://gstreamer.freedesktop.org/"
 
 TARBALL="gstreamer-$VERSION.tar.xz"
 WGET_URL="https://gstreamer.freedesktop.org/src/gstreamer/$TARBALL"
+TARBALL_SHA1="324a30ddd2c35103fa6af8ffb1e436e8dda714c8"
 
-BUILD_DEPENDS="gettext-dev perl valgrind-dev glib-dev"
+BUILD_DEPENDS="gettext-dev perl valgrind-dev glib-dev gobject-introspection-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="glib"
+DEPENDS_dev="$PACKAGE glib-dev"
 
 COOKOPTS="skip-log-errors"
 
@@ -26,17 +30,4 @@ compile_rules() {
 	make install || return 1
 
 	ln -s gstreamer-1.0/gst $install/usr/include/gst
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		gstreamer1)
-			copy @std
-			DEPENDS="glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="gstreamer1 glib-dev"
-			;;
-	esac
 }
