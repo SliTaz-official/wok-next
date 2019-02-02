@@ -10,34 +10,24 @@ WEB_SITE="https://wiki.gnome.org/Projects/libgdata"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="942a98ae334d5ac97a041519d64ea48ddc654016"
 
 BUILD_DEPENDS="glib-dev libxml2-dev libsoup-dev json-glib-dev liboauth-dev \
 gdk-pixbuf-dev uhttpmock-dev intltool gobject-introspection-dev vala \
 shared-mime-info gcr-dev gnome-online-accounts-dev"
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE-lang"
+
+DEPENDS_std="gcr-base glib gnome-online-accounts json-glib liboauth libsoup \
+libxml2"
+DEPENDS_dev="$PACKAGE gcr-dev glib-dev gnome-online-accounts-dev json-glib-dev \
+liboauth-dev libsoup-dev libxml2-dev"
 
 compile_rules() {
 	DATADIRNAME=share \
 	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
+		--disable-static \
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
-	make DESTDIR=$install install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libgdata)
-			copy @std
-			DEPENDS="gcr-base glib gnome-online-accounts json-glib liboauth \
-			libsoup libxml2"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libgdata gcr-dev gnome-online-accounts-dev json-glib-dev \
-			liboauth-dev libsoup-dev libxml2-dev"
-			;;
-	esac
+	make install
 }

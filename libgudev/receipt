@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libgudev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/$VERSION/$TARBALL"
+TARBALL_SHA1="e8dc1c516a86e73e98d5c55c5570820073f0456c"
 
 BUILD_DEPENDS="gtk-doc gobject-introspection-dev eudev-dev glib-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="eudev glib"
+DEPENDS_dev="$PACKAGE glib-dev"
 
 compile_rules() {
 	./configure \
@@ -22,17 +26,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libgudev)
-			copy @std
-			DEPENDS="eudev glib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libgudev glib-dev"
-			;;
-	esac
 }

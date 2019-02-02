@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="webkit2gtk"
-VERSION="2.16.6"
+VERSION="2.22.5"
 CATEGORY="network"
 SHORT_DESC="Port of web rendering engine WebKit to the GTK+ platform"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,21 +12,32 @@ REPOLOGY="webkitgtk"
 
 TARBALL="webkitgtk-$VERSION.tar.xz"
 WGET_URL="http://webkitgtk.org/releases/$TARBALL"
+TARBALL_SHA1="809b067a1672a81a4ce31363a0872c668cc72953"
 
-BUILD_DEPENDS="cmake gperf perl python ruby-dev cairo-dev gnutls-dev gtk3-dev \
-harfbuzz-icu-dev libjpeg-turbo-dev libsoup-dev libxslt-dev libsecret-dev \
-libwebp-dev mesa-dev gtk2-dev enchant-dev gst1-plugins-base-dev \
-libnotify-dev gettext-dev sqlite3-dev libxt-dev"
-SPLIT="$PACKAGE-dev"
+BUILD_DEPENDS="cmake ninja gperf perl python ruby-dev cairo-dev gnutls-dev \
+gtk3-dev harfbuzz-icu-dev libjpeg-turbo-dev libsoup-dev libxslt-dev \
+libsecret-dev libwebp-dev mesa-dev gtk2-dev enchant-dev gst1-plugins-base-dev \
+libnotify-dev gettext-dev sqlite3-dev libxt-dev woff2-dev"
+SPLIT="$PACKAGE-dev $PACKAGE-lang"
 
-CFLAGS="${CFLAGS/-Os/-O2}"
-CXXFLAGS="${CXXFLAGS/-Os/-O2}"
-LDFLAGS="${LDFLAGS/-Os/-O2}"
+DEPENDS_std="atk enchant fontconfig freetype gdk-pixbuf glib gst1-plugins-base \
+gstreamer1 gtk2 gtk3 icu libcairo libgcrypt libharfbuzz libharfbuzz-icu libicu \
+libjpeg-turbo libnotify libpng libsecret libsoup libsqlite3 libtasn1 libwebp \
+libx11 libxcomposite libxdamage libxml2 libxslt mesa mesa-libegl pango woff2 \
+zlib"
+DEPENDS_dev="$PACKAGE glib-dev gtk3-dev libsoup-dev"
 
 compile_rules() {
-	fix math
-	mkdir build
-	cd    build
+	CFLAGS="${CFLAGS/-Os/-O2}"
+	CXXFLAGS="${CXXFLAGS/-Os/-O2}"
+	LDFLAGS="${LDFLAGS/-Os/-O2}"
+
+	# use ld.gold instead of ld.bfd
+	my_ld_orig="$(readlink /usr/bin/ld)"
+	ln -sf "$(readlink /usr/bin/ld.gold)" /usr/bin/ld
+
+	mkdir -p build
+	cd       build
 
 	CFLAGS=-Wno-expansion-to-defined \
 	CXXFLAGS=-Wno-expansion-to-defined \
@@ -44,31 +55,17 @@ compile_rules() {
 		-DENABLE_QUARTZ_TARGET=OFF \
 		-DENABLE_WAYLAND_TARGET=OFF \
 		-DENABLE_INTROSPECTION=OFF \
+		-G Ninja \
 		.. &&
-	make &&
-	make install || return 1
+	ninja -j1 &&
+	ninja -j1 install || return 1
 
 	for i in 2 dom; do
 		j="$install/usr/share/gtk-doc/html/webkit${i}gtk-4.0"
 		mkdir -p $j
-		cp -a ../Documentation/webkit${i}gtk-4.0/html/* $j
+		cp -r ../Documentation/webkit${i}gtk-4.0/html/* $j
 	done
-}
 
-genpkg_rules() {
-	case $PACKAGE in
-		webkit2gtk)
-			copy @std
-			DEPENDS="atk libcairo enchant fontconfig freetype gdk-pixbuf glib \
-			gst1-plugins-base gstreamer1 gtk2 gtk3 icu libgcrypt libharfbuzz \
-			libharfbuzz-icu libicu libjpeg-turbo libnotify libpng libsecret \
-			libsoup libsqlite3 libwebp libxml2 libxslt mesa mesa-libegl pango \
-			libx11 libxcomposite libxdamage libxrender \
-			libxt zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="webkit2gtk glib-dev gtk3-dev libsoup-dev"
-			;;
-	esac
+	# revert ld (anyway we working in AUFS and it will revert automatically)
+	ln -sf "$my_ld_orig" /usr/bin/ld
 }

@@ -10,12 +10,18 @@ WEB_SITE="http://www.underbit.com/products/mad/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/mad/$TARBALL"
+TARBALL_SHA1="4d867e8a8436e73cd7762fe0e85958e35f1e4306"
 
 BUILD_DEPENDS="zlib-dev gfortran"
 SPLIT="$PACKAGE-dev"
 
+DEPENDS_std="zlib"
+DEPENDS_dev="$PACKAGE zlib-dev"
+
 compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+	./configure \
+		--disable-static \
+		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
@@ -23,17 +29,4 @@ compile_rules() {
 	# libid3tag.pc
 	mkdir -p $install/usr/lib/pkgconfig/
 	sed "s|@VERSION@|$VERSION|" $stuff/id3tag.pc.in > $install/usr/lib/pkgconfig/id3tag.pc
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libid3tag)
-			copy @std
-			DEPENDS="zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libid3tag zlib-dev"
-			;;
-	esac
 }

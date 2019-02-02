@@ -1,19 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libsecret"
-VERSION="0.18.6"
+VERSION="0.18.7"
 CATEGORY="security"
 SHORT_DESC="GObject bindings for Secret Service API"
-MAINTAINER="devl547@gmail.com"
+MAINTAINER="devel@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://wiki.gnome.org/Projects/Libsecret"
+LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/libsecret.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="b98a5b62449fb182a8fe2897ac47053d2c3c256d"
 
 BUILD_DEPENDS="libtool intltool libxslt docbook-xsl libgcrypt-dev \
 gobject-introspection-dev vala util-linux-mount-dev"
-SPLIT="$PACKAGE-dev"
+SPLIT="$PACKAGE-dev $PACKAGE-lang"
+
+DEPENDS_std="glib libgcrypt"
+DEPENDS_dev="$PACKAGE glib-dev"
 
 compile_rules() {
 	./configure \
@@ -22,17 +27,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libsecret)
-			copy @std
-			DEPENDS="glib libgcrypt"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libsecret glib-dev"
-			;;
-	esac
 }

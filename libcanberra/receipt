@@ -11,11 +11,30 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/libcanberra.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$WEB_SITE/$TARBALL"
+TARBALL_SHA1="fd4c16e341ffc456d688ed3462930d17ca6f6c20"
 
 BUILD_DEPENDS="libtool gtk2-dev libvorbis-dev alsa-lib-dev eudev-dev \
 gstreamer1-dev gtk3-dev"
 SPLIT="$PACKAGE-gnome $PACKAGE-gstreamer1 $PACKAGE-gtk2 $PACKAGE-gtk3 \
 $PACKAGE $PACKAGE-dev"
+
+COPY_gnome="gnome-settings-daemon-3.0/ gdm/ gnome/ canberra-boot"
+COPY_gstreamer1="libcanberra-gstreamer.so"
+COPY_gtk2="gtk-2.0/modules/*.so libcanberra-gtk.so.*"
+COPY_gtk3="gtk-3.0/modules/*.so libcanberra-gtk3.so.* canberra-gtk-play"
+
+CAT_gnome="gnome|GNOME integration"
+CAT_gstreamer1="sound|Gstreamer bindings"
+CAT_gtk2="sound|GTK+2 integration"
+CAT_gtk3="sound|GTK+3 integration"
+
+DEPENDS_gnome="$PACKAGE eudev"
+DEPENDS_gstreamer1="$PACKAGE glib gstreamer1"
+DEPENDS_gtk2="$PACKAGE glib gtk2 libx11"
+DEPENDS_gtk3="$PACKAGE glib gtk3 libx11"
+DEPENDS_std="alsa-lib libltdl libvorbis"
+DEPENDS_dev="$PACKAGE-gnome $PACKAGE-gstreamer1 $PACKAGE-gtk2 $PACKAGE-gtk3 \
+$PACKAGE gtk2-dev gtk3-dev libx11-dev"
 
 compile_rules() {
 	./configure \
@@ -25,38 +44,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make -j1 docdir=/usr/share/doc/libcanberra-$VERSION install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		*-gnome)
-			copy gnome-settings-daemon-3.0/ gdm/ gnome/ canberra-boot
-			CAT="gnome|GNOME integration"
-			DEPENDS="eudev libcanberra"
-			;;
-		*-gstreamer1)
-			copy libcanberra-gstreamer.so
-			CAT="sound|Gstreamer bindings"
-			DEPENDS="glib gstreamer1 libcanberra"
-			;;
-		*-gtk2)
-			copy gtk-2.0/modules/*.so libcanberra-gtk.so*
-			CAT="sound|GTK+2 integration"
-			DEPENDS="glib gtk2 libcanberra libx11"
-			;;
-		*-gtk3)
-			copy gtk-3.0/modules/*.so libcanberra-gtk3.so* canberra-gtk-play
-			CAT="sound|GTK+3 integration"
-			DEPENDS="glib gtk3 libcanberra libx11"
-			;;
-		libcanberra)
-			copy @std @rm
-			DEPENDS="alsa-lib libltdl libvorbis"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="${SPLIT/$PACKAGE/} \
-			gtk2-dev gtk3-dev libx11-dev"
-			;;
-	esac
 }

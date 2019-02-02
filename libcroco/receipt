@@ -11,9 +11,13 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libcroco.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
+TARBALL_SHA1="f34287280cbf44d6c9628d15fa8a16347753a1d5"
 
 BUILD_DEPENDS="libxml2-dev glib-dev zlib-dev gtk-doc"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="glib libxml2"
+DEPENDS_dev="$PACKAGE glib-dev libxml2-dev"
 
 compile_rules() {
 	./configure \
@@ -22,17 +26,4 @@ compile_rules() {
 	fix libtool &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libcroco)
-			copy @std
-			DEPENDS="glib libxml2"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="libcroco glib-dev libxml2-dev"
-			;;
-	esac
 }

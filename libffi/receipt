@@ -7,35 +7,20 @@ SHORT_DESC="A portable foreign function interface library"
 MAINTAINER="devel@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://sourceware.org/libffi/"
-LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libffi.html"
+LFS="http://linuxfromscratch.org/lfs/view/development/chapter06/libffi.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://sourceware.org/ftp/libffi/$TARBALL"
+TARBALL_SHA1="280c265b789e041c02e5c97815793dfc283fb1e6"
 
 COOKOPTS="force-arch" # different .h, .pc
 
 SPLIT="$PACKAGE-dev"
 
 compile_rules() {
-	sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
-		-i include/Makefile.in
-	sed -e '/^includedir/ s/=.*$/=@includedir@/' \
-		-e 's/^Cflags: -I${includedir}/Cflags:/' \
-		-i libffi.pc.in
-
 	./configure \
-		--libdir=/usr/lib \
 		--disable-static \
 		$CONFIGURE_ARGS &&
-#	sed -i 's|^\(toolexeclibdir = \).*|\1/usr/lib|' Makefile \
-#		$HOST_SYSTEM-gnu/Makefile &&
 	make &&
 	make install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libffi) copy @std;;
-		*-dev)  copy @dev;;
-	esac
 }

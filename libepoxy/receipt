@@ -11,9 +11,12 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/libepoxy.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/anholt/libepoxy/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="e00d0bf270a99ded2a2f4abe7874b765cd338d1f"
 
 BUILD_DEPENDS="meson ninja libx11-dev mesa-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_dev="$PACKAGE mesa-dev"
 
 compile_rules() {
 	mkdir build
@@ -21,16 +24,4 @@ compile_rules() {
 	meson-wrapper &&
 	ninja &&
 	ninja install
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		libepoxy)
-			copy @std
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="mesa-dev"
-			;;
-	esac
 }
