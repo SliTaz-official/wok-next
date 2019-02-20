@@ -12,10 +12,14 @@ REPOLOGY="consolekit"
 
 TARBALL="ConsoleKit2-$VERSION.tar.bz2"
 WGET_URL="https://github.com/Consolekit2/ConsoleKit2/releases/download/$VERSION/$TARBALL"
+TARBALL_SHA1="28869807eed0cc4a7a1d98030be1f2c7e5700d0e"
 
 BUILD_DEPENDS="libx11-dev gettext-dev dbus-dev glib-dev polkit-dev \
 eudev-dev xmlto libxslt docbook-xsl libxml2-tools acl-dev"
 SPLIT="$PACKAGE-dev"
+
+DEPENDS_std="acl dbus eudev glib libx11 polkit zlib"
+DEPENDS_dev="$PACKAGE dbus-dev glib-dev"
 
 compile_rules() {
 	./configure \
@@ -34,17 +38,4 @@ compile_rules() {
 
 	mv -v $install/etc/X11/app-defaults/xinitrc.d/90-consolekit \
 		  $install/etc/X11/app-defaults/xinitrc.d/90-consolekit.sh
-}
-
-genpkg_rules() {
-	case $PACKAGE in
-		consolekit2)
-			copy @std
-			DEPENDS="acl dbus eudev glib polkit libx11 zlib"
-			;;
-		*-dev)
-			copy @dev
-			DEPENDS="consolekit2 dbus-dev"
-			;;
-	esac
 }
