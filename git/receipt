@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="git"
-VERSION="2.20.1"
+VERSION="2.21.0"
 CATEGORY="development"
-SHORT_DESC="Fast version control system"
+SHORT_DESC="A distributed version control system"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://git-scm.com/"
@@ -11,27 +11,89 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/git.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/software/scm/git/$TARBALL"
-TARBALL_SHA1="58dca49db21f4bebf56f8861f15800f1c57c5ee3"
+TARBALL_SHA512="83f57c3950a07f6773a3aea66611d22daba0e5599e5d8f0751a16f6fdbeab0f3844d942a39a5642051212df99d1d4513253c36829b1454b4f0977cc6026fd973"
 
-BUILD_DEPENDS="zlib-dev openssl-dev curl-dev expat-dev perl python-dev tar \
+aBUILD_DEPENDS="zlib-dev openssl-dev curl-dev expat-dev perl python-dev tar \
 bzip2 gettext"
-DEPENDS="zlib openssl curl expat"
+BUILD_DEPENDS="openssl-dev zlib-dev pcre2-dev curl-dev expat-dev gettext perl \
+asciidoctor xmlto"
 
-CONFIG_FILES="/etc/gitconfig /etc/daemons.conf.d/git-daemon.conf"
 
 compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--with-gitconfig=/etc/gitconfig \
-		--without-tcltk \
-		$CONFIGURE_ARGS &&
-	make THREADED_DELTA_SEARCH=1 &&
-	make \
-		THREADED_DELTA_SEARCH=1 \
-		INSTALL_SYMLINKS=1 \
-		DESTDIR=$install install || return 1
+	cat >> config.mak <<-EOF
+		NO_GETTEXT=YesPlease
+		NO_SVN_TESTS=YesPlease
+		NO_REGEX=YesPlease
+		USE_ASCIIDOCTOR=1
+		USE_LIBPCRE2=YesPlease
+		NO_NSEC=YesPlease
+		NO_SYS_POLL_H=1
+		CFLAGS=$CFLAGS
+	EOF
 
+	make prefix=/usr DESTDIR=$install || return 1
+
+	make \
+		-j1 \
+		prefix=/usr \
+		DESTDIR=$install \
+		INSTALLDIRS=vendor \
+		install || return 1
+
+	mkdir -p $install/var/git
+#	install -Dm755 $stuff/git-daemon.initd $install/etc/init.d/git-daemon
+#	install -Dm644 $stuff/git-daemon.confd $install/etc/conf.d/git-daemon
+
+	make \
+		prefix=/usr \
+		DESTDIR=$install \
+		install-man || return 1
+	find $install -name perllocal.pod -delete
+
+	# SliTaz stuff:
 	install -Dm755 $stuff/git-daemon      $install/etc/init.d/git-daemon
 	install -Dm644 $stuff/git-daemon.conf $install/etc/daemons.conf.d/git-daemon.conf
-	mkdir -p $install/var/www/git/
 }
+
+SPLIT="$PACKAGE-email $PACKAGE-fast-import $PACKAGE-cvs $PACKAGE-svn \
+$PACKAGE-p4 $PACKAGE-daemon $PACKAGE-gitweb $PACKAGE-gui $PACKAGE-perl $PACKAGE"
+
+COPY_email="git-imap-send git-send-email"
+DEPENDS_email="libcurl libpcre2-8 openssl zlib   perl perl-authen-sasl perl-net-smtp-ssl"
+CAT_email="development|sending email"
+
+COPY_fast_import="git-fast-import"
+DEPENDS_fast_import="libpcre2-8 zlib   $PACKAGE"
+CAT_fast_import="development|backend for fast Git data importers"
+
+COPY_cvs="git-cvsserver git-cvsexportcommit git-cvsimport"
+DEPENDS_cvs="cvs perl perl-dbd-sqlite"
+CAT="development|importing CVS repositories"
+
+COPY_svn="git-svn git-remote-testsvn"
+DEPENDS_svn="libpcre2-8 zlib   perl $PACKAGE"
+CAT_svn="development|operations between Subversion and Git"
+
+COPY_p4="git-p4 p4merge"
+DEPENDS_p4="python $PACKAGE $PACKAGE-fast-import"
+CAT_p4="development|working with Perforce depots"
+
+COPY_daemon="git-daemon git-http-backend git-shell git-daemon.conf"
+DEPENDS_daemon="libpcre2-8 zlib   $PACKAGE"
+CAT_daemon="development|git protocol daemon"
+CONFIG_FILES_std="/etc/daemons.conf.d/git-daemon.conf"
+
+COPY_gitweb="gitweb/ git-instaweb"
+DEPENDS_gitweb="$PACKAGE perl"
+CAT_gitweb="development|simple web interface to git repositories"
+
+COPY_gui="git-gui git-gui--askpass git-gui/ gitk gitk/ git-citool"
+DEPENDS_gui="$PACKAGE tcl tk"
+CAT_gui="development|GUI"
+
+COPY_perl="perl5/ git-add--interactive git-archimport"
+DEPENDS_perl="$PACKAGE perl"
+CAT_perl="development|Perl tools"
+
+DEPENDS_std="expat libcurl libpcre2-8 zlib"
+CONFIG_FILES_std="/etc/gitconfig"
