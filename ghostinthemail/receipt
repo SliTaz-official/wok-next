@@ -1,19 +1,18 @@
 # SliTaz package receipt v2.
 
-PACKAGE="gitmail"
-VERSION="0.4"
+ORIGIN="GhostInTheMail"
+PACKAGE="ghostinthemail"
+VERSION="0.5"
 CATEGORY="network"
 SHORT_DESC="Ghost In The Mail - simple mail client"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://gitmail.sourceforge.net/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+TARBALL="$ORIGIN-$VERSION.tar.gz"
+WGET_URL="$SF_MIRROR/gitmail/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev"
-
-COOKOPTS="skip-log-errors"
+BUILD_DEPENDS="gtk2-dev gettext gfortran"
 
 compile_rules() {
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lpthread"
@@ -27,7 +26,4 @@ compile_rules() {
 		install
 }
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="gtk2 libxdamage"
-}
+DEPENDS="atk gdk-pixbuf glib gtk2"
