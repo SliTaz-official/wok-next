@@ -1,0 +1,30 @@
+# SliTaz package receipt v2.
+
+PACKAGE="asciidoctor"
+VERSION="1.5.8"
+CATEGORY="ruby"
+SHORT_DESC="A text processor for converting AsciiDoc markup into HTML 5, DocBook 4.5 and other formats"
+MAINTAINER="al.bobylev@gmail.com"
+LICENSE="MIT"
+WEB_SITE="https://rubygems.org/gems/$PACKAGE"
+HOST_ARCH="any"
+
+TARBALL="$PACKAGE-$VERSION.gem"
+WGET_URL="http://rubygems.org/downloads/$TARBALL"
+
+BUILD_DEPENDS="ruby-dev"
+
+compile_rules() {
+	gem install \
+		--no-document \
+		--ignore-dependencies \
+		--no-user-install \
+		--build-root $install \
+		$src/$TARBALL &&
+	fix gem
+}
+
+genpkg_rules() {
+	copy @ruby
+	DEPENDS="ruby ruby-stdlib"
+}
