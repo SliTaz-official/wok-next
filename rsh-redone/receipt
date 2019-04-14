@@ -15,6 +15,7 @@ BUILD_DEPENDS="pam-dev"
 SPLIT="rshd-redone"
 
 compile_rules() {
+	sed -i 's|\(-l.* \)\(-o.*\)$|\2 \1|' Makefile
 	make &&
 	make DESTDIR=$install install
 }
@@ -40,7 +41,7 @@ genpkg_rules() {
 }
 
 # Pre and post install commands for Tazpkg.
-post_install_rshd-redone()
+post_install_rshd_redone()
 {
 	if ! grep -qs rlogind $1/etc/inetd.conf; then
 		cat >> $1/etc/inetd.conf <<EOT
@@ -52,7 +53,7 @@ EOT
 }
 
 # Pre and post install commands for Tazpkg.
-pre_remove_rshd-redone()
+pre_remove_rshd_redone()
 {
 	sed -i '/rlogind/d;/rshd/d' $1/etc/inetd.conf
 	[ -n "$1" ] || killall -HUP inetd
