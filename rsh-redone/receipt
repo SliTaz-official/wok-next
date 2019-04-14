@@ -12,7 +12,7 @@ TARBALL="${PACKAGE}_$VERSION.orig.tar.gz"
 WGET_URL="http://ftp.de.debian.org/debian/pool/main/${PACKAGE:0:1}/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="pam-dev"
-SPLIT="rshd"
+SPLIT="rshd-redone"
 
 compile_rules() {
 	make &&
@@ -21,11 +21,12 @@ compile_rules() {
 
 genpkg_rules() {
 	case $PACKAGE in
-		rsh)
+		rsh-redone)
 			mkdir -p $fs/usr
 			cp -a $install/usr/bin $fs/usr
+			PROVIDE="rsh rlogin"
 			;;
-		rshd)
+		rshd-redone)
 			mkdir -p $fs/usr $fs/etc/skel
 			cp -a $install/usr/sbin $fs/usr
 			cp -a $install/usr/etc $fs
@@ -39,7 +40,7 @@ genpkg_rules() {
 }
 
 # Pre and post install commands for Tazpkg.
-post_install_rshd()
+post_install_rshd-redone()
 {
 	if ! grep -qs rlogind $1/etc/inetd.conf; then
 		cat >> $1/etc/inetd.conf <<EOT
@@ -51,7 +52,7 @@ EOT
 }
 
 # Pre and post install commands for Tazpkg.
-pre_remove_rshd()
+pre_remove_rshd-redone()
 {
 	sed -i '/rlogind/d;/rshd/d' $1/etc/inetd.conf
 	[ -n "$1" ] || killall -HUP inetd
