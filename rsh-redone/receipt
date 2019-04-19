@@ -27,11 +27,13 @@ SPLIT="rshd-redone"
 
 COPY_std="bin/"
 PROVIDE_std="rsh rlogin"
+CONFIG_FILES_std="/etc/skel/.rhosts"
 
 COPY_rshd_redone="@std @rm"
 CAT_rshd_redone="network|rshd and rlogind"
 DEPENDS_rshd_redone="pam"
 PROVIDE_rshd_redone="rshd:pam rshd-pam"
+CONFIG_FILES_rshd_redone="/etc/skel/.rhosts"
 
 post_install_rshd_redone() {
 	if ! grep -qs rlogind $1/etc/inetd.conf; then
