@@ -19,7 +19,8 @@ BUILD_DEPENDS="git linux-module-headers aufs coreutils-operations"
 compile_rules() {
 	KERNEL_VERSION=$(. $WOK/linux/receipt; echo $VERSION)
 
-	sed -i 's|linux/aufs_type.h|uapi/linux/aufs_type.h|' ver.c
+	ln -s /usr/include/linux/aufs_type.h /usr/include/uapi/linux/aufs_type.h
+#	sed -i 's|linux/aufs_type.h|uapi/linux/aufs_type.h|' ver.c
 
 	make &&
 	make DESTDIR=$install install
