@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="aufs-utils"
-VERSION="20180705"
+VERSION="20181119"
 CATEGORY="system-tools"
-SHORT_DESC="The aufs utils"
+SHORT_DESC="The aufs utils."
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://aufs.sourceforge.net/"
@@ -11,7 +11,7 @@ REPOLOGY="aufs-util"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="git|git://git.code.sf.net/p/aufs/aufs-util"
-BRANCH="aufs4.x-rcN"
+BRANCH="aufs4.14"
 
 BUILD_DEPENDS="git linux-module-headers aufs coreutils-operations"
 # coreutils-operations for 'install -T' in Makefile
@@ -20,8 +20,6 @@ compile_rules() {
 	KERNEL_VERSION=$(. $WOK/linux/receipt; echo $VERSION)
 
 	sed -i 's|linux/aufs_type.h|uapi/linux/aufs_type.h|' ver.c
-	# cheat ver.c:
-	export	AUFS_VERSION="4.x_rcN"
 
 	make &&
 	make DESTDIR=$install install
