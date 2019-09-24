@@ -11,11 +11,12 @@ WEB_SITE="http://www.scilab.org/"
 TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="${WEB_SITE}download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="gfortran hdf5-dev ocaml fftw-dev libxml2-dev \
-gettext-dev blas lapack curl-dev tcl-dev tk-dev xorg-dev ncurses-dev \
-arpack-ng-dev matio-dev"
+BUILD_DEPENDS="arpack-ng-dev blas curl-dev fftw-dev gettext-dev gfortran \
+	hdf5-dev lapack libxml2-dev matio-devncurses-dev ocaml \
+	tcl-dev tk-dev xorg-dev"
 
-compile_rules() {
+compile_rules()
+{
 	fix math
 	./configure \
 		--without-javasci \
@@ -28,8 +29,9 @@ compile_rules() {
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libgfortran tk curl blas lapack hdf5 pcre fftw libxml2 \
-	gcc-lib-math arpack-ng matio"
+	DEPENDS="arpack-ng blas curl fftw gcc-lib-math hdf5 lapack \
+	libgfortran libxml2 matio pcre tk"
 }
