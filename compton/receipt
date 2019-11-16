@@ -12,30 +12,32 @@ WEB_SITE="https://github.com/chjj/compton"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/chjj/compton/archive/${COMMIT:-v$VERSION}.tar.gz"
 
-BUILD_DEPENDS="pcre-dev libx11-dev libxcomposite-dev \
-libxfixes-dev libxdamage-dev libxrender-dev libxext-dev \
-libxrandr-dev libxinerama-dev dbus-dev asciidoc libxml2-tools \
-docbook-xsl libconfig-dev"
+BUILD_DEPENDS="asciidoc dbus-dev docbook-xsl libconfig-dev libx11-dev 
+	libxcomposite-dev libxdamage-dev libxext-dev libxfixes-dev 
+	libxinerama-dev libxml2-tools libxrandr-dev libxrender-dev \
+	pcre-dev"
 # Optional bdeps: libconfig-dev libdrm-dev mesa-dev
 
-compile_rules() {
-	make \
-		COMPTON_VERSION=v$VERSION \
-		NO_VSYNC_DRM=yes \
-		NO_VSYNC_OPENGL=yes \
-		PREFIX=/usr \
-		DOCDIR=/usr/share/doc/$PACKAGE-$VERSION \
+compile_rules()
+{
+	make						\
+		COMPTON_VERSION=v$VERSION		\
+		NO_VSYNC_DRM=yes			\
+		NO_VSYNC_OPENGL=yes			\
+		PREFIX=/usr				\
+		DOCDIR=/usr/share/doc/$PACKAGE-$VERSION	\
 		install || return 1
 
 	mkdir -p $install/etc/xdg/compton
-	cp $src/compton.sample.conf $install/etc/xdg/compton/compton.conf
-	cp -r $stuff/autostart $install/etc/xdg/
+	cp $src/compton.sample.conf	$install/etc/xdg/compton/compton.conf
+	cp -r $stuff/autostart		$install/etc/xdg/
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy etc/ bin/	# skip icons
 	DEPENDS="dbus libconfig libpcre libx11 libxcomposite \
-	libxdamage libxext libxfixes libxinerama \
-	libxrandr libxrender   xwininfo xprop libconfig"
+		libxdamage libxext libxfixes libxinerama \
+		libxrandr libxrender xprop xwininfo"
 	CONFIG_FILES="/etc/xdg/compton/compton.conf"
 }
