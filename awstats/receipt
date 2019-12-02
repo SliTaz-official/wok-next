@@ -1,22 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="awstats"
-VERSION="7.0"
+VERSION="7.7"
 CATEGORY="network"
+TAGS_std="log analysis web mail ftp"
 SHORT_DESC="Log file analyzer"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL"
-WEB_SITE="https://awstats.sourceforge.io/"
-HOST_ARCH="any"
+WEB_SITE="https://awstats.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS_std="perl"
 SUGGESTED_std="perl-net-xwhois perl-geo-ipfree"
-TAGS_std="log analysis web mail ftp"
 
-compile_rules() {
+HOST_ARCH="any"
+
+compile_rules()
+{
 	mkdir -p \
 		$install/usr/share/awstats/extras/ \
 		$install/var/www/cgi-bin/ \
@@ -41,12 +43,13 @@ compile_rules() {
 		$install/usr/share/awstats/plugins/hostinfo.pm
 
 	# Avoid alias conflicts
-	for i in classes css icon; do
+	for i in classes css icon
+	  do
 		sed -i "s| /$i| /awstats$i|" \
 			$install/usr/share/awstats/extras/awstats-apache.conf
 		sed -i "s|\"/$i|\"/awstats$i|" \
 			$install/usr/share/awstats/extras/awstats-lighttpd.conf
-	done
+	  done
 	sed -i '/\/css\//d; s|DirIcons="/icon"|DirIcons="/awstatsicon"|' \
 		$install/etc/awstats/awstats.model.conf
 	sed -i 's|classes|awstatsclasses|' \
@@ -60,7 +63,8 @@ compile_rules() {
 		$install/usr/share/awstats/classes/src/Makefile.pl
 }
 
-post_install() {
+post_install()
+{
 	# Set lighttpd or apache config
 	if [ -f "$1/etc/apache/httpd.conf" ]; then
 		if [ ! -f "$1/etc/apache/conf.d/awstats.conf" ]; then
@@ -96,7 +100,8 @@ post_install() {
 EOT
 }
 
-post_remove() {
+post_remove()
+{
 		# Remove orphan directories
 		[ -d "$1/usr/share/awstats" ] && rm -rf "$1/usr/share/awstats"
 
