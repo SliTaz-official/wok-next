@@ -3,51 +3,54 @@
 PACKAGE="ardour"
 VERSION="5.12.0"
 CATEGORY="multimedia"
+TAGS_std="audio recorder mixer"
 SHORT_DESC="A multichannel hard disk recorder and digital audio workstation"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://ardour.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://community.ardour.org/src/Ardour-$VERSION.tar.bz2"
 
-BUILD_DEPENDS="python itstool boost-dev \
-alsa-lib-dev glib-dev glibmm-dev libsndfile-dev curl-dev libarchive-dev \
-liblo-dev taglib-dev vamp-plugin-sdk-dev rubberband-dev eudev-dev fftw-dev \
-aubio-dev cppunit-dev libusb-dev jack-dev pangomm-dev liblrdf-dev lv2 serd-dev \
-sord-dev sratom lilv gtkmm-dev dbus-dev readline-dev gettext-dev"
+BUILD_DEPENDS="alsa-lib-dev aubio-dev boost-dev cppunit-dev curl-dev dbus-dev 
+	eudev-dev fftw-dev gettext-dev glib-dev glibmm-dev gtkmm-dev itstool 
+	jack-dev libarchive-dev liblo-dev liblrdf-dev libsndfile-dev libusb-dev 
+	lilv lv2 pangomm-dev python readline-dev rubberband-dev serd-dev 
+	sord-dev sratom taglib-dev vamp-plugin-sdk-dev "
 
-DEPENDS_std="alsa-lib atk atkmm python-aubio libcairo cairomm dbus fftw flac \
-fontconfig freetype gdk-pixbuf glib glibmm gtk2 gtkmm libarchive libcurl \
-libgiomm liblo liblrdf libogg libsamplerate libsigc++ libsndfile libusb \
-libxml2 lilv pango pangomm readline rubberband serd sord sratom taglib \
-vamp-plugin-sdk libx11"
-TAGS_std="audio recorder mixer"
+DEPENDS_std="alsa-lib atk atkmm cairomm dbus fftw flac fontconfig freetype 
+	gdk-pixbuf glib glibmm gtk2 gtkmm libarchive libcairo libcurl libgiomm 
+	liblo liblrdf libogg libsamplerate libsigc++ libsndfile libusb libx11
+	libxml2 lilv pango pangomm python-aubio readline rubberband serd sord 
+	sratom taglib vamp-plugin-sdk"
 
-compile_rules() {
-#	fix math
-	python2 waf configure \
-		--prefix=/usr \
-		--configdir=/etc \
-		--with-backends="jack,alsa,dummy" \
-		--libjack=weak \
-		--optimize \
-		--cxx11 \
-		--freedesktop \
-		--ptformat \
-		--no-phone-home \
+compile_rules()
+{
+	# fix math
+	python2 waf configure				\
+		--prefix=/usr				\
+		--configdir=/etc			\
+		--with-backends="jack,alsa,dummy"	\
+		--libjack=weak				\
+		--optimize				\
+		--cxx11					\
+		--freedesktop				\
+		--ptformat				\
+		--no-phone-home				\
 		&&
 	python2 waf build &&
 	python2 waf install --destdir="$install" || return 1
+
 	# xdg integration
 	install -vDm644 build/gtk2_ardour/ardour.xml \
 		$install/usr/share/mime/application/x-ardour.xml
 	install -vDm644 build/gtk2_ardour/ardour${VERSION%%.*}.desktop \
 		$install/usr/share/applications/ardour.desktop
-	for size in 16 22 32 48 256 512; do
+	for size in 16 22 32 48 256 512
+	  do
 		install -vDm644 gtk2_ardour/resources/Ardour-icon_${size}px.png \
 			$install/usr/share/icons/hicolor/${size}x$size/apps/ardour${VERSION%%.*}.png
-	done
+	  done
 
 	fix symlinks
 }
