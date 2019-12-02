@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bird"
-VERSION="2.0.2"
+VERSION="2.0.3"
 CATEGORY="network"
 SHORT_DESC="Internet routing daemon"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,15 +11,17 @@ WEB_SITE="https://bird.network.cz/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://bird.network.cz/pub/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="flex bison readline-dev ncurses-dev"
+BUILD_DEPENDS="bison flex ncurses-dev readline-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="ncurses readline"
 	CONFIG_FILES="/etc/bird.conf"
