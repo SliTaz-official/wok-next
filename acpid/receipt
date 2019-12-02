@@ -1,10 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="acpid"
-VERSION="2.0.30"
+VERSION="2.0.31"
 CATEGORY="system-tools"
+TAGS_std="power-management"
 SHORT_DESC="The ACPI event daemon with netlink"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://sourceforge.net/projects/acpid2/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/acpid.html"
@@ -12,29 +13,32 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/acpid.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/acpid2/$TARBALL"
 
-TAGS_std="power-management"
 SUGGESTED_std="pm-utils"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
 	install -dm755 $install/etc/acpi/events
-	cp -r samples $install/usr/share/doc/$PACKAGE-$VERSION
+	cp -r samples	$install/usr/share/doc/$PACKAGE-$VERSION
 
 	mkdir -p $install/etc/
-	cp -r $stuff/init.d $install/etc/
-	cp -r $stuff/acpi   $install/etc/
+	cp -r $stuff/init.d	$install/etc/
+	cp -r $stuff/acpi	$install/etc/
 	chmod go-rwx $install/etc/acpi/*.sh
 	chmod go-rwx $install/etc/acpi/events/*
 }
 
-post_install() {
-	if [ -z "$1" ]; then
+post_install()
+{
+	if [ -z "$1" ]
+	  then
 		/etc/init.d/acpid start || continue
 	fi
-	if ! grep -q ^ACPID_OPTIONS "$1/etc/daemons.conf"; then
+	if ! grep -q ^ACPID_OPTIONS "$1/etc/daemons.conf"
+	  then
 		cat >> "$1/etc/daemons.conf" <<EOT
 # ACPI daemon options.
 ACPID_OPTIONS=""
@@ -43,8 +47,10 @@ EOT
 	fi
 }
 
-pre_remove() {
-	if [ -z "$1" ]; then
+pre_remove()
+{
+	if [ -z "$1" ]
+	  then
 		/etc/init.d/acpid stop
 	fi
 }
