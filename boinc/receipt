@@ -2,28 +2,29 @@
 
 PACKAGE="boinc"
 VERSION="6.10.58"
-SVN_TAG="6_10_58"
 CATEGORY="network"
 SHORT_DESC="Open-source software for volunteer computing and grid computing"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://boinc.berkeley.edu/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="svn|http://boinc.berkeley.edu/svn/tags/boinc_core_release_${SVN_TAG}"
+WGET_URL="svn|https://boinc.berkeley.edu/svn/tags/boinc_core_release_${VERSION//./_}"
 
-BUILD_DEPENDS="subversion openssl-dev autoconf automake curl-dev libidn-dev \
-wxWidgets28-dev libnotify-dev sqlite3-dev file"
+BUILD_DEPENDS="autoconf automake curl-dev file libidn-dev libnotify-dev 
+	openssl-dev sqlite3-dev subversion wxWidgets28-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's/AC_PROG_CPP/&\nAC_PROG_OBJCXX/' configure.ac
-	automake --add-missing
-	./_autosetup
-	./configure \
-		--disable-server \
-		--enable-unicode \
-		--enable-optimize \
+
+	automake --add-missing &&
+	./_autosetup &&
+	./configure			\
+		--disable-server	\
+		--enable-unicode	\
+		--enable-optimize	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -38,12 +39,13 @@ compile_rules() {
 	install -Dm755 $stuff/boinc-client $install/etc/init.d/boinc-client
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		boinc)
 			copy @std
 			# The init script requires bash.
-			DEPENDS="openssl libcurl wxWidgets28 libnotify bash"
+			DEPENDS="bash libcurl libnotify openssl wxWidgets28"
 			;;
 		*-dev)
 			copy @dev
@@ -51,12 +53,14 @@ genpkg_rules() {
 	esac
 }
 
-post_install_boinc() {
+post_install_boinc()
+{
 	echo
 	# Check if boinc user already exists
-	if grep -q "^$BOINCUSER:" "$1/etc/passwd"; then
+	if grep -q "^$BOINCUSER:" "$1/etc/passwd"
+	  then
 		chroot "$1/" adduser -g "BOINC User" -h /var/lib/boinc -s /bin/bash -S -H -D boinc
-	else
+	  else
 		# In case boinc was previously installed:
 		chroot "$1/" chown -R boinc /var/lib/boinc
 	fi
@@ -64,14 +68,16 @@ post_install_boinc() {
 	echo 'Start the boinc client with "# /etc/init.d/boinc-client start"'
 }
 
-post_remove_boinc() {
+post_remove_boinc()
+{
 	echo
 	echo -n "Delete user boinc and /var/lib/boinc (yes/No) ? : "
 	read -t 30 answer
-	if [ "$answer" == "yes" ]; then
+	if [ "$answer" == "yes" ]
+	  then
 		chroot "$1/" deluser boinc
 		rm -r "$1/var/lib/boinc"
-	else
+	  else
 		echo ""
 		echo "Leaving user boinc and /var/lib/boinc"
 	fi
