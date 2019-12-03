@@ -14,7 +14,8 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 BUILD_DEPENDS="acl-dev libcap-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's|/opt/schily|/usr|g; s|DEFINSGRP=.*|DEFINSGRP=root|' \
 		DEFAULTS/Defaults.linux
 	# install rscsi to /usr/bin instead of /usr/sbin
@@ -23,8 +24,8 @@ compile_rules() {
 	export GMAKE_NOWARN=true INS_BASE=/usr INS_RBASE=/
 	cp cdda2wav/lconfig.h.in cdda2wav/lconfig.h
 
-	make &&
-	make install || return 1
+	make -j1 &&
+	make -j1 install || return 1
 
 	# cdrkit compatibility
 	ln -s cdrecord $install/usr/bin/wodim
@@ -33,7 +34,8 @@ compile_rules() {
 	ln -s cdda2wav $install/usr/bin/icedax
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		cdrtools)
 			copy @std
