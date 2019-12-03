@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="btrfs-progs"
-VERSION="4.9.1"
+VERSION="5.3.1"
 CATEGORY="system-tools"
 SHORT_DESC="Btrfs Filesystem"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -12,18 +12,19 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/btrfs-progs.html"
 TARBALL="$PACKAGE-v$VERSION.tar.xz"
 WGET_URL="https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/$TARBALL"
 
-BUILD_DEPENDS="libcomerr util-linux-uuid-dev e2fsprogs e2fsprogs-dev zlib-dev \
-acl-dev util-linux-blkid-dev lzo-dev" #autoconf automake"
+BUILD_DEPENDS="acl-dev e2fsprogs e2fsprogs-dev libcomerr lzo-dev 
+	util-linux-blkid-dev util-linux-uuid-dev zlib-dev" #autoconf automake"
 SPLIT="btrfs-mkfs $PACKAGE btrfs-libs btrfs-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i '1,106 s/\.gz//g' Documentation/Makefile.in
 
-	./configure \
-		--prefix=/usr \
-		--bindir=/bin \
-		--libdir=/lib \
-		--disable-documentation \
+	./configure			\
+		--prefix=/usr		\
+		--bindir=/bin		\
+		--libdir=/lib		\
+		--disable-documentation	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -34,7 +35,8 @@ compile_rules() {
 	rm -v $install/lib/libbtrfs.a $install/lib/libbtrfs.so
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		btrfs-mkfs)
 			copy mkfs.btrfs
@@ -45,8 +47,8 @@ genpkg_rules() {
 			copy bin/ @rm
 			TAGS="filesystem fault-tolerance"
 			PROVIDE="btrfs-tools"
-			DEPENDS="e2fsprogs libcomerr lzo util-linux-blkid util-linux-uuid \
-			zlib    acl btrfs-mkfs"
+			DEPENDS="acl btrfs-mkfs e2fsprogs libcomerr lzo 
+				util-linux-blkid util-linux-uuid zlib"
 			;;
 		btrfs-libs)
 			copy *.so*
