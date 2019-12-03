@@ -1,27 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="clamtk"
-VERSION="4.36"
+VERSION="5.27"
 CATEGORY="network"
 SHORT_DESC="GUI front-end for ClamAV using gtk2-perl"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://clamtk.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+#WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://bitbucket.org/davem_/$PACKAGE/downloads/$TARBALL"
 
-compile_rules() {
+compile_rules()
+{
 	install -Dm755 $src/clamtk $install/usr/bin/clamtk
 
-	# libs
+	# libraries
 	PERL_VER=$(. $WOK/perl/receipt; echo $VERSION)
-	for n in $src/lib/*; do
+	for n in $src/lib/*
+	  do
 		install -Dm644 $n $install/usr/lib/perl5/$PERL_VER/ClamTk/$(basename $n)
 	done
 
-	#localization
-	for n in $src/po/*.mo; do
+	# localization
+	for n in $src/po/*.mo
+	  do
 		install -Dm644 $n $install/usr/share/locale/$(basename $n .mo)/LC_MESSAGES/clamtk.mo
 	done
 
@@ -35,8 +39,9 @@ compile_rules() {
 	cook_pick_manpages clamtk.1.gz
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std *.mo
-	DEPENDS="clamav perl-gtk2 perl perl-date-calc perl-file-find-rule \
-	perl-libwww-perl perl-locale-gettext perl-net-dns eudev"
+	DEPENDS="clamav eudev perl perl-date-calc perl-file-find-rule perl-gtk2 
+	perl-libwww-perl perl-locale-gettext perl-net-dns"
 }
