@@ -1,33 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="codeblocks"
-VERSION="10.05"
+VERSION="17.12"
 CATEGORY="development"
 SHORT_DESC="An open source, cross platform, free C++ IDE"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.codeblocks.org/"
 
-TARBALL="$PACKAGE-$VERSION-src.tar.bz2"
-WGET_URL="http://download.berlios.de/codeblocks/$TARBALL"
+TARBALL="${PACKAGE}_$VERSION.tar.xz"
+#WGET_URL="http://download.berlios.de/codeblocks/$TARBALL"
+WGET_URL="$SF_MIRROR/codeblocks/$TARBALL"
 
-BUILD_DEPENDS="wxWidgets28-dev libxdmcp-dev libxau-dev expat-dev \
-autoconf automake libtool zip gnome-icon-theme hunspell-dev gamin-dev \
-boost-dev"
+BUILD_DEPENDS="autoconf automake boost-dev expat-dev gamin-dev 
+	gnome-icon-theme hunspell-dev libtool libxau-dev 
+	libxdmcp-dev wxWidgets28-dev zip"
 
-compile_rules() {
+compile_rules()
+{
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 
-	./configure \
-		--with-contrib-plugins="all, -help" \
+	./configure					\
+		--with-contrib-plugins="all, -help"	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std @dev
 	DEPENDS="wxWidgets28"
 	TAGS="IDE"
