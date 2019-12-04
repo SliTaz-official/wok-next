@@ -1,36 +1,37 @@
 # SliTaz package receipt v2.
 
 PACKAGE="collectd"
-VERSION="5.1.0"
+VERSION="5.10.0"
 CATEGORY="network"
 SHORT_DESC="System Statistics Collection Daemon"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://collectd.org/"
+WEB_SITE="https://collectd.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://collectd.org/files/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="https://collectd.org/files/$TARBALL"
 
-BUILD_DEPENDS="slitaz-toolchain rrdtool-dev perl curl-dev libxml2-dev"
+BUILD_DEPENDS="curl-dev libxml2-dev perl rrdtool-dev slitaz-toolchain"
 SPLIT="$PACKAGE-dev $PACKAGE-apache:apache $PACKAGE-bind:bind"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'')
 			sed -i 's|_BSD_SOURCE|_DEFAULT_SOURCE|' src/*.c configure*
 
-			./configure \
-				--enable-interface \
-				--enable-load \
-				--enable-cpu \
-				--enable-disk \
-				--enable-logfile \
-				--enable-syslog \
-				--enable-csv\
-				--enable-rrdtool \
-				--with-librrdtool=/usr/include \
-				--disable-all-plugins \
-				--sysconfdir=/etc/collectd \
+			./configure				\
+				--enable-interface		\
+				--enable-load			\
+				--enable-cpu			\
+				--enable-disk			\
+				--enable-logfile		\
+				--enable-syslog			\
+				--enable-csv			\
+				--enable-rrdtool		\
+				--with-librrdtool=/usr/include	\
+				--disable-all-plugins		\
+				--sysconfdir=/etc/collectd	\
 				$CONFIGURE_ARGS &&
 			fix libtool &&
 			make &&
@@ -41,10 +42,10 @@ compile_rules() {
 			chmod 0644 $install/etc/collectd/*
 			;;
 		apache)
-			./configure \
-				--enable-apache \
-				--disable-all-plugins \
-				--sysconfdir=/etc/collectd \
+			./configure				\
+				--enable-apache			\
+				--disable-all-plugins		\
+				--sysconfdir=/etc/collectd	\
 				$CONFIGURE_ARGS &&
 			fix libtool &&
 			make &&
@@ -53,10 +54,10 @@ compile_rules() {
 		bind)
 			sed -i 's/ipt_error_target/ipt2_error_target/' src/libiptc/libiptc.c
 
-			./configure \
-				--enable-bind \
-				--disable-all-plugins \
-				--sysconfdir=/etc/collectd \
+			./configure				\
+				--enable-bind			\
+				--disable-all-plugins		\
+				--sysconfdir=/etc/collectd	\
 				$CONFIGURE_ARGS &&
 			fix libtool &&
 			make &&
@@ -65,11 +66,12 @@ compile_rules() {
 	esac
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		collectd)
 			copy @std
-			DEPENDS="rrdtool perl"
+			DEPENDS="perl rrdtool"
 			CONFIG_FILES="/etc/collectd/collectd.conf"
 			;;
 		collectd-dev)
@@ -77,7 +79,7 @@ genpkg_rules() {
 			;;
 		collectd-apache)
 			copy @std
-			DEPENDS="libcurl apache"
+			DEPENDS="apache libcurl"
 			CAT="network|Apache plugin"
 			#CONFIG_FILES="/etc/collectd/collectd.conf"
 			;;
