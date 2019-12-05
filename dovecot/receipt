@@ -1,29 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dovecot"
-VERSION="2.1.6"
+VERSION="2.3.9"
 CATEGORY="network"
 SHORT_DESC="Dovecot IMAP and POP3 Server"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://dovecot.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www.dovecot.org/releases/${VERSION:0:3}/$TARBALL"
+WGET_URL="http://www.dovecot.org/releases/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="openssl-dev libcap-dev openldap-dev \
-libmysqlclient mysql-dev sqlite3-dev pam-dev postgresql-dev"
+BUILD_DEPENDS="libcap-dev libmysqlclient mysql-dev openldap-dev 
+	openssl-dev pam-dev postgresql-dev sqlite3-dev"
 
-compile_rules() {
-	./configure \
-		--sysconfdir=/etc/dovecot \
-		--libexecdir=/usr/lib/$PACKAGE \
-		--with-ssl=openssl \
-		--with-ldap=plugin \
-		--with-sql=plugin \
-		--with-mysql \
-		--with-pgsql \
-		--with-sqlite \
+compile_rules()
+{
+	./configure				\
+		--sysconfdir=/etc/dovecot	\
+		--libexecdir=/usr/lib/$PACKAGE	\
+		--with-ssl=openssl		\
+		--with-ldap=plugin		\
+		--with-sql=plugin		\
+		--with-mysql			\
+		--with-pgsql			\
+		--with-sqlite			\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -32,30 +33,31 @@ compile_rules() {
 	install -Dm755 $stuff/init.d/dovecot $install/etc/init.d/dovecot
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/lib \
 		$fs/var/log/dovecot \
 		$fs/etc/ssl/misc
 
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/etc $fs/
+	cp -a $install/usr/sbin	$fs/usr
+	cp -a $install/usr/bin	$fs/usr
+	cp -a $install/usr/lib	$fs/usr
+	cp -a $install/etc	$fs/
 
-	#cp -pa $fs/etc/dovecot/dovecot-example.conf $fs/etc/dovecot/dovecot.conf
+	#cp -pa $fs/etc/dovecot/dovecot-example.conf	$fs/etc/dovecot/dovecot.conf
 	cp -pa $install/usr/share/doc/dovecot/example-config/* $fs/etc/dovecot/
-	#cp -pa $src/doc/example-config/conf.d/*.conf $fs/etc/dovecot/conf.d
-	#cp -pa $src/doc/example-config/conf.d/*.ext $fs/etc/dovecot/conf.d
-	cp -pa $src/doc/*.cnf $fs/etc/ssl
-	cp -pa $src/doc/mkcert.sh $fs/etc/ssl/misc/dovmkcert.sh
+	#cp -pa $src/doc/example-config/conf.d/*.conf	$fs/etc/dovecot/conf.d
+	#cp -pa $src/doc/example-config/conf.d/*.ext	$fs/etc/dovecot/conf.d
+	cp -pa $src/doc/*.cnf				$fs/etc/ssl
+	cp -pa $src/doc/mkcert.sh			$fs/etc/ssl/misc/dovmkcert.sh
 
 	# Remove archive file *.*a
 	find $fs -name "*.*a" -exec rm -f {} \;
 
-	# Fix perms
+	# Fix permissions
 	chmod 755 $fs/etc/ssl/misc/*
 
-	# Customising config.
+	# Customising configuration
 	sed -i -e "s/^#default_vsz_limit.*/default_vsz_limit = 50M/" \
 		$fs/etc/dovecot/conf.d/10-master.conf
 
@@ -71,16 +73,18 @@ genpkg_rules() {
 	DEPENDS="openssl libcap openldap pam postgresql libmysqlclient"
 }
 
-post_install() {
+post_install()
+{
 	local user=dovecot group=dovecot
 
-	if ! grep -q $user "$1/etc/passwd"; then
+	if ! grep -q $user "$1/etc/passwd"
+	  then
 		chroot "$1/" addgroup -g 76 -S $group
 		chroot "$1/" adduser  -u 76 -S -D -H -G $group  $user
 		chroot "$1/" adduser  -u 74 -S -D -H -G nogroup dovenull
 	fi
 
-	# Set perms for files and directories
+	# Set permissions for files and directories
 	chroot "$1/" chown -R $user:$group /var/log/dovecot
 
 	[ -n "$quiet" } || cat <<EOF
@@ -95,7 +99,8 @@ EOF
 }
 
 
-post_remove() {
+post_remove()
+{
 	[ -d "$1/var/log/dovecot" ] && rm -rf "$1/var/log/dovecot"
 	[ -d "$1/var/run/dovecot" ] && rm -rf "$1/var/run/dovecot"
 
