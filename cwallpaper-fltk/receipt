@@ -14,16 +14,19 @@ WGET_URL="$SF_MIRROR/cwallpaper/$TARBALL"
 
 BUILD_DEPENDS="fltk-dev libx11-dev libxinerama-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i "s#g++#${HOST_SYSTEM}-g++#" Makefile || return 1
 	make &&
 	mkdir -p $install/usr/bin/ &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/cwallpaper
-	cp -a $install/usr/bin $fs/usr
+
+	cp -a $install/usr/bin	$fs/usr
 	cp $install/usr/share/cwallpaper/example_config \
 		$fs/usr/share/cwallpaper
 	DEPENDS="fltk"
