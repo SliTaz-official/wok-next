@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cups-filters"
-VERSION="1.11.1"
+VERSION="1.25.13"
 CATEGORY="system-tools"
 SHORT_DESC="OpenPrinting CUPS Filters"
 MAINTAINER="mojo@slitaz.org"
@@ -11,25 +11,27 @@ WEB_SITE="https://wiki.linuxfoundation.org/openprinting/start"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.openprinting.org/download/cups-filters/$TARBALL"
 
-BUILD_DEPENDS="cups-dev zlib-dev libjpeg-turbo-dev libpng-dev tiff-dev \
-glib-dev lcms2-dev freetype-dev fontconfig-dev ijs-dev qpdf-dev poppler-dev \
-dbus-dev"
+BUILD_DEPENDS="cups-dev dbus-dev fontconfig-dev freetype-dev glib-dev 
+	ijs-dev lcms2-dev libjpeg-turbo-dev libpng-dev poppler-dev 
+	qpdf-dev tiff-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--without-rcdir \
-		--disable-static \
-		--disable-avahi \
-		--with-gs-path=/usr/bin/gs \
-		--with-pdftops-path=/usr/bin/gs \
+compile_rules()
+{
+	./configure				\
+		--without-rcdir			\
+		--disable-static		\
+		--disable-avahi			\
+		--with-gs-path=/usr/bin/gs	\
+		--with-pdftops-path=/usr/bin/gs	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		cups-filters)
 			copy @std
