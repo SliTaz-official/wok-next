@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="conntrack-tools"
-VERSION="1.4.2"
+VERSION="1.4.5"
 CATEGORY="security"
 SHORT_DESC="Userspace tools to interact with the Connection Tracking System"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,19 +11,21 @@ WEB_SITE="http://conntrack-tools.netfilter.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.netfilter.org/projects/$PACKAGE/files/$TARBALL"
 
-BUILD_DEPENDS="glib-dev libnfnetlink-dev libmnl-dev libnetfilter_conntrack-dev \
-libnetfilter_cttimeout-dev libnetfilter_cthelper-dev libnetfilter_queue-dev \
-bison flex"
+BUILD_DEPENDS="bison flex glib-dev libmnl-dev libnetfilter_conntrack-dev 
+	libnetfilter_cthelper-dev libnetfilter_cttimeout-dev 
+	libnetfilter_queue-dev libnfnetlink-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libnfnetlink libnetfilter_conntrack libnetfilter_queue \
-	libnetfilter_cthelper libmnl"
+	DEPENDS="libmnl libnetfilter_conntrack libnetfilter_cthelper 
+	libnetfilter_queue libnfnetlink "
 }
