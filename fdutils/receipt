@@ -13,8 +13,15 @@ WGET_URL="$WEB_SITE$TARBALL"
 
 BUILD_DEPENDS="flex"
 
-compile_rules() {
+compile_rules()
+{
+	sed -i 's|.*inux/ext2_fs.*|struct ext2_super_block {\n\
+	__le32 pad1;\n	__le32 s_blocks_count;\n	__le32 pad2[4];\n\
+	__le32 s_log_block_size;\n	__le32 pad3[7];\n\
+	__le16 s_magic;\n};|' src/fdmount.c
+
 	mkdir -p $install/etc
+
 	sed \
 		-e "s|^bindir.*|bindir = $install/usr/bin|" \
 		-e "s|^sysconfdir.*|sysconfdir = $install/etc|" \
@@ -24,7 +31,8 @@ compile_rules() {
 	make DESTDIR=$install install-prog
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	TAGS="floppy formatter"
 }
