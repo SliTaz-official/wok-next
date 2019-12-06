@@ -1,21 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="encfs"
-VERSION="1.7.4"
+VERSION="1.9.5"
 CATEGORY="security"
 SHORT_DESC="Encryption filesystem for FUSE"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.arg0.net/encfs"
+WEB_SITE="https://www.arg0.net/encfs"
 REPOLOGY="fusefs:encfs"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
-WGET_URL="http://encfs.googlecode.com/files/$TARBALL"
+WGET_URL="https://github.com/vgough/$PACKAGE/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="fuse2-dev rlog rlog-dev openssl-dev boost-dev \
-boost-system boost-serialization boost-filesystem"
+BUILD_DEPENDS="boost-dev boost-filesystemboost-serialization boost-system 
+	fuse2-dev openssl-dev rlog rlog-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mv $PACKAGE-${VERSION%-*} $src 2>/dev/null
 	cd $src
 
@@ -25,9 +26,10 @@ compile_rules() {
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="fuse2 rlog openssl boost-system boost-serialization \
-	boost-filesystem gcc-lib-base"
+	DEPENDS="boost-filesystem boost-serialization boost-system fuse2
+		gcc-lib-base openssl rlog"
 	TAGS="filesystem"
 }
