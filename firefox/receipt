@@ -11,10 +11,10 @@ WEB_SITE="https://www.mozilla.org/en-US/firefox/"
 TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
 WGET_URL="ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/$VERSION/source/$TARBALL"
 
-BUILD_DEPENDS="zip libidl coreutils findutils wireless_tools-dev \
-perl python yasm alsa-lib-dev mesa-dev libevent-dev libvpx-dev dbus-dev \
-dbus-glib-dev gtk2-dev glib-dev pango-dev nss-dev sqlite3-dev tar gzip \
-libjpeg-turbo-dev"
+BUILD_DEPENDS="alsa-lib-dev coreutils dbus-dev dbus-glib-dev findutils 
+	glib-dev gtk2-dev gzip libevent-dev libffi-dev libidl 
+	libjpeg-turbo-dev libvpx-dev mesa-dev nss-dev pango-dev perl 
+	python sqlite3-dev tar wireless_tools-dev yasm zip"
 SPLIT="$PACKAGE-dev libfirefox"
 
 # A long compile time... dont forget to build libidl before and check the
@@ -24,7 +24,8 @@ SPLIT="$PACKAGE-dev libfirefox"
 # build time.
 # At least 2.5 GB free disk space
 
-compile_rules() {
+compile_rules()
+{
 	# load mozconfig
 	cp -a $stuff/mozconfig $src
 
@@ -57,7 +58,8 @@ compile_rules() {
 	ln -sf ../mozilla/plugins $install/usr/lib/firefox-$VERSION
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		firefox)
 			# program
@@ -184,11 +186,14 @@ genpkg_rules() {
 	esac
 }
 
-post_install_firefox_dev() {
-	for i in usr/share/idl/firefox- usr/include/firefox- usr/lib/firefox-devel-; do
-		for j in $(ls -d "$1"/$i* 2>/dev/null); do
+post_install_firefox_dev()
+{
+	for i in usr/share/idl/firefox- usr/include/firefox- usr/lib/firefox-devel-
+	  do
+		for j in $(ls -d "$1"/$i* 2>/dev/null)
+		  do
 			[ "${j##*-}" = "$VERSION" ] && continue
 			[ ! -d "$j" ] || rm -rf "$j"
-		done
-	done
+		  done
+	  done
 }
