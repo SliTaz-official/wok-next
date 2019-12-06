@@ -12,11 +12,12 @@ REPOLOGY="foobillard++"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="automake autoconf sdl-dev sdl-mixer-dev sdl-net-dev \
-mesa-dev glu-dev freetype-dev libpng-dev"
+BUILD_DEPENDS="autoconf automake freetype-dev glu-dev 
+	libpng-dev mesa-dev sdl-dev sdl-mixer-dev sdl-net-dev"
 SPLIT="$PACKAGE-music $PACKAGE"
 
-compile_rules() {
+compile_rules()
+{
 	aclocal --force
 	autoconf -f
 	autoheader -f
@@ -37,13 +38,16 @@ compile_rules() {
 	cp -R data/* $install$fbdir/
 	sed -i 's|firefox|browser|' $install$fbdir/browser.sh # use SliTaz browser
 
-	install -Dm644 foobillardplus.desktop $install/usr/share/applications/foobillardplus.desktop
-	install -Dm644 foobillardplus.png $install/usr/share/icons/hicolor/128x128/apps/foobillardplus.png
+	install -Dm644 foobillardplus.desktop \
+		$install/usr/share/applications/foobillardplus.desktop
+	install -Dm644 foobillardplus.png \
+		$install/usr/share/icons/hicolor/128x128/apps/foobillardplus.png
 
 	find $install \( -name '*.ttf' -o -name '*.ico' \) -delete
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		foobillardplus-music)
 			copy music/
