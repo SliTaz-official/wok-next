@@ -13,13 +13,14 @@ TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="https://github.com/vgough/$PACKAGE/archive/v$VERSION.tar.gz"
 
 BUILD_DEPENDS="boost-dev boost-filesystem boost-serialization boost-system 
-	fuse2-dev openssl-dev rlog rlog-dev"
+	cmake fuse2-dev openssl-dev rlog rlog-dev"
 
 compile_rules()
 {
-	mv $PACKAGE-${VERSION%-*} $src 2>/dev/null
-
-	./configure $CONFIGURE_ARGS &&
+	mkdir	build
+	cd	build
+	cmake	..			\
+		-DCMAKE_INSTALL_PREFIX=/usr &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
