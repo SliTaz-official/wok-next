@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fbida"
-VERSION="2.09"
+VERSION="2.14"
 CATEGORY="utilities"
 SHORT_DESC="Image viewer for the framebuffer console"
 MAINTAINER="devl547@gmail.com"
@@ -9,12 +9,13 @@ LICENSE="GPL2"
 WEB_SITE="https://www.kraxel.org/blog/linux/fbida/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://dl.bytesex.org/releases/$PACKAGE/$TARBALL"
+WGET_URL="https://www.kraxel.org/releases/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="freetype-dev fontconfig-dev libexif-dev curl-dev jpeg-dev \
-libpng-dev tiff-dev"
+BUILD_DEPENDS="curl-dev fontconfig-dev freetype-dev jpeg-dev \
+	libexif-dev libpng-dev tiff-dev"
 
-compile_rules() {
+compile_rules()
+{
 	make || return 1
 
 	install -Dm755 $src/fbi      $install/usr/bin/fbi
@@ -22,8 +23,9 @@ compile_rules() {
 	install -Dm755 $src/exiftran $install/usr/bin/exiftran
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libpng giflib libtiff jpeg ttf-bitstream-vera libexif zlib \
-	libcurl freetype fontconfig"
+	DEPENDS="fontconfig freetype giflib jpeg libcurl libexif libpng 
+	libtiff ttf-bitstream-vera zlib"
 }
