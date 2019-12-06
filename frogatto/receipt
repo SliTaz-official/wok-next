@@ -1,25 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="frogatto"
-VERSION="1.3.1"
+VERSION="1.3.3"
 CATEGORY="games"
 SHORT_DESC="Action-adventure game, starring a certain quixotic frog"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="CC-BY-3 custom"
 WEB_SITE="https://frogatto.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/frogatto/frogatto/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="libx11-dev sdl-dev mesa-dev glu-dev glew-dev \
-sdl-image-dev libpng-dev zlib-dev boost-dev sdl-ttf-dev \
-sdl-mixer-dev coreutils-file-format ccache"
+BUILD_DEPENDS="boost-dev ccache coreutils-file-format glew-dev glu-dev 
+	libpng-dev libx11-dev mesa-dev sdl-dev sdl-image-dev 
+	sdl-mixer-dev sdl-ttf-dev zlib-dev"
 SPLIT="$PACKAGE-data"
 
-compile_rules() {
+compile_rules()
+{
 	CXXFLAGS="$CXXFLAGS -std=gnu++98" make game server || return 1
 
 	mkdir -p $install/opt/frogatto/
+
 	cp game server *.ttf $install/opt/frogatto/
 	cp -r data/ images/ modules/ music/ $install/opt/frogatto
 	install -Dm755 $stuff/frogatto $install/usr/bin/frogatto
@@ -27,13 +29,14 @@ compile_rules() {
 	install -Dm644 $src/images/window-icon.png $install/usr/share/pixmaps/frogatto.png
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		frogatto)
 			copy game server frogatto frogatto.desktop frogatto.png
-			DEPENDS="glew boost-iostreams boost-regex boost-system \
-			boost-thread glu libpng sdl sdl-image \
-			sdl-mixer sdl-ttf mesa libx11 zlib"
+			DEPENDS="boost-iostreams boost-regex boost-system \
+			boost-thread glew glu libpng libx11 mesa sdl sdl-image \
+			sdl-mixer sdl-ttf zlib"
 			;;
 		frogatto-data)
 			copy data/ images/ modules/ music/ *.ttf
