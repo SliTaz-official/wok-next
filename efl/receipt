@@ -1,63 +1,64 @@
 # SliTaz package receipt v2.
 
 PACKAGE="efl"
-VERSION="1.21.1"
+VERSION="1.23.3"
 CATEGORY="base-system"
 SHORT_DESC="Enlightenment Foundation Libraries"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD GPL2 LGPL2 zlib/libpng"
 WEB_SITE="https://www.enlightenment.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://download.enlightenment.org/rel/libs/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gettext-dev openssl-dev libunwind-dev libjpeg-turbo-dev \
-gstreamer1-dev luajit-dev freetype-dev fontconfig-dev fribidi-dev \
-libx11-dev libxext-dev libxrender-dev mesa-dev giflib-dev \
-tiff-dev libwebp-dev poppler-dev libspectre-dev libraw-dev librsvg-dev \
-eudev-dev dbus-dev pulseaudio-dev libxcursor-dev libxcomposite-dev \
-libxinerama-dev libxrandr-dev libxscrnsaver-dev bullet-dev \
-gst1-plugins-base-dev libsndfile-dev libxtst-dev"
+BUILD_DEPENDS="bullet-dev dbus-dev eudev-dev fontconfig-dev freetype-dev 
+	fribidi-dev gettext-dev giflib-dev gst1-plugins-base-dev gstreamer1-dev 
+	libjpeg-turbo-dev libraw-dev librsvg-dev libsndfile-dev libspectre-dev 
+	libunwind-dev libwebp-dev libx11-dev libxcomposite-dev libxcursor-dev 
+	libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libxscrnsaver-dev 
+	libxtst-dev luajit-dev mesa-dev openssl-dev poppler-dev pulseaudio-dev tiff-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--disable-doc \
-		--disable-systemd \
-		--enable-harfbuzz \
-		--enable-image-loader-webp \
-		--enable-xinput22 \
-		--enable-multisense \
-		--enable-cancel-ok \
+compile_rules()
+{
+	./configure				\
+		--disable-doc			\
+		--disable-systemd		\
+		--enable-harfbuzz		\
+		--enable-image-loader-webp	\
+		--enable-xinput22		\
+		--enable-multisense		\
+		--enable-cancel-ok		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		efl)
 			copy @std
-			DEPENDS="bullet libcairo dbus eudev fontconfig freetype fribidi \
-			giflib glib gst1-plugins-base gstreamer1 libharfbuzz libjpeg-turbo \
-			libpng libraw librsvg libspectre libunwind libwebp luajit mesa \
-			openssl libpoppler python libtiff util-linux-mount libx11 \
-			libxscrnsaver libxcomposite libxcursor \
-			libxdamage libxext libxfixes libxi \
-			libxinerama libxrandr libxrender libxtst zlib"
+			DEPENDS="bullet dbus eudev fontconfig freetype fribidi giflib 
+				glib gst1-plugins-base gstreamer1 libcairo libharfbuzz 
+				libjpeg-turbo libpng libpoppler libraw librsvg libspectre 
+				libtiff libunwind libwebp libx11 libxcomposite libxcursor 
+				libxdamage libxext libxfixes libxi libxinerama libxrandr 
+				libxrender libxscrnsaver libxtst luajit mesa openssl 
+				python util-linux-mount zlib"
 			TAGS="e enlightenment efl"
 			;;
 		efl-dev)
 			copy @dev
-			DEPENDS="shared-mime-info efl bullet-dev dbus-dev eudev-dev \
-			fontconfig-dev freetype-dev fribidi-dev glib-dev harfbuzz-dev \
-			libjpeg-turbo-dev libpng-dev luajit-dev openssl-dev \
-			util-linux-mount-dev libx11-dev libxscrnsaver-dev \
-			libxcomposite-dev libxcursor-dev libxdamage-dev \
-			libxext-dev libxfixes-dev libxi-dev \
-			libxinerama-dev libxrandr-dev libxrender-dev \
-			libxtst-dev libxcb-dev zlib-dev"
+			DEPENDS="bullet-dev dbus-dev efl eudev-dev fontconfig-dev 
+				freetype-dev fribidi-dev glib-dev harfbuzz-dev 
+				libjpeg-turbo-dev libpng-dev libx11-dev libxcb-dev 
+				libxcomposite-dev libxcursor-dev libxdamage-dev 
+				libxext-dev libxfixes-dev libxi-dev libxinerama-dev 
+				libxrandr-dev libxrender-dev libxscrnsaver-dev libxtst-dev 
+				luajit-dev openssl-dev shared-mime-info util-linux-mount-dev 
+				zlib-dev"
 			;;
 	esac
 }
