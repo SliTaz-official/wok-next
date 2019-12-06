@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="firefox-official"
-VERSION="69.0"
+VERSION="71.0"
 CATEGORY="network"
 SHORT_DESC="Official Firefox build by the Mozilla foundation"
 MAINTAINER="al.bobylev@gmail.com"
@@ -15,7 +15,8 @@ WGET_URL="http://ftp.mozilla.org/pub/firefox/releases/$VERSION/linux-${ARCH/i486
 SPLIT="$PACKAGE-de:de $PACKAGE-en-GB:gb $PACKAGE-es:es $PACKAGE-fr:fr $PACKAGE-it:it \
 $PACKAGE-pt-BR:pt-BR $PACKAGE-ru:ru $PACKAGE-uk:uk"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'') lang='en-US';;
 		gb) lang='en-GB';;
@@ -44,12 +45,13 @@ compile_rules() {
 	ln -s $fx/firefox $install/usr/bin/firefox-official
 
 	# Icons
-	for size in 16 32 48 128; do
+	for size in 16 32 48 128
+	  do
 		icon_folder="$install/usr/share/icons/hicolor/${size}x$size/apps"
 		mkdir -p $icon_folder
 		ln -s $fx/browser/chrome/icons/default/default$size.png \
 			$icon_folder/firefox-official.png
-	done
+	  done
 
 	# Make symlinks relative
 	fix symlinks
@@ -70,7 +72,8 @@ compile_rules() {
 	rm -r $src
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	PROVIDE="firefox-official browser-html5"
 	case $PACKAGE in
 		firefox-official)
