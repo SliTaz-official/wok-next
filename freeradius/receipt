@@ -1,84 +1,103 @@
 # SliTaz package receipt v2.
 
 PACKAGE="freeradius"
-VERSION="2.1.12"
+VERSION="3.0.20"
 CATEGORY="security"
 SHORT_DESC="Radius server"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2 LGPL2"
-WEB_SITE="http://freeradius.org/"
+WEB_SITE="https://freeradius.org/"
 
 TARBALL="freeradius-server-$VERSION.tar.gz"
-WGET_URL="ftp://ftp.freeradius.org/pub/freeradius/$TARBALL"
+WGET_URL="ftp://ftp.freeradius.org/pub/radius/$TARBALL"
 
-BUILD_DEPENDS="libtool openldap-dev openssl-dev pam-dev krb5-dev gdbm-dev libtool"
+BUILD_DEPENDS="gdbm-dev krb5-dev libtool openldap-dev openssl-dev pam-dev"
 SPLIT="$PACKAGE-dialupadmin $PACKAGE-pam"
 
-compile_rules() {
+compile_rules()
+{
 	export CFLAGS="$CFLAGS -fno-strict-aliasing"
 
-	./configure \
-		--with-system-libtool \
-		--with-system-libltdl \
+	./configure			\
+		--with-system-libtool	\
+		--with-system-libltdl	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make -j1 &&
 	make R=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		freeradius)
 			CONFIG_FILES="/etc/raddb"
-			DEPENDS="openssl cyrus-sasl libldap libltdl python readline \
-			libunixODBC libkrb5 libcomerr3 libmysqlclient libgdbm"
-			mkdir -p $fs/usr/lib $fs/usr/share $fs/etc/init.d $fs/var/run/radiusd
+			DEPENDS="cyrus-sasl libcomerr3 libgdbm libkrb5 libldap libltdl \
+			libmysqlclient libunixODBC openssl python readline"
 
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/share/freeradius $fs/usr/share
-			cp -a $install/etc $fs
-			cp -a $install/var $fs
-			rm -f $fs/usr/lib/rlm_pam* $fs/etc/raddb/modules/pam
-			cp -a $stuff/freeradius $fs/etc/init.d/
+			mkdir -p $fs/usr/lib
+			mkdir -p $fs/usr/share
+			mkdir -p $fs/etc/init.d
+			mkdir -p $fs/var/run/radiusd
+
+			cp -a $install/usr/bin			$fs/usr
+			cp -a $install/usr/sbin			$fs/usr
+			cp -a $install/usr/lib/*.so*		$fs/usr/lib
+			cp -a $install/usr/share/freeradius	$fs/usr/share
+			cp -a $install/etc			$fs
+			cp -a $install/var			$fs
+			rm -f $fs/usr/lib/rlm_pam*		$fs/etc/raddb/modules/pam
+			cp -a $stuff/freeradius			$fs/etc/init.d/
 			;;
 		freeradius-dialupadmin)
 			CAT="network|web interface"
 			CONFIG_FILES="/etc/dialupadmin"
 			DEPENDS="php"
-			mkdir -p $fs/usr/share $fs/etc/dialupadmin
-			cp -a $src/dialup_admin $fs/usr/share
-			cp -a $src/dialup_admin/conf/* $fs/etc/dialupadmin
+
+			mkdir -p $fs/usr/share
+			mkdir -p $fs/etc/dialupadmin
+
+			cp -a $src/dialup_admin		$fs/usr/share
+			cp -a $src/dialup_admin/conf/*	$fs/etc/dialupadmin
 			rm -rf $fs/usr/share/dialup_admin/conf
-			ln -s /etc/dialupadmin $fs/usr/share/dialup_admin
+			ln -s /etc/dialupadmin		$fs/usr/share/dialup_admin
 			;;
 		freeradius-pam)
 			CAT="security|pam module"
 			PROVIDE="freeradius:pam"
 			DEPENDS="freeradius pam"
-			mkdir -p $fs/usr/lib $fs/etc/raddb/modules
-			cp -a $install/usr/lib/rlm_pam*.so* $fs/usr/lib
-			cp -a $install/etc/raddb/modules/pam $fs/etc/raddb/modules
+
+			mkdir -p $fs/usr/lib
+			mkdir -p $fs/etc/raddb/modules
+
+			cp -a $install/usr/lib/rlm_pam*.so*	$fs/usr/lib
+			cp -a $install/etc/raddb/modules/pam	$fs/etc/raddb/modules
 			;;
 	esac
 }
 
-post_install_freeradius_dialupadmin() {
+post_install_freeradius_dialupadmin()
+{
 	# Configure lighttpd server
-	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
-		if ! grep -q /usr/share/dialup_admin/ "$1/etc/lighttpd/lighttpd.conf"; then
+	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]
+	  then
+		if ! grep -q /usr/share/dialup_admin/ "$1/etc/lighttpd/lighttpd.conf"
+		  then
 			sed -e 's|.*"/examples/" => "/usr/share/examples/",|    "/examples/" => "/usr/share/examples/",\n    "/dialupadmin/" => "/usr/share/dialup_admin/htdocs/",|g' -i "$1/etc/lighttpd/lighttpd.conf"
-			if [ -z "$1" ]; then
+			if [ -z "$1" ]
+			  then
 				# Start Web server.
 				/etc/init.d/lighttpd stop
 				/etc/init.d/lighttpd start
 			fi
 		fi
 	fi
+
 	# Configure apache server
-	if [ -f "$1/etc/apache/httpd.conf" ]; then
-		if [ ! -f "$1/etc/apache/conf.d/dialupadmin" ]; then
+	if [ -f "$1/etc/apache/httpd.conf" ]
+	  then
+		if [ ! -f "$1/etc/apache/conf.d/dialupadmin" ]
+		  then
 			cat > "$1/etc/apache/conf.d/dialupadmin" <<EOT
 <IfModule mod_alias.c>
     Alias /dialupadmin /usr/share/dialup_admin/htdocs
@@ -91,7 +110,8 @@ post_install_freeradius_dialupadmin() {
     Allow from all
 </DirectoryMatch>
 EOT
-			if [ -z "$1" ]; then
+			if [ -z "$1" ]
+			  then
 				# Start Web server.
 				/etc/init.d/apache stop
 				/etc/init.d/apache start
