@@ -1,24 +1,26 @@
 # SliTaz package receipt v2.
 
 PACKAGE="duplicity"
-VERSION="0.6.20"
+VERSION="0.8.07"
 CATEGORY="network"
 SHORT_DESC="Encrypted bandwidth-efficient backup using the rsync algorithm"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://duplicity.nongnu.org/"
+WEB_SITE="https://www.nongnu.org/duplicity/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://code.launchpad.net/$PACKAGE/${VERSION%.*}-series/$VERSION/+download/$TARBALL"
 
-BUILD_DEPENDS="python-dev librsync-dev gnupg python-paramiko cryptopp lftp"
+BUILD_DEPENDS="cryptopp gnupg lftp librsync-dev python-dev python-paramiko"
 # NcFTP boto librsync-dev
 
-compile_rules() {
+compile_rules()
+{
 	python -B setup.py install --root=$install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="python librsync-dev gnupg python-paramiko cryptopp lftp"
+	DEPENDS="cryptopp gnupg lftp librsync-dev python python-paramiko"
 }
