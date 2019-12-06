@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="etherboot"
-VERSION="5.4.3"
+VERSION="5.4.4"
 CATEGORY="system-tools"
 SHORT_DESC="Ethernet bootloader for PXE and NBI images"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,19 +11,22 @@ WEB_SITE="http://etherboot.org/wiki/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="perl gcc49"
+BUILD_DEPENDS="perl"
 
-compile_rules() {
+compile_rules()
+{
 	cd $src/src
-	make CC=gcc-49 bin/etherboot-net.bzImage
+	make bin/etherboot-net.bzImage
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/boot
 	cp $src/src/bin/etherboot-net.bzImage $fs/usr/share/boot/etherboot
 }
 
-post_install() {
+post_install()
+{
 	[ -n "$quiet" ] || cat <<EOT
 
 	.------------------------------------------.
