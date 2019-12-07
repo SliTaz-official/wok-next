@@ -1,26 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="giac"
-VERSION="1.4.9"
+VERSION="1.5.0.75"
 CATEGORY="misc"
 SHORT_DESC="Free computer algebra system"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
-WEB_SITE="http://www-fourier.ujf-grenoble.fr/~parisse/giac.html"
+WEB_SITE="https://www-fourier.ujf-grenoble.fr/~parisse/giac.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://www-fourier.ujf-grenoble.fr/~parisse/giac/$TARBALL"
+TARBALL="$PACKAGE-${VERSION%.*}-${VERSION##*.}.tar.gz"
+WGET_URL="https://www-fourier.ujf-grenoble.fr/~parisse/giac/$TARBALL"
 
-BUILD_DEPENDS="gmp-dev mpfr-dev libpng-dev gsl-dev pari-dev ntl readline-dev \
-cocoalib fltk-dev libx11-dev gf2x-dev libxinerama-dev libxml2-dev \
-fltk-2.0.x-gl bison gfortran mesa-dev expat-dev gf2x-dev boost-dev \
-boost-system libxshmfence-dev" # lapack
+BUILD_DEPENDS="bison boost-dev boost-system cocoalib expat-dev fltk-2.0.x-gl 
+	fltk-dev gf2x-dev gfortran gmp-dev gsl-dev libpng-dev libx11-dev 
+	libxinerama-dev libxml2-dev libxshmfence-dev mesa-dev mpfr-dev ntl 
+	pari-dev readline-dev" # lapack
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's| doc | |' Makefile*
 	sed -i.ORG 's/protected:/public:/' \
 		/usr/include/FL/Fl_Input.H \
 		/usr/include/FL/Fl_PostScript.H
+
 	export LDFLAGS="$LDFLAGS -lgf2x -lboost_system"
 
 	./configure $CONFIGURE_ARGS &&
@@ -32,7 +34,8 @@ compile_rules() {
 	mv -f /usr/include/FL/Fl_Input.H.ORG      /usr/include/FL/Fl_Input.H
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std @dev
-	DEPENDS="gmp mpfr libpng gsl pari ntl readline cocoalib fltk gf2x"
+	DEPENDS="cocoalib fltk gf2x gmp gsl libpng mpfr ntl pari readline"
 }
