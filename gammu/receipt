@@ -1,35 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gammu"
-VERSION="1.27.0"
+VERSION="1.41.0"
 CATEGORY="system-tools"
 SHORT_DESC="Library and utility to control cell phone"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://wammu.eu/gammu/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="bluez sqlite3 libusb-compat libcurl cmake"
+BUILD_DEPENDS="bluez cmake libcurl libusb-compat sqlite3"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DBUILD_SHARED_LIBS=ON \
-		.. &&
+	cmake	..				\
+		-DCMAKE_INSTALL_PREFIX=/usr	\
+		-DBUILD_SHARED_LIBS=ON &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gammu)
 			copy @std
-			DEPENDS="bluez sqlite3 libusb-compat libcurl"
+			DEPENDS="bluez libcurl libusb-compat sqlite3"
 			;;
 		*-dev)
 			copy @dev
