@@ -1,40 +1,43 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gimp"
-VERSION="2.10.2"
+VERSION="2.10.14"
 CATEGORY="graphics"
 SHORT_DESC="GNU Image Manipulation Program"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gimp.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://download.gimp.org/pub/gimp/v${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="intltool iso-codes-dev babl-dev gegl-dev atk-dev glib-dev \
-glib-networking libx11-dev libice-dev gtk2-dev gexiv2-dev \
-libxmu-dev libxfixes-dev ghostscript-dev libmng-dev aalib-dev \
-libxpm-dev openexr-dev ilmbase-dev libwebp-dev libheif-dev libmypaint-dev \
-mypaint-brushes-dev librsvg-dev poppler-dev poppler-data libwmf-dev \
-openjpeg2-dev libxcursor-dev libgudev-dev xdg-utils libxslt \
-shared-mime-info-dev desktop-file-utils-extra gtk-doc tiff-dev"
+BUILD_DEPENDS="aalib-dev atk-dev babl-dev desktop-file-utils-extra 
+	gegl-dev gexiv2-dev ghostscript-dev glib-dev glib-networking 
+	gtk-doc gtk2-dev ilmbase-dev intltool iso-codes-dev libgudev-dev 
+	libheif-dev libice-dev libmng-dev libmypaint-dev librsvg-dev 
+	libwebp-dev libwmf-dev libx11-dev libxcursor-dev libxfixes-dev 
+	libxmu-dev libxpm-dev libxslt mypaint-brushes-dev openexr-dev 
+	openjpeg2-dev poppler-data poppler-dev shared-mime-info-dev 
+	tiff-dev xdg-utils"
 SPLIT="$PACKAGE-brushes $PACKAGE-console $PACKAGE-dev $PACKAGE-plug-ins \
 $PACKAGE"
 
-compile_rules() {
-	./configure \
-		--with-html-dir=/usr/share/doc \
-		--without-print \
-		--disable-python \
-		--without-alsa \
-		--without-webkit \
+compile_rules()
+{
+	./configure				\
+		--with-html-dir=/usr/share/doc	\
+		--without-print			\
+		--disable-python		\
+		--without-alsa			\
+		--without-webkit		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		*-brushes)
 			copy gimp/2.0/brushes/
@@ -45,30 +48,30 @@ genpkg_rules() {
 		*-console)
 			copy bin/gimp-console*
 			CAT="graphics|console"
-			DEPENDS="babl libcairo fontconfig freetype gdk-pixbuf gegl gexiv2 \
-			gimp glib liblcms2 libharfbuzz libmypaint pango zlib"
+			DEPENDS="babl fontconfig freetype gdk-pixbuf gegl gexiv2 gimp 
+				glib libcairo libharfbuzz liblcms2 libmypaint pango zlib"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="gimp gimp-brushes gimp-console gimp-plug-ins \
-			cairo-dev gdk-pixbuf-dev gegl-dev gtk2-dev"
+			DEPENDS="cairo-dev gdk-pixbuf-dev gegl-dev gimp gimp-brushes 
+				gimp-console gimp-plug-ins gtk2-dev"
 			;;
 		*-plug-ins)
 			copy gimp/2.0/plug-ins/
 			find $fs \( -name file-jpeg -o -name file-png -o -name pixelize \
 				-o -name screenshot \) -delete # -> main package
 			CAT="graphics|plug-ins suite for advanced users"
-			DEPENDS="aalib babl libbzip2 libcairo gdk-pixbuf gegl gexiv2 gimp glib \
-			gtk2 ilmbase liblcms2 libheif libjpeg-turbo liblzma libmng libpng \
-			librsvg libwebp libwmf openexr openjpeg2 pango libpoppler libtiff \
-			libx11 libxcursor libxpm zlib"
+			DEPENDS="aalib babl gdk-pixbuf gegl gexiv2 gimp glib gtk2 ilmbase 
+				libbzip2 libcairo libheif libjpeg-turbo liblcms2 liblzma 
+				libmng libpng libpoppler librsvg libtiff libwebp libwmf 
+				libx11 libxcursor libxpm openexr openjpeg2 pango zlib"
 			;;
 		gimp)
 			copy @std @rm # all the rest
-			DEPENDS="babl libcairo fontconfig freetype gdk-pixbuf gegl gexiv2 \
-			glib gtk2 liblcms2 libgudev libharfbuzz libjpeg-turbo libmypaint \
-			libpng pango libx11 libxext libxfixes libxmu \
-			zlib"
+			DEPENDS="babl fontconfig freetype gdk-pixbuf gegl gexiv2 glib gtk2 
+				libcairo libgudev libharfbuzz libjpeg-turbo liblcms2 
+				libmypaint libpng libx11 libxext libxfixes libxmu pango 
+				zlib"
 			SUGGESTED="gimp-plug-ins gimp-brushes gimp-console \
 			gimp-plugin-ufraw mypaint-brushes gegl-extra"
 			;;
