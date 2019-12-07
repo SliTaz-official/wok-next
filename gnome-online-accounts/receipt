@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnome-online-accounts"
-VERSION="3.30.1"
+VERSION="3.34.1"
 CATEGORY="network"
 SHORT_DESC="Client for GNOME web services"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,9 +12,9 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 TARBALL_SHA1="211d5130f30ea9c90064c21b4b0f2de3b3e107d2"
 
-BUILD_DEPENDS="glib-dev libxslt gobject-introspection-dev vala gtk3-dev \
-webkit2gtk-dev json-glib-dev rest-dev libsecret-dev krb5-dev gettext-dev \
-docbook-xsl"
+BUILD_DEPENDS="docbook-xsl gettext-dev glib-dev gobject-introspection-dev 
+	gtk3-dev json-glib-dev krb5-dev libsecret-dev libxslt rest-dev 
+	vala webkit2gtk-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-lang"
 
 COPY_std="@std @ico"
@@ -24,9 +24,10 @@ DEPENDS_dev="$PACKAGE glib-dev gtk3-dev"
 
 COOKOPTS="skip-log-errors"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
-	make &&
-	make install
+	make -j1 &&
+	make -j1 install
 }
