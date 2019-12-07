@@ -4,17 +4,17 @@ PACKAGE="gejengel"
 VERSION="0.1.4"
 CATEGORY="network"
 SHORT_DESC="A simple, light and clean audio player"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/dirkvdb/gejengel"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://gejengel.googlecode.com/files/$TARBALL"
 
-BUILD_DEPENDS="glibmm-dev cairomm-dev gtkmm-dev libsigc++-dev taglib-dev \
-imagemagick-dev imagemagick libxdg-basedir-dev alsa-lib-dev flac-dev \
-ffmpeg-dev lcms-dev fftw-dev openexr-dev ilmbase-dev graphviz-dev \
-util-linux-uuid-dev libogg-dev intltool libcroco sqlite3-dev gtk2-dev libtool"
+BUILD_DEPENDS="alsa-lib-dev cairomm-dev ffmpeg-dev fftw-dev flac-dev glibmm-dev 
+	graphviz-dev gtk2-dev gtkmm-dev ilmbase-dev imagemagick imagemagick-dev 
+	intltool lcms-dev libcroco libogg-dev libsigc++-dev libtool 
+	libxdg-basedir-dev openexr-dev sqlite3-dev util-linux-uuid-dev taglib-dev"
 
 compile_rules() {
 	sed \
@@ -27,20 +27,24 @@ compile_rules() {
 		-e 's/av_close_input_file(/avformat_close_input(\&/' \
 		-e 's/av_\(find_stream_info(m_pFormatContext\)/avformat_\1,NULL/' \
 		-i src/AudioDecoder/ffmpegdecoder.cpp
+
 	find . -name '*.h' -o -name '*.c*' | xargs sed -i 's|glibmm/i18n|glib/gi18n|'
 
-	./configure \
-		--enable-alsa \
-		--enable-ffmpeg \
-		--enable-flac \
+	sed -i 's|ImageMagick++|Magick++|' configure*
+
+	./configure		\
+		--enable-alsa	\
+		--enable-ffmpeg	\
+		--enable-flac	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr $fs/etc
 	cp -a $install/usr/bin $fs/usr
-	DEPENDS="glibmm cairomm gtkmm libsigc++ taglib imagemagick libxdg-basedir \
-	alsa-lib flac ffmpeg sqlite3"
+	DEPENDS="alsa-lib cairomm ffmpeg flac glibmm gtkmm imagemagick libsigc++ 
+		libxdg-basedir sqlite3 taglib"
 }
