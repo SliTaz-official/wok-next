@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnaughty"
-VERSION="1.2.4"
+VERSION="1.2.5"
 CATEGORY="utilities"
 SHORT_DESC="Automatically download adult sex content"
 MAINTAINER="devl547@gmail.com"
@@ -11,10 +11,12 @@ WEB_SITE="http://gnaughty.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="curl-dev gtk2-dev glib-dev pcre-dev libglade-dev gconf-dev"
+BUILD_DEPENDS="curl-dev gconf-dev glib-dev gtk2-dev libglade-dev pcre-dev"
 
-compile_rules() {
+compile_rules()
+{
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lgthread-2.0"
+
 	sed -i 's|curl/types|curl/curl|' src/http.c
 	sed -i 's/test -z "\$(gladedir)".*/& || true/' src/Makefile.in
 
@@ -23,7 +25,8 @@ compile_rules() {
 	make -j1 install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="curl gtk2 glib pcre libglade gconf"
+	DEPENDS="curl gconf glib gtk2 libglade pcre"
 }
