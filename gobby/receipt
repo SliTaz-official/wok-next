@@ -1,34 +1,40 @@
 # SliTaz package receipt.
 
 PACKAGE="gobby"
-VERSION="0.4.12"
+VERSION="0.5.0"
 CATEGORY="network"
 SHORT_DESC="Network collaborative editor"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://gobby.github.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://releases.0x539.de/gobby/$TARBALL"
 
-BUILD_DEPENDS="intltool libxml++-dev cairomm-dev glibmm-dev gtkmm-dev net6-dev \
-obby-dev gtksourceview-dev gnutls-dev libsigc++-dev gtk2-dev"
+BUILD_DEPENDS="cairomm-dev glibmm-dev gnutls-dev gtk2-dev gtkmm-dev 
+	gtksourceview-dev intltool libsigc++-dev libxml++-dev net6-dev 
+	obby-dev"
 
-compile_rules() {
+compile_rules()
+{
 	# for glibmm >= 2.31
-	sed -i 's|.*gselector.hpp|#include <glibmm/main.h>\n&|' src/gselector.cpp
+	sed -i 's|.*gselector.hpp|#include <glibmm/main.h>\n&|' \
+		src/gselector.cpp
 
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/pixmaps
-	cp -a $install/usr/bin $fs/usr
+
+	cp -a $install/usr/bin	$fs/usr
 	cp -a $install/usr/share/icons/hicolor/48x48/apps/* \
-		$fs/usr/share/pixmaps
-	DEPENDS="gnutls libgpg-error libgcrypt gtk2 cairomm glibmm gtkmm \
-	gtksourceview libsigc++ libxml++ net6 obby libxdamage gcc-lib-base \
-	libtasn1"
+				$fs/usr/share/pixmaps
+
+	DEPENDS="cairomm gcc-lib-base gnutls glibmm gtk2 gtkmm 
+		gtksourceview libgcrypt libgpg-error libsigc++ 
+		libtasn1 libxdamage libxml++ net6 obby"
 }
