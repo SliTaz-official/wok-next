@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="gnuplot"
-VERSION="4.6.5"
+VERSION="5.2.8"
 CATEGORY="graphics"
 SHORT_DESC="Command-line driven interactive data and function plotting"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,19 +11,21 @@ WEB_SITE="http://www.gnuplot.info/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev readline-dev ncurses-dev libgd-dev jpeg-dev \
-freetype-dev libpng-dev libxpm-dev libx11-dev libxau-dev \
-libxdmcp-dev fontconfig-dev expat-dev wxWidgets-dev pango-dev cairo-dev"
+BUILD_DEPENDS="cairo-dev expat-dev fontconfig-dev freetype-dev jpeg-dev 
+	libgd-dev libpng-dev libx11-dev libxau-dev libxdmcp-dev libxpm-dev 
+	ncurses-dev pango-dev readline-dev wxWidgets-dev zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make $MAKEOPTS &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="zlib readline ncurses libgd jpeg freetype libpng gcc-lib-base \
-	libxpm libx11 libxau libxdmcp fontconfig expat \
-	wxWidgets libxxf86vm"
+	DEPENDS="expat fontconfig freetype gcc-lib-base jpeg libgd libpng 
+		libx11 libxau libxdmcp libxpm libxxf86vm ncurses readline 
+		wxWidgets zlib"
 }
