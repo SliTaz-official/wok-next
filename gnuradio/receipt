@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="gnuradio"
-VERSION="3.7.8"
+VERSION="3.8.0.0"
 CATEGORY="development"
 MAINTAINER="pascal.bellard@slitaz.org"
 SHORT_DESC="Signal processing blocks to implement software radios"
@@ -11,33 +11,36 @@ WEB_SITE="https://www.gnuradio.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/releases/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="cmake fftw-dev python-numpy python-cheetah python-lxml \
-boost-dev boost-filesystem boost-system boost-unit-test-framework \
-boost-program-options boost-thread boost-math-tr1 boost-regex \
-python-pygtk-dev sdl-dev \
-swig cppunit-dev orc-dev python-sphinx gsl-dev libusb-dev \
-alsa-lib-dev jack-dev portaudio-dev log4c-dev"
+BUILD_DEPENDS="alsa-lib-dev cmake cppunit-dev fftw-dev boost-dev boost-filesystem 
+	boost-math-tr1 boost-program-options boost-regex boost-system boost-thread 
+	boost-unit-test-framework gsl-dev jack-dev libusb-dev log4c-devorc-dev 
+	portaudio-dev python-cheetah python-lxml python-numpy python-pygtk-dev 
+	python-sphinx sdl-dev swig"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-Wno-dev \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		.. &&
+	cmake	..				\
+		-Wno-dev			\
+		-DCMAKE_INSTALL_PREFIX=/usr &&
 	make &&
 	sed -i 's,bin/ctest.*,& || true,' Makefile &&
 	make test &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	mkdir -p $fs/usr/share $fs/usr/lib
-	cp -a $install/etc $fs
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/gnuradio $fs/usr/share
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/python* $fs/usr/lib
+genpkg_rules()
+{
+	mkdir -p $fs/usr/share
+	mkdir -p $fs/usr/lib
+
+	cp -a $install/etc			$fs
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/share/gnuradio	$fs/usr/share
+	cp -a $install/usr/lib/*.so*		$fs/usr/lib
+	cp -a $install/usr/lib/python*		$fs/usr/lib
+
 	DEPENDS="python boost-date-time boost-program-options boost-filesystem \
-	boost-system boost-thread orc alsa-lib gsl fftw jack portaudio"
+		boost-system boost-thread orc alsa-lib gsl fftw jack portaudio"
 }
