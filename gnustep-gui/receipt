@@ -1,42 +1,48 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gnustep-gui"
-VERSION="0.25.1"
+VERSION="0.27.0"
 CATEGORY="x-window"
 SHORT_DESC="GNUstep GUI class library"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.gnustep.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.gnustep.org/pub/gnustep/core/$TARBALL"
 
-BUILD_DEPENDS="gnustep-make gnustep-base-dev audiofile-dev aspell-dev giflib-dev \
-portaudio-dev cups-dev libtasn1-dev tar jpeg-dev tiff-dev libpng-dev"
+BUILD_DEPENDS="aspell-dev audiofile-dev cups-dev giflib-dev gnustep-base-dev 
+	gnustep-make jpeg-dev libpng-dev libtasn1-dev portaudio-dev tar tiff-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
+compile_rules()
+{
+	./configure		\
+		--prefix=/usr	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gnustep-gui)
 			mkdir -p $fs/usr/lib
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/lib/*.so* $fs/usr/lib
-			cp -a $install/usr/lib/GNUstep $fs/usr/lib
-			DEPENDS="gnustep-base audiofile aspell giflib portaudio cups \
-			libcomerr3 libtasn1 jpeg libtiff libpng"
+
+			cp -a $install/usr/bin		$fs/usr
+			cp -a $install/usr/lib/*.so*	$fs/usr/lib
+			cp -a $install/usr/lib/GNUstep	$fs/usr/lib
+
+			DEPENDS="aspell audiofile cups giflib gnustep-base \
+				jpeg libcomerr3 libpng libtasn1 libtiff portaudio"
 			;;
 		*-dev)
 			mkdir -p $fs/usr/share
-			cp -a $install/usr/include $fs/usr
+
+			cp -a $install/usr/include	$fs/usr
 			cp -a $install/usr/share/GNUstep $fs/usr/share
+
 			DEPENDS="gnustep-gui"
 			;;
 	esac
