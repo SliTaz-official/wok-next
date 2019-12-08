@@ -1,33 +1,37 @@
 # SliTaz package receipt.
 
 PACKAGE="gnustep-back"
-VERSION="0.25.1"
+VERSION="0.27.0"
 CATEGORY="x-window"
 SHORT_DESC="GNUstep Generic back-end"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://www.gnustep.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.gnustep.org/pub/gnustep/core/$TARBALL"
 
-BUILD_DEPENDS="gnustep-make tar gnustep-base-dev gnustep-gui-dev libart_lgpl-dev \
-audiofile-dev aspell-dev giflib-dev gnutls-dev util-linux-uuid-dev \
-libtasn1-dev libxmu-dev freetype-dev libxt-dev libxrender-dev \
-freetype-dev cairo-dev"
+BUILD_DEPENDS="aspell-dev audiofile-dev cairo-dev freetype-dev giflib-dev 
+	gnustep-base-dev gnustep-gui-dev gnustep-make gnutls-dev 
+	libart_lgpl-dev libtasn1-dev libxmu-dev libxrender-dev libxt-dev 
+	util-linux-uuid-dev tar"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
+compile_rules()
+{
+	./configure		\
+		--prefix=/usr	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/lib
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/GNUstep $fs/usr/lib
-	DEPENDS="gnustep-base gnustep-gui libart_lgpl audiofile aspell \
-	giflib gnutls libbfd util-linux-uuid libtasn1 libxmu freetype"
+
+	cp -a $install/usr/bin		$fs/usr
+	cp -a $install/usr/lib/GNUstep	$fs/usr/lib
+
+	DEPENDS="aspell audiofile freetype giflib gnustep-base gnustep-gui 
+		gnutls libart_lgpl libbfd libtasn1 libxmu util-linux-uuid"
 }
