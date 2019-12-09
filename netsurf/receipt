@@ -1,21 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="netsurf"
-VERSION="3.8"
+VERSION="3.9"
 CATEGORY="network"
 SHORT_DESC="Lightweight and fast web browser"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://www.netsurf-browser.org/"
+WEB_SITE="https://www.netsurf-browser.org/"
 
 TARBALL="$PACKAGE-all-$VERSION.tar.gz"
 WGET_URL="http://download.netsurf-browser.org/netsurf/releases/source-full/$TARBALL"
 
-BUILD_DEPENDS="bison flex perl expat-dev gperf libjpeg-turbo-dev curl-dev \
-openssl-dev libpng-dev librsvg-dev gtk2-dev check-dev perl-html-parser"
-# libharu-dev gstreamer0-dev
+BUILD_DEPENDS="bison check-dev curl-dev expat-dev flex gperf gtk2-dev 
+	libjpeg-turbo-dev libpng-dev librsvg-dev openssl-dev perl perl-html-parser"
+	# libharu-dev gstreamer0-dev
 
-compile_rules() {
+compile_rules()
+{
 	cat > netsurf/Makefile.config <<EOT
 # Enable NetSurf's use of gstreamer for displaying videos.
 # Currently disabled: not maintained and produce build errors.
@@ -31,9 +32,9 @@ EOT
 
 	sed -i 's|-Werror||' libsvgtiny/Makefile
 
-	make \
-		PREFIX=/usr \
-		TARGET=gtk \
+	make			\
+		PREFIX=/usr	\
+		TARGET=gtk	\
 		install || return 1
 
 	# desktop shortcut
@@ -52,11 +53,13 @@ EOT
 	chown -R root:root $install # fix 107:nogroop somewhere
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	# Remove files to save some space
 	rm -rf $fs/usr/share/netsurf/*.xpm
-	DEPENDS="libcairo expat gdk-pixbuf glib gtk2 libcurl libjpeg-turbo libpng \
-	librsvg openssl pango zlib"
+
+	DEPENDS="expat gdk-pixbuf glib gtk2 libcairo libcurl libjpeg-turbo libpng \
+		librsvg openssl pango zlib"
 	TAGS="web-browser"
 }
