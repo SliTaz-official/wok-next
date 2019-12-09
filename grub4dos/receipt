@@ -11,31 +11,34 @@ WEB_SITE="https://github.com/chenall/grub4dos"
 TARBALL="$PACKAGE-$VERSION-src.zip"
 WGET_URL="$SF_MIRROR/$PACKAGE/$PACKAGE-$VERSION-src.zip"
 
-BUILD_DEPENDS="lzma gcc3"
+BUILD_DEPENDS="lzma"
 SPLIT="$PACKAGE-linux"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's/\[ .grub-probe.*\]/mount | grep $grubdir | grep -q xfs/' \
 		util/grub-install.in
 
-	sh ./configure \
-		CC=gcc-3 \
-		CFLAGS="-march=i486  -Os -pipe" \
-		--enable-preset-menu=$stuff/menu.lst \
-		--without-curses \
+	sh ./configure					\
+		CFLAGS="-march=i486  -Os -pipe"		\
+		--enable-preset-menu=$stuff/menu.lst	\
+		--without-curses			\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		grub4dos)
-			mkdir -p $fs/usr/share/boot \
-				$fs/usr/bin
+			mkdir -p $fs/usr/share/boot
+			mkdir -p $fs/usr/bin
 
-			lzma e $install/usr/lib/grub/*/grub.exe $fs/usr/share/boot/grub.exe.lzma
-			lzma e $install/usr/lib/grub/*/grldr $fs/usr/share/boot/grldr.lzma
+			lzma e $install/usr/lib/grub/*/grub.exe \
+				$fs/usr/share/boot/grub.exe.lzma
+			lzma e $install/usr/lib/grub/*/grldr \
+				$fs/usr/share/boot/grldr.lzma
 
 			cp $install/usr/lib/grub/*/bootlace.com $fs/usr/bin/bootlace
 			chmod +x $fs/usr/bin/bootlace
@@ -43,11 +46,13 @@ genpkg_rules() {
 			;;
 		grub4dos-linux)
 			libarch=$(basename `ls $install/usr/lib/grub`)
+
 			mkdir -p $fs/usr/lib/grub/$libarch
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a  $install/usr/lib/grub/$libarch/*stage* \
-				$fs/usr/lib/grub/$libarch
+
+			cp -a $install/usr/bin	$fs/usr
+			cp -a $install/usr/sbin	$fs/usr
+			cp -a $install/usr/lib/grub/$libarch/*stage* \
+						$fs/usr/lib/grub/$libarch
 			CAT="system-tools|linux files"
 			PROVIDE="grub"
 			;;
