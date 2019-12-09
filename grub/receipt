@@ -4,43 +4,46 @@ PACKAGE="grub"
 VERSION="0.97"
 CATEGORY="base-system"
 SHORT_DESC="GRUB boot loader"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.gnu.org/software/grub/"
+WEB_SITE="https://www.gnu.org/software/grub/"
 REPOLOGY="grub-legacy"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://alpha.gnu.org/gnu/grub/$TARBALL"
 CONFIG_FILES="/boot/grub"
 
-BUILD_DEPENDS="gcc3"
+#BUILD_DEPENDS="gcc3"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's/\[ .grub-probe.*\]/mount | grep $grubdir | grep -q xfs/' \
 		util/grub-install.in
 
-	./configure \
-		CC=gcc-3 \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--without-curses \
-		--mandir=/usr/share/man \
+	./configure				\
+		--prefix=/usr			\
+		--infodir=/usr/share/info	\
+		--without-curses		\
+		--mandir=/usr/share/man		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	mkdir -p $fs/boot/grub $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib $fs/usr
+genpkg_rules()
+{
+	mkdir -p $fs/boot/grub
+	mkdir -p $fs/usr
+
+	cp -a $install/usr/bin	$fs/usr
+	cp -a $install/usr/sbin	$fs/usr
+	cp -a $install/usr/lib	$fs/usr
 
 	# Permissions
 	chmod 755 $fs/usr/sbin/grub-*
 	chmod 655 $fs/usr/lib/grub/*/*
 
-	# Example config file (menu.lst).
-	cp $stuff/example-menu.lst $fs/boot/grub
-	cp $stuff/splash.xpm.gz $fs/boot/grub
+	# Example configuration file (menu.lst).
+	cp $stuff/example-menu.lst	$fs/boot/grub
+	cp $stuff/splash.xpm.gz		$fs/boot/grub
 }
