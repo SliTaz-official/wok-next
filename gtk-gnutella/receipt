@@ -1,37 +1,41 @@
 # SliTaz package receipt.
 
 PACKAGE="gtk-gnutella"
-VERSION="1.1.13"
+VERSION="1.1.15"
 CATEGORY="network"
 SHORT_DESC="p2p client"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://gtk-gnutella.sourceforge.net/en/?page=news"
+WEB_SITE="https://sourceforge.net/projects/gtk-gnutella/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev gtk2-dev libxml2-dev glib-dev xorg-dev"
+BUILD_DEPENDS="glib-dev gtk2-dev libxml2-dev xorg-dev zlib-dev"
 
-compile_rules() {
-	./build.sh \
-		--prefix=/usr \
-		--disable-dbus \
+compile_rules()
+{
+	./build.sh		\
+		--prefix=/usr	\
+		--disable-dbus	\
 		--disable-nls &&
 	make $MAKEFLAGS install INSTALL_PREFIX=$install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/bin
 	mkdir -p $fs/usr/share/applications
 	mkdir -p $fs/usr/share/pixmaps
 	mkdir -p $fs/usr/share/gtk-gnutella/pixmaps
-	cp -a $install/usr/bin/* $fs/usr/bin
-	cp -a $install/usr/share/applications/* $fs/usr/share/applications/
-	cp -a $install/usr/share/pixmaps/* $fs/usr/share/pixmaps
-	cp -a $install/usr/share/gtk-gnutella/pixmaps/* $fs/usr/share/gtk-gnutella/pixmaps/
-	DEPENDS="gnutls libgcrypt libgpg-error expat gtk2 libxml2 libx11 \
-	libxau libxcomposite libxcursor libxdmcp libxext \
-	libxfixes libxinerama libxrandr libxrender \
-	libxdamage libtasn1"
+
+	cp -a $install/usr/bin/*		$fs/usr/bin
+	cp -a $install/usr/share/applications/*	$fs/usr/share/applications/
+	cp -a $install/usr/share/pixmaps/*	$fs/usr/share/pixmaps
+	cp -a $install/usr/share/gtk-gnutella/pixmaps/* \
+						$fs/usr/share/gtk-gnutella/pixmaps/
+
+	DEPENDS="expat gnutls gtk2 libgcrypt libgpg-error libtasn1libx11 
+		libxau libxcomposite libxcursor libxdamage libxdmcp libxext 
+		libxfixes libxinerama libxml2 libxrandr libxrender"
 }
