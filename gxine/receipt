@@ -1,42 +1,44 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gxine"
-VERSION="0.5.905"
+VERSION="0.5.910"
 CATEGORY="multimedia"
 SHORT_DESC="GTK+ Xine media player user interface"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.xine-project.org/home"
+WEB_SITE="https://sourceforge.net/projects/xine/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/xine/$TARBALL"
 
-BUILD_DEPENDS="shared-mime-info spidermonkey-dev xine-lib-dev xorg-dev \
-dbus-dev gtk2-dev libxinerama-dev libxext-dev perl \
-libxv-dev xorgproto"
+BUILD_DEPENDS="dbus-dev gtk2-dev libxext-dev libxinerama-dev 
+	libxv-dev perl shared-mime-info spidermonkey-dev 
+	xine-lib-dev xorg-dev xorgproto"
 
-compile_rules() {
+compile_rules()
+{
 	# Fix for glib2 (-lm)
 	sed -i "/<glib\//d" src/*
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 
 	#--with-logo-format=image
-	./configure \
-		--with-dbus \
-		--with-spidermonkey=/usr/include/js \
-		--without-browser-plugin \
-		--without-hal \
-		--disable-lirc \
-		--disable-deprecated \
-		--disable-integration-wizard \
-		--disable-own-playlist-parsers \
+	./configure					\
+		--with-dbus				\
+		--with-spidermonkey=/usr/include/js	\
+		--without-browser-plugin		\
+		--without-hal				\
+		--disable-lirc				\
+		--disable-deprecated			\
+		--disable-integration-wizard		\
+		--disable-own-playlist-parsers		\
 		VENDOR_PKG_VERSION="$VERSION; SliTaz GNU/Linux" \
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="xine-lib libvorbis gtk2 spidermonkey dbus"
+	DEPENDS="dbus gtk2 libvorbis spidermonkey xine-lib"
 }
