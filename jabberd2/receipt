@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="jabberd2"
-VERSION="2.2.16"
+VERSION="2.7.0"
 CATEGORY="network"
 SHORT_DESC="XMPP server (real-time communication)"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -12,24 +12,27 @@ REPOLOGY="jabberd"
 TARBALL="jabberd-$VERSION.tar.gz"
 WGET_URL="https://github.com/downloads/Jabberd2/jabberd2/$TARBALL"
 
-BUILD_DEPENDS="expat gsasl gsasl-dev udns udns-dev libidn-dev openssl-dev \
-zlib-dev db-dev openldap-dev postgresql mysql sqlite3 sqlite3-dev expat-dev \
-cppunit-dev"
+BUILD_DEPENDS="cppunit-dev db-dev expat expat-dev gsasl gsasl-dev libidn-dev mysql 
+	openldap-dev openssl-dev postgresql sqlite3 sqlite3-dev udns udns-dev zlib-dev"
 
-compile_rules() {
-	sed -i 's|#else /.*|&\nint set_debug_log_from_config(config_t c){}|' util/log.c
+compile_rules()
+{
+	sed -i 's|#else /.*|&\nint set_debug_log_from_config(config_t c){}|' \
+		util/log.c
 	CFLAGS="${CFLAGS/-Os/-O2}"
-	./configure \
-		--sysconfdir=/etc/jabberd \
-		--enable-sqlite \
+
+	./configure				\
+		--sysconfdir=/etc/jabberd	\
+		--enable-sqlite			\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="expat gsasl udns libidn zlib openssl libkrb5 libcomerr3 perl"
+	DEPENDS="expat gsasl libcomerr3 libidn libkrb5 openssl perl udns zlib"
 	CONFIG_FILES="/etc/jabberd"
 	TAGS="im instant-messaging server"
 }
