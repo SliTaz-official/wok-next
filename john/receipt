@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="john"
-VERSION="1.7.8"
+VERSION="1.9.0"
 CATEGORY="system-tools"
 SHORT_DESC="Fast password cracker"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -13,16 +13,18 @@ WGET_URL="${WEB_SITE}g/$TARBALL"
 
 BUILD_DEPENDS="libdes-dev openssl-dev zlib-dev"
 
-PATCH="http://www.openwall.com/john/g/$PACKAGE-$VERSION-jumbo-7.diff.gz"
-EXTRA_SOURCE_FILES="$PATCH"
+#PATCH="http://www.openwall.com/john/g/$PACKAGE-$VERSION-jumbo-7.diff.gz"
+#EXTRA_SOURCE_FILES="$PATCH"
 
-compile_rules() {
-	[ -s $SRC/$(basename $PATCH) ] ||
-		wget -P $SRC $PATCH
-	zcat $SRC/$(basename $PATCH) | patch -p1
+compile_rules()
+{
+#	[ -s $SRC/$(basename $PATCH) ] ||
+#		wget -P $SRC $PATCH
+#	zcat $SRC/$(basename $PATCH) | patch -p1
 
 	cd $src/src
-	sed -i 's|LIBS = -ldes|LIBS = -ldes -Ldes|' Makefile
+	sed -i 's|LIBS = -ldes|LIBS = -ldes -Ldes|' \
+		Makefile
 
 	case $ARCH in
 		x86_64) Arch='nocona';;
@@ -31,7 +33,10 @@ compile_rules() {
 	sed -i "s|CFLAGS = -c -Wall -O2|CFLAGS = -c -Wall -O2 -march=$Arch -DJOHN_SYSTEMWIDE=1|" Makefile
 	make clean generic || return 1
 
-	mkdir -p $install/usr/sbin $install/etc/john $install/usr/share/john
+	mkdir -p $install/usr/sbin
+	mkdir -p $install/etc/john
+	mkdir -p $install/usr/share/john
+
 	cp -a $src/run/john         $install/usr/sbin
 	cp -a $src/run/mailer       $install/usr/sbin
 	cp -a $src/run/unafs        $install/usr/sbin
@@ -42,11 +47,13 @@ compile_rules() {
 	cp -a $src/run/generic.conf $install/usr/share/john
 	cp -a $src/run/password.lst $install/usr/share/john
 	cp $src/run/john.conf       $install/etc/john
+
 	sed -i 's|$JOHN|/usr/share/john|g' $install/etc/john/john.conf
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="openssl libdes"
+	DEPENDS="libdes openssl"
 	CONFIG_FILES="/etc/john/john.conf"
 }
