@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="inkscape"
-VERSION="0.92.2"
+VERSION="0.92.4"
 CATEGORY="graphics"
 SHORT_DESC="Professional quality vector graphics software"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://inkscape.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/xsoft/inkscape.html"
@@ -12,21 +12,23 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/xsoft/inkscape.html"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://gitlab.com/inkscape/inkscape/repository/INKSCAPE_${VERSION//./_}/archive.tar.bz2"
 
-BUILD_DEPENDS="cmake gtest pango-dev fontconfig-dev glib-dev gsl-dev \
-gnome-vfs-dev lcms2-dev gc-dev poppler-dev libwpg-dev libvisio-dev libcdr-dev \
-libwpd-dev popt-dev potrace-dev gtkmm-dev gtk2-dev gtkspell-dev boost-dev \
-aspell-dev libxslt-dev imagemagick6-dev gettext-dev dbus-dev"
-COOKOPTS="!svgz" # don't process svg or they will be broken
+BUILD_DEPENDS="aspell-dev boost-dev cmake dbus-dev fontconfig-dev gc-dev 
+	gettext-dev glib-dev gnome-vfs-dev gsl-dev gtest gtk2-dev gtkmm-dev 
+	gtkspell-dev imagemagick6-dev lcms2-dev libcdr-dev libvisio-dev 
+	libwpd-dev libwpg-dev libxslt-dev pango-dev poppler-dev popt-dev 
+	potrace-dev"
 SPLIT="$PACKAGE-examples $PACKAGE-tutorials $PACKAGE"
 
-compile_rules() {
+COOKOPTS="!svgz" # don't process svg or they will be broken
+
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DWITH_DBUS=ON \
-		.. &&
+	cmake	..				\
+		-DCMAKE_INSTALL_PREFIX=/usr	\
+		-DCMAKE_BUILD_TYPE=Release	\
+		-DWITH_DBUS=ON &&
 	make &&
 	make install || return 1
 
@@ -43,7 +45,8 @@ compile_rules() {
 #		-DCMAKE_WITH_NLS=ON
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		*-examples)
 			copy examples/
@@ -55,11 +58,14 @@ genpkg_rules() {
 			;;
 		inkscape)
 			copy @std @rm
-			DEPENDS="aspell atk atkmm libcairo cairomm fontconfig freetype gc \
-			gdk-pixbuf glib glibmm gnome-vfs gsl gtk2 gtkmm gtkspell \
-			imagemagick6 liblcms2 libcdr libgiomm libgomp libjpeg-turbo libpng \
-			librevenge libsigc++ libvisio libwpg libxml2 libxslt pango pangomm \
-			perl libpoppler popt potrace python libx11 zlib"
+
+			DEPENDS="aspell atk atkmm cairomm fontconfig freetype gc 
+				gdk-pixbuf glib glibmm gnome-vfs gsl gtk2 gtkmm 
+				gtkspell imagemagick6 libcairo libcdr libgiomm 
+				libgomp libjpeg-turbo liblcms2 libpng libpoppler 
+				librevenge libsigc++ libvisio libwpg libx11 libxml2 
+				libxslt pango pangomm perl popt potrace python zlib"
+
 			TAGS="image vector editor svg"
 			;;
 	esac
