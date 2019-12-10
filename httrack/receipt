@@ -1,31 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="httrack"
-VERSION="3.45.4"
+VERSION="3.49.2"
 CATEGORY="system-tools"
 SHORT_DESC="An easy-to-use offline browser utility"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.httrack.com/"
+WEB_SITE="https://www.httrack.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://download.httrack.com/$TARBALL"
 
 BUILD_DEPENDS="zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make -j1 &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/lib/httrack
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/lib/*.so* $fs/usr/lib
-	cp -a $install/usr/lib/httrack/*.so* $fs/usr/lib/httrack
-	cp -a $install/usr/share $fs/usr
+
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/lib/*.so*		$fs/usr/lib
+	cp -a $install/usr/lib/httrack/*.so*	$fs/usr/lib/httrack
+	cp -a $install/usr/share		$fs/usr
+
 	rm -rf $fs/usr/share/man
 	rm -rf $fs/usr/share/doc
+
 	DEPENDS="bash zlib"
 }
