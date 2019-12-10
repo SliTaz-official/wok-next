@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="hylafax"
-VERSION="6.0.6"
+VERSION="6.0.7"
 CATEGORY="network"
 SHORT_DESC="Enterprise-class system for sending and receiving facsimiles"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,12 +11,15 @@ WEB_SITE="https://www.hylafax.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://ftp.hylafax.org/source/$TARBALL"
 
-BUILD_DEPENDS="tiff-dev zlib-dev mgetty ghostscript"
+BUILD_DEPENDS="ghostscript mgetty tiff-dev zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	[ -f defs.org ] && cp defs.org defs
 	[ -f etc/Makefile.org ] && cp etc/Makefile.org etc/Makefile
-	sed  -i -e 's|=/usr/local/|=/usr/|g' configure
+
+	sed  -i -e 's|=/usr/local/|=/usr/|g' \
+		configure
 	yes '' | ./configure
 	make
 	cp defs defs.org
@@ -29,8 +32,11 @@ compile_rules() {
 		-e 's|= uucp|= root|' \
 		-e 's|= bin|= root|' \
 		-i defs
-	mkdir -p $install/usr/lib $install/var/spool/hylafax
-	cp etc/Makefile etc/Makefile.org
+
+	mkdir -p $install/usr/lib 
+	mkdir -p $install/var/spool/hylafax
+
+	cp etc/Makefile	etc/Makefile.org
 	sed -i  -e "s|/etc/init.d|$install/etc/init.d|" \
 		-e "s|/etc/config|$install/etc/config|" \
 		etc/Makefile
@@ -38,13 +44,17 @@ compile_rules() {
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	cp -a $install/usr/lib $fs/usr
-	cp -a $install/var $fs
+
+	cp -a $install/usr/bin	$fs/usr
+	cp -a $install/usr/sbin	$fs/usr
+	cp -a $install/usr/lib	$fs/usr
+	cp -a $install/var	$fs
 	rm -rf $install/var/spool/hylafax/etc/templates
-	cp -a $install/etc $fs
-	DEPENDS="jpeg libtiff tiff zlib postfix mgetty ghostscript"
+
+	cp -a $install/etc	$fs
+
+	DEPENDS="ghostscript jpeg libtiff mgetty postfix tiff zlib"
 }
