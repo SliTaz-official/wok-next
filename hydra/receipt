@@ -1,35 +1,42 @@
 # SliTaz package receipt.
 
 PACKAGE="hydra"
-VERSION="7.3"
+VERSION="9.0"
 CATEGORY="system-tools"
 SHORT_DESC="THC password cracker for FTP, HTTP, HTTPS, SMB, etc."
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/vanhauser-thc/thc-hydra"
 
 TARBALL="$PACKAGE-$VERSION-src.tar.gz"
 WGET_URL="http://freeworld.thc.org/releases/$TARBALL"
 
-BUILD_DEPENDS="openssl-dev apr-dev gtk2-dev libssh-dev libmysqlclient \
-postgresql-dev subversion-dev libidn-dev mysql-dev"
+BUILD_DEPENDS="apr-dev gtk2-dev libidn-dev libmysqlclient libssh-dev 
+	mysql-dev openssl-dev postgresql-dev subversion-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
+compile_rules()
+{
+	./configure		\
+		--prefix=/usr	\
 		$CONFIGURE_ARGS
-	sed -i s/'cp -v'/'cp'/ hydra-gtk/make_xhydra.sh
-	sed -i -e "s|gcc|gcc $( /usr/bin/apr-1-config --cppflags --cflags)|" \
+
+	sed -i s/'cp -v'/'cp'/ \
+		hydra-gtk/make_xhydra.sh
+	sed -i	-e "s|gcc|gcc $( /usr/bin/apr-1-config --cppflags --cflags)|" \
 		-e 's|^XLIBPATHS=|&-L/usr/lib/postgresql |' \
-		-e 's|^XIPATHS= |&-I/usr/include/apr-1 |' Makefile
+		-e 's|^XIPATHS= |&-I/usr/include/apr-1 |' \
+		Makefile
 	make
 	[ -f hydra ]
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/bin
-	cp -a $src/hydra $fs/usr/bin
-	cp -a $src/xhydra $fs/usr/bin
-	DEPENDS="gtk2 openssl libxdamage apr libssh libmysqlclient \
-	libidn libpostgresqlclient libsvn"
+
+	cp -a $src/hydra	$fs/usr/bin
+	cp -a $src/xhydra	$fs/usr/bin
+
+	DEPENDS="apr gtk2 libidn libmysqlclient libpostgresqlclient 
+		libssh libsvn libxdamage openssl"
 }
