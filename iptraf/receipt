@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="iptraf"
-VERSION="3.0.0"
+VERSION="3.0.1"
 CATEGORY="network"
 SHORT_DESC="IP Network Monitoring Software"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,9 +11,10 @@ WEB_SITE="http://iptraf.seul.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="ftp://iptraf.seul.org/pub/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="ncurses-dev"
+BUILD_DEPENDS="glibc-dev ncurses-dev"
 
-compile_rules() {
+compile_rules()
+{
 	cd $src/src
 	mkdir -p $install/usr/bin 2> /dev/null
 	sed -i 's/ARPHRD_PPP:$/& case ARPHRD_NONE:/' packet.c
@@ -24,17 +25,23 @@ compile_rules() {
 	cp rvnamed rawtime iptraf $install/usr/bin
 }
 
-genpkg_rules() {
-	mkdir -p $fs/var/iptraf $fs/var/log/iptraf
+genpkg_rules()
+{
+	mkdir -p $fs/var/iptraf
+	mkdir -p $fs/var/log/iptraf
+
 	cp -a $install/* $fs
+
 	DEPENDS="ncurses"
 	CONFIG_FILES="/var/iptraf/iptraf.cfg"
 }
 
-post_install() {
+post_install()
+{
 	mkdir -p "$1/var/run/iptraf"
 }
 
-post_remove() {
+post_remove()
+{
 	rm -r "$1/var/run/iptraf"
 }
