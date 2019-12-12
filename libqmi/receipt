@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libqmi"
-VERSION="1.20.0"
+VERSION="1.24.2"
 CATEGORY="network"
 SHORT_DESC="Qualcomm MSM Interface (QMI) protocol implementation"
 MAINTAINER="al.bobylev@gmail.com"
@@ -17,16 +17,18 @@ COOKOPTS="force-arch" # different .h
 BUILD_DEPENDS="glib-dev libgudev-dev libmbim-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
+compile_rules()
+{
+	./configure			\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libqmi)
 			copy @std
@@ -34,7 +36,7 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libqmi glib-dev"
+			DEPENDS="glib-dev libqmi"
 			;;
 	esac
 }
