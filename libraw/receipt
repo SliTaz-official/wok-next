@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libraw"
-VERSION="0.18.7"
+VERSION="0.19.5"
 CATEGORY="graphics"
 SHORT_DESC="RAW image decoder library"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://www.libraw.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libraw.html"
@@ -12,23 +12,25 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/libraw.html"
 TARBALL="LibRaw-$VERSION.tar.gz"
 WGET_URL="http://www.libraw.org/data/$TARBALL"
 
-BUILD_DEPENDS="libjpeg-turbo-dev lcms2-dev jasper-dev"
+BUILD_DEPENDS="jasper-devlcms2-dev libjpeg-turbo-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	CXX="g++ -Wno-narrowing" \
-	./configure \
-		--enable-jpeg \
-		--enable-jasper \
-		--enable-lcms \
-		--disable-static \
+compile_rules()
+{
+	CXX="g++ -Wno-narrowing"	\
+	./configure			\
+		--enable-jpeg		\
+		--enable-jasper		\
+		--enable-lcms		\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libraw)
 			copy @std
@@ -36,7 +38,7 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="libraw lcms2-dev"
+			DEPENDS="lcms2-dev libraw"
 			;;
 	esac
 }
