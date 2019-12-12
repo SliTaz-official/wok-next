@@ -1,33 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libimobiledevice"
-VERSION="1.1.1"
+VERSION="1.2.0"
 CATEGORY="misc"
 SHORT_DESC="Software library that talks the protocols to support iPhone and \
 iPod Touch devices on Linux"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.libimobiledevice.org/"
+WEB_SITE="https://www.libimobiledevice.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$WEB_SITE/downloads/$TARBALL"
 
-BUILD_DEPENDS="gnutls-dev glib-dev libplist-dev usbmuxd-dev python-dev swig \
-libxml2-dev libgcrypt-dev"
+BUILD_DEPENDS="glib-dev gnutls-dev libgcrypt-dev libplist-dev \
+	libxml2-dev python-dev swig usbmuxd-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libimobiledevice)
 			copy @std
-			DEPENDS="gnutls glib libplist usbmuxd"
+			DEPENDS="glib gnutls libplist usbmuxd"
 			;;
 		*-dev)
 			copy @dev
