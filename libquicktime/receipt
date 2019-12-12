@@ -3,7 +3,7 @@
 PACKAGE="libquicktime"
 VERSION="1.2.4"
 CATEGORY="multimedia"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 SHORT_DESC="A library for reading and writing quicktime files"
 WEB_SITE="http://libquicktime.sourceforge.net/"
@@ -11,27 +11,29 @@ WEB_SITE="http://libquicktime.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev ffmpeg-dev alsa-lib-dev libxv-dev libxaw-dev \
-x264-dev zlib-dev mesa-dev"
+BUILD_DEPENDS="alsa-lib-dev ffmpeg-dev gtk2-dev libxaw-dev libxv-dev \
+	mesa-dev x264-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--enable-gpl \
-		--with-ffmpeg \
-		--with-x264 \
-		--without-doxygen \
+compile_rules()
+{
+	./configure			\
+		--enable-gpl		\
+		--with-ffmpeg		\
+		--with-x264		\
+		--without-doxygen	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libquicktime)
 			copy @std
-			DEPENDS="gtk2 ffmpeg alsa-lib libxv mesa libxaw x264"
+			DEPENDS="alsa-lib ffmpeg gtk2 libxaw libxv mesa x264"
 			;;
 		*-dev)
 			copy @dev
