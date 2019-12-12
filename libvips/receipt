@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libvips"
-VERSION="7.42.3"
+VERSION="8.8.4"
 CATEGORY="utilities"
 SHORT_DESC="An image processing library"
 MAINTAINER="yuripourre@gmail.com"
@@ -10,28 +10,31 @@ WEB_SITE="https://jcupitt.github.io/libvips/"
 
 TARBALL="vips-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/supported/${VERSION%.*}/$TARBALL" # FIXME
+WGET_URL="https://github.com/$PACKAGE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="gtk-doc libtool swig \
-gobject-introspection-dev fftw-dev lcms-dev libpng-dev jpeg-dev \
-imagemagick-dev tiff-dev zlib-dev libexif-dev gettext-dev"
+BUILD_DEPENDS="fftw-dev gettext-dev gobject-introspection-dev gtk-doc 
+	imagemagick-dev jpeg-dev lcms-dev libexif-dev libpng-dev libtool 
+	swig tiff-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./bootstrap.sh &&
 	autoreconf &&
-	./configure \
+	./configure		\
 		--enable-gtk-doc=no &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libvips)
 			copy @std
-			DEPENDS="fftw liblcms pango libpng jpeg imagemagick libtiff zlib \
-			glib libexif openexr liboil"
+			DEPENDS="fftw glib imagemagick jpeg libexif liblcms liboil 
+				libpng libtiff openexr pango zlib"
 			TAGS="image"
 			;;
 		*-dev)
