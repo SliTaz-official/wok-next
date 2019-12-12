@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="libvirt"
-VERSION="4.3.0"
+VERSION="5.10.0"
 CATEGORY="libs"
 SHORT_DESC="API for controlling virtualization engines (openvz, kvm, qemu, \
 virtualbox, xen, etc.)"
@@ -12,45 +12,48 @@ WEB_SITE="https://libvirt.org/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://libvirt.org/sources/$TARBALL"
 
-BUILD_DEPENDS="libx11-dev acl-dev attr-dev util-linux-blkid-dev curl-dev \
-dbus-dev libdevmapper-dev fuse2-dev glusterfs-dev gnutls-dev netcf-dev \
-libnl-dev parted-dev libpcap-dev libssh-dev libxml2-dev gettext-dev \
-libpciaccess-dev libsasl cyrus-sasl-dev libtirpc-dev yajl-dev \
-rpcsvc-proto lvm2-dev open-iscsi"
+BUILD_DEPENDS="acl-dev attr-dev curl-dev cyrus-sasl-dev dbus-dev fuse2-dev 
+	gettext-dev glusterfs-dev gnutls-dev libdevmapper-dev libnl-dev 
+	libpcap-dev libpciaccess-dev libsasl libssh-dev libtirpc-dev 
+	libx11-dev libxml2-dev lvm2-dev netcf-dev open-iscsi parted-dev 
+	perl rpcsvc-proto util-linux-blkid-dev yajl-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	export LDFLAGS="$LDFLAGS -lX11"
 
-	./configure \
-		--prefix=/usr \
-		--libexec=/usr/lib/libvirt \
-		--sbindir=/usr/bin \
-		--with-storage-lvm \
-		--with-udev \
-		--without-hal \
-		--disable-static \
-		--with-storage-gluster \
-		--with-qemu-user=nobody \
-		--with-qemu-group=kvm \
-		--with-netcf \
-		--with-interface \
-		--with-lxc \
-		--with-storage-iscsi \
-		--with-storage-disk \
+	./configure				\
+		--prefix=/usr			\
+		--libexec=/usr/lib/libvirt	\
+		--sbindir=/usr/bin		\
+		--with-storage-lvm		\
+		--with-udev			\
+		--without-hal			\
+		--disable-static		\
+		--with-storage-gluster		\
+		--with-qemu-user=nobody		\
+		--with-qemu-group=kvm		\
+		--with-netcf			\
+		--with-interface		\
+		--with-lxc			\
+		--with-storage-iscsi		\
+		--with-storage-disk		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libvirt)
 			copy @std
-			DEPENDS="acl dbus eudev fuse2 glusterfs libcurl libdevmapper \
-			libgnutls libnl libpcap libsasl libssh libssh2 libtirpc libxml2 \
-			netcf parted util-linux-blkid libpciaccess yajl"
+			DEPENDS="acl dbus eudev fuse2 glusterfs libcurl libdevmapper 
+				libgnutls libnl libpcap libpciaccess libsasl libssh 
+				libssh2 libtirpc libxml2 netcf parted util-linux-blkid 
+				yajl"
 			CONFIG_FILES="/etc/libvirt/"
 			;;
 		*-dev)
