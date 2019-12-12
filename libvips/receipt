@@ -12,15 +12,14 @@ TARBALL="vips-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/supported/${VERSION%.*}/$TARBALL" # FIXME
 WGET_URL="https://github.com/$PACKAGE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="fftw-dev gettext-dev gobject-introspection-dev gtk-doc 
-	imagemagick-dev jpeg-dev lcms-dev libexif-dev libpng-dev libtool 
+BUILD_DEPENDS="autoconf automake fftw-dev gettext-dev gobject-introspection-dev 
+	gtk-doc imagemagick-dev jpeg-dev lcms-dev libexif-dev libpng-dev libtool 
 	swig tiff-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
 compile_rules()
 {
-	./bootstrap.sh &&
-	autoreconf &&
+	./autogen.sh &&
 	./configure		\
 		--enable-gtk-doc=no &&
 	fix libtool &&
