@@ -1,18 +1,18 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lighttpd-ssl"
-VERSION="1.4.35"
+VERSION="1.4.54"
 CATEGORY="network"
 SHORT_DESC="Fast and light HTTP Web server with SSL support"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.lighttpd.net/"
+WEB_SITE="https://www.lighttpd.net/"
 REPOLOGY="lighttpd"
 
 TARBALL="lighttpd-$VERSION.tar.xz"
 WGET_URL="http://download.lighttpd.net/lighttpd/releases-${VERSION%.*}.x/$TARBALL"
 
-BUILD_DEPENDS="pcre-dev bzip2-dev openssl-dev zlib-dev"
+BUILD_DEPENDS="bzip2-dev openssl-dev pcre-dev zlib-dev"
 
 BASE_MODULES="
 access
@@ -26,14 +26,15 @@ rewrite
 status
 userdir"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i '/addrs_left/d' src/mod_extforward.c
 
-	./configure \
-		--enable-shared \
-		--disable-ipv6 \
-		--with-openssl \
-		--libdir=/usr/lib/lighttpd \
+	./configure				\
+		--enable-shared			\
+		--disable-ipv6			\
+		--with-openssl			\
+		--libdir=/usr/lib/lighttpd	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -41,21 +42,24 @@ compile_rules() {
 }
 
 # On SliTaz Lighttpd runs as user/group : www/www or 80/80.
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr
+
 	#cp -a $install/usr/bin $fs/usr
 	cp -a $install/usr/sbin $fs/usr
 
 	# Modules.
 	mkdir -p $fs/usr/lib/lighttpd
-	for module in $BASE_MODULES; do
+	for module in $BASE_MODULES
+	  do
 		action 'Copying : mod_$module.so'
 		cp $install/usr/lib/lighttpd/mod_$module.so $fs/usr/lib/lighttpd
 		status
-	done
+	  done
 
-	# Server root and config file.
-	cp -a $WOK/lighttpd/stuff/etc $fs
+	# Server root and configuration file.
+	cp -a $WOK/lighttpd/stuff/etc	$fs
 	chown -R 0.0 $fs/etc
 	mkdir -p $fs/etc/ssl/lighttpd
 	cat >> $fs/etc/lighttpd/lighttpd.conf <<EOT
@@ -75,31 +79,37 @@ EOT
 	# Logs directory.
 	mkdir -p $fs/var/log/lighttpd
 	chown 80.80 $fs/var/log/lighttpd
-	DEPENDS="pcre openssl"
+	DEPENDS="openssl pcre"
 	PROVIDE="lighttpd"
 	SUGGESTED="lighttpd-modules php perl python"
 	CONFIG_FILES="/etc/lighttpd/vhosts.conf /etc/lighttpd/lighttpd.conf /etc/ssl/lighttpd"
 }
 
 # Make sure it as cross compile properly
-testsuite() {
+testsuite()
+{
 	readelf -h $install/usr/sbin/lighttpd
 }
 
 # We stop the server by default in case of upgarde.
-pre_install() {
+pre_install()
+{
 	[ -z "$1" ] &&
-	for i in httpd lighttpd ngnix apache cherokee lighttpd-ssl; do
+	for i in httpd lighttpd ngnix apache cherokee lighttpd-ssl
+	  do
 		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
-	done
-	# Backup config file.
-	if [ -d "$1/etc/lighttpd" ]; then
+	  done
+	# Backup configuration file.
+	if [ -d "$1/etc/lighttpd" ]
+	  then
 		cp -a "$1/etc/lighttpd" "$1/etc/lighttpd.bak"
 	fi
 }
 
-post_install() {
-	if [ ! -f "$1/etc/ssl/lighttpd/lighttpd.pem" ]; then
+post_install()
+{
+	if [ ! -f "$1/etc/ssl/lighttpd/lighttpd.pem" ]
+	  then
 		openssl req -new -x509 \
 			-keyout "$1/etc/ssl/lighttpd/lighttpd.pem" \
 			-out "$1/etc/ssl/lighttpd/lighttpd.pem" \
@@ -113,12 +123,15 @@ $(cat "$1/etc/hostname")
 
 EOT
 	fi
+
 	# Just in case.
 	chown www.www "$1/var/log/lighttpd"
-	if [ -z "$1" ]; then
-		for i in apache ; do
+	if [ -z "$1" ]
+	  then
+		for i in apache
+		  do
 			[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
-		done
+		  done
 		/etc/init.d/lighttpd start
 	fi
 }
