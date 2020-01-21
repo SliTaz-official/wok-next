@@ -1,8 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ipxe"
-VERSION="20180708"
-COMMIT="d2063b7"
+VERSION="1.20.1"
 CATEGORY="system-tools"
 SHORT_DESC="Open source network boot firmware"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,7 +9,7 @@ LICENSE="GPL2 UBDL"
 WEB_SITE="http://ipxe.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$GITHUB/ipxe/ipxe/tarball/$COMMIT"
+WGET_URL="https://github.com/ipxe/ipxe/archive/v$VERSION.tar.gz"
 
 COOKOPTS="force-arch" # different ipxe, .pxe ?
 
@@ -20,8 +19,7 @@ SPLIT="$PACKAGE-pxe"
 compile_rules() {
 	cd $src/src
 
-	# Fix https://git.ipxe.org/ipxe.git/commit/163f8acba0fbb6e3c44aec5286d3d076e1f44f22
-	sed -i 's/.*.section ".pages".*/.if64 ;\n&/;$a.endif' \
+	sed -i 's|\(SIZEOF_LOW_4GB\) / \(SIZEOF_2MB_PAGE\)|1<<(\1_LOG2-\2_LOG2)|' \
 		arch/x86/transitions/librm.S
 
 	#sed -i 's/^ASFLAGS.*/& -adhlns=$(<:.S=.lst)/' Makefile
@@ -31,8 +29,14 @@ compile_rules() {
 		s|//\(#define.*CONSOLE_SERIAL\)|\1|' config/console.h
 	sed -i '
 		s|//\(#define.*IMAGE_PNG\)|\1|;
+		s|.*\(NET_PROTO_IPV6\)|#define \1|;
+		s|undef	\(DOWNLOAD_PROTO_HTTPS\)|define	\1|;
+		s|.*\(VLAN_CMD\)|#define \1|;
+		s|.*\(CERT_CMD\)|#define \1|;
 		s|//\(#define.*CONSOLE_CMD\)|\1|;
 		s|//\(#define.*REBOOT_CMD\)|\1|' config/general.h
+	sed -i "s|\(TAG_LINE \"\)|\1${VERSION#*-} -- |" config/branding.h
+	sed -i 's|//\(#define.*CPUID_SETTINGS\)|\1|' config/settings.h
 #	cp $stuff/lkrnprefix.S arch/i386/prefix
 
 	# refer to http://ipxe.org/appnote/buildtargets
