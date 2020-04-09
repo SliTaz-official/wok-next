@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="directfb-examples"
-VERSION="1.2.0"
+VERSION="1.7.0"
 CATEGORY="system-tools"
 SHORT_DESC="DirectFB examples"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="http://www.directfb.org/"
 
@@ -13,19 +13,22 @@ WGET_URL="http://www.directfb.org/downloads/Extras/$TARBALL"
 
 BUILD_DEPENDS="directfb-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
+compile_rules()
+{
+	./configure		\
+		--prefix=/usr	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="directfb"
 }
 
-testsuite() {
+testsuite()
+{
 	readelf -h $install/usr/bin/spacedream
 }
