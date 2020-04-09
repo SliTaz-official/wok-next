@@ -1,21 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="php"
-VERSION="5.5.13"
+VERSION="7.4.4"
 CATEGORY="development"
 SHORT_DESC="PHP web programming language"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://www.php.net/"
+WEB_SITE="https://www.php.net/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://www.php.net/distributions/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="https://www.php.net/distributions/$TARBALL"
 
-BUILD_DEPENDS="sqlite3-dev libxml2-dev zlib-dev libmysqlclient mysql-dev \
-net-snmp-dev postgresql-dev gettext-dev openssl-dev apache-dev apr-util-dev \
-c-client mhash-dev libpng-dev libunixODBC unixODBC-dev openldap-dev \
-libldap apr-dev libmcrypt-dev curl-dev cyrus-sasl-dev perl \
-jpeg-dev net-snmp-dev libvpx-dev apache coreutils-conditions sed re2c"
+BUILD_DEPENDS="apache apache-dev apr-dev apr-util-dev c-client 
+	coreutils-conditions curl-dev cyrus-sasl-dev gettext-dev 
+	jpeg-dev libldap libmcrypt-dev libmysqlclient libpng-dev 
+	libunixODBC libvpx-dev libxml2-dev mhash-dev mysql-dev 
+	net-snmp-dev openldap-dev openssl-dev perl postgresql-dev 
+	re2c sed sqlite3-dev unixODBC-dev zlib-dev"
 SPLIT="\
 $PACKAGE-apache    $PACKAGE-cherokee $PACKAGE-cli     $PACKAGE-common \
 $PACKAGE-curl      $PACKAGE-dba      $PACKAGE-dev     $PACKAGE-gd \
@@ -24,65 +25,69 @@ $PACKAGE-mysql     $PACKAGE-odbc     $PACKAGE-openssl $PACKAGE-pdo-mysql \
 $PACKAGE-pdo-pgsql $PACKAGE-pear     $PACKAGE-pgsql   $PACKAGE-snmp \
 $PACKAGE-soap      $PACKAGE-sqlite"
 
-compile_rules() {
+compile_rules()
+{
 	ARCH_ARGS="\
-	--enable-mbstring \
-	--enable-sockets \
-	--enable-ftp \
-	--enable-zip \
-	--enable-calendar \
-	--enable-exif \
-	--config-cache \
-	--enable-dba=shared \
-	--with-config-file-path=/etc \
-	--with-zlib \
-	--with-gettext \
-	--with-mcrypt=shared,/usr \
-	--with-mysql=shared,/usr \
-	--with-mysqli=shared \
-	--with-mysql-sock=/var/run/mysqld/mysql.sock \
-	--with-pdo-sqlite=shared,/usr \
-	--with-pgsql=shared,/usr \
-	--with-snmp=shared,/usr \
-	--enable-soap=shared,/usr \
-	--with-ldap=shared \
-	--with-imap=shared \
-	--with-imap-ssl \
-	--with-mhash \
-	--with-gd=shared \
-	--with-jpeg-dir=/usr \
-	--with-png-dir=/usr \
-	--with-vpx-dir=/usr \
-	--with-openssl=shared \
-	--with-unixODBC=shared,/usr \
-	--with-pear=/usr/share/php \
-	--with-pdo-mysql=shared \
-	--with-pdo-pgsql=shared \
-	--with-curl=shared \
-	--with-sqlite3=shared,/usr \
+	--enable-mbstring				\
+	--enable-sockets				\
+	--enable-ftp					\
+	--enable-zip					\
+	--enable-calendar				\
+	--enable-exif					\
+	--config-cache					\
+	--enable-dba=shared				\
+	--with-config-file-path=/etc			\
+	--with-zlib					\
+	--with-gettext					\
+	--with-mcrypt=shared,/usr			\
+	--with-mysql=shared,/usr			\
+	--with-mysqli=shared				\
+	--with-mysql-sock=/var/run/mysqld/mysql.sock	\
+	--with-pdo-sqlite=shared,/usr			\
+	--with-pgsql=shared,/usr			\
+	--with-snmp=shared,/usr				\
+	--enable-soap=shared,/usr			\
+	--with-ldap=shared				\
+	--with-imap=shared				\
+	--with-imap-ssl					\
+	--with-mhash					\
+	--with-gd=shared				\
+	--with-jpeg-dir=/usr				\
+	--with-png-dir=/usr				\
+	--with-vpx-dir=/usr				\
+	--with-openssl=shared				\
+	--with-unixODBC=shared,/usr			\
+	--with-pear=/usr/share/php			\
+	--with-pdo-mysql=shared				\
+	--with-pdo-pgsql=shared				\
+	--with-curl=shared				\
+	--with-sqlite3=shared,/usr			\
 	--enable-maintainer-zts"
 
-	sed -i 's|PLANE_[UVY]\]|VPX_&|;s|IMG_FMT_I420|VPX_&|' ext/gd/libgd/webpimg.c
-	sed -i 's/pam_start/pam_nostart/' configure
+	sed -i 's|PLANE_[UVY]\]|VPX_&|;s|IMG_FMT_I420|VPX_&|' \
+		ext/gd/libgd/webpimg.c
+	sed -i 's/pam_start/pam_nostart/' \
+		configure
 
-	./configure \
-		$ARCH_ARGS \
+	./configure		\
+		$ARCH_ARGS	\
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make -j1 INSTALL_ROOT=$install install
 
-	./configure \
-		$ARCH_ARGS \
+	./configure		\
+		$ARCH_ARGS	\
 		$CONFIGURE_ARGS \
 		--with-apxs2=/usr/bin/apxs &&
 	make $MAKEFLAGS &&
 	mkdir -p $install/etc/apache &&
-	cp /etc/apache/httpd.conf $install/etc/apache/httpd.conf &&
+	cp /etc/apache/httpd.conf	$install/etc/apache/httpd.conf &&
 	make -j1 INSTALL_ROOT=$install install || return 1
 
-	# Production config file.
+	# Production configuration file.
 	mkdir -p $install/etc
-	cp $src/php.ini-production $install/etc/php.ini || return 1
+
+	cp $src/php.ini-production		$install/etc/php.ini || return 1
 	sed -e 's|extension_dir = "./"|extension_dir = "/usr/share/php/"|' \
 		-i $install/etc/php.ini
 
@@ -93,7 +98,8 @@ compile_rules() {
 	install -Dm644 $stuff/php.png           $install/usr/share/pixmaps/php.png
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		php)
 			copy usr/bin/php-cgi
@@ -218,16 +224,19 @@ genpkg_rules() {
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php() {
-	if [ -z "$1" -a ! -f "/var/run/lighttpd.pid" ]; then
+pre_install_php()
+{
+	if [ -z "$1" -a ! -f "/var/run/lighttpd.pid" ]
+	  then
 		/etc/init.d/lighttpd stop
 	fi
 }
 
-post_install_php() {
+post_install_php()
+{
 	# Enable php
-	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
-
+	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]
+	  then
 		[ -f "$1/usr/lib/lighttpd/mod_fastcgi.so" ] ||
 		tazpkg get-install lighttpd-modules --root="$1/"
 
@@ -250,19 +259,23 @@ post_install_php() {
 	fi
 
 	# Start Web server.
-	if [ -z "$1" -a ! -f /var/run/lighttpd.pid -a -f /etc/init.d/lighttpd ]; then
+	if [ -z "$1" -a ! -f /var/run/lighttpd.pid -a -f /etc/init.d/lighttpd ]
+	  then
 		/etc/init.d/lighttpd start
 	fi
 }
 
 # -----------------------------------------------------------------------------
-pre_installi_php_apache() {
-	if [ -z "$1" -a -f "/var/run/apache/httpd.pid" ]; then
+pre_installi_php_apache()
+{
+	if [ -z "$1" -a -f "/var/run/apache/httpd.pid" ]
+	  then
 		/etc/init.d/apache stop
 	fi
 }
 
-post_install_php_apache() {
+post_install_php_apache()
+{
 	grep -q php5_module "$1/etc/apache/httpd.conf" ||
 	{
 		sed \
@@ -287,7 +300,8 @@ post_install_php_apache() {
 EOT
 
 	# Restart Web server.
-	if [ -z "$1" -a -f "/var/run/apache/httpd.pid" ]; then
+	if [ -z "$1" -a -f "/var/run/apache/httpd.pid" ]
+	  then
 		/etc/init.d/apache stop
 		sleep 2
 	fi
@@ -297,13 +311,16 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_cherokee() {
-	if [ -z "$1" -a ! -f "/var/run/cherokee.pid" ]; then
+pre_install_php_cherokee()
+{
+	if [ -z "$1" -a ! -f "/var/run/cherokee.pid" ]
+	  then
 		/etc/init.d/cherokee stop
 	fi
 }
 
-post_install_php_cherokee() {
+post_install_php_cherokee()
+{
 	# Enable php
 #	if [ -f "$1/etc/lighttpd/lighttpd.conf" ]; then
 #	  [ -f "$1/usr/lib/lighttpd/mod_fastcgi.so" ] || \
@@ -321,101 +338,126 @@ post_install_php_cherokee() {
 #	fi
 
 	# Start Web server.
-	if [ -z "$1" -a ! -f /var/run/cherokee.pid -a -f /etc/init.d/cherokee ]; then
+	if [ -z "$1" -a ! -f /var/run/cherokee.pid -a -f /etc/init.d/cherokee ]
+	  then
 		/etc/init.d/cherokee start
 	fi
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_common() {
+pre_install_php_common()
+{
 	# Backup existing php.ini
-	if [ -f "$1/etc/php.ini" ]; then
+	if [ -f "$1/etc/php.ini" ]
+	  then
 		cp "$1/etc/php.ini" "$1/etc/php.ini.bak"
 	fi
 }
 
-post_install_php_common() {
+post_install_php_common()
+{
 	# Restore original php.ini
-	if [ -f "$1/etc/php.ini.bak" ]; then
+	if [ -f "$1/etc/php.ini.bak" ]
+	  then
 		mv -f "$1/etc/php.ini.bak" "$1/etc/php.ini"
 	fi
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_curl() {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+pre_install_php_curl()
+{
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_curl() {
+post_install_php_curl()
+{
 	grep -q ^extension=curl.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=curl.so|' -i "$1/etc/php.ini"
+	sed	-e 's|extension=msql.so|extension=msql.so\nextension=curl.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_curl() {
+pre_remove_php_curl()
+{
 	sed -i '/.*=curl.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_dba() {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+pre_install_php_dba()
+{
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_dba() {
+post_install_php_dba()
+{
 	grep -q ^extension=dba.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=dba.so|' -i "$1/etc/php.ini"
+	sed	-e 's|extension=msql.so|extension=msql.so\nextension=dba.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
 	done <<EOT
@@ -424,80 +466,98 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_dba() {
+pre_remove_php_dba()
+{
 	sed -i '/.*=dba.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_gd() {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+pre_install_php_gd()
+{
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_gd() {
+post_install_php_gd()
+{
 	grep -q ^extension=gd.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=gd.so|' -i "$1/etc/php.ini"
+	sed	-e 's|extension=msql.so|extension=msql.so\nextension=gd.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -z "$1" -a -f /etc/init.d/$daemon ]; then
+		if [ -z "$1" -a -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_gd() {
+pre_remove_php_gd()
+{
 	sed -i '/.*=gd.so.*/d' "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
-		if [ -f /etc/init.d/$daemon -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -f /etc/init.d/$daemon -a -f "/var/run/$file" ]
+		  then
 			[ -z "$1" ] || continue
-			if [ -z "$1" -a -f "/var/run/$file" ]; then
+			if [ -z "$1" -a -f "/var/run/$file" ]
+			  then
 				/etc/init.d/$daemon stop
 				sleep 2
 			fi
-			if [ -z "$1" -a -f /etc/init.d/$daemon ]; then
+			if [ -z "$1" -a -f /etc/init.d/$daemon ]
+			  then
 				/etc/init.d/$daemon start
 			fi
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_imap() {
+pre_install_php_imap()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -508,7 +568,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_imap() {
+post_install_php_imap()
+{
 	grep -q ^extension=imap.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=imap.so|' -i "$1/etc/php.ini"
 
@@ -528,7 +589,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_imap() {
+pre_remove_php_imap()
+{
 	sed -i '/.*=imap.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -548,7 +610,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_ldap() {
+pre_install_php_ldap()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -559,7 +622,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_ldap() {
+post_install_php_ldap()
+{
 	grep -q ^extension=ldap.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=ldap.so|' -i "$1/etc/php.ini"
 
@@ -579,7 +643,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_ldap() {
+pre_remove_php_ldap()
+{
 	sed -i '/.*=ldap.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -599,7 +664,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_mcrypt() {
+pre_install_php_mcrypt()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -610,7 +676,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_mcrypt() {
+post_install_php_mcrypt()
+{
 	grep -q ^extension=mcrypt.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=mcrypt.so|' -i "$1/etc/php.ini"
 
@@ -630,7 +697,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_mcrypt() {
+pre_remove_php_mcrypt()
+{
 	sed -i '/.*=mcrypt.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -650,7 +718,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_mysqli() {
+pre_install_php_mysqli()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -661,7 +730,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_mysqli() {
+post_install_php_mysqli()
+{
 	grep -q ^extension=mysqli.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=mysqli.so|' -i "$1/etc/php.ini"
 
@@ -681,7 +751,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_mysqli() {
+pre_remove_php_mysqli()
+{
 	sed -i '/.*=mysqli.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -701,7 +772,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_mysql() {
+pre_install_php_mysql()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -712,7 +784,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_mysql() {
+post_install_php_mysql()
+{
 	grep -q ^extension=mysql.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=mysql.so|' -i "$1/etc/php.ini"
 
@@ -732,7 +805,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_mysql() {
+pre_remove_php_mysql()
+{
 	sed -i '/.*=mysql.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -752,7 +826,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_odbc() {
+pre_install_php_odbc()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -763,7 +838,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_odbc() {
+post_install_php_odbc()
+{
 	grep -q ^extension=odbc.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=odbc.so|' -i "$1/etc/php.ini"
 
@@ -783,7 +859,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_odbc() {
+pre_remove_php_odbc()
+{
 	sed -i '/.*=odbc.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -803,7 +880,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_openssl() {
+pre_install_php_openssl()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -814,7 +892,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_openssl() {
+post_install_php_openssl()
+{
 	grep -q ^extension=openssl.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=openssl.so|' -i "$1/etc/php.ini"
 
@@ -834,7 +913,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_openssl() {
+pre_remove_php_openssl()
+{
 	sed -i '/.*=openssl.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -865,7 +945,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_pdo_mysql() {
+post_install_pdo_mysql()
+{
 	grep -q ^extension=pdo_mysql.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=pdo_mysql.so|' -i "$1/etc/php.ini"
 
@@ -885,7 +966,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_pdo_mysql() {
+pre_remove_pdo_mysql()
+{
 	sed -i '/.*=pdo_mysql.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -905,7 +987,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_pdo_pgsql() {
+pre_install_pdo_pgsql()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -916,7 +999,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_pdo_pgsql() {
+post_install_pdo_pgsql()
+{
 	grep -q ^extension=pdo_pgsql.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=pdo_pgsql.so|' -i "$1/etc/php.ini"
 
@@ -936,7 +1020,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_pdo_pgsql() {
+pre_remove_pdo_pgsql()
+{
 	sed -i '/.*=pdo_pgsql.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -956,7 +1041,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_pear() {
+pre_install_php_pear()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -967,7 +1053,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_pear() {
+post_install_php_pear()
+{
 	grep ^include_path "$1/etc/php.ini"
 	sed -i 's|/php/includes"|/php/includes"\ninclude_path = ".:/usr/share/php"|' "$1/etc/php.ini"
 	# Restart Web server.
@@ -987,7 +1074,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_pgsql() {
+pre_install_php_pgsql()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -998,7 +1086,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_pgsql() {
+post_install_php_pgsql()
+{
 	grep -q ^extension=pgsql.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=pgsql.so|' -i "$1/etc/php.ini"
 
@@ -1018,7 +1107,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_pgsql() {
+pre_remove_php_pgsql()
+{
 	sed -i '/.*=pgsql.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -1038,7 +1128,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_snmp() {
+pre_install_php_snmp()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -1049,7 +1140,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_snmp() {
+post_install_php_snmp()
+{
 	grep -q ^extension=snmp.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=snmp.so|' -i "$1/etc/php.ini"
 
@@ -1069,7 +1161,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_snmp() {
+pre_remove_php_snmp()
+{
 	sed -i '/.*=snmp.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -1089,7 +1182,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_php_soap() {
+pre_install_php_soap()
+{
 	while read daemon file; do
 		if [ -z "$1" -a -f "/var/run/$file" ]; then
 			/etc/init.d/$daemon stop
@@ -1100,7 +1194,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-post_install_php_soap() {
+post_install_php_soap()
+{
 	grep -q ^extension=soap.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=soap.so|' -i "$1/etc/php.ini"
 
@@ -1120,7 +1215,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_soap() {
+pre_remove_php_soap()
+{
 	sed -i '/.*=soap.so.*/d' /etc/php.ini
 
 	# Start Web server.
@@ -1140,7 +1236,8 @@ EOT
 }
 
 # -----------------------------------------------------------------------------
-post_install_php_sqlite() {
+post_install_php_sqlite()
+{
 	grep -q ^extension=sqlite3.so "$1/etc/php.ini" ||
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=sqlite3.so|' -i "$1/etc/php.ini"
 
@@ -1160,7 +1257,8 @@ lighttpd lighttpd.pid
 EOT
 }
 
-pre_remove_php_sqlite() {
+pre_remove_php_sqlite()
+{
 	sed -i '/.*=sqlite3.so.*/d' /etc/php.ini
 
 	# Start Web server.
