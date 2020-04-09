@@ -16,23 +16,28 @@ BUILD_DEPENDS="bullet-dev dbus-dev eudev-dev fontconfig-dev freetype-dev
 	libjpeg-turbo-dev libraw-dev librsvg-dev libsndfile-dev libspectre-dev 
 	libunwind-dev libwebp-dev libx11-dev libxcomposite-dev libxcursor-dev 
 	libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libxscrnsaver-dev 
-	libxtst-dev luajit-dev mesa-dev openssl-dev poppler-dev pulseaudio-dev tiff-dev"
+	libxtst-dev luajit-dev mesa-dev meson ninja openssl-dev poppler-dev 
+	pulseaudio-dev tiff-dev"
 SPLIT="$PACKAGE-dev"
 
 compile_rules()
 {
-	./configure				\
-		--disable-doc			\
-		--disable-systemd		\
-		--enable-harfbuzz		\
-		--enable-image-loader-webp	\
-		--enable-xinput22		\
-		--enable-multisense		\
-		--enable-cancel-ok		\
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+#	./configure				\
+#		--disable-doc			\
+#		--disable-systemd		\
+#		--enable-harfbuzz		\
+#		--enable-image-loader-webp	\
+#		--enable-xinput22		\
+#		--enable-multisense		\
+#		--enable-cancel-ok		\
+#		$CONFIGURE_ARGS &&
+#	fix libtool &&
+#	make &&
+#	make install
+
+	meson . build --prefix=/usr &&
+	ninja -C build &&
+	ninja -C build install
 }
 
 genpkg_rules()
