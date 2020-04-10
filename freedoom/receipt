@@ -1,14 +1,15 @@
 # SliTaz package receipt.
 
 PACKAGE="freedoom"
-VERSION="0.8"
+VERSION="0.12.1"
 CATEGORY="games"
 SHORT_DESC="Completely free Doom IWADS (game data)"
 MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
-TARBALL="$PACKAGE-v$VERSION.tar.gz"
-WEB_SITE="http://www.nongnu.org/freedoom/"
-WGET_URL="http://savannah.nongnu.org/download/$PACKAGE/source/$TARBALL"
+WEB_SITE="https://freedoom.github.io/"
+
+TARBALL="$PACKAGE-$VERSION.zip"
+WGET_URL="https://github.com/$PACKAGE/$PACKAGE/releases/download/v$VERSION/$TARBALL"
 
 BUILD_DEPENDS="deutex-devel ghostscript git imagemagick python"
 
@@ -17,11 +18,11 @@ compile_rules()
 	make -j1 || return 1
 
 	mkdir -p $install/usr/share/games/doom
-	cp -a $src/wads/*.wad $install/usr/share/games/doom
+	cp -a $src/wads/*.wad	$install/usr/share/games/doom
 }
 
 genpkg_rules()
 {
 	mkdir -p $fs/usr
-	cp -a $install/usr/share $fs/usr
+	cp -a $install/usr/share	$fs/usr
 }
