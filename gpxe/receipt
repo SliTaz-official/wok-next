@@ -7,27 +7,31 @@ SHORT_DESC="Ethernet bootloader"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://etherboot.org/wiki/"
-HOST_ARCH="i486"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://kernel.org/pub/software/utils/boot/$PACKAGE/Old/$TARBALL"
 
-BUILD_DEPENDS="perl gcc49"
+BUILD_DEPENDS="perl"
 SPLIT="$PACKAGE-pxe"
 
-compile_rules() {
+HOST_ARCH="i486"
+
+compile_rules()
+{
 	cd $src/src
 	sed -i 's/ = ++ns->cur_rx %/++; ns->cur_rx %=/' drivers/net/ns83820.c
 	sed -i 's/ = (++tp->cur_rx) %/++; tp->cur_rx %=/' drivers/net/tulip.c
 	sed -i 's/? s : ___strtok//' core/stringextra.c
 	sed -i '/timer2_running/d' include/timer.h
-	make CC=gcc-49 EXTRA_CFLAGS="-fno-strict-aliasing \
+
+	make EXTRA_CFLAGS="-fno-strict-aliasing \
 -Wno-error=unused-but-set-variable -Wno-error=implicit-function-declaration \
 -Wno-error=array-bounds" bin/gpxe.lkrn bin/undionly.kpxe 2>&1 | \
 	grep -v housekeeping: | grep -v blib.list
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gpxe)
 			mkdir -p $fs/boot
