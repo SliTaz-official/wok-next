@@ -9,7 +9,7 @@ LICENSE="GPL2"
 WEB_SITE="https://www.openwall.com/john/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="${WEB_SITE}g/$TARBALL"
+WGET_URL="${WEB_SITE}k/$TARBALL"
 
 BUILD_DEPENDS="libdes-dev openssl-dev zlib-dev"
 
@@ -31,6 +31,7 @@ compile_rules()
 		*)      Arch="$ARCH";;
 	esac
 	sed -i "s|CFLAGS = -c -Wall -O2|CFLAGS = -c -Wall -O2 -march=$Arch -DJOHN_SYSTEMWIDE=1|" Makefile
+
 	make clean generic || return 1
 
 	mkdir -p $install/usr/sbin
