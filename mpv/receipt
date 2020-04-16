@@ -1,9 +1,9 @@
 # SliTaz package receipt.
 
 PACKAGE="mpv"
-VERSION="0.8.2"
+VERSION="0.32.0"
 CATEGORY="multimedia"
-SHORT_DESC="Video player based on ffmpeg & mplayer2"
+SHORT_DESC="Video player based on ffmpeg and mplayer2"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="GPL2"
 WEB_SITE="https://mpv.io/"
@@ -12,27 +12,30 @@ TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/mpv-player/mpv/archive/v$VERSION.tar.gz"
 EXTRA_SOURCE_FILES="$WAFTOOL"
 
-BUILD_DEPENDS="xorg-dev libxv-dev libxscrnsaver-dev lua-dev \
-ffmpeg-dev enca-dev fribidi-dev libass-dev alsa-lib-dev"
+BUILD_DEPENDS="alsa-lib-dev enca-dev ffmpeg-dev fribidi-dev libass-dev 
+	libxscrnsaver-dev libxv-dev lua-dev xorg-dev"
 
-compile_rules() {
+compile_rules()
+{
 	WAFTOOL="waf-1.8.4"
 
 	[ -s $SRC/$WAFTOOL ] || wget -P $SRC \
 		http://www.freehackers.org/~tnagy/release/$WAFTOOL
 	install -m 755 $SRC/$WAFTOOL waf
 
-	./bootstrap.py
-	./waf configure \
-		--prefix=/usr \
-		--confdir=/etc/mpv
+	./bootstrap.py &&
+	./waf configure			\
+		--prefix=/usr		\
+		--confdir=/etc/mpv &&
 		# --enable-libmpv-shared
-	./waf build
+	./waf build &&
 	./waf install --destdir=$install
 }
 
-genpkg_rules() {
-	cp -a $install/* $fs
-	DEPENDS="xorg-server libxv libxinerama libxscrnsaver \
-	util-linux-uuid alsa-lib enca fribidi libass lua ffmpeg"
+genpkg_rules()
+{
+	cp -a $install/*	$fs
+
+	DEPENDS="alsa-lib enca ffmpeg fribidi libass libxinerama 
+	libxscrnsaver libxv lua util-linux-uuid xorg-server"
 }
