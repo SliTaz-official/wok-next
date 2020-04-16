@@ -15,12 +15,12 @@ BUILD_DEPENDS="git libffi-dev readline-dev"
 
 compile_rules()
 {
-	sed -i 's|bash|sh|' \
-		$src/py/py-version.sh
-	sed -i 's|-lreadline|& -lncurses -ldl -lffi|' \
-		$src/unix/Makefile
+#	sed -i 's|bash|sh|' \
+#		$src/py/py-version.sh
+#	sed -i 's|-lreadline|& -lncurses -ldl -lffi|' \
+#		$src/unix/Makefile
 
-	cd unix
+	cd ports/unix
 	make -j1
 }
 
@@ -28,6 +28,6 @@ genpkg_rules()
 {
 	mkdir -p $fs/usr/bin
 
-	cp -a $src/unix/micropython	$fs/usr/bin
+	cp -a $src/ports/unix/micropython	$fs/usr/bin
 	DEPENDS="readline libffi"
 }
