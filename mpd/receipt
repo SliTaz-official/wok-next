@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mpd"
-VERSION="0.17.2"
+VERSION="0.21.22"
 CATEGORY="multimedia"
 SHORT_DESC="Music Player Daemon (MPD)"
 MAINTAINER="paul@slitaz.org"
@@ -11,47 +11,53 @@ WEB_SITE="https://www.musicpd.org/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/musicpd/$TARBALL"
 
-BUILD_DEPENDS="alsa-lib-dev zlib-dev libid3tag-dev libsamplerate-dev \
-libmad-dev libogg-dev libvorbis-dev flac-dev audiofile-dev faad2-dev \
-glib-dev lame-dev libwrap-dev curl-dev"
+BUILD_DEPENDS="alsa-lib-dev audiofile-dev curl-dev faad2-dev flac-dev 
+	glib-dev lame-dev libid3tag-dev libmad-dev libogg-dev 
+	libsamplerate-dev libvorbis-dev libwrap-dev zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's/<stdbool.h>/&\n#include <stdio.h>/' src/decoder_api.h
 
-	./configure \
-		--disable-jack \
-		--disable-ao \
-		--disable-modplug \
-		--disable-mms \
-		--disable-ffmpeg \
-		--disable-wavpack \
-		--disable-systemd-daemon \
-		--with-zeroconf=no \
+	./configure				\
+		--disable-jack			\
+		--disable-ao			\
+		--disable-modplug		\
+		--disable-mms			\
+		--disable-ffmpeg		\
+		--disable-wavpack		\
+		--disable-systemd-daemon	\
+		--with-zeroconf=no	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
-	mkdir -p $fs/usr/sbin $fs/etc
-	cp -a $install/usr/bin/mpd $fs/usr/sbin
-	cp $install/usr/share/doc/mpd/mpdconf.example $fs/etc/mpd.conf
-	cp -a $stuff/* $fs
-	DEPENDS="libid3tag libmad libogg libvorbis libsamplerate flac alsa-lib \
-	audiofile faad2 lame sqlite3 libcurl glib openssl libwrap"
+genpkg_rules()
+{
+	mkdir -p $fs/usr/sbin
+	mkdir -p $fs/etc
+
+	cp -a $install/usr/bin/mpd			$fs/usr/sbin
+	cp $install/usr/share/doc/mpd/mpdconf.example	$fs/etc/mpd.conf
+	cp -a $stuff/*					$fs
+
+	DEPENDS="alsa-lib audiofile faad2 flac glib lame libcurl libid3tag 
+		libmad libogg libsamplerate libvorbis libwrap openssl sqlite3"
 }
 
-post_install() {
+post_install()
+{
 	newline
-	# Drop root priviledges and enable pid file
+	# Drop root privileges and enable pid file
 	action 'Enabling mpd.conf...'
 	cd $root/etc
 	sed -i 's/#music_directory/music_directory/; \
-	s/#playlist_directory/playlist_directory/; \
-	s/#db_file/db_file/; \
-	s/#pid_file/pid_file/; \
-	s/#user				"nobody"/user				"tux"/; \
-	s/#bind_to_address		"any"/bind_to_address			"localhost"/' mpd.conf 
+		s/#playlist_directory/playlist_directory/; \
+		s/#db_file/db_file/; \
+		s/#pid_file/pid_file/; \
+		s/#user				"nobody"/user				"tux"/; \
+		s/#bind_to_address		"any"/bind_to_address			"localhost"/' mpd.conf 
 	status
 
 	# Make mpd directories and files
