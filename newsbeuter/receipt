@@ -11,18 +11,20 @@ WEB_SITE="https://newsbeuter.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
-BUILD_DEPENDS="gettext-dev libxml2-dev json-c-dev curl-dev sqlite3-dev stfl-dev \
-ncurses-dev gcc49"
+BUILD_DEPENDS="curl-dev gettext-dev json-c-dev libxml2-dev ncurses-dev 
+	sqlite3-dev stfl-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's|/usr/local|/usr|;s|^include config.mk|-&|' Makefile
 	export LD_LIBRARY_PATH="/usr/libgcc49:$LD_LIBRARY_PATH"
 
-	make CC=gcc-49 CXX=g++-49 &&
+	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="gcc49-lib-base libxml2 json-c curl sqlite3 stfl"
+	DEPENDS="curl json-c libxml2 sqlite3 stfl"
 }
