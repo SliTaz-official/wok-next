@@ -1,21 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mongodb"
-VERSION="2.0.6"
+VERSION="4.2.5"
 CATEGORY="system-tools"
 SHORT_DESC="MongoDB bridges the gap between key-value stores and traditional RDBMS systems"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3 Apache"
 WEB_SITE="https://www.mongodb.com/"
 
 TARBALL="$PACKAGE-src-r$VERSION.tar.gz"
 WGET_URL="http://downloads.mongodb.org/src/$TARBALL"
 
-BUILD_DEPENDS="pcre boost-filesystem boost-thread boost-program-options \
-spidermonkey scons2 pcre-dev boost-dev boost-filesystem \
-boost-thread boost-program-options spidermonkey-dev"
+BUILD_DEPENDS="boost-dev boost-filesystem boost-program-options boost-thread 
+	pcre pcre-dev scons2 spidermonkey spidermonkey-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's/native_directory_//' db*/*.cpp
 	sed -i 's/native_file_//' db*/*.cpp shell/shell_utils.cpp
 	sed -i 's/leaf()/leaf().string()/' */*.cpp
@@ -27,9 +27,10 @@ compile_rules() {
 	scons --prefix=$install/usr install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
-	DEPENDS="pcre boost-filesystem boost-thread boost-program-options \
-	spidermonkey"
+	cp -a $install/usr/bin	$fs/usr
+	DEPENDS="boost-filesystem boost-program-options boost-thread 
+		pcre spidermonkey"
 }
