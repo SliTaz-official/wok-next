@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mgetty"
-VERSION="1.1.37"
+VERSION="1.2.1"
 CATEGORY="network"
 SHORT_DESC="Reliable and proven fax send and receive solution"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -13,8 +13,10 @@ WGET_URL="ftp://mgetty.greenie.net/pub/$PACKAGE/source/${VERSION%.*}/$TARBALL"
 
 SPLIT="$PACKAGE-voicetools"
 
-compile_rules() {
-	[ -f Makefile.dist ] && mv -f Makefile.dist Makefile
+compile_rules()
+{
+	[ -f Makefile.dist ] &&
+	mv -f Makefile.dist Makefile
 	cp Makefile Makefile.dist
 	cp Makefile Makefile.install
 	cp policy.h-dist policy.h
@@ -30,29 +32,36 @@ compile_rules() {
 		-e 's|/man/|/share&|' \
 		-e 's|^INSTALL=install .*|INSTALL=install -c -o root -g root|' \
 		Makefile.install
+
 	make bin-all vgetty
-	mkdir -p $install/var/spool $install/usr/share/man/man1 \
-		$install/usr/share/man/man8
+
+	mkdir -p $install/var/spool $install/usr/share/man/man1
+	mkdir -p $install/usr/share/man/man8
+
 	mv -f Makefile.install Makefile
 	sed -i 's|chown|echo chown|' Makefile fax/Makefile
+
 	make -k install.bin vgetty-install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		mgetty)
 			mkdir -p $fs/usr
-			cp -a $install/usr/lib $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/etc $fs
-			cp -a $install/var $fs
-			chmod 755 $fs/var/spool/fax
+
+			cp -a $install/usr/lib	$fs/usr
+			cp -a $install/usr/sbin	$fs/usr
+			cp -a $install/etc	$fs
+			cp -a $install/var	$fs
+			chmod 755		$fs/var/spool/fax
 			DEPENDS="slitaz-base-files"
 			CONFIG_FILES="/etc/mgetty+sendfax"
 			;;
 		mgetty-voicetools)
 			mkdir -p $fs/usr
-			cp -a $install/usr/bin $fs/usr
+
+			cp -a $install/usr/bin	$fs/usr
 			CAT="network|convertion tool set for vgetty"
 			DEPENDS="mgetty"
 			;;
@@ -60,8 +69,10 @@ genpkg_rules() {
 }
 
 # adduser fax if needed
-post_install_mgetty() {
-	if ! grep -q fax "$1/etc/passwd"; then
+post_install_mgetty()
+{
+	if ! grep -q fax "$1/etc/passwd"
+	  then
 		echo -n "Adding user fax..."
 		chroot "$1/" adduser fax -D -H -S
 		status
@@ -69,6 +80,7 @@ post_install_mgetty() {
 	chroot "$1/" chown fax /var/spool/fax
 }
 
-post_remove_mgetty() {
+post_remove_mgetty()
+{
 	chroot "$1/" deluser fax
 }
