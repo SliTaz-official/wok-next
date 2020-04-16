@@ -1,28 +1,33 @@
 # SliTaz package receipt.
 
 PACKAGE="micropython"
-VERSION="1.0.1"
+VERSION="1.12"
 CATEGORY="development"
 SHORT_DESC="The Micro Python project"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MIT"
-WEB_SITE="http://micropython.org/"
+WEB_SITE="https://micropython.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/$PACKAGE/$PACKAGE/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="git readline-dev libffi-dev"
+BUILD_DEPENDS="git libffi-dev readline-dev"
 
-compile_rules() {
-	sed -i 's|bash|sh|' $src/py/py-version.sh
-	sed -i 's|-lreadline|& -lncurses -ldl -lffi|' $src/unix/Makefile
+compile_rules()
+{
+	sed -i 's|bash|sh|' \
+		$src/py/py-version.sh
+	sed -i 's|-lreadline|& -lncurses -ldl -lffi|' \
+		$src/unix/Makefile
 
 	cd unix
 	make -j1
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/bin
-	cp -a $src/unix/micropython $fs/usr/bin
+
+	cp -a $src/unix/micropython	$fs/usr/bin
 	DEPENDS="readline libffi"
 }
