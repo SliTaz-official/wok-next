@@ -1,11 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ndiswrapper-driver"
-VERSION="1.61"
+VERSION="1.62"
 EXTRAVERSION="_$kvers"
 CATEGORY="system-tools"
 SHORT_DESC="Add Windows network drivers support to Linux kernel"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://ndiswrapper.sourceforge.net/"
 REPOLOGY="ndiswrapper"
@@ -16,7 +16,8 @@ WGET_URL="$SF_MIRROR/ndiswrapper/$TARBALL"
 BUILD_DEPENDS="linux-module-headers xz"
 SPLIT="ndiswrapper-utils ndiswrapper"
 
-compile_rules() {
+compile_rules()
+{
 	make KBUILD=/usr/src/linux KVER=linux-$kvers-slitaz
 	xz driver/ndiswrapper.ko
 
@@ -33,7 +34,8 @@ compile_rules() {
 		$install/lib/modules/$kvers-slitaz/kernel/misc/ndiswrapper.ko.xz
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		ndiswrapper-driver)
 			copy loadndisdriver ndiswrapper.ko.xz
