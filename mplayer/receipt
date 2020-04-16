@@ -1,24 +1,25 @@
 # SliTaz package receipt v2.
 
 PACKAGE="mplayer"
-VERSION="1.1.1"
+VERSION="1.4"
 CATEGORY="multimedia"
 SHORT_DESC="The Ultimate Movie Player For Linux"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.mplayerhq.hu/design7/news.html"
+WEB_SITE="https://www.mplayerhq.hu/design7/news.html"
 
 TARBALL="MPlayer-$VERSION.tar.xz"
-WGET_URL="http://www1.mplayerhq.hu/MPlayer/releases/$TARBALL"
+WGET_URL="https://mplayerhq.hu/MPlayer/releases/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev libmad-dev libxv-dev libtheora-dev \
-alsa-lib-dev ncurses-dev lame-dev libxdamage-dev giflib-dev \
-libxxf86vm-dev esound-dev audiofile-dev libogg-dev libvorbis-dev \
-xvidcore-dev zlib-dev xorgproto yasm cdparanoia-dev \
-x264-dev enca-dev libmng-dev lirc-dev"
+BUILD_DEPENDS="alsa-lib-dev audiofile-dev cdparanoia-dev enca-dev 
+	esound-dev giflib-dev gtk2-dev lame-dev libmad-dev libmng-dev 
+	libogg-dev libtheora-dev libvorbis-dev libxdamage-dev 
+	libxv-dev libxxf86vm-dev lirc-dev ncurses-dev x264-dev 
+	xorgproto xvidcore-dev yasm zlib-dev"
 SPLIT="mencoder"
 
-compile_rules() {
+compile_rules()
+{
 	# Handle cross compilation. Host coreutils-file-* are used
 	case "$ARCH" in
 		i?86)
@@ -26,58 +27,64 @@ compile_rules() {
 			;;
 	esac
 
-	./configure \
-		--prefix=/usr \
-		--confdir=/etc/mplayer \
-		--libdir=/usr/lib/mplayer \
-		--enable-gui \
-		--language="en de es fr it ru" \
-		--disable-gl \
-		--disable-jack \
-		--disable-liblzo \
-		--disable-libdv \
-		--disable-fribidi \
-		--disable-ivtv \
-		--disable-smb \
-		--disable-ftp \
-		--disable-openal \
-		--disable-faac \
-		--disable-speex \
+	./configure				\
+		--prefix=/usr			\
+		--confdir=/etc/mplayer		\
+		--libdir=/usr/lib/mplayer	\
+		--enable-gui			\
+		--language="en de es fr it ru"	\
+		--disable-gl			\
+		--disable-jack			\
+		--disable-liblzo		\
+		--disable-libdv			\
+		--disable-fribidi		\
+		--disable-ivtv			\
+		--disable-smb			\
+		--disable-ftp			\
+		--disable-openal		\
+		--disable-faac			\
+		--disable-speex			\
 		${ARCH_ARGS} &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		mplayer)
 			mkdir -p $fs/usr/share/mplayer/skins
-			cp -a $install/usr/bin $fs/usr
-			# Mencoder goes in a splited package.
+			cp -a $install/usr/bin	$fs/usr
+
+			# Mencoder goes in a splitted package.
 			rm $fs/usr/bin/mencoder
 			[ -d "$install/usr/share/mplayer" ] &&
-				cp -a $install/usr/share/mplayer $fs/usr/share
-			cp -a $install/etc $fs
-			cp $src/etc/example.conf $fs/etc/mplayer
-			# Config to use Xv by default.
+			cp -a $install/usr/share/mplayer $fs/usr/share
+			cp -a $install/etc		$fs
+			cp $src/etc/example.conf	$fs/etc/mplayer
+
+			# Configure to use Xv by default.
 			cp $stuff/mplayer.conf $fs/etc/mplayer
+
 			# default skin
 			tar xjf $stuff/productive-1.0.tar.bz2 -C $fs/usr/share/mplayer/skins
 			cd $fs/usr/share/mplayer/skins && ln -s productive default
+
 			# Font
 			cd ..
 			ln -s ../fonts/truetype/ttf-dejavu/DejaVuSans.ttf subfont.ttf
-			DEPENDS="gtk2 cdparanoia libmad libxv libtheora alsa-lib \
-			ncurses lame libxdamage giflib enca lirc libxxf86vm \
-			esound libmng audiofile libvorbis libogg zlib xvidcore x264 \
-			libxscrnsaver"
+
+			DEPENDS="alsa-lib audiofile cdparanoia enca esound giflib gtk2 lame 
+			libmad libmng libogg libtheora libxdamage libxscrnsaver libxxf86vm 
+			libvorbis libxv lirc ncurses x264 xvidcore zlib"
 			;;
 		mencoder)
 			copy /usr/bin/mencoder
 			CAT="multimedia|video and movie encoder"
-			DEPENDS="libtheora alsa-lib cdparanoia expat libogg libvorbis \
-			fontconfig freetype x264 xvidcore jpeg libmad ncurses zlib lame \
-			libpng giflib enca lirc"
+
+			DEPENDS="alsa-lib cdparanoia enca expat fontconfig freetype giflib 
+			jpeg lame libmad libogg libpng libtheora libvorbis lirc ncurses 
+			x264 xvidcore zlib"
 			;;
 	esac
 }
