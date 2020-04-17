@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="opencpn"
-VERSION="1.3.2"
+VERSION="5.0.0"
 CATEGORY="utilities"
+TAGS="office"
 SHORT_DESC="A concise Chart/plotter Navigator"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL2"
@@ -11,9 +12,10 @@ WEB_SITE="https://sourceforge.net/projects/opencpn/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="wxWidgets28-dev mesa-dev glu-dev"
+BUILD_DEPENDS="wxWidgets-dev mesa-dev glu-dev"
 
-compile_rules() {
+compile_rules()
+{
 	# Binutils 2.22 break many packages build without LDFLAGS set correctly.
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries"
 
@@ -23,9 +25,10 @@ compile_rules() {
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="wxWidgets28 mesa glu"
+
+	DEPENDS="wxWidgets mesa glu"
 	SUGGESTED="nvidia"
-	TAGS="office"
 }
