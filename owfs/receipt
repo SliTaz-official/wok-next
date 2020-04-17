@@ -1,28 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="owfs"
-VERSION="3.2p1"
+VERSION="3.2p3"
 CATEGORY="misc"
 SHORT_DESC="OWFS One Wire File System"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.owfs.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="fuse2-dev libusb-dev libusb-compat-dev eudev-dev"
+BUILD_DEPENDS="eudev-dev fuse2-dev libusb-compat-dev libusb-dev"
 
-compile_rules() {
-	./configure \
-		--bindir=/usr/bin \
+compile_rules()
+{
+	./configure			\
+		--bindir=/usr/bin	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
+
 	DEPENDS="fuse2 libusb"
 }
