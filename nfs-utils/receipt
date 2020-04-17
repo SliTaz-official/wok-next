@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="nfs-utils"
-VERSION="1.3.0"
+VERSION="2.4.3"
 CATEGORY="system-tools"
+TAGS="filesystem"
 SHORT_DESC="Network FileSystem tools"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
@@ -11,14 +12,15 @@ WEB_SITE="http://nfs.sourceforge.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/nfs/$TARBALL"
 
-BUILD_DEPENDS="libtirpc-dev libcap-dev libwrap-dev util-linux-blkid-dev \
-util-linux-uuid-dev util-linux-blkid"
+BUILD_DEPENDS="libcap-dev libtirpc-dev libwrap-dev util-linux-blkid 
+	util-linux-blkid-dev util-linux-uuid-dev"
 
-compile_rules() {
+compile_rules()
+{
 	#sh autogen.sh
-	./configure \
-		--disable-nfsv4 \
-		--disable-gss \
+	./configure		\
+		--disable-nfsv4	\
+		--disable-gss	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -26,17 +28,20 @@ compile_rules() {
 	cp -a $stuff/* $install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libtirpc libwrap libcap util-linux-blkid util-linux-uuid rpcbind \
-	linux-nfsd"
+
+	DEPENDS="libcap libtirpc libwrap linux-nfsd rpcbind util-linux-blkid 
+	util-linux-uuid"
 	CONFIG_FILES="/etc/exports"
-	TAGS="filesystem"
 }
 
-post_install() {
+post_install()
+{
 	grep ^nfs "$1/etc/services" ||
-	sed -i 's|.*	2401/tcp.*|nfs	2049/tcp\nnfs	2049/udp\n&|' "$1/etc/services"
+	sed -i 's|.*	2401/tcp.*|nfs	2049/tcp\nnfs	2049/udp\n&|' \
+		"$1/etc/services"
 	[ -s "$1/etc/exports" ] || cat > "$1/etc/exports" <<EOT
 #/home	192.168.0.0/255.255.255.0(rw,subtree_check)
 EOT
