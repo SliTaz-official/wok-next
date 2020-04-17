@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="octave"
-VERSION="4.0.0"
+VERSION="5.2.0"
 CATEGORY="development"
+TAGS="programming language"
 SHORT_DESC="Language for numerical computations"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
@@ -11,34 +12,37 @@ WEB_SITE="http://www.gnu.org/software/octave/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.gnu.org/gnu/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gfortran zlib-dev ncurses-dev readline-dev freetype-dev xorg-dev \
-fltk-dev perl texinfo lapack tar gawk pcre-dev mesa-dev curl-dev \
-libdrm-dev expat-dev libxml2-dev libgfortran zlib ncurses readline freetype \
-gcc-lib-base expat mesa glu libx11 libxext libxxf86vm \
-libxdamage libxfixes libdrm libxau libxdmcp pcre libcurl \
-lapack bash gcc fltk gnuplot"
+BUILD_DEPENDS="bash curl-dev expat expat-dev fltk fltk-dev freetype 
+	freetype-dev gawk gcc gcc-lib-base gfortran glu gnuplot lapack 
+	libcurl libdrm libdrm-dev libgfortran libxml2-dev libx11 libxau 
+	libxdamage libxdmcp libxext libxfixes libxxf86vm mesa mesa-dev 
+	ncurses ncurses-dev pcre pcre-dev perl readline readline-dev 
+	tar texinfo xorg-dev zlib zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	# http://www.nabble.com/Random-rounding-errors-td16010966.html
 	FFLAGS="-O -ffloat-store" \
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--libexecdir=/usr/lib/$PACKAGE \
-		--mandir=/usr/share/man \
-		--enable-shared \
-		--disable-static \
-		--disable-docs \
+
+	./configure				\
+		--prefix=/usr			\
+		--infodir=/usr/share/info	\
+		--libexecdir=/usr/lib/$PACKAGE	\
+		--mandir=/usr/share/man		\
+		--enable-shared			\
+		--disable-static		\
+		--disable-docs			\
 		$CONFIGURE_ARGS &&
-	LANG=C make $MAKEFLAGS &&
+	make LANG=C $MAKEFLAGS &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	cp -a $install/* $fs
-	DEPENDS="libgfortran zlib ncurses readline freetype gcc-lib-base expat \
-	mesa glu libx11 libxext libxxf86vm libxdamage \
-	libxfixes libdrm libxau libxdmcp pcre libcurl lapack bash \
-	gcc fltk gnuplot"
-	TAGS="programming language"
+genpkg_rules()
+{
+	cp -a $install/*	$fs
+
+	DEPENDS="bash expat fltk freetype gcc gcc-lib-base glu gnuplot 
+		lapack libcurl libdrm libgfortran libx11 libxau libxdamage 
+		libxdmcp libxext libxfixes libxxf86vm mesa ncurses pcre 
+		readline zlib"
 }
