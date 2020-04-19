@@ -1,8 +1,9 @@
 # SliTaz package receipt.
 
 PACKAGE="palemoon"
-VERSION="27.9.3"
+VERSION="28.9.1"
 CATEGORY="network"
+TAGS="browser web-browser"
 SHORT_DESC="Browser based on Firefox that's optimised for performance"
 MAINTAINER="psychomaniak@xakep.ru"
 LICENSE="MPL2"
@@ -11,20 +12,23 @@ WEB_SITE="https://www.palemoon.org/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/MoonchildProductions/Pale-Moon/archive/${VERSION}_Release.tar.gz"
 
-BUILD_DEPENDS="autoconf213 gtk2-dev yasm zip unzip iw dbus-dev dbus-glib-dev \
-iw libpng-dev gstreamer0-dev gst0-plugins-base-dev \
-libvpx-dev mesa-dev virtualenv zlib-dev bzip2-dev python-dev \
-pixman-dev libffi-dev libjpeg-turbo-dev \
-libxt-dev coreutils-file-special alsa-lib-dev spl spl-src"
-# sqlite sqlite-dev libevent libevent-dev
+BUILD_DEPENDS="alsa-lib-dev autoconf213 bzip2-dev coreutils-file-special 
+	dbus-dev dbus-glib-dev gst0-plugins-base-dev gstreamer0-dev gtk2-dev 
+	iw libffi-dev libjpeg-turbo-dev libpng-dev libvpx-dev libxt-dev 
+	mesa-dev pixman-dev python-dev spl spl-src unzip virtualenv yasm 
+	zip zlib-dev"
+	# sqlite sqlite-dev libevent libevent-dev
 
-compile_rules() {
+compile_rules()
+{
 	find -type f | grep duckduckgo | xargs \
 		sed -i 's|name="t" value="palemoon"|name="t" value="slitaz"|'
 	cp $stuff/mozconfig $src
+
 	case $ARCH in
 		x86_64) sed -i 's|i686|nocona|' $src/mozconfig;;
 	esac
+
 	chmod -R +x build/autoconf/* python/*
 	find . -name '*.sh' -exec chmod +x {} \;
 	export CFLAGS=${CFLAGS/486/686}
@@ -33,29 +37,33 @@ compile_rules() {
 	export MOZCONFIG="$src/mozconfig"
 	export CPPFLAGS="$CPPFLAGS"
 	export MAKEFLAGS="$MAKEFLAGS"
+
 	python2 mach configure
 	python2 mach build || echo "Next =>"
 	python2 mach build
 	cd $src/obj-i686-pc-linux-gnu
 	( make package | egrep -v 'error|ERROR' ) > ./instLOG 2>&1
 	cd dist
-	for i in bin lib share/applications; do
+	for i in bin lib share/applications
+	  do
 		install -d $install/usr/$i
-	done
-	cp -a $PACKAGE $install/usr/lib/$PACKAGE
+	  done
+	cp -a $PACKAGE	$install/usr/lib/$PACKAGE
 	cp -a $src/browser/branding/official/$PACKAGE.desktop \
-		$install/usr/share/applications
+			$install/usr/share/applications
 }
 
-genpkg_rules() {
-	cp -a $install/* $fs
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/pixmaps
+
+	cp -a $install/*	$fs
 	rm -f  /usr/lib/$PACKAGE/$PACKAGE-bin
 	ln -sf /usr/lib/$PACKAGE/$PACKAGE $fs/usr/bin
 	ln -sf /usr/lib/$PACKAGE/browser/chrome/icons/default/default48.png \
 		$fs/usr/share/pixmaps/palemoon.png
 	ln -s palemoon $fs/usr/bin/browser-html5
-	DEPENDS="gtk2"
+
 	PROVIDE="browser-html5"
-	TAGS="browser web-browser"
+	DEPENDS="gtk2"
 }
