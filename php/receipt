@@ -49,7 +49,7 @@ compile_rules()
 	--with-curl=shared				\
 	--enable-gd=shared				\
 	--with-gettext					\
-	--with-imap=shared				\
+	--with-imap=/usr/lib				\
 	--with-imap-ssl					\
 	--with-ldap=shared				\
 	--with-mhash					\
@@ -73,7 +73,8 @@ compile_rules()
 	sed -i 's/pam_start/pam_nostart/' \
 		configure
 
-	ln -s /usr/lib/c-client.a /usr/lib/libc-client.a
+	mkdir	/usr/lib/c-client
+	ln -s /usr/lib/c-client.a /usr/lib/c-client/libc-client.a
 
 	./configure		\
 		$ARCH_ARGS	\
