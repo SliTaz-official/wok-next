@@ -12,7 +12,7 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://www.php.net/distributions/$TARBALL"
 
 BUILD_DEPENDS="apache apache-dev apr-dev apr-util-dev c-client 
-	coreutils-conditions curl-dev cyrus-sasl-dev gettext-dev 
+	coreutils-conditions curl-dev cyrus-sasl-dev gettext 
 	jpeg-dev libldap libmcrypt-dev libmysqlclient libpng-dev 
 	libunixODBC libvpx-dev libxml2-dev mhash-dev mysql-dev 
 	net-snmp-dev openldap-dev openssl-dev perl postgresql-dev 
@@ -27,45 +27,49 @@ $PACKAGE-soap      $PACKAGE-sqlite"
 
 compile_rules()
 {
+	# 7.4.4 unrecognised:
+	# 	--enable-zip
+	#	--with-jpeg-dir=/usr
+	#	--with-png-dir=/usr
+
 	ARCH_ARGS="\
-	--enable-mbstring				\
-	--enable-sockets				\
-	--enable-ftp					\
-	--enable-zip					\
-	--enable-calendar				\
-	--enable-exif					\
 	--config-cache					\
+	--enable-calendar				\
 	--enable-dba=shared				\
-	--with-config-file-path=/etc			\
-	--with-zlib					\
-	--with-gettext					\
-	--with-mcrypt=shared,/usr			\
-	--with-mysql=shared,/usr			\
-	--with-mysqli=shared				\
-	--with-mysql-sock=/var/run/mysqld/mysql.sock	\
-	--with-pdo-sqlite=shared,/usr			\
-	--with-pgsql=shared,/usr			\
-	--with-snmp=shared,/usr				\
+	--enable-exif					\
+	--enable-ftp					\
+	--enable-maintainer-zts				\
+	--enable-mbstring				\
 	--enable-soap=shared,/usr			\
-	--with-ldap=shared				\
+	--enable-sockets				\
+	--with-config-file-path=/etc			\
+	--with-curl=shared				\
+	--with-gd=shared				\
+	--with-gettext					\
 	--with-imap=shared				\
 	--with-imap-ssl					\
+	--with-ldap=shared				\
+	--with-mcrypt=shared,/usr			\
 	--with-mhash					\
-	--with-gd=shared				\
-	--with-jpeg-dir=/usr				\
-	--with-png-dir=/usr				\
-	--with-vpx-dir=/usr				\
+	--with-mysql=shared,/usr			\
+	--with-mysql-sock=/var/run/mysqld/mysql.sock	\
+	--with-mysqli=shared				\
 	--with-openssl=shared				\
-	--with-unixODBC=shared,/usr			\
-	--with-pear=/usr/share/php			\
 	--with-pdo-mysql=shared				\
 	--with-pdo-pgsql=shared				\
-	--with-curl=shared				\
+	--with-pdo-sqlite=shared,/usr			\
+	--with-pear=/usr/share/php			\
+	--with-pgsql=shared,/usr			\
+	--with-snmp=shared,/usr				\
 	--with-sqlite3=shared,/usr			\
-	--enable-maintainer-zts"
+	--with-unixODBC=shared,/usr			\
+	--with-vpx-dir=/usr				\
+	--with-zlib"
 
-	sed -i 's|PLANE_[UVY]\]|VPX_&|;s|IMG_FMT_I420|VPX_&|' \
+	# 7.4.5	no such file
+#	sed -i 's|PLANE_[UVY]\]|VPX_&|;s|IMG_FMT_I420|VPX_&|' \
 		ext/gd/libgd/webpimg.c
+
 	sed -i 's/pam_start/pam_nostart/' \
 		configure
 
