@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="php"
-VERSION="7.4.4"
+VERSION="7.4.5"
 CATEGORY="development"
 SHORT_DESC="PHP web programming language"
 MAINTAINER="maintainer@slitaz.org"
@@ -20,8 +20,8 @@ BUILD_DEPENDS="apache apache-dev apr-dev apr-util-dev c-client
 SPLIT="\
 $PACKAGE-apache    $PACKAGE-cherokee $PACKAGE-cli     $PACKAGE-common \
 $PACKAGE-curl      $PACKAGE-dba      $PACKAGE-dev     $PACKAGE-gd \
-$PACKAGE-imap      $PACKAGE-ldap     $PACKAGE-mcrypt  $PACKAGE-mysqli \
-$PACKAGE-mysql     $PACKAGE-odbc     $PACKAGE-openssl $PACKAGE-pdo-mysql \
+$PACKAGE-imap      $PACKAGE-ldap     $PACKAGE-mcrypt  $PACKAGE-mysql \
+$PACKAGE-mysqli    $PACKAGE-odbc     $PACKAGE-openssl $PACKAGE-pdo-mysql \
 $PACKAGE-pdo-pgsql $PACKAGE-pear     $PACKAGE-pgsql   $PACKAGE-snmp \
 $PACKAGE-soap      $PACKAGE-sqlite"
 
@@ -103,19 +103,19 @@ genpkg_rules()
 	case $PACKAGE in
 		php)
 			copy usr/bin/php-cgi
-			DEPENDS="php-common lighttpd zlib libxml2 sqlite3 openssl"
+			DEPENDS="libxml2 lighttpd openssl php-common sqlite3 zlib"
 			PROVIDE="php:lighttpd"
 			;;
 		php-apache)
 			copy usr/share/apache/
 			CAT="development|module for apache"
-			DEPENDS="php-common apache libxml2 zlib"
+			DEPENDS="apache libxml2 php-common zlib"
 			PROVIDE="php:apache"
 			;;
 		php-cherokee)
 			copy usr/bin/php-cgi # FIXME! the same file in "php" package
 			CAT="development|module for cherokee"
-			DEPENDS="php-common cherokee libxml2 zlib"
+			DEPENDS="cherokee libxml2 php-common zlib"
 			PROVIDE="php:cherokee"
 			;;
 		php-cli)
@@ -141,29 +141,29 @@ genpkg_rules()
 			;;
 		php-dev)
 			copy @dev
-			DEPENDS="php cyrus-sasl libldap libmysqlclient libpng \
-			libpostgresqlclient libunixODBC mhash openssl jpeg \
-			libmcrypt libtool libkrb5 libcomerr3 net-snmp"
+			DEPENDS="cyrus-sasl jpeg libcomerr3 libkrb5 libldap 
+			libmcrypt libmysqlclient libpng libpostgresqlclient 
+			libtool libunixODBC mhash net-snmp openssl php"
 			;;
 		php-gd)
 			copy gd.so
 			CAT="development|gd module"
-			DEPENDS="libpng php jpeg libvpx"
+			DEPENDS="jpeg libpng libvpx php"
 			;;
 		php-imap)
 			copy imap.so
 			CAT="development|imap module"
-			DEPENDS="php openssl"
+			DEPENDS="openssl php"
 			;;
 		php-ldap)
 			copy ldap.so
 			CAT="development|ldap module"
-			DEPENDS="libldap php openssl cyrus-sasl libkrb5 libcomerr3"
+			DEPENDS="cyrus-sasl libcomerr3 libkrb5 libldap openssl php"
 			;;
 		php-mcrypt)
 			copy mcrypt.so
 			CAT="development|mcrypt module"
-			DEPENDS="libmcrypt php libtool"
+			DEPENDS="libmcrypt libtool php"
 			;;
 		php-mysqli)
 			copy mysqli.so
@@ -178,12 +178,12 @@ genpkg_rules()
 		php-odbc)
 			copy odbc.so
 			CAT="development|ODBC module"
-			DEPENDS="unixODBC php"
+			DEPENDS="php unixODBC"
 			;;
 		php-openssl)
 			copy openssl.so
 			CAT="development|OpenSSL module"
-			DEPENDS="php openssl"
+			DEPENDS="openssl php"
 			;;
 		php-pdo-mysql)
 			copy pdo_mysql.so
@@ -193,7 +193,7 @@ genpkg_rules()
 		php-pdo-pgsql)
 			copy pdo_pgsql.so
 			CAT="development|PDO PgSQL module"
-			DEPENDS="php php-mysql libpostgresqlclient"
+			DEPENDS="libpostgresqlclient php php-mysql"
 			;;
 		php-pear)
 			copy etc/pear.conf usr/bin/pe* usr/share/php/
@@ -203,17 +203,17 @@ genpkg_rules()
 		php-pgsql)
 			copy pgsql.so
 			CAT="development|postgresql module"
-			DEPENDS="postgresql php"
+			DEPENDS="php postgresql"
 			;;
 		php-snmp)
 			copy snmp.so
 			CAT="development|snmp module"
-			DEPENDS="net-snmp php openssl"
+			DEPENDS="net-snmp openssl php"
 			;;
 		php-soap)
 			copy soap.so
 			CAT="development|soap module"
-			DEPENDS="php libxml2"
+			DEPENDS="libxml2 php"
 			;;
 		php-sqlite)
 			copy sqlite.so sqlite3.so pdo_sqlite.so
@@ -559,7 +559,8 @@ EOT
 pre_install_php_imap()
 {
 	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
 	done <<EOT
@@ -574,16 +575,19 @@ post_install_php_imap()
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=imap.so|' -i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -594,16 +598,19 @@ pre_remove_php_imap()
 	sed -i '/.*=imap.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -612,11 +619,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_ldap()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -628,16 +637,19 @@ post_install_php_ldap()
 	sed -e 's|extension=msql.so|extension=msql.so\nextension=ldap.so|' -i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -648,16 +660,19 @@ pre_remove_php_ldap()
 	sed -i '/.*=ldap.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -666,11 +681,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_mcrypt()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -679,19 +696,23 @@ EOT
 post_install_php_mcrypt()
 {
 	grep -q ^extension=mcrypt.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=mcrypt.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=mcrypt.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -702,16 +723,19 @@ pre_remove_php_mcrypt()
 	sed -i '/.*=mcrypt.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -720,11 +744,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_mysqli()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -733,19 +759,23 @@ EOT
 post_install_php_mysqli()
 {
 	grep -q ^extension=mysqli.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=mysqli.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=mysqli.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -756,16 +786,19 @@ pre_remove_php_mysqli()
 	sed -i '/.*=mysqli.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -774,11 +807,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_mysql()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -787,19 +822,23 @@ EOT
 post_install_php_mysql()
 {
 	grep -q ^extension=mysql.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=mysql.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=mysql.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -810,16 +849,19 @@ pre_remove_php_mysql()
 	sed -i '/.*=mysql.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -828,11 +870,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_odbc()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -841,19 +885,23 @@ EOT
 post_install_php_odbc()
 {
 	grep -q ^extension=odbc.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=odbc.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=odbc.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -864,16 +912,19 @@ pre_remove_php_odbc()
 	sed -i '/.*=odbc.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -882,11 +933,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_openssl()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -895,19 +948,23 @@ EOT
 post_install_php_openssl()
 {
 	grep -q ^extension=openssl.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=openssl.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=openssl.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -918,28 +975,34 @@ pre_remove_php_openssl()
 	sed -i '/.*=openssl.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
 }
 
 # -----------------------------------------------------------------------------
-pre_install_pdo_mysql() {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+pre_install_pdo_mysql()
+{
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -948,19 +1011,23 @@ EOT
 post_install_pdo_mysql()
 {
 	grep -q ^extension=pdo_mysql.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=pdo_mysql.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=pdo_mysql.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -z "$1" -a -f /etc/init.d/$daemon ]; then
+		if [ -z "$1" -a -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -971,16 +1038,19 @@ pre_remove_pdo_mysql()
 	sed -i '/.*=pdo_mysql.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -z "$1" -a -f /etc/init.d/$daemon ]; then
+		if [ -z "$1" -a -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -989,11 +1059,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_pdo_pgsql()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1002,19 +1074,23 @@ EOT
 post_install_pdo_pgsql()
 {
 	grep -q ^extension=pdo_pgsql.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=pdo_pgsql.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=pdo_pgsql.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -z "$1" -a -f /etc/init.d/$daemon ]; then
+		if [ -z "$1" -a -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1025,16 +1101,19 @@ pre_remove_pdo_pgsql()
 	sed -i '/.*=pdo_pgsql.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -z "$1" -a -f /etc/init.d/$daemon ]; then
+		if [ -z "$1" -a -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1043,11 +1122,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_pear()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1056,18 +1137,22 @@ EOT
 post_install_php_pear()
 {
 	grep ^include_path "$1/etc/php.ini"
-	sed -i 's|/php/includes"|/php/includes"\ninclude_path = ".:/usr/share/php"|' "$1/etc/php.ini"
+	sed -i 's|/php/includes"|/php/includes"\ninclude_path = ".:/usr/share/php"|' \
+		"$1/etc/php.ini"
 	# Restart Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1076,11 +1161,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_pgsql()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1089,19 +1176,23 @@ EOT
 post_install_php_pgsql()
 {
 	grep -q ^extension=pgsql.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=pgsql.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=pgsql.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1112,16 +1203,19 @@ pre_remove_php_pgsql()
 	sed -i '/.*=pgsql.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1130,11 +1224,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_snmp()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1143,19 +1239,23 @@ EOT
 post_install_php_snmp()
 {
 	grep -q ^extension=snmp.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=snmp.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=snmp.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1166,16 +1266,19 @@ pre_remove_php_snmp()
 	sed -i '/.*=snmp.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1184,11 +1287,13 @@ EOT
 # -----------------------------------------------------------------------------
 pre_install_php_soap()
 {
-	while read daemon file; do
-		if [ -z "$1" -a -f "/var/run/$file" ]; then
+	while read daemon file
+	  do
+		if [ -z "$1" -a -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1197,19 +1302,23 @@ EOT
 post_install_php_soap()
 {
 	grep -q ^extension=soap.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=soap.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=soap.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1220,16 +1329,19 @@ pre_remove_php_soap()
 	sed -i '/.*=soap.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1239,19 +1351,23 @@ EOT
 post_install_php_sqlite()
 {
 	grep -q ^extension=sqlite3.so "$1/etc/php.ini" ||
-	sed -e 's|extension=msql.so|extension=msql.so\nextension=sqlite3.so|' -i "$1/etc/php.ini"
+	sed -e 's|extension=msql.so|extension=msql.so\nextension=sqlite3.so|' \
+		-i "$1/etc/php.ini"
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
@@ -1262,16 +1378,19 @@ pre_remove_php_sqlite()
 	sed -i '/.*=sqlite3.so.*/d' /etc/php.ini
 
 	# Start Web server.
-	while read daemon file; do
+	while read daemon file
+	  do
 		[ -z "$1" ] || continue
-		if [ -f "/var/run/$file" ]; then
+		if [ -f "/var/run/$file" ]
+		  then
 			/etc/init.d/$daemon stop
 			sleep 2
 		fi
-		if [ -f /etc/init.d/$daemon ]; then
+		if [ -f /etc/init.d/$daemon ]
+		  then
 			/etc/init.d/$daemon start
 		fi
-	done <<EOT
+	  done <<EOT
 apache   apache/httpd.pid
 lighttpd lighttpd.pid
 EOT
