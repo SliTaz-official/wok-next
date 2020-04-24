@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="polkit"
-VERSION="0.113"
+VERSION="0.116"
 CATEGORY="base-system"
 SHORT_DESC="Authorization manager"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://www.freedesktop.org/wiki/Software/polkit/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/polkit.html"
@@ -14,8 +14,8 @@ WGET_URL="http://www.freedesktop.org/software/polkit/releases/$TARBALL"
 TARBALL_SHA1="ef855c2d04184dceb38e0940dc7bec9cc3da415c"
 
 JS='js185'
-BUILD_DEPENDS="glib-dev $JS-dev expat-dev intltool pam-dev \
-gobject-introspection-dev gtk-doc"
+BUILD_DEPENDS="expat-dev glib-dev gobject-introspection-dev gtk-doc 
+	intltool $JS-dev pam-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-pam:pam $PACKAGE-pam-dev:pam"
 
 COPY_pam="@std"
@@ -32,8 +32,10 @@ CAT_pam_dev="development|development files, using PAM"
 PROVIDE_pam="$PACKAGE:pam"
 PROVIDE_pam_dev="$PACKAGE-dev:pam"
 
-compile_rules() {
-	if ! grep -q polkitd "/etc/passwd"; then
+compile_rules()
+{
+	if ! grep -q polkitd "/etc/passwd"
+	  then
 		addgroup -g 27 polkitd
 		adduser -g "PolicyKit Daemon Owner" -h /etc/polkit-1 -u 27 \
 			-G polkitd -s /bin/false -D polkitd
@@ -44,18 +46,19 @@ compile_rules() {
 		pam) SET_ARGS='--with-authfw=pam';;
 	esac
 
-	./configure \
-		--disable-static \
-		--enable-libsystemd-login=no \
-		--enable-libelogind=no \
-		$SET_ARGS \
+	./configure				\
+		--disable-static		\
+		--enable-libsystemd-login=no	\
+		--enable-libelogind=no		\
+		$SET_ARGS			\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
 
 	case "$SET" in
-		pam) install -Dm644 $stuff/polkit-1 $install/etc/pam.d/polkit-1;;
+		pam)
+			install -Dm644 $stuff/polkit-1 $install/etc/pam.d/polkit-1;;
 	esac
 
 	# for access file in web interface, will be changed back in post-install to 700
@@ -64,8 +67,10 @@ compile_rules() {
 	cp $stuff/*.rules $install/etc/polkit-1/rules.d/
 }
 
-post_install_polkit() {
-	if ! grep -q polkitd "$1/etc/group"; then
+post_install_polkit()
+{
+	if ! grep -q polkitd "$1/etc/group"
+	  then
 		chroot "$1/" /usr/sbin/addgroup -g 27 polkitd
 		chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
 			-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
@@ -82,13 +87,16 @@ post_install_polkit() {
 	install -dm700 -o27 -g27 "$1/usr/share/polkit-1/rules.d"
 }
 
-post_remove_polkit() {
+post_remove_polkit()
+{
 	chroot "$1/" deluser  polkitd
 	chroot "$1/" delgroup polkitd
 }
 
-post_install_polkit_pam() {
-	if ! grep -q polkitd "$1/etc/group"; then
+post_install_polkit_pam()
+{
+	if ! grep -q polkitd "$1/etc/group"
+	  then
 		chroot "$1/" /usr/sbin/addgroup -g 27 polkitd
 		chroot "$1/" /usr/sbin/adduser -g "PolicyKit Daemon Owner" \
 			-h /etc/polkit-1 -u 27 -G polkitd -s /bin/false -D polkitd
@@ -105,7 +113,8 @@ post_install_polkit_pam() {
 	install -dm700 -o27 -g27 "$1/usr/share/polkit-1/rules.d"
 }
 
-post_remove_polkit_pam() {
+post_remove_polkit_pam()
+{
 	chroot "$1/" deluser  polkitd
 	chroot "$1/" delgroup polkitd
 }
