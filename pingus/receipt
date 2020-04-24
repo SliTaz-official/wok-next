@@ -4,26 +4,29 @@
 # Then remove the section in genpkg_rules() that creates them
 
 PACKAGE="pingus"
-VERSION="0.7.3"
+VERSION="0.7.6"
 CATEGORY="games"
 SHORT_DESC="Free Lemmings-like game"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://pingus.seul.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://pingus.seul.org/files/$TARBALL"
 
-BUILD_DEPENDS="scons2 sdl-dev sdl-image-dev sdl-mixer-dev boost-dev \
-boost-signals libpng-dev"
+BUILD_DEPENDS="boost-dev boost-signals libpng-dev scons2 sdl-dev 
+	sdl-image-dev sdl-mixer-dev"
 
-compile_rules() {
-	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' src/screenshot.cpp
+compile_rules()
+{
+	sed -i 's/png_ptr->jmpbuf/png_jmpbuf(png_ptr)/' \
+		src/screenshot.cpp
 	scons || return 1
 
-	install -Dm755 pingus $install/usr/bin/pingus
-	mkdir -p $install/usr/share/pingus/
-	cp -r data/ $install/usr/share/pingus/
+	install -Dm755 pingus	$install/usr/bin/pingus
+
+	mkdir -p $install/usr/share/pingus
+	cp -r data	$install/usr/share/pingus
 
 	# the tarball doesn't contain any .desktop file, nor a pixmap
 	# let's create them
@@ -33,7 +36,9 @@ compile_rules() {
 		$install/usr/share/applications/pingus.desktop
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="sdl sdl-image sdl-mixer boost-signals gcc-lib-base"
+
+	DEPENDS="boost-signals gcc-lib-base sdl sdl-image sdl-mixer"
 }
