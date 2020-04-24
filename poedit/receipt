@@ -1,31 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="poedit"
-VERSION="1.8.6"
+VERSION="2.3"
 CATEGORY="localization"
 SHORT_DESC="A cross-platform gettext catalogs editing tool"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://poedit.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/vslavik/$PACKAGE/archive/v$VERSION-oss.tar.gz"
 
-BUILD_DEPENDS="automake gettext-dev asciidoc libxslt xmlto util-linux-getopt \
-docbook-xsl gcc49 wxWidgets-dev icu-dev gtkspell-dev \
-lucene++-dev db-dev libdb libdb-cxx expat-dev"
+BUILD_DEPENDS="asciidoc automake db-dev docbook-xsl expat-dev gcc83 
+	gettext-dev gtkspell-dev icu-dev libdb libdb-cxx libxslt 
+	lucene++-dev util-linux-getopt wxWidgets-dev xmlto"
 SPLIT="$PACKAGE-i18n $PACKAGE"
 
-compile_rules() {
-	export CXX=/usr/bin/i486-slitaz-linux-g++-49 # FIXME: what about x86_64?
+compile_rules()
+{
+#	export CXX=/usr/bin/i486-slitaz-linux-g++-49 # FIXME: what about x86_64?
 	#export CXXFLAGS="$CFLAGS -std=gnu++11"
+	export	CC=gcc-83
+	export	CXX=g++-83
+
 	./bootstrap &&
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		poedit-18n)
 			copy locale/
@@ -34,7 +39,7 @@ genpkg_rules() {
 			;;
 		poedit)
 			copy @std @rm
-			DEPENDS="wxWidgets lucene++ gtkspell gcc49-lib-base gettext"
+			DEPENDS="gcc83-lib-base gettext gtkspell lucene++ wxWidgets"
 			SUGGESTED="aspell"
 			;;
 	esac
