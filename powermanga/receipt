@@ -1,10 +1,10 @@
 # SliTaz package receipt.
 
 PACKAGE="powermanga"
-VERSION="0.80"
+VERSION="0.93.1"
 CATEGORY="games"
 SHORT_DESC="Space War"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://linux.tlk.fr/games/Powermanga/"
 
@@ -15,23 +15,29 @@ BUILD_DEPENDS="sdl-dev zlib-dev sdl-mixer-dev libxext"
 
 # Packaging for SliTaz by Rene Rivero.
 
-compile_rules() {
-	sed -i 's|SDL_mixer.h|SDL/SDL_mixer.h|' src/sdl_mixer.cpp
-	sed -i '239,243 s|^|// |' src/sdl_mixer.cpp
+compile_rules()
+{
+	sed -i 's|SDL_mixer.h|SDL/SDL_mixer.h|' \
+		src/sdl_mixer.cpp
+	sed -i '239,243 s|^|// |' \
+		src/sdl_mixer.cpp
 
 	./configure &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/applications
-	cp -a $install/var $fs
-	cp -a $install/usr/games $fs/usr
-	cp -a $install/usr/share/games $fs/usr/share
-	cp -a $src/texts $fs/usr/share/games/powermanga
-	cp $stuff/power-manga.png $fs/usr/share/games/powermanga
-	cp $stuff/powermanga.desktop $fs/usr/share/applications
-	chown -R root.root $fs
+
+	cp -a $install/var		$fs
+	cp -a $install/usr/games	$fs/usr
+	cp -a $install/usr/share/games	$fs/usr/share
+	cp -a $src/texts		$fs/usr/share/games/powermanga
+	cp $stuff/power-manga.png	$fs/usr/share/games/powermanga
+	cp $stuff/powermanga.desktop	$fs/usr/share/applications
+	chown -R root.root		$fs
+
 	DEPENDS="sdl-mixer zlib"
 }
