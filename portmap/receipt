@@ -4,16 +4,17 @@ PACKAGE="portmap"
 VERSION="6.0"
 CATEGORY="network"
 SHORT_DESC="RPC portmapper"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="ftp://ftp.porcupine.org/pub/security/index.html"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
 WGET_URL="http://neil.brown.name/portmap/$TARBALL"
 
-BUILD_DEPENDS="libwrap-dev"
+BUILD_DEPENDS="glibc-dev libwrap-dev"
 
-compile_rules() {
+compile_rules()
+{
 	# Disabling TCP_WRAPPER with NO_TCP_WRAPPER variable
 	NO_TCP_WRAPPER=1  make || return 1
 
@@ -24,7 +25,8 @@ compile_rules() {
 	install -Dm755 $stuff/init.d/portmap $install/etc/init.d/portmap
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="libwrap"
 }
