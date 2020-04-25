@@ -1,29 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="potamus"
-VERSION="15"
+VERSION="17"
 CATEGORY="multimedia"
+TAGS="music audio player mp3 ogg flac"
 SHORT_DESC="Unbloated and easy to use GTK+ Audio player"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://offog.org/code/potamus/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://offog.org/files/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev libglade-dev alsa-lib-dev libmad-dev \
-libogg-dev libvorbis-dev libsamplerate-dev flac-dev"
+BUILD_DEPENDS="alsa-lib-dev flac-dev gtk2-dev libglade-dev 
+	libmad-dev libogg-dev libsamplerate-dev libvorbis-dev"
 
-compile_rules() {
+compile_rules()
+{
 	export LDFLAGS="$LDFLAGS -lm"
 
 	# libmad for MP3
-	./configure \
-		--disable-input-modplug \
-		--disable-input-audiofile \
-		--disable-input-opus \
-		--disable-output-ao \
-		--disable-output-jack \
+	./configure				\
+		--disable-input-modplug		\
+		--disable-input-audiofile	\
+		--disable-input-opus		\
+		--disable-output-ao		\
+		--disable-output-jack		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -32,8 +34,9 @@ compile_rules() {
 		$install/usr/share/applications/*.desktop
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std @ico
-	DEPENDS="gtk2 libglade alsa-lib libmad libogg libvorbis libsamplerate flac"
-	TAGS="music audio player mp3 ogg flac"
+
+	DEPENDS="alsa-lib flac gtk2 libglade libmad libogg libsamplerate libvorbis"
 }
