@@ -1,10 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="putty"
-VERSION="0.70"
+VERSION="0.73"
 CATEGORY="utilities"
-SHORT_DESC="A free telnet/SSH client"
-MAINTAINER="devel@slitaz.org"
+TAGS="ssh"
+SHORT_DESC="A free telnet and SSH client"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://www.chiark.greenend.org.uk/~sgtatham/putty/"
 
@@ -14,14 +15,15 @@ WGET_URL="https://the.earth.li/~sgtatham/putty/latest/$TARBALL"
 BUILD_DEPENDS="gtk2-dev gtk3-dev krb5-dev"
 SPLIT="$PACKAGE-gtk3:gtk3"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'')   SET_ARGS='--with-gtk=2';;
 		gtk3) SET_ARGS='--with-gtk=3';;
 	esac
 
-	./configure \
-		$SET_ARGS \
+	./configure		\
+		$SET_ARGS	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -30,18 +32,18 @@ compile_rules() {
 	install -Dm644 $stuff/pterm.png $install/usr/share/pixmaps/pterm.png
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		putty)
 			copy @std
-			DEPENDS="libcairo gdk-pixbuf glib gtk2 pango libx11   krb5"
+			DEPENDS="gdk-pixbuf glib gtk2 krb5 libcairo libx11 pango"
 			CAT="utilities|using GTK+2"
 			;;
 		putty-gtk3)
 			copy @std
-			DEPENDS="libcairo gdk-pixbuf glib gtk3 pango libx11   krb5"
+			DEPENDS="gdk-pixbuf glib gtk3 krb5 libcairo libx11 pango"
 			CAT="utilities|using GTK+3"
 			;;
 	esac
-	TAGS="ssh"
 }
