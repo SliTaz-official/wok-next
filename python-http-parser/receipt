@@ -2,24 +2,28 @@
 
 ORIGIN="http-parser"
 PACKAGE="python-http-parser"
-VERSION="0.8.3"
+VERSION="0.9.0"
 CATEGORY="python"
 SHORT_DESC="HTTP request/response parser"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://pypi.org/project/$ORIGIN/"
-#HOST_ARCH
 REPOLOGY="python:http-parser"
 
 BUILD_DEPENDS="python-dev python3-dev"
 SPLIT="${PACKAGE/python/python3}:3"
 
-compile_rules() {
+#HOST_ARCH
+
+compile_rules()
+{
 	pip$SET install --no-compile --root=$install $ORIGIN==$VERSION
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	py="${PACKAGE%%-*}" # python/python3
+
 	DEPENDS="$py"
 }
