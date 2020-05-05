@@ -1,36 +1,41 @@
 # SliTaz package receipt.
 
 PACKAGE="rdesktop"
-VERSION="1.8.3"
+VERSION="1.9.0"
 CATEGORY="network"
+TAGS="rdp remote-desktop"
 SHORT_DESC="Remote Desktop Protocol (RDP) client for Windows terminal server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL3"
-WEB_SITE="http://www.rdesktop.org/"
+WEB_SITE="https://www.rdesktop.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev xorg-dev pcsc-lite-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		--disable-credssp \
+compile_rules()
+{
+	./configure			\
+		--prefix=/usr		\
+		--mandir=/usr/share/man	\
+		--disable-credssp	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	mkdir -p $fs/usr/bin $fs/usr/share/rdesktop/keymaps
-	cp -a $install/usr/bin/rdesktop $fs/usr/bin
-	for i in fr de en es it ja common modifiers; do
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	mkdir -p $fs/usr/share/rdesktop/keymaps
+
+	cp -a $install/usr/bin/rdesktop	$fs/usr/bin
+	for i in fr de en es it ja common modifiers
+	  do
 		cp -a $install/usr/share/rdesktop/keymaps/$i* \
 			$fs/usr/share/rdesktop/keymaps
-	done
-	DEPENDS="openssl libx11 glibc-base libxau libxdmcp \
-	alsa-lib libsamplerate libao pcsc-lite"
-	TAGS="rdp remote-desktop"
+	  done
+	DEPENDS="alsa-lib glibc-base libao libsamplerate libx11 
+		libxau libxdmcp openssl pcsc-lite"
 }
