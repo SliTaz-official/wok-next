@@ -1,8 +1,9 @@
 # SliTaz package receipt.
 
 PACKAGE="radvd"
-VERSION="2.12"
+VERSION="2.18"
 CATEGORY="network"
+TAGS="ipv6"
 SHORT_DESC="IPv6 Router Advertisement Daemon"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
@@ -13,7 +14,8 @@ WGET_URL="${WEB_SITE}dist/$TARBALL"
 
 BUILD_DEPENDS="flex"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install || return 1
@@ -22,8 +24,8 @@ compile_rules() {
 	touch $install/etc/radvd.conf
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	CONFIG_FILES="/etc/radvd.conf"
-	TAGS="ipv6"
 }
