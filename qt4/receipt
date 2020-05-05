@@ -1,106 +1,113 @@
 # SliTaz package receipt v2.
 
 PACKAGE="qt4"
-SOURCE="qt-everywhere-opensource-src"
-VERSION="4.8.6"
+VERSION="4.8.7"
 CATEGORY="meta"
 SHORT_DESC="Qt x11 toolkit"
 MAINTAINER="allan316@gmail.com"
 LICENSE="GPL3 LGPL2.1"
 WEB_SITE="https://www.qt.io/developers/"
 
+SOURCE="qt-everywhere-opensource-src"
 TARBALL="$SOURCE-$VERSION.tar.gz"
 WGET_URL="http://download.qt-project.org/archive/qt/${VERSION%.*}/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libx11-dev dbus-dev gstreamer0-dev gst0-python-dev \
-libmng-dev cups-dev mysql-dev unixODBC-dev mesa-dev fontconfig-dev mesa-libegl \
-glu glw postgresql-dev gst0-plugins-base-dev atk-dev autoconf automake bash \
-binutils bison bzip2-dev cairo-dev coreutils expat-dev flex fontconfig-dev \
-freetype-dev gettext-dev glib-dev jpeg-dev libIDL libcap-dev libpng-dev \
-libtool libxml2-dev linux-api-headers m4 make mercurial ncurses-dev openssl-dev \
-pango-dev patch pcre-dev perl perl-xml-parser perl-xml-simple pixman-dev \
-tiff-dev xorg-dev-proto xorg-dev zip unzip gtk2-dev alsa-lib-dev \
-sqlite3-dev glu-dev glw-dev wayland-dev"
-SPLIT="libQt3Support libQtClucene libQtCore libQtDBus libQtDeclarative \
-libQtDesigner libQtGui libQtHelp libQtMultimedia libQtNetwork libQtOpenGL \
-libQtPlugins libQtScript libQtScriptTools libQtSql libQtSvg libQtTest \
-libQtWebkit-video libQtXml qmake Qt4-dev qt4-phonon qtconfig-phonon QtDesigner \
-qt-locale-cs qt-locale-da qt-locale-de qt-locale-es qt-locale-fr qt-locale-hu \
-qt-locale-pl qt-locale-pt qt-locale-ru qt-locale-sl qt-locale-sv qt-locale-uk \
-qt-locale-zh_CN qt-locale-zh_TW"
+BUILD_DEPENDS="alsa-lib-dev atk-dev autoconf automake bash binutils bison bzip2-dev 
+	cairo-dev coreutils cups-dev dbus-dev expat-dev flex fontconfig-dev 
+	freetype-dev gettext-dev glib-dev glu glu-dev glw glw-dev 
+	gst0-plugins-base-dev gst0-python-dev gstreamer0-dev gtk2-dev jpeg-dev 
+	libcap-dev libIDL libmng-dev libpng-dev libtool libx11-dev libxml2-dev 
+	linux-api-headers m4 make mercurial mesa-dev mesa-libegl mysql-dev 
+	ncurses-dev openssl-dev pango-dev patch pcre-dev perl perl-xml-parser 
+	perl-xml-simple pixman-dev postgresql-dev sqlite3-dev tiff-dev 
+	unixODBC-dev unzip wayland-dev xorg-dev xorg-dev-proto zip"
+SPLIT="libQt3Support libQtClucene libQtCore libQtDBus libQtDeclarative 
+	libQtDesigner libQtGui libQtHelp libQtMultimedia libQtNetwork libQtOpenGL 
+	libQtPlugins libQtScript libQtScriptTools libQtSql libQtSvg libQtTest 
+	libQtWebkit-video libQtXml qmake Qt4-dev qt4-phonon qtconfig-phonon QtDesigner 
+	qt-locale-cs qt-locale-da qt-locale-de qt-locale-es qt-locale-fr qt-locale-hu 
+	qt-locale-pl qt-locale-pt qt-locale-ru qt-locale-sl qt-locale-sv qt-locale-uk 
+	qt-locale-zh_CN qt-locale-zh_TW"
 
-compile_rules() {
+compile_rules()
+{
 	export CXXFLAGS="$CXXFLAGS -std=gnu++98"
 
 	#ugly fix for missing files, you probably could do better
 	mkdir -p $src/src/3rdparty/webkit/Source/WebKit2/generated
 
-	for i in $(grep MessageReceiver.cpp $stuff/missinglist); do
+	for i in $(grep MessageReceiver.cpp $stuff/missinglist)
+	  do
 		fileprefix=${i%MessageReceiver.cpp}
 		cppfilename=$(find $src/src/3rdparty/webkit/Source/WebKit2  -name $fileprefix.cpp)
 		dname=$(dirname $cppfilename)
 		/usr/bin/python $src/src/3rdparty/webkit/Source/WebKit2/Scripts/generate-message-receiver.py $dname/$fileprefix.messages.in > $src/src/3rdparty/webkit/Source/WebKit2/generated/$i
-	done
+	  done
 
-	for i in $(grep Messages.h $stuff/missinglist); do
+	for i in $(grep Messages.h $stuff/missinglist)
+	  do
 		fileprefix=${i%Messages.h}
 		hfilename=$(find $src/src/3rdparty/webkit/Source/WebKit2  -name $fileprefix.h)
 		dname=$(dirname $hfilename)
 		/usr/bin/python $src/src/3rdparty/webkit/Source/WebKit2/Scripts/generate-messages-header.py $dname/$fileprefix.messages.in > $src/src/3rdparty/webkit/Source/WebKit2/generated/$i
-	done
+	  done
 
-	./configure \
-		-silent \
-		-prefix /usr \
-		-confirm-license \
-		-opensource \
-		-sysconfdir /etc \
-		-plugindir /usr/lib/qt/plugins \
-		-importdir /usr/lib/qt/imports \
-		-translationdir /usr/share/qt/translations \
-		-datadir /usr/share/qt \
-		-docdir /usr/share/doc/qt \
-		-examplesdir /usr/share/doc/qt/examples \
-		-demosdir /usr/share/doc/qt/demos \
-		-release \
-		-nomake demos \
-		-nomake examples \
-		-nomake docs \
-		-system-zlib \
-		-system-libtiff \
-		-system-libpng \
-		-system-libmng \
-		-system-libjpeg \
-		-system-sqlite \
-		-scripttools \
-		-glib \
-		-phonon \
-		-optimized-qmake \
-		-opengl \
-		-gtkstyle \
+	./configure						\
+		-silent						\
+		-prefix /usr					\
+		-confirm-license				\
+		-opensource					\
+		-sysconfdir /etc				\
+		-plugindir /usr/lib/qt/plugins			\
+		-importdir /usr/lib/qt/imports			\
+		-translationdir /usr/share/qt/translations	\
+		-datadir /usr/share/qt				\
+		-docdir /usr/share/doc/qt			\
+		-examplesdir /usr/share/doc/qt/examples		\
+		-demosdir /usr/share/doc/qt/demos		\
+		-release					\
+		-nomake demos					\
+		-nomake examples				\
+		-nomake docs					\
+		-system-zlib					\
+		-system-libtiff					\
+		-system-libpng					\
+		-system-libmng					\
+		-system-libjpeg					\
+		-system-sqlite					\
+		-scripttools					\
+		-glib						\
+		-phonon						\
+		-optimized-qmake				\
+		-opengl						\
+		-gtkstyle					\
 		&&
 	make $MAKEFLAGS &&
 	make INSTALL_ROOT=$install install
 }
 
 # Generate a SliTaz locale Qt package.
-genpkg_locale() {
+genpkg_locale()
+{
 	LICENSE="GPL3 LGPL2.1 FDL other"
 	usqt=/usr/share/qt/translations
 	mkdir -p $fs$usqt
 
-	for qm in $(find $install$usqt -name "*_$LOCALE.qm"); do
-		cp -a $install$usqt/${qm##*/} $fs$usqt
-	done
+	for qm in $(find $install$usqt -name "*_$LOCALE.qm")
+	  do
+		cp -a $install$usqt/${qm##*/}	$fs$usqt
+	  done
 
-	if [ x$BOOK != x ]; then
+	if [ x$BOOK != x ]
+	  then
 		usqp=/usr/share/qt/phrasebooks
 		mkdir -p $fs$usqp
-		cp -a $install$usqp/$BOOK.qph $fs$usqp
+		cp -a $install$usqp/$BOOK.qph	$fs$usqp
 	fi
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		qt4)
 			DEPENDS="glibc-locale libQtCore libQtGui libQtNetwork libQtSvg \
@@ -276,9 +283,10 @@ genpkg_rules() {
 			cp -a $install/usr/lib/qt         $fs/usr/lib
 
 			#private qt includes
-			for i in $src/include/*/private/*; do
+			for i in $src/include/*/private/*
+			  do
 				cp $src/$(cat $i | sed 's/^#include "[./]*\([a-z].*\)"$/\1/') $fs/usr/include/private	#"MC
-			done
+			  done
 
 			# all qt plugins are in libQtPlugins
 			rm -rf $fs/usr/lib/qt/plugins
@@ -393,10 +401,12 @@ genpkg_rules() {
 	esac
 }
 
-post_install_libQtGui() {
-	for i in $(ls "$1/home" 2>/dev/null); do
+post_install_libQtGui()
+{
+	for i in $(ls "$1/home" 2>/dev/null)
+	  do
 		[ -f "$1/home/$i/.config/Trolltech.conf" ] && continue
 		cp "$1/etc/skel/.config/Trolltech.conf" "$1/home/$i/.config"
 		chroot "$1/" chown -R $(stat -c "%u.%g" "$1/home/$i") "/home/$i/.config"
-	done
+	  done
 }
