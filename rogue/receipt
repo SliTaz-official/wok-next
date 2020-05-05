@@ -1,10 +1,10 @@
 # SliTaz package receipt.
 
 PACKAGE="rogue"
-VERSION="5.4.4"
+VERSION="5.4.5"
 CATEGORY="non-free"
 SHORT_DESC="The classic dungeon exploration game"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://web.archive.org/web/20160604020207/http://rogue.rogueforge.net/"
 
@@ -13,31 +13,37 @@ WGET_URL="http://rogue.rogueforge.net/files/rogue${VERSION%.*}/$TARBALL" # FIXME
 
 BUILD_DEPENDS="ncurses-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--mandir=/usr/share/man \
-		--enable-wizardmode \
-		--enable-scorefile=/usr/games/rogue.scr \
-		--enable-lockfile=/var/lock/rogue.lck \
+compile_rules()
+{
+	./configure					\
+		--prefix=/usr				\
+		--mandir=/usr/share/man			\
+		--enable-wizardmode			\
+		--enable-scorefile=/usr/games/rogue.scr	\
+		--enable-lockfile=/var/lock/rogue.lck	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/rogue
 	mkdir -p $fs/usr/games
 	mkdir -p $fs/usr/share/licenses
 	mkdir -p $fs/usr/share/pixmaps
 	mkdir -p $fs/usr/share/applications
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/games/rogue.scr $fs/usr/games/
-	chmod 666 $fs/usr/games/rogue.scr
-	cp -a $install/usr/share/doc/$PACKAGE-$VERSION/LICENSE.TXT $fs/usr/share/licenses/rogue.txt
-	cp -a $install/usr/share/doc/$PACKAGE-$VERSION/rogue.html $fs/usr/share/rogue
-	cp -a $src/rogue.png $fs/usr/share/pixmaps
-	sed -i 's/Exec.*/Exec=xterm -e rogue/' $src/rogue.desktop
-	cp -a $src/rogue.desktop $fs/usr/share/applications
+
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/games/rogue.scr	$fs/usr/games/
+	chmod 666				$fs/usr/games/rogue.scr
+	cp -a $install/usr/share/doc/$PACKAGE-$VERSION/LICENSE.TXT \
+						$fs/usr/share/licenses/rogue.txt
+	cp -a $install/usr/share/doc/$PACKAGE-$VERSION/rogue.html \
+						$fs/usr/share/rogue
+	cp -a $src/rogue.png			$fs/usr/share/pixmaps
+	sed -i 's/Exec.*/Exec=xterm -e rogue/'	$src/rogue.desktop
+	cp -a $src/rogue.desktop		$fs/usr/share/applications
+
 	DEPENDS="ncurses"
 }
