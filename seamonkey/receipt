@@ -1,24 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="seamonkey"
-VERSION="2.7.2"
+VERSION="2.53.2"
 CATEGORY="network"
+TAGS="web-browser"
 SHORT_DESC="Seamonkey suite (browser, mail, news reader)"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL MPL"
 WEB_SITE="http://www.seamonkey-project.org/"
 
 TARBALL="$PACKAGE-$VERSION.source.tar.bz2"
 WGET_URL="ftp://ftp.mozilla.org/pub/mozilla.org/seamonkey/releases/$VERSION/source/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev zip libIDL coreutils libxft-dev libevent-dev \
-libvpx-dev perl alsa-lib alsa-lib-dev findutils python python-dev \
-wireless_tools-dev mesa-dev yasm libnotify-dev curl-dev hunspell-dev"
+BUILD_DEPENDS="alsa-lib alsa-lib-dev coreutils curl-dev findutils gtk2-dev 
+	hunspell-dev libIDL libevent-dev libnotify-dev libvpx-dev libxft-dev 
+	mesa-dev perl python python-dev wireless_tools-dev yasm zip"
 
-compile_rules() {
-	cp -a $stuff/seamonkey.mozconfig $src/.mozconfig
-	sed -i -e 's/USE_INPUT_PARTITION/USE_INPUT_FRAGMENTS/' \
-		-e 's/0.9.7/1.0.0/' mozilla/configure.in mozilla/configure
+compile_rules()
+{
+	cp -a $stuff/seamonkey.mozconfig	$src/.mozconfig
+	sed -i	-e 's/USE_INPUT_PARTITION/USE_INPUT_FRAGMENTS/' \
+		-e 's/0.9.7/1.0.0/' \
+		mozilla/configure.in \
+		mozilla/configure
 	cat >> mozilla/layout/build/Makefile.in << "EOF"
 ifdef MOZ_ENABLE_CANVAS
 EXTRA_DSO_LDOPTS += $(XLDFLAGS) -lX11 -lXrender
@@ -27,31 +31,39 @@ EOF
 	unset CFLAGS
 	unset CXXFLAGS
 	export LDFLAGS="$LDFLAGS -Wl,-rpath,/usr/lib/seamonkey"
+
 	./configure $CONFIGURE_ARGS 2>&1 | grep -v 'cthandlers/calendar/Makefile.in' &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	mkdir -p $fs/usr/bin $fs/usr/lib $fs/etc
-	cp -a $install/usr/bin/seamonkey $fs/usr/bin
-	cp -a $install/usr/lib/seamonkey $fs/usr/lib
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	mkdir -p $fs/usr/lib
+	mkdir -p $fs/etc
+
+	cp -a $install/usr/bin/seamonkey	$fs/usr/bin
+	cp -a $install/usr/lib/seamonkey	$fs/usr/lib
+
 	# Home page, bookmarks file and branding.
 	cp -a $stuff/bookmarks.html \
-		$fs/usr/lib/$PACKAGE/defaults/profile
+						$fs/usr/lib/$PACKAGE/defaults/profile
 	# User preference.
 	cp -a $stuff/userChrome.css \
-		$fs/usr/lib/$PACKAGE/defaults/profile/chrome
-	# Move default config to /etc/seamonkey (/usr maybe read-only)
-	mv -f $fs/usr/lib/$PACKAGE/defaults $fs/etc/$PACKAGE
-	ln -sf /etc/$PACKAGE $fs/usr/lib/$PACKAGE/defaults
-	# Remove unecessary file and set permissions.
-	rm -rf $fs/etc/seamonkey/profile/US
-	chown -R root.root $fs/etc
+						$fs/usr/lib/$PACKAGE/defaults/profile/chrome
+
+	# Move default configuration to /etc/seamonkey (/usr maybe read-only)
+	mv -f $fs/usr/lib/$PACKAGE/defaults	$fs/etc/$PACKAGE
+	ln -sf /etc/$PACKAGE			$fs/usr/lib/$PACKAGE/defaults
+
+	# Remove unnecessary files and set permissions.
+	rm -rf					$fs/etc/seamonkey/profile/US
+	chown -R root.root			$fs/etc
 
 	# Create default user preference file
-	cp $stuff/prefs.js $fs/etc/seamonkey/profile/prefs.js
-	DEPENDS="gtk2 glib jpeg libx11 libIDL alsa-lib libxt curl \
-	libnotify libevent libvpx"
-	TAGS="web-browser"
+	cp $stuff/prefs.js			$fs/etc/seamonkey/profile/prefs.js
+
+	DEPENDS="alsa-lib curl glib gtk2 jpeg libevent libIDL libnotify 
+		libvpx libx11 libxt"
 }
