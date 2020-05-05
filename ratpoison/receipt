@@ -1,28 +1,32 @@
 # SliTaz package receipt.
 
 PACKAGE="ratpoison"
-VERSION="1.4.5"
+VERSION="1.4.9"
 CATEGORY="x-window"
+TAGS="window-manager"
 SHORT_DESC="Extremely lightweight WM using only keyboard"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.nongnu.org/ratpoison/"
+WEB_SITE="https://www.nongnu.org/ratpoison/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://savannah.nongnu.org/download/$PACKAGE/$TARBALL"
+WGET_URL="https://savannah.nongnu.org/download/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="libxtst-dev libxinerama-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure &&
 	make CFLAGS="$CFLAGS -DHAVE_GETLINE" &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/ratpoison $fs/usr/share
+
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/share/ratpoison	$fs/usr/share
+
 	DEPENDS="microperl libxtst libxinerama"
-	TAGS="window-manager"
 }
