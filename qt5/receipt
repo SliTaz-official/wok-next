@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="qt5"
-VERSION="5.13.0"
+VERSION="5.14.2"
 CATEGORY="meta"
 SHORT_DESC="Cross-platform application framework."
 MAINTAINER="al.bobylev@gmail.com"
@@ -15,11 +15,11 @@ WGET_URL="https://download.qt.io/archive/qt/${VERSION%.*}/$VERSION/single/$TARBA
 PATCH="Do-not-make-lack-of-SSE2-support-on-x86-32-fatal.patch"
 PATCH_URL="https://anonscm.debian.org/cgit/pkg-kde/qt/qtdeclarative.git/plain/debian/patches/"
 
-BUILD_DEPENDS="alsa-lib-dev cups-dev dbus-dev eudev-dev glib-dev \
-	gst1-plugins-base-dev gtk3-dev icu-dev fontconfig-dev \
-	freetype-dev harfbuzz-dev libinput-dev libjpeg-turbo-dev \
-	libpng-dev libx11-dev libxcb-dev libxcomposite-dev libxkbcommon-dev \
-	libxrender-dev mesa-dev openssl-dev pcre-dev sqlite3-dev tslib-dev \
+BUILD_DEPENDS="alsa-lib-dev cups-dev dbus-dev eudev-dev glib-dev 
+	gst1-plugins-base-dev gtk3-dev fontconfig-dev freetype-dev 
+	harfbuzz-dev icu-dev libinput-dev libjpeg-turbo-dev libpng-dev 
+	libx11-dev libxcb-dev libxcomposite-dev libxkbcommon-dev 
+	libxrender-dev mesa-dev openssl-dev pcre-dev sqlite3-dev tslib-dev 
 	zlib-dev"
 
 # Name split packages according to sources structure, for example:
@@ -49,9 +49,12 @@ $PACKAGE-locale-uk    $PACKAGE-locale-zh_CN $PACKAGE-locale-zh_TW \
 \
 $PACKAGE-doc $PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	export QT5PREFIX=/usr # or /opt/qt5
-	if [ "$QT5PREFIX" == '/usr' ]; then
+
+	if [ "$QT5PREFIX" == '/usr' ]
+	  then
 		QT5OPTS="\
 		-archdatadir    /usr/lib/qt5 \
 		-bindir         /usr/bin \
@@ -84,19 +87,19 @@ compile_rules() {
 #	sed -e '/CMAKE_NO_PRIVATE_INCLUDES\ \=\ true/d' -i \
 #		qtbase/mkspecs/features/create_cmake.prf
 
-	./configure \
-		-prefix $QT5PREFIX \
-		$QT5OPTS \
-		-sysconfdir /etc/xdg \
-		-confirm-license \
-		-opensource \
-		-dbus-linked \
-		-openssl-linked \
-		-system-harfbuzz \
-		-system-sqlite \
-		-nomake examples \
-		-no-rpath \
-		-no-sse2 \
+	./configure			\
+		-prefix $QT5PREFIX	\
+		$QT5OPTS		\
+		-sysconfdir /etc/xdg	\
+		-confirm-license	\
+		-opensource		\
+		-dbus-linked		\
+		-openssl-linked		\
+		-system-harfbuzz	\
+		-system-sqlite		\
+		-nomake examples	\
+		-no-rpath		\
+		-no-sse2		\
 		-skip qtwebengine &&
 	make -j 1 &&
 	make INSTALL_ROOT=$install install || return 1
@@ -112,30 +115,38 @@ compile_rules() {
 
 	install -v -dm755 $install/usr/share/pixmaps/
 
-	install -v -Dm644 qttools/src/assistant/assistant/images/assistant-128.png       $install/usr/share/pixmaps/assistant-qt5.png
-	install -v -Dm644 qttools/src/designer/src/designer/images/designer.png          $install/usr/share/pixmaps/designer-qt5.png
-	install -v -Dm644 qttools/src/linguist/linguist/images/icons/linguist-128-32.png $install/usr/share/pixmaps/linguist-qt5.png
-	install -v -Dm644 qttools/src/qdbus/qdbusviewer/images/qdbusviewer-128.png       $install/usr/share/pixmaps/qdbusviewer-qt5.png
+	install -v -Dm644 qttools/src/assistant/assistant/images/assistant-128.png \
+			$install/usr/share/pixmaps/assistant-qt5.png
+	install -v -Dm644 qttools/src/designer/src/designer/images/designer.png \
+			$install/usr/share/pixmaps/designer-qt5.png
+	install -v -Dm644 qttools/src/linguist/linguist/images/icons/linguist-128-32.png \
+			$install/usr/share/pixmaps/linguist-qt5.png
+	install -v -Dm644 qttools/src/qdbus/qdbusviewer/images/qdbusviewer-128.png \
+			$install/usr/share/pixmaps/qdbusviewer-qt5.png
 
 	mkdir -p $install/usr/share/applications
-	for i in $stuff/apps/*.desktop.in; do
+	for i in $stuff/apps/*.desktop.in
+	  do
 		sed "s|@QT5BINDIR@|$QT5BINDIR|" $i > $install/usr/share/applications/$(basename $i .in)
-	done
+	  done
 
-	for file in moc uic rcc qmake lconvert lrelease lupdate; do
-		if [ "$QT5BINDIR" == '/usr/bin' ]; then
-			ln -sfvn $file $install/usr/bin/$file-qt5
+	for file in moc uic rcc qmake lconvert lrelease lupdate
+	  do
+		if [ "$QT5BINDIR" == '/usr/bin' ]
+		  then
+			ln -sfvn $file			$install/usr/bin/$file-qt5
 		else
-			ln -sfvn $QT5BINDIR/$file $install/usr/bin/$file-qt5
+			ln -sfvn $QT5BINDIR/$file	$install/usr/bin/$file-qt5
 		fi
-	done
+	  done
 
 	# tweak permissions
 	find $install -type f -perm 664 -exec chmod 644 '{}' \;
 	find $install -type f -perm 775 -exec chmod 755 '{}' \;
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	# How to split Qt5?
 	# It contains: 41 executables in bin/, 61 different libraries in lib/,
 	# 27 folders in plugins/, 27 languages in translations/.
@@ -143,7 +154,7 @@ genpkg_rules() {
 	#
 	# Let's deep into $src...
 	# Each folder here is a module (with rare exceptions). 41 pieces.
-	# Let use these folders as a landmark to make Qt5 packages.
+	# Let us use these folders as a landmark to make Qt5 packages.
 	# Each folder may contain: executables (examine bin/ subfolder), libraries
 	# (lib/), plugins (plugins/), and qml (not sure what is it, but examine
 	# qml/ subfolder). Note, some qml directories may be shared across different
@@ -166,13 +177,13 @@ genpkg_rules() {
 				es) lo='Spanish';;		fa) lo='Persian';;
 				fi) lo='Finnish';;		fr) lo='French';;
 				gl) lo='Galician';;		he) lo='Hebrew';;
-				hu) lo='Hungarian';;	it) lo='Italian';;
+				hu) lo='Hungarian';;		it) lo='Italian';;
 				ja) lo='Japanese';;		ko) lo='Korean';;
-				lt) lo='Lithuanian';;	lv) lo='Latvian';;
+				lt) lo='Lithuanian';;		lv) lo='Latvian';;
 				pl) lo='Polish';;		pt) lo='Portuguese';;
 				ru) lo='Russian';;		sk) lo='Slovak';;
-				sl) lo='Slovenian';;	sv) lo='Swedish';;
-				uk) lo='Ukrainian';;	zh_CN) lo='Chinese simplified';;
+				sl) lo='Slovenian';;		sv) lo='Swedish';;
+				uk) lo='Ukrainian';;		zh_CN) lo='Chinese simplified';;
 				zh_TW) lo='Chinese traditional';;
 			esac
 			CAT="localization|$lo locale"
