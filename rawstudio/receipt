@@ -1,38 +1,41 @@
 # SliTaz package receipt.
 
 PACKAGE="rawstudio"
-VERSION="1.2"
+VERSION="2.0"
 CATEGORY="graphics"
 SHORT_DESC="An open source raw-image converter written in GTK+"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://rawstudio.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://rawstudio.org/files/release/$TARBALL"
 
-DEPENDS="desktop-file-utils dbus exiv2 gconf gtk2 liblcms jpeg libjpeg libtiff libxml2"
-BUILD_DEPENDS="exiv2-dev gconf-dev gtk2-dev dbus-dev lcms-dev jpeg-dev tiff-dev libxml2-dev"
+DEPENDS="dbus desktop-file-utils exiv2 gconf gtk2 jpeg libjpeg liblcms libtiff libxml2"
+BUILD_DEPENDS="dbus-dev exiv2-dev gconf-dev gtk2-dev jpeg-dev lcms-dev libxml2-dev tiff-dev"
 
-compile_rules() {
+compile_rules()
+{
 	export CXXFLAGS="-Wno-narrowing"
 	export LDFLAGS="$LDFLAGS -Wl,--copy-dt-needed-entries -lX11"
 	export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
+	./configure				\
+		--prefix=/usr			\
+		--infodir=/usr/share/info	\
+		--mandir=/usr/share/man		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/applications $fs/usr/share
-	cp -a $install/usr/share/icons $fs/usr/share
-	cp -a $install/usr/share/pixmaps $fs/usr/share
-	cp -a $install/usr/share/rawstudio $fs/usr/share
+
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/share/applications	$fs/usr/share
+	cp -a $install/usr/share/icons		$fs/usr/share
+	cp -a $install/usr/share/pixmaps	$fs/usr/share
+	cp -a $install/usr/share/rawstudio	$fs/usr/share
 }
