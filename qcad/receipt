@@ -1,10 +1,10 @@
 # SliTaz package receipt.
 
 PACKAGE="qcad"
-VERSION="3.7.5"
+VERSION="3.24.3.4"
 CATEGORY="network"
 SHORT_DESC="The Open Source CAD System For Everyone"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.qcad.org/en/"
 
@@ -12,16 +12,20 @@ TARBALL="$PACKAGE-$VERSION-linux-x86_32.tar.gz"
 WGET_URL="http://www.qcad.org/archives/qcad/$TARBALL"
 
 
-compile_rules() {
+compile_rules()
+{
 	mkdir -p \
 		$install/usr/bin \
 		$install/usr/lib/$PACKAGE \
 		$install/usr/share/pixmaps
+
 	cp -a $src/* $install/usr/lib/$PACKAGE
+
 	# /usr/bin/qcad + pixmap
 	install -m 0755 $stuff/qcad $install/usr/bin/qcad
 	ln -s ../../lib/qcad/qcad_icon.png \
 		$install/usr/share/pixmaps/$PACKAGE.png
+
 	# We use our packed deps
 	echo "Cleaning installed files..."
 	cd $install/usr/lib/$PACKAGE
@@ -33,7 +37,8 @@ compile_rules() {
 	rm -rf examples/
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs
 	cp -a $install/* $fs
 
@@ -46,7 +51,8 @@ genpkg_rules() {
 	libQtScriptTools libQtHelp libQtSvg libQtSql libQtTest libQtMultimedia"
 }
 
-post_install() {
+post_install()
+{
 	cd "$1/usr/lib/qcad"
 	mv -f lib-freetype-.-so-.-6 libfreetype.so.6
 }
