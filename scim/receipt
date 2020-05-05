@@ -1,54 +1,55 @@
 # SliTaz package receipt v2.
 
 PACKAGE="scim"
-VERSION="1.4.17"
+VERSION="1.4.18"
 CATEGORY="utilities"
 SHORT_DESC="Smart Common Input Method"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://github.com/scim-im/scim"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/scim-im/scim/archive/$TARBALL"
 
-BUILD_DEPENDS="gettext-dev automake intltool libtool doxygen coreutils-path \
-libxslt docbook-xsl gtk2-dev libx11-dev"
+BUILD_DEPENDS="automake coreutils-path docbook-xsl doxygen gettext-dev 
+	gtk2-dev intltool libtool libx11-dev libxslt"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./bootstrap &&
-
-	./configure \
-		--with-x \
+	./configure		\
+		--with-x	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		scim)
 			copy @std
-			DEPENDS="atk libbzip2 libcairo fontconfig freetype gdk-pixbuf glib gtk2 \
-			harfbuzz libffi libltdl liblzma libpng libxcb libxml2 pango \
-			pcre pixman libx11 libxau libxdmcp libxext \
-			libxrender zlib"
+			DEPENDS="atk fontconfig freetype gdk-pixbuf glib gtk2 harfbuzz 
+			libbzip2 libcairo libffi libltdl liblzma libpng libxcb libxml2 
+			pango pcre pixman libx11 libxau libxdmcp libxext libxrender zlib"
 			CONFIG_FILES="/etc/scim/config /etc/scim/global"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="scim atk-dev bzip2-dev cairo-dev fontconfig-dev \
-			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev gtk2-dev \
-			harfbuzz-dev libffi-dev xz-dev libpng-dev libtool \
-			libxcb-dev libxml2-dev pango-dev pcre-dev pixman-dev \
-			libx11-dev libxau-dev libxdmcp-dev libxext-dev \
-			libxrender-dev zlib-dev"
+			DEPENDS="atk-dev bzip2-dev cairo-dev fontconfig-dev 
+			freetype-dev gdk-pixbuf-dev glib-dev glibc-dev gtk2-dev 
+			harfbuzz-dev libffi-dev libpng-dev libtool libx11-dev 
+			libxau-dev libxcb-dev libxdmcp-dev libxext-dev 
+			libxml2-dev libxrender-dev pango-dev pcre-dev pixman-dev 
+			scim xz-dev zlib-dev"
 			;;
 	esac
 }
 
-post_install_scim() {
+post_install_scim()
+{
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 > $1/etc/gtk-2.0/gtk.immodules
 
 	[ -n "$quiet" ] || cat <<EOT
@@ -66,6 +67,7 @@ scim -d &
 EOT
 }
 
-post_remove_scim() {
+post_remove_scim()
+{
 	chroot "$1/" /usr/bin/gtk-query-immodules-2.0 > $1/etc/gtk-2.0/gtk.immodules
 }
