@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="samba"
-VERSION="4.6.14"
+VERSION="4.12.2"
 CATEGORY="system-tools"
 SHORT_DESC="File and print services with SMB/CIFS"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -12,69 +12,76 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/samba.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://download.samba.org/pub/samba/stable/$TARBALL"
 
-BUILD_DEPENDS="python-dev perl acl-dev docbook-xsl openldap-dev   \
-gnutls-dev krb5-dev cyrus-sasl-dev zlib-dev popt-dev tdb-dev talloc-dev \
-libgcrypt-dev nss-dev cups-dev dbus-dev pam pam-dev"
+BUILD_DEPENDS="acl-dev cups-dev cyrus-sasl-dev dbus-dev docbook-xsl 
+	gnutls-dev krb5-dev libgcrypt-dev nss-dev openldap-dev 
+	pam pam-dev perl popt-dev python-dev talloc-dev tdb-dev 
+	zlib-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-pam:pam" # TODO: swat
 
 BUGS="Open directory needs MIT kerberos support (krb5)"
 COOKOPTS="!menus"
 
-version() {
+version()
+{
 	wget -O- -q https://download.samba.org/pub/samba/ | \
 	sed '/LATEST-IS-SAMBA/!d; s|.*SAMBA-\([^<]*\).*|\1|'
 }
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'')  SET_ARGS='--without-pam';;
 		pam) SET_ARGS='--with-pam';;
 	esac
 
 	# site script isn't used
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--with-piddir=/run/samba \
-		--with-pammodulesdir=/lib/security \
-		--enable-fhs \
-		--without-ad-dc \
-		--without-systemd \
-		--enable-selftest \
-		$SET_ARGS \
+	./configure					\
+		--prefix=/usr				\
+		--sysconfdir=/etc			\
+		--localstatedir=/var			\
+		--with-piddir=/run/samba		\
+		--with-pammodulesdir=/lib/security	\
+		--enable-fhs				\
+		--without-ad-dc				\
+		--without-systemd			\
+		--enable-selftest			\
+		$SET_ARGS				\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
-	mkdir -p $instsll/lib/
-	mv $install/usr/lib/libnss_wins.so*  $install/usr/lib/libnss_winbind.so* \
-		$install/lib
-	ln -sf ../../lib/libnss_winbind.so.2 $install/usr/lib/libnss_winbind.so
-	ln -sf ../../lib/libnss_wins.so.2    $install/usr/lib/libnss_wins.so
+	mkdir -p $install/lib
+
+	mv $install/usr/lib/libnss_wins.so*	$install/lib
+	mv $install/usr/lib/libnss_winbind.so*	$install/lib
+	ln -sf ../../lib/libnss_winbind.so.2	$install/usr/lib/libnss_winbind.so
+	ln -sf ../../lib/libnss_wins.so.2	$install/usr/lib/libnss_wins.so
 
 	install -m644 examples/smb.conf.default $install/etc/samba
 
-	mkdir -pv                                  $install/etc/openldap/schema
-	cp examples/LDAP/README                    $install/etc/openldap/schema/README.LDAP
-	cp examples/LDAP/samba*                    $install/etc/openldap/schema
-	cp -r examples/LDAP/get* examples/LDAP/ol* $install/etc/openldap/schema
+	mkdir -pv				$install/etc/openldap/schema
+	cp examples/LDAP/README			$install/etc/openldap/schema/README.LDAP
+	cp examples/LDAP/samba*			$install/etc/openldap/schema
+	cp -r examples/LDAP/get*		$install/etc/openldap/schema
+	cp -r examples/LDAP/get*		$install/etc/openldap/schema
+	cp -r examples/LDAP/ol*			$install/etc/openldap/schema
 
-	cp -a $stuff/etc $install
+	cp -a $stuff/etc			$install
 
 	# Symlink smbspool to cups backend
-	mkdir -p                 $install/usr/lib/cups/backend/
-	ln -sf /usr/bin/smbspool $install/usr/lib/cups/backend/smb
+	mkdir -p				$install/usr/lib/cups/backend/
+	ln -sf /usr/bin/smbspool		$install/usr/lib/cups/backend/smb
 
 	# for swat package
 #	icodir="$inst/usr/share/icons/hicolor/48x48/apps"
 #	mkdir -p $icodir
 #	cp $stuff/swat.png $icodir
 
-	chown -R root:root $install
+	chown -R root:root			$install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	# Note, packages samba-common, smbclient was removed due to circular dependencies:
 	# smbclient <--> samba <--> samba-common
 	case $PACKAGE in
@@ -109,7 +116,8 @@ genpkg_rules() {
 	esac
 }
 
-post_install_samba() {
+post_install_samba()
+{
 	[ -n "$quiet" ] || cat <<EOT
 
 	.----------------------------------------------------.
@@ -123,7 +131,8 @@ post_install_samba() {
 EOT
 }
 
-post_install_swat() {
+post_install_swat()
+{
 	[ -f "$1/etc/lighttpd/lighttpd.conf" ] || return
 
 	[ ! grep -q /usr/share/samba/swat/ "$1/etc/lighttpd/lighttpd.conf" ] || return
