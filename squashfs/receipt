@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="squashfs"
-VERSION="4.3"
+VERSION="4.4"
 CATEGORY="base-system"
 SHORT_DESC="Linux squashfs userland tools"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,21 +11,24 @@ WEB_SITE="http://squashfs.sourceforge.net/"
 TARBALL="squashfs$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev attr-dev xz-dev lzo-dev lz4-dev"
+BUILD_DEPENDS="attr-dev lzo-dev lz4-dev xz-dev zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	cd $src/squashfs-tools
-	for i in XZ LZMA_XZ LZO LZ4; do
+	for i in XZ LZMA_XZ LZO LZ4
+	  do
 		sed -i "s|^#\\(${i}_SUPPORT = 1\\)|\\1|g" Makefile
-	done
+	  done
 
 	make || return 1
 
-	install -Dm755 mksquashfs $install/usr/sbin/mksquashfs
-	install -Dm755 unsquashfs $install/sbin/unsquashfs
+	install -Dm755 mksquashfs	$install/usr/sbin/mksquashfs
+	install -Dm755 unsquashfs	$install/sbin/unsquashfs
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="zlib liblzma linux-squashfs lzo lz4-lib"
+	DEPENDS="liblzma linux-squashfs lzo lz4-lib zlib"
 }
