@@ -1,27 +1,29 @@
 # SliTaz package receipt v2.
 
 PACKAGE="slock"
-VERSION="1.1"
+VERSION="1.4"
 CATEGORY="security"
 SHORT_DESC="Simple X display locker"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://tools.suckless.org/slock/"
+WEB_SITE="https://tools.suckless.org/slock/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://dl.suckless.org/tools/$TARBALL"
+WGET_URL="https://dl.suckless.org/tools/$TARBALL"
 
 BUILD_DEPENDS="xorgproto libx11-dev libxext-dev"
 
-compile_rules() {
-	mv config.mk config.mk.original
+compile_rules()
+{
+	mv config.mk	config.mk.original
 	sed -e 's/usr\/local/usr/' < config.mk.original > config.mk
 
 	make CC=$CC &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="libx11 libxau libxdmcp libxext"
 }
