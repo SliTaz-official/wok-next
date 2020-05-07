@@ -1,20 +1,23 @@
 # SliTaz package receipt.
 
 PACKAGE="softether"
-VERSION="v4.09-9451-beta"; RELEASE="2014.06.09"
+VERSION="4.34-9745"; RELEASE="2020-04-05"
 CATEGORY="network"
 SHORT_DESC="An Open-Source Free Cross-platform Multi-protocol VPN Program"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.softether.org/"
 
-TARBALL="$PACKAGE-src-$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.softether-download.com/files/softether/$VERSION-$RELEASE-tree/Source%20Code/$TARBALL"
+WGET_URL="https://github.com/SoftEtherVPN/SoftEtherVPN_Stable/archive/v$VERSION-beta.tar.gz"
 
-BUILD_DEPENDS="openssl-dev readline-dev ncurses-dev"
+BUILD_DEPENDS="ncurses-dev openssl-dev readline-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir -p $install/usr/bin
+
 	yes 1 | ./configure $CONFIGURE_ARGS &&
 	sed -i "s|^INSTALL_.*DIR=|&$install|" Makefile &&
 	make &&
@@ -22,8 +25,9 @@ compile_rules() {
 	sed -i "s|$install||" $install/usr/bin/*
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs
-	cp -a $install/usr $fs
-	DEPENDS="openssl readline ncurses zlib"
+	cp -a $install/usr	$fs
+	DEPENDS="ncurses openssl readline zlib"
 }
