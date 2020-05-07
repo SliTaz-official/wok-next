@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="snownews"
-VERSION="1.5.12"
+VERSION="1.6.10"
 CATEGORY="network"
 SHORT_DESC="Text mode RSS newsreader"
 MAINTAINER="paul@slitaz.org"
@@ -10,20 +10,25 @@ WEB_SITE="https://github.com/kouya/snownews"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://kiza.kcore.de/software/snownews/download/$TARBALL" # FIXME
+WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz
 
-BUILD_DEPENDS="zlib-dev libxml2-dev ncurses-dev gettext-dev perl \
-openssl-dev acl libcroco wget"
+BUILD_DEPENDS="acl gettext-dev libcroco libxml2-dev ncurses-dev openssl-dev 
+	perl wget zlib-dev"
 
-compile_rules() {
-	./configure \
+compile_rules()
+{
+	./configure			\
 		--prefix=/usr &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/locale $fs/usr/share
-	DEPENDS="libxml2 ncurses zlib openssl"
+
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/share/locale	$fs/usr/share
+
+	DEPENDS="libxml2 ncurses openssl zlib"
 }
