@@ -1,48 +1,55 @@
 # SliTaz package receipt v2.
 
 PACKAGE="shellinabox"
-VERSION="2.14"
+VERSION="2.20"
 CATEGORY="network"
+TAGS="web application"
 SHORT_DESC="Web based AJAX terminal emulator"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="https://code.google.com/archive/p/shellinabox/"
+WEB_SITE="https://github.com/shellinabox/shellinabox"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/shellinabox/$TARBALL"
+WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz
 
 BUILD_DEPENDS="zlib-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install || return 1
 
-	mkdir -p \
-		$install/usr/share/shellinabox/ \
-		$install/etc/init.d/
-	cp $install/usr/share/doc/shellinabox/*black*.css $install/usr/share/shellinabox/
-	cp $stuff/*.css       $install/usr/share/shellinabox/
-	cp $stuff/shellinabox $install/etc/init.d/
+	mkdir -p $install/usr/share/shellinabox
+	mkdir -p $install/etc/init.d
+
+	cp $install/usr/share/doc/shellinabox/*black*.css	$install/usr/share/shellinabox
+	cp $stuff/*.css						$install/usr/share/shellinabox
+	cp $stuff/shellinabox					$install/etc/init.d
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="zlib"
 	SUGGESTED="ssh knock"
-	TAGS="web application"
 }
 
-# We stop the server by default in case of upgarde.
-pre_install() {
-	[ -z "$1" ] && [ -f /etc/init.d/shellinabox ] && /etc/init.d/shellinabox stop
+# We stop the server by default in case of upgrade.
+pre_install()
+{
+	[ -z "$1" ] && [ -f /etc/init.d/shellinabox ] &&
+	/etc/init.d/shellinabox stop
 }
 
-post_install() {
+post_install()
+{
 	[ "$1" ] || /etc/init.d/shellinabox start
 }
 
-pre_remove() {
+pre_remove()
+{
 	[ "$1" ] || /etc/init.d/shellinabox stop
 }
