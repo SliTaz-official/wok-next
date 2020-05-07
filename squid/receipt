@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="squid"
-VERSION="3.5.27"
+VERSION="4.11"
 CATEGORY="network"
 SHORT_DESC="Web/FTP proxy"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,73 +9,78 @@ LICENSE="GPL2"
 WEB_SITE="http://www.squid-cache.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="${WEB_SITE}Versions/v3/${VERSION%.*}/$TARBALL"
+WGET_URL="${WEB_SITE}Versions/v${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="perl openssl-dev openldap-dev cyrus-sasl-dev libcap-dev"
+BUILD_DEPENDS="cyrus-sasl-dev libcap-dev openldap-dev openssl-dev perl"
 SPLIT="$PACKAGE-auth-helpers $PACKAGE-langpack"
 
-compile_rules() {
+compile_rules()
+{
 	touch scripts/boilerplate.h
 
-	./configure \
-		--sysconfdir=/etc/squid \
-		--datadir=/usr/share/squid \
-		--libexecdir=/usr/lib/squid \
-		--with-logdir=/var/log/squid \
-		--with-openssl \
-		--disable-poll \
-		--disable-snmp \
-		--disable-icmp \
-		--enable-http-violations \
-		--disable-ident-lookups \
-		--enable-storeio="aufs,diskd,ufs" \
-		--enable-ssl \
-		--enable-ssl-crtd \
-		--enable-underscores \
-		--enable-ntlm-fail-open \
-		--enable-removal-policies="heap,lru" \
-		--enable-delay-pools \
-		--enable-linux-netfilter \
-		--enable-basic-auth-helpers="NCSA,SMB,MSNT,LDAP" \
-		--enable-ntlm-auth-helpers="smb_lm,no_check,fakeauth" \
-		--enable-useragent-log \
-		--enable-referer-log \
-		--enable-icap-client \
-		--with-pthreads ac_cv_header_linux_netfilter_ipv4_h="yes" \
+	./configure														\
+		--sysconfdir=/etc/squid										\
+		--datadir=/usr/share/squid									\
+		--libexecdir=/usr/lib/squid									\
+		 --enable-basic-auth-helpers="NCSA,SMB,MSNT,LDAP"			\
+		 --enable-delay-pools										\
+		 --enable-http-violations									\
+		 --enable-icap-client										\
+		--disable-icmp												\
+		--disable-ident-lookups										\
+		 --enable-linux-netfilter									\
+		 --enable-ntlm-auth-helpers="smb_lm,no_check,fakeauth"		\
+		 --enable-ntlm-fail-open									\
+		--disable-poll												\
+		 --enable-referer-log										\
+		 --enable-removal-policies="heap,lru"						\
+		--disable-snmp												\
+		 --enable-ssl												\
+		 --enable-ssl-crtd											\
+		 --enable-storeio="aufs,diskd,ufs"							\
+		 --enable-underscores										\
+		 --enable-useragent-log										\
+		--with-logdir=/var/log/squid								\
+		--with-openssl												\
+		--with-pthreads ac_cv_header_linux_netfilter_ipv4_h="yes"	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		squid)
 			CONFIG_FILES="/etc/squid"
-			DEPENDS="libsasl libldap openssl libltdl"
+			DEPENDS="libldap libltdl libsasl openssl"
 			SUGGESTED="iptables"
-			mkdir -p $fs/usr/share/squid/errors $fs/var/cache/squid \
-				$fs/var/log/squid $fs/usr/lib/squid $fs/etc/squid/conf.d
+			mkdir -p $fs/usr/share/squid/errors
+			mkdir -p $fs/var/cache/squid
+			mkdir -p $fs/var/log/squid
+			mkdir -p $fs/usr/lib/squid
+			mkdir -p $fs/etc/squid/conf.d
 
 			touch $fs/var/log/squid/cache.log
 
-			cp -a $install/etc $fs
-			rm -rf $fs/etc/squid/*.default
-			cp -a $stuff/etc $fs
+			cp -a $install/etc				$fs
+			rm -rf							$fs/etc/squid/*.default
+			cp -a $stuff/etc				$fs
 
-			cp -a $install/var $fs
-			cp -a $install/usr/bin $fs/usr
-			cp -a $install/usr/sbin $fs/usr
-			cp -a $install/usr/lib/squid/* $fs/usr/lib/squid
+			cp -a $install/var				$fs
+			cp -a $install/usr/bin			$fs/usr
+			cp -a $install/usr/sbin			$fs/usr
+			cp -a $install/usr/lib/squid/*	$fs/usr/lib/squid
 
 			# Remove auth libs
 			rm -f $fs/usr/lib/squid/*_auth*
 
-			cp -a $install/usr/share/squid/mib.txt $fs/usr/share/squid
-			cp -a $install/usr/share/squid/icons $fs/usr/share/squid
-			cp -a $install/usr/share/squid/errors/templates $fs/usr/share/squid/errors
-			cp -a $install/usr/share/squid/errors/en* $fs/usr/share/squid/errors
-			cp -a $install/usr/share/squid/errors/fr* $fs/usr/share/squid/errors
+			cp -a $install/usr/share/squid/mib.txt			$fs/usr/share/squid
+			cp -a $install/usr/share/squid/icons			$fs/usr/share/squid
+			cp -a $install/usr/share/squid/errors/templates	$fs/usr/share/squid/errors
+			cp -a $install/usr/share/squid/errors/en*		$fs/usr/share/squid/errors
+			cp -a $install/usr/share/squid/errors/fr*		$fs/usr/share/squid/errors
 
 			sed \
 				-e 's/TAG: visible_hostname/TAG: visible_hostname\nvisible_hostname slitaz/' \
@@ -100,30 +105,32 @@ EOF
 			;;
 		squid-auth-helpers)
 			CAT="network|auth helpers"
-			DEPENDS="squid libldap libsasl openssl libkrb5 libcomerr3"
+			DEPENDS="libcomerr3 libldap libsasl libkrb5 openssl squid"
 			mkdir -p $fs/usr/lib/squid
-			cp -a $install/usr/lib/squid/*_auth* $fs/usr/lib/squid
+			cp -a $install/usr/lib/squid/*_auth*	$fs/usr/lib/squid
 			;;
 		squid-langpack)
 			CAT="network|language pack"
 			DEPENDS="squid"
 			mkdir -p $fs/usr/share
-			cp -a $install/usr/share/squid/errors $fs/usr/share
-			rm -rf $fs/usr/share/squid/errors/en*
-			rm -rf $fs/usr/share/squid/errors/fr*
+			cp -a $install/usr/share/squid/errors	$fs/usr/share
+			rm -rf									$fs/usr/share/squid/errors/en*
+			rm -rf									$fs/usr/share/squid/errors/fr*
 			;;
 	esac
 }
 
-post_install_squid() {
+post_install_squid()
+{
 	local user=squid group=squid
 
-	if ! grep -q $user "$1/etc/passwd"; then
+	if ! grep -q $user "$1/etc/passwd"
+	  then
 		chroot "$1/" addgroup -S $group
 		chroot "$1/" adduser -S -D -H -G $group $user
-	fi
+	  fi
 
-	# Set perms for files and directories
+	# Set permissions for files and directories
 	chroot "$1/" chown -R $user:$group /var/log/squid /var/cache/squid
 
 	[ -n "$quiet" ] || cat <<EOF
@@ -137,7 +144,8 @@ post_install_squid() {
 EOF
 }
 
-post_remove_squid() {
+post_remove_squid()
+{
 	# Removing stalled files...
 	test -d /var/cache/squid && rm -rf /var/cache/squid
 	test -d /var/log/squid   && rm -rf /var/log/squid
