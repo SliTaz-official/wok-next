@@ -1,38 +1,41 @@
 # SliTaz package receipt v2.
 
 PACKAGE="lynx"
-VERSION="2.8.8"
+VERSION="2.8.9rel1"
 CATEGORY="network"
 SHORT_DESC="Terminal-based text-only browser"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://lynx.invisible-island.net"
+WEB_SITE="https://lynx.browser.org"
 
-TARBALL="$PACKAGE$VERSION.tar.gz"
-WGET_URL="http://lynx.isc.org/$PACKAGE$VERSION/$TARBALL"
+TARBALL="$PACKAGE${VERSION/rel/rel.}.tar.bz2"
+WGET_URL="https://invisible-mirror.net/archives/$PACKAGE/tarballs/$TARBALL"
 
 # Will require build dep libtirpc after glibc is upgraded to 2.14.
-BUILD_DEPENDS="openssl-dev ncurses-dev zlib-dev gettext"
+BUILD_DEPENDS="ncurses-dev openssl-dev gettext zlib-dev"
 
-compile_rules() {
-	./configure \
-		--enable-ipv6 \
-		--enable-gnutls-compat \
-		--enable-nls \
-		--with-ssl \
-		--with-gnutls \
-		--with-zlib \
-		--with-nss-compat \
+compile_rules()
+{
+	./configure			\
+		--enable-gnutls-compat	\
+		--enable-ipv6		\
+		--enable-nls		\
+		--with-gnutls		\
+		--with-nss-compat	\
+		--with-ssl		\
+		--with-zlib		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-testsuite() {
+testsuite()
+{
 	readelf -h $install/usr/bin/lynx
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="openssl ncurses zlib"
+	DEPENDS="ncurses openssl zlib"
 }
