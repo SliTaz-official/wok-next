@@ -16,15 +16,16 @@ BUILD_DEPENDS="cmake gperf perl python ruby-dev cairo-dev gnutls-dev gtk3-dev \
 harfbuzz-icu-dev libjpeg-turbo-dev libsoup-dev libxslt-dev libsecret-dev \
 libwebp-dev mesa-dev gtk2-dev enchant-dev gst1-plugins-base-dev \
 libnotify-dev gettext-dev"
+
+BUILD_DEPENDS="autoconf automake enchant-dev gettext-dev glib-dev 
+	gobject-introspection-dev gperf gst1-plugins-base-dev gtk2-dev 
+	harfbuzz-icu-dev icu-dev libjpeg-turbo-dev libpng-dev libsecret-dev 
+	libsoup-dev libtool libwebp-dev libxml2-dev libxslt-dev 
+	pango-dev perl python ruby-dev sqlite3-dev xorg-libXt-dev"
 SPLIT="$PACKAGE-dev"
 
-BUILD_DEPENDS="perl python ruby-dev gperf libjpeg-turbo-dev libpng-dev \
-libwebp-dev glib-dev icu-dev libxml2-dev pango-dev enchant-dev gtk2-dev \
-libxt-dev gobject-introspection-dev libsoup-dev libsecret-dev \
-harfbuzz-icu-dev libxslt-dev gst1-plugins-base-dev gettext-dev \
-autoconf automake libtool"
-
-compile_rules() {
+compile_rules()
+{
 	fix math
 	CXXFLAGS="$CXXFLAGS -fno-delete-null-pointer-checks"
 	CFLAGS="$CFLAGS -fno-delete-null-pointer-checks"
@@ -32,32 +33,38 @@ compile_rules() {
 	mkdir build
 	cd    build
 
-	../configure \
-		--enable-introspection \
-		--disable-webkit2 \
-		--disable-gtk-doc \
-		--with-gtk=2.0 \
-		--disable-geolocation \
-		--enable-silent-rules \
+	../configure			\
+		--enable-introspection	\
+		--disable-webkit2	\
+		--disable-gtk-doc	\
+		--with-gtk=2.0		\
+		--disable-geolocation	\
+		--enable-silent-rules	\
 		$CONFIGURE_ARGS &&
+
+	sed -i 's|aclocal-1.15|aclocal|; s|automake-1.15|automake|' \
+		GNUmakefile &&
+
 	# https://bugzilla.gnome.org/show_bug.cgi?id=655517
 	sed -i 's| -shared | -Wl,-O1,--as-needed\0|g' libtool &&
 	make all stamp-po &&
 	make -j1 install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		webkitgtk)
 			copy @std
-			DEPENDS="atk libcairo enchant fontconfig freetype gdk-pixbuf glib \
-			gst1-plugins-base gstreamer1 gtk2 icu libharfbuzz libharfbuzz-icu \
-			libicu libjpeg-turbo libpng libsecret libsoup libsqlite3 libwebp \
-			libxml2 libxslt pango libx11 libxrender libxt zlib"
+			DEPENDS="atk enchant fontconfig freetype gdk-pixbuf glib 
+				gst1-plugins-base gstreamer1 gtk2 icu libcairo 
+				libharfbuzz libharfbuzz-icu libicu libjpeg-turbo 
+				libpng libsecret libsoup libsqlite3 libwebp 
+				libx11 libxml2 libxslt libxrender libxt pango zlib"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="webkitgtk glib-dev gtk2-dev libsoup-dev"
+			DEPENDS="glib-dev gtk2-dev libsoup-dev webkitgtk"
 			;;
 	esac
 }
