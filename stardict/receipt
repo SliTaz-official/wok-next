@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="stardict"
-VERSION="3.0.1"
+VERSION="3.0.6"
 CATEGORY="utilities"
 SHORT_DESC="A powerful international dictionary written in Gtk2"
 MAINTAINER="lufeng369@slitaz.org"
@@ -9,31 +9,36 @@ LICENSE="GPL3"
 WEB_SITE="http://stardict-4.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="http://stardict-3.googlecode.com/files/$TARBALL"
+WGET_URL="$SF_MIRROR/$PACKAGE-4/$TARBALL"
 
-BUILD_DEPENDS="bzip2 enchant-dev tar intltool popt libsigc++-dev gtk2-dev \
-libsm-dev zlib-dev util-linux-uuid-dev libffi"
+BUILD_DEPENDS="bzip2 enchant-dev gnome-doc-utils gtk2-dev intltool 
+	libffi libsigc++-dev libsm-dev popt tar util-linux-uuid-dev 
+	zlib-dev"
 
-compile_rules() {
-	sed -i 's/<vector>/&\n#include <stdio.h>/' stardict-plugins/stardict-wordnet-plugin/scene.hpp
+compile_rules()
+{
+#	sed -i 's/<vector>/&\n#include <stdio.h>/' stardict-plugins/stardict-wordnet-plugin/scene.hpp
 
-	./configure \
-		--disable-man \
-		--disable-qqwry \
-		--disable-gnome-support \
-		--disable-schemas-install \
-		--disable-espeak \
-		--disable-gucharmap \
-		--disable-festival \
-		--disable-advertisement \
-		--disable-updateinfo \
+	./configure				\
+		--disable-advertisement		\
+		--disable-espeak		\
+		--disable-festival		\
+		--disable-gnome-support		\
+		--disable-gucharmap		\
+		--disable-man			\
+		--disable-qqwry			\
+		--disable-schemas-install	\
+		--disable-scrollkeeper		\
+		--disable-updateinfo		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="enchant libsigc++ gtk2 libsm"
+
+	DEPENDS="enchant gtk2 libsigc++ libsm"
 }
