@@ -12,8 +12,8 @@ TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE-4/$TARBALL"
 
 BUILD_DEPENDS="bzip2 enchant-dev gnome-doc-utils gtk2-dev intltool 
-	libffi libsigc++-dev libsm-dev popt tar util-linux-uuid-dev 
-	zlib-dev"
+	libffi libsigc++-dev libsm-dev mysql_dev popt tar 
+	util-linux-uuid-dev zlib-dev"
 
 compile_rules()
 {
@@ -31,7 +31,6 @@ compile_rules()
 		--disable-scrollkeeper		\
 		--disable-updateinfo		\
 		$CONFIGURE_ARGS &&
-	fix libtool &&
 	make &&
 	make DESTDIR=$install install
 }
@@ -40,5 +39,5 @@ genpkg_rules()
 {
 	copy @std
 
-	DEPENDS="enchant gtk2 libsigc++ libsm"
+	DEPENDS="enchant gtk2 libsigc++ libsm mysql"
 }
