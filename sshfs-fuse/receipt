@@ -12,19 +12,22 @@ WEB_SITE="https://github.com/libfuse/sshfs"
 TARBALL="sshfs-$VERSION.tar.xz"
 WGET_URL="https://github.com/libfuse/sshfs/releases/download/sshfs-$VERSION/$TARBALL"
 
-BUILD_DEPENDS="fuse3-dev"
-# gettext-dev glib-dev"
+BUILD_DEPENDS="coreutils-file-special fuse3-dev glib-dev meson ninja"
+# gettext-dev"
+# coreutils-file-special for ln option --relative
 
 compile_rules()
 {
-	./configure $CONFIGURE_ARGS &&
-	make &&
-	make install
+	mkdir	_build &&
+	meson	_build &&
+	ninja -C _build &&
+	ninja -C _build install
 }
 
 genpkg_rules()
 {
 	copy @std
-	DEPENDS="fuse3 glib openssh"
+
 	PROVIDE="rsshfs sshfs"
+	DEPENDS="fuse3 glib openssh"
 }
