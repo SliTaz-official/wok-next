@@ -1,25 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="tcpreplay"
-VERSION="4.2.6"
+VERSION="4.3.2"
 CATEGORY="network"
 SHORT_DESC="Test network with libpcap captured traffic"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="BSD"
-WEB_SITE="http://tcpreplay.appneta.com/"
+WEB_SITE="https://tcpreplay.appneta.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="libpcap-dev libdnet-dev tcpdump"
+BUILD_DEPENDS="libdnet-dev libpcap-dev tcpdump"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libpcap   libdnet"
+
+	DEPENDS="libdnet libpcap"
 }
