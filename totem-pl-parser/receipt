@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="totem-pl-parser"
-VERSION="3.26.0"
+VERSION="3.26.5"
 CATEGORY="gnome"
 SHORT_DESC="Totem playlist parser"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,19 +12,22 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/totem-pl-parser.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="meson ninja glib-dev libxml2-dev libsoup-dev gmime3-dev \
-libquvi-dev libarchive-dev libgcrypt-dev gobject-introspection-dev gettext-dev"
+BUILD_DEPENDS="gettext-dev glib-dev gmime3-dev gobject-introspection-dev 
+	libarchive-dev libgcrypt-dev libquvi-dev libsoup-dev libxml2-dev 
+	meson ninja"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	meson-wrapper build --default-library shared &&
 	ninja -C build &&
 	DESTDIR=$install ninja -C build install || return 1
 
-	chmod -R g-w $install # 664 -> 644
+	chmod -R g-w	$install # 664 -> 644
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		totem-pl-parser)
 			copy @std
@@ -32,8 +35,8 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="totem-pl-parser glib-dev gmime3-dev libarchive-dev \
-			libgcrypt-dev libxml2-dev"
+			DEPENDS="glib-dev gmime3-dev libarchive-dev 
+			libgcrypt-dev libxml2-dev totem-pl-parser "
 			;;
 	esac
 }
