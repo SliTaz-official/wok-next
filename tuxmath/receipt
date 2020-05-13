@@ -1,40 +1,46 @@
 # SliTaz package receipt.
 
 PACKAGE="tuxmath"
-SOURCE="tuxmath_w_fonts"
 VERSION="2.0.3"
 CATEGORY="games"
+TAGS="education"
 SHORT_DESC="Arcade game that helps kids practice their math facts"
 MAINTAINER="claudinei@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://alioth-archive.debian.org/releases/tux4kids/TuxMath-Source/"
 
+SOURCE="tuxmath_w_fonts"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="https://alioth.debian.org/frs/download.php/3571/$TARBALL"
+WGET_URL="https://alioth-archive.debian.org/releases/tux4kids/TuxMath-Source/TuxMath-Source-$VERSION/$TARBALL"
 
-BUILD_DEPENDS="libt4k_common-dev sdl-dev librsvg-dev sdl-image-dev \
-sdl-mixer-dev sdl-ttf-dev sdl-net-dev sdl-pango-dev"
+BUILD_DEPENDS="librsvg-dev libsdl-dev libsdl-image-dev libsdl-mixer-dev 
+	libsdl-net-dev libsdl-pango-dev libsdl-ttf-dev libt4k_common-dev "
 
-compile_rules() {
-	./configure \
-		LIBS="-lt4k_common" \
-		--prefix=/usr \
+compile_rules()
+{
+	./configure			\
+		LIBS="-lt4k_common"	\
+		--prefix=/usr		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	mkdir -p $fs/usr $fs/usr/share
-	cp -a $install/usr/bin $fs/usr
-	cp -a $install/usr/share/tuxmath $fs/usr/share
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	mkdir -p $fs/usr/share
 
-	for lang in de es fr pt_BR zh_CN; do
+	cp -a $install/usr/bin			$fs/usr
+	cp -a $install/usr/share/tuxmath	$fs/usr/share
+
+	for lang in de es fr pt_BR zh_CN
+	  do
 		mkdir -p $fs/usr/share/locale/$lang/LC_MESSAGES
 		cp -a $install/usr/share/locale/$lang/LC_MESSAGES/tuxmath.mo \
 		        $fs/usr/share/locale/$lang/LC_MESSAGES
-	done
-	DEPENDS="libt4k_common sdl librsvg sdl-image sdl-mixer sdl-ttf \
-	sdl-net sdl-pango"
-	TAGS="education"
+	  done
+
+	DEPENDS="librsvg libsdl libsdl-image libsdl-mixer libsdl-net libsdl-pango 
+		libsdl-ttf libt4k_common"
 }
