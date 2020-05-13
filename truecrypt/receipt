@@ -1,25 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="truecrypt"
-VERSION="7.1a"
+VERSION="7.2"
 CATEGORY="security"
 SHORT_DESC="Free open-source cross-platform disk encryption software"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="other"
 WEB_SITE="http://truecrypt.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://sources.archlinux.org/other/tc/$TARBALL"
-TARBALL_SHA512="b5e766023168015cb91bfd85c9e2621055dd98408215e02704775861b5070c5a0234a00c64c1bf7faa34e6d0b51ac71cd36169dd7a6f84d7a34ad0cfa304796a"
+#WGET_URL="https://sources.archlinux.org/other/tc/$TARBALL"
+#TARBALL_SHA512="b5e766023168015cb91bfd85c9e2621055dd98408215e02704775861b5070c5a0234a00c64c1bf7faa34e6d0b51ac71cd36169dd7a6f84d7a34ad0cfa304796a"
+WGET_URL="$SF_MIRROR/$PACKAGE/TrueCrypt-$VERSION-source-unix.tar.gz"
+TARBALL_SHA1="99c9a287233573941a985db62b140042ed418634"
 
-BUILD_DEPENDS="pkcs nasm fuse2-dev wxWidgets28-dev libsm-dev"
+BUILD_DEPENDS="fuse2-dev libsm-dev nasm pkcs wxWidgets28-dev"
 
-compile_rules() {
-	make \
-		PKCS11_INC="/usr/include/pkcs" \
-		WX_CONFIG=/usr/bin/wx-config \
-		TC_EXTRA_LFLAGS+="-ldl $LDFLAGS" \
-		TC_EXTRA_CXXFLAGS="$CXXFLAGS" \
+compile_rules()
+{
+	make						\
+		PKCS11_INC="/usr/include/pkcs"		\
+		WX_CONFIG=/usr/bin/wx-config		\
+		TC_EXTRA_LFLAGS+="-ldl $LDFLAGS"	\
+		TC_EXTRA_CXXFLAGS="$CXXFLAGS"		\
 		TC_EXTRA_CFLAGS="$CFLAGS" || return 1
 
 	install -Dm755 Main/truecrypt $install/usr/bin/truecrypt
@@ -29,11 +32,13 @@ compile_rules() {
 
 	# function `cook_pick_docs` and web interface can't cope with spaces
 	mv Release/Setup\ Files/ Release/Setup_Files/
-	mv Release/Setup_Files/TrueCrypt\ User\ Guide.pdf Release/Setup_Files/TrueCrypt_User_Guide.pdf
+	# 7.2 no such file
+	# mv Release/Setup_Files/TrueCrypt\ User\ Guide.pdf Release/Setup_Files/TrueCrypt_User_Guide.pdf
 	cook_pick_docs Release/Setup_Files/*
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="fuse2 wxWidgets28 libsm dmsetup linux-md"
+	DEPENDS="dmsetup fuse2 libsm linux-md wxWidgets28"
 }
