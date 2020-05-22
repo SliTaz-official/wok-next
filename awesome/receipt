@@ -1,55 +1,60 @@
 # SliTaz package receipt v2.
 
 PACKAGE="awesome"
-VERSION="4.2"
+VERSION="4.3"
 CATEGORY="x-window"
+TAGS="window-manager"
 SHORT_DESC="Highly configurable framework window manager"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://awesomewm.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/awesomeWM/awesome-releases/raw/master/$TARBALL"
 
-BUILD_DEPENDS="cmake asciidoc xmlto docbook-xsl imagemagick lua-dev \
-libxcb-dev glib-dev gdk-pixbuf-dev cairo-dev xcb-util-cursor-dev \
-xcb-util-dev xcb-util-keysyms-dev xcb-util-wm-dev \
-libxkbcommon-dev startup-notification-dev libxdg-basedir-dev xcb-util-xrm-dev \
-dbus-dev lgi pango-dev"
+BUILD_DEPENDS="asciidoc cairo-dev cmake dbus-dev docbook-xsl gdk-pixbuf-dev 
+	glib-dev imagemagick lgi libxcb-dev libxdg-basedir-dev libxkbcommon-dev 
+	lua-dev pango-dev startup-notification-dev xcb-util-cursor-dev xcb-util-dev 
+	xcb-util-keysyms-dev xcb-util-wm-dev xcb-util-xrm-dev xmlto"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_BUILD_TYPE=RELEASE \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DSYSCONFDIR=/etc \
-		-DLUA_LIBRARY=/usr/lib/liblua.so \
-		.. &&
+	cmake	..				\
+		-DCMAKE_BUILD_TYPE=RELEASE	\
+		-DCMAKE_INSTALL_PREFIX=/usr	\
+		-DSYSCONFDIR=/etc		\
+		-DLUA_LIBRARY=/usr/lib/liblua.so &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libcairo dbus gdk-pixbuf glib liblua libxdg-basedir libxkbcommon-x11 \
-	libxkbcommon startup-notification xcb-util-xrm libx11 libxcb \
-	xcb-util xcb-util-cursor xcb-util-keysyms xcb-util-wm \
-	   pango-typelib lgi"
-	TAGS="window-manager"
+
+	DEPENDS="dbus gdk-pixbuf glib lgi libcairo liblua libx11 libxcb libxdg-basedir 
+		libxkbcommon libxkbcommon-x11 pango-typelib startup-notification 
+		xcb-util xcb-util-cursor xcb-util-keysyms xcb-util-wm xcb-util-xrm"
 }
 
 # Adding WM to SLIM available sessions.
-post_install() {
+post_install()
+{
 	res=$(cat "$1/etc/slim.conf" | grep '^session' | sed 's|sessions. *||')
-	if ! echo "$res" | grep -q $PACKAGE; then
-		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" "$1/etc/slim.conf"
+	if ! echo "$res" | grep -q $PACKAGE
+	  then
+		sed -i "s/^sessions.*/sessions            $res,$PACKAGE/" \
+			"$1/etc/slim.conf"
 	fi
 }
 
 # Remove WM from SLIM available sessions.
-post_remove() {
-	if grep -q $PACKAGE "$1/etc/slim.conf"; then
+post_remove()
+{
+	if grep -q $PACKAGE "$1/etc/slim.conf"
+	  then
 		sed -i "s|,$PACKAGE||" "$1/etc/slim.conf"
 	fi
 }
