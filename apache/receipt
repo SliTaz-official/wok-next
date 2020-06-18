@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="apache"
-VERSION="2.4.28"
+VERSION="2.4.43"
 CATEGORY="network"
+TAGS="webserver http server"
 SHORT_DESC="Secure, efficient and extensible HTTP server"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="Apache"
@@ -11,28 +12,30 @@ WEB_SITE="http://www.apache.org/"
 TARBALL="httpd-$VERSION.tar.bz2"
 WGET_URL="http://www.apache.org/dist/httpd/$TARBALL"
 
-BUILD_DEPENDS="apr-util-dev apr-dev openssl-dev sed expat-dev zlib-dev \
-util-linux-uuid-dev openldap-dev bash pcre-dev"
+BUILD_DEPENDS="apr-dev apr-util-dev bash expat-dev openldap-dev 
+	openssl-dev pcre-dev sed util-linux-uuid-dev zlib-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-doc $PACKAGE"
 
 COOKOPTS="force-arch" # different configs in dev
 
-compile_rules() {
+compile_rules()
+{
 	grep -q Slitaz config.layout || \
 		cat $stuff/slitaz.layout >> config.layout
-	sed -i 's|mkdir |mkdir -p |' build/mkdir.sh
+	sed -i 's|mkdir |mkdir -p |' \
+		build/mkdir.sh
 
-	./configure \
-		--mandir=/usr/share/man \
-		--enable-mods-shared=all \
-		--enable-proxy \
-		--enable-ssl \
-		--enable-layout=Slitaz \
+	./configure				\
+		--mandir=/usr/share/man		\
+		--enable-layout=Slitaz		\
+		--enable-mods-shared=all	\
+		--enable-proxy			\
+		--enable-ssl			\
 		$CONFIGURE_ARGS &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install || return 1
 
-	install -Dm755 $stuff/apache $install/etc/init.d/apache
+	install -Dm755 $stuff/apache	$install/etc/init.d/apache
 
 	mkdir -p $install/etc/apache/extra/
 	cp -a $stuff/fix-range-CVE-2011-3192.conf $install/etc/apache/extra/
@@ -59,7 +62,8 @@ EOT
 	chown -R root:root $install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		apache-dev)
 			copy @dev apxs /usr/share/apache/build/
@@ -75,21 +79,23 @@ genpkg_rules() {
 			CONFIG_FILES="/etc/apache/ /var/www/ /etc/ssl/apache/"
 			TAZPANEL_DAEMON="edit::/etc/apache/httpd.conf|web::$WEB_SITE"
 			PROVIDE="lighttpd"
-			TAGS="webserver http server"
 			DEPENDS="apr apr-util libldap libpcre openssl zlib"
 			;;
 	esac
 }
 
 # We stop the server by default in case of upgarde.
-pre_install_apache() {
+pre_install_apache()
+{
 	[ -n "$1" ] ||
-	for i in httpd lighttpd ngnix cherokee $PACKAGE; do
+	for i in httpd lighttpd ngnix cherokee $PACKAGE
+	  do
 		[ -f /etc/init.d/$i ] && /etc/init.d/$i stop
-	done
+	  done
 }
 
-post_install_apache() {
+post_install_apache()
+{
 	local lang=$(. $1/etc/locale.conf 2>/dev/null; echo ${LANG#*_})
 	local tz=$(cat $1/etc/TZ 2>/dev/null)
 	local hostname=$(cat $1/etc/hostname 2>/dev/null)
@@ -100,9 +106,10 @@ post_install_apache() {
 	ping -c 2 $(hostname) >/dev/null 2>&1 ||
 		sed -i "s/localhost/$(hostname) localhost/" "$1/etc/hosts"
 
-	sed -i -e "s/^#\(LoadModule.*slotmem_shm.*\)$/\1/" \
+	sed -i	-e "s/^#\(LoadModule.*slotmem_shm.*\)$/\1/" \
 		-e "s/.*ServerName www.example.*/ServerName ${hostname:-slitaz}/" \
-		$1/etc/apache/httpd.conf $1/etc/apache/extra/httpd-ssl.conf
+		$1/etc/apache/httpd.conf \
+		$1/etc/apache/extra/httpd-ssl.conf
 
 	grep -qs Apache $1/var/www/index.html &&
 	sed -i 's|^LighTTPD.*|&\nApache configs      : /etc/apache|' \
@@ -122,12 +129,13 @@ EOT
 
 	[ -z "$quiet" ] && echo # Start new line
 	( cd "$1/$INSTALLED/"; grep -l /etc/apache/conf.d/ */receipt ) | \
-	while read file; do
+	while read file
+	  do
 		pkg=$(dirname $file)
 		[ "$pkg" = "$PACKAGE" ] && continue
 		[ -z "$quiet" ] && echo "Reconfiguring $pkg for $PACKAGE..."
 		tazpkg reconfigure $pkg
-	done
+	  done
 	[ -f "$1/etc/php.ini" ] && tazpkg get-install php-apache --root="$1"
 	[ "$1" ] || netstat -ltn 2> /dev/null | grep -q :80 ||
 	/etc/init.d/$PACKAGE start
