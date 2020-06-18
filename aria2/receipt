@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="aria2"
-VERSION="1.34.0"
+VERSION="1.35.0"
 CATEGORY="utilities"
 SHORT_DESC="A download utility with resuming and segmented downloading with \
 HTTP/HTTPS/FTP support"
@@ -12,22 +12,24 @@ WEB_SITE="https://aria2.github.io/"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://github.com/aria2/aria2/releases/download/release-$VERSION/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev gettext-dev libxml2-dev gnutls-dev gmp-dev nettle-dev"
+BUILD_DEPENDS="gettext-dev gmp-dev gnutls-dev libxml2-dev nettle-dev zlib-dev"
 
-compile_rules() {
-	./configure \
-		--enable-epoll \
-		--enable-threads=posix \
-		--with-libz \
-		--without-sqlite3 \
-		--without-openssl \
+compile_rules()
+{
+	./configure			\
+		--enable-epoll		\
+		--enable-threads=posix	\
+		   --with-libz		\
+		--without-openssl	\
+		--without-sqlite3	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="gmp libgnutls libxml2 nettle zlib"
 }
