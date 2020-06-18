@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="abiword"
-VERSION="3.0.2"
+VERSION="3.0.4"
 CATEGORY="office"
-SHORT_DESC="Light and speed word processing application"
-MAINTAINER="devel@slitaz.org"
+SHORT_DESC="Light and fast word processing application"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.abisource.com/"
 
@@ -13,24 +13,29 @@ WGET_URL="http://www.abisource.com/downloads/abiword/$VERSION/source/$TARBALL"
 LOCALES="ar ca cs da de el en es fa fi fr hr hu id is it ja nb nl nn pl pt ro \
 ru sl sv tr uk vi zh"
 
-BUILD_DEPENDS="gtk3-dev python-pygobject-dev gobject-introspection-dev \
-fribidi-dev libglade-dev popt-dev libxml2-dev libart_lgpl-dev \
-libgsf-dev enchant-dev wv-dev libcroco-dev boost-dev librsvg-dev gtk-doc \
-bison goffice-dev intltool gettext-dev xorg-dev zlib-dev libjpeg-turbo-dev"
+BUILD_DEPENDS="bison boost-dev enchant-dev fribidi-dev gettext-dev goffice-dev 
+	gobject-introspection-dev gtk-doc gtk3-dev intltool libart_lgpl-dev 
+	libcroco-dev libglade-dev libgsf-dev libjpeg-turbo-dev librsvg-dev 
+	libxml2-dev popt-dev python-pygobject-dev wv-dev xorg-dev zlib-dev"
 # libgnomeprint-dev libgnomeprintui-dev libgnomecanvas-dev
 SPLIT="$PACKAGE-plugins $PACKAGE $PACKAGE-dev"
 
-compile_rules() {
-	sed -i 's|glib/gmacros.h|glib.h|' goffice-bits/goffice/app/goffice-app.h
-	sed -i 's|glib/gerror.h|glib.h|' src/af/util/xp/ut_go_file.h
-	sed -i 's|--no-undefined||' src/Makefile*
-	sed -i 's|cat \$(BUILTIN_STAMP)|& 2> /dev/null|' src/plugins/Makefile*
+compile_rules()
+{
+	sed -i 's|glib/gmacros.h|glib.h|' \
+		goffice-bits/goffice/app/goffice-app.h
+	sed -i 's|glib/gerror.h|glib.h|' \
+		src/af/util/xp/ut_go_file.h
+	sed -i 's|--no-undefined||' \
+		src/Makefile*
+	sed -i 's|cat \$(BUILTIN_STAMP)|& 2> /dev/null|' \
+		src/plugins/Makefile*
 
-	./configure \
-		--enable-plugins \
-		--enable-clipart \
-		--enable-templates \
-		--disable-collab-backend-sugar \
+	./configure				\
+		 --enable-clipart		\
+		--disable-collab-backend-sugar	\
+		 --enable-plugins		\
+		 --enable-templates		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
@@ -40,20 +45,21 @@ compile_rules() {
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		abiword-plugins)
 			copy plugins/*.so
 			CAT="office|extra plugins: MSWord, OpenDocument, Wikipedia, etc."
-			DEPENDS="abiword glib readline libxdamage fribidi libxslt"
+			DEPENDS="abiword fribidi glib libxdamage libxslt readline"
 			TAGS="doc odf docx"
 			;;
 		abiword)
 			copy @std @rm
 			TAGS="word doc office"
-			DEPENDS="gtk3 fribidi libglade popt libxml2 libart_lgpl \
-			libgsf glib enchant wv libxdamage gcc-lib-base \
-			librsvg goffice glibc-locale libffi"
+			DEPENDS="enchant fribidi gcc-lib-base glib glibc-locale 
+			goffice gtk3 libart_lgpl libffi libglade libgsf librsvg 
+			libxdamage libxml2 popt wv"
 			SUGGESTED="abiword-plugins"
 
 			# Non-standard locale use: get all official SliTaz locales
@@ -61,14 +67,15 @@ genpkg_rules() {
 			rm $fs/usr/share/abiword-*/system.profile-*
 			rm $fs/usr/share/abiword-*/templates/normal.awt-*
 
-			for LOCALE in $LOCALES; do
+			for LOCALE in $LOCALES
+			  do
 				cp $install/usr/share/abiword-*/strings/$LOCALE*.strings \
 					    $fs/usr/share/abiword-*/strings/
 				cp $install/usr/share/abiword-*/system.profile-$LOCALE* \
 					    $fs/usr/share/abiword-*/
 				cp $install/usr/share/abiword-*/templates/normal.awt-$LOCALE* \
 					    $fs/usr/share/abiword-*/templates/
-			done 2>/dev/null
+			  done 2>/dev/null
 			;;
 		abiword-dev)
 			copy @dev
