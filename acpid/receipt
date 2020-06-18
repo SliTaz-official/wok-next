@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="acpid"
-VERSION="2.0.31"
+VERSION="2.0.32"
 CATEGORY="system-tools"
 TAGS_std="power-management"
 SHORT_DESC="The ACPI event daemon with netlink"
@@ -21,14 +21,15 @@ compile_rules()
 	make &&
 	make install || return 1
 
-	install -dm755 $install/etc/acpi/events
+	install -dm755	$install/etc/acpi/events
 	cp -r samples	$install/usr/share/doc/$PACKAGE-$VERSION
 
-	mkdir -p $install/etc/
-	cp -r $stuff/init.d	$install/etc/
-	cp -r $stuff/acpi	$install/etc/
-	chmod go-rwx $install/etc/acpi/*.sh
-	chmod go-rwx $install/etc/acpi/events/*
+	mkdir -p $install/etc
+
+	cp -r $stuff/init.d	$install/etc
+	cp -r $stuff/acpi	$install/etc
+	chmod go-rwx		$install/etc/acpi/*.sh
+	chmod go-rwx		$install/etc/acpi/events/*
 }
 
 post_install()
@@ -37,6 +38,7 @@ post_install()
 	  then
 		/etc/init.d/acpid start || continue
 	fi
+
 	if ! grep -q ^ACPID_OPTIONS "$1/etc/daemons.conf"
 	  then
 		cat >> "$1/etc/daemons.conf" <<EOT
