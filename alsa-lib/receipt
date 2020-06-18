@@ -1,30 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="alsa-lib"
-VERSION="1.1.8"
+VERSION="1.2.3"
 CATEGORY="multimedia"
 SHORT_DESC="ALSA sound libraries"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://www.alsa-project.org/main/index.php/Main_Page"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/alsa-lib.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="ftp://ftp.alsa-project.org/pub/lib/$TARBALL"
-TARBALL_SHA1="018523741f0b78ad5aa928202c11e6694a8c10c2"
+#TARBALL_SHA1="018523741f0b78ad5aa928202c11e6694a8c10c2"
 
 SPLIT="$PACKAGE-dev"
 
 CONFIG_FILES_std="/etc/asound.conf"
 DEPENDS_std="linux"
 
-compile_rules() {
-	./configure \
-		--disable-python \
+compile_rules()
+{
+	./configure			\
+		--disable-python	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make -j1 install || return 1
 
-	install -Dm644 $stuff/asound.conf $install/etc/asound.conf
+	install -Dm644 $stuff/asound.conf	$install/etc/asound.conf
 }
