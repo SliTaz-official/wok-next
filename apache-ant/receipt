@@ -1,33 +1,41 @@
 # SliTaz package receipt v2.
 
 PACKAGE="apache-ant"
-VERSION="1.9.4"
+VERSION="1.10.8"
 CATEGORY="development"
 SHORT_DESC="A Java-based build tool"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="Apache"
 WEB_SITE="http://ant.apache.org/"
-HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION-bin.tar.bz2"
 WGET_URL="http://www.apache.org/dist/ant/binaries/$TARBALL"
 
-compile_rules() {
+HOST_ARCH="any"
+
+compile_rules()
+{
 	# The only binaries that would built are Java binaries (not native binaries)
 	# Thus, to help with bootstrapping, use the binary ant release
 	mkdir -p $install/usr/bin
-	cp bin/*.pl bin/*.py bin/ant bin/antRun $install/usr/bin
-
-	cp -a $src/etc $install
-
 	mkdir -p $install/usr/lib
-	cp lib/*.jar lib/*.pom $install/usr/lib
+
+	cp bin/*.pl	$install/usr/bin
+	cp bin/*.py	$install/usr/bin
+	cp bin/ant	$install/usr/bin
+	cp bin/antRun	$install/usr/bin
+
+	cp -a $src/etc	$install
+
+	cp lib/*.jar	$install/usr/lib
+	cp lib/*.pom	$install/usr/lib
 }
 
-genpkg_rules() {
-	mkdir -p  $fs
-	cp -a $install/usr $fs
-	cp -a $install/etc $fs
+genpkg_rules()
+{
+	cp -a $install/usr	$fs
+	cp -a $install/etc	$fs
+
 	DEPENDS="jdk"
 	#DEPENDS="java-jdk"
 }
