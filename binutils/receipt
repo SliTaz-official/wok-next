@@ -1,50 +1,52 @@
 # SliTaz package receipt v2.
 
 PACKAGE="binutils"
-VERSION="2.31.1"
+VERSION="2.34"
 CATEGORY="development"
+TAGS_std="LFS assembler linker"
 SHORT_DESC="GNU assembler, linker and binary utilities"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2 LGPL2 GPL3 LGPL3"
 WEB_SITE="https://www.gnu.org/software/binutils/"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/binutils.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-TARBALL_SHA1="1c5b0801b4857031d5626d917808cbd5c6401a4b"
+# 2.31.1 TARBALL_SHA1="1c5b0801b4857031d5626d917808cbd5c6401a4b"
 
-BUILD_DEPENDS="glibc-dev zlib-dev texinfo bison flex gettext"
+BUILD_DEPENDS="bison flex gettext glibc-dev texinfo zlib-dev"
 SPLIT="libbfd $PACKAGE"
 
 COPY_libbfd="libbfd*.so"
 COPY_std="@std @dev @rm"
 
 CAT_libbfd="system-tools|Binary File Descriptor library"
-TAGS_std="LFS assembler linker"
 
 DEPENDS_libbfd="zlib"
-DEPENDS_std="libbfd zlib   flex glibc"
+DEPENDS_std="flex glibc libbfd zlib"
 
-compile_rules() {
-	./configure \
-		--enable-gold \
-		--enable-ld=default \
-		--enable-plugins \
-		--enable-shared \
-		--disable-werror \
-		--with-system-zlib \
+compile_rules()
+{
+	./configure			\
+		 --enable-gold		\
+		 --enable-ld=default	\
+		 --enable-plugins	\
+		 --enable-shared	\
+		--disable-werror	\
+		--with-system-zlib	\
 		$CONFIGURE_ARGS &&
 	make tooldir=/usr &&
 	make tooldir=/usr install || return 1
 
 	# Create prefixed version of the tools.
 	cd $install/usr/bin
-	for i in $(ls); do
+	for i in $(ls)
+	  do
 		mv $i $TOOLPREFIX$i
 		[ $i == 'strings' ] && continue # skip: Busybox intercept
 		ln -s $TOOLPREFIX$i $i
-	done
+	  done
 
 	# Install libiberty (-liberty flag): dependency described in *.la files
-	install -m644 $src/include/libiberty.h $install/usr/include
+	install -m644 $src/include/libiberty.h	$install/usr/include
 }
