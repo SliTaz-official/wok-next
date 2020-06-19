@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bluez"
-VERSION="5.48"
+VERSION="5.54"
 CATEGORY="system-tools"
 SHORT_DESC="Bluetooth protocol stack"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.bluez.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/bluez.html"
@@ -13,14 +13,15 @@ TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="http://www.kernel.org/pub/linux/bluetooth/$TARBALL"
 
 #BUILD_DEPENDS="alsa-lib-dev dbus-dev glib-dev libusb-dev libusb-compat"
-BUILD_DEPENDS="glib-dev dbus-dev eudev-dev libical-dev readline-dev"
+BUILD_DEPENDS="dbus-dev eudev-dev glib-dev libical-dev readline-dev"
 SPLIT="$PACKAGE-tools $PACKAGE-tools-experimental $PACKAGE $PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--enable-library \
-		--disable-systemd \
-		--enable-experimental \
+compile_rules()
+{
+	./configure			\
+		--enable-library	\
+		--disable-systemd	\
+		--enable-experimental	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -29,31 +30,32 @@ compile_rules() {
 	mkdir -p $install/usr/sbin
 	ln -svf ../libexec/bluetooth/bluetoothd $install/usr/sbin
 
-	install -Dm644 src/main.conf $install/etc/bluetooth/main.conf
+	install -Dm644 src/main.conf	$install/etc/bluetooth/main.conf
 
 	cook_pick_docs doc/*.txt
 
-	cp $stuff/*.conf $install/etc/bluetooth/
+	cp $stuff/*.conf		$install/etc/bluetooth/
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		bluez-tools)
 			copy bccmd bluemoon ciptool hciattach hciconfig hcidump hcitool \
 			hex2hcd l2ping l2test mpris-proxy rctest rfcomm sdptool
 			CAT="system-tools|tools"
-			DEPENDS="dbus glib   bluez"
+			DEPENDS="bluez dbus glib"
 			;;
 		bluez-tools-experimental)
 			copy bin/ @rm
 			rm $fs/usr/bin/bluetoothctl $fs/usr/bin/btmon	# -> main package
 			CAT="system-tools|experimental tools"
-			DEPENDS="dbus eudev glib readline   bluez"
+			DEPENDS="bluez dbus eudev glib readline"
 			;;
 		bluez)
 			copy @std @rm
 			TAGS="bluetooth"
-			DEPENDS="dbus eudev glib libical readline   linux-bluetooth"
+			DEPENDS="dbus eudev glib libical linux-bluetooth readline"
 			;;
 		*-dev)
 			copy @dev
