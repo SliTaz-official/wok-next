@@ -1,10 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bozohttpd"
-VERSION="20111118"
+VERSION="20190228"
 CATEGORY="network"
+TAGS="http server lightweight CGI ipv6 SSL"
 SHORT_DESC="Small and secure HTTP/1.1 server"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="http://www.eterna.com.au/bozohttpd/"
 
@@ -13,17 +14,19 @@ WGET_URL="http://www.eterna.com.au/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="openssl-dev"
 
-compile_rules() {
+compile_rules()
+{
 	make -f Makefile.boot all || return 1
 
-	install -Dm755 bozohttpd $install/usr/bin/bozohttpd
-	cook_pick_manpages bozohttpd.8
+	install -Dm755 bozohttpd	$install/usr/bin/bozohttpd
+	cook_pick_manpages		bozohttpd.8
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
+
 	DEPENDS="openssl"
 	PROVIDE="lighttpd"
 	SUGGESTED="haserl"
-	TAGS="http server lightweight CGI ipv6 SSL"
 }
