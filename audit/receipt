@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="audit"
-VERSION="2.8.4"
+VERSION="2.8.5"
 CATEGORY="misc"
 SHORT_DESC="System call auditing"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,26 +11,28 @@ WEB_SITE="http://people.redhat.com/sgrubb/audit/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
 
-BUILD_DEPENDS="python-dev openldap-dev coreutils-file-format swig"
+BUILD_DEPENDS="coreutils-file-format openldap-dev python-dev swig"
 SPLIT="$PACKAGE-python $PACKAGE $PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
-		--sbindir=/sbin \
+compile_rules()
+{
+	./configure			\
+		--disable-static	\
+		--sbindir=/sbin		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
 
 	# make files readable for the web interface; fix permissions later in post_install
-	chmod 755 $install/etc/audisp/plugins.d/
+	chmod 755	$install/etc/audisp/plugins.d/
 	find $install/etc/audisp/ $install/etc/libaudit.conf \
 	$install/etc/sysconfig/auditd $install/sbin/audispd \
 	-type f -exec chmod o+r '{}' \;
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		audit-python)
 			copy *.py site-packages/*.so
@@ -47,8 +49,9 @@ genpkg_rules() {
 	esac
 }
 
-post_install_audit() {
-	chmod 750 "$1/etc/audisp/plugins.d/"
+post_install_audit()
+{
+	chmod 750	"$1/etc/audisp/plugins.d/"
 	find "$1/etc/audisp/" "$1/etc/libaudit.conf" "$1/etc/sysconfig/auditd" \
 	"$1/sbin/audispd" -type f -exec chmod o-r '{}' \;
 }
