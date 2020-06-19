@@ -1,28 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bluefish"
-VERSION="2.2.8"
+VERSION="2.2.11"
 CATEGORY="development"
+TAGS="text-editor language HTML programming scripting"
 SHORT_DESC="A powerful editor"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="http://bluefish.openoffice.nl/index.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.bennewitz.com/bluefish/stable/source/$TARBALL"
 
-BUILD_DEPENDS="gtk2-dev pcre-dev intltool libxml2-dev expat-dev"
+BUILD_DEPENDS="expat-dev gtk2-dev intltool libxml2-dev pcre-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libcairo gdk-pixbuf glib gtk2 libxml2 pango python   aspell \
-	shared-mime-info"
-	TAGS="text-editor language HTML programming scripting"
+
+	DEPENDS="aspell gdk-pixbuf glib gtk2 libcairo libxml2 pango python 
+		shared-mime-info"
 }
