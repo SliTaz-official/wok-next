@@ -1,22 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="bogofilter"
-VERSION="1.2.4"
+VERSION="1.2.5"
 CATEGORY="network"
+TAGS="mail email filter spam C"
 SHORT_DESC="Mail filter that classifies mail as spam or ham"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2 GPL3"
-WEB_SITE="http://bogofilter.sourceforge.net/"
+WEB_SITE="https://bogofilter.sourceforge.io/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="sqlite3-dev"
 
-compile_rules() {
-	./configure \
-		--with-database=sqlite3 \
-		--sysconfdir=/etc/bogofilter \
+compile_rules()
+{
+	./configure				\
+		--with-database=sqlite3		\
+		--sysconfdir=/etc/bogofilter	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install || return 1
@@ -24,8 +26,9 @@ compile_rules() {
 	chmod +x $install/usr/bin/bf_*
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="sqlite3 gsl"
-	TAGS="mail email filter spam C"
+
+	DEPENDS="gsl sqlite3"
 }
