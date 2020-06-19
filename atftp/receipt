@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="atftp"
-VERSION="0.7.1"
+VERSION="0.7.2"
 CATEGORY="network"
 SHORT_DESC="Advanced Trivial File Transport Protocol"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,23 +11,25 @@ WEB_SITE="http://freshmeat.sourceforge.net/projects/atftp/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://downloads.openwrt.org/sources/$TARBALL"
 
-BUILD_DEPENDS="pcre-dev readline-dev automake"
+BUILD_DEPENDS="automake pcre-dev readline-dev"
 SPLIT="atftpd"
 
-compile_rules() {
+compile_rules()
+{
 #	sed -i -e 's/char \*__entry) __THROW/char *__entry))/' \
 #		-e 's/^_*argz_next/__NTH(&/' argz.h
 #	sed -i 's/CLK_TCK/CLOCKS_PER_SEC/' stats.c
 	sed -i 's/D_REENTRANT/& -std=gnu89/' configure*
 
 	autoreconf -vi &&
-	./configure \
+	./configure		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		atftp)
 			copy atftp
