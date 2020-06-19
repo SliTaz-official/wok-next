@@ -1,29 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="axel"
-VERSION="2.16.1"
+VERSION="2.17.9"
 CATEGORY="network"
+TAGS="web internet"
 SHORT_DESC="Download accelerator"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/axel-download-accelerator/axel"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/axel-download-accelerator/axel/releases/download/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="openssl-dev gettext-dev"
+BUILD_DEPENDS="gettext-dev openssl-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
-	install -Dm644 doc/axelrc.example $install/etc/axelrc
+	install -Dm644 doc/axelrc.example	$install/etc/axelrc
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="openssl"
 	CONFIG_FILES="/etc/axelrc"
-	TAGS="web internet"
 }
