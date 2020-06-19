@@ -1,30 +1,35 @@
 # SliTaz package receipt v2.
 
 PACKAGE="blueman"
-VERSION="1.10"
+VERSION="2.1.3"
 CATEGORY="system-tools"
 SHORT_DESC="Easy to use GTK+ Bluetooth Manager"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/blueman-project/blueman"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://download.tuxfamily.org/blueman/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WGET_URL="$WEB_SITE/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="bluez-dev python-dev python-pygtk-dev notify-python-dev libnotify-dev \
-python-pyrex startup-notification-dev util-linux-uuid-dev dbus-dev \
-python-dbus-dev intltool libtool xcb-util-dev"
+BUILD_DEPENDS="bluez-dev dbus-dev intltool libnotify-dev libtool notify-python-dev 
+	python-pygtk-dev python-pyrex python3-cython python3-dbus-dev python3-dev 
+	python3-pygobject-dev startup-notification-dev util-linux-uuid-dev 
+	xcb-util-dev"
 
-compile_rules() {
-	./configure \
-		--libexecdir=/usr/lib/$PACKAGE \
+compile_rules()
+{
+	./configure				\
+		--libexecdir=/usr/lib/$PACKAGE	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="linux-bluetooth bluez python python-pygtk libnotify notify-python \
-	python-pyrex startup-notification util-linux-uuid dbus python-dbus"
+
+	DEPENDS="bluez dbus libnotify linux-bluetooth notify-python python-pygtk 
+		python-pyrex python3 python3-dbus python3-pygobject 
+		startup-notification util-linux-uuid"
 }
