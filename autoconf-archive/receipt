@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="autoconf-archive"
-VERSION="2018.03.13"
+VERSION="2019.01.06"
 CATEGORY="development"
 SHORT_DESC="Collection of GNU Autoconf macros"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,18 +12,21 @@ HOST_ARCH="any"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-compile_rules() {
-	./configure \
+compile_rules()
+{
+	./configure		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 
-	# documentation mistakenly goes here
-	rm -r $install/usr/share/autoconf-archive
+	# 2018.03.13 documentation mistakenly goes here
+#	rm -r $install/usr/share/autoconf-archive
+
 	cook_pick_docs AUTHORS COPYING COPYING.EXCEPTION README TODO
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @dev
 	DEPENDS="autoconf"
 }
