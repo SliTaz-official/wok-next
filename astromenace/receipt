@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="astromenace"
-VERSION="1.4.0"
+VERSION="1.4.1"
 CATEGORY="games"
+TAGS="arcade game shooting space"
 SHORT_DESC="Hardcore 3D space scroll-shooter with spaceship upgrade possibilities"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
@@ -11,34 +12,40 @@ WEB_SITE="https://viewizard.com/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/viewizard/astromenace/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="cmake sdl2-dev mesa-dev openal-dev freealut-dev libogg-dev \
-libvorbis-dev freetype-dev glu-dev"
+BUILD_DEPENDS="cmake freealut-dev freetype-dev glu-dev libogg-dev 
+	libvorbis-dev mesa-dev openal-dev sdl2-dev"
 SPLIT="$PACKAGE-data"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DDATADIR=/usr/share/astromenace \
-		.. &&
+	cmake	..					\
+		-DCMAKE_INSTALL_PREFIX=/usr		\
+		-DDATADIR=/usr/share/astromenace &&
 	make || return 1
 
-	install -Dm755 $src/build/astromenace             $install/usr/bin/astromenace
-	install -Dm644 $src/build/gamedata.vfs            $install/usr/share/astromenace/gamedata.vfs
-	install -Dm644 $src/share/astromenace_64.png      $install/usr/share/icons/hicolor/64x64/apps/astromenace.png
-	install -Dm644 $src/share/astromenace_128.png     $install/usr/share/icons/hicolor/128x128/apps/astromenace.png
-	install -Dm644 $src/share/astromenace.desktop     $install/usr/share/applications/astromenace.desktop
-	install -Dm644 $src/share/astromenace.appdata.xml $install/usr/share/appdata/astromenace.appdata.xml
+	install -Dm755 $src/build/astromenace \
+		$install/usr/bin/astromenace
+	install -Dm644 $src/build/gamedata.vfs \
+		$install/usr/share/astromenace/gamedata.vfs
+	install -Dm644 $src/share/astromenace_64.png \
+		$install/usr/share/icons/hicolor/64x64/apps/astromenace.png
+	install -Dm644 $src/share/astromenace_128.png \
+		$install/usr/share/icons/hicolor/128x128/apps/astromenace.png
+	install -Dm644 $src/share/astromenace.desktop \
+		$install/usr/share/applications/astromenace.desktop
+	install -Dm644 $src/share/astromenace.appdata.xml \
+		$install/usr/share/appdata/astromenace.appdata.xml
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		astromenace)
 			copy bin/
-			DEPENDS="astromenace-data \
-			freealut freetype glu sdl2 libvorbis mesa openal"
-			TAGS="arcade game shooting space"
+			DEPENDS="astromenace-data freealut freetype glu 
+				libvorbis mesa openal sdl2"
 			;;
 		*-data)
 			copy @std icons/ @rm
