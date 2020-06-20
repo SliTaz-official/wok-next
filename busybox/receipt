@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="busybox"
-VERSION="1.27.2"
+VERSION="1.31.1"
 CATEGORY="base-system"
 SHORT_DESC="Tiny versions of UNIX utilities"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -11,18 +11,19 @@ WEB_SITE="https://busybox.net/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="${WEB_SITE}downloads/$TARBALL"
 
-BUILD_DEPENDS="patch bzip2 gettext-dev perl pam-dev libtirpc-dev" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
+BUILD_DEPENDS="bzip2 gettext-dev libtirpc-dev patch pam-dev perl" # uclibc-cross-compiler-i486 musl-libc-dev dietlibc
 case "$ARCH" in
 	x86_64) SPLIT="$PACKAGE-pam:pam";;
 	*)      SPLIT="$PACKAGE-pam:pam ssfs-busybox:ssfs" # $PACKAGE-boot:boot $PACKAGE-static:static
 	        ;;
 esac
 
-compile_rules() {
+compile_rules()
+{
 	export CPPFLAGS="$CPPFLAGS $(pkg-config --cflags libtirpc)"
 	case "$SET" in
 		'')
-			cp $stuff/.config $src
+			cp $stuff/.config	$src
 			make oldconfig &&
 			make &&
 			make install || return 1
@@ -38,7 +39,8 @@ compile_rules() {
 				$src/docs/*.htm* \
 				$src/docs/cgi
 
-			cp -a $src/_install/* $install; rm -rf $src/_install
+			cp -a $src/_install/* $install
+			rm -rf $src/_install
 
 			[ -e $install/sbin/ip ] && ln -s busybox $install/bin/ip
 			rm -f $install/bin/bbconfig $install/usr/bin/ar
@@ -50,26 +52,28 @@ compile_rules() {
 				$install/etc/modprobe.d \
 				$install/usr/share/udhcpc
 
-			# Busybox config files
-			cp -a $stuff/etc/* $install/etc
-			chown -R 0.0 $install/etc
-			chmod 600 $install/etc/busybox.conf
+			# Busybox configuration files
+			cp -a $stuff/etc/*	$install/etc
+			chown -R 0.0		$install/etc
+			chmod 600		$install/etc/busybox.conf
 
 			# Daemon scripts
-			cp $stuff/daemon $install/etc/init.d
+			cp $stuff/daemon	$install/etc/init.d
 			for i in crond dnsd ftpd httpd inetd lpd klogd ntpd syslogd \
-			         telnetd tftpd udhcpd zcip; do
+			         telnetd tftpd udhcpd zcip
+			  do
 				grep -qi "config_$i=y" $stuff/.config &&
 				ln -s daemon $install/etc/init.d/$i
-			done
-			rm $install/linuxrc
+			  done
+			rm			$install/linuxrc
 
 			# Udhcpc stuff
-			install -m755 $stuff/udhcp.script $install/usr/share/udhcpc/default.script
+			install -m755 $stuff/udhcp.script \
+						$install/usr/share/udhcpc/default.script
 
 			# Httpd stuff (httphelper.sh found in slitaz-base-files package)
 			ln -s /usr/lib/slitaz/httphelper.sh $install/usr/bin/httpd_helper.sh
-			cp -r $stuff/www $install/var
+			cp -r $stuff/www	$install/var
 
 			# Update copyright year
 			grep -rl 'YEAR' $install/var/www | xargs sed -i "s|YEAR|$(date +%Y)|"
@@ -85,8 +89,8 @@ compile_rules() {
 			mkdir -p \
 				$install/bin/ \
 				$install/etc/pam.d/
-			cp -a $src/busybox $install/bin
-			cp $stuff/login $install/etc/pam.d/
+			cp -a $src/busybox	$install/bin
+			cp $stuff/login		$install/etc/pam.d/
 			;;
 
 		ssfs)
@@ -148,15 +152,17 @@ compile_rules() {
 }
 
 # Cross compilation check.
-testsuite() {
+testsuite()
+{
 	readelf -h $WOK/busybox/install/bin/busybox
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		busybox)
 			copy @std *.mo
-			DEPENDS="slitaz-base-files glibc-base ncurses libtirpc"
+			DEPENDS="glibc-base libtirpc ncurses slitaz-base-files"
 			CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf \
 			/etc/resolv.conf /etc/httpd.conf"
 			;;
@@ -187,14 +193,15 @@ genpkg_rules() {
 				$fs/usr/share/boot/dev
 
 			CHOICE='static'
-			for i in uclibc musl diet; do
+			for i in uclibc musl diet
+			  do
 				[ -x "$src/busybox-$i" ] || continue
 				[ -x "$src/busybox-$CHOICE" ] &&
 					[ $(stat -c %s $src/busybox-$i) -ge \
 					  $(stat -c %s $src/busybox-$CHOICE) ] &&
 					continue
 				CHOICE="$i"
-			done
+			  done
 			cp -a $src/busybox-$CHOICE $fs/usr/share/boot/bin/busybox
 
 			chmod   4755 $fs/usr/share/boot/bin/busybox
@@ -223,26 +230,29 @@ genpkg_rules() {
 			mkdir -p $fs/usr/share/boot
 
 			CHOICE='static'
-			for i in uclibc musl diet; do
+			for i in uclibc musl diet
+			  do
 				[ -x "$src/busybox-$i" ] || continue
 				[ -x "$src/busybox-$CHOICE" ] &&
 					[ $(stat -c %s $src/busybox-$i) -ge \
 					  $(stat -c %s $src/busybox-$CHOICE) ] &&
 					continue
 				CHOICE="$i"
-			done
+			  done
 			cp -a $src/busybox-$CHOICE $fs/usr/share/boot/busybox-static
 			;;
 	esac
 }
 
 # GNU utils stuff.
-pre_install_busybox() {
+pre_install_busybox()
+{
 	local i
 	[ -s $1/etc/resolv.conf ] &&
-	cp -a $1/etc/resolv.conf $1/etc/resolv.conf-busybox-install
+	cp -a $1/etc/resolv.conf	$1/etc/resolv.conf-busybox-install
 	answer=''
-	for i in $(sed '/busybox$/d; /bin\//!d' "$1$INSTALLED/$PACKAGE/files.list"); do
+	for i in $(sed '/busybox$/d; /bin\//!d' "$1$INSTALLED/$PACKAGE/files.list")
+	  do
 		[ -f "$1$i" ] || continue
 		if [ -z "$answer" ]; then
 			echo
@@ -250,29 +260,33 @@ pre_install_busybox() {
 			answer='Y'
 		fi
 		cp -a "$1$i" "$1$i-busybox-install"
-	done
+	  done
 }
 
-post_install_busybox() {
+post_install_busybox()
+{
 	local i
 	[ -f $1/etc/resolv.conf-busybox-install ] &&
 	mv -f $1/etc/resolv.conf-busybox-install $1/etc/resolv.conf
-	for i in $($1/bin/busybox --list-full); do
+	for i in $($1/bin/busybox --list-full)
+	  do
 		[ -f "$1/$i-busybox-install" ] || continue
 		mv "$1/$i-busybox-install" "$1/$i"
-	done
+	  done
 	chmod 4755 "$1/bin/busybox"
 
 	touch "$1/etc/daemons.conf"
 	# /etc/daemons.conf (tftp + dnsd + httpd may not be present)
-	if ! grep -q ^DNSD_OPTIONS "$1/etc/daemons.conf"; then
+	if ! grep -q ^DNSD_OPTIONS "$1/etc/daemons.conf"
+	  then
 		cat >> "$1/etc/daemons.conf" <<EOF
 # Domain name server options.
 DNSD_OPTIONS="-d"
 
 EOF
 	fi
-	if ! grep -q ^TFTPD_OPTIONS $1/etc/daemons.conf; then
+	if ! grep -q ^TFTPD_OPTIONS $1/etc/daemons.conf
+	  then
 		cat >> "$1/etc/daemons.conf" <<EOF
 # Tftp daemon options.
 TFTPD_OPTIONS="-r /boot"
@@ -282,11 +296,13 @@ EOF
 }
 
 # We can't remove this package!
-pre_remove_busybox() {
+pre_remove_busybox()
+{
 	return 1
 }
 
-pre_remove_busybox_pam() {
+pre_remove_busybox_pam()
+{
 	# We install non-pam busybox to replace busybox-pam.
 	tazpkg get-install busybox --forced
 
@@ -297,10 +313,12 @@ pre_remove_busybox_pam() {
 		-i /var/lib/tazpkg/installed/busybox-pam/files.list
 }
 
-post_install_busybox_pam() {
+post_install_busybox_pam()
+{
 	chmod 4755 "$1/bin/busybox"
 }
 
-post_install_busybox_static() {
+post_install_busybox_static()
+{
 	chmod 4755 "$1/usr/share/boot/busybox-static"
 }
