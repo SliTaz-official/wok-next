@@ -1,25 +1,26 @@
 # SliTaz package receipt v2.
 
 PACKAGE="c-icap"
-VERSION="0.5.5"
+VERSION="0.5.6"
 CATEGORY="network"
 SHORT_DESC="Implementation of an ICAP server"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://c-icap.sourceforge.net/"
 
 TARBALL="c_icap-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/c-icap/$TARBALL"
 
-BUILD_DEPENDS="openssl-dev zlib-dev bzip2-dev brotli-dev openldap-dev pcre-dev"
+BUILD_DEPENDS="brotli-dev bzip2-dev openldap-dev openssl-dev pcre-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
 COOKOPTS="force-arch" # different configs, .h
 
-compile_rules() {
-	./configure \
-		--sysconfdir=/etc/c-icap \
-		--enable-large-files \
+compile_rules()
+{
+	./configure			\
+		--sysconfdir=/etc/c-icap	\
+		--enable-large-files	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -28,15 +29,17 @@ compile_rules() {
 	mkdir -p $install/var/log/c-icap/
 	install -Dm755 $stuff/c-icapd $install/etc/init.d/c-icapd
 
-	# Fix config file
-	sed -i -e "s|YourServerName|localhost|;
-		s|/usr/var/log|/var/log/c-icap/|;
-		s|/usr/var/run/|/var/run/c-icap|;
-		s|/usr/etc|/etc/c-icap|" $install/etc/c-icap/c-icap.conf
+	# Fix configuration file
+	sed -i -e	"s|YourServerName|localhost|;
+			s|/usr/var/log|/var/log/c-icap/|;
+			s|/usr/var/run/|/var/run/c-icap|;
+			s|/usr/etc|/etc/c-icap|" \
+		$install/etc/c-icap/c-icap.conf
 	chmod -x $install/etc/c-icap/*
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		c-icap)
 			copy @std var/log/c-icap/
@@ -49,7 +52,8 @@ genpkg_rules() {
 	esac
 }
 
-post_install_c_icap() {
+post_install_c_icap()
+{
 	[ -z "$1" -a ! -s /aufs-umount.sh ] && /etc/init.d/c-icapd start
 
 	[ -n "$quiet" ] || cat <<EOF
@@ -64,13 +68,17 @@ post_install_c_icap() {
 EOF
 }
 
-pre_remove_c_icap() {
+pre_remove_c_icap()
+{
 	echo "Stopping daemon..."
-	if (ps | grep -q c-icap); then
+	if (ps | grep -q c-icap)
+	  then
 		chroot "$1/" /etc/init.d/c-icapd stop
 	fi
 }
-post_remove_c_icap() {
+
+post_remove_c_icap()
+{
 	echo "Removing stalled files..."
 	[ -d "$1/var/log/c-icap" ] && rm -rf "$1/var/log/c-icap"
 	[ -d "$1/usr/run/c-icap" ] && rm -rf "$1/usr/run/c-icap"
