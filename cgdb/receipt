@@ -1,28 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cgdb"
-VERSION="0.7.0"
+VERSION="0.7.1"
 CATEGORY="development"
+TAGS="debugger"
 SHORT_DESC="Curses interface for GDB"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://cgdb.github.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://cgdb.me/files/$TARBALL"
 
-BUILD_DEPENDS="texinfo ncurses-dev readline-dev"
+BUILD_DEPENDS="ncurses-dev readline-dev texinfo"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
 
-	cook_pick_docs README NEWS
+	cook_pick_docs NEWS
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="ncurses readline   gdb"
-	TAGS="debugger"
+	DEPENDS="gdb ncurses readline"
 }
