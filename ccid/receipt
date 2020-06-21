@@ -1,9 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ccid"
-VERSION="1.4.30"
+VERSION="1.4.32"
 CATEGORY="base-system"
-SHORT_DESC="Chip/Smart Card Interface Devices driver"
+SHORT_DESC="Chip and Smart Card Interface Devices driver"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://ccid.apdu.fr/"
@@ -11,12 +11,13 @@ WEB_SITE="https://ccid.apdu.fr/"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://ccid.apdu.fr/files/$TARBALL"
 
-BUILD_DEPENDS="pcsc-lite-dev libusb-dev perl"
+BUILD_DEPENDS="libusb-dev pcsc-lite-dev perl"
 
-compile_rules() {
-	./configure \
-		--enable-usbdropdir=/usr/lib/pcsc/drivers \
-		--enable-twinserial \
+compile_rules()
+{
+	./configure					\
+		--enable-usbdropdir=/usr/lib/pcsc/drivers	\
+		--enable-twinserial			\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -27,27 +28,33 @@ compile_rules() {
 		$install/etc/udev/rules.d/ \
 		$install/usr/bin/ \
 		$install/usr/sbin/
-	cp  $src/src/92_pcscd_ccid.rules                               $install/etc/udev/rules.d/
-	cp  $src/contrib/RSA_SecurID/RSA_SecurID_getpasswd             $install/usr/bin/
-	cp  $src/contrib/Kobil_mIDentity_switch/Kobil_mIDentity_switch $install/usr/sbin/
+	cp  $src/src/92_pcscd_ccid.rules \
+				$install/etc/udev/rules.d/
+	cp  $src/contrib/RSA_SecurID/RSA_SecurID_getpasswd \
+				$install/usr/bin/
+	cp  $src/contrib/Kobil_mIDentity_switch/Kobil_mIDentity_switch \
+				$install/usr/sbin/
 
 	mv  $install/usr/lib/pcsc/drivers/ifd-ccid.bundle/Contents/Info.plist \
-		$install/etc/libccid_Info.plist
+				$install/etc/libccid_Info.plist
 	ln -s       /etc/libccid_Info.plist \
-		$install/usr/lib/pcsc/drivers/ifd-ccid.bundle/Contents/Info.plist
+				$install/usr/lib/pcsc/drivers/ifd-ccid.bundle/Contents/Info.plist
 	fix symlinks
 
-	cook_pick_docs README
+	cook_pick_docs README.md
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="libusb pcsc-lite"
 }
 
 # addgroup pcscd if needed
-post_install() {
-	if ! grep -q pcscd "$1/etc/group"; then
+post_install()
+{
+	if ! grep -q pcscd "$1/etc/group"
+	  then
 		chroot "$1/" addgroup pcscd
 	fi
 }
