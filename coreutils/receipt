@@ -1,10 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="coreutils"
-VERSION="8.30"
+VERSION="8.32"
 CATEGORY="meta"
+TAGS="LFS"
 SHORT_DESC="Utilities for using and setting the basic system"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/coreutils/coreutils.html"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter05/coreutils.html"
@@ -12,8 +13,8 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter05/coreutils.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="automake autoconf gettext-dev xz libcap-dev gmp-dev patch \
-texinfo openssl-dev"
+BUILD_DEPENDS="autoconf automake gettext-dev gmp-dev libcap-devopenssl-dev
+	patch texinfo xz"
 SPLIT="\
 $PACKAGE-character      $PACKAGE-command          $PACKAGE-conditions \
 $PACKAGE-context-system $PACKAGE-context-user     $PACKAGE-context-working \
@@ -24,7 +25,8 @@ $PACKAGE-line           $PACKAGE-numeric          $PACKAGE-operations \
 $PACKAGE-path           $PACKAGE-print            $PACKAGE-redirection \
 $PACKAGE-multicall:multi"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		multi) SET_ARGS='--enable-single-binary=symlinks';;
 		*)     SET_ARGS='';;
@@ -35,10 +37,10 @@ compile_rules() {
 
 	autoreconf -fi
 
-	FORCE_UNSAFE_CONFIGURE=1 \
-	./configure \
-		--with-openssl \
-		$SET_ARGS \
+	FORCE_UNSAFE_CONFIGURE=1	\
+	./configure		\
+		--with-openssl	\
+		$SET_ARGS	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -49,7 +51,8 @@ compile_rules() {
 		$install/usr/sbin \
 		$install/usr/share/man/man8
 
-	while read from to; do
+	while read from to
+	  do
 		case $SET in
 			multi)
 				rm $install$from
@@ -63,7 +66,7 @@ compile_rules() {
 				mv $install$from $install$to
 				;;
 		esac
-	done <<EOT
+	  done <<EOT
 /usr/bin/cat    /bin/cat
 /usr/bin/chgrp  /bin/chgrp
 /usr/bin/chmod  /bin/chmod
@@ -94,12 +97,12 @@ EOT
 	sed -i 's|"1"|"8"|' $install/usr/share/man/man8/chroot.8
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	DEPENDS="glibc-base" # default
 	case $PACKAGE in
 		coreutils)
 			DEPENDS=${SPLIT/coreutils-multicall:multi} # all but coreutils-multicall
-			TAGS="LFS"
 			;;
 		*-character)
 			copy expand tr unexpand
@@ -203,42 +206,57 @@ genpkg_rules() {
 # "/usr/bin" and "/usr/sbin" conflicts with the same filename)
 
 # for /usr/bin/nice /usr/bin/sleep
-post_install_coreutils_command() {
-	for i in nice sleep; do
+post_install_coreutils_command()
+{
+	for i in nice sleep
+	  do
 		readlink "$1/bin/$i" | grep -q busybox && rm "$1/bin/$i"
-	done
+	  done
 	:
 }
+
 # for /usr/bin/printenv
-post_install_coreutils_context_working() {
+post_install_coreutils_context_working()
+{
 	readlink "$1/bin/printenv" | grep -q busybox && rm "$1/bin/printenv"
 	:
 }
+
 # for /usr/bin/stat
-post_install_coreutils_disk() {
+post_install_coreutils_disk()
+{
 	readlink "$1/bin/stat" | grep -q busybox && rm "$1/bin/stat"
 	:
 }
+
 # for /usr/bin/touch
-post_install_coreutils_file_attributes() {
+post_install_coreutils_file_attributes()
+{
 	readlink "$1/bin/touch" | grep -q busybox && rm "$1/bin/touch"
 	:
 }
+
 # for /usr/bin/base64
-post_install_coreutils_file_output_full() {
+post_install_coreutils_file_output_full()
+{
 	readlink "$1/bin/base64" | grep -q busybox && rm "$1/bin/base64"
 	:
 }
+
 # for /usr/bin/mktemp
-post_install_coreutils_file_special() {
+post_install_coreutils_file_special()
+{
 	readlink "$1/bin/mktemp" | grep -q busybox && rm "$1/bin/mktemp"
 	:
 }
+
 # for /usr/bin/base64 /usr/bin/mktemp /usr/bin/nice /usr/bin/printenv
 # /usr/bin/sleep /usr/bin/stat /usr/bin/touch
-post_install_coreutils_multicall() {
-	for i in base64 mktemp nice printenv sleep stat touch; do
+post_install_coreutils_multicall()
+{
+	for i in base64 mktemp nice printenv sleep stat touch
+	  do
 		readlink "$1/bin/$i" | grep -q busybox && rm "$1/bin/$i"
-	done
+	  done
 	:
 }
