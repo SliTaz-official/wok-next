@@ -1,27 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cmake"
-VERSION="3.13.3"
+VERSION="3.17.3"
 CATEGORY="development"
 SHORT_DESC="Cross-platform build system generator"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://cmake.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/cmake.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.cmake.org/files/v${VERSION%.*}/$TARBALL"
-TARBALL_SHA1="f33558a268a9286d4fa310abbd56efbaf897f6dc"
+# https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-SHA-256.txt
+TARBALL_SHA256="0bd60d512275dc9f6ef2a2865426a184642ceb3761794e6b65bff233b91d8c40"
 
-BUILD_DEPENDS="zlib-dev curl-dev bzip2-dev xz-dev libarchive-dev expat-dev \
-ncurses-dev gfortran libuv-dev jsoncpp-dev"
+BUILD_DEPENDS="bzip2-dev curl-dev expat-dev libarchive-dev gfortran
+	jsoncpp-dev libuv-dev ncurses-dev xz-dev zlib-dev"
 SPLIT="$PACKAGE-common"
 
 COPY_std="bin/"
 COPY_common="@std @dev @rm"
 
 DEPENDS_std="cmake-common expat jsoncpp libarchive libcurl libuv ncurses \
-ncurses-libform zlib"
+	ncurses-libform zlib"
 DEPENDS_common=" "
 
 CAT_common="development|common files"
@@ -30,15 +31,16 @@ CAT_common="development|common files"
 # https://stackoverflow.com/questions/42123509/cmake-finds-boost-but-the-imported-targets-not-available-for-boost-version
 # > Boost 1.68, 1.69 require CMake 3.13 or newer.
 
-compile_rules() {
+compile_rules()
+{
 	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
 #	fix math
 
-	./bootstrap \
-		--prefix=/usr \
-		--system-libs \
-		--mandir=/share/man \
-		--no-system-librhash \
+	./bootstrap			\
+		--prefix=/usr		\
+		--system-libs		\
+		--mandir=/share/man	\
+		--no-system-librhash	\
 		--docdir=/share/doc/$PACKAGE-$VERSION &&
 	make &&
 	make DESTDIR=$install install
