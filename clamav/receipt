@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="clamav"
-VERSION="0.102.1"
+VERSION="0.102.3"
 CATEGORY="security"
+TAGS="antivirus"
 SHORT_DESC="Antivirus"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
@@ -11,8 +12,8 @@ WEB_SITE="http://www.clamav.net/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="http://www.clamav.net/downloads/production/$TARBALL"
 
-BUILD_DEPENDS="bash bzip2-dev gmp gmp-dev libxml2-dev ncurses-dev 
-	openssl-dev zlib-dev curl"
+BUILD_DEPENDS="bash bzip2-dev curl-dev gmp gmp-dev libxml2-dev
+	ncurses-dev openssl-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
 compile_rules()
@@ -31,9 +32,10 @@ compile_rules()
 	adduser -s /bin/false -H -D -u 64 clamav
 
 	./configure				\
-		--sysconfdir=/etc/clamav	\
+		--sysconfdir=/etc/clamav		\
 		--with-dbdir=/var/lib/clamav	\
 		--with-iconv=no			\
+		--with-systemdsystemunitdir=none	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -44,11 +46,14 @@ genpkg_rules()
 {
 	case $PACKAGE in
 		clamav)
-			mkdir -p $fs/usr/lib $fs/etc/init.d $fs/var/lib/clamav
-			mkdir -p $fs/var/log/clamav $fs/run/clamav
+			mkdir -p $fs/etc/init.d
+			mkdir -p $fs/run/clamav
+			mkdir -p $fs/usr/lib
+			mkdir -p $fs/var/lib/clamav
+			mkdir -p $fs/var/log/clamav
 
 			cp -a $install/usr/bin		$fs/usr
-			rm -f $fs/usr/bin/clamav-config
+			rm -f				$fs/usr/bin/clamav-config
 			cp -a $install/usr/sbin		$fs/usr
 			cp -a $install/etc		$fs
 			mv $fs/etc/clamav/clamd.conf*	$fs/etc/clamav/clamd.conf
@@ -67,7 +72,6 @@ genpkg_rules()
 				-e "s|^#LocalSocket /tmp/clamd.socket|LocalSocket /run/clamav/clamd-socket|" \
 				$fs/etc/clamav/clamd.conf
 			DEPENDS="bzip2 gmp libltdl ncurses slitaz-base-files zlib"
-			TAGS="antivirus"
 			;;
 		*-dev)
 			copy @dev
