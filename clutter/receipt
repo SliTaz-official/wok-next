@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="clutter"
-VERSION="1.26.2"
+VERSION="1.26.4"
 CATEGORY="x-window"
 SHORT_DESC="Animated graphical user interfaces library"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://developer.gnome.org/clutter/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/clutter.html"
@@ -12,14 +12,15 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/clutter.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev cogl-dev atk-dev json-glib-dev \
-gobject-introspection-dev gettext-dev pango-dev"
+BUILD_DEPENDS="atk-dev cogl-dev gettext-dev glib-dev
+	gobject-introspection-dev json-glib-dev pango-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--enable-introspection \
-		--enable-egl-backend \
+compile_rules()
+{
+	./configure			\
+		--enable-egl-backend	\
+		--enable-introspection	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -28,18 +29,20 @@ compile_rules() {
 	ln -s clutter-1.0.pc $install/usr/lib/pkgconfig/clutter.pc
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		clutter)
 			copy @std
-			DEPENDS="atk libcairo cogl fontconfig glib json-glib pango \
-			libx11 libxcomposite libxdamage"
+
+			DEPENDS="atk cogl fontconfig glib json-glib libcairo
+				libx11 libxcomposite libxdamage pango"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="clutter atk-dev cairo-dev cogl-dev glib-dev json-glib-dev \
-			pango-dev libx11-dev libxcomposite-dev \
-			libxdamage-dev libxext-dev"
+			DEPENDS="atk-dev cairo-dev clutter cogl-dev glib-dev
+				json-glib-dev libx11-dev libxcomposite-dev
+				libxdamage-dev libxext-dev pango-dev"
 			;;
 	esac
 }
