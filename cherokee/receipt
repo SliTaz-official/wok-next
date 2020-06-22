@@ -1,66 +1,72 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cherokee"
-VERSION="1.2.103.d021376"
+VERSION="1.2.104"
 CATEGORY="network"
+TAGS="webserver"
 SHORT_DESC="Cherokee Web Server"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://cherokee-project.com/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/cherokee/webserver/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="pcre-dev cyrus-sasl-dev openssl10-dev openldap-dev python-dev \
-pam-dev libmysqlclient ffmpeg-dev gettext-dev autoconf automake libtool"
+BUILD_DEPENDS="autoconf automake cyrus-sasl-dev ffmpeg-dev gettext-dev
+	libmysqlclient libtool openldap-dev openssl10-dev 	pam-dev
+	pcre-dev python-dev"
 SPLIT="$PACKAGE-dev $PACKAGE-doc"
 
 COOKOPTS="force-arch" # different .h
 
-compile_rules() {
+compile_rules()
+{
 	# Use subdirectory for logs
-	sed -i -r 's|(%localstatedir%/log)|\1/cherokee|' cherokee.conf.sample.pre
+	sed -i -r 's|(%localstatedir%/log)|\1/cherokee|' \
+		cherokee.conf.sample.pre
 
 	# Fix pid file location
 	sed -i 's|var/run/|run/|g' admin/PageNewConfig.py
 
 	cp po/admin/ca.po po/admin/cherokee.pot
 
-	CFLAGS="$CFLAGS -I/usr/include/openssl-1.0" \
-	LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0" \
-	./autogen.sh \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--sbindir=/usr/bin \
-		--with-wwwroot=/var/www/cherokee \
-		--with-cgiroot=/var/www/cherokee/cgi-bin \
-		--disable-static \
-		--with-wwwuser=www \
-		--with-wwwgroup=www \
-		--enable-os-string="SliTaz" \
+	CFLAGS="$CFLAGS -I/usr/include/openssl-1.0"	\
+	LDFLAGS="$LDFLAGS -L/usr/lib/openssl-1.0"		\
+	./autogen.sh					\
+		--prefix=/usr				\
+		--sysconfdir=/etc			\
+		--localstatedir=/var			\
+		--sbindir=/usr/bin			\
+		--with-cgiroot=/var/www/cherokee/cgi-bin	\
+		--with-wwwgroup=www			\
+		--with-wwwroot=/var/www/cherokee		\
+		--with-wwwuser=www			\
+		 --enable-os-string="SliTaz"		\
+		--disable-static				\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make DESTDIR=$install install || return 1
 
-	install -Dm644 pam.d_cherokee $install/etc/pam.d/cherokee
-	chown -R www:www $install/var/lib/cherokee/graphs
-	python    -m compileall $install
-	python -O -m compileall $install
+	install -Dm644 pam.d_cherokee	$install/etc/pam.d/cherokee
+	chown -R www:www			$install/var/lib/cherokee/graphs
+	python    -m compileall		$install
+	python -O -m compileall		$install
 
-	install -d -o80 -u80 $install/var/log/cherokee
+	install -d -o80 -g80		$install/var/log/cherokee
 
-	install -Dm644 $stuff/cherokee.logrotate $install/etc/logrotate.d/cherokee
-	install -Dm755 $stuff/cherokee           $install/etc/init.d/cherokee
+	install -Dm644 $stuff/cherokee.logrotate \
+					$install/etc/logrotate.d/cherokee
+	install -Dm755 $stuff/cherokee	$install/etc/init.d/cherokee
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		cherokee)
 			copy @std
-			DEPENDS="pcre cyrus-sasl openssl python libmysqlclient \
-			libldap ffmpeg"
+			DEPENDS="cyrus-sasl ffmpeg libldap openssl
+				libmysqlclient pcre python"
 			PROVIDE="lighttpd"
 			;;
 		cherokee-dev)
