@@ -1,34 +1,37 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dansguardian"
-VERSION="2.10.1.1"
+VERSION="2.12.0.3"
 CATEGORY="network"
 SHORT_DESC="Web content filter"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://web.archive.org/web/20170722001531/http://dansguardian.org:80/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://dansguardian.org/downloads/2/Stable/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 BUILD_DEPENDS="pcre-dev zlib-dev"
 
-compile_rules() {
-	./configure \
-		--enable-fancydm=no \
-		--with-proxyuser=nobody \
-		--with-proxygroup=nogroup \
+compile_rules()
+{
+	./configure				\
+		--enable-fancydm=no		\
+		--with-proxyuser=nobody		\
+		--with-proxygroup=nogroup	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="libpcreposix perl zlib   squid"
+	DEPENDS="libpcreposix perl squid zlib"
 	SUGGESTED="clamav"
 }
 
-post_install() {
+post_install()
+{
 	chown nobody.nogroup "$1/var/log/dansguardian"
 }
