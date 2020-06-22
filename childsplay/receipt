@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="childsplay"
-VERSION="3.3"
+VERSION="3.4"
 CATEGORY="games"
 SHORT_DESC="Collection of educational activities for young children"
 MAINTAINER="claudinei@slitaz.org"
@@ -10,17 +10,23 @@ WEB_SITE="http://www.schoolsplay.org/"
 HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tgz"
-WGET_URL="http://download.savannah.nongnu.org/releases/childsplay/$TARBALL"
+WGET_URL="$SF_MIRROR/schoolsplay/$TARBALL"
 
-DEPENDS="python python-pygtk python-pygame python-pysqlite python-sqlalchemy \
-libogg"
+DEPENDS="libogg python python-pygame python-pygtk python-pysqlite
+	python-sqlalchemy"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir -p $install/usr/share/childsplay
-	cp -r SPWidgets/ alphabet-sounds/ lib/ *.py *.db \
-		$install/usr/share/childsplay
-	cp -r locale $install/usr/share
+	cp -r SPWidgets/		$install/usr/share/childsplay
+	cp -r alphabet-sounds/	$install/usr/share/childsplay
+	cp -r lib/		$install/usr/share/childsplay
+	cp -r *.db		$install/usr/share/childsplay
+	cp -r *.py		$install/usr/share/childsplay
+	cp -r locale		$install/usr/share
+
 	cook_pick_docs docs/*.html
 
-	install -Dm755 $stuff/childsplay $install/usr/games/childsplay
+	install -Dm755 $stuff/childsplay \
+				$install/usr/games/childsplay
 }
