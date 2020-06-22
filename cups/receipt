@@ -1,21 +1,23 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cups"
-VERSION="2.2.2"
+VERSION="2.3.3"
 CATEGORY="system-tools"
+TAGS="printer printing"
 SHORT_DESC="Common UNIX Printing System"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2 LGPL2"
 WEB_SITE="https://www.cups.org/"
 
 TARBALL="cups-$VERSION-source.tar.gz"
 WGET_URL="https://github.com/apple/cups/releases/download/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="automake libusb-dev zlib-dev acl-dev dbus-dev gnutls-dev perl \
-python pam pam-dev"
+BUILD_DEPENDS="acl-dev automake dbus-dev gnutls-dev libusb-dev pam pam-dev
+	perl python zlib-dev"
 SPLIT="libcups $PACKAGE $PACKAGE-pam:pam $PACKAGE-doc $PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'')  SET_ARGS='--disable-pam';;
 		pam) SET_ARGS='--enable-pam';;
@@ -25,22 +27,22 @@ compile_rules() {
 	# using 23 instead
 	addgroup -g 23 lpadmin
 
-	sed -i 's:555:755:g;s:444:644:g' Makedefs.in
-	sed -i '/MAN.EXT/s:.gz::g' configure config-scripts/cups-manpages.m4
-	sed -i '/LIBGCRYPTCONFIG/d' config-scripts/cups-ssl.m4
+	sed -i 's:555:755:g;s:444:644:g'	Makedefs.in
+	sed -i '/MAN.EXT/s:.gz::g'	configure config-scripts/cups-manpages.m4
+	sed -i '/LIBGCRYPTCONFIG/d'	config-scripts/cups-ssl.m4
 
 	aclocal  -I config-scripts
 	autoconf -I config-scripts
 
 	cp -a $src $src-pam
 
-	CC=gcc \
-	./configure \
-		--libdir=/usr/lib \
-		--disable-systemd \
-		--with-rcdir=/tmp/cupsinit \
-		--with-system-groups=lpadmin \
-		--with-docdir=/usr/share/doc/cups-$VERSION \
+	CC=gcc							\
+	./configure						\
+		--libdir=/usr/lib				\
+		--disable-systemd				\
+		--with-rcdir=/tmp/cupsinit			\
+		--with-system-groups=lpadmin			\
+		--with-docdir=/usr/share/doc/cups-$VERSION	\
 		$SET_ARGS \
 		$CONFIGURE_ARGS &&
 	make &&
@@ -54,59 +56,61 @@ compile_rules() {
 
 	sed -i 's|hostname:9100|&\n\n    parallel:/dev/usb/lp0|' \
 		$install/usr/share/cups/templates/choose-uri.tmpl
-	sed -i 's|htmlview|browser|'    $install/usr/share/applications/cups.desktop
-	sed -i 's|^#Group .*|Group lp|' $install/etc/cups/cups-files.conf
+	sed -i 's|htmlview|browser|' \
+		$install/usr/share/applications/cups.desktop
+	sed -i 's|^#Group .*|Group lp|' \
+		$install/etc/cups/cups-files.conf
 
 	# Daemon script
-	cp -a $stuff/etc $install
-	chown -R root:root $install/etc
+	cp -a $stuff/etc		$install
+	chown -R root:root	$install/etc
+
 	# TazPanel link
-	cp -a $stuff/var $install
-	chown -R root:root $install/var
+	cp -a $stuff/var		$install
+	chown -R root:root	$install/var
 
 	# Install ssl directory where to store the certs, solves some samba issues
-	install -dm700 -g lp $install/etc/cups/ssl
+	install -dm700 -g lp	$install/etc/cups/ssl
 
 	# Install some more configuration files that will get filled by cupsd
-	touch $install/etc/cups/printers.conf
-	touch $install/etc/cups/classes.conf
-	touch $install/etc/cups/subscriptions.conf
-	chgrp -R lp $install/etc/cups
+	touch		$install/etc/cups/printers.conf
+	touch		$install/etc/cups/classes.conf
+	touch		$install/etc/cups/subscriptions.conf
+	chgrp -R lp	$install/etc/cups
 
 	# Comment out unnecessary PageLogFormat entry
-	sed -i -e 's:PageLogFormat:#PageLogFormat:' $install/etc/cups/cupsd.conf*
+	sed -i -e 's:PageLogFormat:#PageLogFormat:' \
+		$install/etc/cups/cupsd.conf*
 
-	# Change files permissions to be accessible via web interface - will be
+	# Change file permissions to be accessible via web interface - will be
 	# fixed in post_install
-	chmod -c o+r \
-		$install/etc/cups/* \
-		$install/usr/sbin/cupsd \
-		$install/usr/lib/cups/backend/ipp \
+	chmod -c o+r					\
+		$install/etc/cups/*			\
+		$install/usr/sbin/cupsd			\
+		$install/usr/lib/cups/backend/ipp		\
 		$install/usr/lib/cups/backend/lpd
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		libcups)
 			copy libcups.so*
 			CAT="system-tools|common libraries"
-			TAGS="printer printing"
 			DEPENDS="libgnutls zlib"
 			;;
 		cups)
 			copy @std @rm
 			DEPENDS="acl dbus libcups libgnutls libusb zlib"
 			CONFIG_FILES="/etc/cups/"
-			TAGS="printer printing"
 			;;
 		cups-pam)
 			copy @std
 			rm -f $fs/usr/lib/libcups.so*
 			CAT="system-tools|with PAM support"
-			DEPENDS="acl dbus libcups libgnutls libusb zlib pam"
+			DEPENDS="acl dbus libcups libgnutls libusb pam zlib"
 			PROVIDE="cups:pam"
 			CONFIG_FILES="/etc/cups/"
-			TAGS="printer printing"
 			;;
 		cups-doc)
 			# We need the doc for CSS, images and help in the web interface.
@@ -121,9 +125,11 @@ genpkg_rules() {
 	esac
 }
 
-post_install_cups() {
+post_install_cups()
+{
 	# Start CUPS daemon
-	if [ -z "$1" -a ! -s /aufs-umount.sh ]; then
+	if [ -z "$1" -a ! -s /aufs-umount.sh ]
+	  then
 		/etc/init.d/cupsd start || continue
 	fi
 
@@ -131,7 +137,8 @@ post_install_cups() {
 	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null
 
 	# Edit daemons.conf
-	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"; then
+	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"
+	  then
 		cat >> "$1/etc/daemons.conf" <<EOT
 # CUPS printing daemon options.
 CUPSD_OPTIONS=""
@@ -144,19 +151,23 @@ EOT
 
 	# Return permissions to previous state
 	chmod 640 $1/etc/cups/*
-	chmod 700 $1/usr/lib/cups/backend/ipp $1/usr/lib/cups/backend/lpd
+	chmod 700 $1/usr/lib/cups/backend/ipp
+	chmod 700 $1/usr/lib/cups/backend/lpd
 	chmod 500 $1/usr/sbin/cupsd
 }
 
-pre_remove_cups() {
+pre_remove_cups()
+{
 	# Stop CUPS daemon before rm.
 	[ -z "$1" -a -x /etc/init.d/cupsd ] && /etc/init.d/cupsd stop
 	:
 }
 
-post_install_cups_pam() {
+post_install_cups_pam()
+{
 	# Start CUPS daemon
-	if [ -z "$1" -a ! -s /aufs-umount.sh ]; then
+	if [ -z "$1" -a ! -s /aufs-umount.sh ]
+	  then
 		/etc/init.d/cupsd start || continue
 	fi
 
@@ -164,7 +175,8 @@ post_install_cups_pam() {
 	rm -f "$1"/var/cache/tazpanel/* 2>/dev/null
 
 	# Edit daemons.conf
-	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"; then
+	if ! grep -q ^CUPSD_OPTIONS "$1/etc/daemons.conf"
+	  then
 		cat >> "$1/etc/daemons.conf" <<EOT
 # CUPS printing daemon options.
 CUPSD_OPTIONS=""
@@ -177,11 +189,13 @@ EOT
 
 	# Return permissions to previous state
 	chmod 640 $1/etc/cups/*
-	chmod 700 $1/usr/lib/cups/backend/ipp $1/usr/lib/cups/backend/lpd
+	chmod 700 $1/usr/lib/cups/backend/ipp
+	chmod 700 $1/usr/lib/cups/backend/lpd
 	chmod 500 $1/usr/sbin/cupsd
 }
 
-pre_remove_cups_pam() {
+pre_remove_cups_pam()
+{
 	# Stop CUPS daemon before rm.
 	[ -z "$1" -a -x /etc/init.d/cupsd ] && /etc/init.d/cupsd stop
 	:
