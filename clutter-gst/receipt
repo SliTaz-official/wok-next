@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="clutter-gst"
-VERSION="3.0.26"
+VERSION="3.0.27"
 CATEGORY="x-window"
 SHORT_DESC="Integration library for using GStreamer with Clutter"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,28 +12,30 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/clutter-gst.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="clutter-dev cogl-dev glib-dev gstreamer1-dev \
-gst1-plugins-base-dev libgudev-dev"
+BUILD_DEPENDS="clutter-dev cogl-dev glib-dev gst1-plugins-base-dev
+	gstreamer1-dev libgudev-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		clutter-gst)
 			copy @std
-			DEPENDS="clutter cogl gdk-pixbuf glib gst1-plugins-base \
-			gstreamer1 libgudev libx11"
+			DEPENDS="clutter cogl gdk-pixbuf glib gst1-plugins-base
+				gstreamer1 libgudev libx11"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="clutter-gst clutter-dev cogl-dev glib-dev \
-			gst1-plugins-base-dev gstreamer1-dev"
+			DEPENDS="clutter-dev clutter-gst cogl-dev glib-dev
+				gst1-plugins-base-dev gstreamer1-dev"
 			;;
 	esac
 }
