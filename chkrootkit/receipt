@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="chkrootkit"
-VERSION="0.52"
+VERSION="0.53"
 CATEGORY="security"
 SHORT_DESC="Locally checks for signs of a rootkit"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,27 +10,31 @@ WEB_SITE="http://www.chkrootkit.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar"
 WGET_URL="ftp://ftp.pangeia.com.br/pub/seg/pac/$PACKAGE-$VERSION.tar.gz"
-TARBALL_SHA1="80a133c0ebc96ce025e62e8e10897ec68968ae7b"
+# 0.52 TARBALL_SHA1="80a133c0ebc96ce025e62e8e10897ec68968ae7b"
 
 PATCH_URL="https://dev.gentoo.org/~polynomial-c/chkrootkit-0.51-gentoo.diff.xz"
 
-compile_rules() {
+compile_rules()
+{
 	# use patch from Gentoo
 	# https://gitweb.gentoo.org/repo/gentoo.git/tree/app-forensics/chkrootkit/chkrootkit-0.52.ebuild
-	if [ ! -e "$SRC/$(basename $PATCH_URL)" ]; then
+	if [ ! -e "$SRC/$(basename $PATCH_URL)" ]
+	  then
 		wget -P $SRC $PATCH_URL
 	fi
 	unxz -c $SRC/$(basename $PATCH_URL) | patch -p1
 
 	make sense || return 1
 	# install all executables
-	for i in $(find $src -type f -perm +111); do
-		install -Dm755 $i $install/usr/sbin/$(basename $i)
-	done
+	for i in $(find $src -type f -perm +111)
+	  do
+		install -Dm755 $i	$install/usr/sbin/$(basename $i)
+	  done
 
 	cook_pick_docs README*
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 }
