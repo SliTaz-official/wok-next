@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cmus"
-VERSION="2.7.1"
+VERSION="2.8.0"
 CATEGORY="multimedia"
 SHORT_DESC="Small, fast and powerful console music player"
 MAINTAINER="claudinei@slitaz.org"
@@ -11,32 +11,36 @@ WEB_SITE="https://cmus.github.io/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/cmus/cmus/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="ncurses-dev libcddb-dev libcdio-paranoia-dev flac-dev \
-libmad-dev libmodplug-dev libvorbis-dev opusfile-dev wavpack-dev faad2-dev \
-ffmpeg-dev libcue-dev pulseaudio-dev alsa-lib-dev jack-dev libsamplerate-dev \
-libao-dev"
+BUILD_DEPENDS="alsa-lib-dev faad2-dev ffmpeg-dev flac-dev jack-dev
+	libao-dev libcddb-dev libcdio-paranoia-dev libcue-dev libmad-dev
+	libmodplug-dev libsamplerate-dev libvorbis-dev ncurses-dev
+	opusfile-dev pulseaudio-dev wavpack-dev"
 SPLIT="$PACKAGE-plugins $PACKAGE"
 
-compile_rules() {
+compile_rules()
+{
 	# can't use $CONFIGURE_ARGS
-	./configure \
+	./configure		\
 		prefix=/usr &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		*-plugins)
 			# cue.so in the main package because bin/cmus depends on libcue too
 			copy aac.so cdio.so modplug.so wavpack.so ao.so jack.so oss.so \
 			pulse.so
+
 			CAT="multimedia|extra plugins"
 			DEPENDS="cmus faad2 jack libao libcddb libcdio libcdio-paranoia \
-			libmodplug libsamplerate pulseaudio wavpack"
+				libmodplug libsamplerate pulseaudio wavpack"
 			;;
 		*)
 			copy @std @rm
+
 			DEPENDS="alsa-lib flac libcue libmad libvorbis ncurses opusfile"
 			;;
 	esac
