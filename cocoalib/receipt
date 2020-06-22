@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cocoalib"
-VERSION="0.99600"
+VERSION="0.99710"
 CATEGORY="misc"
 SHORT_DESC="C++ library for doing Computations in Commutative Algebra"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,20 +11,22 @@ WEB_SITE="http://cocoa.dima.unige.it/cocoalib/"
 TARBALL="CoCoALib-$VERSION.tgz"
 WGET_URL="http://cocoa.dima.unige.it/cocoalib/tgz/$TARBALL"
 
-BUILD_DEPENDS="bash gmp-dev gsl-dev boost-dev boost-thread boost-system \
-boost-filesystem boost-iostreams boost-math-tr1 readline-dev"
+BUILD_DEPENDS="bash boost-dev boost-filesystem boost-iostreams
+	boost-math-tr1 boost-system boost-thread gmp-dev gsl-dev
+	readline-dev"
 
 COPY_std="@dev"
-DEPENDS_std="gmp gsl boost-thread boost-system boost-filesystem \
-boost-iostreams boost-math-tr1 readline"
+DEPENDS_std="boost-filesystem boost-iostreams boost-math-tr1
+	boost-system boost-thread gmp gsl readline"
 
-compile_rules() {
+compile_rules()
+{
 	./configure &&
 	make library || return 1
 
-	install -Dm644 lib/libcocoa.a $install/usr/lib/libcocoa.a
+	install -Dm644 lib/libcocoa.a	$install/usr/lib/libcocoa.a
 
 	mkdir -p $install/usr/include
-	cp -r $src/include/* $install/usr/include
+	cp -r $src/include/*		$install/usr/include
 	find $install -type f -name '*.H' -exec chmod 644 '{}' \;
 }
