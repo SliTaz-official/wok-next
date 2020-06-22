@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="cpio"
-VERSION="2.12"
+VERSION="2.13"
 CATEGORY="base-system"
 SHORT_DESC="GNU cpio archiver"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/cpio/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/cpio.html"
@@ -12,13 +12,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/cpio.html"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="tar gettext-dev texinfo"
+BUILD_DEPENDS="gettext-dev tar texinfo"
 
-compile_rules() {
-	./configure \
-		--bindir=/bin \
-		--enable-mt \
-		--with-rmt=$install/usr/libexec/rmt \
+compile_rules()
+{
+	./configure					\
+		--bindir=/bin				\
+		--enable-mt				\
+		--with-rmt=$install/usr/libexec/rmt	\
 		$CONFIGURE_ARGS &&
 	make &&
 	makeinfo --html            -o doc/html      doc/cpio.texi &&
@@ -33,7 +34,8 @@ compile_rules() {
 	install -v -m644    doc/cpio.txt  $docdir
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="glibc-base"
 }
