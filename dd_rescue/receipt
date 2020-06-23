@@ -1,23 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dd_rescue"
-VERSION="1.22"
+VERSION="1.99.8"
 CATEGORY="system-tools"
 SHORT_DESC="Block device copy tools"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.garloff.de/kurt/linux/ddrescue/"
 REPOLOGY="ddrescue"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://www.garloff.de/kurt/linux/ddrescue/$TARBALL"
 
-compile_rules() {
+BUILD_DEPENDS="automake openssl-dev"
+
+compile_rules()
+{
 	make &&
 	install -Dm755 $src/dd_rescue $install/usr/bin/dd_rescue
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
+	DEPENDS="openssl"
 }
 
