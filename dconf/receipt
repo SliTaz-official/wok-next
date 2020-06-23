@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dconf"
-VERSION="0.30.1"
+VERSION="0.36.0"
 CATEGORY="system-tools"
 SHORT_DESC="A low-level configuration system"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,24 +12,25 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/dconf.html"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="meson ninja vala libxslt-dev gtk-doc dbus-dev"
+BUILD_DEPENDS="dbus-dev gtk-doc libxslt-dev meson ninja vala"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	meson-wrapper \
-		-Dbash_completion=false \
-		&&
+	meson-wrapper			\
+		-Dbash_completion=false &&
 	ninja &&
 	ninja install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		dconf)
 			copy @std
-			DEPENDS="glib   dbus"
+			DEPENDS="dbus glib"
 			;;
 		*-dev)
 			copy @dev
