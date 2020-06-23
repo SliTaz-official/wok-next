@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dar"
-VERSION="2.5.17"
+VERSION="2.6.10"
 CATEGORY="system-tools"
 SHORT_DESC="Disk archive"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -13,31 +13,34 @@ WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
 COOKOPTS="force-arch" # different .h
 
-BUILD_DEPENDS="gettext-dev zlib-dev bzip2-dev lzo-dev xz-dev libgpg-error-dev \
-libgcrypt-dev attr-dev e2fsprogs-dev upx gpgme-dev"
+BUILD_DEPENDS="attr-dev bzip2-dev e2fsprogs-dev gettext-dev gpgme-dev
+	libgcrypt-dev libgpg-error-dev lzo-dev upx xz-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
+compile_rules()
+{
+	./configure		\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		dar)
 			copy @std
-			DEPENDS="libbzip2 gpgme libgcrypt liblzma lzo zlib   upx"
+			DEPENDS="gpgme libbzip2 libgcrypt liblzma lzo upx zlib"
 			CONFIG_FILES="/etc/darrc"
 			TAGS="backup"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="dar attr-dev bzip2-dev gpgme-dev libassuan-dev libcap-dev \
-			libgcrypt-dev libgpg-error-dev lzo-dev xz-dev zlib-dev"
+			DEPENDS="attr-dev bzip2-dev dar gpgme-dev libassuan-dev
+			libcap-dev libgcrypt-dev libgpg-error-dev lzo-dev xz-dev
+			zlib-dev"
 			;;
 	esac
 }
