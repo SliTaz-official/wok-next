@@ -1,32 +1,36 @@
 # SliTaz package receipt.
 
 PACKAGE="deutex-devel"
-VERSION="4.4.902"
+VERSION="5.2.1"
 CATEGORY="development"
 SHORT_DESC="A WAD file composer for Doom, Heretic, Hexen and Strife"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/Doom-Utils/deutex"
 REPOLOGY="deutex"
 
 SOURCE="deutex"
 TARBALL="$SOURCE-$VERSION.tar.gz"
-WGET_URL="http://www.teaser.fr/~amajorel/deutex/fungus/$TARBALL"
+WGET_URL="$WEB_SITE/archive/v$VERSION.tar.gz"
 
-compile_rules() {
+BUILD_DEPENDS="automake"
+
+compile_rules()
+{
 	mkdir -p $install/usr/bin
 	mkdir -p $install/usr/share/man/man6
 
-	./configure \
-		--cflags="$CFLAGS" &&
+	./bootstrap &&
+	./configure		\
+		CFLAGS="$CFLAGS" &&
 	make &&
-	make \
-		BINDIR=$install/usr/bin \
-		MANDIR=$install/usr/share/man \
-		install
+	make	install				\
+		BINDIR=$install/usr/bin		\
+		MANDIR=$install/usr/share/man
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/bin	$fs/usr
 }
