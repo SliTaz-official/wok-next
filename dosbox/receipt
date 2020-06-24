@@ -1,28 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dosbox"
-VERSION="0.74-2"
+VERSION="0.74.3"
 CATEGORY="system-tools"
+TAGS="emulator dos vm86 8086"
 SHORT_DESC="A DOS emulator"
 MAINTAINER="devel@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.dosbox.com/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="$PACKAGE-${VERSION%.*}-${VERSION##*.}.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="sdl-dev alsa-lib-dev libpng-dev sdl-net-dev mesa-dev \
-glu-dev sdl-sound-dev"
+BUILD_DEPENDS="alsa-lib-dev glu-dev libpng-dev libsdl2-net-dev mesa-dev 
+	sdl-dev sdl-sound-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="alsa-lib libpng sdl sdl-net mesa sdl-sound libx11 \
-	zlib"
-	TAGS="emulator dos vm86 8086"
+	DEPENDS="alsa-lib libpng libsdl2-net libx11 mesa sdl sdl-sound 
+		zlib"
 }
