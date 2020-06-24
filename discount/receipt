@@ -1,25 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="discount"
-VERSION="2.1.8"
+VERSION="2.2.6"
 CATEGORY="utilities"
-SHORT_DESC="C implementation of the markdown spec"
-MAINTAINER="devel@slitaz.org"
+SHORT_DESC="C implementation of the markdown language"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD3"
 WEB_SITE="http://www.pell.portland.or.us/~orc/Code/markdown/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$WEB_SITE/$TARBALL"
+WGET_URL="https://github.com/Orc/discount/archive/v$VERSION/$TARBALL"
 
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure.sh --prefix=/usr &&
-	make &&
+	make -j1 &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		discount) copy @std;;
 		*-dev)    copy @dev;;
