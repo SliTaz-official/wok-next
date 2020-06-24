@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="duktape"
-VERSION="2.3.0"
+VERSION="2.5.0"
 CATEGORY="libs"
 SHORT_DESC="Embeddable Javascript engine"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,16 +10,20 @@ WEB_SITE="https://duktape.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="https://duktape.org/$TARBALL"
-TARBALL_MD5="352105b39979fc766bbd0b3721e8c2b5"
+TARBALL_MD5="e55fe3830f0d469dc67205b380515af0"
 
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mv Makefile.sharedlibrary Makefile
-	sed -i.orig 's|-Wall -Wextra|$(CFLAGS)|g' Makefile
-	sed -i "s|/usr/local|$install/usr|" Makefile
+	sed -i.orig 's|-Wall -Wextra|$(CFLAGS)|g' \
+		Makefile
+	sed -i "s|/usr/local|$install/usr|" \
+		Makefile
 	cp $stuff/duktape.pc .
-	sed -i "s|@@VERSION@@|$VERSION|" duktape.pc
+	sed -i "s|@@VERSION@@|$VERSION|" \
+		duktape.pc
 
 	CFLAGS="$CFLAGS -D DUK_USE_FASTINT -w" \
 	make || return 1
@@ -28,10 +32,11 @@ compile_rules() {
 		$install/usr/lib/pkgconfig/ \
 		$install/usr/include/
 	make install
-	cp duktape.pc $install/usr/lib/pkgconfig/
+	cp duktape.pc	$install/usr/lib/pkgconfig/
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		duktape) copy @std;;
 		*-dev)   copy @dev;;
