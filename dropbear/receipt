@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dropbear"
-VERSION="2018.76"
+VERSION="2020.79"
 CATEGORY="security"
+TAGS="ssh"
 SHORT_DESC="Lightweight SSH2 server and client"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="MIT"
@@ -11,58 +12,62 @@ WEB_SITE="http://matt.ucc.asn.au/dropbear/dropbear.html"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="http://matt.ucc.asn.au/dropbear/releases/$TARBALL"
 
-BUILD_DEPENDS="zlib-dev pam-dev"
+BUILD_DEPENDS="pam-dev zlib-dev"
 SPLIT="$PACKAGE-pam"
 
-compile_rules() {
+compile_rules()
+{
 	local i DROPBEARS="dropbearkey dropbearconvert dbclient scp"
-	sed -iold -e 's|/usr/.*/xauth|/usr/bin/xauth|' \
-		-e 's|ENABLE_SVR_PAM_AUTH|ENABLE_SVR_PASSWORD_AUTH|' \
+	sed -iold	-e 's|/usr/.*/xauth|/usr/bin/xauth|' \
+			-e 's|ENABLE_SVR_PAM_AUTH|ENABLE_SVR_PASSWORD_AUTH|' \
 		options.h
 
-	./configure \
-		--prefix=/usr \
-		--without-pam \
+	./configure		\
+		--prefix=/usr	\
+		--without-pam	\
 		$CONFIGURE_ARGS &&
 	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 SCPPROGRESS=1 &&
 	install -Dm755 dropbearmulti $install/usr/sbin/dropbear || return 1
 
-	sed -i 's|ENABLE_SVR_PASSWORD_AUTH|ENABLE_SVR_PAM_AUTH|' options.h
-	./configure \
-		--enable-pam \
+	sed -i 's|ENABLE_SVR_PASSWORD_AUTH|ENABLE_SVR_PAM_AUTH|' \
+		options.h
+	./configure		\
+		--enable-pam	\
 		$CONFIGURE_ARGS &&
 	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 SCPPROGRESS=1 &&
 	install -Dm755 dropbearmulti $install/usr/sbin/dropbear-pam || return 1
 
 	install -dm755 $install/usr/bin &&
-	for i in $DROPBEARS ssh; do
+	for i in $DROPBEARS ssh
+	  do
 		ln -s ../sbin/dropbear $install/usr/bin/$i || return 1
-	done
+	  done
 
 	cook_pick_manpages $src/*.1 $src/*.8
 	cook_pick_docs CHANGES INSTALL LICENSE MULTI README SMALL
 
-	# Config file and init script.
+	# Configuration file and init script.
 	mkdir -p $install/etc
-	cp -a $stuff/dropbear $install/etc
-	cp -a $stuff/init.d $install/etc
-	cp -a $stuff/sshx $install/usr/bin
-	ln -s sshx $install/usr/bin/pppssh
-	ln -s sshx $install/usr/bin/sshfbvnc
+	cp -a $stuff/dropbear	$install/etc
+	cp -a $stuff/init.d	$install/etc
+	cp -a $stuff/sshx	$install/usr/bin
+	ln -s sshx		$install/usr/bin/pppssh
+	ln -s sshx		$install/usr/bin/sshfbvnc
 	touch $install/etc/dropbear/dropbear_dss_host_key \
 	      $install/etc/dropbear/dropbear_rsa_host_key \
 	      $install/etc/dropbear/dropbear_ecdsa_host_key
 
 	# PAM
-	cp -a $stuff/pam.d $install/etc
+	cp -a $stuff/pam.d	$install/etc
 
-	# Fix dropbear initscript perms
-	chown -R root:root $install
+	# Fix dropbear initscript permissions
+	chown -R root:root	$install
 
-	ln -s daemon $install/etc/init.d/sshd
+	ln -s daemon		$install/etc/init.d/sshd
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		dropbear)
 			copy @std
@@ -71,7 +76,6 @@ genpkg_rules() {
 			DEPENDS="zlib"
 			CONFIG_FILES="/etc/dropbear"
 			PROVIDE="ssh"
-			TAGS="ssh"
 			;;
 		dropbear-pam)
 			copy dropbear-pam pam.d/
@@ -79,18 +83,19 @@ genpkg_rules() {
 			DEPENDS="dropbear pam"
 			CAT="security|with PAM support"
 			PROVIDE="dropbear:pam ssh:pam"
-			TAGS="ssh"
 			;;
 	esac
 }
 
 # Post message when installing.
-post_install_dropbear() {
-	while read dropbear openssh; do
+post_install_dropbear()
+{
+	while read dropbear openssh
+	  do
 		[ -s "$1/$openssh" ] || continue
 		chroot "$1/" dropbearconvert openssh dropbear $openssh $dropbear
 		chroot "$1/" dropbearkey -y -f $dropbear | grep Fingerprint
-	done <<EOT
+	  done <<EOT
 /etc/dropbear/dropbear_rsa_host_key	/etc/ssh/ssh_host_rsa_key
 /etc/dropbear/dropbear_dss_host_key	/etc/ssh/ssh_host_dsa_key
 /etc/dropbear/dropbear_ecdsa_host_key	/etc/ssh/ssh_host_ecdsa_key
@@ -109,11 +114,13 @@ EOT
 EOT
 }
 
-post_remove_dropbear() {
-	grep -q dropbear "$1/etc/inetd.conf" &&
-	sed -i '/dropbear/d' "$1/etc/inetd.conf"
+post_remove_dropbear()
+{
+	grep -q dropbear	"$1/etc/inetd.conf" &&
+	sed -i '/dropbear/d'	"$1/etc/inetd.conf"
 }
 
-post_remove_dropbear_pam() {
+post_remove_dropbear_pam()
+{
 	tazpkg -gi dropbear --forced
 }
