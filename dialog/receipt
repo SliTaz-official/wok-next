@@ -1,33 +1,34 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dialog"
-VERSION="1.3-20181107"
+VERSION="1.3.20200327"
 CATEGORY="base-system"
 SHORT_DESC="Script-interpreter which provides a set of curses widgets"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="https://invisible-island.net/dialog/" # "HTTP/1.1 403 Forbidden" for wget
 
-TARBALL="$PACKAGE-$VERSION.tgz"
+TARBALL="$PACKAGE-${VERSION%.*}-${VERSION##*.}.tgz"
 WGET_URL="https://invisible-mirror.net/archives/dialog/$TARBALL"
-TARBALL_SHA1="9bbfba93cf8a818251c6a4e707ba5c1135cb21a8"
+# 1.3-20181107 TARBALL_SHA1="9bbfba93cf8a818251c6a4e707ba5c1135cb21a8"
 
-BUILD_DEPENDS="ncurses-dev gettext-dev"
+BUILD_DEPENDS="gettext-dev ncurses-dev"
 SPLIT="$PACKAGE-dev"
 
 DEPENDS_std="ncurses"
 
-compile_rules() {
-	./configure \
-		--with-ncursesw \
-		--enable-nls \
-		--enable-widec \
+compile_rules()
+{
+	./configure		\
+		--with-ncursesw	\
+		--enable-nls	\
+		--enable-widec	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install || return 1
 
-	# Config file.
-	install -Dm644 $stuff/dialogrc $install/etc/dialogrc
+	# Configuration file.
+	install -Dm644 $stuff/dialogrc	$install/etc/dialogrc
 
 	cook_pick_manpages dialog.3
 }
