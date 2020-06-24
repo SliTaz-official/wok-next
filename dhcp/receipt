@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dhcp"
-VERSION="4.2.2"
+VERSION="4.4.2"
 CATEGORY="network"
 SHORT_DESC="Dynamic Host Configuration Protocol"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,30 +9,33 @@ LICENSE="ISC"
 WEB_SITE="https://www.isc.org/downloads/DHCP/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://ftp.isc.org/isc/dhcp/$TARBALL"
+WGET_URL="https://ftp.isc.org/isc/$PACKAGE/$VERSION/$TARBALL"
 
 BUILD_DEPENDS="perl"
 SPLIT="$PACKAGE-client $PACKAGE-relay $PACKAGE-dev"
 SIBLINGS="dhcp6"
 
-compile_rules() {
+compile_rules()
+{
 	grep -q MYEOL includes/dhctoken.h ||
 	sed -i "s/SEMI/MYEOL = '\\\\n',\n\tQUESTION = '?',\n\t&/" \
 		includes/dhctoken.h
-	sed -i 's/== NOERROR/== (isc_result_t) NOERROR/' server/ddns.c
+	sed -i 's/== NOERROR/== (isc_result_t) NOERROR/' \
+		server/ddns.c
 
-	./configure \
-		--disable-dhcpv6 \
+	./configure		\
+		--disable-dhcpv6	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install || return 1
 
 	mkdir -p $install/etc/init.d
-	cp $stuff/dhcpd $install/etc/init.d
-	cp $src/client/scripts/linux $install/etc/dhclient-script
+	cp $stuff/dhcpd			$install/etc/init.d
+	cp $src/client/scripts/linux	$install/etc/dhclient-script
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		dhcp)
 			copy dhcpd.conf dhcpd
