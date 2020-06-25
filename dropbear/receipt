@@ -21,6 +21,10 @@ compile_rules()
 	sed -iold	-e 's|/usr/.*/xauth|/usr/bin/xauth|' \
 			-e 's|ENABLE_SVR_PAM_AUTH|ENABLE_SVR_PASSWORD_AUTH|' \
 		options.h
+	cat > localoptions.h <<EOT
+#define SFTPSERVER_PATH "/usr/sbin/sftp-server"
+#define DROPBEAR_X11FWD 1
+EOT
 
 	./configure		\
 		--prefix=/usr	\
@@ -55,7 +59,8 @@ compile_rules()
 	ln -s sshx		$install/usr/bin/sshfbvnc
 	touch $install/etc/dropbear/dropbear_dss_host_key \
 	      $install/etc/dropbear/dropbear_rsa_host_key \
-	      $install/etc/dropbear/dropbear_ecdsa_host_key
+	      $install/etc/dropbear/dropbear_ecdsa_host_key \
+	      $install/etc/dropbear/dropbear_ed25519_host_key
 
 	# PAM
 	cp -a $stuff/pam.d	$install/etc
@@ -63,7 +68,7 @@ compile_rules()
 	# Fix dropbear initscript permissions
 	chown -R root:root	$install
 
-	ln -s daemon		$install/etc/init.d/sshd
+	ln -s dropbear		$install/etc/init.d/sshd
 }
 
 genpkg_rules()
@@ -99,6 +104,7 @@ post_install_dropbear()
 /etc/dropbear/dropbear_rsa_host_key	/etc/ssh/ssh_host_rsa_key
 /etc/dropbear/dropbear_dss_host_key	/etc/ssh/ssh_host_dsa_key
 /etc/dropbear/dropbear_ecdsa_host_key	/etc/ssh/ssh_host_ecdsa_key
+/etc/dropbear/dropbear_ed25519_host_key	/etc/ssh/ssh_host_ed25519_key
 EOT
 	grep -q ssh "$1/etc/inetd.conf" || cat >> "$1/etc/inetd.conf" <<EOT
 #ssh	stream	tcp	nowait	root	dropbear	dropbear	-i -b /etc/dropbear/banner
