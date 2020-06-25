@@ -1,10 +1,11 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ecj"
-VERSION="3.6"
+VERSION="4.16"
 CATEGORY="development"
+TAGS="compiler java"
 SHORT_DESC="The Eclipse standalone batch Java compiler and Ant compiler adapter"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="other"
 WEB_SITE="http://www.eclipse.org/jdt/core/"
 HOST_ARCH="any"
@@ -13,22 +14,24 @@ TARBALL="$PACKAGE-$VERSION.jar"
 # 3.4.2: WGET_URL="http://download.eclipse.org/eclipse/downloads/drops/R-$VERSION-200902111700/$TARBALL"
 # 3.5.2: WGET_URL="http://download.eclipse.org/eclipse/downloads/drops/R-$VERSION-201002111343/$TARBALL"
 # 3.6:
-WGET_URL="http://download.eclipse.org/eclipse/downloads/drops/R-$VERSION-201006080911/$TARBALL"
+#WGET_URL="http://download.eclipse.org/eclipse/downloads/drops/R-$VERSION-201006080911/$TARBALL"
+# 4.16:
+WGET_URL="https://download.eclipse.org/eclipse/downloads/drops4/R-$VERSION-202006040540/$TARBALL"
 
-compile_rules() {
+compile_rules()
+{
 	# Build the ecj shell script to use the current version
 	mkdir -p $install/usr/bin
 	echo "#!/bin/sh" > $install/usr/bin/ecj
 	echo "ECJ_VERSION=$VERSION" >> $install/usr/bin/ecj
 	cat $stuff/ecj.sh.part >> $install/usr/bin/ecj
-	chmod +x $install/usr/bin/ecj
-	mkdir -p $install/usr/share/java
-	cp -a $src/*.jar $install/usr/share/java
+	chmod +x		$install/usr/bin/ecj
+	mkdir -p		$install/usr/share/java
+	cp -a $src/*.jar	$install/usr/share/java
 }
 
-genpkg_rules() {
-	mkdir -p $fs
-	cp -a $install/usr $fs
+genpkg_rules()
+{
+	cp -a $install/usr	$fs
 	SUGGESTED="java-jre"
-	TAGS="compiler java"
 }
