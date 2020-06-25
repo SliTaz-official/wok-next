@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="emerald"
-VERSION="0.8.14"
+VERSION="0.8.18"
 CATEGORY="x-window"
+TAGS="compiz"
 SHORT_DESC="Window decorator for Compiz"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
@@ -11,20 +12,19 @@ WEB_SITE="https://gitlab.com/compiz/emerald"
 TARBALL="$PACKAGE-v$VERSION.tar.bz2"
 WGET_URL="https://gitlab.com/compiz/emerald/-/archive/v$VERSION/$TARBALL"
 
-BUILD_DEPENDS="automake gettext-dev libtool intltool libxrender-dev \
-libxi-dev gtk3-dev libwnck3-dev compiz-dev cairo-dev pango-dev"
+BUILD_DEPENDS="automake cairo-dev compiz-dev gettext-dev gtk3-dev 
+	intltool libtool libwnck3-dev libxi-dev libxrender-dev 
+	pango-dev xorg-libXtst-dev"
 SPLIT="$PACKAGE-dev"
 
-DEPENDS_std="atk libcairo compiz gdk-pixbuf glib gtk3 libwnck3 pango libx11 \
-libxi libxrender"
-DEPENDS_dev="emerald atk-dev cairo-dev compiz-dev gdk-pixbuf-dev glib-dev \
-gtk3-dev libwnck3-dev pango-dev libx11-dev libxi-dev \
-libxrender-dev"
+DEPENDS_std="atk compiz gdk-pixbuf glib gtk3 libcairo libwnck3 libx11 
+	libxi libxrender pango xorg-libXtst"
+DEPENDS_dev="atk-dev cairo-dev compiz-dev emerald gdk-pixbuf-dev glib-dev 
+	gtk3-dev libwnck3-dev libx11-dev libxi-dev libxrender-dev pango-dev"
 
-TAGS="compiz"
-
-compile_rules() {
-	./autogen.sh \
+compile_rules()
+{
+	./autogen.sh		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -33,9 +33,10 @@ compile_rules() {
 	# save original emerald theme as 'default':
 	mkdir -p $install/usr/share/emerald/themes/default/
 	cd       $install/usr/share/emerald/themes/default/
-	for i in $(ls ../../theme/*.png); do
+	for i in $(ls ../../theme/*.png)
+	  do
 		ln -s $i $(basename $i)
-	done
+	  done
 	mv $install/usr/share/emerald/theme/theme.ini \
 	   $install/usr/share/emerald/themes/default/theme.ini
 
@@ -43,11 +44,12 @@ compile_rules() {
 	ln -sf ../theme     $install/usr/share/emerald/themes/SliTaz
 	cp $stuff/theme.ini $install/usr/share/emerald/themes/SliTaz/
 
-	# custom SliTaz config
-	cp -f $stuff/settings.ini $install/usr/share/emerald/
+	# custom SliTaz configuration
+	cp -f $stuff/settings.ini	$install/usr/share/emerald/
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		emerald) copy @std; DEPENDS="$DEPENDS_std";;
 		*-dev)   copy @dev; DEPENDS="$DEPENDS_dev";;
