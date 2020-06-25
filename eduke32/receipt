@@ -1,29 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="eduke32"
-VERSION="20181002-6989"
+VERSION="20200404.8798"
 CATEGORY="games"
+TAGS="shooting"
 SHORT_DESC="A port of the classic first-person shooter, Duke Nukem 3D"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
-WEB_SITE="http://eduke32.com/"
+WEB_SITE="https://eduke32.com/"
 
-TARBALL="eduke32_src_$VERSION.tar.xz"
-WGET_URL="https://dukeworld.com/eduke32/synthesis/$VERSION/$TARBALL"
+TARBALL="eduke32_src_${VERSION/./-}.tar.xz"
+WGET_URL="https://dukeworld.com/eduke32/synthesis/${VERSION/./-}/$TARBALL"
 
-BUILD_DEPENDS="sdl2-dev glu-dev mesa-dev sdl2-mixer-dev libvpx-dev \
-libvorbis-dev flac-dev fluidsynth-dev nasm"
+BUILD_DEPENDS="flac-dev fluidsynth-dev glu-dev libvpx-dev libvorbis-dev 
+	mesa-dev nasm sdl2-dev sdl2-mixer-dev"
 
-compile_rules() {
+compile_rules()
+{
 	make $MAKEFLAGS || return 1
 
 	install -Dm755 eduke32   $install/usr/bin/eduke32
 	install -Dm755 mapster32 $install/usr/bin/mapster32
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="flac sdl2 sdl2-mixer libvorbis libvpx"
+	DEPENDS="flac libvorbis libvpx sdl2 sdl2-mixer"
 	SUGGESTED="eduke32-shareware-data fluidsynth"
-	TAGS="shooting"
 }
