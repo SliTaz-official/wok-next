@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="elfutils"
-VERSION="0.175"
+VERSION="0.180"
 CATEGORY="development"
 SHORT_DESC="ELF object file access library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,14 +10,17 @@ WEB_SITE="https://sourceware.org/elfutils/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://sourceware.org/elfutils/ftp/$VERSION/$TARBALL"
-TARBALL_MD5="9a02b0382b78cc2d515fb950275d4c02"
-TARBALL_SHA512="2c3168a34bbc8f22425faa263fc24ec50df39258a4f9ace4e6cd88e9764c435fee70c1a82db8273dbab70a75e5216a200bebf05af1d3ea77e444e35d71a4ed84"
+#TARBALL_MD5="9a02b0382b78cc2d515fb950275d4c02"
+TARBALL_SHA512="62e96035ccfe8928baca2285decbe8b8703a2daa956df81ece18fecf643272fb68955806b3e807a514141a7a9bf44520bf09461672aa580bd6807485fb604d25"
 
-BUILD_DEPENDS="gettext zlib-dev bzip2-dev xz-dev"
+BUILD_DEPENDS="bzip2-dev gettext xz-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure $CONFIGURE_ARGS &&
+compile_rules()
+{
+	./configure			\
+		--disable-debuginfod	\
+		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
