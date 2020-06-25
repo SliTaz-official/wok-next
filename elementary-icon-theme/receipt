@@ -1,31 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="elementary-icon-theme"
-VERSION="4.3.1"
+VERSION="5.3.1"
 CATEGORY="customization"
 SHORT_DESC="Smooth modern theme designed to be intuitive"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL3"
 WEB_SITE="https://github.com/elementary/icons"
-HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/archive/$VERSION.tar.gz"
 
-BUILD_DEPENDS="cmake"
+BUILD_DEPENDS="meson ninja rsvg-convert xorg-xcursorgen"
 
-compile_rules() {
-	mkdir build
-	cd    build
+HOST_ARCH="any"
 
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		.. &&
-	make &&
-	make install || return 1
+compile_rules()
+{
+	meson	build --prefix=/usr &&
+	cd	build
+	ninja	install || return 1
 
 	cd ..
-	cook_pick_docs AUTHORS *.md CONTRIBUTORS COPYING *.gpl pre-commit
+	cook_pick_docs *.md COPYING data/*.gpl pre-commit
 
 	fix symlinks # for cursors
 	rm $install/.VolumeIcon.icns $install/.VolumeIcon.png
