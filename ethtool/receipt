@@ -1,8 +1,9 @@
 # SliTaz package receipt.
 
 PACKAGE="ethtool"
-VERSION="4.2"
+VERSION="5.7"
 CATEGORY="network"
+TAGS="ethernet"
 SHORT_DESC="Display or change ethernet card settings"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL2"
@@ -11,17 +12,21 @@ WEB_SITE="https://mirrors.edge.kernel.org/pub/software/network/ethtool/"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$WEB_SITE/$TARBALL"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--infodir=/usr/share/info \
-		--mandir=/usr/share/man \
+BUILD_DEPENDS="libmnl-dev"
+
+compile_rules()
+{
+	./configure				\
+		--prefix=/usr			\
+		--infodir=/usr/share/info	\
+		--mandir=/usr/share/man		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	TAGS="ethernet"
+	DEPENDS="libmnl"
 }
