@@ -1,25 +1,28 @@
 # SliTaz package receipt v2.
 
 PACKAGE="etherape"
-VERSION="0.9.14"
+VERSION="0.9.19"
 CATEGORY="network"
+TAGS="ip monitoring network tcp vlan wlan"
 SHORT_DESC="A graphical network monitor and visualization tool"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://etherape.sourceforge.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="gcc glib-dev glibc-dev libglade-dev libgnome-dev gtk2-dev \
-libgnomeui-dev libpcap-dev gnome-doc-utils openssl-dev libxslt-dev \
-ossp-uuid-dev"
+BUILD_DEPENDS="gcc glib-dev glibc-dev gnome-doc-utils goocanvas2-dev 
+	gtk2-dev itstool libglade-dev libgnome-dev \
+	libgnomeui-dev libpcap-dev libxslt-dev \
+	openssl-dev ossp-uuid-dev xorg-libXtst-dev"
 
-compile_rules() {
-	./configure \
-		--libdir=/usr/lib \
-		--localstatedir=/var/state/$PACKAGE-$VERSION \
-		--disable-scrollkeeper \
+compile_rules()
+{
+	./configure						\
+		--libdir=/usr/lib				\
+		--localstatedir=/var/state/$PACKAGE-$VERSION	\
+		--disable-scrollkeeper				\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install || return 1
@@ -31,9 +34,11 @@ compile_rules() {
 	# TODO: check, looks like ${localstatedir} is a bit weird
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="gtk2 libglade libgnome libpcap libgnomeui libltdl \
-	openssl libxslt libgnome-keyring util-linux-uuid"
-	TAGS="ip monitoring network tcp vlan wlan"
+
+	DEPENDS="goocanvas2 gtk2 libglade libgnome libgnome-keyring 
+		libgnomeui libltdl libpcap libxslt openssl 
+		util-linux-uuid xorg-libXtst"
 }
