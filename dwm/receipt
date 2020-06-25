@@ -1,54 +1,64 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dwm"
-VERSION="6.0"
+VERSION="6.2"
 CATEGORY="x-window"
+TAGS="window-manager"
 SHORT_DESC="Very light dynamic window manager for X"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="MIT"
-WEB_SITE="http://dwm.suckless.org/"
+WEB_SITE="https://dwm.suckless.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://dl.suckless.org/dwm/$TARBALL"
+WGET_URL="https://dl.suckless.org/dwm/$TARBALL"
 
-BUILD_DEPENDS="libx11-dev xorgproto \
-libxinerama-dev"
+BUILD_DEPENDS="libx11-dev libxinerama-dev xorg-libXft-dev xorgproto"
 
-compile_rules() {
+compile_rules()
+{
 	# From blue to grey and have lighter grey
 	sed -i s/'#0066ff'/'#222222'/g config.def.h
 	sed -i s/'#cccccc'/'#f1efeb'/g config.def.h
+
 	# 6 tag-mask
 	sed -i s/', "7", "8", "9"'// config.def.h
+
 	# Firefox on current tag-mask
 	sed -i s/'1 << 8,'/'0,     '/ config.def.h
+
 	# [Shift]+[Alt]+[Enter]
 	sed -i s/uxterm/xterm/ config.def.h
+
 	make CC=$HOST_SYSTEM-gcc || return 1
 
 	install -Dm755 $src/dwm           $install/usr/bin/dwm
 	install -Dm755 $stuff/dwm-session $install/usr/bin/dwm-session
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="libx11 xsetroot"
-	TAGS="window-manager"
 }
 
 # Adding WM to SLIM available sessions.
-post_install() {
+post_install()
+{
 	res=$(cat "$1/etc/slim.conf" | grep ^session | sed s/"sessions. *"//)
-	if ! echo "$res" | grep -q $PACKAGE; then
+	if ! echo "$res" | grep -q $PACKAGE
+	  then
 		action "Adding $PACKAGE to /etc/slim.conf..."
-		sed -i "s/^sessions.*/sessions            $res,dwm/" /etc/slim.conf
+		sed -i "s/^sessions.*/sessions            $res,dwm/" \
+			/etc/slim.conf
 		status
 	fi
 }
 
 # Remove dwm from SLIM available sessions.
-post_remove() {
-	if grep -q dwm "$1/etc/slim.conf"; then
+post_remove()
+{
+	if grep -q dwm "$1/etc/slim.conf"
+	  then
 		sed -i s/,dwm// "$1/etc/slim.conf"
 	fi
 }
