@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="exempi"
-VERSION="2.4.3"
+VERSION="2.5.2"
 CATEGORY="utilities"
 LICENSE="GPL3"
 SHORT_DESC="An implementation of XMP (Adobe's Extensible Metadata Platform)"
@@ -12,19 +12,21 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/exempi.html"
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://libopenraw.freedesktop.org/download/$TARBALL"
 
-BUILD_DEPENDS="expat-dev zlib-dev boost-dev boost-unit-test-framework"
+BUILD_DEPENDS="boost-dev boost-unit-test-framework expat-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
+compile_rules()
+{
+	./configure			\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		exempi)
 			copy @std
