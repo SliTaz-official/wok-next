@@ -1,19 +1,20 @@
 # SliTaz package receipt v2.
 
 PACKAGE="file"
-VERSION="5.35"
+VERSION="5.39"
 CATEGORY="system-tools"
+TAGS_std="LFS"
 SHORT_DESC="Determines file type using 'magic' numbers"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://github.com/file/file"
 LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/file.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/file/file/archive/FILE${VERSION/./_}.tar.gz"
-TARBALL_SHA1="2a00782750d015cf654ace2e53239e02d28c09e9"
+# 5.35 TARBALL_SHA1="2a00782750d015cf654ace2e53239e02d28c09e9"
 
-BUILD_DEPENDS="automake libtool zlib-dev python python3"
+BUILD_DEPENDS="automake libtool python python3 zlib-dev"
 SPLIT="libmagic libmagic-dev python-magic python3-magic"
 
 COPY_std="file"
@@ -32,12 +33,12 @@ CAT_libmagic="libs|shared library"
 CAT_python_magic="development|Python2 bindings"
 CAT_python3_magic="development|Python3 bindings"
 
-TAGS_std="LFS"
 
-compile_rules() {
+compile_rules()
+{
 	autoreconf -f -i &&
-	./configure \
-		--libdir=/usr/lib \
+	./configure			\
+		--libdir=/usr/lib	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -55,6 +56,7 @@ compile_rules() {
 }
 
 # Be sure it as cross compile.
-testsuite() {
+testsuite()
+{
 	readelf -h $install/usr/bin/file
 }
