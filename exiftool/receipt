@@ -1,22 +1,24 @@
 # SliTaz package receipt v2.
 
 PACKAGE="exiftool"
-VERSION="11.17"
+VERSION="12.01"
 CATEGORY="system-tools"
 SHORT_DESC="Read, write and edit meta information in a wide variety of files"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="Artistic"
 WEB_SITE="http://owl.phy.queensu.ca/~phil/exiftool/"
-HOST_ARCH="any"
 
 TARBALL="Image-ExifTool-$VERSION.tar.gz"
 WGET_URL="http://owl.phy.queensu.ca/~phil/exiftool/$TARBALL"
-TARBALL_SHA1="9ad727f0b588fd08212591654b93c095649d26da"
-TARBALL_MD5="c7d93ac2a472c9843845a4ff152b4eb7"
+#TARBALL_SHA1="9ad727f0b588fd08212591654b93c095649d26da"
+#TARBALL_MD5="c7d93ac2a472c9843845a4ff152b4eb7"
 
 BUILD_DEPENDS="perl"
 
-compile_rules() {
+HOST_ARCH="any"
+
+compile_rules()
+{
 	perl Makefile.PL &&
 	make &&
 	make DESTDIR=$install install || return 1
@@ -24,7 +26,8 @@ compile_rules() {
 	find $install -type f -exec chmod u+w '{}' \;
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="perl"
 	SUGGESTED="perl-archive-zip perl-io-compress"
