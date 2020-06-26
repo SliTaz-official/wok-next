@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ettercap"
-VERSION="0.8.2"
+VERSION="0.8.3"
 CATEGORY="network"
 SHORT_DESC="Multipurpose Network sniffer, analyser, interceptor, logger"
 MAINTAINER="al.bobylev@gmail.com"
@@ -10,13 +10,14 @@ WEB_SITE="https://www.ettercap-project.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="https://github.com/Ettercap/ettercap/releases/download/v$VERSION/$TARBALL"
-TARBALL_SHA1="04f50925a5f3b2555371075a048ab7bfe3892976"
+TARBALL_SHA1="1db39315b2b2b574dc1eb3f7ae72871ad2391e2f"
 
-BUILD_DEPENDS="cmake openssl-dev zlib-dev curl-dev libpcap-dev libnet-dev \
-gtk2-dev"
+BUILD_DEPENDS="cmake curl-dev geoip-dev gtk3-devncurses-dev libnet-dev 
+	libpcap-dev openssl-dev zlib-dev"
 SPLIT="$PACKAGE-gtk:gtk"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'')  SET_ARGS='-DENABLE_GTK=OFF';;
 		gtk) SET_ARGS='-DENABLE_GTK=ON';;
@@ -24,28 +25,30 @@ compile_rules() {
 
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		$SET_ARGS \
-		.. &&
+	cmake	..				\
+		-DCMAKE_INSTALL_PREFIX=/usr	\
+		$SET_ARGS &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		ettercap)
 			copy @std
 			find $fs \( -name '*.png' -o -name '*.svg' \) -delete
-			DEPENDS="libcurl libnet libpcap libpcre ncurses ncurses-libform \
-			ncurses-libmenu ncurses-libpanel openssl zlib"
+			DEPENDS="geoip libcurl libnet libpcap libpcre ncurses 
+				ncurses-libform ncurses-libmenu ncurses-libpanel 
+				openssl zlib"
 			CAT="network|console flavor"
 			CONFIG_FILES="/etc/ettercap/etter.conf"
 			;;
 		*-gtk)
 			copy @std
-			DEPENDS="glib gtk2 libcurl libnet libpcap libpcre ncurses \
-			ncurses-libform ncurses-libmenu ncurses-libpanel openssl zlib"
+			DEPENDS="geoip glib gtk3 libcurl libnet libpcap libpcre 
+				ncurses ncurses-libform ncurses-libmenu 
+				ncurses-libpanel openssl zlib"
 			CAT="network|GTK flavor"
 			PROVIDE="ettercap"
 			CONFIG_FILES="/etc/ettercap/etter.conf"
