@@ -1,61 +1,63 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ffmpeg"
-VERSION="3.4.2"
+VERSION="4.3"
 CATEGORY="multimedia"
 SHORT_DESC="Record, convert and stream audio and video"
 MAINTAINER="pascal.bellard@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
-WEB_SITE="http://ffmpeg.org/"
+WEB_SITE="https://ffmpeg.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/multimedia/ffmpeg.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="${WEB_SITE}releases/$TARBALL"
 
-BUILD_DEPENDS="coreutils-file-format libass-dev fdk-aac-dev lame-dev opus-dev \
-libtheora-dev libvorbis-dev libvpx-dev x264-dev x265-dev libx11-dev \
-sdl2-dev yasm"
+BUILD_DEPENDS="coreutils-file-format fdk-aac-dev lame-dev libass-dev 
+	libtheora-dev libvorbis-dev libvpx-dev libx11-dev opus-dev 
+	sdl2-dev x264-dev x265-dev yasm"
 SPLIT="ffplay ffserver $PACKAGE-dev $PACKAGE"
 
-compile_rules() {
+compile_rules()
+{
 	case "$ARCH" in
 		i?86) ARCH_ARGS="--arch=$ARCH --cpu=$ARCH";;
 	esac
 
 	sed -i 's|-lflite"|-lflite -lasound"|' configure
-	./configure \
-		--prefix=/usr \
-		--enable-gpl \
-		--enable-version3 \
-		--enable-nonfree \
-		--disable-static \
-		--enable-shared \
-		--disable-debug \
-		--enable-libass \
-		--enable-libfdk-aac \
-		--enable-libfreetype \
-		--enable-libmp3lame \
-		--enable-libopus \
-		--enable-libtheora \
-		--enable-libvorbis \
-		--enable-libvpx \
-		--enable-libx264 \
-		--enable-libx265 \
-		--docdir=/usr/share/doc/ffmpeg-$VERSION \
-		\
-		--enable-runtime-cpudetect \
+
+	./configure					\
+		--prefix=/usr				\
+		--docdir=/usr/share/doc/ffmpeg-$VERSION	\
+		--disable-debug				\
+		 --enable-gpl				\
+		 --enable-libass			\
+		 --enable-libfdk-aac			\
+		 --enable-libfreetype			\
+		 --enable-libmp3lame			\
+		 --enable-libopus			\
+		 --enable-libtheora			\
+		 --enable-libvorbis			\
+		 --enable-libvpx			\
+		 --enable-libx264			\
+		 --enable-libx265			\
+		 --enable-nonfree			\
+		 --enable-runtime-cpudetect		\
+		 --enable-shared			\
+		--disable-static			\
+		 --enable-version3			\
 		$ARCH_ARGS &&
 	make &&
 	gcc tools/qt-faststart.c -o tools/qt-faststart &&
 	make install || return 1
 
-	install -v -m755 tools/qt-faststart $install/usr/bin
-	install -Dm644 $stuff/ffserver.conf $install/etc/ffserver.conf
+	install -v -m755 tools/qt-faststart	$install/usr/bin
+	install -Dm644 $stuff/ffserver.conf	$install/etc/ffserver.conf
 
 	cook_pick_docs doc/*.txt
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		ffplay)
 			copy ffplay
@@ -71,17 +73,17 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev examples/
-			DEPENDS="ffmpeg bzip2-dev fdk-aac-dev freetype-dev lame-dev \
-			libass-dev libogg-dev libtheora-dev libvorbis-dev libvpx-dev \
-			opus-dev x264-dev x265-dev libx11-dev libxcb-dev xz-dev \
-			zlib-dev"
+			DEPENDS="bzip2-dev fdk-aac-dev ffmpeg freetype-dev lame-dev 
+				libass-dev libogg-dev libtheora-dev libvorbis-dev 
+				libvpx-dev libx11-dev libxcb-dev opus-dev x264-dev 
+				x265-dev xz-dev zlib-dev"
 			;;
 		ffmpeg)
 			copy @std @rm
 			SUGGESTED="ffplay"
 			TAGS="audio video convert stream"
-			DEPENDS="libbzip2 fdk-aac freetype lame libass liblzma libtheora-enc \
-			libvorbis libvpx opus x264 x265 libxcb zlib"
+			DEPENDS="fdk-aac freetype lame libass libbzip2 liblzma 
+				libtheora-enc libvorbis libvpx libxcb opus x264 x265 zlib"
 			;;
 	esac
 }
