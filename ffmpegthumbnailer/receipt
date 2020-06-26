@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="ffmpegthumbnailer"
-VERSION="2.2.0"
+VERSION="2.2.2"
 CATEGORY="system-tools"
 SHORT_DESC="Fast and lightweight video thumbnailer"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,18 +11,18 @@ WEB_SITE="https://github.com/dirkvdb/ffmpegthumbnailer"
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://github.com/dirkvdb/ffmpegthumbnailer/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="cmake libjpeg-turbo-dev zlib-dev libpng-dev ffmpeg-dev"
+BUILD_DEPENDS="cmake ffmpeg-dev libjpeg-turbo-dev libpng-dev zlib-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DENABLE_GIO=ON \
-		-DENABLE_THUMBNAILER=ON \
-		.. &&
+	cmake	..				\
+		-DCMAKE_INSTALL_PREFIX=/usr	\
+		-DCMAKE_BUILD_TYPE=Release	\
+		-DENABLE_GIO=ON			\
+		-DENABLE_THUMBNAILER=ON &&
 	make &&
 	make install || return 1
 
@@ -32,11 +32,13 @@ eo/3gp;video/3gpp;video/dv;video/divx;video/fli;video/flv;video/mp2t;video/mp4v\
 nd.rn-realvideo;video/vnd.vivo;video/webm;video/x-anim;video/x-avi;video/x-flc;\
 video/x-fli;video/x-flic;video/x-m4v;video/x-mpeg;video/x-mpeg2;video/x-nsv;vid\
 eo/x-ogm+ogg;video/x-theora+ogg;"
+
 	sed -i "/MimeType=/ s|\$|$addtypes|" \
 		$install/usr/share/thumbnailers/ffmpegthumbnailer.thumbnailer
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		ffmpegthumbnailer)
 			copy @std
@@ -44,7 +46,7 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="ffmpegthumbnailer ffmpeg-dev"
+			DEPENDS="ffmpeg-dev ffmpegthumbnailer"
 			;;
 	esac
 }
