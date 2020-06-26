@@ -1,37 +1,39 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fcron"
-VERSION="3.0.4"
+VERSION="3.2.1"
 CATEGORY="network"
+TAGS="cron scheduler"
 SHORT_DESC="Periodical command scheduler"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://fcron.free.fr/"
 
 TARBALL="$PACKAGE-$VERSION.src.tar.gz"
 WGET_URL="http://fcron.free.fr/archives/$TARBALL"
 
-BUILD_DEPENDS="perl"
+BUILD_DEPENDS="perl readline-dev"
 
-compile_rules() {
-	./configure \
-		--without-sendmail \
-		--with-username=nobody \
-		--with-groupname=nogroup \
-		--with-pam=no \
-		--with-selinux=no \
-		--with-answer-all=no \
-		--with-boot-install=no \
-		--with-editor=/bin/vi \
-		--with-sysfcrontab=yes \
+compile_rules()
+{
+	./configure				\
+		--with-answer-all=no		\
+		--with-boot-install=no		\
+		--with-editor=/bin/vi		\
+		--with-groupname=nogroup	\
+		--with-pam=no			\
+		--with-selinux=no		\
+		--without-sendmail		\
+		--with-sysfcrontab=yes		\
+		--with-username=nobody		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make -j1 DESTDIR=$install install || return 1
 
-	install -Dm755 $stuff/fcron $install/etc/init.d/fcron
+	install -Dm755 $stuff/fcron	$install/etc/init.d/fcron
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	TAGS="cron scheduler"
 }
