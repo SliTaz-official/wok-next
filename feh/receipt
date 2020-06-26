@@ -1,37 +1,37 @@
 # SliTaz package receipt v2.
 
 PACKAGE="feh"
-VERSION="2.10"
+VERSION="3.4.1"
 CATEGORY="graphics"
+TAGS="image photo viewer"
 SHORT_DESC="Lightweight and powerful image viewer and composer"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="MIT"
 WEB_SITE="https://feh.finalrewind.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://feh.finalrewind.org/$TARBALL"
 
-BUILD_DEPENDS="imlib2-dev giblib-dev xorgproto \
-libx11-dev libpng-dev jpeg-dev curl-dev libxinerama-dev \
-libxt-dev"
+BUILD_DEPENDS="curl-dev giblib-dev imlib2-dev jpeg-dev libpng-dev 
+	libx11-dev libxinerama-dev libxt-dev xorgproto"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's|/usr/local|/usr|g' config.mk
 
 	make &&
 	make DESTDIR=$install install || return 1
 
-	# Fix path to icon and remove from menu since it need a param to
+	# Fix path to icon and remove from menu since it needs a param to
 	# load images.
-	sed \
-		-e 's|/home/slitaz/wok/feh/install||' \
+	sed	-e 's|/home/slitaz/wok/feh/install||' \
 		-e '/Categories.*/d' \
 		-i $install/usr/share/applications/feh.desktop
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
-	DEPENDS="imlib2 giblib jpeg libpng libx11 freetype libxau \
-	libxdmcp libxext libxinerama libcurl"
-	TAGS="image photo viewer"
+	DEPENDS="freetype giblib imlib2 jpeg libcurl libpng libx11 libxau 
+		libxdmcp libxext libxinerama"
 }
