@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fftw"
-VERSION="3.3.6-pl2"
+VERSION="3.3.8"
 CATEGORY="multimedia"
 SHORT_DESC="A library for computing the discrete Fourier transform (DFT)"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.fftw.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/fftw.html"
@@ -15,26 +15,27 @@ WGET_URL="http://www.fftw.org/$TARBALL"
 BUILD_DEPENDS="gfortran"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	# --enable-threads: ardour need it: cannot find -lfftw3f_threads
 
 	# build double precision (fftw3)
-	./configure \
-		F77=gfortran \
-		--enable-shared \
-		--enable-threads \
+	./configure			\
+		F77=gfortran		\
+		--enable-shared		\
+		--enable-threads	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install
 
-	# build long double precission (fftw3l)
+	# build long double precision (fftw3l)
 	make clean
-	./configure \
-		F77=gfortran \
-		--enable-long-double \
-		--enable-shared \
-		--enable-threads \
+	./configure			\
+		F77=gfortran		\
+		--enable-long-double	\
+		--enable-shared		\
+		--enable-threads	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
@@ -42,18 +43,19 @@ compile_rules() {
 
 	# build single precision (fftw3f)
 	make clean
-	./configure \
-		F77=gfortran \
-		--enable-float \
-		--enable-shared \
-		--enable-threads \
+	./configure			\
+		F77=gfortran		\
+		--enable-float		\
+		--enable-shared		\
+		--enable-threads	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		fftw)  copy @std;;
 		*-dev) copy @dev;;
