@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="eudev"
-VERSION="3.2.7"
+VERSION="3.2.9"
 CATEGORY="base-system"
+TAGS="LFS"
 SHORT_DESC="Programs for dynamic creation of device nodes"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="GPL2"
@@ -11,42 +12,47 @@ LFS="http://www.linuxfromscratch.org/lfs/view/development/chapter06/eudev.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="${WEB_SITE}$TARBALL"
-TARBALL_MD5="c75d99910c1791dd9430d26ab76059c0"
+# https://dev.gentoo.org/~blueness/eudev/
+TARBALL_MD5="dedfb1964f6098fe9320de827957331f"
 
-BUILD_DEPENDS="gobject-introspection-dev util-linux-blkid-dev gperf kmod-dev"
+BUILD_DEPENDS="gobject-introspection-dev gperf kmod-dev util-linux-blkid-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	sed -r -i 's|/usr(/bin/test)|\1|' test/udev-test.pl
-	sed -i '/keyboard_lookup_key/d' src/udev/udev-builtin-keyboard.c
+compile_rules()
+{
+	sed -r -i 's|/usr(/bin/test)|\1|' \
+		test/udev-test.pl
+	sed -i '/keyboard_lookup_key/d' \
+		src/udev/udev-builtin-keyboard.c
 	cat > config.cache <<"EOF"
 HAVE_BLKID=1
 BLKID_LIBS="-lblkid"
 BLKID_CFLAGS="-I/include"
 EOF
 
-	./configure \
-		--bindir=/sbin \
-		--sbindir=/sbin \
-		--libdir=/usr/lib \
-		--libexecdir=/lib \
-		--with-rootprefix= \
-		--with-rootlibdir=/lib \
-		--enable-manpages \
-		--disable-static \
-		--config-cache \
-		--enable-kmod \
+	./configure			\
+		--bindir=/sbin		\
+		--sbindir=/sbin		\
+		--libdir=/usr/lib	\
+		--libexecdir=/lib	\
+		--with-rootprefix=	\
+		--with-rootlibdir=/lib	\
+		--enable-manpages	\
+		--disable-static	\
+		--config-cache		\
+		--enable-kmod		\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install || return 1
 
-	cp $stuff/*.rules $install/etc/udev/rules.d
-	cp -a $stuff/udev/* $install/lib/udev
+	cp $stuff/*.rules	$install/etc/udev/rules.d
+	cp -a $stuff/udev/*	$install/lib/udev
 
-	mkdir -p "$install/lib/firmware" "$install/lib/udev/keymaps/force-release"
+	mkdir -p "$install/lib/firmware"
+	mkdir -p "$install/lib/udev/keymaps/force-release"
 
-	chown -R root:root $install
+	chown -R root:root	$install
 
 	# https://docs.oracle.com/cd/E37670_01/E41138/html/ch07s03.html
 	# /lib/udev/rules.d : default rules files. Do not edit these files.
@@ -55,13 +61,13 @@ EOF
 	# in /lib/udev/rules.d.
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		eudev)
 			copy @std
-			DEPENDS="kmod liblzma util-linux-blkid util-linux-uuid zlib   dbus"
+			DEPENDS="dbus kmod liblzma util-linux-blkid util-linux-uuid zlib"
 			PROVIDE="udev"
-			TAGS="LFS"
 			;;
 		eudev-dev)
 			copy @dev
@@ -70,7 +76,8 @@ genpkg_rules() {
 	esac
 }
 
-post_install_eudev() {
+post_install_eudev()
+{
 	# Create some devices and directories that Udev cannot handle
 	# due to them being required very early in the boot process
 	mkdir -p "$1/lib/udev/devices/pts"
@@ -80,13 +87,15 @@ post_install_eudev() {
 	# Sanity check for udev+ldap boot
 	grep GROUP= "$1"/etc/udev/rules.d/* "$1"/lib/udev/rules.d/* 2>/dev/null | \
 	sed 's/.*GROUP="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq | \
-	while read x; do
+	while read x
+	  do
 		grep -q ^$x: "$1/etc/group" || chroot "$1/" addgroup -S $x
-	done
+	  done
 
 	grep OWNER= "$1"/etc/udev/rules.d/* "$1"/lib/udev/rules.d/* 2>/dev/null | \
 	sed 's/.*OWNER="\([a-zA-Z0-9]*\)".*/\1/' | sort | uniq | \
-	while read x; do
+	while read x
+	  do
 		grep -q ^$x: "$1/etc/passwd" || chroot "$1/" adduser -S -D -H $x
-	done
+	  done
 }
