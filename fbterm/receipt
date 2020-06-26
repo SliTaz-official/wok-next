@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fbterm"
-VERSION="1.7"
+VERSION="1.8"
 CATEGORY="utilities"
 SHORT_DESC="A fast FrameBuffer based TERMinal emulator for linux"
 MAINTAINER="al.bobylev@gmail.com"
@@ -14,9 +14,10 @@ WGET_URL="https://github.com/sfzhi/fbterm/archive/$VERSION.tar.gz"
 
 #configure: WARNING: libx86.h doesn't exist! VESA support will be disabled!
 # -> http://www.codon.org.uk/~mjg59/libx86/
-BUILD_DEPENDS="freetype-dev fontconfig-dev gpm-dev ncurses-dev"
+BUILD_DEPENDS="fontconfig-dev freetype-dev gpm-dev ncurses-dev"
 
-compile_rules() {
+compile_rules()
+{
 	sed -i 's/-1/(u16) &/' src/lib/vterm_states.cpp
 
 	./configure $CONFIGURE_ARGS &&
@@ -24,7 +25,8 @@ compile_rules() {
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std
 	DEPENDS="fontconfig freetype"
 }
