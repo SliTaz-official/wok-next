@@ -1,28 +1,39 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fetchmail"
-VERSION="6.3.26"
+VERSION="6.4.8"
 CATEGORY="network"
+TAGS="email"
 SHORT_DESC="Mail retrieval and forwarding utility"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.fetchmail.info/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="openssl-dev gettext-dev"
+BUILD_DEPENDS="gettext-dev openssl-dev"
+SPLIT="$PACKAGE-lang"
 
-compile_rules() {
-	./configure \
-		--with-ssl \
+compile_rules()
+{
+	./configure		\
+		--with-ssl	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="openssl python"
-	TAGS="email"
+genpkg_rules()
+{
+	case $PACKAGE in
+		(fetchmail)
+			copy @std
+			DEPENDS="openssl python"
+			;;
+		(*-lang)
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/share/locale	$fs/usr/share
+			;;
+	esac
 }
