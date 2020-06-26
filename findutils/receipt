@@ -1,28 +1,31 @@
 # SliTaz package receipt v2.
 
 PACKAGE="findutils"
-VERSION="4.6.0"
+VERSION="4.7.0"
 CATEGORY="utilities"
-SHORT_DESC="GNU utilities and tools to find/locate"
-MAINTAINER="devel@slitaz.org"
+TAGS_std="LFS"
+SHORT_DESC="GNU utilities and tools to find and locate"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/findutils/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/findutils.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 DEPENDS_std="glibc-base slitaz-base-files"
-TAGS_std="LFS"
 
-compile_rules() {
+SPLIT="$PACKAGE-lang"
+
+compile_rules()
+{
 	# for glibc-2.28 (from LFS):
 	sed -i 's|IO_ftrylockfile|IO_EOF_SEEN|'       gl/lib/*.c
 	sed -i '/unistd/a #include <sys/sysmacros.h>' gl/lib/mountlist.c
 	echo '#define _IO_IN_BACKUP 0x100'         >> gl/lib/stdio-impl.h
 
-	./configure \
-		--localstatedir=/var/lib/locate \
+	./configure				\
+		--localstatedir=/var/lib/locate	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
