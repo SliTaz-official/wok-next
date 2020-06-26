@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="firefox-official"
-VERSION="71.0"
+VERSION="77.0"
 CATEGORY="network"
+TAGS="web-browser"
 SHORT_DESC="Official Firefox build by the Mozilla foundation"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="MPL2"
@@ -12,8 +13,10 @@ REPOLOGY="firefox"
 TARBALL="firefox-${ARCH/i486/i686}-en-US-$VERSION.tar.bz2"
 WGET_URL="http://ftp.mozilla.org/pub/firefox/releases/$VERSION/linux-${ARCH/i486/i686}/en-US/firefox-$VERSION.tar.bz2"
 
-SPLIT="$PACKAGE-de:de $PACKAGE-en-GB:gb $PACKAGE-es:es $PACKAGE-fr:fr $PACKAGE-it:it \
-$PACKAGE-pt-BR:pt-BR $PACKAGE-ru:ru $PACKAGE-uk:uk"
+ SPLIT="$PACKAGE-de:de	$PACKAGE-en-GB:gb
+	$PACKAGE-es:es	$PACKAGE-fr:fr
+	$PACKAGE-it:it	$PACKAGE-pt-BR:pt-BR 
+	$PACKAGE-ru:ru	$PACKAGE-uk:uk"
 
 compile_rules()
 {
@@ -39,10 +42,10 @@ compile_rules()
 		$install/usr/share/applications
 
 	# Copy everything
-	cp -a $src/firefox/* $install$fx
+	cp -a $src/firefox/*	$install$fx
 
 	# Executable
-	ln -s $fx/firefox $install/usr/bin/firefox-official
+	ln -s $fx/firefox	$install/usr/bin/firefox-official
 
 	# Icons
 	for size in 16 32 48 128
@@ -53,20 +56,20 @@ compile_rules()
 			$icon_folder/firefox-official.png
 	  done
 
-	# Make symlinks relative
+	# Make symbolic links relative
 	fix symlinks
 
 	# Allow user updates (save user's and our traffic)
-	chmod -R o+w $install$fx
+	chmod -R o+w		$install$fx
 
 	# Desktop shortcuts
-	cp $stuff/*.desktop $install/usr/share/applications
+	cp $stuff/*.desktop	$install/usr/share/applications
 
 	# Link to "generic" browser-html5
-	ln -s firefox-official $install/usr/bin/browser-html5
+	ln -s firefox-official	$install/usr/bin/browser-html5
 
 	# Fix ownership
-	chown -R root:root $install
+	chown -R root:root	$install
 
 	# Clean
 	rm -r $src
@@ -77,22 +80,22 @@ genpkg_rules()
 	PROVIDE="firefox-official browser-html5"
 	case $PACKAGE in
 		firefox-official)
-			lang="English"
-			PROVIDE="browser-html5"
-			;;
-		*-de) lang="German";;
-		*-en-GB) lang="English (Great Britain)";;
-		*-es) lang="Spanish";;
-		*-fr) lang="French";;
-		*-it) lang="Italian";;
-		*-pt-BR) lang="Portuguese (Brazil)";;
-		*-ru) lang="Russian";;
-		*-uk) lang="Ukrainian";;
+				lang="English"
+				PROVIDE="browser-html5"
+				;;
+		*-de)		lang="German";;
+		*-en-GB)	lang="English (Great Britain)";;
+		*-es)		lang="Spanish";;
+		*-fr)		lang="French";;
+		*-it)		lang="Italian";;
+		*-pt-BR)	lang="Portuguese (Brazil)";;
+		*-ru)		lang="Russian";;
+		*-uk)		lang="Ukrainian";;
 	esac
+
 	CAT="network|$lang language"
-	cp -a $install/* $fs
-	DEPENDS="atk libcairo dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk2 \
-	gtk3 pango libx11 libxcomposite libxdamage libxext \
-	libxfixes libxrender libxt libxcb"
-	TAGS="web-browser"
+	cp -a $install/*	$fs
+	DEPENDS="atk dbus dbus-glib fontconfig freetype gdk-pixbuf glib gtk2 
+		gtk3 libcairo libx11 libxcb libxcomposite libxdamage libxext 
+		libxfixes libxrender libxt pango"
 }
