@@ -1,31 +1,33 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fsarchiver"
-VERSION="0.6.12"
+VERSION="0.8.5"
 CATEGORY="utilities"
-MAINTAINER="devel@slitaz.org"
+TAGS="compression filesystem archive backup"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 SHORT_DESC="A safe and flexible file-system backup and deployment tool"
-WEB_SITE="http://www.fsarchiver.org/"
+WEB_SITE="https://www.fsarchiver.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://github.com/fdupoux/$PACKAGE/releases/download/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="bzip2-dev e2fsprogs-dev libgcrypt-dev lzo-dev xz-dev \
-util-linux-blkid-dev attr-dev util-linux-uuid-dev zlib-dev"
+BUILD_DEPENDS="attr-dev bzip2-dev e2fsprogs-dev libgcrypt-dev lz4-dev lzo-dev 
+	util-linux-blkid-dev util-linux-uuid-dev xz-dev zlib-dev zstd-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
+compile_rules()
+{
+	./configure		\
+		--prefix=/usr	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
-	DEPENDS="bzip2 e2fsprogs lzo xz libgcrypt liblzma util-linux-blkid \
-	libcomerr3 zlib"
-	TAGS="compression filesystem archive backup"
+	cp -a $install/usr/sbin	$fs/usr
+	DEPENDS="bzip2 e2fsprogs libcomerr3 libgcrypt liblzma lz4 lzo 
+		util-linux-blkid xz zlib zstd"
 }
