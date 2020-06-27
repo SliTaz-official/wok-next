@@ -15,15 +15,13 @@ BUILD_DEPENDS="libftdi-dev libusb-dev pciutils-dev zlib-dev"
 
 compile_rules()
 {
-	sed -i 's|/usr/local$|/usr|' Makefile
-
-	make &&
-	make DESTDIR=$install install
+	make PREFIX=/usr &&
+	make PREFIX=/usr DESTDIR=$install install
 }
 
 genpkg_rules()
 {
 	mkdir -p $fs/usr
-	cp -a $install/usr/sbin $fs/usr
+	cp -a $install/usr/sbin	$fs/usr
 	DEPENDS="pciutils"
 }

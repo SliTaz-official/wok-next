@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fltk"
-VERSION="1.3.4"
+VERSION="1.3.5"
 CATEGORY="system-tools"
 SHORT_DESC="Fast Light Tool Kit"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2"
 WEB_SITE="https://www.fltk.org/index.php"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/fltk.html"
@@ -12,23 +12,30 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/fltk.html"
 TARBALL="$PACKAGE-$VERSION-source.tar.gz"
 WGET_URL="https://fltk.org/pub/fltk/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="alsa-lib-dev libjpeg-turbo-dev zlib-dev libpng-dev \
-libx11-dev libice-dev libsm-dev mesa-dev libxinerama-dev \
-freetype-dev libxft-dev libxcursor-dev xprop"
-SPLIT="$PACKAGE-blocks $PACKAGE-checkers $PACKAGE-sudoku $PACKAGE-colbrowser \
-$PACKAGE-editor $PACKAGE-doc $PACKAGE $PACKAGE-dev"
+BUILD_DEPENDS="alsa-lib-dev freetype-dev libice-dev libjpeg-turbo-dev 
+	libpng-dev libsm-dev libx11-dev libxcursor-dev libxft-dev 
+	libxinerama-dev mesa-dev xprop zlib-dev"
+ SPLIT="$PACKAGE-blocks		$PACKAGE-checkers	$PACKAGE-sudoku 
+	$PACKAGE-colbrowser	$PACKAGE-editor		$PACKAGE-doc 
+	$PACKAGE		$PACKAGE-dev"
+
 COOKOPTS="!menus"
 
-compile_rules() {
-	sed -i -e '/cat./d' documentation/Makefile
+compile_rules()
+{
+	sed -i -e '/cat./d' \
+		documentation/Makefile
 
-	./configure \
-		--enable-shared \
-		--enable-xft \
-		--enable-threads \
+	./configure			\
+		--enable-shared		\
+		--enable-xft		\
+		--enable-threads	\
 		$CONFIGURE_ARGS &&
-	sed -i 's| -shared | -Wl,-Os,--as-needed\0|g' makeinclude &&
-	sed -i s'#"rgb.txt"#"/usr/share/fltk/rgb.txt"#' test/colbrowser.cxx &&
+	sed -i 's| -shared | -Wl,-Os,--as-needed\0|g' \
+		makeinclude &&
+	sed -i s'#"rgb.txt"#"/usr/share/fltk/rgb.txt"#' \
+		test/colbrowser.cxx &&
+
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install || return 1
 
@@ -37,56 +44,59 @@ compile_rules() {
 
 	make -C test  install-linux || return 1
 
-	for game in blocks checkers sudoku; do
+	for game in blocks checkers sudoku
+	  do
 		for file in \
-		/usr/bin/$game \
-		/usr/share/icons/hicolor/128x128/apps/$game.png \
-		/usr/share/icons/hicolor/32x32/apps/$game.png \
-		/usr/share/applications/$game.desktop; do
+			/usr/bin/$game \
+			/usr/share/icons/hicolor/128x128/apps/$game.png \
+			/usr/share/icons/hicolor/32x32/apps/$game.png \
+			/usr/share/applications/$game.desktop
+		  do
 			mv $install$file $install${file/$game/fltk-$game}
-		done
+		  done
 		sed -i 's|Exec=|Exec=fltk-|; s|Icon=|Icon=fltk-|; /TryExec/d' \
 			$install/usr/share/applications/fltk-$game.desktop
-	done
+	  done
 
-	install -m755  $src/test/colbrowser $install/usr/bin/fltk-colbrowser
-	install -m755  $src/test/editor     $install/usr/bin/fltk-editor
-	install -Dm644 $src/test/rgb.txt    $install/usr/share/fltk/rgb.txt
+	install -m755  $src/test/colbrowser	$install/usr/bin/fltk-colbrowser
+	install -m755  $src/test/editor		$install/usr/bin/fltk-editor
+	install -Dm644 $src/test/rgb.txt	$install/usr/share/fltk/rgb.txt
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		fltk-blocks)
 			copy $PACKAGE*
 			CAT="games|FLTK Blocks game"
 			DEPENDS="alsa-lib fontconfig libx11 libxcursor \
-			libxext libxfixes libxft libxinerama \
-			libxrender"
+				libxext libxfixes libxft libxinerama \
+				libxrender"
 			;;
 		fltk-checkers)
 			copy $PACKAGE*
 			CAT="games|FLTK Checkers game"
 			DEPENDS="fontconfig libx11 libxcursor libxext \
-			libxfixes libxft libxinerama libxrender"
+				libxfixes libxft libxinerama libxrender"
 			;;
 		fltk-sudoku)
 			copy $PACKAGE*
 			CAT="games|FLTK Sudoku game"
-			DEPENDS="alsa-lib fontconfig libjpeg-turbo libpng libx11 \
-			libxcursor libxext libxfixes libxft \
-			libxinerama libxrender"
+			DEPENDS="alsa-lib fontconfig libjpeg-turbo libpng 
+				libx11 libxcursor libxext libxfixes 
+				libxft libxinerama libxrender"
 			;;
 		fltk-colbrowser)
 			copy $PACKAGE* rgb.txt
 			CAT="graphics|FLTK Color browser"
 			DEPENDS="fontconfig libx11 libxcursor libxext \
-			libxfixes libxft libxinerama libxrender"
+				libxfixes libxft libxinerama libxrender"
 			;;
 		fltk-editor)
 			copy $PACKAGE*
 			CAT="development|FLTK text editor"
 			DEPENDS="fontconfig libx11 libxcursor libxext \
-			libxfixes libxft libxinerama libxrender"
+				libxfixes libxft libxinerama libxrender"
 			;;
 		fltk-doc)
 			copy doc/
@@ -95,8 +105,8 @@ genpkg_rules() {
 		fltk)
 			copy @std @rm
 			DEPENDS="fontconfig libjpeg-turbo libpng mesa \
-			libx11 libxcursor libxext libxfixes \
-			libxft libxinerama libxrender"
+				libx11 libxcursor libxext libxfixes \
+				libxft libxinerama libxrender"
 			;;
 		fltk-dev)
 			copy @dev @rm # remove examples in doc
