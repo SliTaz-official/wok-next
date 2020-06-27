@@ -1,21 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="freetype"
-VERSION="2.9.1"
+VERSION="2.10.2"
 CATEGORY="x-window"
 SHORT_DESC="A free, high-quality, and portable font engine"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="FTL GPL2"
 WEB_SITE="https://www.freetype.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
-TARBALL_SHA1="220c82062171c513e4017c523d196933c9de4a7d"
+# 2.9.1 TARBALL_SHA1="220c82062171c513e4017c523d196933c9de4a7d"
 
 COOKOPTS="force-arch" # different configs, .h
 
-BUILD_DEPENDS="automake libtool autoconf zlib-dev bzip2-dev libpng-dev"
+BUILD_DEPENDS="autoconf automake bzip2-dev libpng-dev libtool zlib-dev"
 SPLIT="$PACKAGE-dev"
 
 DEPENDS_std="libbzip2 libharfbuzz libpng zlib"
@@ -24,17 +24,19 @@ DEPENDS_dev="$PACKAGE bzip2-dev harfbuzz-dev libpng-dev zlib-dev"
 # Option "--harfbuzz" used in the task to install build dependency harfbuzz-dev
 [ -n "$harfbuzz" ] && BUILD_DEPENDS="$BUILD_DEPENDS harfbuzz-dev"
 
-compile_rules() {
-	sed -ri "s:.*(AUX_MODULES.*valid):\1:" modules.cfg
+compile_rules()
+{
+	sed -ri "s:.*(AUX_MODULES.*valid):\1:" \
+		modules.cfg
 	sed -ri "s:.*(#.*SUBPIXEL_RENDERING) .*:\1:g" \
 		include/freetype/config/ftoption.h
 
 #	./autogen.sh &&
-	./configure \
-		--disable-static \
-		--with-bzip2 \
-		--with-png \
-		--enable-freetype-config \
+	./configure				\
+		--disable-static		\
+		--with-bzip2			\
+		--with-png			\
+		--enable-freetype-config	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
