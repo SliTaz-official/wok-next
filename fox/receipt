@@ -1,42 +1,45 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fox"
-VERSION="1.6.49"
+VERSION="1.6.57"
 CATEGORY="x-window"
 SHORT_DESC="Fox toolkit"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2.1"
 WEB_SITE="http://www.fox-toolkit.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://ftp.fox-toolkit.org/pub/$TARBALL"
+WGET_URL="ftp://ftp.fox-toolkit.org/pub/$TARBALL"
 
-BUILD_DEPENDS="libpng-dev jpeg-dev tiff-dev libxft-dev mesa-dev \
-glu-dev freetype-dev fontconfig-dev expat-dev libxml2-dev xorg-dev \
-libxshmfence-dev"
+BUILD_DEPENDS="expat-dev fontconfig-dev freetype-dev glu-dev jpeg-dev 
+	libpng-dev libxft-dev libxml2-dev libxshmfence-dev mesa-dev 
+	tiff-dev xorg-dev"
 SPLIT="adie calculator $PACKAGE-dev $PACKAGE-doc pathfinder shutterbug"
 
-compile_rules() {
-	./configure \
-		--with-xft \
+compile_rules()
+{
+	./configure		\
+		--with-xft	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make DESTDIR=$install install
 }
 
-testsuite() {
+testsuite()
+{
 	readelf -h $install/usr/bin/adie
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		fox)
 			copy libCHART-*.so* libFOX-*.so*
 			SUGGESTED="adie calculator pathfinder shutterbug"
-			DEPENDS="libpng jpeg libtiff libxft libbzip2 mesa glu \
-			libxcursor libxrandr libxxf86vm \
-			libxdamage libdrm jbigkit"
+			DEPENDS="glu jbigkit jpeg libdrm libbzip2 libpng 
+				libtiff libxcursor libxdamage libxft 
+				libxrandr libxxf86vm mesa"
 			;;
 		adie)
 			copy adie Adie.stx
