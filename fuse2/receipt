@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fuse2"
-VERSION="2.9.7"
+VERSION="2.9.9"
 CATEGORY="system-tools"
 SHORT_DESC="FUSE Filsystem in Userspace, compatible with GVFS"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://github.com/libfuse/libfuse"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/fuse2.html"
@@ -16,10 +16,12 @@ WGET_URL="https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$TA
 BUILD_DEPENDS="util-linux-mount"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	export MOUNT_FUSE_PATH=/usr/bin
-	./configure \
-		--disable-static \
+
+	./configure			\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
@@ -35,7 +37,8 @@ compile_rules() {
 	cook_pick_docs doc/how-fuse-works doc/kernel.txt
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		fuse2)
 			copy @std
