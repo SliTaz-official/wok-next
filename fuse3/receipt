@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="fuse3"
-VERSION="3.2.6"
+VERSION="3.9.2"
 CATEGORY="system-tools"
 SHORT_DESC="FUSE Filsystem in Userspace"
 MAINTAINER="al.bobylev@gmail.com"
@@ -13,18 +13,18 @@ REPOLOGY="fuse"
 TARBALL="fuse-$VERSION.tar.xz"
 WGET_URL="https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$TARBALL"
 
-BUILD_DEPENDS="meson ninja eudev-dev"
+BUILD_DEPENDS="eudev-dev meson ninja"
 SPLIT="fuse-common $PACKAGE $PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
 
-	meson \
-		--prefix=/usr \
-		--sbindir=bin \
-		--libdir=lib \
-		.. &&
+	meson	..		\
+		--prefix=/usr	\
+		--sbindir=bin	\
+		--libdir=lib &&
 	ninja &&
 	ninja install || return 1
 
@@ -32,13 +32,14 @@ compile_rules() {
 	# handled by udev
 	rm -rf $install/dev
 
-	install -Dm644 $stuff/fuse.conf $install/etc/fuse.conf
+	install -Dm644 $stuff/fuse.conf	$install/etc/fuse.conf
 
 	cook_pick_docs $src/doc/html/ $src/doc/*.txt $src/doc/*.pdf
 }
 
 # packaging notes: https://github.com/libfuse/libfuse/releases/tag/fuse-3.0.0
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		fuse-common)
 			copy fuse.conf *.rules
