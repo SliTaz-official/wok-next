@@ -1,27 +1,27 @@
 # SliTaz package receipt v2.
 
 PACKAGE="freeglut"
-VERSION="3.0.0"
+VERSION="3.2.1"
 CATEGORY="x-window"
 SHORT_DESC="OpenGL utility toolkit"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL"
 WEB_SITE="http://freeglut.sourceforge.net/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="cmake mesa-dev glu-dev libxi-dev"
+BUILD_DEPENDS="cmake glu-dev libxi-dev mesa-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
-	cmake \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib \
-		.. &&
+	cmake	..				\
+		-DCMAKE_BUILD_TYPE=Release	\
+		-DCMAKE_INSTALL_PREFIX=/usr	\
+		-DCMAKE_INSTALL_LIBDIR=lib &&
 	make &&
 	make install || return 1
 
@@ -29,16 +29,17 @@ compile_rules() {
 	cook_pick_docs $src/doc/*
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		freeglut)
 			copy @std
-			DEPENDS="mesa libx11 libxi libxxf86vm"
+			DEPENDS="libx11 libxi libxxf86vm mesa"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="freeglut mesa-dev libx11-dev libxrandr-dev \
-			libxxf86vm-dev"
+			DEPENDS="freeglut libx11-dev libxrandr-dev 
+				libxxf86vm-dev mesa-dev"
 			;;
 	esac
 }
