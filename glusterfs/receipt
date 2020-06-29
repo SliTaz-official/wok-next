@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glusterfs"
-VERSION="3.12.5"
+VERSION="7.6"
 CATEGORY="misc"
 SHORT_DESC="Distributed file system"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,19 +9,23 @@ LICENSE="GPL2 LGPL3"
 WEB_SITE="https://www.gluster.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://download.gluster.org/pub/gluster/glusterfs/${VERSION%.*}/$VERSION/$TARBALL"
+WGET_URL="https://download.gluster.org/pub/gluster/$PACKAGE/${VERSION%.*}/$VERSION/$TARBALL"
 
-BUILD_DEPENDS="flex python-dev readline-dev mpc-library elfutils openssl-dev \
-acl-dev sqlite3-dev liburcu-dev libxml2-dev rpcsvc-proto libtirpc-dev"
+BUILD_DEPENDS="acl-dev curl-dev elfutils flex libaio-dev libtirpc-dev liburcu-dev
+	libxml2-dev mpc-library openssl-dev python-dev readline-dev rpcsvc-proto 
+	sqlite3-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	sed -i "/^cat/,/^EOM/d;s/exit/echo '$HOST_SYSTEM'\n&/" config.sub
+compile_rules()
+{
+	sed -i "/^cat/,/^EOM/d;s/exit/echo '$HOST_SYSTEM'\n&/" \
+		config.sub
+
 	export CPPFLAGS="$CPPFLAGS -I/usr/include/tirpc/"
 	export LDFLAGS="$LDFLAGS -ltirpc"
 
-	./configure \
-		--libexecdir=/usr/share \
+	./configure			\
+		--libexecdir=/usr/share	\
 		$CONFIGURE_ARGS &&
 	sed -i 's| -lfl | |' $src/libglusterfs/src/Makefile &&
 	fix libtool &&
@@ -31,16 +35,17 @@ compile_rules() {
 	fix symlinks
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		glusterfs)
 			copy @std
-			DEPENDS="acl libsqlite3 libtirpc liburcu libxml2 openssl python \
-			readline zlib"
+			DEPENDS="acl libaio libcurl libsqlite3 libtirpc liburcu libxml2 
+				openssl python readline zlib"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="glusterfs acl-dev sqlite3-dev"
+			DEPENDS="acl-dev glusterfs sqlite3-dev"
 			;;
 	esac
 }
