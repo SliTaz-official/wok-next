@@ -1,35 +1,36 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gdk-pixbuf"
-VERSION="2.38.0"
+VERSION="2.40.0"
 CATEGORY="x-window"
 SHORT_DESC="An image loading library for GTK+2"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://www.gtk.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gdk-pixbuf.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
-TARBALL_SHA1="6e6bef71a1f06ecd1cd282d074ae068f89867144"
+# 2.38.0 TARBALL_SHA1="6e6bef71a1f06ecd1cd282d074ae068f89867144"
 
-BUILD_DEPENDS="meson ninja glib-dev shared-mime-info-dev libpng-dev \
-libjpeg-turbo-dev tiff-dev gobject-introspection-dev libx11-dev gettext-dev \
-libxslt docbook-xsl libxml2-tools"
+BUILD_DEPENDS="docbook-xsl gettext-dev glib-dev gobject-introspection-dev 
+	libjpeg-turbo-dev libpng-dev libx11-dev libxml2-tools libxslt meson 
+	ninja shared-mime-info-dev tiff-dev"
 SPLIT="$PACKAGE-dev $PACKAGE"
 
 COPY_dev="@dev gdk-pixbuf-csource libgdk_pixbuf-2.0.so libgdk_pixbuf_xlib-2.0.so"
 
 DEPENDS_std="glib libjpeg-turbo libpng libtiff libx11"
-DEPENDS_dev="$PACKAGE glib-dev shared-mime-info-dev libx11-dev"
+DEPENDS_dev="$PACKAGE glib-dev libx11-dev shared-mime-info-dev"
 # gdk-pixbuf-csource use shared-mime-info to detect the image file format
 
-compile_rules() {
+compile_rules()
+{
 	mkdir build
 	cd    build
 
-	meson-wrapper \
-		-Dinstalled_tests=false \
+	meson-wrapper			\
+		-Dinstalled_tests=false	\
 		&&
 	ninja &&
 	ninja install || return 1
@@ -38,6 +39,7 @@ compile_rules() {
 }
 
 # Updating gdk pixbuf loaders cache file...
-post_install_gdk_pixbuf() {
+post_install_gdk_pixbuf()
+{
 	chroot "$1/" /usr/bin/gdk-pixbuf-query-loaders > /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 }
