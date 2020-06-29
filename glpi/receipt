@@ -1,37 +1,41 @@
-# SliTaz package receipt.
+# SliTaz package receipt v2.
 
 PACKAGE="glpi"
-VERSION="0.80.7"
+VERSION="9.4.6"
 CATEGORY="network"
 SHORT_DESC="IT and Asset Management"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://glpi-project.org/"
+WEB_SITE="https://glpi-project.org/"
 
-TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="https://forge.indepnet.net/attachments/download/1054/$TARBALL"
+TARBALL="$PACKAGE-$VERSION.tgz"
+WGET_URL="https://github.com/glpi-project/$PACKAGE/releases/download/$VERSION/$TARBALL"
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr/share/$PACKAGE \
 		$fs/etc/$PACKAGE \
 		$fs/var/log/$PACKAGE \
 		$fs/var/lib/$PACKAGE
 
-	cp -a $src/* $fs/usr/share/$PACKAGE
-	[ -d $fs/usr/share/$PACKAGE/files ] &&  mv $fs/usr/share/$PACKAGE/files $fs/var/lib/$PACKAGE
+	cp -a $src/*	$fs/usr/share/$PACKAGE
+	[ -d $fs/usr/share/$PACKAGE/files ] &&
+	mv $fs/usr/share/$PACKAGE/files $fs/var/lib/$PACKAGE
 
-	# Copy config db as temporary file.
-	cp $stuff/config_db.php $fs/etc/glpi/
-	cp -a $stuff/logrotate.d $fs/etc
+	# Copy configuration db as temporary file.
+	cp $stuff/config_db.php		$fs/etc/glpi/
+	cp -a $stuff/logrotate.d	$fs/etc
 
 	cd $fs/usr/share/glpi
 	[ -f config/config_db.php ] && rm -f config/config_db.php
 	[ -f config/config_db_slave.php ] && rm -f config/config_db_slave.php
+
 	ln -s /etc/glpi/config_db.php config/
 	[ -f $fs/etc/glpi/config_db_slave.php ] && ln -s /etc/glpi/config_db_slave.php config/
 	ln -s /var/lib/glpi/files
 	cd -
-	chown -R www.www $fs/var/lib/$PACKAGE/files $fs/etc/$PACKAGE/*
+	chown -R www.www		$fs/var/lib/$PACKAGE/files
+	chown -R www.www		$fs/etc/$PACKAGE/*
 
 	# Create the magic file config_path.php
 	cat > $fs/usr/share/glpi/config/config_path.php <<EOF
@@ -52,14 +56,17 @@ define("GLPI_LOG_DIR",        "/var/log/glpi");
 ?>
 
 EOF
-	DEPENDS="mysql apache php-apache php-ldap php-imap php-mysql pam logrotate"
+	DEPENDS="apache logrotate mysql pam php-apache php-imap php-ldap php-mysql"
 	CONFIG_FILES="/etc/glpi/config_db.php"
 }
 
-post_install() {
+post_install()
+{
 	# Configure apache server
-	if [ -f "$1/etc/apache/httpd.conf" ]; then
-		if [ ! -f "$1/etc/apache/conf.d/glpi" ]; then
+	if [ -f "$1/etc/apache/httpd.conf" ]
+	  then
+		if [ ! -f "$1/etc/apache/conf.d/glpi" ]
+		  then
 			cat > "$1/etc/apache/conf.d/glpi" <<EOT
 <IfModule mod_alias.c>
     Alias /glpi /usr/share/glpi/
@@ -96,9 +103,11 @@ post_install() {
 
 
 EOT
-			if [ -z "$1" ]; then
+			if [ -z "$1" ]
+			  then
 				# Start Web server.
-				if [ -f /var/run/apache/httpd.pid ]; then
+				if [ -f /var/run/apache/httpd.pid ]
+				  then
 					kill -0 $(cat /var/run/apache/httpd.pid) &&
 					/etc/init.d/apache restart
 				fi
@@ -107,14 +116,17 @@ EOT
 	fi
 
 	# Configure every thing for glpi.
-	if [ -z "$1" ]; then
-		if ( ! mysqladmin -s ping > /dev/null ); then
+	if [ -z "$1" ]
+	  then
+		if ( ! mysqladmin -s ping > /dev/null )
+		  then
 			echo "Starting MySQL server"
 			( /etc/init.d/mysql start; status  ) || exit
 			sleep 4 #let the mysql daemon start
 		fi
 
-		if ( ! mysql -u root -Be 'show databases' | grep -q glpi ); then
+		if ( ! mysql -u root -Be 'show databases' | grep -q glpi )
+		  then
 			action "Create Glpi database"
 			mysql -Be "create database glpi"
 			status
@@ -135,7 +147,8 @@ EOT
 	true
 }
 
-post_remove() {
+post_remove()
+{
 	echo -n "Would you like to remove data and database files.(y/n) "
 	read answer
 
@@ -145,7 +158,8 @@ post_remove() {
 			rm -rf /var/lib/glpi
 			status
 
-			if ( mysql -u root -Be 'show databases' | grep -q glpi ); then
+			if ( mysql -u root -Be 'show databases' | grep -q glpi )
+			  then
 				action "Deleting Glpi database"
 				mysql -Be "drop database glpi"
 				 status
