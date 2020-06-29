@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glu"
-VERSION="9.0.0"
+VERSION="9.0.1"
 CATEGORY="x-window"
 SHORT_DESC="Mesa OpenGL Utility library"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -9,27 +9,29 @@ LICENSE="MIT"
 WEB_SITE="https://www.mesa3d.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/glu.html"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="ftp://ftp.freedesktop.org/pub/mesa/glu/$TARBALL"
 
-BUILD_DEPENDS="mesa-dev automake autoconf libtool expat-dev xorg-dev \
-libxshmfence-dev"
+BUILD_DEPENDS="automake autoconf expat-dev libtool libxshmfence-dev
+	mesa-dev xorg-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
+compile_rules()
+{
+	./configure			\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		glu)
 			copy @std
-			DEPENDS="glibc-base gcc-lib-base mesa"
+			DEPENDS="gcc-lib-base glibc-base mesa"
 			PROVIDE="libglu"
 			;;
 		*-dev)
