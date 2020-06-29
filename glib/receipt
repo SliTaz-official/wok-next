@@ -1,42 +1,51 @@
 # SliTaz package receipt v2.
 
 PACKAGE="glib"
-VERSION="2.58.2"
+VERSION="2.64.3"
 CATEGORY="x-window"
 SHORT_DESC="C routines"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/glib/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/glib2.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
-TARBALL_SHA1="9831bbdca749a42526d0afc4b31799e8be22037c"
+TARBALL_SHA256="fe9cbc97925d14c804935f067a3ad77ef55c0bbe9befe68962318f5a767ceb22"
 
-BUILD_DEPENDS="automake libtool zlib-dev libffi-dev gettext-dev \
-util-linux-mount-dev pcre-dev libxslt docbook-xsl   elfutils-dev"
-SPLIT="$PACKAGE-static $PACKAGE-dev $PACKAGE"
+BUILD_DEPENDS="docbook-xsl elfutils-dev gettext-dev libffi-dev libxslt 
+	meson ninja pcre-dev util-linux-mount-dev zlib-dev"
+SPLIT="$PACKAGE-static $PACKAGE-dev $PACKAGE $PACKAGE-lang"
 
 COPY_static="*.a"
 COPY_dev="gdbus-codegen gobject-query bin/gresource bin/gtester* \
-bin/glib-gettextize bin/glib-mkenums gdb/ gettext/ glib-2.0/ @dev @rm"
+	bin/glib-gettextize bin/glib-mkenums gdb/ gettext/ glib-2.0/ @dev @rm"
 
 DEPENDS_std="libffi libpcre util-linux-mount zlib"
-DEPENDS_dev="$PACKAGE elfutils libffi libpcre pcre-dev python \
-util-linux-mount-dev zlib-dev   perl"
+DEPENDS_dev="$PACKAGE elfutils libffi libpcre pcre-dev perl python 
+	util-linux-mount-dev zlib-dev"
 
 CAT_static="development|static libraries"
 
-compile_rules() {
+compile_rules()
+{
 	# --enable-static: desktop-file-validate-static require such lib
-	./autogen.sh \
-		--enable-debug=no \
-		--enable-static \
-		--disable-selinux \
-		--disable-fam \
-		--enable-man \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+#	./autogen.sh \
+#		--enable-debug=no \
+#		--enable-static \
+#		--disable-selinux \
+#		--disable-fam \
+#		--enable-man \
+#		$CONFIGURE_ARGS &&
+#	fix libtool &&
+#	make &&
+#	make install
+
+	# --default-library=both: desktop-file-validate-static requires such library
+	meson	build			\
+		--prefix=/usr		\
+		--default-library=both	\
+		-Dman=true &&
+	ninja -C build &&
+	ninja -C build install
 }
