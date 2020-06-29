@@ -1,30 +1,33 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gdb"
-VERSION="8.0.1"
+VERSION="9.2"
 CATEGORY="development"
 SHORT_DESC="The GNU Project Debugger"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
-WEB_SITE="http://www.gnu.org/software/gdb/"
+WEB_SITE="https://www.gnu.org/software/gdb/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 COOKOPTS="force-arch" # different .h
 
-BUILD_DEPENDS="ncurses-dev python-dev readline-dev perl-dev texinfo"
-SPLIT="$PACKAGE-python:py $PACKAGE-dev"
+BUILD_DEPENDS="ncurses-dev perl-dev python-dev readline-dev texinfo"
+SPLIT="$PACKAGE-python:py $PACKAGE-dev $PACKAGE-lang"
 
-compile_rules() {
+compile_rules()
+{
 	case $SET in
 		'') SET_ARGS='--with-python=no';;
 		py) SET_ARGS='';;
 	esac
 
-	./configure \
-		--disable-werror \
-		$SET_ARGS \
+	mkdir	_build
+	cd	_build
+	../configure			\
+		--disable-werror	\
+		$SET_ARGS		\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install || return 1
@@ -34,7 +37,8 @@ compile_rules() {
 	find $install -name '*.a' -delete
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gdb)
 			copy @std
@@ -49,6 +53,10 @@ genpkg_rules() {
 		*-dev)
 			copy @dev
 			DEPENDS="gdb"
+			;;
+		gdb-lang)
+			mkdir	$fs/usr/share
+			cp -a $install/usr/share/locale		$fs/usr/share
 			;;
 	esac
 }
