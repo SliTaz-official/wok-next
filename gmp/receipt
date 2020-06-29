@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gmp"
-VERSION="6.1.2"
+VERSION="6.2.0"
 CATEGORY="libdevel"
 SHORT_DESC="GNU Multiple Precision Arithmetic Library"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://gmplib.org/"
 LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/gmp.html"
@@ -17,14 +17,15 @@ COOKOPTS="force-arch" # different .h
 BUILD_DEPENDS="binutils m4 ncurses-dev readline-dev texinfo"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	# Create generic libraries
-	cp -v configfsf.guess config.guess
-	cp -v configfsf.sub   config.sub
+	cp -v configfsf.guess	config.guess
+	cp -v configfsf.sub	config.sub
 
-	./configure \
-		--enable-cxx \
-		--disable-static \
+	./configure			\
+		--enable-cxx		\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	# -j > 1 make install fails.
@@ -34,7 +35,8 @@ compile_rules() {
 	make install-html
 }
 
-testsuite() {
+testsuite()
+{
 	checklog=$(mktemp)
 	make check 2>&1 | tee $checklog
 	pass=$(awk '/# PASS:/{total+=$3}; END{print total}' $checklog)
@@ -42,7 +44,8 @@ testsuite() {
 	rm $checklog
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gmp)
 			copy @std
