@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gexiv2"
-VERSION="0.10.8"
+VERSION="0.12.1"
 CATEGORY="libs"
 SHORT_DESC="GObject wrapper around the Exiv2 photo metadata library"
 MAINTAINER="al.bobylev@gmail.com"
@@ -11,21 +11,23 @@ WEB_SITE="https://wiki.gnome.org/Projects/gexiv2"
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev exiv2-dev gobject-introspection-dev vala"
+BUILD_DEPENDS="curl-dev exiv2-dev glib-dev gobject-introspection-dev 
+	libssh-dev meson ninja vala"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./configure $CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+compile_rules()
+{
+	meson build &&
+	ninja -C build &&
+	ninja -C build install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gexiv2)
 			copy @std
-			DEPENDS="exiv2 glib"
+			DEPENDS="exiv2 glib libcurl libssh"
 			;;
 		*-dev)
 			copy @dev
