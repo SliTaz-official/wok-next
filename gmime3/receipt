@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gmime3"
-VERSION="3.2.0"
+VERSION="3.2.7"
 CATEGORY="development"
 SHORT_DESC="A C/C++ MIME creation and parser library with support for S/MIME, \
 PGP, and Unix mbox spools"
@@ -16,20 +16,22 @@ WGET_URL="https://github.com/jstedfast/gmime/archive/$VERSION.tar.gz"
 
 COOKOPTS="force-arch" # different .pc
 
-BUILD_DEPENDS="libtool gtk-doc glib-dev gpgme-dev libidn-dev \
-gobject-introspection-dev vala libgpg-error-dev"
+BUILD_DEPENDS="glib-dev gobject-introspection-dev gpgme-dev gtk-doc
+	libgpg-error-dev libidn-dev libtool vala"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	./autogen.sh \
-		--disable-static \
+compile_rules()
+{
+	./autogen.sh			\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		gmime3)
 			copy @std
@@ -37,8 +39,8 @@ genpkg_rules() {
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="gmime3 glib-dev gpgme-dev libassuan-dev libgpg-error-dev \
-			libidn-dev zlib-dev"
+			DEPENDS="glib-dev gmime3 gpgme-dev libassuan-dev libgpg-error-dev 
+				libidn-dev zlib-dev"
 			;;
 	esac
 }
