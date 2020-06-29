@@ -1,26 +1,30 @@
 # SliTaz package receipt.
 
 PACKAGE="glances"
-VERSION="1.5.1"
+VERSION="3.1.4.1"
 CATEGORY="utilities"
 SHORT_DESC="A CLI curses based monitoring tool for GNU/Linux and BSD OS"
 MAINTAINER="paul@slitaz.org"
 LICENSE="LGPL3"
 WEB_SITE="https://nicolargo.github.io/glances/"
 
-TARBALL="$PACKAGE-$VERSION.tar.bz2"
-WGET_URL="git|git://github.com/nicolargo/glances.git"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/nicolargo/$PACKAGE/archive/v$VERSION.tar.gz"
 
-BUILD_DEPENDS="git bzip2 python-dev python-psutil"
+BUILD_DEPENDS="python-dev python-psutil"
 
-compile_rules() {
+compile_rules()
+{
 	python -B setup.py install --root=$install
 }
 
-genpkg_rules() {
-	cp -a $install/usr $fs
+genpkg_rules()
+{
+	cp -a $install/usr	$fs
+
 	# remove stuff
-	rm -rf $fs/usr/share/man
+	rm -rf			$fs/usr/share/man
+
 	DEPENDS="python python-psutil"
 	SUGGESTED="python-jinja2"
 }
