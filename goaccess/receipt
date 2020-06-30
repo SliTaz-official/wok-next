@@ -1,7 +1,7 @@
 # SliTaz package receipt.
 
 PACKAGE="goaccess"
-VERSION="0.6.1"
+VERSION="1.4"
 CATEGORY="network"
 SHORT_DESC="Visual web log analyzer"
 MAINTAINER="paul@slitaz.org"
@@ -9,15 +9,16 @@ LICENSE="GPL2"
 WEB_SITE="https://goaccess.io/"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+WGET_URL="https://tar.goaccess.io/$TARBALL"
 
-BUILD_DEPENDS="ncurses-dev geoip-dev glib-dev"
+BUILD_DEPENDS="geoip-dev glib-dev ncurses-dev"
 
-compile_rules() {
-	./configure \
-		--prefix=/usr \
-		--enable-geoip \
-		--enable-utf8 \
+compile_rules()
+{
+	./configure			\
+		--prefix=/usr		\
+		--enable-geoip=legacy	\
+		--enable-utf8		\
 		|| return 1
 
 	# hack for curses.h path
@@ -31,8 +32,9 @@ compile_rules() {
 	rm -rf /usr/include/ncursesw
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	mkdir -p $fs/usr
-	cp -a $install/usr/bin $fs/usr
+	cp -a $install/usr/bin	$fs/usr
 	DEPENDS="ncurses geoip"
 }
