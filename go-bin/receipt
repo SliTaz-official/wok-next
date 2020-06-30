@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="go-bin"
-VERSION="1.10.2"
+VERSION="1.14.4"
 CATEGORY="development"
 SHORT_DESC="The Go programming language, binary distribution"
 MAINTAINER="al.bobylev@gmail.com"
@@ -13,29 +13,33 @@ case $ARCH in
 	i?86)   TARBALL="go$VERSION.linux-386.tar.gz";;
 	x86_64) TARBALL="go$VERSION.linux-amd64.tar.gz";;
 esac
-WGET_URL="https://dl.google.com/go/$TARBALL"
+WGET_URL="https://golang.org/dl/$TARBALL"
 
 COOKOPTS="!strip !zip !pngz"	# stripping an *.a archives producing errors;
 # *.zip archives have weird content and fail to recompress
 
-compile_rules() {
+compile_rules()
+{
 	mkdir -p     $install/usr/lib/go/
 	cp -a $src/* $install/usr/lib/go/
 	rm -rf       $install/usr/lib/go/blog/	# blog?!
 }
 
-genpkg_rules() {
-	cp -a $install/* $fs
+genpkg_rules()
+{
+	cp -a $install/*	$fs
 	PROVIDE="go"
 	TAGS="go"
 }
 
-post_install_go_bin() {
+post_install_go_bin()
+{
 	chroot "$1/" sed -i "/^PATH=/ s|\"$|:/usr/lib/go/bin\"|" /etc/profile
 	[ -n "$1"] || .  /etc/profile
 }
 
-post_remove_go_bin() {
+post_remove_go_bin()
+{
 	chroot "$1/" sed -i "/^PATH=/ s|:/usr/lib/go/bin||" /etc/profile
 	[ -n "$1"] || .  /etc/profile
 }
