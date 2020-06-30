@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gobject-introspection"
-VERSION="1.58.2"
+VERSION="1.64.1"
 CATEGORY="development"
 SHORT_DESC="Introspection system for GObject-based libraries"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="LGPL2 MIT"
 WEB_SITE="https://wiki.gnome.org/Projects/GObjectIntrospection"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/gobject-introspection.html"
@@ -14,21 +14,27 @@ WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
 COOKOPTS="force-arch" # different .gir
 
-BUILD_DEPENDS="glib-dev cairo-dev gtk-doc python-dev util-linux-mount-dev \
-openssl-dev libffi-dev"
+BUILD_DEPENDS="cairo-dev glib-dev gtk-doc libffi-dev meson ninja openssl-dev
+	python3-dev util-linux-mount-dev"
 SPLIT="$PACKAGE-dev"
 
 COPY_std="@std *.typelib"
 COPY_dev="@std @dev @rm"
 
-DEPENDS_std="glib libffi python"
-DEPENDS_dev="gobject-introspection glib-dev libffi-dev"
+DEPENDS_std="glib libffi python3"
+DEPENDS_dev="glib-dev gobject-introspection libffi-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
-		$CONFIGURE_ARGS &&
-	fix libtool &&
-	make &&
-	make install
+compile_rules()
+{
+#	./configure \
+#		--disable-static \
+#		$CONFIGURE_ARGS &&
+#	fix libtool &&
+#	make &&
+#	make install
+
+	meson	_build		\
+		--prefix=/usr &&
+	ninja	-C _build &&
+	ninja	-C _build install
 }
