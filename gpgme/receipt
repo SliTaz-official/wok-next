@@ -1,22 +1,22 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gpgme"
-VERSION="1.12.0"
+VERSION="1.13.1"
 CATEGORY="security"
 SHORT_DESC="Support for cryptography"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2 LGPL2.1"
 WEB_SITE="https://www.gnupg.org/related_software/gpgme/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/postlfs/gpgme.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="https://www.gnupg.org/ftp/gcrypt/gpgme/$TARBALL"
-TARBALL_SHA1="6f1828fcd7de4366ca063e57f35e4ab24bc91baf"
+TARBALL_SHA1="f87f34e695e8d74ccc7c8f42864d50630afebb0e"
 # Integrity check: https://www.gnupg.org/download/integrity_check.html
 
 COOKOPTS="force-arch" # architecture in gpgme-dev file /usr/bin/gpgme-config
 
-BUILD_DEPENDS="libgpg-error-dev libassuan-dev gnupg swig python-dev"
+BUILD_DEPENDS="gnupg libassuan-dev libgpg-error-dev python-dev swig"
 SPLIT="python-gpgme $PACKAGE-lisp $PACKAGE $PACKAGE-dev"
 
 COPY_python_gpgme="python2.7/"
@@ -28,11 +28,12 @@ CAT_lisp="security|Common Lisp bindings"
 DEPENDS_python_gpgme="$PACKAGE python"
 DEPENDS_lisp="$PACKAGE"
 DEPENDS_std="libassuan libgpg-error   gnupg"
-DEPENDS_dev="$PACKAGE   libgpg-error-dev"
+DEPENDS_dev="$PACKAGE  libgpg-error-dev"
 
-compile_rules() {
-	./configure \
-		--enable-languages=cl,python \
+compile_rules()
+{
+	./configure				\
+		--enable-languages=cl,python	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
