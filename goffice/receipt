@@ -1,38 +1,41 @@
 # SliTaz package receipt v2.
 
 PACKAGE="goffice"
-VERSION="0.10.32"
+VERSION="0.10.47"
 CATEGORY="libs"
 SHORT_DESC="Document-centric objects and utilities"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="https://developer.gnome.org/goffice/"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="cairo-dev gtk3-dev libgsf-dev librsvg-dev libxslt-dev gtk-doc \
-intltool"
+BUILD_DEPENDS="cairo-dev gtk-doc gtk3-dev intltool libffi-dev libgsf-dev 
+	librsvg-dev libxslt-dev python3 xorg-libXtst-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		goffice)
 			copy @std
-			DEPENDS="atk libcairo gdk-pixbuf glib gtk3 libgsf librsvg libxml2 \
-			libxslt pango"
+			DEPENDS="atk gdk-pixbuf glib gtk3 libcairo libffi libgsf 
+				librsvg libxml2 libxslt pango xorg-libXtst"
 			;;
 		*-dev)
 			copy @dev
-			DEPENDS="goffice cairo-dev glib-dev gtk3-dev libgsf-dev \
-			librsvg-dev libxml2-dev libxslt-dev pango-dev"
+			DEPENDS="cairo-dev glib-dev goffice gtk3-dev libffi-dev 
+				libgsf-dev librsvg-dev libxml2-dev libxslt-dev 
+				pango-dev xorg-libXtst-dev"
 			;;
 	esac
 }
