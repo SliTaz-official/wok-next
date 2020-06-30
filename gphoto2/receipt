@@ -1,28 +1,39 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gphoto2"
-VERSION="2.5.15"
+VERSION="2.5.23"
 CATEGORY="graphics"
 SHORT_DESC="Digital camera download and access program"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2"
 WEB_SITE="http://www.gphoto.org/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/gphoto/$TARBALL"
 
-BUILD_DEPENDS="jpeg-dev libgphoto2-dev readline readline-dev popt popt-dev \
-libtool"
+BUILD_DEPENDS="jpeg-dev libgphoto2-dev libtool popt popt-dev 
+	readline readline-dev"
+SPLIT="$PACKAGE-lang"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
-	copy @std
-	DEPENDS="libexif jpeg libgphoto2 readline popt libltdl ncurses"
-	TAGS="camera photo"
+genpkg_rules()
+{
+	case $PACKAGE in
+		(gphoto2)
+			copy @std
+			DEPENDS="jpeg libexif libgphoto2 libltdl ncurses popt readline"
+			TAGS="camera photo"
+			;;
+		(*-lang)
+			mkdir -p $fs/usr/share
+			cp -a $install/usr/share/locale	$fs/usr/share
+			;;
+	esac
 }
