@@ -1,20 +1,21 @@
 # SliTaz package receipt v2.
 
 PACKAGE="go"
-VERSION="1.10.2"
+VERSION="1.14.4"
 CATEGORY="development"
 SHORT_DESC="The Go programming language"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="BSD"
 WEB_SITE="https://golang.org/"
 
 TARBALL="$PACKAGE$VERSION.src.tar.gz"
-WGET_URL="https://dl.google.com/go/$TARBALL"
+WGET_URL="https://golang.org/dl/$TARBALL"
 
-BUILD_DEPENDS="go-bin bash bison make ed"
+BUILD_DEPENDS="bash bison ed go-bin make"
 SPLIT="$PACKAGE-sources emacs-pkg-go-mode $PACKAGE"
 
-compile_rules() {
+compile_rules()
+{
 	cd $src/src
 
 	# Setting up environnment before building go.
@@ -50,42 +51,45 @@ compile_rules() {
 	# Installation
 	mkdir -p $install$GOROOT_FINAL/src
 	# bin
-	cp -a $src/bin $install/usr
+	cp -a $src/bin		$install/usr
 	# go tree
-	cp -a $src/pkg $install$GOROOT_FINAL
+	cp -a $src/pkg		$install$GOROOT_FINAL
 	# lib
-	cp -a $src/lib $install$GOROOT_FINAL
+	cp -a $src/lib		$install$GOROOT_FINAL
 	# include
-	cp -a $src/include $install$GOROOT_FINAL
+	cp -a $src/include	$install$GOROOT_FINAL
 	# pkg
-	cp -a $src/src/pkg  $install$GOROOT_FINAL/src
-	cp -a $src/src/cmd  $install$GOROOT_FINAL/src
-	cp -a $src/src/lib9 $install$GOROOT_FINAL/src
+	cp -a $src/src/pkg	$install$GOROOT_FINAL/src
+	cp -a $src/src/cmd	$install$GOROOT_FINAL/src
+	cp -a $src/src/lib9	$install$GOROOT_FINAL/src
 
 	mkdir -p $install/usr/share/emacs/site-lisp/site-start.d
-	cp -a $stuff/80-go-init.el $install/usr/share/emacs/site-lisp/site-start.d
+	cp -a $stuff/80-go-init.el \
+				$install/usr/share/emacs/site-lisp/site-start.d
 	mkdir -p $install/usr/share/emacs/site-lisp/go-mode
 	cp -a $src/misc/emacs/* $install/usr/share/emacs/site-lisp/go-mode
 
 	# misc
 	mkdir -p $install$GOROOT_FINAL/misc
-	for dir in arm cgo goplay swig; do
-		cp -a $src/misc/$dir $install$GOROOT_FINAL/misc
-	done
+	for dir in arm cgo goplay swig
+	  do
+		cp -a $src/misc/$dir	$install$GOROOT_FINAL/misc
+	  done
 
 	# test
-	cp -a $src/test/ $install$GOROOT_FINAL
+	cp -a $src/test		$install$GOROOT_FINAL
 
 	# doc
-	cp -a $src/doc/ $install$GOROOT_FINAL
+	cp -a $src/doc		$install$GOROOT_FINAL
 
 	# tools
 	mkdir -p $install$GOROOT_FINAL/src
-	cp -a $src/src/*.bash $install$GOROOT_FINAL/src
-	cp -a $src/src/*.rc   $install$GOROOT_FINAL/src
+	cp -a $src/src/*.bash	$install$GOROOT_FINAL/src
+	cp -a $src/src/*.rc	$install$GOROOT_FINAL/src
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		go-sources)
 			copy /usr/lib/go/misc/ \
@@ -109,10 +113,12 @@ genpkg_rules() {
 	esac
 }
 
-post_install_emacs_pkg_go_mode() {
+post_install_emacs_pkg_go_mode()
+{
 	chroot "$1/" tazpkg reconfigure emacs
 }
 
-post_remove_emacs_pkg_go_mode() {
+post_remove_emacs_pkg_go_mode()
+{
 	chroot "$1/" tazpkg reconfigure emacs
 }
