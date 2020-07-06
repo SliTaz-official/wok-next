@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gtkmm3"
-VERSION="3.22.1"
+VERSION="3.24.2"
 CATEGORY="x-window"
 SHORT_DESC="C++ Interfaces for GTK+3 and GNOME"
 MAINTAINER="al.bobylev@gmail.com"
@@ -12,12 +12,14 @@ LFS="http://www.linuxfromscratch.org/blfs/view/svn/x/gtkmm3.html"
 TARBALL="gtkmm-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/gtkmm/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="gtk3-dev glibmm-dev pangomm-dev cairomm-dev glibmm-dev \
-atkmm-dev"
+BUILD_DEPENDS="atkmm-dev cairomm-dev glibmm-dev gtk3-dev libffi-dev 
+	pangomm-dev xorg-libXtst-dev"
 SPLIT="$PACKAGE-dev"
 
-compile_rules() {
-	sed -i "/^libdocdir =/ s|\$(book_name)|gtkmm-$VERSION|" docs/Makefile.in
+compile_rules()
+{
+	sed -i "/^libdocdir =/ s|\$(book_name)|gtkmm-$VERSION|" \
+		docs/Makefile.in
 
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
@@ -25,18 +27,19 @@ compile_rules() {
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
-		gtkmm3)
+		(gtkmm3)
 			copy @std
-			DEPENDS="atkmm cairomm gdk-pixbuf glib glibmm gtk3 libgiomm \
-			libsigc++ pangomm"
+			DEPENDS="atkmm cairomm gdk-pixbuf glib glibmm gtk3 
+				libffi libgiomm libsigc++ pangomm"
 			PROVIDE="gtk3mm"
 			;;
-		*-dev)
+		(*-dev)
 			copy @dev
-			DEPENDS="gtkmm3 atkmm-dev cairomm-dev gdk-pixbuf-dev glibmm-dev \
-			gtk3-dev pangomm-dev"
+			DEPENDS="atkmm-dev cairomm-dev gdk-pixbuf-dev glibmm-dev 
+				gtk3-dev gtkmm3 pangomm-dev"
 			PROVIDE="gtk3mm-dev"
 			;;
 	esac
