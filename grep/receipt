@@ -1,8 +1,9 @@
 # SliTaz package receipt v2.
 
 PACKAGE="grep"
-VERSION="3.3"
+VERSION="3.4"
 CATEGORY="development"
+TAGS="LFS"
 SHORT_DESC="GNU Global Regular Expression Print"
 MAINTAINER="paul@slitaz.org"
 LICENSE="GPL3"
@@ -11,17 +12,17 @@ LFS="http://www.linuxfromscratch.org/lfs/view/stable/chapter06/grep.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
-TARBALL_SHA1="e0befe21e7d9caa8e5e98385c96355d890f83123"
+# 3.3 TARBALL_SHA1="e0befe21e7d9caa8e5e98385c96355d890f83123"
 
-BUILD_DEPENDS="pcre-dev perl gettext-dev"
+BUILD_DEPENDS="gettext-dev pcre-dev perl"
 DEPENDS="libpcre"
+SPLIT="$PACKAGE-lang"
 
-TAGS="LFS"
-
-compile_rules() {
+compile_rules()
+{
 	# use --bindir to move from /usr/bin/ to /bin/
-	./configure \
-		--bindir=/bin \
+	./configure		\
+		--bindir=/bin	\
 		$CONFIGURE_ARGS &&
 	make &&
 	make install
