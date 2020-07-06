@@ -1,26 +1,30 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gsmartcontrol"
-VERSION="0.9.0"
+VERSION="1.1.3"
 CATEGORY="system-tools"
 SHORT_DESC="Hard disk drive health inspection tool (GUI for smartctl)"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL2 GPL3"
 WEB_SITE="https://gsmartcontrol.sourceforge.io/home/"
 
 TARBALL="$PACKAGE-$VERSION.tar.bz2"
 WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
 
-BUILD_DEPENDS="pcre-dev glib-dev gtk2-dev cairomm-dev gtkmm-dev"
+BUILD_DEPENDS="cairomm-dev glib-dev gtk3-dev gtkmm3-dev
+	libffi-dev pcre-dev xorg-libXtst-dev"
 
-compile_rules() {
+compile_rules()
+{
 	./configure $CONFIGURE_ARGS &&
 	make &&
 	make DESTDIR=$install install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	copy @std @ico
-	DEPENDS="atkmm glib glibmm gtk2 gtkmm libpcre libsigc++ pangomm \
-	   smartmontools"
+
+	DEPENDS="atkmm glib glibmm gtk3 gtkmm3 libffi libpcre libsigc++ 
+		pangomm smartmontools"
 }
