@@ -1,10 +1,10 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gsl"
-VERSION="2.4"
+VERSION="2.6"
 CATEGORY="libdevel"
 SHORT_DESC="GNU Scientific Library"
-MAINTAINER="devel@slitaz.org"
+MAINTAINER="maintainer@slitaz.org"
 LICENSE="GPL3"
 WEB_SITE="https://www.gnu.org/software/gsl/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/gsl.html"
@@ -14,18 +14,24 @@ WGET_URL="$GNU_MIRROR/$PACKAGE/$TARBALL"
 
 SPLIT="gsl-dev"
 
-compile_rules() {
-	./configure \
-		--disable-static \
+compile_rules()
+{
+	./configure			\
+		--disable-static	\
 		$CONFIGURE_ARGS &&
 	fix libtool &&
 	make $MAKEFLAGS &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
-		gsl)   copy @std;;
-		*-dev) copy @dev;;
+		(gsl)
+			copy @std
+			;;
+		(*-dev)
+			copy @dev
+			;;
 	esac
 }
