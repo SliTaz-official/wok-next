@@ -1,38 +1,40 @@
 # SliTaz package receipt v2.
 
 PACKAGE="gsettings-desktop-schemas"
-VERSION="3.28.1"
+VERSION="3.36.1"
 CATEGORY="gnome"
 SHORT_DESC="Collection of GSettings schemas"
 MAINTAINER="al.bobylev@gmail.com"
 LICENSE="LGPL2.1"
 WEB_SITE="https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/gnome/gsettings-desktop-schemas.html"
-HOST_ARCH="any"
 
 TARBALL="$PACKAGE-$VERSION.tar.xz"
 WGET_URL="$GNOME_MIRROR/$PACKAGE/${VERSION%.*}/$TARBALL"
 
-BUILD_DEPENDS="glib-dev gobject-introspection-dev intltool"
+BUILD_DEPENDS="glib-dev gobject-introspection-dev intltool meson ninja"
 SPLIT="$PACKAGE-dev"
+
+HOST_ARCH="any"
 
 compile_rules() {
 	sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in
 
-	./configure $CONFIGURE_ARGS &&
-	make &&
-	make install
+	meson	. _build --prefix=/usr &&
+	ninja	-C _build &&
+	ninja	-C _build install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
-		gsettings-desktop-schemas)
+		(gsettings-desktop-schemas)
 			copy @std
-			DEPENDS="glib dconf"
+			DEPENDS="dconf glib"
 			;;
-		*-dev)
+		(*-dev)
 			copy @dev
-			DEPENDS="gsettings-desktop-schemas glib-dev"
+			DEPENDS="glib-dev gsettings-desktop-schemas"
 			;;
 	esac
 }
