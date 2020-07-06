@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="graphviz"
-VERSION="2.40.1"
+VERSION="2.44.0"
 CATEGORY="x-window"
 SHORT_DESC="Automatic graph drawing"
 MAINTAINER="pascal.bellard@slitaz.org"
@@ -10,12 +10,13 @@ WEB_SITE="http://www.graphviz.org/"
 LFS="http://www.linuxfromscratch.org/blfs/view/svn/general/graphviz.html"
 
 TARBALL="$PACKAGE-$VERSION.tar.gz"
-WGET_URL="http://graphviz.org/pub/graphviz/stable/SOURCES/$TARBALL"
+WGET_URL="https://www2.graphviz.org/Packages/stable/portable_source/$TARBALL"
 
-BUILD_DEPENDS="automake xorg-dev expat-dev zlib-dev libpng-dev \
-libjpeg-turbo-dev libgd-dev swig ocaml python-dev tcl-dev tk-dev librsvg-dev \
-ruby-dev libcroco-dev util-linux-uuid-dev pango-dev libxml2-dev gdk-pixbuf-dev \
-guile-dev gmp-dev pcre-dev perl-dev libtool" # php-dev lua-dev
+BUILD_DEPENDS="automake expat-dev gc-dev gdk-pixbuf-dev gmp-dev guile-dev 
+	libcroco-dev libgd-dev libjpeg-turbo-dev libpng-dev librsvg-dev 
+	libtool libxml2-dev ocaml pango-dev pcre-dev perl-dev python-dev 
+	ruby-dev swig tcl-dev tk-dev util-linux-uuid-dev xorg-dev zlib-dev"
+	# php-dev lua-dev
 SPLIT="\
 $PACKAGE-dev  $PACKAGE-doc    $PACKAGE-demo $PACKAGE-guile $PACKAGE-ocaml \
 $PACKAGE-perl $PACKAGE-python $PACKAGE-ruby $PACKAGE-tcl   $PACKAGE"
@@ -24,18 +25,20 @@ COOKOPTS="skip-log-errors"
 # FIXME: PHP and Lua support is temporarily disabled
 # (PHP broken itself, Lua breaks the Graphviz)
 
-compile_rules() {
+compile_rules()
+{
 	sed -i '/ruby/s/1\.9/2.5/'       configure.ac
 	sed -i '/LIBPOSTFIX="64"/s/64//' configure.ac
-	autoreconf &&
 
+	autoreconf &&
 	./configure $CONFIGURE_ARGS &&
 	fix libtool &&
 	make &&
 	make install
 }
 
-genpkg_rules() {
+genpkg_rules()
+{
 	case $PACKAGE in
 		*-dev)
 			copy @dev
@@ -78,12 +81,12 @@ genpkg_rules() {
 		*-tcl)
 			copy tcl/ tcl8.6/ @rm
 			CAT="x-window|Tcl bindings"
-			DEPENDS="graphviz libcairo expat glib libgd libltdl pango zlib"
+			DEPENDS="expat glib graphviz libcairo libgd libltdl pango zlib"
 			;;
 		graphviz)
 			copy @std @rm
-			DEPENDS="libcairo expat glib libgd libltdl librsvg pango libx11 \
-			libxaw libxmu libxt zlib"
+			DEPENDS="expat gc glib libcairo libgd libltdl librsvg libx11 \
+				libxaw libxmu libxt pango zlib"
 			;;
 	esac
 	find $fs -type f -name '*.la' -delete
