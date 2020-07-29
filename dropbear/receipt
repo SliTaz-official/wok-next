@@ -1,7 +1,7 @@
 # SliTaz package receipt v2.
 
 PACKAGE="dropbear"
-VERSION="2020.79"
+VERSION="2020.80"
 CATEGORY="security"
 TAGS="ssh"
 SHORT_DESC="Lightweight SSH2 server and client"
@@ -33,8 +33,10 @@ EOT
 	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 SCPPROGRESS=1 &&
 	install -Dm755 dropbearmulti $install/usr/sbin/dropbear || return 1
 
-	sed -i 's|ENABLE_SVR_PASSWORD_AUTH|ENABLE_SVR_PAM_AUTH|' \
-		options.h
+	cat >> localoptions.h <<EOT
+#define DROPBEAR_SVR_PASSWORD_AUTH 0
+#define DROPBEAR_SVR_PAM_AUTH 1
+EOT
 	./configure		\
 		--enable-pam	\
 		$CONFIGURE_ARGS &&
