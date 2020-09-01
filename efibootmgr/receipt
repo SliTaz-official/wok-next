@@ -1,0 +1,27 @@
+# SliTaz package receipt v2.
+
+PACKAGE="efibootmgr"
+VERSION="17"
+CATEGORY="system-tools"
+SHORT_DESC="Modify UEFI firmware bootmanager variables."
+MAINTAINER="maintainer@slitaz.org"
+LICENSE="LGPLv2.1"
+WEB_SITE="https://github.com/rhinstaller/efibootmgr"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/rhboot/$PACKAGE/archive/$VERSION.tar.gz"
+
+DEPENDS="popt"
+BUILD_DEPENDS="efivar-dev icu-dev popt-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	sed -i '/extern int efi_set_verbose(/d' \
+		src/efibootmgr.c
+	export	EFIDIR=/boot/efi
+	export	CFLAGS="$CFLAGS -I/usr/include/efivar"
+
+	make libdir=/usr/lib &&
+	make libdir=/usr/lib DESTDIR=$DESTDIR install
+}
