@@ -1,7 +1,6 @@
-Display command line in usage output. Useful to debug scripts with variables.
---- busybox-1.27/libbb/appletlib.c
-+++ busybox-1.27/libbb/appletlib.c
-@@ -129,9 +129,16 @@
+--- busybox-1.30/libbb/appletlib.c
++++ busybox-1.30/libbb/appletlib.c
+@@ -118,9 +118,16 @@
  
  #endif /* FEATURE_COMPRESS_USAGE */
  
@@ -18,16 +17,16 @@ Display command line in usage output. Useful to debug scripts with variables.
 +
  	if (ENABLE_SHOW_USAGE) {
  #ifdef SINGLE_APPLET_STR
- 		/* Imagine that this applet is "true". Dont suck in printf! */
-@@ -753,6 +760,7 @@
- /* If we were called as "busybox..." */
- static int busybox_main(char **argv)
+ 		/* Imagine that this applet is "true". Dont link in printf! */
+@@ -820,6 +827,7 @@
+ #  endif
+ int busybox_main(int argc UNUSED_PARAM, char **argv)
  {
 +	bb_argv = argv;
  	if (!argv[1]) {
  		/* Called without arguments */
  		const char *a;
-@@ -952,6 +960,7 @@
+@@ -1033,6 +1041,7 @@
  int main(int argc UNUSED_PARAM, char **argv)
  #endif
  {
