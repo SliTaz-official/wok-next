@@ -1,0 +1,32 @@
+# SliTaz package receipt v2.
+
+PACKAGE="vbindiff"
+VERSION="3.0_beta5"
+CATEGORY="utilities"
+TAGS="compare editor"
+SHORT_DESC="Visual binary diff"
+MAINTAINER="maintainer@slitaz.org"
+LICENSE="GPLv2+"
+WEB_SITE="https://www.cjmweb.net/vbindiff/"
+
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="https://github.com/mrdudz/$PACKAGE/releases/download/$VERSION/$TARBALL"
+
+DEPENDS="ncurses ncurses-libpanel"
+BUILD_DEPENDS="ncurses-dev ncurses-libpanel"
+
+compile_rules()
+{
+	./configure				\
+		--prefix=/usr			\
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	cp -a $install/usr/bin	$fs/usr
+}
